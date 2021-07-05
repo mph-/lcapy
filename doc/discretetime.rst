@@ -51,10 +51,13 @@ Generic sequences can be created using the `seq` function.  For example::
    {_1, 2, 3}
 
 Note, the underscore marks the element in the sequence where `n = 0`.
-By default, `seq()` creates a discrete-time domain sequence.  An
-explicit discrete-time domain sequence is created with the `nseq()`
-function.  Similarly, a discrete-Fourier domain sequence is created
-with `kseq()` and a Z-domain sequence is created with `zseq()`.
+By default, `seq()` creates a discrete-time domain sequence.  The
+domain can be specified with the `domain` argument.  This can be
+either `n`, `k`, or `z`.  For example, a Z-domain sequence is created
+with::
+
+   >>> s = seq((1, 2, 3), domain=z)
+   {_1, 2, 3}
 
 Here's an example where the sequence is specified as a string::
 
@@ -72,7 +75,7 @@ Note, the underscore marks the origin; the element in the sequence where `n = 0`
 
 Sequences can have quantities, for example, a discrete-time voltage sequence is created with::
 
-  >>> v = voltage(nseq((1, 2, 3)))
+  >>> v = voltage(seq((1, 2, 3), domain=n))
 
 The extent of a sequence is given by the `extent` attribute.   
 

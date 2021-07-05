@@ -10,7 +10,7 @@ from .sequence import Sequence
 from .nexpr import n
 from .utils import isiterable
 
-def seq(arg, ni=None, origin=None):
+def seq(arg, ni=None, origin=None, domain=None):
     """Create a Sequence from a tuple, list, ndarray, or str.
 
     >>> a = seq((1, 2, 3))
@@ -41,9 +41,21 @@ def seq(arg, ni=None, origin=None):
 
     """
 
-    # TODO: If find a z in the arg, then create a zseq.
-    
-    # For backward-compatibility
-    return nseq(arg, ni, origin)
+    if domain is None:
+        # For backward-compatibility
+        # TODO: If find a z in the arg, then create a zseq.
+        return nseq(arg, ni, origin)
+    elif domain is n:
+        return nseq(arg, ni, origin)
+    elif domain is k:
+        return kseq(arg, ni, origin)
+    elif domain is z:
+        return zseq(arg, ni, origin)
+    else:
+        raise ValueError('Unknown domain %s' % domain)
 
 from .nseq import nseq
+from .kseq import kseq
+from .zseq import zseq
+from .symbols import n, k, z
+
