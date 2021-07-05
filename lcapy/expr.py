@@ -19,7 +19,7 @@ from .quantity import UndefinedQuantity
 from .ratfun import Ratfun
 from .sym import sympify, symsimplify, j, omegasym, symdebug, AppliedUndef
 from .sym import capitalize_name, tsym, symsymbol, symbol_map, tausym, nusym, oo
-from .sym import symbol_delete
+from .sym import fsym, ssym, Fsym, Omegasym, symbol_delete, pi
 from .dsym import nsym, ksym, zsym
 from .state import state
 from .printing import pprint, pretty, print_str, latex
@@ -3089,7 +3089,6 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         """
         from .dsym import dt
-        from .sym import fsym, Fsym, omegasym, Omegasym, pi
 
         var = self.var
         
@@ -3146,7 +3145,6 @@ def expr(arg, override=False, **assumptions):
     previously defined by SymPy.
     """
 
-    from .sym import tsym, fsym, ssym, omegasym
     from .sequence import Sequence
 
     if arg is None:
@@ -3179,7 +3177,11 @@ def expr(arg, override=False, **assumptions):
     elif ksym in symbols:
         return kexpr(expr, **assumptions)    
     elif zsym in symbols:
-        return zexpr(expr, **assumptions)        
+        return zexpr(expr, **assumptions)
+    elif Fsym in symbols:
+        return Fexpr(expr, **assumptions)
+    elif Omegasym in symbols:
+        return Omegaexpr(expr, **assumptions)                
     else:
         return cexpr(expr, **assumptions)
 
@@ -3306,9 +3308,11 @@ def deg(arg, **assumptions):
 
 from .cexpr import cexpr, ConstantDomainExpression
 from .fexpr import f, fexpr, FourierDomainExpression
+from .omegaexpr import omega, omegaexpr, AngularFourierDomainExpression
+from .normfexpr import Fexpr
+from .normomegaexpr import Omegaexpr
 from .texpr import t, texpr, TimeDomainExpression
 from .sexpr import s, sexpr, LaplaceDomainExpression
-from .omegaexpr import omega, omegaexpr, AngularFourierDomainExpression
 from .nexpr import nexpr
 from .kexpr import kexpr
 from .zexpr import zexpr, ZDomainExpression
