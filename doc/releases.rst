@@ -2,6 +2,22 @@
 Release notes
 =============
 
+V0.95
+=====
+
+- `expr()` handles `F` and `Omega` expressions
+
+- Adds quantities and domains to sequences
+
+- Adds domain argument to `seq`
+
+- Fixes DFT caching  
+
+- Fixes plotting of discrete frequency expressions
+
+- Supports sequences for `latex()` function
+
+
 V0.94
 =====
 
