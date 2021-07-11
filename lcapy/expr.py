@@ -3192,16 +3192,17 @@ def expr(arg, override=False, **assumptions):
     if not lexpr.has(uu.Quantity):
         return lexpr
     # TODO: look for volts**2, etc.
+    cls = lexpr.__class__
     if lexpr.has(uu.volts):
-        return lexpr.as_voltage()
+        return cls(expr / uu.volts, **assumptions).as_voltage()
     elif lexpr.has(uu.amperes):
-        return lexpr.as_current()
+        return cls(expr / uu.amperes, **assumptions).as_current()
     elif lexpr.has(uu.ohms):
-        return lexpr.as_impedance()
+        return cls(expr / uu.ohms, **assumptions).as_impedance()
     elif lexpr.has(uu.siemens):
-        return lexpr.as_admittance()            
+        return cls(expr / uu.siemens, **assumptions).as_admittance()            
     elif lexpr.has(uu.watts):
-        return lexpr.as_power()            
+        return cls(expr / uu.watts, **assumptions).as_power()            
     print('Warning: unhandled quantity: %s' % lexpr)
     return lexpr
 
