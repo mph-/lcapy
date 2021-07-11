@@ -3191,19 +3191,28 @@ def expr(arg, override=False, **assumptions):
     lexpr = _make_domain(expr, **assumptions)
     if not lexpr.has(uu.Quantity):
         return lexpr
-    # TODO: look for volts**2, etc.
-    cls = lexpr.__class__
-    if lexpr.has(uu.volts):
-        return cls(expr / uu.volts, **assumptions).as_voltage()
-    elif lexpr.has(uu.amperes):
-        return cls(expr / uu.amperes, **assumptions).as_current()
-    elif lexpr.has(uu.ohms):
-        return cls(expr / uu.ohms, **assumptions).as_impedance()
-    elif lexpr.has(uu.siemens):
-        return cls(expr / uu.siemens, **assumptions).as_admittance()            
-    elif lexpr.has(uu.watts):
-        return cls(expr / uu.watts, **assumptions).as_power()            
-    print('Warning: unhandled quantity: %s' % lexpr)
+
+    from .units import units
+
+    cls = lexpr.__class__    
+    expr, units = units.as_value_unit(lexpr.expr)
+
+    # 5 * t * u.volts -> V
+    # 5 * cos(t) * u.volts -> V
+    # 5 * s * u.volts -> V / Hz
+    print('Warning: this may be deprecated since the units may not be what you expect')
+    
+    if units == uu.volts:
+        return cls(expr, **assumptions).as_voltage()
+    elif units == uu.amperes:
+        return cls(expr, **assumptions).as_current()
+    elif units == uu.ohms:
+        return cls(expr, **assumptions).as_impedance()
+    elif units == uu.siemens:
+        return cls(expr, **assumptions).as_admittance()            
+    elif units == uu.watts:
+        return cls(expr, **assumptions).as_power()            
+    print('Warning: unhandled units: %s' % units)
     return lexpr
 
     
