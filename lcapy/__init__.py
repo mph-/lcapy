@@ -75,6 +75,7 @@ from .diffeq import *
 from .dft import *
 from .inverse_dft import *
 from .state import state
+from .units import u
 
 def show_version():
     """Show versions of Lcapy, SymPy, NumPy, MatplotLib, SciPy, and Python."""
