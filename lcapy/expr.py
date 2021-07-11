@@ -3125,6 +3125,32 @@ def exprcontainer(arg, **assumptions):
     
     raise ValueError('Unsupported exprcontainer %s' % arg.__class__.name)
 
+
+def _make_domain(expr, **assumptions):
+    
+    symbols = expr.free_symbols
+    
+    if tsym in symbols:
+        return texpr(expr, **assumptions)
+    elif ssym in symbols:
+        return sexpr(expr, **assumptions)
+    elif fsym in symbols:
+        return fexpr(expr, **assumptions)
+    elif omegasym in symbols:
+        return omegaexpr(expr, **assumptions)
+    elif nsym in symbols:
+        return nexpr(expr, **assumptions)
+    elif ksym in symbols:
+        return kexpr(expr, **assumptions)    
+    elif zsym in symbols:
+        return zexpr(expr, **assumptions)
+    elif Fsym in symbols:
+        return Fexpr(expr, **assumptions)
+    elif Omegasym in symbols:
+        return Omegaexpr(expr, **assumptions)                
+    else:
+        return cexpr(expr, **assumptions)
+    
     
 def expr(arg, override=False, **assumptions):
     """Create Lcapy expression from arg.
@@ -3162,28 +3188,22 @@ def expr(arg, override=False, **assumptions):
     
     expr = sympify(arg, override=override, **assumptions)
 
-    symbols = expr.free_symbols
-    
-    if tsym in symbols:
-        return texpr(expr, **assumptions)
-    elif ssym in symbols:
-        return sexpr(expr, **assumptions)
-    elif fsym in symbols:
-        return fexpr(expr, **assumptions)
-    elif omegasym in symbols:
-        return omegaexpr(expr, **assumptions)
-    elif nsym in symbols:
-        return nexpr(expr, **assumptions)
-    elif ksym in symbols:
-        return kexpr(expr, **assumptions)    
-    elif zsym in symbols:
-        return zexpr(expr, **assumptions)
-    elif Fsym in symbols:
-        return Fexpr(expr, **assumptions)
-    elif Omegasym in symbols:
-        return Omegaexpr(expr, **assumptions)                
-    else:
-        return cexpr(expr, **assumptions)
+    lexpr = _make_domain(expr, **assumptions)
+    if not lexpr.has(uu.Quantity):
+        return lexpr
+    # TODO: look for volts**2, etc.
+    if lexpr.has(uu.volts):
+        return lexpr.as_voltage()
+    elif lexpr.has(uu.amperes):
+        return lexpr.as_current()
+    elif lexpr.has(uu.ohms):
+        return lexpr.as_impedance()
+    elif lexpr.has(uu.siemens):
+        return lexpr.as_admittance()            
+    elif lexpr.has(uu.watts):
+        return lexpr.as_power()            
+    print('Warning: unhandled quantity: %s' % lexpr)
+    return lexpr
 
     
 def expr_class(domain, arg, **assumptions):
