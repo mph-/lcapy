@@ -193,7 +193,13 @@ def sympify1(arg, symbols=None, evaluate=True, override=False, **assumptions):
     if symbols is None:
         symbols = {}
 
-    if isinstance(arg, (Symbol, Expr)):
+    if isinstance(arg, Expr):
+        if not arg.has(sym.Float):
+            return arg
+        # This is needed to catch 0.1 + sym.I
+        arg = str(arg)
+        
+    if isinstance(arg, Symbol):
         return arg
 
     # Why doesn't SymPy do this?
