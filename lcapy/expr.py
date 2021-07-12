@@ -2791,9 +2791,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         """
 
         expr = self.expr
-        # FIXME...
         expr = expr.replace(lambda expr: expr.is_Float,
-                            lambda expr: sym.Rational(expr))
+                            lambda expr: sym.sympify(str(expr), rational=True))
 
         return self.__class__(expr, **self.assumptions)            
     
