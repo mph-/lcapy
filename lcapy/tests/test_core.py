@@ -720,3 +720,12 @@ class LcapyCoreTester(unittest.TestCase):
         # esingles = D({-2: 1})
         # self.assertEqual(set(pairs.keys()), set(epairs.keys()), "pole pairs")
         # self.assertEqual(set(singles.keys()), set(esingles.keys()), "pole singles")        
+
+    def test_auto_quantity(self):
+
+        a = 4 * t * u.volts
+        self.assertEqual(a.as_voltage().is_voltage, True, 'is_voltage')
+
+        a = 4 * t * u.amperes
+        self.assertEqual(a.as_current().is_current, True, 'is_current')        
+        
