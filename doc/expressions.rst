@@ -115,13 +115,14 @@ All Lcapy expressions have a domain (Laplace, Fourier, etc.) and a quantity (vol
 A voltage expression can also be created by multiplying an expression
 by a voltage unit.  For example::
 
-   >>> V = 5 * t * u.volts
+   >>> V = 5 * t * volts
    >>> V.domain
    'time'
    >>> V.quantity
    'voltage'
 
 This applies to the units: volts, amperes, ohms, siemens, and watts.
+Note, this is experimental and may be deprecated since the resultant units might be too confusing.
 
    
 User defined symbols
