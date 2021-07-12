@@ -3185,7 +3185,9 @@ def expr(arg, override=False, **assumptions):
     if not isinstance(arg, str) and hasattr(arg, '__iter__'):
         return exprcontainer(arg)
 
-    expr = sympify(arg, override=override, rational=True, **assumptions)
+    # Don't set rational=True since this will set rational
+    # assumption for symbols.
+    expr = sympify(arg, override=override, **assumptions)
 
     lexpr = _make_domain(expr, **assumptions)
     if not lexpr.has(uu.Quantity):

@@ -196,8 +196,10 @@ def sympify1(arg, symbols=None, evaluate=True, override=False, **assumptions):
     if isinstance(arg, Expr):
         if not arg.has(sym.Float):
             return arg
-        # This is needed to catch 0.1 + sym.I
-        arg = str(arg)
+        # This is needed to catch 0.1 + sym.I        
+        arg = arg.replace(lambda expr: expr.is_Float,
+                          lambda expr: sym.sympify(str(expr), rational=True))
+        return arg
         
     if isinstance(arg, Symbol):
         return arg
