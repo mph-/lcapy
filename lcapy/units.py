@@ -115,3 +115,8 @@ def as_value_unit(expr):
     return value, unit
 
 units = Units()
+volts = u.volts
+amperes = u.amperes
+ohms = u.ohms
+siemens = u.siemens
+watts = u.watts

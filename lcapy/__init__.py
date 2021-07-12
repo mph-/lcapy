@@ -75,7 +75,8 @@ from .diffeq import *
 from .dft import *
 from .inverse_dft import *
 from .state import state
-from .units import u
+# Do not import units.u since this will conflict with unit step
+from .units import volts, amperes, ohms, siemens, watts
 
 def show_version():
     """Show versions of Lcapy, SymPy, NumPy, MatplotLib, SciPy, and Python."""

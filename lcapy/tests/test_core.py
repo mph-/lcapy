@@ -723,9 +723,9 @@ class LcapyCoreTester(unittest.TestCase):
 
     def test_auto_quantity(self):
 
-        a = 4 * t * u.volts
+        a = 4 * t * volts
         self.assertEqual(a.as_voltage().is_voltage, True, 'is_voltage')
 
-        a = 4 * t * u.amperes
+        a = 4 * t * amperes
         self.assertEqual(a.as_current().is_current, True, 'is_current')        
         
