@@ -5,6 +5,8 @@ Copyright 2019--2021 Michael Hayes, UCECE
 """
 
 # SymPy symbols to exclude.  It might be easier to add the ones we want...
+# 'I' is removed to avoid conflict with oneport current source and
+# since `j` is used instead.
 excludes = ['I', 'C', 'O', 'S', 'N', 'E', 'E1', 'Q', 'beta', 'gamma', 'zeta',
             'Le', 'Lt', 'Ge', 'Gt', 'Ci']
 

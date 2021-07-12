@@ -425,6 +425,9 @@ oo = sym.oo
 inf = sym.oo
 one = sym.S.One
 
+# This is required for expr('I') to work
+state.context.symbols['I'] = sym.I
+
 try:
     from sympy.core.function import AppliedUndef
 except:
