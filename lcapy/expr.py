@@ -2776,11 +2776,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         For example, t / 5 -> 0.2 * t
         """
 
+        result = self.copy()
         expr = self.expr
-        expr = expr.replace(lambda expr: expr.is_Rational,
+        result.expr = expr.replace(lambda expr: expr.is_Rational,
                             lambda expr: sym.Float(expr))
-
-        return self.__class__(expr, **self.assumptions)
+        return result
 
     def floatrat(self):
         """This converts floating point numbers to rational numbers in an

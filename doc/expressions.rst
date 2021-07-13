@@ -43,7 +43,6 @@ or
 rather than
 
    >>> expr(2 / 3)
-
 The floating point approximation can be found using `fval` attribute for a Python float or `cval` for a Python complex number::
 
   >>> expr(2 / 3).fval
@@ -56,6 +55,18 @@ Rational numbers in Lcapy expressions can be converted to SymPy floating point n
 
   >>>expr('1 / 3 + a').evalf(5)
   a + 0.33333
+
+If you prefer floating point numbers use the `ratfloat()` method.  For example::
+
+  >>>expr('0.1 * a')
+  a 
+  ──
+  10
+  >>>expr('0.1 * a').ratfloat()
+  0.1⋅a
+
+The companion method `floatrat()` converts floating point numbers to
+rational numbers.
 
    
 .. _domainvariables:
