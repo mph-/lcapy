@@ -433,17 +433,6 @@ class InverseZTransformer(UnilateralInverseTransformer):
 
         self.error('Expression is not a power of z')
 
-    def sympy(self, expr, z, n):
-
-        # This barfs when needing to generate Dirac deltas
-        from sympy.integrals.transforms import inverse_ztransform_transform
-        result = inverse_ztransform_transform(expr, n, z)
-
-        if result.has(sym.InverseZtransformTransform):
-            self.error('SymPy cannot do it')
-        return result
-
-
     def term1(self, expr, z, n):
 
         const, expr = factor_const(expr, z)
@@ -478,14 +467,8 @@ class InverseZTransformer(UnilateralInverseTransformer):
         except:
             pass
 
-        try:
-            return sym.S.Zero, const * self.sympy(expr, z, n)
-        except:
-            pass
-
         # As last resort see if can convert to convolutions...
         return sym.S.Zero, const * self.product(expr, z, n)
-
 
     def term(self, expr, z, n):
 
