@@ -178,7 +178,8 @@ def parse(string, symbols=None, evaluate=True, local_dict=None,
     return s
 
 
-def sympify1(arg, symbols=None, evaluate=True, override=False, **assumptions):
+def sympify1(arg, symbols=None, evaluate=True, override=False, rational=True,
+             **assumptions):
     """Create a SymPy expression.
 
     The purpose of this function is to head SymPy off at the pass and
@@ -198,7 +199,7 @@ def sympify1(arg, symbols=None, evaluate=True, override=False, **assumptions):
             return arg
         # This is needed to catch 0.1 + sym.I        
         arg = arg.replace(lambda expr: expr.is_Float,
-                          lambda expr: sym.sympify(str(expr), rational=True))
+                          lambda expr: sym.sympify(str(expr), rational=rational))
         return arg
         
     if isinstance(arg, Symbol):
@@ -206,8 +207,8 @@ def sympify1(arg, symbols=None, evaluate=True, override=False, **assumptions):
 
     # Why doesn't SymPy do this?
     if isinstance(arg, complex):
-        re = sym.sympify(str(arg.real), rational=True, evaluate=evaluate)
-        im = sym.sympify(str(arg.imag), rational=True, evaluate=evaluate)
+        re = sym.sympify(str(arg.real), rational=rational, evaluate=evaluate)
+        im = sym.sympify(str(arg.imag), rational=rational, evaluate=evaluate)
         if im == 1.0:
             arg = re + sym.I
         else:
@@ -217,7 +218,7 @@ def sympify1(arg, symbols=None, evaluate=True, override=False, **assumptions):
     if isinstance(arg, float):
         # Note, need to convert to string to achieve a rational
         # representation.
-        return sym.sympify(str(arg), rational=True, evaluate=evaluate)
+        return sym.sympify(str(arg), rational=rational, evaluate=evaluate)
         
     if isinstance(arg, str):
         # Quickly handle the simple case.  
@@ -234,11 +235,11 @@ def sympify1(arg, symbols=None, evaluate=True, override=False, **assumptions):
         return parse(arg, symbols, evaluate=evaluate,
                      local_dict=symbols, global_dict=gdict, **assumptions)
 
-    return sym.sympify(arg, rational=True, locals=symbols, 
+    return sym.sympify(arg, rational=rational, locals=symbols, 
                        evaluate=evaluate)
 
 
-def sympify(expr, evaluate=True, override=False, **assumptions):
+def sympify(expr, evaluate=True, override=False, rational=True, **assumptions):
     """Create a SymPy expression.
 
     By default, symbols are assumed to be positive if no assumptions
@@ -263,7 +264,7 @@ def sympify(expr, evaluate=True, override=False, **assumptions):
             assumptions.pop('positive')
         
     return sympify1(expr, state.context.symbols, evaluate, override,
-                    **assumptions)
+                    rational, **assumptions)
 
 
 def symsymbol1(name, override=True, force=False, **assumptions):

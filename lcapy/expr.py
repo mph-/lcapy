@@ -784,7 +784,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
         """
 
         val = self.expr.evalf(n, *args, **kwargs)
-        return self.__class__(val, **self.assumptions)    
+        return self.__class__(val, rational=False, **self.assumptions)    
 
     def __hash__(self):
         # This is needed for Python3 so can create a dict key,
