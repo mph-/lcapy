@@ -226,7 +226,7 @@ These methods do not modify the sequence but return a new sequence, NumPy ndarra
 - `delay()` delay by an integer number of samples (the sequence is advanced if the argument is negative)
 - `DFT()` compute discrete Fourier transform as a sequence
 - `DTFT()` compute discrete-time Fourier transform
-- `evalf()` convert each element in sequence to a SymPy floating point value with a specified number of digits
+- `evalf()` convert each element in sequence to a SymPy floating-point value with a specified number of digits
 - `evaluate()` evaluate sequence at specified indices and return as NumPy ndarray
 - `IDFT()` compute inverse discrete Fourier transform as a sequence
 - `IZT()` compute inverse z-transform as a sequence  

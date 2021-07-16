@@ -1171,7 +1171,7 @@ This expression can be plotted if we substitute the symbols with numbers.  Let's
    25000000000⋅  ╱   ────── + 1 
                ╲╱    250000     
 
-Note, Lcapy tries to approximate real numbers with rationals.  A floating point representation can be found with the `evalf()` method:
+Note, Lcapy tries to approximate real numbers with rationals.  A floating-point representation can be found with the `evalf()` method:
 
    >>> Vns(f).evalf()               
                                                      -0.5

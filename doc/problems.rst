@@ -2,7 +2,7 @@
 Troubleshooting
 ===============
 
-Most Lcapy problems are due to symbol assumptions and approximation of floating point values as rational numbers.  If you want to report a bug, see :ref:`issues`.  If you would like to debug the problem, see :ref:`debugging`.
+Most Lcapy problems are due to symbol assumptions and approximation of floating-point values as rational numbers.  If you want to report a bug, see :ref:`issues`.  If you would like to debug the problem, see :ref:`debugging`.
 
 .. image:: circuit.png
    :width: 6cm
@@ -22,14 +22,14 @@ SymPy does not allow symbol names that are Python keywords.  For example, `expr(
 Floating point values
 ---------------------
 
-Floating point numbers are an extremely poor approximation of real numbers; rational numbers are slightly better and this is what Lcapy uses to help with expression simplification.  However, there is a loss of precision when converting a floating point number to a rational number.  For example, consider::
+Floating point numbers are an extremely poor approximation of real numbers; rational numbers are slightly better and this is what Lcapy uses to help with expression simplification.  However, there is a loss of precision when converting a floating-point number to a rational number.  For example, consider::
 
    >>> 2 / 3
    3333333333333333
    ────────────────
    5000000000000000
 
-In this case, Python evaluates 2 / 3 as a floating point number which is then converted to a rational number.  Unfortunately, this is not quite the same as 2 / 3.   The approximation can be avoided by bypassing the conversion of 2 / 3 to 0.666666666666, say by using:
+In this case, Python evaluates 2 / 3 as a floating-point number which is then converted to a rational number.  Unfortunately, this is not quite the same as 2 / 3.   The approximation can be avoided by bypassing the conversion of 2 / 3 to 0.666666666666, say by using:
 
    >>> expr('2 / 3')
    2/3
@@ -159,9 +159,9 @@ Another approach is expand the expression to avoid the division:
 Symbol confusion
 ----------------
 
-`j` is an Lcapy symbol denoting the imaginary unit but `1j` is a Python floating point imaginary number.
+`j` is an Lcapy symbol denoting the imaginary unit but `1j` is a Python floating-point imaginary number.
 
-`pi` is an Lcapy symbol denoting the transcendental number :math:`\pi` but `np.pi` and `math.pi` is a floating point number approximating :math:`\pi`.
+`pi` is an Lcapy symbol denoting the transcendental number :math:`\pi` but `np.pi` and `math.pi` is a floating-point number approximating :math:`\pi`.
     
 
 Computation speed

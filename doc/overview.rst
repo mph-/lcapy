@@ -46,12 +46,14 @@ Lcapy can perform many other linear circuit analysis operations, including:
 5. Laplace transforms
 
 6. Fourier transforms   
+
+7. Discrete-time Fourier transforms
    
-7. Discrete Fourier transforms
+8. Discrete Fourier transforms
 
-8. z-transforms
+9. z-transforms
 
-9. Time-stepping simulation (see :ref:`simulation`)
+10. Time-stepping simulation (see :ref:`simulation`)
 
 
 If you need to model a non-linear circuit numerically using Python, see PySpice (https://pypi.org/project/PySpice/).
@@ -90,9 +92,13 @@ Lcapy defines a number of symbols corresponding to different domains (see :ref:`
 
 - `f` -- Fourier (frequency) domain
 
+- `F` -- normalised Fourier domain    
+
 - `s` -- Laplace (complex frequency) domain
 
 - `omega` -- angular Fourier domain
+
+- `Omega` -- normalised angular Fourier domain  
 
 - `jomega` (or `jw`) -- phasor domain  
 
@@ -102,8 +108,7 @@ Lcapy defines a number of symbols corresponding to different domains (see :ref:`
 
 - `z` -- z-domain  
 
-Expressions (see :ref:`expressions`) can be formed using these symbols.  For example, a
-time-domain expression can be created using::
+Expressions (see :ref:`expressions`) can be formed using these symbols.  For example, a time-domain expression can be created using::
 
    >>> from lcapy import t, delta, u
    >>> v = 2 * t * u(t) + 3 + delta(t)
@@ -118,17 +123,19 @@ and a s-domain expression can be created using::
    ─────
    s - 4
 
-For steady-state causal signals, the s-domain can be converted to the phasor
-domain by substituting :math:`\mathrm{j} \omega` for :math:`s`
+Numbers in expressions are represented as rationals to avoid numerical problems with floating-point numbers.   For example::
 
-   >>> from lcapy import s, j, omega
-   >>> H = (s + 3) / (s - 4)
-   >>> A = H(j * omega)
-   >>> A
-   j⋅ω + 3
-   ───────
-   j⋅ω - 4
+  >>> x = t * 0.1
+  t 
+  ──
+  10
 
+The `ratfloat()` method can convert the rational numbers in an expression into floating-point numbers::
+
+  >>> x.ratfloat()
+  0.1⋅t
+
+This is useful for printing but should be avoided for analysis.  The companion function `floatrat()` converts floating-point numbers back to rationals but due to loss of precision, the result can be unwieldy (see :ref:`numbers`).
 
 Lcapy expressions have an associated domain (such a time domain or
 Laplace domain), an associated quantity (such as voltage or
@@ -162,9 +169,13 @@ Lcapy expressions have a number of other attributes  (see :ref:`expressionsattri
 
 - `conjugate` -- complex conjugate
 
-- `expr` -- the underlying SymPy expression
+- `sympy` -- the underlying SymPy expression
 
-- `val` -- the expression as evaluated as a floating point value (if possible)
+- `val` -- the expression evaluated as a Lcapy floating-point value (if possible)
+
+- `cval` -- the expression evaluated as a Python floating-point complex number (if possible)
+
+- `fval` -- the expression evaluated as a Python floating-point number (if possible)    
 
 and a number of generic methods (see :ref:`expressionsmethods`) including:
 
@@ -176,7 +187,7 @@ and a number of generic methods (see :ref:`expressionsmethods`) including:
 
 - `multiply_top_and_bottom(expr)` -- multiplies numerator and denominator by `expr`.    
 
-- `evaluate()` -- evaluate at specified vector and return floating point vector
+- `evaluate()` -- evaluate at specified vector and return floating-point vector
 
 Here's an example of using these attributes and methods::
 
@@ -310,7 +321,7 @@ a strictly proper rational function::
    ───── - ─────
    s + 3   s + 2
 
-   >>> H.inverse_laplace()
+   >>> H.ILT()
          -2⋅t       -3⋅t           
    - 30⋅e     + 35⋅e      for t ≥ 0
    
@@ -353,7 +364,7 @@ transform has Dirac deltas (and derivatives of Dirac deltas)::
         70      90 
    5 + ───── - ─────
        s + 3   s + 2
-   >>> H.inverse_laplace(causal=True)
+   >>> H.ILT(causal=True)
    ⎛      -2⋅t       -3⋅t⎞                               
    ⎝- 90⋅e     + 70⋅e    ⎠⋅Heaviside(t) + 5⋅DiracDelta(t)
 
@@ -373,7 +384,7 @@ repeated pole::
    ───── + ────────
    s + 3          2
            (s + 3) 
-   >>> H.inverse_laplace(causal=True)
+   >>> H.ILT(causal=True)
    ⎛      -3⋅t      -3⋅t⎞             
    ⎝10⋅t⋅e     + 5⋅e    ⎠⋅Heaviside(t)
 
@@ -388,7 +399,7 @@ Rational functions with delays can also be handled::
    ⎛      70      90 ⎞  -T⋅s
    ⎜5 + ───── - ─────⎟⋅e    
    ⎝    s + 3   s + 2⎠      
-   >>> H.inverse_laplace(causal=True)
+   >>> H.ILT(causal=True)
    ⎛      2⋅T - 2⋅t       3⋅T - 3⋅t⎞                                         
    ⎝- 90⋅e          + 70⋅e         ⎠⋅Heaviside(-T + t) + 5⋅DiracDelta(-T + t)
 
@@ -429,8 +440,8 @@ These expressions also be written as::
 or more explicitly::
 
    >>> from lcapy import expr
-   >>> expr('s * V(s)').inverse_laplace(causal=True)
-   >>> expr('V(s) / s').inverse_laplace(causal=True)
+   >>> expr('s * V(s)').ILT(causal=True)
+   >>> expr('V(s) / s').ILT(causal=True)
    
 
 Laplace transforms
@@ -440,7 +451,7 @@ Lcapy can also perform Laplace transforms.   Here's an example::
 
    >>> from lcapy import s, t
    >>> v = 10 * t ** 2 + 3 * t
-   >>> v.laplace()
+   >>> v.LT()
    3⋅s + 20
    ────────
        3   
@@ -463,6 +474,43 @@ transform, see :ref:`laplace_transforms`.  The key difference is for Dirac delta
 
 However, SymPy gives 0.5.
   
+Phasors
+-------
+
+Phasors are created with the `phasor()` function::
+  
+   >>> s = phasor(-2 * j)
+   >>> s.time()
+   2⋅sin(ω⋅t)   
+
+The default angular frequency is `omega` but this can be specified::   
+   
+   >>> p = phasor(-j, omega=1)
+   sin(t)
+
+Phasors can also be inferred from an AC signal::
+   
+   >>> q = phasor(2 * sin(3 * t))
+   >>> q
+   -2⋅ⅉ
+   >>> q.omega
+   3
+
+For steady-state signals, the s-domain can be converted to the phasor
+domain by substituting :math:`\mathrm{j} \omega` for :math:`s`
+
+   >>> from lcapy import s, j, omega
+   >>> H = (s + 3) / (s - 4)
+   >>> A = H(j * omega)
+   >>> A
+   j⋅ω + 3
+   ───────
+   j⋅ω - 4
+
+The symbol `jw` can be used instead of `j * omega`.   
+
+For more information on phasors see :ref:`phasors`.
+
 
 Networks
 ========
@@ -1218,7 +1266,7 @@ Here's an example using an arbitrary input voltage `V(s)`::
 
 The corresponding impulse response can found from an inverse Laplace transform::
 
-   >>> H.inverse_laplace(causal=True)
+   >>> H.ILT(causal=True)
      -t               
     ─────             
     C₁⋅R₁             

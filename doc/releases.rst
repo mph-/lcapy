@@ -2,6 +2,16 @@
 Release notes
 =============
 
+V0.96
+=====
+
+- Fixes `floatrat()` and `ratfloat()` expression methods
+
+- Improves conversion of floats to rationals for `expr()`
+
+- Ensures `evalf()` uses floats
+  
+  
 V0.95
 =====
 

@@ -28,11 +28,12 @@ Constants
 
 - `one` 1  
 
+.. _numbers:  
   
 Numbers
 -------
   
-Lcapy approximates real numbers as rationals.  This ensures expected simplifications of expressions.   However, some floating point numbers produce unwieldy rationals (see :ref:`floating-point`) and so it is best to avoid floating point numbers.  For example, use::
+Lcapy approximates real numbers as rationals.  This ensures expected simplifications of expressions.   However, some floating-point numbers produce unwieldy rationals (see :ref:`floating-point`) and so it is best to avoid floating-point numbers.  For example, use::
 
    >>> expr('2 / 3')
 
@@ -43,7 +44,7 @@ or
 rather than
 
    >>> expr(2 / 3)
-The floating point approximation can be found using `fval` attribute for a Python float or `cval` for a Python complex number::
+The floating-point approximation can be found using `fval` attribute for a Python float or `cval` for a Python complex number::
 
   >>> expr(2 / 3).fval
   0.166666666666667
@@ -51,12 +52,12 @@ The floating point approximation can be found using `fval` attribute for a Pytho
   >>> expr(2 / 3).cval
   (0.16666666666666666+0j)
 
-Rational numbers in Lcapy expressions can be converted to SymPy floating point numbers using the `evalf()` method, with a specified number of decimal places.   For example::
+Rational numbers in Lcapy expressions can be converted to SymPy floating-point numbers using the `evalf()` method, with a specified number of decimal places.   For example::
 
   >>>expr('1 / 3 + a').evalf(5)
   a + 0.33333
 
-If you prefer floating point numbers use the `ratfloat()` method.  For example::
+If you prefer floating-point numbers use the `ratfloat()` method.  For example::
 
   >>>expr('0.1 * a')
   a 
@@ -65,7 +66,7 @@ If you prefer floating point numbers use the `ratfloat()` method.  For example::
   >>>expr('0.1 * a').ratfloat()
   0.1⋅a
 
-The companion method `floatrat()` converts floating point numbers to
+The companion method `floatrat()` converts floating-point numbers to
 rational numbers.
 
    
@@ -530,7 +531,7 @@ All Lcapy expressions have the following attributes (see :ref:`expressionsration
 
 - `conjugate` returns complex conjugate
 
-- `cval` returns complex floating point number (as Python complex) if expression can be evaluated (see also `val`, `fval`, and `evalf()`)  
+- `cval` returns complex floating-point number (as Python complex) if expression can be evaluated (see also `val`, `fval`, and `evalf()`)  
 
 - `dB` returns magnitude in decibels: `20 * log10(magnitude)`
 
@@ -548,7 +549,7 @@ All Lcapy expressions have the following attributes (see :ref:`expressionsration
 
 - `expr` returns the underlying SymPy expression
 
-- `fval` returns floating point number (as Python float) if expression can be evaluated (see also `val`, `cval`, and `evalf()`)
+- `fval` returns floating-point number (as Python float) if expression can be evaluated (see also `val`, `cval`, and `evalf()`)
   
 - `imag` returns imaginary part
 
@@ -596,7 +597,7 @@ All Lcapy expressions have the following attributes (see :ref:`expressionsration
 
 - `symbols` returns dictionary of symbols used in the expression keyed by their names
 
-- `val` returns floating point number (as Lcapy expression) if expression can be evaluated (see also `fval`, `cval`, and `evalf()`)
+- `val` returns floating-point number (as Lcapy expression) if expression can be evaluated (see also `fval`, `cval`, and `evalf()`)
 
 - `var` returns the underlying SymPy symbol representing the domain
     
@@ -658,9 +659,9 @@ Miscellaneous
 
 - `divide_top_and_bottom(expr)` divides numerator and denominator by `expr`.
 
-- `evalf(n)` returns floating point number to `n` decimal places (as Lcapy expression) if expression can be evaluated (see also `val`, `fval`, and `cval` attributes)
+- `evalf(n)` returns floating-point number to `n` decimal places (as Lcapy expression) if expression can be evaluated (see also `val`, `fval`, and `cval` attributes)
 
-- `evaluate(arg)` returns floating point number (Python float or complex type) if expression can be evaluated.  If passed an NumPy array, an array of NumPy float or complex types is returned.
+- `evaluate(arg)` returns floating-point number (Python float or complex type) if expression can be evaluated.  If passed an NumPy array, an array of NumPy float or complex types is returned.
 
 - `initial_value()` returns result at :math:`t = 0`.
 
@@ -1194,6 +1195,8 @@ NumPy array.  For example::
 
 If the argument is a scalar the returned result is a Python float or complex type; otherwise it is a NumPy array.  The evaluation method is useful for plotting results, (see :ref:`plotting`).
 
+.. _phasors:
+
    
 Phasors
 =======
@@ -1221,10 +1224,12 @@ Phasors can be created in Lcapy with the `phasor()` factory function::
    >>> s.time()
    2⋅sin(ω⋅t)   
 
+The default angular frequency is `omega` but this can be specified::   
+   
    >>> p = phasor(-j, omega=1)
    sin(t)
 
-They can also be inferred from an AC signal::
+Phasors can also be inferred from an AC signal::
    
    >>> q = phasor(2 * sin(3 * t))
    >>> q
@@ -1684,7 +1689,7 @@ Consider the sum of two noise processes:
    Z(t) = X(t) + Y(t).
 
 With the wide-sense stationarity and independence assumptions, the
-resulting power spectral density is given by
+resulting-power spectral density is given by
 
 .. math::
   S_Z(f) = S_X(f) + S_Y(f),
@@ -2065,7 +2070,7 @@ Foster and Cauer synthesis.
 
     >>> n.draw(form='ladder')
           
-Note, in this example `one` is used to avoid generating a floating point number `1 / 6`.
+Note, in this example `one` is used to avoid generating a floating-point number `1 / 6`.
 An alternative approach to use quotes around the expression (see :ref:`floating-point`)::
 
     >>> Z = impedance('(4*s**2 + 3 * s + 1 / 6) / (s**2 + 2 * s / 3)')
