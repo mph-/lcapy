@@ -1975,7 +1975,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             else:
                 print('Warning, substituting a list...')
         
-        result = self.expr.subs(old, expr)
+        result = self.expr.subs(old, expr, **kwargs)
 
         # If get empty Piecewise, then result unknowable.  TODO: sympy
         # 1.2 requires Piecewise constructor to have at least one
@@ -2135,7 +2135,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             raise ValueError('No arguments')
 
         if len(args) == 2:
-            return self._subs1(args[0], args[1])
+            return self._subs1(args[0], args[1], **kwargs)
 
         if  isinstance(args[0], dict):
             dst = self
@@ -2144,7 +2144,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
             return dst
 
-        return self._subs1(self.var, args[0])
+        return self._subs1(self.var, args[0], **kwargs)
 
     @property
     def label(self):
