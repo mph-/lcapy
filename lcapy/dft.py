@@ -10,7 +10,7 @@ Copyright 2020--2021 Michael Hayes, UCECE
 
 import sympy as sym
 from .transformer import BilateralForwardTransformer
-from .sym import sympify, AppliedUndef, j, pi
+from .sym import sympify, AppliedUndef, j, pi, symsymbol
 from .extrafunctions import UnitImpulse, UnitStep
 from .utils import factor_const, scale_shift
 from .matrix import Matrix
@@ -122,9 +122,9 @@ class DFTTransformer(BilateralForwardTransformer):
 
         for m in range(len(exprs) - 1):
             if m == 0:
-                nu = sympify(dummy)
+                nu = symsymbol(dummy, integer=True)
             else:
-                nu = sympify(dummy + '_%d' % m)
+                nu = symsymbol(dummy + '_%d' % m, integer=True)
             expr2 = self.term(exprs[m + 1], n, k)
             # Should be a circular convolution.
             result = sym.Sum(result.subs(k, k - nu) * expr2.subs(k, nu),
