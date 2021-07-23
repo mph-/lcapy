@@ -61,7 +61,9 @@ class DiscreteExpression(Expr):
         elif arg is k and self.is_discrete_time_domain:
             return self.DFT(**assumptions)
         elif arg is k and self.is_Z_domain:
-            return self.IZT(**assumptions).DFT(**assumptions)
+            N = assumptions.pop('N', None)
+            evaluate = assumptions.pop('evaluate', True)
+            return self.IZT(**assumptions).DFT(N, evaluate)
         elif arg is f and (self.is_discrete_time_domain or self.is_Z_domain):
             return self.DTFT(**assumptions)
         elif arg is F and (self.is_discrete_time_domain or self.is_Z_domain):
