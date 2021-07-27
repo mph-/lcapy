@@ -164,7 +164,7 @@ class DTFTTransformer(BilateralForwardTransformer):
             bb = ref[0].coeff(n, 0) 
             X =  self.term(expr, n, f)
             res = X.subs(f,  f - aa / twopidt)
-            return const * res
+            return const * res * sym.exp(bb)
         
         # Handle sin(b*n+c) * x(n)    o--o   j/2 (exp(-jc) * X(W+b) - X(W-b) * exp(jc))
         elif is_multiplied_with(expr, n, 'sin(n)', xn_fac):
@@ -193,8 +193,8 @@ class DTFTTransformer(BilateralForwardTransformer):
         # Multiplication with n       use n * x(n)  o--o  j / twopidt * d/df X(f)
         elif is_multiplied_with(expr, n, 'n', xn_fac):
             expr = expr / xn_fac[-1]
-            X = self.transform(expr, n, f)
-            return const / twopidt * sym.I * sym.simplify(sym.diff(X, f))         
+            X = self.term(expr, n, f)
+            return const / twopidt * sym.I * sym.simplify(sym.diff(X, f))
                 
         # Handle u(n+n0) * a **n * exp(b*n+c) 
         elif is_multiplied_with(expr, n, 'UnitStep', xn_fac):
