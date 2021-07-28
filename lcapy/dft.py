@@ -14,6 +14,7 @@ from .sym import sympify, AppliedUndef, j, pi, symsymbol
 from .extrafunctions import UnitImpulse, UnitStep
 from .utils import factor_const, scale_shift
 from .matrix import Matrix
+from .ztransform import is_multiplied_with
 
 __all__ = ('DFT', 'DFTmatrix')
 
@@ -132,37 +133,223 @@ class DFTTransformer(BilateralForwardTransformer):
 
         return result * const
 
-    def term1(self, expr, n, k):
+    
+    # Make transform  Xq = sum_lower^upper  x[n] * q**n
+    # Returns Xq and cases.
+    # Cases contains special Xq values at e.g. k=0 or k=1 depending on x[n]
+    # May also be useful for the Z-transform or the DTFT for finite sequences. 
+    def term1(self, expr, n, q, lower, upper):
 
-        const, expr = factor_const(expr, n)
+        const, expr = factor_const(expr, n)    
+        args = expr.args
+        xn_fac = []    
 
         # Check for constant.
         if not expr.has(n):
-            return expr * self.N * UnitImpulse(k) * const
+            result_q = const * expr * q**lower * (1 - q**(upper - lower + 1)) / (1 - q)
+            # Special case k = 0
+            cases = {0 : const * expr * (upper - lower + 1)}
+            return result_q, cases       
 
-        if expr.is_Function and expr.func == UnitStep and expr.args[0] == n:
-            return const * self.N * UnitImpulse(k)    
+        # Handle delta(n-n0)
+        elif expr.is_Function and expr.func == UnitImpulse and ((expr.args[0]).as_poly(n)).is_linear:
+            aa = args[0].coeff(n, 1)
+            bb = args[0].coeff(n, 0) 
+            nn0 = -bb / aa
+            if nn0 > upper or nn0 < lower:
+                return 0 * q, {}
+            if nn0.is_integer or nn0.is_integer is None:
+                return_q = const * q**nn0
+                return  return_q, {}             
 
-        if expr.is_Function and expr.func == UnitImpulse and expr.has(n):
-            scale, shift = scale_shift(expr.args[0], n)
-            # This implies a circular shift rather than a delay/advance.
-            return const * sym.exp(2 * j * pi * shift * k / self.N)
+        # Handle n**p
+        if (expr == n or
+            (expr.is_Pow and args[1].is_integer and args[1].is_positive
+             and args[0] == n)):
+            p = 1
+            try:
+                p = args[1]
+            except:
+                pass
+            # derivatives          
+            result_q = (q**lower - q**(upper + 1)) / (1 - q) 
+            for i in range(p):
+                result_q = q * sym.diff(result_q, q)             
+            result_q *= const
 
-        if expr.has(AppliedUndef):
-            # Handle v(n), v(n) * y(n), 3 * v(n) / n etc.
-            return self.function(expr, n, k) * const
+            # Special case k=0, use Faulhaber's formula
+            cases = {0 : const * sym.factor((sym.bernoulli(p + 1, upper + 1) - sym.bernoulli(p + 1, lower)) / (p + 1))}            
+            return result_q, cases      
 
-        if expr.is_Function and expr.func == sym.exp and expr.args[0].has(n):
-            scale, shift = scale_shift(expr.args[0], n)
-            l = scale * self.N / (j * 2 * pi)
-            # TODO, need to wrap the frequency shift, l
-            return const * self.N * sym.exp(2 * j * pi * shift * k / self.N) * UnitImpulse(k + l)
+        # Handle  *rect((n-a)/b)
+        elif is_multiplied_with(expr, n, 'rect', xn_fac):
+            expr /= xn_fac[-1]
+            ref = xn_fac[-1].args
+            bb = 1 / sym.expand(ref[0]).coeff(n, 1) 
+            aa = -bb * sym.expand(ref[0]).coeff(n, 0)
+            # left and right  index
+            nn0 = aa - bb // 2
+            nn1 = nn0 + bb - 1            
+            if nn0.is_integer:
+                if nn0 > upper:
+                    return 0 * q, {}
+                else:
+                    nn0 = max(lower, nn0)
+            if nn1.is_integer:
+                if nn1 < lower:                
+                    return 0 * q, {}
+                else:
+                    nn1 = min(upper, nn1)
+            Xq, cases = self.term1(expr, n, q, nn0, nn1)
+            return_q = const * Xq
+            for key in cases:
+                cases[key] = const * cases[key]             
+            return return_q, cases
 
-        return const * self.sympy(expr, n, k)
+        # Handle  *u(n-n0)
+        elif is_multiplied_with(expr, n, 'UnitStep', xn_fac):
+            expr /= xn_fac[-1]
+            ref = xn_fac[-1].args
+            aa = ref[0].coeff(n, 1) 
+            bb = ref[0].coeff(n, 0)
+            if abs(aa)!=1:
+                print("Use u(n-n0)")
+            else:    
+                # Positive step
+                if aa == 1 and ((bb.is_integer and -bb < self.N and -bb >= 0) or not bb.is_number):
+                    Xq, cases = self.term1(expr, n, q, -bb, self.N - 1)
+                # Negative step    
+                elif aa == -1 and ((bb.is_integer and bb < self.N and bb > 0) or not bb.is_number):
+                    Xq, cases = self.term1(expr, n, q, 0, bb)
+                else:
+                    Xq = 0 * q
+                    cases = {}
 
+                result_q = const * Xq
+                for key in cases:
+                    cases[key] = const * cases[key]                  
+
+                return result_q, cases    
+
+        # Handle  *exp(j*a*n+b) 
+        elif is_multiplied_with(expr, n, 'exp(n)', xn_fac) and abs(xn_fac[-1] / sym.exp(args[0].coeff(n, 0))) == 1:
+            expr /= xn_fac[-1]
+            expr = sym.simplify(expr)
+            ref = xn_fac[-1].args
+            aa = sym.expand(ref[0]).coeff(n, 1) / sym.I
+            bb = sym.expand(ref[0]).coeff(n, 0) 
+            # find transform
+            Xq, ca =  self.term1(expr, n, q, lower, upper)
+            # check frequency
+            if abs(aa) >= pi:
+                print("Warning: Frequency may be out of range")                
+            result_q = const * sym.exp(bb) * Xq.subs(q, q * sym.exp(sym.I * aa))
+            cases = {}
+            # check special case and shift accordingly
+            k0 = aa * self.N / 2 / pi
+            if k0.is_integer and len(ca) != 0:
+                for key in ca:
+                    cases[key + k0] = const * ca[key] * sym.exp(bb)
+            return result_q, cases         
+
+        # Handle *sin(b*n+c)
+        elif is_multiplied_with(expr, n, 'sin(n)', xn_fac):
+            expr /= xn_fac[-1]
+            ref = xn_fac[-1].args
+            bb = ref[0].coeff(n, 1)
+            cc = ref[0].coeff(n, 0) 
+            # check frequency
+            if abs(bb) >= pi:
+                print("WARNING: Frequency may be out of range")             
+            Xq, ca =  self.term1(expr, n, q, lower, upper)
+            Xq1 = sym.exp(sym.I * cc) * Xq.subs(q, q * sym.exp(sym.I * bb))
+            Xq2 = sym.exp(-sym.I * cc) * Xq.subs(q, q * sym.exp(-sym.I * bb))
+            result_q = const * (Xq1 - Xq2) / 2 /sym.I
+            cases = {}
+            # Check special case shift abs
+            k0 = bb * self.N / 2 / pi
+            if k0.is_integer and len(ca) != 0:
+                # Handle special cases and shift left and right
+                for key in ca:
+                    cases[key + k0] = const * ca[key] * sym.exp(sym.I * cc) / 2 / sym.I                     
+                    cases[key - k0] = -const * ca[key] * sym.exp(-sym.I * cc) / 2 / sym.I
+            return  result_q, cases
+
+        # Handle *cos(b*n+c)
+        elif is_multiplied_with(expr, n, 'cos(n)', xn_fac):
+            expr /= xn_fac[-1]
+            ref = xn_fac[-1].args
+            bb = ref[0].coeff(n, 1)
+            cc = ref[0].coeff(n, 0) 
+            # Check frequency
+            if abs(bb) >= pi:
+                print("Warning: Frequency may be out of range")             
+            Xq, ca =  self.term1(expr, n, q, lower, upper)
+            Xq1 = sym.exp(sym.I * cc) * Xq.subs(q, q * sym.exp(sym.I * bb))
+            Xq2 = sym.exp(-sym.I * cc) * Xq.subs(q, q * sym.exp(-sym.I * bb))
+            result_q = const * (Xq1 + Xq2) / 2
+            cases = {}
+            # Handle special cases if necessary and shift left and right
+            k0 = bb * self.N / 2 / pi
+            if k0.is_integer and len(ca) != 0:
+                for key in ca:
+                    cases[key + k0] = const * ca[key] * sym.exp(sym.I * cc) / 2 
+                    cases[key - k0] = const * ca[key] * sym.exp(-sym.I * cc) / 2
+            return result_q, cases        
+
+        # Handle  *exp(bb*n+cc)
+        elif is_multiplied_with(expr, n, 'exp(n)', xn_fac):
+            expr /= xn_fac[-1]
+            expr = sym.simplify(expr)
+            ref = xn_fac[-1].args
+            bb = ref[0].coeff(n, 1)
+            cc = ref[0].coeff(n, 0)                 
+            Xq, ca =  self.term1(expr, n, q, lower, upper)
+            result_q = const * sym.exp(cc) * Xq.subs(q, q * sym.exp(bb))                     
+            # No special cases 
+            cases = {}
+            return result_q, cases
+
+        # Handle  *a**n
+        elif is_multiplied_with(expr, n, 'a**n', xn_fac):
+            expr /= xn_fac[-1]
+            expr = sym.simplify(expr)
+            ref = xn_fac[-1].args
+            lam = ref[0]
+            bb = ref[1].coeff(n, 1)
+            cc = ref[1].coeff(n, 0) 
+            Xq, Xk =  self.term1(expr, n, q, lower, upper)
+            result_q = const * lam**cc * Xq.subs(q, q * lam ** bb)
+            # No special cases 
+            cases = {}
+            return result_q, cases        
+
+        # Handle *n       
+        elif is_multiplied_with(expr, n, 'n', xn_fac):
+            expr = expr / xn_fac[-1]
+            Xq, ca = self.term1(expr, n, q, lower, upper)
+            result_q = const * q * sym.diff(Xq, q) 
+            cases = {}
+            if len(ca) != 0:
+                raise ValueError("No sym.diff possible for discrete cases")
+            return result_q, cases                
+
+        return const * sym.summation(expr * q**n, (n, lower, upper)), {}    
+    
     def term(self, expr, n, k):
+        
+        q = sym.Symbol('q')
 
-        result = self.term1(expr, n, k)
+        Xq, ca = self.term1(expr, n, q, 0, self.N-1)
+        result = Xq.subs(q, sym.exp(-sym.I * 2 * pi / self.N * k))
+        # Add special cases with delta(k-k0)*values
+        for key in ca:
+            k0 = key
+            if k0 < 0:
+                # Shift negative frequencies
+                k0 += self.N 
+            result += UnitImpulse(k-k0) * ca[key].subs(q, sym.exp(-sym.I * 2 * pi / self.N * k0))
+        
         if self.is_inverse:
             result /= self.N
         return result
