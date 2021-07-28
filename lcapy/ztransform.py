@@ -8,7 +8,7 @@ from .transformer import UnilateralForwardTransformer
 from .ratfun import Ratfun
 from .sym import sympify, simplify, symsymbol, AppliedUndef
 from .utils import factor_const, scale_shift
-from .extrafunctions import UnitImpulse, UnitStep
+from .extrafunctions import UnitImpulse, UnitStep, dtrect
 import sympy as sym
 from sympy.simplify.fu import TR6, TR9
 
@@ -55,7 +55,7 @@ def is_multiplied_with(expr, n, cmp, ret):
 
     # Check for multiplication with exp(b*n+c)        
     elif (cmp == 'exp(n)' and len(expr.args) == 1 and expr.is_Function and
-          expr.func == sym.exp):
+          ((expr.args[0]).as_poly(n)).is_linear and expr.func == sym.exp):
         ret += [expr]
         ret_flag = True
     elif cmp == 'exp(n)' and expr.is_Mul:   
@@ -66,17 +66,33 @@ def is_multiplied_with(expr, n, cmp, ret):
                 ret_flag = True
                 break                     
 
-    # Check for Multiplication with u(n-n0)
+    # Check for multiplication with u(n-n0)
+    elif (cmp == 'UnitStep' and len(expr.args) == 1 and expr.is_Function and  #step only
+          ((expr.args[0]).as_poly(n)).is_linear and expr.func in (sym.Heaviside, UnitStep) ):
+        ret += [expr]
+        ret_flag = True    
     elif cmp == 'UnitStep' and expr.is_Mul:
         for i in range(len(expr.args)):
-            if expr.args[i].is_Function and expr.args[i].func in (sym.Heaviside, UnitStep):
+            if expr.args[i].is_Function and expr.args[i].func in (sym.Heaviside, UnitStep) and ((expr.args[i].args[0]).as_poly(n)).is_linear:
                 ret += [expr.args[i]]   
                 ret_flag = True
                 break 
    
-   # check for Multiplication with sin
-    elif (cmp == 'sin(n)' and len(expr.args) == 1 and expr.is_Function and  # sin only
-          expr.func == sym.sin):
+    # Check for multiplication with dtrect
+    elif (cmp =='rect' and len(expr.args) == 1 and expr.is_Function and
+          expr.func == dtrect and ((expr.args[0]).as_poly(n)).is_linear): 
+        ret += [expr]
+        ret_flag = True
+    elif cmp == 'rect' and expr.is_Mul:
+        for i in range(len(expr.args)):
+            if expr.args[i].is_Function and expr.args[i].func == dtrect and ((expr.args[i].args[0]).as_poly(n)).is_linear:        
+                ret += [expr.args[i]]   
+                ret_flag = True
+                break                
+   
+   # Check for multiplication with sin
+    elif (cmp == 'sin(n)' and len(expr.args) == 1 and expr.is_Function and # sin() only
+          ((expr.args[0]).as_poly(n)).is_linear and  expr.func == sym.sin):
         ret += [expr]
         ret_flag = True
     elif cmp == 'sin(n)' and expr.is_Mul:   
@@ -87,9 +103,9 @@ def is_multiplied_with(expr, n, cmp, ret):
                 ret_flag = True
                 break 
             
-    # check for Multiplication with cos
-    elif (cmp == 'cos(n)' and len(expr.args) == 1 and expr.is_Function and  # sin only
-          expr.func == sym.cos):
+    # Check for multiplication with cos
+    elif (cmp == 'cos(n)' and len(expr.args) == 1 and expr.is_Function and  # cos only
+          ((expr.args[0]).as_poly(n)).is_linear and expr.func == sym.cos):
         ret += [expr]
         ret_flag = True
     elif cmp == 'cos(n)' and expr.is_Mul:   
