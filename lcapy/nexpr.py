@@ -129,11 +129,12 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
         return self.__class__(limit(self.expr, self.var, oo))
 
     def DFT(self, N=None, evaluate=True):
+        from .sym import symsymbol
 
         if N is None:
-            from .sym import symsymbol
-            
             N = symsymbol('N', integer=True, positive=True)
+        elif isinstance(N, str):
+            N = symsymbol(N, integer=True, positive=True)            
 
         result = DFT(self.expr, nsym, ksym, N, evaluate=evaluate)
         return self.change(result, domain='discrete fourier')
