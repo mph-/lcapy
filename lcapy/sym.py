@@ -19,6 +19,7 @@ import sympy as sym
 import re
 from .state import state
 from .simplify import simplify_dirac_delta, simplify_heaviside, simplify_rect
+from .simplify import simplify_unit_impulse
 from .extrafunctions import UnitImpulse, UnitStep, rect, dtrect
 
 __all__ = ('symsymbol', 'sympify', 'simplify', 'symbol_delete')
@@ -316,12 +317,13 @@ def symsimplify(expr, var=None):
 
     if expr.has(sym.DiracDelta, UnitImpulse):
         expr = simplify_dirac_delta(expr)
+        expr = simplify_unit_impulse(expr)        
     if expr.has(sym.Heaviside, UnitStep):
         expr = simplify_heaviside(expr, var)
     if expr.has(rect, dtrect):
         expr = simplify_rect(expr, var)        
 
-    # This gets expanded into piecewise...
+    # This+ gets expanded into piecewise...
     if expr.has(sym.sign):
         # Could replace sign with dummy function, simplify, and then restore...
         # Could replace 1 + sign(t) with 2 * Heaviside(t) but this depends

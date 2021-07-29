@@ -142,7 +142,9 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
             N = symsymbol(N, integer=True, positive=True)            
 
         result = DFT(self.expr, nsym, ksym, N, evaluate=evaluate)
-        return self.change(result, domain='discrete fourier')
+        result = self.change(result, domain='discrete fourier')        
+        result = result.simplify_unit_impulse()
+        return result
     
     def delay(self,m):
         """Delay signal by m samples."""

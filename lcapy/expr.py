@@ -30,7 +30,7 @@ import numpy as np
 import sympy as sym
 from sympy.utilities.lambdify import lambdify
 from .sym import simplify
-from .simplify import simplify_sin_cos, simplify_heaviside, simplify_dirac_delta, simplify_rect
+from .simplify import simplify_sin_cos, simplify_heaviside, simplify_dirac_delta, simplify_rect, simplify_unit_impulse
 from .config import heaviside_zero, unitstep_zero
 from collections import OrderedDict
 
@@ -2102,6 +2102,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         and Heaviside(t)**2 to Heaviside(t), etc."""
 
         result = simplify_heaviside(self.expr, self.var)
+        return self.__class__(result, **self.assumptions)
+
+    def simplify_unit_impulse(self):
+        """Simplify UnitImpulse(4 * k + 8) to UnitImpulse(k + 2), etc."""
+
+        result = simplify_unit_impulse(self.expr, self.var)
         return self.__class__(result, **self.assumptions)
 
     def simplify_rect(self):

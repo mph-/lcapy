@@ -94,7 +94,9 @@ class DiscreteFourierDomainExpression(DiscreteFourierDomain, SequenceExpression)
             N = symsymbol(N, integer=True, positive=True)            
 
         result = IDFT(self.expr, ksym, nsym, N, evaluate=evaluate)
-        return self.change(result, domain='discrete time')
+        result = self.change(result, domain='discrete time')        
+        result = result.simplify_unit_impulse()
+        return result
     
     def ZT(self, **assumptions):
         return self.IDFT().ZT(**assumptions)

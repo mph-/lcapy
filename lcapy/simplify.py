@@ -5,7 +5,7 @@ Copyright 2020--2021 Michael Hayes, UCECE
 """
 
 from sympy import Add, Mul, DiracDelta, Heaviside, Integral, oo, sin, cos, sqrt, atan2, pi, Symbol, solve
-from .extrafunctions import UnitStep, rect, dtrect
+from .extrafunctions import UnitStep, UnitImpulse, rect, dtrect
 
 
 def simplify_dirac_delta_product_term(expr):
@@ -279,3 +279,30 @@ def simplify_sin_cos(expr, as_cos=False, as_sin=False):
 
     # SymPy will choose sin or cos as convenient.
     return rest + A * cos(cosfactor.args[0] - phi)
+
+
+def simplify_unit_impulse(expr, var=None):
+
+    if not expr.has(UnitImpulse):
+        return expr
+
+    def query(expr):
+
+        return expr.is_Function and expr.func is UnitImpulse
+
+    def value(expr):
+
+        arg = expr.args[0]
+
+        if not arg.as_poly(var).is_linear:
+            return expr
+
+        arg = arg.expand()
+        a = arg.coeff(var, 1)
+        b = arg.coeff(var, 0)
+        if a == 0:
+            return expr
+
+        return expr.func(var + (b / a).cancel())
+    
+    return expr.replace(query, value)        
