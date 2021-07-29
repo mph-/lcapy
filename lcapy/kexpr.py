@@ -80,11 +80,12 @@ class DiscreteFourierDomainExpression(DiscreteFourierDomain, SequenceExpression)
         return plot_sequence(self, kvector, **kwargs)
 
     def IDFT(self, N=None, evaluate=True):
+        from .sym import symsymbol
 
         if N is None:
-            from .sym import symsymbol
-
-            N = symsymbol('N', integer=True, positive=True)            
+            N = symsymbol('N', integer=True, positive=True)
+        elif isinstance(N, str):
+            N = symsymbol(N, integer=True, positive=True)            
 
         result = IDFT(self.expr, ksym, nsym, N, evaluate=evaluate)
         return self.change(result, domain='discrete time')

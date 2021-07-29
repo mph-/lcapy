@@ -30,9 +30,9 @@ class InverseDFTTransformer(DFTTransformer):
 
     def check(self, expr, k, n, N=None, **assumptions):
 
-        self.N = N
         if expr.has(n):
             self.error('Expression depends on n')
+        super (InverseDFTTransformer, self).check(expr, k, n, N, **assumptions)
         
 
 inverse_dft_transformer = InverseDFTTransformer()
