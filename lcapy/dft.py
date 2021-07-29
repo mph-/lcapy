@@ -357,6 +357,8 @@ class DFTTransformer(BilateralForwardTransformer):
         
         q = sym.Symbol('q')
 
+        k = -k if self.is_inverse else k
+
         Xq, ca = self.term1(expr, n, q, 0, self.N - 1)
         result = Xq.subs(q, sym.exp(-sym.I * 2 * pi / self.N * k))
         # Add special cases with delta(k-k0)*values
