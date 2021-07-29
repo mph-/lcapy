@@ -78,7 +78,6 @@ class DFTTransformer(BilateralForwardTransformer):
 
         return result
 
-
     def function(self, expr, n, k):
 
         # Handle expressions with a function of FOO, e.g.,
@@ -156,11 +155,12 @@ class DFTTransformer(BilateralForwardTransformer):
             aa = args[0].coeff(n, 1)
             bb = args[0].coeff(n, 0) 
             nn0 = -bb / aa
-            if nn0 > upper or nn0 < lower:
-                return 0 * q, {}
+            # FIXME since upper depends on unknown N
+            # if nn0 > upper or nn0 < lower:
+            #     return 0 * q, {}
             if nn0.is_integer or nn0.is_integer is None:
                 return_q = const * q**nn0
-                return  return_q, {}             
+                return return_q, {}             
 
         # Handle n**p
         if (expr == n or
@@ -212,7 +212,7 @@ class DFTTransformer(BilateralForwardTransformer):
             ref = xn_fac[-1].args
             aa = ref[0].coeff(n, 1) 
             bb = ref[0].coeff(n, 0)
-            if abs(aa)!=1:
+            if abs(aa) != 1:
                 print("Use u(n-n0)")
             else:    
                 # Positive step
@@ -241,7 +241,7 @@ class DFTTransformer(BilateralForwardTransformer):
             # find transform
             Xq, ca =  self.term1(expr, n, q, lower, upper)
             # check frequency
-            if abs(aa) >= pi:
+            if aa.is_constant() and abs(aa) >= pi:
                 print("Warning: Frequency may be out of range")                
             result_q = const * sym.exp(bb) * Xq.subs(q, q * sym.exp(sym.I * aa))
             cases = {}
@@ -337,10 +337,17 @@ class DFTTransformer(BilateralForwardTransformer):
         return const * sym.summation(expr * q**n, (n, lower, upper)), {}    
     
     def term(self, expr, n, k):
+
+        if expr.has(AppliedUndef):
+            # Handle v(n), v(n) * y(n), 3 * v(n) / n etc.
+            result = self.function(expr, n, k)
+            if self.is_inverse:
+                result /= self.N
+            return result
         
         q = sym.Symbol('q')
 
-        Xq, ca = self.term1(expr, n, q, 0, self.N-1)
+        Xq, ca = self.term1(expr, n, q, 0, self.N - 1)
         result = Xq.subs(q, sym.exp(-sym.I * 2 * pi / self.N * k))
         # Add special cases with delta(k-k0)*values
         for key in ca:
