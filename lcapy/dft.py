@@ -35,6 +35,11 @@ class DFTTransformer(BilateralForwardTransformer):
 
     def check(self, expr, n, k, N=None, **assumptions):
 
+        try:
+            N = N.expr
+        except:
+            pass
+        
         self.N = N
         
         if expr.has(k):
