@@ -39,6 +39,11 @@ class DFTTransformer(BilateralForwardTransformer):
             N = N.expr
         except:
             pass
+
+        if not N.is_integer:
+            raise ValueError('%s not integer, redefine with integer=True' % N)
+        if not N.is_positive:
+            raise ValueError('%s not positive, redefine with positive=True' % N)
         
         self.N = N
         
