@@ -80,6 +80,12 @@ class DiscreteFourierDomainExpression(DiscreteFourierDomain, SequenceExpression)
         return plot_sequence(self, kvector, **kwargs)
 
     def IDFT(self, N=None, evaluate=True):
+        """Determine inverse DFT.  
+        
+        `N` needs to be a positive integer symbol or a str specifying
+        the extent of the inverse DFT.  By default `N` is defined as
+        'N'."""
+
         from .sym import symsymbol
 
         if N is None:

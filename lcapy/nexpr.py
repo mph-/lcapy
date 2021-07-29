@@ -129,6 +129,11 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
         return self.__class__(limit(self.expr, self.var, oo))
 
     def DFT(self, N=None, evaluate=True):
+        """Determine DFT.  
+        
+        `N` needs to be a positive integer symbol or a str specifying
+        the extent of the DFT.  By default `N` is defined as 'N'."""
+        
         from .sym import symsymbol
 
         if N is None:
