@@ -95,6 +95,9 @@ def is_multiplied_with(expr, n, cmp, ret):
           ((expr.args[0]).as_poly(n)).is_linear and  expr.func == sym.sin):
         ret += [expr]
         ret_flag = True
+    elif cmp == 'sin(n)' and expr.is_Pow and expr.args[0].func==sym.sin  and (expr.args[0].args[0]).as_poly(n).is_linear:
+        ret += [expr.args[0]]
+        ret_flag = True        
     elif cmp == 'sin(n)' and expr.is_Mul:   
         for i in range(len(expr.args)):
             if (expr.args[i].is_Function and expr.args[i].func == sym.sin and
@@ -102,19 +105,33 @@ def is_multiplied_with(expr, n, cmp, ret):
                 ret += [expr.args[i]]   
                 ret_flag = True
                 break 
+            elif (expr.args[i].is_Pow and expr.args[i].args[0].func == sym.sin and
+                ((expr.args[i].args[0].args[0]).as_poly(n)).is_linear):
+                ret += [expr.args[i].args[0]]   
+                ret_flag = True                
+                break            
+            
             
     # Check for multiplication with cos
     elif (cmp == 'cos(n)' and len(expr.args) == 1 and expr.is_Function and  # cos only
           ((expr.args[0]).as_poly(n)).is_linear and expr.func == sym.cos):
         ret += [expr]
         ret_flag = True
+    elif cmp == 'cos(n)' and expr.is_Pow and expr.args[0].func==sym.cos  and (expr.args[0].args[0]).as_poly(n).is_linear: 
+        ret += [expr.args[0]]
+        ret_flag = True        
     elif cmp == 'cos(n)' and expr.is_Mul:   
         for i in range(len(expr.args)):
             if (expr.args[i].is_Function and expr.args[i].func == sym.cos and
                 ((expr.args[i].args[0]).as_poly(n)).is_linear):
                 ret += [expr.args[i]]   
                 ret_flag = True
-                break             
+                break    
+            elif (expr.args[i].is_Pow and expr.args[i].args[0].func == sym.cos and
+                ((expr.args[i].args[0].args[0]).as_poly(n)).is_linear):
+                ret += [expr.args[i].args[0]]   
+                ret_flag = True                
+                break            
 
 
     return ret_flag
