@@ -315,9 +315,10 @@ def symsimplify(expr, var=None):
     if hasattr(expr, 'applyfunc'):
         return expr.applyfunc(lambda x: symsimplify(x))
 
-    if expr.has(sym.DiracDelta, UnitImpulse):
+    if expr.has(sym.DiracDelta):
         expr = simplify_dirac_delta(expr)
-        expr = simplify_unit_impulse(expr)        
+    if expr.has(UnitImpulse):
+        expr = simplify_unit_impulse(expr)                
     if expr.has(sym.Heaviside, UnitStep):
         expr = simplify_heaviside(expr, var)
     if expr.has(rect, dtrect):
