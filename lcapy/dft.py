@@ -269,8 +269,8 @@ class DFTTransformer(BilateralForwardTransformer):
             bb = ref[0].coeff(n, 1)
             cc = ref[0].coeff(n, 0) 
             # check frequency
-            if abs(bb) >= pi:
-                print("WARNING: Frequency may be out of range")             
+            if bb.is_constant() and abs(bb) >= pi:
+                print("Warning: Frequency may be out of range")             
             Xq, ca =  self.term1(expr, n, q, lower, upper)
             Xq1 = sym.exp(sym.I * cc) * Xq.subs(q, q * sym.exp(sym.I * bb))
             Xq2 = sym.exp(-sym.I * cc) * Xq.subs(q, q * sym.exp(-sym.I * bb))
@@ -292,7 +292,7 @@ class DFTTransformer(BilateralForwardTransformer):
             bb = ref[0].coeff(n, 1)
             cc = ref[0].coeff(n, 0) 
             # Check frequency
-            if abs(bb) >= pi:
+            if bb.is_constant() and abs(bb) >= pi:
                 print("Warning: Frequency may be out of range")             
             Xq, ca =  self.term1(expr, n, q, lower, upper)
             Xq1 = sym.exp(sym.I * cc) * Xq.subs(q, q * sym.exp(sym.I * bb))
