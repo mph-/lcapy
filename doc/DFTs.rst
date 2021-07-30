@@ -1,3 +1,5 @@
+:math:`x(n) \longleftrightarrow X(k)`
+
 :math:`1 \longleftrightarrow N \delta\left[k\right]`
 
 :math:`\delta\left[n\right] \longleftrightarrow 1`
@@ -8,7 +10,11 @@
 
 :math:`n u\left[n\right] \longleftrightarrow \frac{N \left(N - 1\right) \delta\left[k\right]}{2} - \frac{N}{1 - e^{- \frac{2 \mathrm{j} \pi k}{N}}}`
 
-:math:`\alpha^{- n} u\left[n\right] \longleftrightarrow \frac{1 - \left(\frac{e^{- \frac{2 \mathrm{j} \pi k}{N}}}{\alpha}\right)^{N}}{1 - \frac{e^{- \frac{2 \mathrm{j} \pi k}{N}}}{\alpha}}`
+:math:`\alpha^{- n} u\left[n\right] \longleftrightarrow \frac{\alpha^{1 - N} \left(\alpha^{N} - 1\right) e^{\frac{2 \mathrm{j} \pi k}{N}}}{\alpha e^{\frac{2 \mathrm{j} \pi k}{N}} - 1}`
 
-:math:`e^{\frac{2 \mathrm{j} \pi n}{N}} \longleftrightarrow N \delta\left[k - 1\right] + \frac{1 - \left(e^{\frac{2 \mathrm{j} \pi}{N}} e^{- \frac{2 \mathrm{j} \pi k}{N}}\right)^{N}}{- e^{\frac{2 \mathrm{j} \pi}{N}} e^{- \frac{2 \mathrm{j} \pi k}{N}} + 1}`
+:math:`e^{\frac{2 \mathrm{j} \pi n}{N}} \longleftrightarrow N \delta\left[k - 1\right]`
+
+:math:`\cos{\left(\frac{2 \pi n}{N} \right)} \longleftrightarrow \frac{N \left(\delta\left[k - 1\right] + \delta\left[- N + k + 1\right]\right)}{2}`
+
+:math:`\sin{\left(\frac{2 \pi n}{N} \right)} \longleftrightarrow \frac{\mathrm{j} N \left(- \delta\left[k - 1\right] + \delta\left[- N + k + 1\right]\right)}{2}`
 
