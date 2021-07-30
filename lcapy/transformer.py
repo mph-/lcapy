@@ -5,6 +5,7 @@ Copyright 2020--2021 Michael Hayes, UCECE
 """
 
 from sympy import Eq, Symbol, Piecewise, S, Heaviside
+from .sym import symsymbol
 from .utils import factor_const, remove_images
 from .extrafunctions import UnitStep
 
@@ -65,6 +66,22 @@ class Transformer(object):
         self.check(expr, var, conjvar, **assumptions)
 
         return self.doit(expr, var, conjvar, evaluate, **assumptions)
+
+    def dummy_var(self, expr, dummy='m', level=0, **kwargs):
+        """Create a dummy variable."""
+
+        # Avoid i, j to reduce confusion with imaginary number
+        # Avoid k, n since they are domain variables
+        dummies = [dummy] + ['m', 'p', 'q', 'o']
+
+        for dummy in dummies:
+            if level == 0:
+                nu = symsymbol(dummy, integer=True)
+            else:
+                nu = symsymbol(dummy + '_%d' % level, **kwargs)                
+            if not expr.has(nu):
+                return nu
+        raise self.error('Dummy variable conflict with symbols: %s' % ', '.join(dummies))
     
     
 class BilateralForwardTransformer(Transformer):

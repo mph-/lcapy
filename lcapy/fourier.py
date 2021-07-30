@@ -164,16 +164,12 @@ class FourierTransformer(BilateralForwardTransformer):
         if len(exprs) == 1:
             return result * const
 
-        dummy = 'tau' if self.is_inverse else 'nu'
-
         for m in range(len(exprs) - 1):
-            if m == 0:
-                nu = sympify(dummy)
-            else:
-                nu = sympify(dummy + '_%d' % m)
-                expr2 = self.term(exprs[m + 1], t, f)
-                result = Integral(result.subs(f, f - nu) * expr2.subs(f, nu),
-                                      (nu, -oo, oo))
+            nu = self.dummy_var(expr, 'tau' if self.is_inverse else 'nu',
+                                level=m, real=True)
+            expr2 = self.term(exprs[m + 1], t, f)
+            result = Integral(result.subs(f, f - nu) * expr2.subs(f, nu),
+                              (nu, -oo, oo))
 
         return result * const
 

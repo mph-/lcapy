@@ -299,12 +299,6 @@ class InverseZTransformer(UnilateralInverseTransformer):
 
         return cresult, uresult
 
-    def dummyvar(self, intnum=0):
-        if intnum == 0:
-            return sympify('m', real=True)
-        else:
-            return sympify('m_%d' % intnum, real=True)
-
     def product(self, expr, z, n):
 
         # Handle expressions with a function of z, e.g., V(z) * Y(z), V(z)
@@ -332,7 +326,7 @@ class InverseZTransformer(UnilateralInverseTransformer):
             factors[1].args[0].is_Add and factors[1].args[0].args[0] == -1
             and factors[1].args[0].args[1] == z):
             # Handle cumulative sum  z / (z - 1) * V(z)
-            m = self.dummyvar()
+            m = self.dummy_var(expr, 'm', level=0, real=True)
             result = self.func(factors[2], z, m, True)                
             result = sym.Sum(result, (m, n1, n))
             return result
@@ -387,14 +381,14 @@ class InverseZTransformer(UnilateralInverseTransformer):
                       factors[0].args[0].args[1].args[1].args[1] == -1 and
                       factors[0].args[0].args[1].args[1].args[0] is zsym):
                     # Handle cumulative sum  1 / (1 - 1 / z) * V(z)
-                    m = self.dummyvar(intnum)
+                    m = self.dummy_var(expr, 'm', level=intnum, real=True)
                     result = self.func(factors[1], z, m, True)
                     intnum += 1
                     result = sym.Sum(result, (m, n1, n))
                     continue
 
             # Convert product to convolution
-            dummy = self.dummyvar(intnum)
+            dummy = self.dummy_var(expr, 'm', level=intnum, real=True)
             intnum += 1
             cresult, uresult = self.term1(factors[m + 1], z, n)
             expr2 = cresult + uresult

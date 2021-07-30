@@ -184,12 +184,6 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
 
         return cresult, uresult
 
-    def dummyvar(self, intnum=0, var='tau'):
-        if intnum == 0:
-            return sympify(var, real=True)
-        else:
-            return sympify('%s_%d' % (var, intnum), real=True)    
-
     def product(self, expr, s, t):
 
         # Handle expressions with a function of s, e.g., V(s) * Y(s), V(s)
@@ -245,13 +239,13 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
                     continue                
                 elif factors[0].is_Pow and factors[0].args[0] == s and factors[0].args[1] == -1:
                     # Handle integration  1 / s * V(s)
-                    tau = self.dummyvar(intnum, 'tau')
+                    tau = self.dummy_var(expr, 'tau', level=intnum, real=True)
                     intnum += 1
                     result = self.func(factors[1], s, tau)
                     result = sym.Integral(result, (tau, t1, t))
                     continue                
             # Convert product to convolution
-            tau = self.dummyvar(intnum, 'tau')
+            tau = self.dummy_var(expr, 'tau', level=intnum, real=True)
             intnum += 1
             cresult, uresult = self.term1(factors[m + 1], s, t)
             expr2 = cresult + uresult
