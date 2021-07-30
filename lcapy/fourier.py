@@ -72,7 +72,7 @@ class FourierTransformer(BilateralForwardTransformer):
         if shift != 0:
             if self.is_inverse:
                 shift = -shift
-                result = result * exp(2 * I * pi * f * shift / scale)
+            result = result * exp(2 * I * pi * f * shift / scale)
 
         return result
 
