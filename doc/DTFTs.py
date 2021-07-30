@@ -8,7 +8,8 @@ No = symbol('N_o', odd=True)
 Ne = symbol('N_e', even=True)
 K = symbol('K')
 
-sigs = [cos(w0 * n * dt), sin(w0 * n * dt), exp(j * w0 * n * dt),
+sigs = [nexpr('x(n)'), nexpr('x(a * n)'), nexpr('x(n - m)'),
+        cos(w0 * n * dt), sin(w0 * n * dt), exp(j * w0 * n * dt),
         nexpr(1), delta(n), delta(n - m),
         H(n), n * H(n), sign(n),
         alpha**-n * H(n), rect(n), rect(n / No), rect(n / Ne),

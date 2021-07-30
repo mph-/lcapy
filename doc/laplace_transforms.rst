@@ -1,3 +1,9 @@
+:math:`x(t) \longleftrightarrow X(s)`
+
+:math:`x(a t) \longleftrightarrow \frac{X(\frac{s}{a})}{\left|{a}\right|}`
+
+:math:`x(t - \tau) \longleftrightarrow X(s) e^{- s \tau}`
+
 :math:`\cos{\left(2 \pi f_{0} t \right)} \longleftrightarrow \frac{s}{4 \pi^{2} f_{0}^{2} + s^{2}}`
 
 :math:`\sin{\left(2 \pi f_{0} t \right)} \longleftrightarrow \frac{2 \pi f_{0}}{4 \pi^{2} f_{0}^{2} + s^{2}}`

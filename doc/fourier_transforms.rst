@@ -1,3 +1,9 @@
+:math:`x(t) \longleftrightarrow X(f)`
+
+:math:`x(a t) \longleftrightarrow \frac{X(\frac{f}{a})}{\left|{a}\right|}`
+
+:math:`x(t - \tau) \longleftrightarrow X(f) e^{- 2 \mathrm{j} \pi f \tau}`
+
 :math:`\cos{\left(2 \pi f_{0} t \right)} \longleftrightarrow \frac{\delta\left(f - f_{0}\right)}{2} + \frac{\delta\left(f + f_{0}\right)}{2}`
 
 :math:`\sin{\left(2 \pi f_{0} t \right)} \longleftrightarrow \frac{\mathrm{j} \left(- \delta\left(f - f_{0}\right) + \delta\left(f + f_{0}\right)\right)}{2}`

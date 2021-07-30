@@ -1,3 +1,9 @@
+:math:`x(n) \longleftrightarrow \sum_{m=-\infty}^{\infty} X(\frac{\Omega}{2 \pi \Delta_{t}} - \frac{m}{\Delta_{t}})`
+
+:math:`x(a n) \longleftrightarrow \frac{\sum_{m=-\infty}^{\infty} X(\frac{\Omega}{2 \pi \Delta_{t} a} - \frac{m}{\Delta_{t} a})}{\left|{a}\right|}`
+
+:math:`x(- m + n) \longleftrightarrow \sum_{p=-\infty}^{\infty} X(\frac{\Omega}{2 \pi \Delta_{t}} - \frac{p}{\Delta_{t}}) e^{- \frac{\mathrm{j} \Omega m}{\Delta_{t}}} e^{\frac{2 \mathrm{j} \pi m p}{\Delta_{t}}}`
+
 :math:`\cos{\left(\Omega_{0} n \right)} \longleftrightarrow \pi \sum_{m=-\infty}^{\infty} \delta\left(\Omega - \Omega_{0} - 2 \pi m\right) + \pi \sum_{m=-\infty}^{\infty} \delta\left(\Omega + \Omega_{0} - 2 \pi m\right)`
 
 :math:`\sin{\left(\Omega_{0} n \right)} \longleftrightarrow - \mathrm{j} \pi \sum_{m=-\infty}^{\infty} \delta\left(\Omega - \Omega_{0} - 2 \pi m\right) + \mathrm{j} \pi \sum_{m=-\infty}^{\infty} \delta\left(\Omega + \Omega_{0} - 2 \pi m\right)`
@@ -12,7 +18,7 @@
 
 :math:`u\left[n\right] \longleftrightarrow \pi \sum_{m=-\infty}^{\infty} \delta\left(\Omega - 2 \pi m\right) + \frac{e^{\mathrm{j} \Omega}}{e^{\mathrm{j} \Omega} - 1}`
 
-:math:`n u\left[n\right] \longleftrightarrow - \frac{1}{4 \sin^{2}{\left(\frac{\Omega}{2} \right)}} + \frac{\mathrm{j} \delta^{\left( 1 \right)}\left( \frac{\Omega}{2 \pi \Delta_{t}} \right)}{4 \pi \Delta_{t}^{2}}`
+:math:`n u\left[n\right] \longleftrightarrow \frac{e^{\mathrm{j} \Omega}}{e^{2 \mathrm{j} \Omega} - 2 e^{\mathrm{j} \Omega} + 1} + \frac{\mathrm{j} \sum_{m=-\infty}^{\infty} \delta^{\left( 1 \right)}\left( \frac{\Omega}{2 \pi \Delta_{t}} - \frac{m}{\Delta_{t}} \right)}{4 \pi \Delta_{t}^{2}}`
 
 :math:`\mathop{\mathrm{sign}}\left[n\right] \longleftrightarrow \frac{2 e^{\mathrm{j} \Omega}}{e^{\mathrm{j} \Omega} - 1}`
 

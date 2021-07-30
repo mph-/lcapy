@@ -1,3 +1,7 @@
+:math:`x(n) \longleftrightarrow X(z)`
+
+:math:`x(- m + n) \longleftrightarrow z^{- m} X(z)`
+
 :math:`\cos{\left(2 \pi \Delta_{t} f_{0} n \right)} \longleftrightarrow \frac{z \left(z - \cos{\left(2 \pi \Delta_{t} f_{0} \right)}\right)}{z^{2} - 2 z \cos{\left(2 \pi \Delta_{t} f_{0} \right)} + 1}`
 
 :math:`\sin{\left(2 \pi \Delta_{t} f_{0} n \right)} \longleftrightarrow \frac{z \sin{\left(2 \pi \Delta_{t} f_{0} \right)}}{z^{2} - 2 z \cos{\left(2 \pi \Delta_{t} f_{0} \right)} + 1}`

@@ -6,7 +6,7 @@ N = symbol('N', integer=True, positive=True)
 f0 = symbol('f0')
 w0 = 2 * pi * f0
 
-sigs = [nexpr('x(n)'),
+sigs = [nexpr('x(n)'), nexpr('x(a * n)'), nexpr('x(n - m)'),
         nexpr(1), delta(n), delta(n - m),
         H(n), n * H(n),
         alpha**-n * H(n),

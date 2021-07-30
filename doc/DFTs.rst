@@ -1,5 +1,9 @@
 :math:`x(n) \longleftrightarrow X(k)`
 
+:math:`x(a n) \longleftrightarrow \frac{X(\frac{k}{a})}{\left|{a}\right|}`
+
+:math:`x(- m + n) \longleftrightarrow X(k) e^{- \frac{2 \mathrm{j} \pi k m}{N}}`
+
 :math:`1 \longleftrightarrow N \delta\left[k\right]`
 
 :math:`\delta\left[n\right] \longleftrightarrow 1`
