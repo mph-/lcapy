@@ -40,6 +40,9 @@ class DFTTransformer(BilateralForwardTransformer):
         except:
             pass
 
+        # Convert constants to SymPy expressions.
+        N = sym.sympify(N)
+
         if not N.is_integer:
             raise ValueError('%s not integer, redefine with integer=True' % N)
         if not N.is_positive:
