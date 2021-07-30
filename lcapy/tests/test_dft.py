@@ -32,7 +32,9 @@ class LcapyTester(unittest.TestCase):
         # Temp. hack, ideally should get result 2 * N * delta(k + 1)
         self.assertEqual(nexpr('2 * exp(-j * 2 * pi * n / N)').DFT(), 
                          kexpr('2 * N * delta(k + 1 - N)'), "2 * exp(-j * 2 * pi * n / N)")
-
+        self.assertEqual(nexpr('x(n-1)').DFT(N=2), 
+                         kexpr('X(k)*exp(-j * pi * k)'), "x(n-1)")
+        
 
     def test_IDFT(self):
 
