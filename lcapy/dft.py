@@ -81,7 +81,7 @@ class DFTTransformer(BilateralForwardTransformer):
         if shift != 0:
             if self.is_inverse:
                 shift = -shift
-            result = result * sym.exp(2 * sym.I * sym.pi * k * shift / scale)
+            result = result * sym.exp(2 * sym.I * sym.pi * k * shift / (scale * self.N))
 
         if self.is_inverse:
             result *= self.N
