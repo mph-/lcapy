@@ -157,11 +157,12 @@ class DFTTransformer(BilateralForwardTransformer):
         if not expr.has(n):
             result_q = const * expr * q**lower * (1 - q**(upper - lower + 1)) / (1 - q)
             # Special case k = 0
-            cases = {0 : const * expr * (upper - lower + 1)}
+            cases = {0: const * expr * (upper - lower + 1)}
             return result_q, cases       
 
         # Handle delta(n-n0)
-        elif expr.is_Function and expr.func == UnitImpulse and ((expr.args[0]).as_poly(n)).is_linear:
+        elif (expr.is_Function and expr.func == UnitImpulse and
+              ((expr.args[0]).as_poly(n)).is_linear):
             aa = args[0].coeff(n, 1)
             bb = args[0].coeff(n, 0) 
             nn0 = -bb / aa
@@ -188,7 +189,7 @@ class DFTTransformer(BilateralForwardTransformer):
             result_q *= const
 
             # Special case k=0, use Faulhaber's formula
-            cases = {0 : const * sym.factor((sym.bernoulli(p + 1, upper + 1) - sym.bernoulli(p + 1, lower)) / (p + 1))}            
+            cases = {0: const * sym.factor((sym.bernoulli(p + 1, upper + 1) - sym.bernoulli(p + 1, lower)) / (p + 1))}            
             return result_q, cases      
 
         # Handle  *rect((n-a)/b)
