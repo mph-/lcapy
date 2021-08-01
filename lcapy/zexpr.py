@@ -235,11 +235,19 @@ class ZDomainExpression(ZDomain, SequenceExpression):
         
         return self.subs((1 + s * dt / 2) / (1 - s * dt / 2))
 
+    def DFT(self, N=None, evaluate=True, **assumptions):
+        """Determine DFT.  
+        
+        `N` needs to be a positive integer symbol or a str specifying
+        the extent of the DFT.  By default `N` is defined as 'N'."""
+
+        result = self.IZT(**assumptions).DFT(N=N)
+        return result
+
     def discrete_time_fourier_transform(self, var=None, images=oo,
                                         **assumptions):
         """Convert to Fourier domain using discrete time Fourier transform."""
         return self.DTFT(var, images, **assumptions)        
-        
 
     def DTFT(self, var=None, images=oo, **assumptions):
         """Convert to Fourier domain using discrete time Fourier transform."""
