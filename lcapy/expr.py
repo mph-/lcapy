@@ -784,13 +784,12 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
         """
 
         val = self.expr.evalf(n, *args, **kwargs)
-        return self.__class__(val, rational=False, **self.assumptions)    
+        return self.__class__(val, **self.assumptions)    
 
     def __hash__(self):
         # This is needed for Python3 so can create a dict key,
         # say for subs.
         return hash(self.expr)
-
 
     def _to_class(self, cls, expr):
 
