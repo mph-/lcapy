@@ -248,14 +248,14 @@ class DFTTransformer(BilateralForwardTransformer):
             ref = xn_fac[-1].args
             aa = sym.expand(ref[0]).coeff(n, 1) / sym.I
             bb = sym.expand(ref[0]).coeff(n, 0) 
-            # find transform
+            # Find transform
             Xq, ca =  self.term1(expr, n, q, lower, upper)
-            # check frequency
+            # Check frequency
             if aa.is_constant() and abs(aa) >= pi:
                 print("Warning: Frequency may be out of range")                
             result_q = const * sym.exp(bb) * Xq.subs(q, q * sym.exp(sym.I * aa))
             cases = {}
-            # check special case and shift accordingly
+            # Check special case and shift accordingly
             k0 = aa * self.N / 2 / pi
             if k0.is_integer and len(ca) != 0:
                 for key in ca:
@@ -268,7 +268,7 @@ class DFTTransformer(BilateralForwardTransformer):
             ref = xn_fac[-1].args
             bb = ref[0].coeff(n, 1)
             cc = ref[0].coeff(n, 0) 
-            # check frequency
+            # Check frequency
             if bb.is_constant() and abs(bb) >= pi:
                 print("Warning: Frequency may be out of range")             
             Xq, ca =  self.term1(expr, n, q, lower, upper)

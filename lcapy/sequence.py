@@ -6,6 +6,7 @@ Copyright 2020-2021 Michael Hayes, UCECE
 
 from .expr import ExprList, ExprDomain, expr
 from .utils import isiterable
+from .assumptions import Assumptions
 from numpy import array, allclose, arange
 
 # Perhaps subclass numpy ndarray?  But then could not have symbolic
@@ -108,6 +109,8 @@ class Sequence(ExprList, ExprDomain):
         # Perhaps have separate classes for truncated sequences?
         self.start_trunc = start_trunc
         self.end_trunc = end_trunc
+        # For symmetry with Expr
+        self.assumptions = Assumptions()        
 
     @property
     def vals(self):
