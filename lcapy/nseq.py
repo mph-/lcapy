@@ -31,6 +31,7 @@ class DiscreteTimeDomainSequence(DiscreteTimeDomain, Sequence):
             result = 0
             for ni in range(N):            
                result += vals[ni] * exp(-2 * j * pi * self.n[ni] * ki / N)
+            result = result.change(result, domain='discrete fourier')
             results.append(result)
 
         return self.change(results, domain='discrete fourier sequence')
@@ -44,8 +45,9 @@ class DiscreteTimeDomainSequence(DiscreteTimeDomain, Sequence):
         vals = self.vals
         N = len(vals)
         for ni in range(N):
-            results.append(z**(-ni) * vals[ni].expr)
-
+            result = z**(-ni) * vals[ni].expr
+            result = result.change(result, domain='Z')
+            results.append(result)
         return self.change(results, domain='Z sequence')        
     
 

@@ -26,6 +26,8 @@ class ZDomainSequence(ZDomain, Sequence):
         vals = self.vals
         N = len(vals)
         for ni in range(N):
+            result = vals[ni] * z**ni
+            result = result.change(result, domain='discrete time')            
             results.append(vals[ni] * z**ni)
 
         return self.change(results, domain='discrete time sequence')

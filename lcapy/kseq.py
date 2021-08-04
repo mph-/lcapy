@@ -32,7 +32,7 @@ class DiscreteFourierDomainSequence(DiscreteFourierDomain, Sequence):
             result = 0
             for ki in range(N):
                result += vals[ki] * exp(2 * j * pi * ni * self.n[ki] / N)
-               
+            result = result.change(result, domain='discrete time')
             results.append(result / N)
 
         return self.change(results, domain='discrete time sequence')        
