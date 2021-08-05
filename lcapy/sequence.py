@@ -137,7 +137,18 @@ class Sequence(ExprList, ExprDomain):
         if self.domain != x.domain:
             raise TypeError('Sequences have different domains: %s and %s' % (self.domain, x.domain))            
         
+    def __abs__(self):
+        """Absolute value of each element."""
+
+        raise ValueError('abs operator not supported for %s: use .as_array()' % self.__class__.__name__)
+
+    def __neg__(self):
+        """Negation of each element."""
+
+        raise ValueError('- operator not supported for %s: use .as_array()' % self.__class__.__name__)
+
     def __add__(self, x):
+        """Concatenate with sequence x."""
 
         self._check_compatible(x)
         if self.quantity == 'undefined':
@@ -148,6 +159,7 @@ class Sequence(ExprList, ExprDomain):
         return cls(super(Sequence, self).__add__(x))
 
     def __mul__(self, x):
+        """Replicate x times."""
 
         return self.__class__(super(Sequence, self).__mul__(x))    
     
