@@ -18,6 +18,22 @@ import networkx as nx
 # W 2 6; up
 # C1 5 6; right=2
 
+def canonical_loop(cycle):
+    """Rearrange node order for loop into canonical form."""
+
+    def rotate(l, n):
+        return l[n:] + l[:n]
+        
+    # Preserve node order.
+    sorted_cycle = sorted(cycle)
+    index = cycle.index(sorted_cycle[0])
+    new_cycle = rotate(cycle, index)
+    if new_cycle[1] > new_cycle[-1]:
+        # Reverse ordering.
+        new_cycle = new_cycle[0:1] + new_cycle[:0:-1]
+    return new_cycle
+
+
 class CircuitGraph(object):
 
     def __init__(self, cct, G=None):
@@ -80,15 +96,6 @@ class CircuitGraph(object):
             
     def all_loops(self):
 
-        def rotate(l, n):
-            return l[n:] + l[:n]
-        
-        def canonical(cycle):
-            # Preserve node order.
-            sorted_cycle = sorted(cycle)
-            index = cycle.index(sorted_cycle[0])
-            return rotate(cycle, index)
-
         # This adds forward and backward edges.
         DG = nx.DiGraph(self.G)
         cycles = list(nx.simple_cycles(DG))
@@ -97,7 +104,7 @@ class CircuitGraph(object):
         for cycle in cycles:
             if len(cycle) <= 2:
                 continue
-            cycle = canonical(cycle)
+            cycle = canonical_loop(cycle)
             if cycle not in loops:
                 loops.append(cycle)
         return loops
