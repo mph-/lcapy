@@ -80,6 +80,15 @@ class CircuitGraph(object):
             
     def all_loops(self):
 
+        def rotate(l, n):
+            return l[n:] + l[:n]
+        
+        def canonical(cycle):
+            # Preserve node order.
+            sorted_cycle = sorted(cycle)
+            index = cycle.index(sorted_cycle[0])
+            return rotate(cycle, index)
+
         # This adds forward and backward edges.
         DG = nx.DiGraph(self.G)
         cycles = list(nx.simple_cycles(DG))
@@ -88,9 +97,9 @@ class CircuitGraph(object):
         for cycle in cycles:
             if len(cycle) <= 2:
                 continue
-            cycle = sorted(cycle)
+            cycle = canonical(cycle)
             if cycle not in loops:
-                loops.append(cycle)        
+                loops.append(cycle)
         return loops
 
     def chordless_loops(self):

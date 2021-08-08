@@ -289,7 +289,7 @@ class Synthesis(object):
         
         raise NotImplementedError('TODO')
 
-    def seriesparallelgRL(self):
+    def seriesparallelRL(self):
         """(R('R1') | L('L1')) + (R('R2') | L('L2'))"""
         # Like Foster I
                 
