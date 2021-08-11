@@ -135,6 +135,43 @@ def separate_dirac_delta(expr):
     return rest, deltas
 
 
+def split_dirac_delta(expr):
+    """Return expression as a list of terms.
+    The first term has no DiracDeltas, the second term collates
+    the DiracDeltas, the third term collates derivatives of DiracDeltas, etc.
+
+    For example, u(t) + DiractDelta(t, 1) returns [u(t), 0, DiracDelta(t, 1)]
+    """
+
+    terms = expr.as_ordered_terms()
+    parts = {}
+    rest = 0
+
+    for term in terms:
+        if term.has(sym.DiracDelta):
+            if len(term.args) == 1:
+                if 1 not in parts:
+                    parts[1] = 0
+                parts[1] += term
+            else:
+                idx = term.args[1] + 1
+                if idx not in parts:
+                    parts[idx] = 0
+                parts[idx] += term
+        else:
+            parts[0] = term
+
+    maxkey = max(parts.keys())
+    result = []
+    for key in range(maxkey + 1):
+        if key in parts:
+            result.append(parts[key])
+        else:
+            result.append(0)
+            
+    return result
+
+
 def remove_images(expr, var, dt, m1=0, m2=0):
 
     if m2 == 0 and isinstance(m1, tuple) and len(m1) == 2:

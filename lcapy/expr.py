@@ -25,7 +25,7 @@ from .state import state
 from .printing import pprint, pretty, print_str, latex
 from .functions import sqrt, log10, atan2, gcd, exp, Function, Eq
 from .units import units, u as uu, dB
-from .utils import as_N_D, as_sum, remove_images, pair_conjugates
+from .utils import as_N_D, as_sum, remove_images, pair_conjugates, split_dirac_delta
 import numpy as np
 import sympy as sym
 from sympy.utilities.lambdify import lambdify
@@ -2251,6 +2251,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         symbols = [symbol_map(symbol) for symbol in symbols]
         return expr(sym.solve(self.expr, *symbols, **flags))  
 
+    def split_dirac_delta(self):
+        return split_dirac_delta(self)
+    
     @property
     def symbols(self):
         """Return dictionary of symbols in the expression keyed by name."""
