@@ -63,7 +63,15 @@ class ConstantDomainExpression(ConstantDomain, Expr):
     def laplace(self):
         """Convert to Laplace domain representation."""
 
-        return self.time().laplace()    
+        return self.time().laplace()
+
+    def response(self, xvector, tvector):
+        """Evaluate response to input signal `xvector` at times 
+        `tvector`.  This returns a NumPy array."""
+
+        from .sexpr import s        
+        # This can be optimized!
+        return self(s).response(xvector, tvector)        
     
 
 class ConstantTimeDomainExpression(ConstantDomainExpression):

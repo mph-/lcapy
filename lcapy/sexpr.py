@@ -256,48 +256,55 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         return X.evaluate(fvector)
 
-    def response(self, x, t):
-        """Evaluate response to input signal x at times t."""
+    def response(self, xvector, tvector):
+        """Evaluate response to input signal `xvector` at times 
+        `tvector`.  This returns a NumPy array."""
 
-        if len(x) != len(t):
+        symbols = self.symbols
+        symbols.pop('s', None)
+        if symbols != {}:
+            raise ValueError('Have undefined symbols: %s' % symbols)
+
+        if len(xvector) != len(tvector):
             raise ValueError('x must have same length as t')
 
-        dt = t[1] - t[0]
-        if not np.allclose(np.diff(t), np.ones(len(t) - 1) * dt):
+        dt = tvector[1] - tvector[0]
+        if not np.allclose(np.diff(tvector), np.ones(len(tvector) - 1) * dt):
             raise (ValueError, 't values not equally spaced')
 
-        # Perform polynomial long division so expr = Q + M / D                
+        if self.is_constant:
+            return float(self.expr) * xvector
+        
+        # Perform polynomial long division so expr1 = Q + M / D                
         N, D, delay = self._decompose()
         Q, M = div(N, D)
-        expr = M / D
+        expr1 = M / D
 
-        N = len(t)
+        Nt = len(tvector)
 
         # Evaluate transient response.
-        th = np.arange(N) * dt - dt
-        h = LaplaceDomainExpression(expr).transient_response(th)
+        th = np.arange(Nt) * dt - dt
+        h = LaplaceDomainExpression(expr1, **self.assumptions).transient_response(th)
 
-        print('Convolving...')
-        ty = t
-        y = np.convolve(x, h)[0:N] * dt
+        ty = tvector
+        y = np.convolve(xvector, h)[0:Nt] * dt
 
         if Q:
             # Handle Dirac deltas and their derivatives.
-            C = Q.all_coeffs()
-            for n, c in enumerate(C):
+            C = expr(Q).coeffs()
+            for n, c in enumerate(reversed(C)):
 
-                y += c * x
+                y += float(c.expr) * xvector
 
-                x = np.diff(x) / dt
-                x = np.hstack((x, 0))
+                xvector = np.diff(xvector) / dt
+                xvector = np.hstack((xvector, 0))
 
         from scipy.interpolate import interp1d
 
         if delay != 0.0:
-            print('Interpolating...')
             # Try linear interpolation; should oversample first...
             y = interp1d(ty, y, bounds_error=False, fill_value=0)
-            y = y(t - delay)
+            y = y(tvector - delay)
 
         return y
 

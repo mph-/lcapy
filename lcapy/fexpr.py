@@ -162,7 +162,7 @@ class FourierDomainExpression(FourierDomain, Expr):
         """        
 
         from .plot import plot_nyquist
-        return plot_nyquist(self, fvector, log_frequency=log_frequency, **kwargs)        
+        return plot_nyquist(self, fvector, log_frequency=log_frequency, **kwargs)
     
     
 def fexpr(arg, **assumptions):

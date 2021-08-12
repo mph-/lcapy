@@ -146,12 +146,21 @@ class TimeDomainExpression(TimeDomain, Expr):
         from .plot import plot_time
         return plot_time(self, t, **kwargs)
 
-    def sample(self, t):
+    def response(self, xvector, tvector):
+        """Evaluate response to input signal `xvector` at times 
+        `tvector`.  This returns a NumPy array."""
 
-        """Return a discrete-time signal evaluated at time values specified by
-        vector t. """
+        from .sexpr import s
+        return self(s).response(xvector, tvector)
 
-        return self.evaluate(t)
+    def sample(self, tvector):
+
+        """Return a discrete-time signal evaluated at time values
+        specified by tvector.
+
+        """
+
+        return self.evaluate(tvector)
 
     def initial_value(self):
         """Determine value at t = 0. 

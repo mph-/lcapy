@@ -2252,6 +2252,16 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         return expr(sym.solve(self.expr, *symbols, **flags))  
 
     def split_dirac_delta(self):
+        """Return expression as a list of terms.  The first term has no
+        DiracDeltas, the second term collates the DiracDeltas, the
+        third term collates derivatives of DiracDeltas, etc.
+
+        For example, u(t) + DiractDelta(t, 1) returns
+        [u(t), 0, DiracDelta(t, 1)]
+
+        """        
+
+        # TODO: wrap return value as ExprList
         return split_dirac_delta(self)
     
     @property
@@ -2704,7 +2714,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         except:
             raise ValueError('Use .N or .D attribute to specify numerator or denominator of rational function')
 
-        c = z.all_coeffs()
+        c = z.coeffs()
         if norm:
             return expr([sym.simplify(c1 / c[0]) for c1 in c])
             
