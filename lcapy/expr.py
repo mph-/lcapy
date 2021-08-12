@@ -2714,7 +2714,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         except:
             raise ValueError('Use .N or .D attribute to specify numerator or denominator of rational function')
 
-        c = z.coeffs()
+        c = z.all_coeffs()
         if norm:
             return expr([sym.simplify(c1 / c[0]) for c1 in c])
             
