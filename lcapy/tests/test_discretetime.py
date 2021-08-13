@@ -129,9 +129,3 @@ class LcapyTester(unittest.TestCase):
     def test_dt_assumptions(self):
 
         self.assertEqual((1 + 1 / z).is_dc, False, "is_dc")
-        
-        
-        
-
-        
-        
