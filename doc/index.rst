@@ -39,7 +39,8 @@ Contents:
    novice.rst              
    latex.rst
    transforms.rst
-   config.rst                                                      
+   config.rst
+   applications.rst
    problems.rst                          
    internals.rst
    releases.rst
