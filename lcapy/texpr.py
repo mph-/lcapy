@@ -146,12 +146,12 @@ class TimeDomainExpression(TimeDomain, Expr):
         from .plot import plot_time
         return plot_time(self, t, **kwargs)
 
-    def response(self, xvector, tvector):
+    def response(self, xvector, tvector, method='bilinear'):
         """Evaluate response to input signal `xvector` at times 
         `tvector`.  This returns a NumPy array."""
 
         from .sexpr import s
-        return self(s).response(xvector, tvector)
+        return self(s).response(xvector, tvector, method=method)
 
     def sample(self, tvector):
 

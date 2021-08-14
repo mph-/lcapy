@@ -111,7 +111,7 @@ class DLTIFilter(object):
         Yzi = self.zdomain_initial_response(ic)
         return Yzi(n)
     
-    def response(self, x, ic=0, ni=None):
+    def response(self, x, ic=None, ni=None):
         """Calculate response of filter to input `x` given a list of initial conditions
         `ic` for time indexes specified by `ni`.  If `ni` is a tuple,
         this specifies the first and last (inclusive) time index. 
@@ -119,6 +119,9 @@ class DLTIFilter(object):
         The initial conditions are valid prior to the time indices given by the ni
         `x` can be an expression, a sequence, or a list/array of values.
         """
+
+        if ic is None:
+            ic = [0] * (len(self.a) - 1)
 
         if not isiterable(x) and not isinstance(x, DiscreteTimeDomainExpression):
             x = (x, )
@@ -162,7 +165,7 @@ class DLTIFilter(object):
     
             # Add lhs
             y_tot[i + NO] = -1 / self.a[0] * sum(csi * ysi for csi, ysi in zip(a_r, pre_y)) + rhs / self.a[0]
-    
+
         # Solution, without initial values
         ret_seq = seq(y_tot[NO:], ni)  
   

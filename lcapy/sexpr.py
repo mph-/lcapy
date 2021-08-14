@@ -256,7 +256,66 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         return X.evaluate(fvector)
 
-    def response(self, xvector, tvector):
+    def _response_adhoc(self, xvector, tvector):    
+        """Evaluate response of system with applied signal.
+        This method assumes that the data is well over-sampled."""
+        
+        # Perform polynomial long division so expr1 = Q + M / D                
+        N, D, delay = self._decompose()
+        Q, M = div(N, D)
+        expr1 = M / D
+
+        Nt = len(tvector)
+
+        # Evaluate impulse response.
+        ndt = tvector[1] - tvector[0]        
+        th = np.arange(Nt) * ndt
+        H= LaplaceDomainExpression(expr1, **self.assumptions)
+        hvector = H.transient_response(th)
+
+        ty = tvector
+        y = np.convolve(xvector, hvector)[0:Nt] * ndt
+
+        if Q:
+            # Handle Dirac deltas and their derivatives.
+            C = expr(Q).coeffs()
+            for n, c in enumerate(reversed(C)):
+
+                y += float(c.expr) * xvector
+
+                xvector = np.diff(xvector) / ndt
+                xvector = np.hstack((xvector, 0))
+
+        from scipy.interpolate import interp1d
+
+        if delay != 0.0:
+            # Try linear interpolation; should oversample first...
+            y = interp1d(ty, y, bounds_error=False, fill_value=0)
+            y = y(tvector - delay)
+
+        return y
+
+    def _response_bilinear(self, xvector, tvector):
+
+        from .dsym import dt
+        import scipy.signal as signal        
+        
+        # TODO: fix time offset
+        if tvector[0] != 0:
+            raise ValueError('Need initial time of 0')
+        
+        ndt = tvector[1] - tvector[0]
+        
+        Hz = self.bilinear_transform().subs(dt, ndt)
+        fil = Hz.dlti_filter()
+
+        a = [a1.fval for a1 in fil.a]        
+        b = [b1.fval for b1 in fil.b]
+        
+        y = signal.lfilter(b, a, xvector)
+        return y
+
+    def response(self, xvector, tvector, method='bilinear'):
         """Evaluate response to input signal `xvector` at times 
         `tvector`.  This returns a NumPy array."""
 
@@ -274,39 +333,13 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         if self.is_constant:
             return float(self.expr) * xvector
+
+        if method == 'adhoc':
+            return self._response_adhoc(xvector, tvector)
+        elif method == 'bilinear':
+            return self._response_bilinear(xvector, tvector)
+        raise ValueError('Unknown method %s' % method)
         
-        # Perform polynomial long division so expr1 = Q + M / D                
-        N, D, delay = self._decompose()
-        Q, M = div(N, D)
-        expr1 = M / D
-
-        Nt = len(tvector)
-
-        # Evaluate transient response.
-        th = np.arange(Nt) * dt - dt
-        h = LaplaceDomainExpression(expr1, **self.assumptions).transient_response(th)
-
-        ty = tvector
-        y = np.convolve(xvector, h)[0:Nt] * dt
-
-        if Q:
-            # Handle Dirac deltas and their derivatives.
-            C = expr(Q).coeffs()
-            for n, c in enumerate(reversed(C)):
-
-                y += float(c.expr) * xvector
-
-                xvector = np.diff(xvector) / dt
-                xvector = np.hstack((xvector, 0))
-
-        from scipy.interpolate import interp1d
-
-        if delay != 0.0:
-            # Try linear interpolation; should oversample first...
-            y = interp1d(ty, y, bounds_error=False, fill_value=0)
-            y = y(tvector - delay)
-
-        return y
 
     def _decompose(self):
 
