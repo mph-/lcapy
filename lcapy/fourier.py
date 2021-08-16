@@ -325,6 +325,7 @@ class FourierTransformer(BilateralForwardTransformer):
             expr = expr.replace(lambda expr: expr.is_Function and expr.func == cos,
                                 lambda expr: expr.rewrite(exp))
 
+        expr = expr.expand()
         return expr
 
     
