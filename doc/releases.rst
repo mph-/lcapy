@@ -5,6 +5,23 @@ Release notes
 V0.96
 =====
 
+- Adds many more DFTs
+
+- Uses bilinear transform as default approach for `response()` method
+
+- Preserves node order for loop finding
+
+- Fixes domains of sequence elements
+
+- Adds assumptions attribute to sequences
+
+- Uses better naming for dummy variables  
+  
+
+
+V0.96
+=====
+
 - Fixes `floatrat()` and `ratfloat()` expression methods
 
 - Improves conversion of floats to rationals for `expr()`
