@@ -1134,6 +1134,7 @@ class K(Dummy):
                                  opts_string, nodes, keyword, *args)
 
     def _stamp(self, cct):
+        from .sym import ssym
 
         if cct.kind == 'dc':
             return
@@ -1151,7 +1152,7 @@ class K(Dummy):
 
         if cct.kind in ('s', 'ivp', 'laplace'):
             # FIXME, generalise for other domains...
-            ZM = K.expr * sym.sqrt(ZL1 * ZL2 / s**2) * s
+            ZM = K.expr * sym.sqrt(ZL1 * ZL2 / ssym**2) * ssym
         else:
             ZM = K.expr * sym.sqrt(ZL1 * ZL2)
             
