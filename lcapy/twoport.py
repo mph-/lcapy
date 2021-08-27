@@ -2483,7 +2483,7 @@ class IdealVoltageAmplifier(VoltageAmplifier):
 
         Av = LaplaceDomainExpression(Av)
         super(IdealVoltageAmplifier, self).__init__(
-            BMatrix.voltage_differentiator(Av))
+            BMatrix.voltage_amplifier(Av))
         self.args = (Av, )
 
 
