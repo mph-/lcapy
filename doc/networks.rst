@@ -426,7 +426,6 @@ Series R-L-C network
 
 
 
-
 Parallel R-L-C network
 ----------------------
 
@@ -444,6 +443,122 @@ Parallel R-L-C network
    :width: 15cm
 
 
+Two-port networks
+=================
+
+Two-port networks are represented in the Laplace domain.
+
+
+Shunt two-port
+--------------
+
+.. image:: examples/schematics/shunt.png
+   :width: 5cm           
+
+A shunt two-port has a single one-port argument, `Shunt(OP)`, for example
+           
+   >>> n = Shunt(R('R1'))
+
+   
+Series two-port
+---------------
+
+.. image:: examples/schematics/series.png
+   :width: 5cm
+
+A series two-port has a single one-port argument, `Series(OP)`, for
+example
+           
+   >>> n = Series(L('L1'))           
+
+           
+L-section two-port
+------------------
+
+.. image:: examples/schematics/lsection.png
+   :width: 5.5cm             
+
+An L-section two-port has two one-port arguments, `LSection(OP1,
+OP2)`, for example
+           
+   >>> n = LSection(L('L1'), R('R1'))
+
+This is equivalent to chaining a shunt two-port to a series two-port:
+
+   >>> n = Series(L('L1').chain(Shunt(R('R1')))
+   
+
+T-section two-port
+------------------
+
+.. image:: examples/schematics/tsection.png
+   :width: 8cm             
+
+A T-section (also known as a Y-section) two-port has three one-port arguments, `TSection(OP1, OP2, OP3)`, for example
+           
+   >>> n = TSection(L('L1'), R('R1'), C('C1'))
+
+
+Pi-section two-port
+-------------------
+
+.. image:: examples/schematics/pisection.png
+   :width: 7cm             
+
+A pi-section two-port has three one-port arguments, `PiSection(OP1, OP2, OP3)`, for example
+           
+   >>> n = PiSection(L('L1'), R('R1'), C('C1'))   
+
+   
+List of two-ports
+-----------------
+
+- `Shunt`
+- `Series`
+- `LSection`
+- `TSection`
+- `PiSection`  
+- `IdealTransformer`
+- `IdealGyrator`
+- `VoltageFollower`
+- `VoltageAmplifier`
+- `IdealVoltageAmplifier`
+- `IdealDelay`
+- `IdealVoltageDifferentiator`
+- `IdealVoltageIntegrator`
+- `CurrentFollower`
+- `IdealCurrentAmplifier`
+- `IdealCurrentDifferentiator`
+- `IdealCurrentIntegrator`
+- `OpampInverter`
+- `OpampIntegrator`
+- `OpampDifferentiator`
+- `TwinTSection`
+- `BridgedTSection`
+- `Ladder`
+- `GeneralTxLine`
+- `LosslessTxLine`
+- `TxLine`
+
+
+Two-port combinations
+---------------------
+
+Two-port networks can be combined in series, parallel, series at the
+input with parallel at the output (hybrid), parallel at the input with
+series at the output (inverse hybrid), but the most common is the
+chain or cascade.  This connects the output of the first two-port to
+the input of the second two-port.
+
+For example, an L section can be created by chaining a shunt to a
+series one-port::
+
+   >>> from lcapy import *
+   >>> n = Series(R('R_1')).chain(Shunt(R('R_2')))
+   >>> n.Vtransfer
+   R_2/(R_1 + R_2)
+
+           
 
 Two-port network parameters
 ===========================

@@ -223,7 +223,7 @@ simulation (additional components can be drawn, see
 
    `Hname Np Nm Vcontrol H`   
 
-- Ideal transformer of turns ratio a:
+- Ideal transformer of turns ratio a = N_2 / N_1:
 
    `TFname Np Nm Nip Nim a`
 
