@@ -1785,6 +1785,21 @@ class TwoPort(Network, TwoPortMixin):
             pass
         return self
 
+    def __add__(self, OP):
+        """Series combination"""
+
+        return self.series(OP)
+
+    def __or__(self, OP):
+        """Parallel combination"""
+
+        return self.parallel(OP)
+
+    def __mul__(self, OP):
+        """Chained combination"""
+
+        return self.chain(OP)    
+    
 
 class TwoPortBModel(TwoPort):
 
