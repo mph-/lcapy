@@ -646,6 +646,7 @@ class AMatrix(TwoPortMatrix):
 
     @classmethod
     def transformer(cls, alpha):
+        """The voltage gain alpha = 1 / a, where a is the turns ratio."""
 
         alpha = ConstantDomainExpression(alpha)
 
@@ -894,6 +895,7 @@ class BMatrix(TwoPortMatrix):
 
     @classmethod
     def transformer(cls, alpha):
+        """The voltage gain alpha = 1 / a, where a is the turns ratio."""
 
         alpha = ConstantDomainExpression(alpha)
 
@@ -2403,7 +2405,9 @@ class Shunt(TwoPortBModel):
 
 class IdealTransformer(TwoPortBModel):
 
-    """Ideal transformer voltage gain alpha, current gain 1 / alpha"""
+    """Ideal transformer voltage gain alpha, current gain 1 / alpha.
+    Note, alpha = 1 / a where a is the turns ratio defined as the
+    number of primary turns to the number of secondary turns, a = N_2 / N_1."""
 
     def __init__(self, alpha=1):
 

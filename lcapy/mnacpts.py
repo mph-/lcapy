@@ -1403,7 +1403,9 @@ class TF(Cpt):
         if n2 >= 0:
             cct._B[n2, m] -= 1
             cct._C[m, n2] -= 1
-        
+
+        # Voltage gain = 1 / a where a = N_1 / N_2
+        # is the turns-ratio.
         T = self.cpt.alpha.expr
 
         if n3 >= 0:
