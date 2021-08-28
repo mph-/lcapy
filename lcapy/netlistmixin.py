@@ -1711,6 +1711,12 @@ class NetlistMixin(object):
         return self.analysis['reactances']
 
     @property
+    def transformers(self):
+        """Return dictionary of transformers."""
+
+        return self.analysis['transformers']    
+
+    @property
     def ics(self):
         """Return dictionary of components with initial conditions."""
 
@@ -1799,6 +1805,7 @@ class NetlistMixin(object):
         dependent_sources = []        
         control_sources = []
         reactances = []
+        transformers = []
         ics = []
         
         for eltname, elt in self.elements.items():
@@ -1826,7 +1833,9 @@ class NetlistMixin(object):
                 dependent_sources.append(eltname)
             if elt.reactive:
                 reactive = True
-                reactances.append(eltname)                
+                reactances.append(eltname)
+            if elt.is_transformer:
+                transformers.append(eltname)                
 
         num_sources = len(independent_sources)
                     
@@ -1839,6 +1848,7 @@ class NetlistMixin(object):
         analysis['has_s'] = has_s
         analysis['has_transient'] = has_transient
         analysis['reactances'] = reactances
+        analysis['transformers'] = transformers        
         analysis['ics'] = ics         
         analysis['dependent_sources'] = dependent_sources        
         analysis['independent_sources'] = independent_sources

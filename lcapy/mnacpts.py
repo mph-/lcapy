@@ -47,7 +47,7 @@ class Cpt(ImmittanceMixin):
     add_series = False
     add_parallel = False    
     equipotential_nodes = ()
-    
+    is_transformer = False
 
     def __init__(self, cct, namespace, defname, name, cpt_type, cpt_id, string,
                  opts_string, nodes, keyword, *args):
@@ -1391,6 +1391,7 @@ class TF(Cpt):
     """Transformer"""    
 
     need_branch_current = True
+    is_transformer = True    
 
     def _stamp(self, cct):
 
