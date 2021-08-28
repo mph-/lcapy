@@ -1714,7 +1714,31 @@ class NetlistMixin(object):
     def transformers(self):
         """Return dictionary of transformers."""
 
-        return self.analysis['transformers']    
+        return self.analysis['transformers']
+
+    @property
+    def capacitors(self):
+        """Return dictionary of capacitors."""
+
+        return self.analysis['capacitors']
+
+    @property
+    def inductors(self):
+        """Return dictionary of inductors."""
+
+        return self.analysis['inductors']
+
+    @property
+    def voltage_sources(self):
+        """Return dictionary of voltage_sources."""
+
+        return self.analysis['voltage_sources']
+
+    @property
+    def current_sources(self):
+        """Return dictionary of current_sources."""
+
+        return self.analysis['current_sources']                    
 
     @property
     def ics(self):
@@ -1806,6 +1830,10 @@ class NetlistMixin(object):
         control_sources = []
         reactances = []
         transformers = []
+        capacitors = []
+        inductors = []
+        voltage_sources = []
+        current_sources = []
         ics = []
         
         for eltname, elt in self.elements.items():
@@ -1835,7 +1863,15 @@ class NetlistMixin(object):
                 reactive = True
                 reactances.append(eltname)
             if elt.is_transformer:
-                transformers.append(eltname)                
+                transformers.append(eltname)
+            elif elt.is_capacitor:
+                capacitors.append(eltname)
+            elif elt.is_inductor:
+                inductors.append(eltname)
+            elif elt.is_voltage_source:
+                voltage_sources.append(eltname)
+            elif elt.is_current_source:
+                current_sources.append(eltname)                                
 
         num_sources = len(independent_sources)
                     
@@ -1848,7 +1884,11 @@ class NetlistMixin(object):
         analysis['has_s'] = has_s
         analysis['has_transient'] = has_transient
         analysis['reactances'] = reactances
-        analysis['transformers'] = transformers        
+        analysis['transformers'] = transformers
+        analysis['capacitors'] = capacitors
+        analysis['inductors'] = inductors
+        analysis['voltage_sources'] = voltage_sources
+        analysis['current_sources'] = current_sources
         analysis['ics'] = ics         
         analysis['dependent_sources'] = dependent_sources        
         analysis['independent_sources'] = independent_sources

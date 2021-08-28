@@ -127,6 +127,25 @@ class MNAMixin(object):
         # to form Z vector.
         self._Z = self._Is.col_join(self._Es)
 
+    def _failure_reasons(self):
+
+        message = 'The MNA A matrix is not invertible for %s analysis:\n' % self.kind
+
+        reasons = []
+        
+        if self.kind == 'dc':
+            reasons.append('Check there is a DC path between all nodes.')
+        if self.transformers != []:
+            reasons.append('Check secondary of transformer is referenced to ground.')
+        if len(self.capacitors) > 1:
+            reasons.append('Check capacitors are not in series.')
+        if self.voltage_sources != []:
+            reasons.append('Check voltage source is not short-circuited.')
+        if self.current_sources != []:
+            reasons.append('Check current source is not open-circuited.')
+
+        return message + '    ' + '\n    '.join(reasons)
+        
     def _solve(self):
         """Solve network."""
         
@@ -145,17 +164,8 @@ class MNAMixin(object):
             # GE 66, ADJ 73, LU 76. 
             Ainv = matrix_inverse(self._A)
         except ValueError:
-            comment = ''
-            if self.kind == 'dc':
-                comment = '  Check there is a DC path between all nodes.'
-            raise ValueError(
-"""The MNA A matrix is not invertible for %s analysis because:
-1. there may be capacitors in series;
-2. a voltage source might be short-circuited;
-3. a current source might be open-circuited;
-4. a dc current source is connected to a capacitor (use step current source);
-5. part of the circuit is not referenced to ground.
-%s""" % (self.kind, comment))
+            message = self._failure_reasons()
+            raise ValueError(message)
 
         results = symsimplify(Ainv * self._Z)
 
