@@ -87,6 +87,18 @@ class NetlistMixin(object):
         return self
 
     @property
+    def params(self):
+        """Return list of symbols used as arguments in the circuit."""
+
+        symbols = self.symbols
+        params = []
+        for elt in self.elements.values():
+            for arg in elt.args:
+                if arg in symbols and arg not in params:
+                    params.append(arg)
+        return params
+    
+    @property
     def symbols(self):
         """Return dictionary of symbols defined in the circuit."""
         

@@ -267,6 +267,13 @@ class Network(object):
         return self.cct.kinds
 
     @property
+    def params(self):
+        """Return list of symbols used as arguments in the circuit."""
+
+        # This would be faster to determine directly from AST.
+        return self.cct.params
+        
+    @property
     def symbols(self):
         """Return dictionary of symbols defined in the network."""
         
