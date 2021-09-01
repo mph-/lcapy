@@ -9,17 +9,17 @@ from .netlisthelper import NetlistHelper
 
 class NetlistMaker(NetlistHelper):
 
-    def __init__(self, net, form='horizontal', evalf=None):
+    def __init__(self, net, layout='horizontal', evalf=None):
 
         self.net = net
         self.evalf = evalf        
 
-        if form == 'horizontal':
+        if layout == 'horizontal':
             self.dir = 'right'
-        elif form == 'vertical':
+        elif layout == 'vertical':
             self.dir = 'down'
         else:
-            raise ValueError('Unknown form ' + form)
+            raise ValueError('Unknown layout ' + layout)
 
     def __call__(self):
 

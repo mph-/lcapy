@@ -133,21 +133,21 @@ class Network(object):
         depths = self._depths
         return 1 + max(depths)
         
-    def netlist(self, form='horizontal', evalf=None):
+    def netlist(self, layout='horizontal', evalf=None):
         """Create a netlist.
 
-        `form` can be 'horizontal', 'vertical', or 'ladder'.
+        `layout` can be 'horizontal', 'vertical', or 'ladder'.
 
         `evalf` can be False or an integer specifying the number of
         decimal places used to evaluate floats.
         """
 
-        if form == 'ladder':
+        if layout == 'ladder':
             from .laddermaker import LadderMaker
-            return LadderMaker(self, form=form, evalf=evalf)()
+            return LadderMaker(self, layout=layout, evalf=evalf)()
 
         from .netlistmaker import NetlistMaker        
-        return NetlistMaker(self, form=form, evalf=evalf)()
+        return NetlistMaker(self, layout=layout, evalf=evalf)()
 
     def pdb(self):
         """Enter the python debugger."""
@@ -155,17 +155,17 @@ class Network(object):
         import pdb; pdb.set_trace()
         return self
     
-    def sch(self, form='horizontal', evalf=False):
+    def sch(self, layout='horizontal', evalf=False):
         """Convert a Network object into a Schematic object."""
 
-        netlist = self.netlist(form=form, evalf=evalf)
+        netlist = self.netlist(layout=layout, evalf=evalf)
         sch = Schematic()
         for net in netlist.split('\n'):
             sch.add(net)
 
         return sch
 
-    def draw(self, filename=None, form='horizontal', evalf=False, **kwargs):
+    def draw(self, filename=None, layout='horizontal', form=None, evalf=False, **kwargs):
         """Draw schematic of network.
 
         filename specifies the name of the file to produce.  If None,
@@ -173,7 +173,7 @@ class Network(object):
 
         Note, if using Jupyter, then need to first issue command %matplotlib inline
 
-        `form` is either 'horizontal', 'vertical', or 'ladder'.
+        `layout` is either 'horizontal', 'vertical', or 'ladder'.
 
         `evalf` can be False or an integer specifying the number of
         decimal places used to evaluate floats.
@@ -207,8 +207,12 @@ class Network(object):
             kwargs['label_nodes'] = False
         if 'draw_nodes' not in kwargs:
             kwargs['draw_nodes'] = 'connections'
-        
-        self.sch(form=form, evalf=evalf).draw(filename=filename, **kwargs)
+
+        if form is not None:
+            print('Warning: form is deprecated; use layout instead')
+            layout = form
+            
+        self.sch(layout=layout, evalf=evalf).draw(filename=filename, **kwargs)
         
     @property
     def cct(self):

@@ -11,10 +11,10 @@ from .netlisthelper import NetlistHelper
 
 class LadderMaker(NetlistHelper):
 
-    def __init__(self, net, form='ladder', evalf=None):
+    def __init__(self, net, layout='ladder', evalf=None):
 
         self.net = net
-        self.form = form
+        self.layout = layout
         self.evalf = evalf
         self.s = ''
         self.first_cpt = None
