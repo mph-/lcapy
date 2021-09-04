@@ -171,7 +171,7 @@ class InverseZTransformer(UnilateralInverseTransformer):
 
         n_poles = len(poles)
         # Leading coefficient of denominator polynom
-        a_0 = sym.LC(D) 
+        a_0 = sym.LC(D, z) 
         # The canceled denominator (for each (z-p)**o) 
         shorten_denom = {}
         for i in range(n_poles):
