@@ -216,7 +216,7 @@ class ExprDict(ExprPrint, ExprContainer, ExprMisc, OrderedDict):
                 v = v.expr                
             new[k] = v
         return new
-    
+
     
 class ExprList(ExprPrint, list, ExprContainer, ExprMisc):
     """Decorator class for list created by sympy."""
@@ -252,6 +252,18 @@ class ExprList(ExprPrint, list, ExprContainer, ExprMisc):
     def expr(self):
         return [e.expr for e in self]
 
+    @property
+    def fval(self):
+        """Evaluate expression and return as a list of python float values."""
+
+        return [float(a.fval) for a in self]
+
+    @property
+    def cval(self):
+        """Evaluate expression and return as a list of python complex values."""
+
+        return [complex(a.cval) for a in self]        
+
     
 class ExprTuple(ExprPrint, tuple, ExprContainer, ExprMisc):
     """Decorator class for tuple created by sympy."""
@@ -270,6 +282,18 @@ class ExprTuple(ExprPrint, tuple, ExprContainer, ExprMisc):
     @property
     def expr(self):
         return tuple([e.expr for e in self])
+
+    @property
+    def fval(self):
+        """Evaluate expression and return as a tuple of python float values."""
+
+        return tuple([float(a.fval) for a in self])
+
+    @property
+    def cval(self):
+        """Evaluate expression and return as a tuple of python complex values."""
+
+        return tuple([complex(a.cval) for a in self])
 
 
 class ExprDomain(object):
