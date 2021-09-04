@@ -11,7 +11,7 @@ from .sym import j, pi, fsym, omegasym
 from .dsym import nsym, ksym, zsym, dt
 from .vector import Vector
 from .ratfun import _zp2tf, Ratfun
-from .expr import symbol, expr, ExprDict
+from .expr import symbol, expr, ExprDict, ExprList
 from .diffeq import DifferenceEquation
 from .seqexpr import SequenceExpression
 from .zseq import ZDomainSequence
@@ -335,10 +335,22 @@ class ZDomainExpression(ZDomain, SequenceExpression):
         if len(n_n) > len(d_n):
             raise ValueError("System not causal")
 
-        bn = (len(d_n) - len(n_n)) * [0] + n_n
+        bn = ExprList((len(d_n) - len(n_n)) * [0] + n_n)
         an = d_n
         lpf = DLTIFilter(bn, an) 
         return lpf
+
+    def inverse_bilinear_transform(self):
+        """Approximate z = exp(s * dt)
+
+        by z = (1 + 0.5 * dt * s) / (1 - 0.5 * dt * s)"""
+
+        # TODO: add frequency warping as an option
+
+        from .symbols import s
+        from .discretetime import dt
+
+        return self.subs((1 + 0.5 * dt * s) / (1 - 0.5 * dt * s))
         
 def zexpr(arg, **assumptions):
     """Create ZDomainExpression object.  If `arg` is zsym return z"""
