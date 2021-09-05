@@ -350,7 +350,9 @@ class ZDomainExpression(ZDomain, SequenceExpression):
         from .symbols import s
         from .discretetime import dt
 
-        return self.subs((1 + 0.5 * dt * s) / (1 - 0.5 * dt * s))
+        a = s * dt / 2
+        
+        return self.subs((1 + a) / (1 - a))
         
 def zexpr(arg, **assumptions):
     """Create ZDomainExpression object.  If `arg` is zsym return z"""
