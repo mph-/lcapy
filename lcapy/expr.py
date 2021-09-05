@@ -500,7 +500,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
         else:
             return self.expr                
 
-    def __init__(self, arg, **assumptions):
+    def __init__(self, arg, rational=True, **assumptions):
         """
 
          There are three types of assumptions:
@@ -536,7 +536,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
 
         self.assumptions = assumptions
         # Remove Lcapy assumptions from SymPy expr.
-        self.expr = sympify(arg, **self.assumptions.sympy_assumptions())
+        self.expr = sympify(arg, rational=rational, **self.assumptions.sympy_assumptions())
         try:
             self._units = self._default_units
         except:
