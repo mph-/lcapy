@@ -427,7 +427,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         return self.fourier(causal=True).nyquist_plot(fvector, **kwargs)    
 
     def bilinear_transform(self):
-        """Approximate s = ln(z)
+        """Approximate s = ln(z) / dt
 
         by s = (2 / dt) * (1 - z**-1) / (1 + z**-1)
 
