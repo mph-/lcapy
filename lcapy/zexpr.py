@@ -339,8 +339,8 @@ class ZDomainExpression(ZDomain, SequenceExpression):
         an = dn
 
         if normalize_a0:
+            bn = [bx / an[0] for bx in bn]
             an = [ax / an[0] for ax in an]
-            bn = [bx / an[0] for bx in bn]            
         
         lpf = DLTIFilter(bn, an) 
         return lpf
