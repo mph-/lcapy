@@ -11,6 +11,7 @@ from .discretetime import n, z, seq
 from .sequence import Sequence
 from .utils import isiterable
 from numpy import arange, ndarray
+from scipy.signal import lfilter
 import sympy as sym
 
 
@@ -125,6 +126,14 @@ class DLTIFilter(object):
         The initial conditions are valid prior to the time indices given by the ni
         `x` can be an expression, a sequence, or a list/array of values.
         """
+
+        if (ic is None and ni is None and isinstance(x, ndarray)
+            and self.a.symbols == {} and self.b.symbols == {}):
+
+            # Calculate numerical response
+            b = self.b.fval
+            a = self.a.fval
+            return lfilter(b, a, x)
 
         if ic is None:
             ic = [0] * (len(self.a) - 1)
