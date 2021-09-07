@@ -4,7 +4,7 @@ Copyright 2021 Michael Hayes, UCECE
 
 """
 
-from .expr import expr, equation
+from .expr import expr, equation, ExprTuple
 from .nexpr import DiscreteTimeDomainExpression
 from .diffeq import DifferenceEquation
 from .discretetime import n, z, seq
@@ -26,8 +26,14 @@ class DLTIFilter(object):
         if not isiterable(a):
             a = (a, )            
         
-        self.a = a
-        self.b = b
+        self.a = ExprTuple(a)
+        self.b = ExprTuple(b)
+
+    def __repr__(self):
+        """This is called by repr(expr).  It is used, e.g., when printing
+        in the debugger."""
+        
+        return '%s(%s, %s)' % (self.__class__.__name__, self.b, self.a)
 
     def transfer_function(self):
         """Return discrete-time impulse response (transfer function) in
