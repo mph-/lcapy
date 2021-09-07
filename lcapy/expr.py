@@ -186,6 +186,23 @@ class ExprDict(ExprPrint, ExprContainer, ExprMisc, OrderedDict):
             new[k] = simplify(v)
         return new
 
+    def evalf(self, n=15):
+        """Evaluate each element to convert to floating point values.
+        `n` is the number of decimal places."""
+
+        new = self.__class__()
+        for k, v in self.items():
+            try:
+                k = k.evalf(n)
+            except:
+                pass
+            try:
+                v = v.evalf(n)
+            except:
+                pass            
+            new[k] = v
+        return new
+    
     def subs(self, *args, **kwargs):
         """Substitute variables in expression, see sympy.subs for usage."""
 
