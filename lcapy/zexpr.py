@@ -316,7 +316,7 @@ class ZDomainExpression(ZDomain, SequenceExpression):
 
         return DifferenceEquation(lhs, rhs, inputsym, outputsym)
 
-    def dlti_filter(self):
+    def dlti_filter(self, normalize_a0=True):
         """Create discrete-time linear time-invariant filter from discrete-time
         transfer function."""
 
@@ -329,14 +329,19 @@ class ZDomainExpression(ZDomain, SequenceExpression):
             
         N = self.N
         D = self.D
-        n_n = N.coeffs()
-        d_n = D.coeffs()
+        nn = N.coeffs()
+        dn = D.coeffs()
     
-        if len(n_n) > len(d_n):
+        if len(nn) > len(dn):
             raise ValueError("System not causal")
 
-        bn = ExprList((len(d_n) - len(n_n)) * [0] + n_n)
-        an = d_n
+        bn = ExprList((len(dn) - len(nn)) * [0] + nn)
+        an = dn
+
+        if normalize_a0:
+            an = [ax / an[0] for ax in an]
+            bn = [bx / an[0] for bx in bn]            
+        
         lpf = DLTIFilter(bn, an) 
         return lpf
 
