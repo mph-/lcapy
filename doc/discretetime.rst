@@ -611,7 +611,10 @@ The bilinear transform can be used to approximate an s-domain expression with a 
    ──────────────────────
    Δₜ⋅a⋅(z + 1) - 2⋅z + 2
 
-Here's another example, an RC low-pass filter.
+The related method `inverse_bilinear_transform()` converts an s-domain expression to the z-domain using :math:`z \approx
+(1 + 0.5 \Delta t s) / (1 - 0.5 \Delta t s)`.
+   
+Here's an example of the bilinear transform applied for an RC low-pass filter.
 
    >>> from lcapy import Circuit, s, t
    >>> net = Circuit("""
