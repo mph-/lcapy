@@ -185,3 +185,11 @@ class DLTIFilter(object):
         ret_seq = seq(y_tot[NO:], ni)  
   
         return ret_seq
+
+
+    def subs(self, *args, **kwargs):
+
+        a = self.a.subs(*args, **kwargs)
+        b = self.b.subs(*args, **kwargs)
+
+        return self.__class__(b, a)
