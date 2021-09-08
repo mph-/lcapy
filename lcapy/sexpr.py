@@ -374,6 +374,13 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         return TimeDomainExpression(Eq(lhs.expr, rhs.expr))
 
+    def dlti_filter(self, method='bilinear'):
+        """Create DLTI filter using bilinear transform."""
+
+        if method != 'bilinear':
+            raise ValueError('Unsupported transform ' + bilinear)
+        return self.bilinear_transform().simplify().dlti_filter()
+    
     def evaluate(self, svector=None):
 
         return super(LaplaceDomainExpression, self).evaluate(svector)
