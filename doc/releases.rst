@@ -2,7 +2,31 @@
 Release notes
 =============
 
-V0.96
+V0.98
+=====
+
+- Adds numerical filtering to `DLTIFilter`
+
+- Normalizes a0 to 1 by default for `DLTIFilter`
+
+- Add `subs()` method to `DLTIFilter`
+
+- Fixes `subs()` method for `ExprDict`
+
+- Adds inverse bilinear transform
+
+- Adds `fval` and `cval` attributes to `ExprDict`, `ExprList`, and `ExprTuple`
+
+- Ensures rationals converted to floats for `evalf()`
+
+- Renames `form` with `layout` for network drawing
+
+- Clarifies reasons why MNA fails
+
+- Adds misc. bug fixes  
+  
+
+V0.97
 =====
 
 - Adds many more DFTs
