@@ -294,7 +294,7 @@ class ExprTuple(ExprPrint, tuple, ExprContainer, ExprMisc):
     def subs(self, *args, **kwargs):
         """Substitute variables in expression, see sympy.subs for usage."""
         
-        return expr((e.subs(*args, **kwargs) for e in self))
+        return expr(tuple([e.subs(*args, **kwargs) for e in self]))
 
     @property
     def expr(self):
