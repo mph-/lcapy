@@ -43,7 +43,7 @@ Here's another example, this time loading the netlist from a file:
 Here are the contents of the file 'voltage-divider.sch'::
 
    Vi 1 0_1; down
-   R1 1 2; right, size=1.5
+   R1 1 2; right=1.5
    R2 2 0; down
    P1 2_2 0_2; down, v=V_o
    W 2 2_2; right
@@ -60,7 +60,7 @@ wires do not need unique names.
 Netlists
 --------
 
-Schematics are described using the same netlist syntax as used for circuit analysis.  See :ref:`component-specification` for a list of known components.  The drawing attributes are specified after a semicolon delimiter.  For example::
+Schematics are described using the same netlist syntax as used for circuit analysis.  See :ref:`component-specification` for a list of known components.  The drawing attributes (see :ref:`attributes`) are specified after a semicolon delimiter.  For example::
 
     R1 1 2; right=2, color=blue
 
@@ -239,7 +239,7 @@ These options can be stored with the schematic netlist, for example::
   W 2 3; right
   W 0 4; right
   W 4 5; right
-  SW 6 2 no; right, l=, size=1.5
+  SW 6 2 no; right=1.5, l=
   ; draw_nodes=connections, label_nodes=False, label_ids=False
 
 
@@ -1107,7 +1107,7 @@ component.  For example,
 .. image:: examples/schematics/labels1.png
    :width: 8cm
 
-Annotations are similar to a component label, for example,
+Annotations are similar to a component label but use the `a` attribute instead of the `l` attribute, for example,
 
 .. literalinclude:: examples/schematics/Rlabels.sch
 
@@ -1119,8 +1119,8 @@ Voltage labels
 --------------
 
 Voltage label positions are controlled with the `^` and `_`
-attributes.  The `^` attribute positions the label above the component
-and the `_` attribute positions the label below the component.  For
+modifiers.  The `^` modifier positions the label above the component
+and the `_` modifier positions the label below the component.  For
 example,
            
 .. literalinclude:: examples/schematics/voltage_labels1.sch
@@ -1131,9 +1131,9 @@ example,
 Current and flow labels
 -----------------------
            
-The current and flow labels have additional `<` and `>` attributes to
+The current and flow labels have additional `<` and `>` modifiers to
 specify the flow direction.  If these come before the `^` and `_`
-attributes, the label is positioned at the start of the component
+modifiers, the label is positioned at the start of the component
 otherwise it is positioned at the end of the component.
 
 Here are some examples of current and flow label positioning:
@@ -1176,42 +1176,63 @@ open-circuit component.   For example,
 
     >>> O1 1 0; down, v=V_1
 
+ 
+.. _attributes:
 
 Component attributes
 ====================
+
+- `a`: annotation (a second label)
+
+- `anchors`: specify which anchors to show
+
+- `aspect`: aspect ratio for boxes
+
+- `color`: component color
+  
+- `f`: flow label
+
+- `fill`: component fill color  
+
+- `fliplr`: flip left/right (horizontally)
+  
+- `flipud`: flip up/down (vertically)
+  
+- `free`: place no constraints on the node positions; this is useful for stepped wires.  With this attribute the `size` and `rotate` attributes are ignored.
+  
+- `i`: current label
+
+- `ignore`: do not connect to the other components and do not draw (this is useful for simulating multiple mutual inductances but where it it is too hard to show them on a schematic)
+
+- `invert`: invert component vertically  
+  
+- `invisible`: connect to the other components but do not draw
+
+- `fixed`: do not stretch
+
+- `kind`: `electrolytic`, `polar`, or `variable` for capacitors; `variable` for inductors
+  
+- `l`: label
+  
+- `mirror`: mirror component in x-axis (opamps, transistors)
+
+- `mirrorinputs`: mirror inputs for opamps
+
+- `offset`: distance to orthogonally offset component (useful for parallel components)  
+- `pins`: define pin labels for ICs
+
+- `rotate`: angle in degrees to rotate component anti-clockwise
 
 - `size`: scale factor for distance between component's nodes
 
 - `scale`: scale factor for length of component
 
-- `rotate`: angle in degrees to rotate component anti-clockwise
-
-- `mirror`: mirror component in x-axis (opamps, transistors)
-
-- `mirrorinputs`: mirror inputs for opamps
-
-- `invisible`: connect to the other components but do not draw
-
-- `ignore`: do not connect to the other components and do not draw (this is useful for simulating multiple mutual inductances but where it it is too hard to show them on a schematic)
-
-- `free`: place no constraints on the node positions; this is useful for stepped wires.  With this attribute the `size` and `rotate` attributes are ignored.
-  
-- `color`: component color
+- `v`: voltage label  
 
 - `variable`: for variable resistors, inductors, and capacitors
 
-- `kind`: `electrolytic`, `polar`, or `variable` for capacitors; `variable` for inductors
-  
-- `fixed`: do not stretch
+- `width`: specify component width
 
-- `aspect`: set aspect ratio for boxes
-
-- `pins`: define pin labels for ICs
-
-- `anchors`: specify which anchors to show
-
-- `offset`: distance to orthogonally offset component (useful for parallel components)
-  
 
 Here's an example using the variable attribute:
 
