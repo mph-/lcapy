@@ -824,8 +824,11 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
 
         """
 
-        val = self.ratfloat().expr.evalf(n, *args, **kwargs)
-        return self.__class__(val, rational=False, **self.assumptions)    
+        new = self.copy()
+        # Don't create Expr since SymPy sympify will create Integers
+        # rather than Floats if the truncated Float looks like an integer.
+        new.expr = self.ratfloat().expr.evalf(n, *args, **kwargs)
+        return new
 
     def __hash__(self):
         # This is needed for Python3 so can create a dict key,
