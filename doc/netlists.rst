@@ -5,7 +5,7 @@
 Netlists
 ========
 
-Lcapy circuits are described using a netlist of interconnected components (see :ref:`component-specification`).  Each line of a netlist describes a component using a Spice-like syntax.
+Lcapy circuits are described using a netlist of interconnected components (see :ref:`component-specification`).  Each line of a netlist describes a component using a SPICE-like syntax.
 
 
 Circuits
@@ -57,10 +57,12 @@ Component specification
 Each line in a netlist describes a single component, with the 
 general form:
 
-    `component-name positive-node negative-node arg1 [arg2 etc.]`
+    `component-name positive-node negative-node arg1 [arg2 etc.] [; schematic attributes]
 
 If no args are specified then the component value is assigned a
-symbolic name specified by `component-name`. 
+symbolic name specified by `component-name`.
+
+Lines starting with `#` are treated as comments.
 
 Arguments containing delimiters (space, tab, comma, left bracket,
 right bracket) can be escaped with brackets or double quotes.  For

@@ -60,9 +60,12 @@ wires do not need unique names.
 Netlists
 --------
 
-Schematics are described using the same netlist syntax as used for circuit analysis.  See
-:ref:`component-specification` for a list of known components.
+Schematics are described using the same netlist syntax as used for circuit analysis.  See :ref:`component-specification` for a list of known components.  The drawing attributes are specified after a semicolon delimiter.  For example::
 
+    R1 1 2; right=2, color=blue
+
+This defines a resistor between nodes 1 and 2 drawn in blue to the right with length 2.
+    
            
 Component orientation
 ---------------------
@@ -483,7 +486,7 @@ component.  For example,
 .. image:: examples/schematics/misc.png
    :width: 5cm
 
-See the Circuitikz manual for bipole components that can be drawn.
+See the `Circuitikz manual <https://texdoc.org/serve/circuitikz/0>`_ for bipole components that can be drawn.
            
 
 Opamps
@@ -742,7 +745,7 @@ Arrows
 ------
 
 Arrows can be drawn on wires using the `startarrow` and `endarrow` attributes.
-There are many arrow styles, see the tikz manual.  For example,
+There are many arrow styles, see the `Tikz manual <https://pgf-tikz.github.io/pgf/pgfmanual.pdf>`_.  For example,
 
 .. literalinclude:: examples/schematics/arrows.sch
 
@@ -981,8 +984,8 @@ The pin names can be redefined by the `pindefs` option.  This has a syntax:
   - `pindefs={new1=old1, new2=old2, ...}`
 
                     
-Annotation
-==========
+Node annotation
+===============
 
 Nodes can be annotated using the `A` net.   For example,
 
@@ -1051,7 +1054,8 @@ Here are some examples using the `fill` attribute:
 .. image:: examples/schematics/colors1.png
    :width: 20cm
 
-Shading can be performed using the `top color` and `bottom color` attributes, see https://pgf-tikz.github.io/pgf/pgfmanual.pdf
+Shading can be performed using the `top color` and `bottom color`
+attributes, see the `Tikz manual <https://pgf-tikz.github.io/pgf/pgfmanual.pdf>`_.
            
 
 .. _linestyles:
@@ -1067,13 +1071,15 @@ The line style of wires can be changed using the tikz attributes, `dashed`, `dot
    :width: 12cm
 
 
-Labels
-------
+Labels and annotations
+======================
 
 Each component has a component identifier label and a value label.
-These can be augmented by explicit voltage, current, and flow labels.
+These can be augmented by explicit voltage, current, and flow labels.  One-port components (bipoles) also have an optional annotation that is similar to a label.
 
 - l=label -- component label
+
+- a=label -- annotation
 
 - i=label -- current label
  
@@ -1081,13 +1087,17 @@ These can be augmented by explicit voltage, current, and flow labels.
 
 - f=label -- flow label
 
-The label name can be displayed using LaTeX math mode by enclosing the
-name between dollar signs.  Thus superscripts and subscripts can be
+The label can be displayed using LaTeX math mode by enclosing the
+label between dollar signs.  Thus superscripts and subscripts can be
 employed.  For example,
 
 >>> cct.add('R1 1 2; right, i=$I_1$, v=$V_{R_1}$')
 
-The component and voltage label positions can be controlled with the
+
+Component labels and annotations
+--------------------------------
+
+The component label and annotation positions are controlled with the
 `^` and `_` attributes.  The `^` attribute positions the label above
 the component and the `_` attribute positions the label below the
 component.  For example,
@@ -1097,11 +1107,30 @@ component.  For example,
 .. image:: examples/schematics/labels1.png
    :width: 8cm
 
+Annotations are similar to a component label, for example,
+
+.. literalinclude:: examples/schematics/Rlabels.sch
+
+.. image:: examples/schematics/Rlabels.png
+   :width: 8cm
+
+           
+Voltage labels
+--------------
+
+Voltage label positions are controlled with the `^` and `_`
+attributes.  The `^` attribute positions the label above the component
+and the `_` attribute positions the label below the component.  For
+example,
+           
 .. literalinclude:: examples/schematics/voltage_labels1.sch
 
 .. image:: examples/schematics/voltage_labels1.png
    :width: 8cm
 
+Current and flow labels
+-----------------------
+           
 The current and flow labels have additional `<` and `>` attributes to
 specify the flow direction.  If these come before the `^` and `_`
 attributes, the label is positioned at the start of the component
@@ -1149,7 +1178,7 @@ open-circuit component.   For example,
 
 
 Component attributes
---------------------
+====================
 
 - `size`: scale factor for distance between component's nodes
 
@@ -1199,10 +1228,11 @@ Here's an example using the kind attribute to specify the type of capacitor.
 .. image:: examples/schematics/capacitors.png
    :width: 7cm
 
+See also the `Circuitikz manual <https://texdoc.org/serve/circuitikz/0>`_ for other component attributes.
            
 
 Schematic attributes
---------------------
+====================
 
 - `node_spacing`: scale factor for distance between component nodes (default 2).
 
@@ -1386,7 +1416,7 @@ In this example, a dashed wire connects the electrical and mechanical grounds fo
 Customisation
 =============
 
-Circuitikz commands (indeed any TikZ/PGF macros) can be embedded in a netlist.  Here's an example that embeds a circuitikz command to change the inductor style:
+Circuitikz commands (indeed any TikZ/PGF macros) can be embedded in a netlist.  Here's an example that embeds a Circuitikz command to change the inductor style:
 
 .. literalinclude:: examples/schematics/L1.sch
 
@@ -1502,4 +1532,4 @@ example::
   
 
 Unfortunately, the drawing quality depends on the installed version of
-circuitikz due to slight tweakings of component sizes.
+Circuitikz due to slight tweakings of component sizes.
