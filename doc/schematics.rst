@@ -1075,11 +1075,13 @@ Labels and annotations
 ======================
 
 Each component has a component identifier label and a value label.
-These can be augmented by explicit voltage, current, and flow labels.  One-port components (bipoles) also have an optional annotation that is similar to a label.
+These can be augmented by explicit voltage, current, and flow labels.  One-port components (bipoles) also have an optional annotation that is similar to a label.  Some components have an inner label.
 
 - l=label -- component label
 
 - a=label -- annotation
+
+- t=label -- inner label
 
 - i=label -- current label
  
@@ -1182,7 +1184,7 @@ open-circuit component.   For example,
 Component attributes
 ====================
 
-- `a`: annotation (a second label)
+- `a`: annotation (a second label) (also `a^` and `a_`)
 
 - `anchors`: specify which anchors to show
 
@@ -1190,7 +1192,7 @@ Component attributes
 
 - `color`: component color
   
-- `f`: flow label
+- `f`: flow label  (also `f`, `f_`, `f^`, `f_>`,  `f_<`, `f^>`, `f^<`, `f>_`, `f<_`, `f>^`, `f<^`, `f>`, `f<`)
 
 - `fill`: component fill color  
 
@@ -1200,7 +1202,7 @@ Component attributes
   
 - `free`: place no constraints on the node positions; this is useful for stepped wires.  With this attribute the `size` and `rotate` attributes are ignored.
   
-- `i`: current label
+- `i`: current label (also `i`, `i_`, `i^`, `i_>`,  `i_<`, `i^>`, `i^<`, `i>_`, `i<_`, `i>^`, `i<^`, `i>`, `i<`, `ir`)
 
 - `ignore`: do not connect to the other components and do not draw (this is useful for simulating multiple mutual inductances but where it it is too hard to show them on a schematic)
 
@@ -1227,7 +1229,9 @@ Component attributes
 
 - `scale`: scale factor for length of component
 
-- `v`: voltage label  
+- `t`: inner label
+
+- `v`: voltage label (also `v`, `v_`, `v^`, `v_>`, `v_<`, `v^>`, `v^<`, `v<`, `v>`)
 
 - `variable`: for variable resistors, inductors, and capacitors
 
