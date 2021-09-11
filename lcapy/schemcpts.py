@@ -1098,6 +1098,8 @@ class Bipole(StretchyCpt):
                 label_pos = '^'
                 voltage_pos = '_'
 
+        annotation_pos = voltage_pos
+                
         # Add modifier to place voltage label on other side
         # from component identifier label.
         if 'v' in self.opts:
@@ -1119,6 +1121,9 @@ class Bipole(StretchyCpt):
 
         if 'l' in self.opts:
             self.opts['l' + label_pos] = self.opts.pop('l')
+
+        if 'a' in self.opts:
+            self.opts['a' + annotation_pos] = self.opts.pop('a')
 
         if self.type == 'O':
             node_pair_str = ''
