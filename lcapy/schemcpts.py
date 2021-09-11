@@ -64,6 +64,7 @@ class Cpt(object):
     flow_keys = ('f', 'f_', 'f^', 'f_>',  'f_<', 'f^>', 'f^<',
                     'f>_', 'f<_', 'f>^', 'f<^', 'f>', 'f<')    
     label_keys = ('l', 'l_', 'l^')
+    annotation_keys = ('a', 'a_', 'a^')    
     inner_label_keys = ('t', )    
     implicit_keys =  ('implicit', 'ground', 'sground', 'rground',
                       'cground', 'nground', 'pground', 'vss', 'vdd',
@@ -751,9 +752,14 @@ class Cpt(object):
         return self.opts_str(self.current_keys)
 
     @property
+    def annotation_str(self):
+
+        return self.opts_str(self.annotation_keys)
+
+    @property
     def flow_str(self):
 
-        return self.opts_str(self.flow_keys)    
+        return self.opts_str(self.flow_keys)        
 
     @property
     def label_str(self):
@@ -776,17 +782,20 @@ class Cpt(object):
         def fmt(key, val):
             return '%s=%s' % (key, latex_format_label(val))
 
-        keys = self.voltage_keys + self.current_keys + self.flow_keys + self.label_keys + self.inner_label_keys + self.misc_keys + self.implicit_keys
+        special_keys = self.voltage_keys + self.current_keys + self.flow_keys + self.label_keys + self.inner_label_keys + self.annotation_keys + self.misc_keys + self.implicit_keys
     
-        return [fmt(key, val) for key, val in self.opts.items() if key not in keys]
+        return [fmt(key, val) for key, val in self.opts.items() if key not in special_keys]
 
     @property
     def args_str(self):
 
         return ','.join(self.args_list)
     
-    def label(self, keys=('l', 'l^', 'l_'), default=True, **kwargs):
+    def label(self, keys=None, default=True, **kwargs):
 
+        if keys is None:
+            keys = self.label_keys
+        
         label_values = kwargs.get('label_values', True)
         label_values = check_boolean(label_values)
         label_ids = kwargs.get('label_ids', True)
@@ -800,7 +809,7 @@ class Cpt(object):
 
         has_label = False
         for key, val in self.opts.items():
-            if key in ('l', 'l^', 'l_'):
+            if key in self.label_keys:
                 has_label = True
                 break
 
@@ -815,35 +824,6 @@ class Cpt(object):
         # Remove curly braces.
         if len(label_str) > 1 and label_str[0] == '{' and label_str[-1] == '}':
             label_str = label_str[1:-1]
-        return label_str
-
-    def label_make(self, label_pos='', **kwargs):
-
-        # TODO merge with label
-
-        label_values = kwargs.get('label_values', True)
-        label_values = check_boolean(label_values)                
-        label_ids = kwargs.get('label_ids', True)
-        label_ids = check_boolean(label_ids)        
-
-        # Generate default label.
-        if (label_ids and label_values and self.id_label != '' 
-            and self.value_label and self.id_label != self.value_label):
-            label_str = r'l%s={%s}{=%s}' % (label_pos, self.id_label,
-                                            self.value_label)
-        elif label_ids and self.id_label != '':
-            label_str = r'l%s=%s' % (label_pos, self.id_label)
-        elif label_values and self.value_label != '':
-            label_str = r'l%s=%s' % (label_pos, self.value_label)
-        else:
-            label_str = ''
-
-        # Override label if specified.
-        if self.label_str != '':
-            label_str = self.label_str
-
-        if self.inner_label_str != '':
-            label_str += ',t=' + self.inner_label_str
         return label_str
 
     def check(self):
@@ -901,8 +881,12 @@ class Cpt(object):
         return r'  \draw[%s] (%s) node[] {%s};''\n'% (
             args_str, pos, label)        
     
-    def draw_label(self, pos, keys=('l', 'l^', 'l_'), default=True, **kwargs):
+    def draw_label(self, pos, keys=None, default=True, **kwargs):
+        """Draw label for component that does not have a circuitikz label."""
 
+        if keys is None:
+            keys = self.label_keys
+        
         return self.annotate(pos, self.label(keys, default=default,
                                              **kwargs), self.args_str)
     
@@ -1000,6 +984,39 @@ class Bipole(StretchyCpt):
 
     pins = {'1' : ('lx', -0.5, 0),
             '2' : ('rx', 0.5, 0)}
+
+    def label_make(self, label_pos='', **kwargs):
+
+        # TODO merge with label
+
+        label_values = kwargs.get('label_values', True)
+        label_values = check_boolean(label_values)                
+        label_ids = kwargs.get('label_ids', True)
+        label_ids = check_boolean(label_ids)        
+
+        # Generate default label.
+        if (label_ids and label_values and self.id_label != '' 
+            and self.value_label and self.id_label != self.value_label):
+            label_str = r'l%s={%s}{=%s}' % (label_pos, self.id_label,
+                                            self.value_label)
+        elif label_ids and self.id_label != '':
+            label_str = r'l%s=%s' % (label_pos, self.id_label)
+        elif label_values and self.value_label != '':
+            label_str = r'l%s=%s' % (label_pos, self.value_label)
+        else:
+            label_str = ''
+
+        # Override label if specified.
+        if self.label_str != '':
+            label_str = self.label_str
+
+        if self.inner_label_str != '':
+            label_str += ',t=' + self.inner_label_str
+
+        if self.annotation_str != '':
+            label_str += ',' + self.annotation_str
+            
+        return label_str
 
     def draw(self, **kwargs):
 
