@@ -378,7 +378,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         """Create DLTI filter using bilinear transform."""
 
         if method != 'bilinear':
-            raise ValueError('Unsupported transform ' + bilinear)
+            raise ValueError('Unsupported transform ' + method)
         return self.bilinear_transform().simplify().dlti_filter()
     
     def evaluate(self, svector=None):
