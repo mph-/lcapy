@@ -201,7 +201,8 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
 
         factors = expr.as_ordered_factors()
         if len(factors) < 2:
-            self.error('Expression does not have multiple factors')
+            cresult, uresult = self.term1(expr, s, t)
+            return const * (cresult + uresult)
 
         if (len(factors) > 2 and not
             # Help s * 1 / (s + R * C) * I(s)
