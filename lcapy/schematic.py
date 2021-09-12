@@ -76,6 +76,7 @@ class SchematicOpts(Opts):
             {'draw_nodes': 'primary',
              'label_values': True,
              'label_ids': True,
+             'annotate_values': False,
              'label_nodes': 'primary',
              'scale' : 1.0,
              'dpi' : 150,             
@@ -668,6 +669,7 @@ class Schematic(NetfileMixin):
         kwargs include:
            label_ids: True to show component ids
            label_values: True to display component values
+           annotate_values: True to display component values as separate label
            draw_nodes: True to show all nodes,
              False or 'none' to show no nodes, 
              'primary' to show primary nodes,

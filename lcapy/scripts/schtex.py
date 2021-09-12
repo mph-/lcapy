@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""schtex V0.2
+"""schtex V0.3
 Copyright (c) 2014--2020 Michael P. Hayes, UC ECE, NZ
 
 Usage: schtex infile.sch [outfile.tex|pdf|png|svg|sch|pgf]
@@ -68,7 +68,15 @@ def main (argv=None):
     
     parser.add_argument('--label-values', action='store_true',
                         dest='label_values', default=None,
-                        help="labels values")
+                        help="label values")
+
+    parser.add_argument('--noannotate-values', action='store_false',
+                        dest='annotate_values', default=None,
+                        help="don't annotate values separately from label")    
+    
+    parser.add_argument('--annotate-values', action='store_true',
+                        dest='annotate_values', default=None,
+                        help="annotate values on opposite side of component to label")
     
     parser.add_argument('--s-model', action='store_true',
                         dest='s_model', default=False,
@@ -231,7 +239,8 @@ def main (argv=None):
         cct.draw(label_nodes=args.label_nodes,
                  draw_nodes=args.draw_nodes,
                  label_ids=args.label_ids,
-                 label_values=args.label_values, 
+                 label_values=args.label_values,
+                 annotate_values=args.annotate_values,                  
                  filename=outfilename, scale=args.scale,
                  node_spacing=args.node_spacing, cpt_size=args.cpt_size,
                  help_lines=args.help_lines, debug=args.debug,
