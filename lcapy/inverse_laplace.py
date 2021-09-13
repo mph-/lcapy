@@ -212,7 +212,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
 
         if isinstance(factors[1], AppliedUndef):
             # Try to expose more simple cases, e.g. (R + s * L) * V(s)
-            terms = factors[0].as_ordered_terms()
+            terms = factors[0].expand().as_ordered_terms()
             if len(terms) >= 2:
                 result = sym.S.Zero
                 for term in terms:
