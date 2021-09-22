@@ -50,6 +50,7 @@ def parse_range(frange, zero=0.1, positive=False):
 
 def plot_deltas(ax, t, deltas, var, plot_type='real', color='k'):
 
+    vals = []
     for delta in deltas:
         delta = delta.expand(diracdelta=True, wrt=var)
         const, expr = factor_const(delta, var)        
@@ -76,11 +77,32 @@ def plot_deltas(ax, t, deltas, var, plot_type='real', color='k'):
             raise ValueError('Unhandled plot type %s' % plot_type)
 
         if t0 >= min(t) and t0 <= max(t):
-            ax.arrow(t0, 0, 0, const, lw=1.5,  fc=color, ec=color,
-                     head_width=0.1, head_length=0.2, overhang=0.1,
-                     length_includes_head=True, clip_on=False)            
+            vals.append((t0, const))
 
+        vals = np.array(vals)
+
+        tmin, tmax = ax.get_xlim()        
+        T = tmax - tmin
+        ymin, ymax = ax.get_ylim()
+        yvalsmax = vals[:, 1].max()
         
+        for t0, y in vals:
+
+            # TODO: determine best scaling
+            y1 = y / yvalsmax * ymax / 2
+            
+            st = T / 10
+            sy = ymax
+
+            ax.arrow(t0, 0, 0, y1, fc=color, ec=color,
+                     width = 0.025 * st, head_width=0.1 * st,
+                     head_length=0.1 * sy, overhang=0,
+                     length_includes_head=True, clip_on=False)
+
+            # TODO: nicely format the scale factor
+            ax.text(t0 + T / 100, y1 + ymax / 100, '%.*g' % (3, y))
+
+            
 def plot_pole_zero(obj, **kwargs):
 
     from matplotlib.pyplot import Circle, rcParams
