@@ -25,6 +25,7 @@ from .latex import latex_format_label, latex_format_node_label
 from .expr import Expr
 from . import schemcpts
 import sympy as sym
+from .engformatter import EngFormatter
 from .schemmisc import Pos
 from .schemplacer import schemplacer
 from .opts import Opts
@@ -84,64 +85,6 @@ class SchematicOpts(Opts):
              'node_spacing' : 2.0,
              'help_lines' : 0.0,
              'style' : 'american'})
-
-
-class EngFormat(object):
-
-    def __init__(self, value, unit=''):
-
-        self.value = value
-        self.unit = unit
-
-    def latex_math(self):
-        """Make latex math-mode string."""
-
-        return '$' + self.latex() + '$'
-        
-    def latex(self, trim=True, hundreds=False):
-        """If hundreds True format like 100 pF rather than 0.1 nF"""
-
-        prefixes = ('f', 'p', 'n', '$\mu$', 'm', '', 'k', 'M', 'G', 'T')
-
-        sfmax = 3
-
-        value = self.value
-        if value == 0:
-            return '0' + '\,' + r'\mbox{' + self.unit + r'}'
-
-        m = math.log10(abs(value))
-
-        if m < -1 or m >= 3.0:
-            if not hundreds:
-                m += 1
-            n = int(math.floor(m / 3))
-            k = int(math.floor(m)) - n * 3
-        else:
-            n = 0
-            k = m - 1
-
-        dp = sfmax - k
-
-        idx = n + 5
-        if idx < 0:
-            idx = 0
-            return '%e\,' % value + self.unit
-        elif idx >= len(prefixes):
-            idx = len(prefixes) - 1
-            return '%e\,' % value + self.unit
-
-        fmt = '%%.%df' % dp
-
-        n = idx - 5
-        value = value * 10**(-3 * n)
-
-        string = fmt % value
-
-        if trim:
-            # Remove trailing zeroes after decimal point
-            string = string.rstrip('0').rstrip('.')
-
-        return string + '\,' + r'\mbox{' + prefixes[idx] + self.unit + r'}'
 
 
 class Node(object):
@@ -442,8 +385,7 @@ class Schematic(NetfileMixin):
                     # when substituting cpt values.  
                     value = float(sym.Rational(expr))
                     if cpt.type in units_map:
-                        value_label = EngFormat(
-                            value, units_map[cpt.type]).latex_math()
+                        value_label = EngFormatter().latex_math(value, units_map[cpt.type])
                     else:
                         value_label = Expr(expr, cache=False).latex_math()
 
