@@ -1514,6 +1514,18 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         return self.__ratfun
 
     @property
+    def a(self):
+        """Return list of denominator coefficients."""
+
+        return self.D.coeffs()
+
+    @property
+    def b(self):
+        """Return list of numerator coefficients."""
+
+        return self.N.coeffs()    
+    
+    @property
     def K(self):
         """Return gain."""
 
