@@ -1887,7 +1887,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 
                 if is_causal and arg < 0:
                     return 0
-                result = func1(arg)
+                try:
+                    result = func1(arg)
+                except ZeroDivisionError:
+                    result = complex(expr.limit(var, arg))
+                    
                 # If get NaN evaluate limit.  This helps for sin(t) / t.
                 if np.isnan(result):
                     result = complex(expr.limit(var, arg))
