@@ -226,6 +226,24 @@ class ZDomainExpression(ZDomain, SequenceExpression):
                                                                log_frequency=log_frequency,
                                                                **kwargs)
 
+    def nichols_plot(self, fvector=None, log_frequency=False, **kwargs):
+        """Plot frequency response for a frequency-domain phasor as a Nichols
+        plot assuming `dt=1`.  fvector specifies the frequencies.  If
+        it is a tuple (f1, f2), it sets the frequency limits.
+
+        `npoints` set the number of plotted points.
+
+        This method makes the assumption that the expression is causal.
+
+        """        
+        from .discretetime import dt
+
+        if fvector is None:
+            fvector = (-0.5, 0.5)
+        return self.DTFT(causal=True).subs(dt, 1).nichols_plot(fvector,
+                                                               log_frequency=log_frequency,
+                                                               **kwargs)    
+
     def inverse_bilinear_transform(self):
 
         from .symbols import s

@@ -132,8 +132,8 @@ class AngularFourierDomainExpression(AngularFourierDomain, Expr):
         return plot_angular_bode(self, wvector, **kwargs)
 
     def nyquist_plot(self, wvector=None, log_frequency=True, **kwargs):
-        """Plot frequency response as a Nyquist plot (real part versus
-        imaginary part).  wvector specifies the angular frequencies.  If it is
+        """Plot frequency response as a Nyquist plot (imaginary part versus
+        real part).  wvector specifies the angular frequencies.  If it is
         a tuple (f1, f2), it sets the frequency limits as (f1, f2).
 
         `npoints` set the number of plotted points.
@@ -142,7 +142,19 @@ class AngularFourierDomainExpression(AngularFourierDomain, Expr):
         """        
 
         from .plot import plot_nyquist
-        return plot_nyquist(self, wvector, log_frequency=log_frequency, **kwargs)                
+        return plot_nyquist(self, wvector, log_frequency=log_frequency, **kwargs)
+
+    def nichols_plot(self, wvector=None, log_frequency=True, **kwargs):
+        """Plot frequency response as a Nichols plot (dB versus phase).
+        wvector specifies the angular frequencies.  If it is a tuple
+        (f1, f2), it sets the frequency limits as (f1, f2).
+
+        `npoints` set the number of plotted points.
+
+        """        
+
+        from .plot import plot_nichols
+        return plot_nichols(self, wvector, log_frequency=log_frequency, **kwargs)                    
     
         
 def omegaexpr(arg, **assumptions):

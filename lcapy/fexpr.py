@@ -152,8 +152,8 @@ class FourierDomainExpression(FourierDomain, Expr):
         return plot_bode(self, fvector, **kwargs)
 
     def nyquist_plot(self, fvector=None, log_frequency=True, **kwargs):
-        """Plot frequency response as a Nyquist plot (real part versus
-        imaginary part).  fvector specifies the frequencies.  If it is
+        """Plot frequency response as a Nyquist plot (imaginary part versus
+        real part).  fvector specifies the frequencies.  If it is
         a tuple (f1, f2), it sets the frequency limits as (f1, f2).
 
         `npoints` set the number of plotted points.
@@ -163,6 +163,17 @@ class FourierDomainExpression(FourierDomain, Expr):
 
         from .plot import plot_nyquist
         return plot_nyquist(self, fvector, log_frequency=log_frequency, **kwargs)
+
+    def nichols_plot(self, fvector=None, log_frequency=True, **kwargs):
+        """Plot frequency response as a Nichols plot (dB part versus
+        phase).  fvector specifies the frequencies.  If it is
+        a tuple (f1, f2), it sets the frequency limits as (f1, f2).
+
+        `npoints` set the number of plotted points.
+        """        
+
+        from .plot import plot_nichols
+        return plot_nichols(self, fvector, log_frequency=log_frequency, **kwargs)    
     
     
 def fexpr(arg, **assumptions):

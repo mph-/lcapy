@@ -161,13 +161,15 @@ class NormFourierDomainExpression(NormFourierDomain, Expr):
         return plot_bode(self, fvector, norm=True, **kwargs)
 
     def nyquist_plot(self, fvector=None, log_frequency=False, **kwargs):
-        """Plot frequency response as a Nyquist plot (real part versus
-        imaginary part).  fvector specifies the normalised frequencies.  If it is
-        a tuple (f1, f2), it sets the frequency limits as (f1, f2).
+        """Plot frequency response as a Nyquist plot (imaginary part versus
+        real part).  fvector specifies the normalised
+        frequencies.  If it is a tuple (f1, f2), it sets the frequency
+        limits as (f1, f2).
 
         `npoints` set the number of plotted points.
 
         The unit circle is shown by default.  This can be disabled with `unitcircle=False`.
+
         """        
 
         from .plot import plot_nyquist
@@ -175,6 +177,21 @@ class NormFourierDomainExpression(NormFourierDomain, Expr):
         if fvector is None:
             fvector = (-0.5, 0.5)
         return plot_nyquist(self, fvector, log_frequency=log_frequency, **kwargs)
+
+    def nichols_plot(self, fvector=None, log_frequency=False, **kwargs):
+        """Plot frequency response as a Nichols plot (dB versus phase).
+        fvector specifies the normalised frequencies.  If it is a
+        tuple (f1, f2), it sets the frequency limits as (f1, f2).
+
+        `npoints` set the number of plotted points.
+
+        """        
+
+        from .plot import plot_nichols
+
+        if fvector is None:
+            fvector = (-0.5, 0.5)
+        return plot_nichols(self, fvector, log_frequency=log_frequency, **kwargs)    
     
     
 def Fexpr(arg, **assumptions):

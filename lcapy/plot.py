@@ -781,3 +781,68 @@ def plot_nyquist(obj, f, norm=False, **kwargs):
     
     return ax
     
+
+def plot_nichols(obj, f, norm=False, **kwargs):
+
+    from matplotlib.pyplot import Circle, rcParams
+
+    npoints = kwargs.pop('npoints', 400)
+    # Default to True to get better plots.
+    log_frequency = kwargs.pop('log_frequency', False)
+    unitcircle = kwargs.pop('unitcircle', True)
+
+    fn = None
+
+    # FIXME, determine useful frequency range...
+    if f is None:
+        f = (-100, 100)
+    if isinstance(f, (int, float)):
+        f = (0, f)
+    if isinstance(f, tuple):
+        fmin, fmax = parse_range(f, 1e-1, positive=False)        
+        if log_frequency:
+            if fmin < 0:
+                frange = fmax - fmin
+                f = np.geomspace(frange / 1e4, fmax, npoints // 2)
+                f = np.hstack((0, f))
+                fn = -np.geomspace(frange / 1e4, abs(fmin), npoints // 2)
+                fn = np.hstack((0, fn))
+            elif fmin == 0:
+                f = np.geomspace(fmax / 1e4, fmax, npoints // 2)
+                f = np.hstack((0, f))                
+            else:
+                f = np.geomspace(fmin, fmax, npoints)
+        else:
+            fmin, fmax = parse_range(f, 1e-1, positive=False)            
+            f = np.linspace(fmin, fmax, npoints)                    
+    
+    if not obj.is_complex:
+        raise ValueError('Data not complex')
+    
+    obj = obj.doit()
+
+    ax = make_axes(figsize=kwargs.pop('figsize', None),
+                   axes=kwargs.pop('axes', None))
+
+    V = obj.evaluate(f)
+    lines = ax.plot(np.angle(V), 20 * np.log10(abs(V)))
+
+    if fn is not None:
+        V = obj.evaluate(fn)
+        color = lines[0].get_color()
+        ax.plot(np.angle(V), 20 * np.log10(abs(V)), color=color)
+
+    xlabel = kwargs.pop('xlabel', 'Phase (radians)')
+    ylabel = kwargs.pop('ylabel', 'dB')
+    title = kwargs.pop('title', None)
+
+    if xlabel is not None:
+        ax.set_xlabel(xlabel)
+    if ylabel is not None:        
+        ax.set_ylabel(ylabel)
+    if title is not None:
+        ax.set_title(title)        
+
+    ax.grid(True)
+    
+    return ax

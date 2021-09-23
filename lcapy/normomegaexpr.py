@@ -161,13 +161,15 @@ class NormAngularFourierDomainExpression(NormAngularFourierDomain, Expr):
         return plot_angular_bode(self, Wvector, norm=True, **kwargs)
 
     def nyquist_plot(self, Wvector=None, log_frequency=False, **kwargs):
-        """Plot frequency response as a Nyquist plot (real part versus
-        imaginary part).  Wvector specifies the normalised angular frequencies.  If it is
-        a tuple (f1, f2), it sets the frequency limits as (f1, f2).
+        """Plot frequency response as a Nyquist plot (imaginary part versus
+        real part).  Wvector specifies the normalised angular
+        frequencies.  If it is a tuple (f1, f2), it sets the frequency
+        limits as (f1, f2).
 
         `npoints` set the number of plotted points.
 
         The unit circle is shown by default.  This can be disabled with `unitcircle=False`.
+
         """        
 
         from .plot import plot_nyquist
@@ -175,6 +177,21 @@ class NormAngularFourierDomainExpression(NormAngularFourierDomain, Expr):
         if Wvector is None:
             Wvector = (-pi, pi)        
         return plot_nyquist(self, Wvector, log_frequency=log_frequency, **kwargs)
+
+    def nichols_plot(self, Wvector=None, log_frequency=False, **kwargs):
+        """Plot frequency response as a Nichols plot (dB versus phase).
+        Wvector specifies the normalised angular frequencies.  If it
+        is a tuple (f1, f2), it sets the frequency limits as (f1, f2).
+
+        `npoints` set the number of plotted points.
+
+        """        
+
+        from .plot import plot_nichols
+
+        if Wvector is None:
+            Wvector = (-pi, pi)        
+        return plot_nichols(self, Wvector, log_frequency=log_frequency, **kwargs)    
     
     
 def Omegaexpr(arg, **assumptions):
