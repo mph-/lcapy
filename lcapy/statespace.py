@@ -10,6 +10,7 @@ from .smatrix import LaplaceDomainMatrix
 from .tmatrix import TimeDomainMatrix
 from .sym import ssym
 from .texpr import t, texpr
+from .expr import expr
 import sympy as sym
 
 
@@ -266,13 +267,15 @@ class StateSpace(object):
 
         For a list of eigenvalues use eigenvalues."""        
 
+        # Equivalent to _A.sympy.eigenvals()
+        
         return self.characteristic_polynomial().roots()
         
     @property        
     def eigenvalues(self):
         """List of eigenvalues, the roots of the characteristic polynomial
         (equivalent to the poles of Phi(s))."""
-        
+
         roots = self.eigenvalues_dict
         e = []
 
@@ -300,6 +303,12 @@ class StateSpace(object):
         
         return self._A.eigenvects()
     
+    @property        
+    def singular_values(self):
+        """List of singular_values."""
+
+        return ExprList(self._A.sympy.singular_values())
+
     @property    
     def M(self):
         """Modal matrix (eigenvectors of A)."""
