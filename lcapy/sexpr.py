@@ -222,9 +222,12 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         return self.transient_response(tvector)
 
-    def state_space(self, method='controllable'):
-        """Create state-space representation from transfer function.
-        Note, state-space representations are not unique."""
+    def state_space(self, method='CCF'):
+        """Create state-space representation from transfer function.  Note,
+        state-space representations are not unique and are determined
+        by the `method` argument.  Currently this can be 'CCF' for the
+        canonical controllable form.
+        """
 
         from .statespace import StateSpace
         

@@ -89,10 +89,18 @@ class StateSpace(object):
         self.dotx = TimeDomainMatrix([sym.Derivative(x1, t) for x1 in x])
 
     @classmethod
-    def from_transfer_function_coeffs(cls, b, a, method='controllable'):
+    def from_transfer_function_coeffs(cls, b, a, method='CCF'):
+        """Create state-space representation from transfer function
+        specified with numerator and denominator coefficients.
 
-        if method != 'controllable':
-            raise ValueError('Only controllable method currently supported')
+         Note, state-space representations are not unique and are
+        determined by the `method` argument.  Currently this can be
+        'CCF' for the canonical controllable form.
+
+        """        
+
+        if method != 'CCF':
+            raise ValueError('Only CCF method currently supported')
 
         b = list(b)
         a = list(a)
