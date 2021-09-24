@@ -134,6 +134,15 @@ class Matrix(sym.Matrix):
             symbols.update(expr(elt).symbols)
         return symbols
 
+    @property
+    def sympy(self):
+
+        return sym.Matrix(self.rows, self.cols, [x.sympy for x in self])
+
+    @property
+    def expr(self):
+        return self.sympy
+    
 
 def matrix(mat):
     """Create Lcapy Matrix from a SymPy Matrix.
