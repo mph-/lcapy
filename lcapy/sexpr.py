@@ -222,6 +222,17 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         return self.transient_response(tvector)
 
+    def state_space(self, method='controllable'):
+        """Create state-space representation from transfer function.
+        Note, state-space representations are not unique."""
+
+        from .statespace import StateSpace
+        
+        a = self.a
+        b = self.b
+
+        return StateSpace.from_transfer_function_coeffs(b, a, method)
+    
     def step_response(self, tvector=None):
         """Evaluate step response."""
 

@@ -89,3 +89,9 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(ss.A[0, 0], expr('-R1/L'), "A[0, 0]")                
         
+    def test_transfer(self):
+        Z = (s**2 + 3) / (s**3 + 2 * s + 10)
+
+        ss = Z.state_space()
+
+        self.assertEqual(ss.G[0], Z, "ss.G")

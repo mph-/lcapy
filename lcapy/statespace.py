@@ -65,8 +65,8 @@ class StateSpace(object):
             x0 = x * 0
 
         if y is None:
-            y = TimeDomainMatrix([texpr('y_%d(t)' % n) for n in range(Ny)])            
-
+            y = TimeDomainMatrix([texpr('y_%d(t)' % n) for n in range(Ny)])
+            
         if x.shape[0] != Nx:
             raise ValueError('x vector has wrong dimension')
         if x0.shape[0] != Nx:
@@ -86,7 +86,48 @@ class StateSpace(object):
         self._y = y
 
         self.dotx = TimeDomainMatrix([sym.Derivative(x1, t) for x1 in x])
-    
+
+    @classmethod
+    def from_transfer_function_coeffs(cls, b, a, method='controllable'):
+
+        if method != 'controllable':
+            raise ValueError('Only controllable method currently supported')
+
+        b = list(b)
+        a = list(a)
+        Nb = len(b)
+        Na = len(a)
+
+        a0 = a[0]
+        if a0 != 1:
+            a = [ax / a0 for ax in a]
+            b = [bx / a0 for bx in b]
+
+        if Na > Nb:
+            b = [0] * (Na - Nb) + b
+        if Nb > Na:
+            a = [0] * (Nb - Na) + a            
+
+        Nx = Na - 1
+        Nu = 1
+        Ny = 1
+
+        A = Matrix.zeros(Nx, Nx)
+        B = Matrix.zeros(Nx, 1)
+        C = Matrix.zeros(1, Nx)
+        D = Matrix.zeros(1, 1)
+
+        D[0, 0] = b[0]
+        for n in range(Nx):
+            C[0, n] = b[Nx - n] - a[Nx - n] * b[0]
+        B[-1, 0] = 1
+
+        for n in range(Nx - 1):
+            A[n, n + 1] = 1
+        for n in range(Nx):
+            A[-1, n] = -a[Nx - n]
+        return cls(A, B, C, D)
+        
     def state_equations(self):
         """System of first-order differential state equations:
 
