@@ -337,6 +337,42 @@ class StateSpace(object):
     def Ny(self):
         return self.y.shape[0]    
 
+    @property    
+    def is_stable(self):
+
+        for e in self.eigenvalues:
+            if e.real > 0:
+                return False
+        return True
+
+    @property        
+    def controllability_matrix(self):
+        """Return controllability matrix."""
+        
+        B = self.B
+        A = self.A
+
+        R = B
+        Q = B
+        for n in range(self.Nx - 1):
+            Q = A * Q
+            R = R.vstack(Q)
+        return R
+
+    @property        
+    def observability_matrix(self):
+        """Return observability matrix."""        
+
+        C = self.C
+        A = self.A
+
+        O = C
+        Q = C
+        for n in range(self.Nx - 1):
+            Q *= A
+            O = O.hstack(Q)
+        return O    
+        
     
 from .symbols import t, s
 from .expr import ExprList
