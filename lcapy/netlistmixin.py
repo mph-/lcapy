@@ -16,7 +16,7 @@ from .schematic import Schematic
 from .symbols import j, s, omega
 from .attrdict import AttrDict
 from .netfile import NetfileMixin
-from .statespace import StateSpace
+from .statespacemaker import StateSpaceMaker
 from .voltage import Vname
 from .current import Iname, current
 from .simulator import Simulator
@@ -1472,16 +1472,20 @@ class NetlistMixin(object):
         self._sim = Simulator(self)
         return self._sim
     
-    @property
-    def ss(self):
+    def state_space(self):
         """Generate state-space representation."""        
 
         if hasattr(self, '_ss'):
             return self._ss
 
-        self._ss = StateSpace(self)
+        self._ss = StateSpaceMaker().from_circuit(self)
         return self._ss
 
+    @property
+    def ss(self):
+        """Generate state-space representation."""        
+        return self.state_space()
+    
     def replace(self, oldname, newname):
         """Replace component.
         
