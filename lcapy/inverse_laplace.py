@@ -148,7 +148,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
                 continue
 
             if o == 1:
-                pc = pole.conjugate
+                pc = pole.conj
                 r = sexpr.residue(p, poles)
 
                 if pc != p and pc in polesdict:

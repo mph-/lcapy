@@ -82,8 +82,11 @@ class Pole(object):
         return scale, offset, scale2, dexpr
 
     @property
+    def conj(self):
+        return self.conjugate()
+
     def conjugate(self):
-        return self._rewrite(conjugate=True)        
+        return self._rewrite(conjugate=True)            
         
     def _rewrite(self, conjugate=False):
 
