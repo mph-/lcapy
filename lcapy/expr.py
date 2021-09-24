@@ -1438,6 +1438,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         return self.__class__(self.expr, **self.assumptions)
 
     @property
+    def conj(self):
+         """Return complex conjugate."""
+
+         return self.__class__(sym.conjugate(self.expr), **self.assumptions)
+
     def conjugate(self):
          """Return complex conjugate."""
 
@@ -1567,7 +1572,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         N = self.N
         D = self.D
-        Dconj = D.conjugate
+        Dconj = D.conj
         Nnew = (N * Dconj).simplify()
         #Dnew = (D * Dconj).simplify()
         Dnew = (D.real**2 + D.imag**2).simplify()

@@ -21,7 +21,7 @@ class LcapyTester(unittest.TestCase):
 
     def test_noise(self):
         a = AngularFourierNoiseDomainVoltage(2)
-        self.assertEqual(a.nid, a.conjugate.nid, "Different nids for conjugate")
+        self.assertEqual(a.nid, a.conj.nid, "Different nids for conjugate")
         self.assertEqual(a.nid, a.real.nid, "Different nids for real")
         self.assertEqual(a.nid, a.imag.nid, "Different nids for imag")
         

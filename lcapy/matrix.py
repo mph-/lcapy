@@ -122,10 +122,9 @@ class Matrix(sym.Matrix):
         return self.applyfunc(f)
 
     @property    
-    def conjugate(self):
-        """For compatilibility with Expr conjugate is an attribute, unlike
-        with SymPy."""
-        return self._new(self.rows, self.cols, [x.conjugate for x in self])
+    def conj(self):
+        """Complex conjugate; for compatilibility with Expr conj is an attribute."""
+        return self._new(self.rows, self.cols, [x.conj for x in self])
     
     @property
     def symbols(self):
@@ -133,8 +132,8 @@ class Matrix(sym.Matrix):
         symbols = {}
         for elt in self:
             symbols.update(expr(elt).symbols)
-        return symbols        
-    
+        return symbols
+
 
 def matrix(mat):
     """Create Lcapy Matrix from a SymPy Matrix.

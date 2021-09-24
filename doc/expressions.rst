@@ -529,7 +529,7 @@ All Lcapy expressions have the following attributes (see :ref:`expressionsration
   
 - `cartesian` returns expression in form `real + j * imag`
 
-- `conjugate` returns complex conjugate
+- `conj` returns complex conjugate (equivalent to `conjugate()` method)
 
 - `cval` returns complex floating-point number (as Python complex) if expression can be evaluated (see also `val`, `fval`, and `evalf()`)  
 
@@ -757,8 +757,7 @@ The factored form shows both the numerator and denominator polynomials  factored
    ─────────────────
     (s + 1)⋅(s + 4) 
 
-Complex conjugate pairs are combined when the `pairs` argument is True to create a product
-of biquad sections.
+Complex conjugate pairs are combined when the `pairs` argument is True to create a product of biquad sections.
 
    >>> H.factored(pairs=True)
           2       
