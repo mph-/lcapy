@@ -134,7 +134,7 @@ class StateSpace(object):
             b = [bx / a0 for bx in b]
 
         if Na > Nb:
-            b = b + [0] * (Na - Nb)
+            b = [0] * (Na - Nb) + b
         if Nb > Na:
             # Need extended state-space representation...
             raise ValueError('Improper transfer function; require derivatives of input')
@@ -151,10 +151,10 @@ class StateSpace(object):
         D[0, 0] = b[0]
         for n in range(Nx):
             C[0, n] = b[Nx - n] - a[Nx - n] * b[0]
-        B[-1, 0] = 1
+        B[-1, 0] = sym.S.One
 
         for n in range(Nx - 1):
-            A[n, n + 1] = 1
+            A[n, n + 1] = sym.S.One
         for n in range(Nx):
             A[-1, n] = -a[Nx - n]
         return cls(A, B, C, D)
@@ -173,7 +173,7 @@ class StateSpace(object):
             b = [bx / a0 for bx in b]
 
         if Na > Nb:
-            b = b + [0] * (Na - Nb)
+            b = [0] * (Na - Nb) + b
         if Nb > Na:
             # Need extended state-space representation...
             raise ValueError('Improper transfer function; require derivatives of input')
@@ -190,10 +190,10 @@ class StateSpace(object):
         D[0, 0] = b[0]
         for n in range(Nx):
             B[n, 0] = b[n + 1] - a[n + 1] * b[0]
-        C[0, 0] = 1
+        C[0, 0] = sym.S.One
 
         for n in range(Nx - 1):
-            A[n, n + 1] = 1
+            A[n, n + 1] = sym.S.One
         for n in range(Nx):
             A[n, 0] = -a[n + 1]
         return cls(A, B, C, D)    
