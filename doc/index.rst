@@ -34,6 +34,7 @@ Contents:
    circuits.rst
    networks.rst
    netlists.rst
+   systems.rst
    schematics.rst
    tutorials.rst
    novice.rst              

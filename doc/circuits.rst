@@ -717,6 +717,8 @@ eigenvectors are the columns of the modal matrix given by the `M`
 attribute.  A diagonal matrix of the eigenvalues is returned by the
 `Lambda` attribute.
 
+The singular values of the system are returned by the `singular_values` attribute.
+
 
 CircuitGraph
 ============
