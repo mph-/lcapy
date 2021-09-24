@@ -5,17 +5,77 @@ Copyright 2019-2021 Michael Hayes, UCECE
 
 """
 
+from .matrix import Matrix
 from .smatrix import LaplaceDomainMatrix
 from .tmatrix import TimeDomainMatrix
 from .sym import ssym
-from .texpr import t
+from .texpr import t, texpr
 import sympy as sym
 
 
 class StateSpace(object):
 
-    def __init__(self, A, B, C, D, u, y, x, x0):
+    def __init__(self, A, B, C, D, u=None, y=None, x=None, x0=None):
+        """A is Nx x Nx state matrix
+        B is Nx x Nu input matrix
+        C is Ny x Nx output matrix
+        D is Ny x Nu feedthrough matrix
 
+        u is Nu x 1 input vector
+        x is Nx x 1 state vector
+        x0 is Nx x 1 state initial vector
+        y is Ny x 1 state output vector
+        """
+
+        if not isinstance(A, Matrix):
+            raise ValueError('A not matrix')
+        if not isinstance(B, Matrix):
+            raise ValueError('B not matrix')
+        if not isinstance(C, Matrix):
+            raise ValueError('C not matrix')
+        if not isinstance(D, Matrix):
+            raise ValueError('D not matrix')        
+
+        # Number of state variables (the system order).
+        Nx = A.shape[0]
+
+        # Number of inputs
+        Nu = B.shape[1]
+
+        # Number of outputs
+        Ny = C.shape[0]
+
+        if A.shape[0] != A.shape[1]:
+            raise ValueError('A matrix not square')
+
+        if B.shape[0] != Nx:
+            raise ValueError('B matrix has wrong dimension')
+        if C.shape[1] != Nx:
+            raise ValueError('C matrix has wrong dimension')        
+        if (D.shape[0] != Ny) or (D.shape[1] != Nu):
+            raise ValueError('D matrix has wrong dimension')                
+
+        if u is None:
+            u = TimeDomainMatrix([texpr('u_%d(t)' % n) for n in range(Nu)])
+
+        if x is None:
+            x = TimeDomainMatrix([texpr('x_%d(t)' % n) for n in range(Nx)])
+
+        if x0 is None:
+            x0 = x * 0
+
+        if y is None:
+            y = TimeDomainMatrix([texpr('y_%d(t)' % n) for n in range(Ny)])            
+
+        if x.shape[0] != Nx:
+            raise ValueError('x vector has wrong dimension')
+        if x0.shape[0] != Nx:
+            raise ValueError('x0 vector has wrong dimension')
+        if u.shape[0] != Nu:
+            raise ValueError('u vector has wrong dimension')
+        if y.shape[0] != Ny:
+            raise ValueError('y vector has wrong dimension')                
+            
         self._A = A
         self._B = B
         self._C = C
@@ -207,6 +267,18 @@ class StateSpace(object):
         
         return LaplaceDomainMatrix(E)
     
+    @property    
+    def Nu(self):
+        return self.u.shape[0]    
+    
+    @property    
+    def Nx(self):
+        return self.x.shape[0]
+
+    @property    
+    def Ny(self):
+        return self.y.shape[0]    
+
     
 from .symbols import t, s
 from .expr import ExprList
