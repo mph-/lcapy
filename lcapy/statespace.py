@@ -56,6 +56,8 @@ class StateSpace(object):
         if (D.shape[0] != Ny) or (D.shape[1] != Nu):
             raise ValueError('D matrix has wrong dimension')                
 
+        # Perhaps determine x, x0, u, y dynamically if not specified?
+        
         if u is None:
             u = TimeDomainMatrix([texpr('u_%d(t)' % n) for n in range(Nu)])
 
@@ -89,19 +91,38 @@ class StateSpace(object):
         self.dotx = TimeDomainMatrix([sym.Derivative(x1, t) for x1 in x])
 
     @classmethod
-    def from_transfer_function_coeffs(cls, b, a, method='CCF'):
+    def from_ba(cls, b, a, form='CCF'):
         """Create state-space representation from transfer function
         specified with numerator and denominator coefficients.
 
          Note, state-space representations are not unique and are
-        determined by the `method` argument.  Currently this can be
-        'CCF' for the canonical controllable form.
+        determined by the `form` argument.  Currently this can be
+        'CCF' for the controllable canonical form.
+
+        """
+        return cls.from_transfer_function_coeffs(cls, b, a, form)
+        
+    @classmethod
+    def from_transfer_function_coeffs(cls, b, a, form='CCF'):    
+        """Create state-space representation from transfer function
+        specified with numerator and denominator coefficients.
+
+         Note, state-space representations are not unique and are
+        determined by the `form` argument.  Currently this can be
+        'CCF' for the controllable canonical form.
 
         """        
 
-        if method != 'CCF':
-            raise ValueError('Only CCF method currently supported')
+        if form == 'CCF':
+            return cls.from_ba_CCF(b, a)
+        elif form == 'OCF':
+            return cls.from_ba_OCF(b, a)
+        else:
+            raise ValueError('Only CCF and OCF forms are currently supported')
 
+    @classmethod
+    def from_ba_CCF(cls, b, a):
+        
         b = list(b)
         a = list(a)
         Nb = len(b)
@@ -137,6 +158,45 @@ class StateSpace(object):
         for n in range(Nx):
             A[-1, n] = -a[Nx - n]
         return cls(A, B, C, D)
+
+    @classmethod
+    def from_ba_OCF(cls, b, a):
+        
+        b = list(b)
+        a = list(a)
+        Nb = len(b)
+        Na = len(a)
+
+        a0 = a[0]
+        if a0 != 1:
+            a = [ax / a0 for ax in a]
+            b = [bx / a0 for bx in b]
+
+        if Na > Nb:
+            b = b + [0] * (Na - Nb)
+        if Nb > Na:
+            # Need extended state-space representation...
+            raise ValueError('Improper transfer function; require derivatives of input')
+
+        Nx = len(a) - 1
+        Nu = 1
+        Ny = 1
+
+        A = Matrix.zeros(Nx, Nx)
+        B = Matrix.zeros(Nx, 1)
+        C = Matrix.zeros(1, Nx)
+        D = Matrix.zeros(1, 1)
+
+        D[0, 0] = b[0]
+        for n in range(Nx):
+            B[n, 0] = b[n + 1] - a[n + 1] * b[0]
+        C[0, 0] = 1
+
+        for n in range(Nx - 1):
+            A[n, n + 1] = 1
+        for n in range(Nx):
+            A[n, 0] = -a[n + 1]
+        return cls(A, B, C, D)    
         
     def state_equations(self):
         """System of first-order differential state equations:
@@ -274,6 +334,17 @@ class StateSpace(object):
 
         return LaplaceDomainMatrix(self._C * self.H + self._D).canonical()
 
+    @property
+    def transfer_functions(self):
+        """System transfer functions.  See also `transfer_function`"""
+        return self.G
+        
+    @property
+    def transfer_function(self):
+        """System transfer function for a SISO system.  See also
+        `transfer_functions`"""
+        return self.G[0]
+    
     @property
     def g(self):
         """System impulse responses."""        

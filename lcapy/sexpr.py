@@ -222,19 +222,19 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         return self.transient_response(tvector)
 
-    def state_space(self, method='CCF'):
+    def state_space(self, form='CCF'):
         """Create state-space representation from transfer function.  Note,
         state-space representations are not unique and are determined
-        by the `method` argument.  Currently this can be 'CCF' for the
-        canonical controllable form.
-        """
+        by the `form` argument.  Currently this can be 'CCF' for the
+        controllable canonical form or `OCF` for the observable
+        canonical form."""
 
         from .statespace import StateSpace
         
         a = self.a
         b = self.b
 
-        return StateSpace.from_transfer_function_coeffs(b, a, method)
+        return StateSpace.from_transfer_function_coeffs(b, a, form)
     
     def step_response(self, tvector=None):
         """Evaluate step response."""
