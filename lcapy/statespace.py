@@ -190,19 +190,39 @@ class StateSpace(object):
         return self._A
 
     @property
+    def state_matrix(self):
+        """State matrix."""
+        return self._A    
+
+    @property
     def B(self):
         """Input matrix."""
         return self._B
 
+    @property
+    def input_matrix(self):
+        """Input matrix."""
+        return self._B
+    
     @property
     def C(self):
         """Output matrix."""
         return self._C
 
     @property
+    def output_matrix(self):
+        """Output matrix."""
+        return self._C    
+
+    @property
     def D(self):
         """Feed-through matrix."""
-        return self._D        
+        return self._D
+
+    @property
+    def feedthrough_matrix(self):
+        """Feed-through matrix."""
+        return self._D            
 
     @property
     def Phi(self):
@@ -215,6 +235,11 @@ class StateSpace(object):
     def phi(self):
         """State transition matrix."""        
         return TimeDomainMatrix(self.Phi.inverse_laplace(causal=True))
+
+    @property
+    def state_transition_matrix(self):
+        """State transition matrix."""        
+        return self.phi
         
     @property
     def U(self):
@@ -243,7 +268,9 @@ class StateSpace(object):
 
     @property
     def G(self):
-        """System transfer functions."""
+        """System transfer functions.
+        For a SISO system, use G[0].
+        """
 
         return LaplaceDomainMatrix(self._C * self.H + self._D).canonical()
 
@@ -370,6 +397,18 @@ class StateSpace(object):
         return R
 
     @property        
+    def R(self):
+        """Return controllability matrix."""
+
+        return self.controllability_matrix    
+
+    @property        
+    def is_controllable(self):
+
+        R = self.controllability_matrix
+        return R.rank() == R.shape[0]
+
+    @property        
     def observability_matrix(self):
         """Return observability matrix."""        
 
@@ -384,19 +423,17 @@ class StateSpace(object):
         return O    
 
     @property        
+    def O(self):
+        """Return observability matrix."""
+
+        return self.observability_matrix
+    
+    @property        
     def is_observable(self):
 
         O = self.observability_matrix
         return O.rank() == O.shape[1]
 
-    @property        
-    def is_controllable(self):
-
-        R = self.controllability_matrix
-        return R.rank() == R.shape[0]
-
-    
-        
     
 from .symbols import t, s
 from .expr import ExprList
