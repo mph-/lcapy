@@ -113,11 +113,12 @@ class StateSpace(object):
             b = [bx / a0 for bx in b]
 
         if Na > Nb:
-            b = [0] * (Na - Nb) + b
+            b = b + [0] * (Na - Nb)
         if Nb > Na:
-            a = [0] * (Nb - Na) + a            
+            # Need extended state-space representation...
+            raise ValueError('Improper transfer function; require derivatives of input')
 
-        Nx = Na - 1
+        Nx = len(a) - 1
         Nu = 1
         Ny = 1
 
