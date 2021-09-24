@@ -339,8 +339,17 @@ class StateSpace(object):
         return self.y.shape[0]    
 
     @property    
+    def is_symbolic(self):
+
+        return ((self.A.symbols != {}) or (self.B.symbols != {}) or
+                (self.C.symbols != {}) or (self.D.symbols != {}))
+    
+    @property    
     def is_stable(self):
 
+        if self.is_symbolic:
+            return None
+        
         for e in self.eigenvalues:
             if e.real > 0:
                 return False
@@ -357,7 +366,7 @@ class StateSpace(object):
         Q = B
         for n in range(self.Nx - 1):
             Q = A * Q
-            R = R.vstack(Q)
+            R = R.hstack(R, Q)
         return R
 
     @property        
@@ -371,8 +380,22 @@ class StateSpace(object):
         Q = C
         for n in range(self.Nx - 1):
             Q *= A
-            O = O.hstack(Q)
+            O = O.vstack(O, Q)
         return O    
+
+    @property        
+    def is_observable(self):
+
+        O = self.observability_matrix
+        return O.rank() == O.shape[1]
+
+    @property        
+    def is_controllable(self):
+
+        R = self.controllability_matrix
+        return R.rank() == R.shape[0]
+
+    
         
     
 from .symbols import t, s
