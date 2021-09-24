@@ -1519,16 +1519,31 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         return self.__ratfun
 
     @property
+    def ba(self):
+        """Return lists of numerator and denominator coefficients."""
+
+        a = self.D.coeffs()
+        b = self.N.coeffs()                
+    
+        a0 = a[0]
+        if a0 != 1:
+            a = ExprList([ax / a0 for ax in a])
+            b = ExprList([bx / a0 for bx in b])
+        return b, a
+    
+    @property
     def a(self):
         """Return list of denominator coefficients."""
 
-        return self.D.coeffs()
+        b, a = self.ba
+        return a
 
     @property
     def b(self):
         """Return list of numerator coefficients."""
 
-        return self.N.coeffs()    
+        b, a = self.ba
+        return b
     
     @property
     def K(self):
