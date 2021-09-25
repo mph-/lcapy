@@ -506,6 +506,42 @@ class StateSpace(object):
         O = self.observability_matrix
         return O.rank() == O.shape[1]
 
+    @cached_property            
+    def controllability_gramian(self):
+
+        from scipy import linalg
+        from numpy import dot
+
+        B = self.B.evaluate()
+        Q = dot(B, B.T)
+        
+        Wc = linalg.solve_continuous_lyapunov(self.A.evaluate(), Q)
+        return Wc
+
+    @cached_property            
+    def observability_gramian(self):
+
+        from scipy import linalg
+        from numpy import dot        
+
+        C = self.C.evaluate()
+        Q = dot(C, C.T)
+        
+        Wo = linalg.solve_continuous_lyapunov(self.A.evaluate(), Q)
+        return Wo
+
+    @cached_property            
+    def hankel_singular_values(self):
+
+        from scipy import linalg
+        from numpy import sqrt, dot
+        
+        Wc = self.controllability_gramian
+        Wo = self.controllability_gramian
+
+        e, v = linalg.eig(dot(Wc, Wo))
+
+        return sqrt(e.real)
     
 from .symbols import t, s
 from .expr import ExprList

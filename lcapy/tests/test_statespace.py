@@ -94,4 +94,8 @@ class LcapyTester(unittest.TestCase):
 
         ss = Z.state_space()
 
-        self.assertEqual(ss.G[0], Z, "ss.G")
+        self.assertEqual(ss.G[0], Z, "G")
+
+        sso = Z.state_space('OCF')
+
+        self.assertEqual(sso.G[0], Z, "G")        
