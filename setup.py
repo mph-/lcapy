@@ -26,7 +26,8 @@ setup(name='lcapy',
                         'networkx',
                         'IPython',
                         'setuptools',
-                        'wheel'
+                        'wheel',
+                        'property_cached'
       ],
       python_requires='>=3.6',
       extras_require={

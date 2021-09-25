@@ -11,6 +11,7 @@ from .tmatrix import TimeDomainMatrix
 from .sym import ssym
 from .texpr import t, texpr
 from .expr import expr
+from .cache import cached_property
 import sympy as sym
 
 
@@ -284,14 +285,14 @@ class StateSpace(object):
         """Feed-through matrix."""
         return self._D            
 
-    @property
+    @cached_property
     def Phi(self):
         """s-domain state transition matrix."""
 
         M = LaplaceDomainMatrix(sym.eye(len(self._x)) * ssym - self._A)
         return LaplaceDomainMatrix(M.inv().canonical())
 
-    @property
+    @cached_property
     def phi(self):
         """State transition matrix."""        
         return TimeDomainMatrix(self.Phi.inverse_laplace(causal=True))
@@ -316,7 +317,7 @@ class StateSpace(object):
         """Laplace transform of output vector."""        
         return LaplaceDomainMatrix(self._y.laplace())
 
-    @property
+    @cached_property
     def H(self):
         """X(s) / U(s)"""
 
@@ -326,7 +327,7 @@ class StateSpace(object):
     def h(self):
         return TimeDomainMatrix(self.H.inverse_laplace(causal=True))
 
-    @property
+    @cached_property
     def G(self):
         """System transfer functions.
         For a SISO system, use G[0].
@@ -358,7 +359,7 @@ class StateSpace(object):
         M = Matrix(sym.eye(len(self._x)) * ssym - self._A)        
         return LaplaceDomainExpression(M.det()).simplify()
 
-    @property
+    @cached_property
     def P(self):
         """Characteristic polynomial (aka system polynomial).
 
@@ -366,7 +367,7 @@ class StateSpace(object):
 
         return self.characteristic_polynomial().canonical()
 
-    @property        
+    @cached_property        
     def eigenvalues_dict(self):
         """Dictionary of eigenvalues, the roots of the characteristic
         polynomial (equivalent to the poles of Phi(s)).  The
@@ -378,7 +379,7 @@ class StateSpace(object):
         
         return self.characteristic_polynomial().roots()
         
-    @property        
+    @cached_property        
     def eigenvalues(self):
         """List of eigenvalues, the roots of the characteristic polynomial
         (equivalent to the poles of Phi(s))."""
@@ -392,7 +393,7 @@ class StateSpace(object):
                 e.append(v)
         return ExprList(e)
 
-    @property    
+    @cached_property    
     def Lambda(self):
         """Diagonal matrix of eigenvalues."""
 
@@ -403,20 +404,20 @@ class StateSpace(object):
         e = self.eigenvalues
         return LaplaceDomainMatrix(sym.diag(*e))
 
-    @property        
+    @cached_property        
     def eigenvectors(self):
         """List of tuples (eigenvalue, multiplicity of eigenvalue,
         basis of the eigenspace) of A."""
         
         return self._A.eigenvects()
     
-    @property        
+    @cached_property        
     def singular_values(self):
         """List of singular_values."""
 
         return ExprList(self._A.sympy.singular_values())
 
-    @property    
+    @cached_property    
     def M(self):
         """Modal matrix (eigenvectors of A)."""
 
@@ -436,13 +437,13 @@ class StateSpace(object):
     def Ny(self):
         return self.y.shape[0]    
 
-    @property    
+    @cached_property    
     def is_symbolic(self):
 
         return ((self.A.symbols != {}) or (self.B.symbols != {}) or
                 (self.C.symbols != {}) or (self.D.symbols != {}))
     
-    @property    
+    @cached_property    
     def is_stable(self):
 
         if self.is_symbolic:
@@ -453,7 +454,7 @@ class StateSpace(object):
                 return False
         return True
 
-    @property        
+    @cached_property        
     def controllability_matrix(self):
         """Return controllability matrix."""
         
@@ -473,13 +474,13 @@ class StateSpace(object):
 
         return self.controllability_matrix    
 
-    @property        
+    @cached_property        
     def is_controllable(self):
 
         R = self.controllability_matrix
         return R.rank() == R.shape[0]
 
-    @property        
+    @cached_property        
     def observability_matrix(self):
         """Return observability matrix."""        
 
@@ -499,7 +500,7 @@ class StateSpace(object):
 
         return self.observability_matrix
     
-    @property        
+    @cached_property        
     def is_observable(self):
 
         O = self.observability_matrix
