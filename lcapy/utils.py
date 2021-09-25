@@ -1,3 +1,8 @@
+"""This module provides common utility functions.
+
+Copyright 2021 Michael Hayes, UCECE
+"""
+
 import sympy as sym
 
 def factor_const(expr, var):
@@ -120,6 +125,17 @@ def isiterable(arg):
     return hasattr(arg, '__iter__')
 
 
+def factor_expr(expr, factor):
+    """Extract factor from expression or None if expression does
+    not have factor."""
+
+    factors = expr.as_ordered_factors()
+    if factor not in factors:
+        return None
+
+    return expr / factor
+
+
 def separate_dirac_delta(expr):
 
     terms = expr.as_ordered_terms()
@@ -147,6 +163,8 @@ def split_dirac_delta(expr):
     parts = {}
     rest = 0
 
+    # FIXME, DiracDelta needs to be a factor
+    
     for term in terms:
         if term.has(sym.DiracDelta):
             if len(term.args) == 1:
