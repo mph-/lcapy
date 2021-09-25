@@ -142,7 +142,35 @@ class Matrix(sym.Matrix):
     @property
     def expr(self):
         return self.sympy
+
+    @property
+    def is_complex(self):
+
+        for x in self:
+            if not x.is_complex:
+                return False
+        return True
     
+    def evaluate(self, arg=None):
+        """Evaluate matrix at arg.  `arg` may be a scalar.
+        The result is a NumPy float or complex array.
+
+        There can be only one or fewer undefined variables in the expression.
+        This is replaced by `arg` and then evaluated to obtain a result.
+        """
+                
+        from numpy import empty
+
+        dtype = float
+        if self.is_complex:
+            dtype = complex
+        result = empty((self.rows, self.cols), dtype=dtype)
+
+        for i in range(self.rows):
+            for j in range(self.cols):
+                result[i, j] = self[i, j].evaluate(arg)
+        return result
+                    
 
 def matrix(mat):
     """Create Lcapy Matrix from a SymPy Matrix.
