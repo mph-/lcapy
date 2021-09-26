@@ -156,9 +156,9 @@ class Matrix(sym.Matrix):
     def is_complex(self):
 
         for x in self:
-            if not x.is_complex:
-                return False
-        return True
+            if x.is_complex:
+                return True
+        return False
     
     def evaluate(self, arg=None):
         """Evaluate matrix at arg.  `arg` may be a scalar.
