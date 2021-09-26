@@ -23,8 +23,6 @@ def msympify(expr):
         
 class Matrix(sym.Matrix):
 
-    rational = True
-    
     # Unlike numpy.ndarray, the sympy.Matrix runs all the elements
     # through _sympify, creating sympy objects and thus losing the
     # original type information and associated methods.  As a hack, we
@@ -42,6 +40,9 @@ class Matrix(sym.Matrix):
 
     def __getitem__(self, key):
 
+        # This wraps elements as an Expr.  It is called
+        # for each element when a Matrix is printed.
+
         item = super(Matrix, self).__getitem__(key)
 
         # The following line is to handle slicing used
@@ -52,7 +53,7 @@ class Matrix(sym.Matrix):
         if hasattr(self, '_typewrap'):
             return self._typewrap(item)
 
-        return expr(item, rational=self.rational)
+        return expr(item, rational=False)
 
     def _repr_pretty_(self, p, cycle):
         """This is used by jupyter notebooks to display an expression using
@@ -142,18 +143,6 @@ class Matrix(sym.Matrix):
             symbols.update(expr(elt).symbols)
         return symbols
 
-    def evalf(self, n=15, *args, **kwargs):
-        """Convert constants in an expression to floats, evaluated to `n`
-        decimal places.  If the expression is a constant, return the
-        floating point result.
-
-        This returns an Lcapy Matrix object.
-        """
-
-        new = super(Matrix, self).evalf(n, *args, **kwargs)
-        new.rational = False
-        return new
-    
     @property
     def sympy(self):
 
