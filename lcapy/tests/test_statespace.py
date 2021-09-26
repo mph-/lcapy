@@ -29,7 +29,14 @@ class LcapyTester(unittest.TestCase):
         C1 2 0""")
 
         ss = a.ss
-        
+
+        self.assertEqual2(ss.Nx, 1), "Nx")
+        self.assertEqual2(ss.Ny, 2), "Ny")
+        self.assertEqual2(ss.Nu, 1), "Nu")
+        self.assertEqual2(ss.is_stable, True), "is_stable")
+        self.assertEqual2(ss.is_controllable, True), "is_controllable")
+        self.assertEqual2(ss.is_observable, True), "is_observable")
+        self.assertEqual2(ss.is_symbolic, True), "is_symbolic")
         self.assertEqual2(expr(ss.x[0]), expr('v_C1(t)'), "Incorrect state variable")
         self.assertEqual2(expr(ss.y[0]), expr('v_1(t)'), "Incorrect output variable1")
         self.assertEqual2(expr(ss.y[1]), expr('v_2(t)'), "Incorrect output variable2") 

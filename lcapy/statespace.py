@@ -51,7 +51,6 @@ class StateSpace(object):
 
         if A.shape[0] != A.shape[1]:
             raise ValueError('A matrix not square')
-
         if B.shape[0] != Nx:
             raise ValueError('B matrix has wrong dimension')
         if C.shape[1] != Nx:
@@ -59,27 +58,13 @@ class StateSpace(object):
         if (D.shape[0] != Ny) or (D.shape[1] != Nu):
             raise ValueError('D matrix has wrong dimension')                
 
-        # Perhaps determine x, x0, u, y dynamically if not specified?
-        
-        if u is None:
-            u = TimeDomainMatrix([texpr('u_%d(t)' % n) for n in range(Nu)])
-
-        if x is None:
-            x = TimeDomainMatrix([texpr('x_%d(t)' % n) for n in range(Nx)])
-
-        if x0 is None:
-            x0 = x * 0
-
-        if y is None:
-            y = TimeDomainMatrix([texpr('y_%d(t)' % n) for n in range(Ny)])
-            
-        if x.shape[0] != Nx:
+        if x is not None and x.shape[0] != Nx:
             raise ValueError('x vector has wrong dimension')
-        if x0.shape[0] != Nx:
+        if x0 is not None and x0.shape[0] != Nx:
             raise ValueError('x0 vector has wrong dimension')
-        if u.shape[0] != Nu:
+        if u is not None and u.shape[0] != Nu:
             raise ValueError('u vector has wrong dimension')
-        if y.shape[0] != Ny:
+        if y is not None and y.shape[0] != Ny:
             raise ValueError('y vector has wrong dimension')                
             
         self._A = A
@@ -90,8 +75,6 @@ class StateSpace(object):
         self._x = x
         self._x0 = x0        
         self._y = y
-
-        self.dotx = TimeDomainMatrix([sym.Derivative(x1, t) for x1 in x])
 
     @classmethod
     def from_ba(cls, b, a, form='CCF'):
@@ -249,7 +232,7 @@ class StateSpace(object):
             C[n] = H._ratfun.residue(p.expr, poles)
         
         return cls(A, B, C, D)        
-        
+
     def state_equations(self):
         """System of first-order differential state equations:
 
@@ -258,8 +241,8 @@ class StateSpace(object):
         where x is the state vector and u is the input vector.
         """
         
-        return expr(sym.Eq(self.dotx, sym.MatAdd(sym.MatMul(self._A, self._x),
-                                                 sym.MatMul(self._B, self._u)),
+        return expr(sym.Eq(self.dotx, sym.MatAdd(sym.MatMul(self._A, self.x),
+                                                 sym.MatMul(self._B, self.u)),
                            evaluate=False))
 
     def output_equations(self):
@@ -272,28 +255,45 @@ class StateSpace(object):
 
         """
         
-        return expr(sym.Eq(self._y, sym.MatAdd(sym.MatMul(self._C, self._x),
-                                               sym.MatMul(self._D, self._u)),
+        return expr(sym.Eq(self.y, sym.MatAdd(sym.MatMul(self._C, self.x),
+                                              sym.MatMul(self._D, self.u)),
                            evaluate=False))
-
-    @property
-    def x(self):
-        """State variable vector."""
-        return self._x
-
-    @property
-    def x0(self):
-        """State variable initial value vector."""
-        return self._x0
 
     @property
     def u(self):
         """Input vector."""
+        if self._u is None:
+            self._u = TimeDomainMatrix([texpr('u_%d(t)' % n) for n in
+                                        range(self.Nu)])
         return self._u
     
     @property
+    def x(self):
+        """State variable vector."""
+        if self._x is None:
+            self._x = TimeDomainMatrix([texpr('x_%d(t)' % n) for n in
+                                        range(self.Nx)])
+        return self._x
+
+    @cached_property
+    def dotx(self):
+        """Time derivative of state variable vector."""
+        return TimeDomainMatrix([sym.Derivative(x1, t) for x1 in self.x])
+    
+    @property
+    def x0(self):
+        """State variable initial value vector."""
+        if self._x0 is None:
+            self._x0 = TimeDomainMatrix([texpr('x_0_%d(t)' % n) for n in
+                                         range(self.Nx)])
+        return self._x0        
+
+    @property
     def y(self):
         """Output vector."""
+        if self._y is None:
+            self._y = TimeDomainMatrix([texpr('y_%d(t)' % n) for n in
+                                        range(self.Ny)])
         return self._y    
 
     @property
@@ -340,7 +340,7 @@ class StateSpace(object):
     def Phi(self):
         """s-domain state transition matrix."""
 
-        M = LaplaceDomainMatrix(sym.eye(len(self._x)) * ssym - self._A)
+        M = LaplaceDomainMatrix(sym.eye(len(self.x)) * ssym - self._A)
         return LaplaceDomainMatrix(M.inv().canonical())
 
     @cached_property
@@ -356,26 +356,26 @@ class StateSpace(object):
     @property
     def U(self):
         """Laplace transform of input vector."""
-        return LaplaceDomainMatrix(self._u.laplace())
+        return LaplaceDomainMatrix(self.u.laplace())
 
     @property
     def X(self):
         """Laplace transform of state-variable vector."""        
-        return LaplaceDomainMatrix(self._x.laplace())
+        return LaplaceDomainMatrix(self.x.laplace())
 
     @property
     def Y(self):
         """Laplace transform of output vector."""        
-        return LaplaceDomainMatrix(self._y.laplace())
+        return LaplaceDomainMatrix(self.y.laplace())
 
     @cached_property
     def H(self):
         """X(s) / U(s)"""
-
         return LaplaceDomainMatrix(self.Phi * self._B).canonical()
 
     @property
     def h(self):
+        """ILT{X(s) / U(s)}"""        
         return TimeDomainMatrix(self.H.inverse_laplace(causal=True))
 
     @cached_property
@@ -383,7 +383,6 @@ class StateSpace(object):
         """System transfer functions.
         For a SISO system, use G[0].
         """
-
         return LaplaceDomainMatrix(self._C * self.H + self._D).canonical()
 
     @property
@@ -407,7 +406,7 @@ class StateSpace(object):
 
         `lambda(s) = |s * I - A|`"""
 
-        M = Matrix(sym.eye(len(self._x)) * ssym - self._A)        
+        M = Matrix(sym.eye(len(self.x)) * ssym - self._A)        
         return LaplaceDomainExpression(M.det()).simplify()
 
     @cached_property
@@ -476,18 +475,21 @@ class StateSpace(object):
         
         return LaplaceDomainMatrix(E)
     
-    @property    
-    def Nu(self):
-        return self.u.shape[0]    
-    
-    @property    
+    @property
     def Nx(self):
-        return self.x.shape[0]
+        """Number of state variables (the system order)."""
+        return self._A.shape[0]
 
-    @property    
+    @property
+    def Nu(self):
+        """Number of inputs."""    
+        return self._B.shape[1]
+
+    @property
     def Ny(self):
-        return self.y.shape[0]    
-
+        """Number of outputs."""        
+        return self._C.shape[0]
+    
     @cached_property    
     def is_symbolic(self):
 
@@ -496,6 +498,7 @@ class StateSpace(object):
     
     @cached_property    
     def is_stable(self):
+        """True if system is stable."""
 
         if self.is_symbolic:
             return None
@@ -527,6 +530,7 @@ class StateSpace(object):
 
     @cached_property        
     def is_controllable(self):
+        """True if system is controllable."""        
 
         R = self.controllability_matrix
         return R.rank() == R.shape[0]
@@ -553,6 +557,7 @@ class StateSpace(object):
     
     @cached_property        
     def is_observable(self):
+        """True if system is observable."""                
 
         O = self.observability_matrix
         return O.rank() == O.shape[1]
