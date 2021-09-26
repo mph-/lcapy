@@ -18,7 +18,9 @@ import sympy as sym
 class StateSpace(object):
 
     def __init__(self, A, B, C, D, u=None, y=None, x=None, x0=None):
-        """A is Nx x Nx state matrix
+        """Create continuous state-space object where:
+
+        A is Nx x Nx state matrix
         B is Nx x Nu input matrix
         C is Ny x Nx output matrix
         D is Ny x Nu feedthrough matrix
@@ -527,7 +529,7 @@ class StateSpace(object):
         # Wc should be symmetric positive semi-definite
         Wc = (Wc + Wc.T) / 2        
         
-        return Wc
+        return Matrix(Wc)
 
     @property            
     def reachability_gramian(self):
@@ -553,7 +555,7 @@ class StateSpace(object):
         # Wo should be symmetric positive semi-definite
         Wo = (Wo + Wo.T) / 2
         
-        return Wo
+        return Matrix(Wo)
 
     @cached_property            
     def hankel_singular_values(self):
@@ -561,12 +563,12 @@ class StateSpace(object):
         from numpy import sqrt, dot
         from numpy.linalg import eig
         
-        Wc = self.controllability_gramian
-        Wo = self.observability_gramian
+        Wc = self.controllability_gramian.evaluate()
+        Wo = self.observability_gramian.evaluate()
 
         e, v = eig(dot(Wc, Wo))
 
-        return sqrt(e)
+        return expr(sqrt(e), rational=False)
 
     @cached_property                
     def balanced_transformation(self):
@@ -574,8 +576,8 @@ class StateSpace(object):
         from scipy import linalg
         from numpy import sqrt, dot, diag
 
-        Wc = self.controllability_gramian
-        Wo = self.observability_gramian
+        Wc = self.controllability_gramian.evaluate()
+        Wo = self.observability_gramian.evaluate()
         
         L = linalg.cholesky(Wc, lower=True)
 
@@ -584,7 +586,7 @@ class StateSpace(object):
 
         E = diag(1 / sqrt(sv))
         T = dot(L, dot(U, E))
-        return T
+        return Matrix(T)
         
     
 from .symbols import t, s
