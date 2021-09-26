@@ -120,8 +120,10 @@ class StateSpace(object):
             return cls.from_ba_CCF(b, a)
         elif form == 'OCF':
             return cls.from_ba_OCF(b, a)
+        elif form == 'DCF':
+            return cls.from_ba_DCF(b, a)        
         else:
-            raise ValueError('Only CCF and OCF forms are currently supported')
+            raise ValueError('Only CCF, DCF, and OCF forms are currently supported')
 
     @classmethod
     def from_ba_CCF(cls, b, a):
@@ -204,7 +206,49 @@ class StateSpace(object):
             A[n, n + 1] = sym.S.One
         for n in range(Nx):
             A[n, 0] = -a[n + 1]
-        return cls(A, B, C, D)    
+        return cls(A, B, C, D)
+
+    @classmethod
+    def from_ba_DCF(cls, b, a):
+
+        from .sexpr import tf
+        
+        b = list(b)
+        a = list(a)
+        Nb = len(b)
+        Na = len(a)
+
+        if Nb > Na:
+            # Need extended state-space representation...
+            raise ValueError('Improper transfer function; require derivatives of input')
+        
+        H = tf(b, a)
+
+        poles = H._ratfun.poles()
+        for p in poles:
+            if p.n != 1:
+                raise ValueError('Require unique poles')
+        
+        Nx = len(a) - 1
+        Nu = 1
+        Ny = 1
+
+        A = Matrix.zeros(Nx, Nx)
+        B = Matrix.ones(Nx, 1)
+        C = Matrix.zeros(1, Nx)
+        D = Matrix.zeros(1, 1)
+
+        # FIXME
+        if Na == Nb:
+            D[0, 0] = b[0]
+        else:
+            D[0, 0] = 0            
+
+        for n, p in enumerate(poles):
+            A[n, n] = p.expr
+            C[n] = H._ratfun.residue(p.expr, poles)
+        
+        return cls(A, B, C, D)        
         
     def state_equations(self):
         """System of first-order differential state equations:

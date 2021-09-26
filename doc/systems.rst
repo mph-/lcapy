@@ -22,7 +22,13 @@ By default, the controllable canonical form CCF is created.  The
 observable canonical form OCF is created with::
   
    >>> ss = StateSpace.from_ba(b, a, form='OCF')
-   
+
+Similarly, the diagonal canonical form DCF is created with::
+
+   >>> ss = StateSpace.from_ba(b, a, form='DCF')
+
+For the DCF, the poles of the transfer function must be unique.
+
 
 State-space from transfer function
 ----------------------------------

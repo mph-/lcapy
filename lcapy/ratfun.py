@@ -377,6 +377,7 @@ class Ratfun(object):
         return poles
 
     def residue(self, pole, poles):
+        """Determine residue for given pole."""
 
         expr = self.expr
         var = self.var
@@ -426,7 +427,6 @@ class Ratfun(object):
 
         m2 = method2(numer, denom, var, pole)        
         return m2.cancel()
-
 
     @property
     def numerator_denominator(self):
@@ -653,7 +653,6 @@ class Ratfun(object):
         
         return result
         
-
     def residues(self, combine_conjugates=False, damping=None):
         """Return residues of partial fraction expansion.
 

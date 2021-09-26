@@ -226,8 +226,8 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         """Create state-space representation from transfer function.  Note,
         state-space representations are not unique and are determined
         by the `form` argument.  Currently this can be 'CCF' for the
-        controllable canonical form or `OCF` for the observable
-        canonical form."""
+        controllable canonical form, 'OCF' for the observable
+        canonical form, or 'DCF' for the diagonal canonical form."""
 
         from .statespace import StateSpace
         
