@@ -162,6 +162,11 @@ class StateSpace(object):
 
     @classmethod
     def from_ba_OCF(cls, b, a):
+
+        # Aobs = Acon.T
+        # Bobs = Ccon.T
+        # Cobs = Bcon.T
+        # Dobs = Dcon
         
         b = list(b)
         a = list(a)
@@ -508,40 +513,79 @@ class StateSpace(object):
 
     @cached_property            
     def controllability_gramian(self):
+        """Controllability gramian matrix."""
 
         from scipy import linalg
         from numpy import dot
 
         B = self.B.evaluate()
         Q = dot(B, B.T)
+
+        # Wc > o if (A, B) controllable
+        Wc = linalg.solve_continuous_lyapunov(self.A.evaluate(), -Q)
+
+        # Wc should be symmetric positive semi-definite
+        Wc = (Wc + Wc.T) / 2        
         
-        Wc = linalg.solve_continuous_lyapunov(self.A.evaluate(), Q)
         return Wc
 
+    @property            
+    def reachability_gramian(self):
+        """Reachability gramian matrix.  This is equivalent to the
+        controllability gramian matrix for a linear time independent
+        system."""
+
+        return self.controllability_gramian
+    
     @cached_property            
     def observability_gramian(self):
+        """Observability gramian matrix."""
 
         from scipy import linalg
         from numpy import dot        
 
         C = self.C.evaluate()
-        Q = dot(C, C.T)
+        Q = dot(C.T, C)
+
+        # Wo > o if (C, A) observable
+        Wo = linalg.solve_continuous_lyapunov(self.A.evaluate(), -Q)
+
+        # Wo should be symmetric positive semi-definite
+        Wo = (Wo + Wo.T) / 2
         
-        Wo = linalg.solve_continuous_lyapunov(self.A.evaluate(), Q)
         return Wo
 
     @cached_property            
     def hankel_singular_values(self):
 
-        from scipy import linalg
         from numpy import sqrt, dot
+        from numpy.linalg import eig
         
         Wc = self.controllability_gramian
-        Wo = self.controllability_gramian
+        Wo = self.observability_gramian
 
-        e, v = linalg.eig(dot(Wc, Wo))
+        e, v = eig(dot(Wc, Wo))
 
-        return sqrt(e.real)
+        return sqrt(e)
+
+    @cached_property                
+    def balanced_transformation(self):
+
+        from scipy import linalg
+        from numpy import sqrt, dot, diag
+
+        Wc = self.controllability_gramian
+        Wo = self.observability_gramian
+        
+        L = linalg.cholesky(Wc, lower=True)
+
+        Y = dot(L.T, dot(Wo, L))
+        U, sv, Vh = linalg.svd(Y, full_matrices=True)
+
+        E = diag(1 / sqrt(sv))
+        T = dot(L, dot(U, E))
+        return T
+        
     
 from .symbols import t, s
 from .expr import ExprList
