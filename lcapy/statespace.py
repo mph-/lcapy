@@ -146,9 +146,9 @@ class StateSpace(object):
     @classmethod
     def from_ba_OCF(cls, b, a):
 
-        # Aobs = Acon.H
-        # Bobs = Ccon.H
-        # Cobs = Bcon.H
+        # Aobs = Acon.T
+        # Bobs = Ccon.T
+        # Cobs = Bcon.T
         # Dobs = Dcon
         
         b = list(b)
@@ -565,14 +565,14 @@ class StateSpace(object):
         from scipy import linalg
 
         B = self.B.evaluate()
-        Q = -B @ B.conj().T
+        Q = -B @ B.T
 
-        # Find Wc given A @ Wc + Wc @ A.H = Q        
+        # Find Wc given A @ Wc + Wc @ A.T = Q        
         # Wc > o if (A, B) controllable
         Wc = linalg.solve_continuous_lyapunov(self.A.evaluate(), Q)
 
         # Wc should be symmetric positive semi-definite
-        Wc = (Wc + Wc.conj().T) / 2        
+        Wc = (Wc + Wc.T) / 2        
         
         return Matrix(Wc)
 
@@ -601,14 +601,14 @@ class StateSpace(object):
         from scipy import linalg
 
         C = self.C.evaluate()
-        Q = -C.conj().T @ C
+        Q = -C.T @ C
 
-        # Find Wo given A.H @ Wo + Wo @ A = Q
+        # Find Wo given A.T @ Wo + Wo @ A = Q
         # Wo > o if (C, A) observable
-        Wo = linalg.solve_continuous_lyapunov(self.A.evaluate().conj().T, Q)
+        Wo = linalg.solve_continuous_lyapunov(self.A.evaluate().T, Q)
 
         # Wo should be symmetric positive semi-definite
-        Wo = (Wo + Wo.conj().T) / 2
+        Wo = (Wo + Wo.T) / 2
         
         return Matrix(Wo)
 
@@ -635,8 +635,8 @@ class StateSpace(object):
         """Return the transformation matrix `T` required to balance the
         controllability and observability gramians.
         
-        `Wob = Tinv.H * Wo * Tinv
-        Wcb = T * Wc * T.H`
+        `Wob = Tinv.T * Wo * Tinv
+        Wcb = T * Wc * T.T`
 
         where `Tinv = T.inv()`
 
@@ -651,17 +651,17 @@ class StateSpace(object):
         Wc = self.controllability_gramian.evaluate()
         Wo = self.observability_gramian.evaluate()
 
-        # Wc = R.H @ R
+        # Wc = R.T @ R
         R = linalg.cholesky(Wc)
 
-        Y = R @ Wo @ R.conj().T
-        # Y = U @ diag(e) @ U.H
+        Y = R @ Wo @ R.T
+        # Y = U @ diag(e) @ U.T
         e, U = linalg.eig(Y, left=True, right=False)
 
         # e is a vector of squared Hankel singular values
         Einv = diag(e ** -0.25)
         
-        Tinv = R.conj().T @ U @ Einv
+        Tinv = R.T @ U @ Einv
         return Matrix(Tinv).inv()
 
     def balanced_transform(self):
