@@ -242,7 +242,7 @@ class ExprList(ExprPrint, list, ExprContainer, ExprMisc):
     # in preference to list's one.  Alternatively, add explicit
     # _repr_pretty_ method here.
     
-    def __init__(self, iterable=None, evalf=False):
+    def __init__(self, iterable=None, evalf=False, **assumptions):
 
         if iterable is None:
             iterable = []
@@ -255,7 +255,7 @@ class ExprList(ExprPrint, list, ExprContainer, ExprMisc):
                 except:
                     pass
             else:
-                item = expr(item)
+                item = expr(item, **assumptions)
             eiterable.append(item)
         
         super (ExprList, self).__init__(eiterable)
@@ -286,9 +286,9 @@ class ExprTuple(ExprPrint, tuple, ExprContainer, ExprMisc):
     """Decorator class for tuple created by sympy."""
 
     # Tuples are immutable, need to use __new__
-    def __new__(cls, iterable):
+    def __new__(cls, iterable, **assumptions):
 
-        eiterable = [expr(e) for e in iterable]
+        eiterable = [expr(e, **assumptions) for e in iterable]
         return super (ExprTuple, cls).__new__(cls, eiterable)
 
     def subs(self, *args, **kwargs):
@@ -2422,7 +2422,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         If `pairs` is True, return two dictionaries.  The first
         contains the conjugate pairs and the second contains the
-        others
+        others.
         
         If `aslist` is True, return poles as list."""
 
@@ -3209,16 +3209,16 @@ def exprcontainer(arg, **assumptions):
     if isinstance(arg, (ExprList, ExprTuple, ExprDict)):
         return arg
     elif isinstance(arg, list):
-        return ExprList(arg)
+        return ExprList(arg, **assumptions)
     elif isinstance(arg, tuple):
-        return ExprTuple(arg)
+        return ExprTuple(arg, **assumptions)
     elif isinstance(arg, dict):
-        return ExprDict(arg)    
+        return ExprDict(arg)
     elif isinstance(arg, np.ndarray):
         from .vector import Vector
         if arg.ndim > 1:
             raise ValueError('Multidimensional arrays unsupported; convert to Matrix')
-        return Vector(arg)
+        return Vector(arg, **assumptions)
     
     raise ValueError('Unsupported exprcontainer %s' % arg.__class__.name)
 
@@ -3281,7 +3281,7 @@ def expr(arg, override=False, **assumptions):
         return arg
     
     if not isinstance(arg, str) and hasattr(arg, '__iter__'):
-        return exprcontainer(arg)
+        return exprcontainer(arg, **assumptions)
 
     # Don't set rational=True since this will set rational
     # assumption for symbols.
