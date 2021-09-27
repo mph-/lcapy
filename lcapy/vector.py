@@ -12,12 +12,12 @@ from .expr import expr
 
 class Vector(Matrix):
 
-    def __new__(cls, *args):
+    def __new__(cls, *args, **assumptions):
 
         if len(args) == 2:
             return super(Vector, cls).__new__(cls, (expr(args[0]).expr, expr(args[1]).expr))
 
-        args = [expr(arg).expr for arg in args[0]]
+        args = [expr(arg, **assumptions).expr for arg in args[0]]
 
         return super(Vector, cls).__new__(cls, args)
 
