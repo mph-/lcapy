@@ -645,6 +645,9 @@ class StateSpace(object):
         from scipy import linalg
         from numpy import sqrt, diag
 
+        if not self.is_stable:
+            raise ValueError('System not stable')
+        
         Wc = self.controllability_gramian.evaluate()
         Wo = self.observability_gramian.evaluate()
 
@@ -678,7 +681,7 @@ class StateSpace(object):
         Cp = self.C * Tinv
         
         return self.__class__(Ap, Bp, Cp, self.D,
-                              self._u, self._x, self._x0, self._y)
+                              self._u, self._y, self._x, self._x0)
     
 from .symbols import t, s
 from .expr import ExprList

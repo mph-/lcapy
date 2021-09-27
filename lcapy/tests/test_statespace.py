@@ -1,4 +1,5 @@
 from lcapy import *
+import numpy as np
 import unittest
 
 
@@ -30,13 +31,6 @@ class LcapyTester(unittest.TestCase):
 
         ss = a.ss
 
-        self.assertEqual2(ss.Nx, 1, "Nx")
-        self.assertEqual2(ss.Ny, 2, "Ny")
-        self.assertEqual2(ss.Nu, 1, "Nu")
-        self.assertEqual2(ss.is_stable, True, "is_stable")
-        self.assertEqual2(ss.is_controllable, True, "is_controllable")
-        self.assertEqual2(ss.is_observable, True, "is_observable")
-        self.assertEqual2(ss.is_symbolic, True, "is_symbolic")
         self.assertEqual2(expr(ss.x[0]), expr('v_C1(t)'), "Incorrect state variable")
         self.assertEqual2(expr(ss.y[0]), expr('v_1(t)'), "Incorrect output variable1")
         self.assertEqual2(expr(ss.y[1]), expr('v_2(t)'), "Incorrect output variable2") 
@@ -101,8 +95,38 @@ class LcapyTester(unittest.TestCase):
 
         ss = Z.state_space()
 
+        self.assertEqual(ss.Nx, 3, "Nx")
+        self.assertEqual(ss.Ny, 1, "Ny")
+        self.assertEqual(ss.Nu, 1, "Nu")
+        self.assertEqual(ss.is_stable, False, "is_stable")
+        self.assertEqual(ss.is_controllable, True, "is_controllable")
+        self.assertEqual(ss.is_observable, True, "is_observable")
+        self.assertEqual(ss.is_symbolic, False, "is_symbolic")
         self.assertEqual(ss.G[0], Z, "G")
 
         sso = Z.state_space('OCF')
+        self.assertEqual(sso.G[0], Z, "G")
 
-        self.assertEqual(sso.G[0], Z, "G")        
+        ssd = Z.state_space('DCF')
+        #self.assertEqual(ssd.G[0], Z, "G")                
+
+    def test_balanced(self):
+
+        A = [[1, -2], [3, -4]]
+        B = [5, 7]
+        C = [[6, 8]]
+        D = [9]
+
+        ss = StateSpace(A, B, C, D)
+        
+        ssb = ss.balanced_transform()
+
+        h = ss.hankel_singular_values
+
+        H = np.diag(h.numpy.squeeze())
+
+        self.assertEqual(np.allclose(ssb.Wo.numpy, ssb.Wc.numpy), True, "Wo==Wc")
+        self.assertEqual(np.allclose(ssb.Wo.numpy, H), True, "Hankel singular values")
+        self.assertEqual(ss.eigenvalues, [-1, -2], "eigen values")
+        
+        
