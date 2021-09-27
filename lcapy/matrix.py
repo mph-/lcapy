@@ -179,7 +179,12 @@ class Matrix(sym.Matrix):
             for j in range(self.cols):
                 result[i, j] = self[i, j].evaluate(arg)
         return result
-                    
+
+    @property
+    def numpy(self):
+        """Return NumPy array; not a NumPy matrix."""
+        return self.evaluate()
+    
 
 def matrix(mat):
     """Create Lcapy Matrix from a SymPy Matrix.
