@@ -235,6 +235,13 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         b = self.b
 
         return StateSpace.from_transfer_function_coeffs(b, a, form)
+
+    @property
+    def ss(self):
+        """Return state-space representation using controllable canonical form.
+        For other forms, use `state_space()`."""
+
+        return self.state_space()
     
     def step_response(self, tvector=None):
         """Evaluate step response."""
