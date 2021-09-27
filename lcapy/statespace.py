@@ -659,7 +659,7 @@ class StateSpace(object):
         e, U = linalg.eig(Y, left=True, right=False)
 
         # e is a vector of squared Hankel singular values
-        Einv = diag(1 / sqrt(sqrt(e)))
+        Einv = diag(e ** -0.25)
         
         Tinv = R.conj().T @ U @ Einv
         return Matrix(Tinv).inv()
