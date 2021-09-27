@@ -581,12 +581,22 @@ class StateSpace(object):
         return Matrix(Wc)
 
     @property            
+    def Wc(self):
+        """Controllability gramian matrix."""
+        return self.controllability_gramian
+    
+    @property            
     def reachability_gramian(self):
         """Reachability gramian matrix.  This is equivalent to the
         controllability gramian matrix for a linear time independent
         system."""
 
         return self.controllability_gramian
+
+    @property            
+    def Wr(self):
+        """Reachability gramian matrix."""
+        return self.reacability_gramian
     
     @cached_property            
     def observability_gramian(self):
@@ -606,6 +616,11 @@ class StateSpace(object):
         
         return Matrix(Wo)
 
+    @property            
+    def Wo(self):
+        """Observability gramian matrix."""
+        return self.observability_gramian
+    
     @cached_property            
     def hankel_singular_values(self):
 
