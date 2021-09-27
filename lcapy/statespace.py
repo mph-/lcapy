@@ -31,14 +31,10 @@ class StateSpace(object):
         y is Ny x 1 state output vector
         """
 
-        if not isinstance(A, Matrix):
-            raise ValueError('A not matrix')
-        if not isinstance(B, Matrix):
-            raise ValueError('B not matrix')
-        if not isinstance(C, Matrix):
-            raise ValueError('C not matrix')
-        if not isinstance(D, Matrix):
-            raise ValueError('D not matrix')        
+        A = Matrix(A)
+        B = Matrix(B)
+        C = Matrix(C)
+        D = Matrix(D)
 
         # Number of state variables (the system order).
         Nx = A.shape[0]
@@ -150,9 +146,9 @@ class StateSpace(object):
     @classmethod
     def from_ba_OCF(cls, b, a):
 
-        # Aobs = Acon.T
-        # Bobs = Ccon.T
-        # Cobs = Bcon.T
+        # Aobs = Acon.H
+        # Bobs = Ccon.H
+        # Cobs = Bcon.H
         # Dobs = Dcon
         
         b = list(b)
@@ -567,16 +563,16 @@ class StateSpace(object):
         """Controllability gramian matrix."""
 
         from scipy import linalg
-        from numpy import dot
 
         B = self.B.evaluate()
-        Q = dot(B, B.T)
+        Q = -B @ B.conj().T
 
+        # Find Wc given A @ Wc + Wc @ A.H = Q        
         # Wc > o if (A, B) controllable
-        Wc = linalg.solve_continuous_lyapunov(self.A.evaluate(), -Q)
+        Wc = linalg.solve_continuous_lyapunov(self.A.evaluate(), Q)
 
         # Wc should be symmetric positive semi-definite
-        Wc = (Wc + Wc.T) / 2        
+        Wc = (Wc + Wc.conj().T) / 2        
         
         return Matrix(Wc)
 
@@ -596,23 +592,23 @@ class StateSpace(object):
     @property            
     def Wr(self):
         """Reachability gramian matrix."""
-        return self.reacability_gramian
+        return self.reachability_gramian
     
     @cached_property            
     def observability_gramian(self):
         """Observability gramian matrix."""
 
         from scipy import linalg
-        from numpy import dot        
 
         C = self.C.evaluate()
-        Q = dot(C.T, C)
+        Q = -C.conj().T @ C
 
+        # Find Wo given A.H @ Wo + Wo @ A = Q
         # Wo > o if (C, A) observable
-        Wo = linalg.solve_continuous_lyapunov(self.A.evaluate(), -Q)
+        Wo = linalg.solve_continuous_lyapunov(self.A.evaluate().conj().T, Q)
 
         # Wo should be symmetric positive semi-definite
-        Wo = (Wo + Wo.T) / 2
+        Wo = (Wo + Wo.conj().T) / 2
         
         return Matrix(Wo)
 
@@ -624,34 +620,65 @@ class StateSpace(object):
     @cached_property            
     def hankel_singular_values(self):
 
-        from numpy import sqrt, dot
+        from numpy import sqrt
         from numpy.linalg import eig
         
         Wc = self.controllability_gramian.evaluate()
         Wo = self.observability_gramian.evaluate()
 
-        e, v = eig(dot(Wc, Wo))
+        e, UT = eig(Wc @ Wo)
 
         return expr(sqrt(e), rational=False)
 
     @cached_property                
     def balanced_transformation(self):
+        """Return the transformation matrix `T` required to balance the
+        controllability and observability gramians.
+        
+        `Wob = Tinv.H * Wo * Tinv
+        Wcb = T * Wc * T.H`
+
+        where `Tinv = T.inv()`
+
+        """
 
         from scipy import linalg
-        from numpy import sqrt, dot, diag
+        from numpy import sqrt, diag
 
         Wc = self.controllability_gramian.evaluate()
         Wo = self.observability_gramian.evaluate()
-        
-        L = linalg.cholesky(Wc, lower=True)
 
-        Y = dot(L.T, dot(Wo, L))
-        U, sv, Vh = linalg.svd(Y, full_matrices=True)
+        # Wc = R.H @ R
+        R = linalg.cholesky(Wc)
 
-        E = diag(1 / sqrt(sv))
-        T = dot(L, dot(U, E))
-        return Matrix(T)
+        Y = R @ Wo @ R.conj().T
+        # Y = U @ diag(e) @ U.H
+        e, U = linalg.eig(Y, left=True, right=False)
+
+        # e is a vector of squared Hankel singular values
+        Einv = diag(1 / sqrt(sqrt(e)))
         
+        Tinv = R.conj().T @ U @ Einv
+        return Matrix(Tinv).inv()
+
+    def balanced_transform(self):
+
+        """Return new StateSpace object that has the controllability and
+        observability gramians equal to diagonal matrix with the
+        Hankel singular values on the diagonal."""
+
+        T = self.balanced_transformation
+        return self.transform(T)
+    
+    def transform(self, T):
+
+        Tinv = T.inv()
+        Ap = T * self.A * Tinv
+        Bp = T * self.B
+        Cp = self.C * Tinv
+        
+        return self.__class__(Ap, Bp, Cp, self.D,
+                              self._u, self._x, self._x0, self._y)
     
 from .symbols import t, s
 from .expr import ExprList
