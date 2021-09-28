@@ -674,10 +674,9 @@ class StateSpace(object):
         Tinv = R.T @ U @ Einv
         return Matrix(Tinv).inv()
 
-    def balanced_transform(self):
-
+    def balance(self):
         """Return new StateSpace object that has the controllability and
-        observability gramians equal to diagonal matrix with the
+        observability gramians equal to the diagonal matrix with the
         Hankel singular values on the diagonal."""
 
         T = self.balanced_transformation
@@ -693,9 +692,13 @@ class StateSpace(object):
         return self.__class__(Ap, Bp, Cp, self.D,
                               self._u, self._y, self._x, self._x0)
 
-    def model_reduce(self, elim_states, method='truncate'):
+    def reduce(self, elim_states=None, method='truncate'):
+        """Perform model reduction given array `elim_states` of
+        states to remove."""
 
         from numpy import array, sort, hstack, linalg
+
+        # Perhaps also allow a Boolean array to select states.
         
         melim = sort(elim_states)
         mkeep = []
@@ -753,7 +756,17 @@ class StateSpace(object):
             y = array(y)[mkeep]            
         
         return self.__class__(Ar, Br, Cr, Dr, u, y, x, x0)        
+
+    def balance_reduce(self, threshold, method='truncate'):
+        """Perform balanced model reduction where the states with hankel
+        singular values smaller than `threshold` are removed."""
+
+        from numpy import arange
         
+        hsv = self.hankel_singular_values
+
+        elim_states = arange(self.Nx)[hsv.numpy.squeeze() < threshold]
+        return self.reduce(elim_states, method)
     
 from .symbols import t, s
 from .expr import ExprList
