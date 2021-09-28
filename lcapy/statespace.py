@@ -6,6 +6,7 @@ Copyright 2019-2021 Michael Hayes, UCECE
 """
 
 from .matrix import Matrix
+from .vector import Vector
 from .smatrix import LaplaceDomainMatrix
 from .tmatrix import TimeDomainMatrix
 from .sym import ssym
@@ -54,19 +55,28 @@ class StateSpace(object):
         if (D.shape[0] != Ny) or (D.shape[1] != Nu):
             raise ValueError('D matrix has wrong dimension')                
 
-        if x is not None and x.shape[0] != Nx:
-            raise ValueError('x vector has wrong dimension')
-        if x0 is not None and x0.shape[0] != Nx:
-            raise ValueError('x0 vector has wrong dimension')
-        if u is not None and u.shape[0] != Nu:
-            raise ValueError('u vector has wrong dimension')
-        if y is not None and y.shape[0] != Ny:
-            raise ValueError('y vector has wrong dimension')                
+        if x is not None:
+            if x.shape[0] != Nx:
+                raise ValueError('x vector has wrong dimension')
+            x = Vector(x)            
+        if x0 is not None:
+            if x0.shape[0] != Nx:
+                raise ValueError('x0 vector has wrong dimension')
+            x0 = Vector(x0)                        
+        if u is not None:
+            if u.shape[0] != Nu:
+                raise ValueError('u vector has wrong dimension')
+            u = Vector(u)
+        if y is not None:
+            if y.shape[0] != Ny:
+                raise ValueError('y vector has wrong dimension')
+            y = Vector(y)
             
         self._A = A
         self._B = B
         self._C = C
         self._D = D
+
         self._u = u
         self._x = x
         self._x0 = x0        
@@ -336,7 +346,7 @@ class StateSpace(object):
     def Phi(self):
         """s-domain state transition matrix."""
 
-        M = LaplaceDomainMatrix(sym.eye(len(self.x)) * ssym - self._A)
+        M = LaplaceDomainMatrix(sym.eye(self.Nx) * ssym - self._A)
         return LaplaceDomainMatrix(M.inv().canonical())
 
     @cached_property
@@ -402,7 +412,7 @@ class StateSpace(object):
 
         `lambda(s) = |s * I - A|`"""
 
-        M = Matrix(sym.eye(len(self.x)) * ssym - self._A)        
+        M = Matrix(sym.eye(self.Nx) * ssym - self._A)        
         return LaplaceDomainExpression(M.det()).simplify()
 
     @cached_property
@@ -682,6 +692,68 @@ class StateSpace(object):
         
         return self.__class__(Ap, Bp, Cp, self.D,
                               self._u, self._y, self._x, self._x0)
+
+    def model_reduce(self, elim_states, method='truncate'):
+
+        from numpy import array, sort, hstack, linalg
+        
+        melim = sort(elim_states)
+        mkeep = []
+
+        for i in range(0, self.Nx):
+            if i not in melim:
+                mkeep.append(i)
+
+        # A1 is a matrix of all columns of A to keep
+        A1 = self.A[:, mkeep[0]]
+        for i in mkeep[1:]:
+            A1 = hstack((A1, self.A[:, i]))
+        A11 = A1[mkeep, :]
+        A21 = A1[melim, :]
+        
+        # A2 is a matrix of all columns of A to eliminate
+        A2 = self.A[:, melim[0]]
+        for i in melim[1:]:
+            A2 = hstack((A2, self.A[:, i]))
+        A12 = A2[mkeep, :]
+        A22 = A2[melim, :]
+        
+        C1 = self.C[:, mkeep]
+        C2 = self.C[:, melim]
+        B1 = self.B[mkeep, :]
+        B2 = self.B[melim, :]
+        D = self.D
+        
+        if method == 'truncate':
+            Ar = A11
+            Br = B1
+            Cr = C1
+            Dr = D
+        elif method == 'matchdc':
+            A22I = linalg.inv(A22)
+            
+            Ar = A11 - A12 * A22I * A21
+            Br = B1 - A12 * A22I * B2
+            Cr = C1 - C2 * A22I * A21
+            Dr = D - C2 * A22I * B2
+        else:
+            raise ValueError("Reduction method %s is not supported.  Try 'matchdc' or 'truncate'" % method)
+
+        x = self._x
+        x0 = self._x0
+        u = self._u
+        y = self._y
+        if x is not None:
+            x = array(x)[mkeep]
+        if x0 is not None:
+            x0 = array(x0)[mkeep]
+        if u is not None:
+            u = array(u)[mkeep]
+        if y is not None:
+            y = array(y)[mkeep]            
+        
+        return self.__class__(Ar, Br, Cr, Dr, u, y, x, x0)        
+        
     
 from .symbols import t, s
 from .expr import ExprList
