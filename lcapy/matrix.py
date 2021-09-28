@@ -17,7 +17,7 @@ def msympify(expr):
 
     if isinstance(expr, Expr):
         # Bye bye Lcapy type information...
-        return expr.expr
+        return expr.sympy
     return sym.sympify(expr)
         
         
@@ -108,12 +108,12 @@ class Matrix(sym.Matrix):
     def replace(self, query, value, map=False, simultaneous=True, exact=None):
 
         try:
-            query = query.expr
+            query = query.sympy
         except:
             pass
 
         try:
-            value = value.expr
+            value = value.sympy
         except:
             pass        
 
@@ -127,7 +127,7 @@ class Matrix(sym.Matrix):
     def subs(self, *args, **kwargs):
         """Substitute variables in expression, see sympy.subs for usage."""
 
-        f = lambda x: expr(x).subs(*args, **kwargs).expr
+        f = lambda x: expr(x).subs(*args, **kwargs).sympy
         return self.applyfunc(f)
 
     @property    

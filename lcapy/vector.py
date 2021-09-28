@@ -1,9 +1,8 @@
 """
-This module implements a quantity for the SymPy Matrix class for vectors.
+This module implements the Vector class (a wrapper for Matrix).
 
-Copyright 2020 Michael Hayes, UCECE
+Copyright 2020--2021 Michael Hayes, UCECE
 """
-
 
 from __future__ import division
 from .matrix import Matrix
@@ -15,9 +14,9 @@ class Vector(Matrix):
     def __new__(cls, *args, **assumptions):
 
         if len(args) == 2:
-            return super(Vector, cls).__new__(cls, (expr(args[0]).expr, expr(args[1]).expr))
+            return super(Vector, cls).__new__(cls, (expr(args[0], **aassumptions).expr, expr(args[1], **assumptions).expr))
 
-        args = [expr(arg, **assumptions).expr for arg in args[0]]
+        args = [expr(arg, **assumptions).sympy for arg in args[0]]
 
         return super(Vector, cls).__new__(cls, args)
 
