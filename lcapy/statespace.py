@@ -113,6 +113,7 @@ class StateSpace(object):
             return cls.from_ba_DCF(b, a)        
         else:
             raise ValueError('Only CCF, DCF, and OCF forms are currently supported')
+        # TODO, add Jordan and real Jordan forms.
 
     @classmethod
     def from_ba_CCF(cls, b, a):
@@ -469,9 +470,9 @@ class StateSpace(object):
     
     @cached_property        
     def singular_values(self):
-        """List of singular_values."""
+        """Vector of singular_values."""
 
-        return ExprList(self._A.sympy.singular_values())
+        return Vector(self._A.sympy.singular_values(), rational=False)
 
     @cached_property    
     def M(self):
@@ -638,7 +639,9 @@ class StateSpace(object):
 
         e, UT = eig(Wc @ Wo)
 
-        return expr(sqrt(e), rational=False)
+        # CHECKME for abs
+        h = sqrt(abs(e))
+        return expr(h, rational=False)
 
     @cached_property                
     def balanced_transformation(self):
@@ -692,15 +695,17 @@ class StateSpace(object):
         return self.__class__(Ap, Bp, Cp, self.D,
                               self._u, self._y, self._x, self._x0)
 
-    def reduce(self, elim_states=None, method='truncate'):
+    def reduce(self, elim_states, method='truncate'):
         """Perform model reduction given array `elim_states` of
         states to remove."""
 
-        from numpy import array, sort, hstack, linalg
+        from numpy import arange, array, bool_, hstack, linalg
 
-        # Perhaps also allow a Boolean array to select states.
-        
-        melim = sort(elim_states)
+        if isinstance(elim_states[0], (bool, bool_)):
+            elim_states = arange(self.Nx)[elim_states]
+
+        # SymPy fancy indexing requires lists not ndarrays.
+        melim = sorted(list(elim_states))
         mkeep = []
 
         for i in range(0, self.Nx):
@@ -761,11 +766,9 @@ class StateSpace(object):
         """Perform balanced model reduction where the states with hankel
         singular values smaller than `threshold` are removed."""
 
-        from numpy import arange
-        
         hsv = self.hankel_singular_values
 
-        elim_states = arange(self.Nx)[hsv.numpy.squeeze() < threshold]
+        elim_states = hsv.numpy.squeeze() < threshold
         return self.reduce(elim_states, method)
     
 from .symbols import t, s
