@@ -14,7 +14,7 @@ class Vector(Matrix):
     def __new__(cls, *args, **assumptions):
 
         if len(args) == 2:
-            return super(Vector, cls).__new__(cls, (expr(args[0], **aassumptions).expr, expr(args[1], **assumptions).expr))
+            return super(Vector, cls).__new__(cls, (expr(args[0], **assumptions).expr, expr(args[1], **assumptions).expr))
 
         args = [expr(arg, **assumptions).sympy for arg in args[0]]
 
