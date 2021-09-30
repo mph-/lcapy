@@ -119,7 +119,7 @@ class LcapyTester(unittest.TestCase):
 
         ss = StateSpace(A, B, C, D)
         
-        ssb = ss.balanced_transform()
+        ssb = ss.balance()
 
         h = ss.hankel_singular_values
 
