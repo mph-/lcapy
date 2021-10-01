@@ -222,27 +222,6 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         return self.transient_response(tvector)
 
-    def state_space(self, form='CCF'):
-        """Create state-space representation from transfer function.  Note,
-        state-space representations are not unique and are determined
-        by the `form` argument.  Currently this can be 'CCF' for the
-        controllable canonical form, 'OCF' for the observable
-        canonical form, or 'DCF' for the diagonal canonical form."""
-
-        from .statespace import StateSpace
-        
-        a = self.a
-        b = self.b
-
-        return StateSpace.from_transfer_function_coeffs(b, a, form)
-
-    @property
-    def ss(self):
-        """Return state-space representation using controllable canonical form.
-        For other forms, use `state_space()`."""
-
-        return self.state_space()
-    
     def step_response(self, tvector=None):
         """Evaluate step response."""
 
@@ -361,6 +340,26 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
             return self._response_bilinear(xvector, tvector)
         raise ValueError('Unknown method %s' % method)
         
+    def state_space(self, form='CCF'):
+        """Create state-space representation from transfer function.  Note,
+        state-space representations are not unique and are determined
+        by the `form` argument.  Currently this can be 'CCF' for the
+        controllable canonical form, 'OCF' for the observable
+        canonical form, or 'DCF' for the diagonal canonical form."""
+
+        from .statespace import StateSpace
+        
+        a = self.a
+        b = self.b
+
+        return StateSpace.from_transfer_function_coeffs(b, a, form)
+
+    @property
+    def ss(self):
+        """Return state-space representation using controllable canonical form.
+        For other forms, use `state_space()`."""
+
+        return self.state_space()
 
     def _decompose(self):
 
