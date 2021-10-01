@@ -415,7 +415,12 @@ def zexpr(arg, **assumptions):
 
 from .expressionclasses import expressionclasses
 
-expressionclasses.register('Z', ZDomainExpression)
+classes = expressionclasses.register('Z', ZDomainExpression)
+ZDomainVoltage = classes['voltage']
+ZDomainCurrent = classes['current']
+ZDomainAdmittance = classes['admittance']
+ZDomainImpedance = classes['impedance']
+ZDomainTransferFunction = classes['transfer']
 
 from .nexpr import DiscreteTimeDomainExpression, nexpr
 z = ZDomainExpression('z')
