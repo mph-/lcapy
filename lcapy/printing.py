@@ -174,7 +174,7 @@ class LcapyLatexPrinter(LatexPrinter):
     def _print_Piecewise(self, expr):
 
         if len(expr.args) > 1:
-            return super(LcapyLatexPrinter, self)._print(expr)                    
+            return super(LcapyLatexPrinter, self)._print_Piecewise(expr)                    
 
         e, c = expr.args[0]
         return  r"%s \;\; \text{for}\: %s" % (self._print(e), self._print(c))
@@ -316,7 +316,7 @@ class LcapyPrettyPrinter(PrettyPrinter):
         from sympy.printing.pretty.stringpict import prettyForm
         
         if len(expr.args) > 1:
-            return super(LcapyPrettyPrinter, self)._print(expr)
+            return super(LcapyPrettyPrinter, self)._print_Piecewise(expr)
 
         ec = expr.args[0]
 
