@@ -64,6 +64,6 @@ class ZDomainImpedanceMatrix(ZDomainMatrix):
     _typewrap = ZDomainImpedance    
     
     
-from .tmatrix import DiscreteTimeDomainMatrix
+from .nmatrix import DiscreteTimeDomainMatrix
     
 
