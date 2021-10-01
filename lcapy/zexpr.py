@@ -163,6 +163,26 @@ class ZDomainExpression(ZDomain, SequenceExpression):
 
         return y
 
+    def state_space(self, form='CCF'):
+        """Create state-space representation from transfer function.  Note,
+        state-space representations are not unique and are determined
+        by the `form` argument.  Currently this can be 'CCF' for the
+        controllable canonical form, 'OCF' for the observable
+        canonical form, or 'DCF' for the diagonal canonical form."""
+
+        from .dtstatespace import DTStateSpace
+        
+        a = self.a
+        b = self.b
+
+        return DTStateSpace.from_transfer_function_coeffs(b, a, form)
+
+    @property
+    def ss(self):
+        """Return state-space representation using controllable canonical form.
+        For other forms, use `state_space()`."""
+
+        return self.state_space()
     def _decompose(self):
 
         N, D, delay = Ratfun(self, z).as_ratfun_delay()                
