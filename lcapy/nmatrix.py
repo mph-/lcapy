@@ -8,7 +8,7 @@ Copyright 2021 Michael Hayes, UCECE
 from .matrix import Matrix
 
 class DiscreteTimeDomainMatrix(Matrix):
-    from .texpr import DiscreteTimeDomainExpression    
+    from .nexpr import DiscreteTimeDomainExpression    
     _typewrap = DiscreteTimeDomainExpression    
 
     def ZT(self):
