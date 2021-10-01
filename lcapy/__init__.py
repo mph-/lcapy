@@ -55,6 +55,7 @@ from .smatrix import *
 from .tmatrix import *
 from .vector import *
 from .statespace import *
+from .dtstatespace import *
 from .nodalanalysis import *
 from .loopanalysis import *
 from .laplace import *
