@@ -7,12 +7,12 @@ Copyright 2021 Michael Hayes, UCECE
 
 from .cache import cached_property
 from .matrix import Matrix
-from .smatrix import ZDomainMatrix
-from .tmatrix import DiscreteTimeDomainMatrix
+from .zmatrix import ZDomainMatrix
+from .nmatrix import DiscreteTimeDomainMatrix
 from .statespacebase import StateSpaceBase
 from .nexpr import n, nexpr
 from .expr import expr
-from .sym import zsym
+from .dsym import zsym
 import sympy as sym
 
 # TODO: reachability implies controllability but controllability only
