@@ -17,7 +17,7 @@ class ZDomainMatrix(Matrix):
         def func(expr):
             return expr.IZT(**assumptions)
         
-        return DiscreteTimeDomainMatrix(self.applyfunc(func, **assumptions))
+        return DiscreteTimeDomainMatrix(self.applyfunc(func))
 
     def canonical(self):
 

@@ -16,7 +16,7 @@ class LaplaceDomainMatrix(Matrix):
         def func(expr):
             return expr.ILT(**assumptions)
         
-        return TimeDomainMatrix(self.applyfunc(func, **assumptions))
+        return TimeDomainMatrix(self.applyfunc(func))
 
 
 class LaplaceDomainVoltageMatrix(LaplaceDomainMatrix):
