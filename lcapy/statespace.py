@@ -223,5 +223,37 @@ class StateSpace(StateSpaceBase):
     def Wo(self):
         """Observability gramian matrix."""
         return self.observability_gramian
+
+    def _discretize_gbf(self, alpha=0.5):
+
+        from .dsym import dt
+        from .dtstatespace import DTStateSpace
+
+        I = sym.eye(self.Nx)
+        M = I - alpha * dt * self.A
+        Minv = M.inv()
+
+        Ad = Minv * (I + (1 - alpha) * dt * self.A)
+        Bd = Minv * dt * self.B
+        Cd = (Minv.T * self.C.T).T
+        Dd = self.D + alpha * self.C * Bd
+
+        # FIXME for u, y, x, x0.
+        return DTStateSpace(Ad, Bd, Cd, Dd,
+                            self._u, self._y, self._x, self._x0)
+        
+    def discretize(self, method='gbf', alpha=0.5):
+
+        if method == 'gbf':
+            return self._discretize_gbf(alpha)
+        elif method in ('bilinear', 'tustin'):
+            return self.discretize('gbf', 0.5)
+        elif method in ('euler', 'forward_diff'):
+            return self.discretize('gbf', 0)
+        elif method == 'backward_diff':
+            return self.discretize('gbf', 1)
+        else:
+            raise ValueError('Unsupported method %s' % method)
+        
     
 from .sexpr import LaplaceDomainExpression
