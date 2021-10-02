@@ -121,10 +121,10 @@ class ExprContainer(object):
 
         return self.__class__([v.evalf(n) for v in self])        
     
-    def simplify(self):
+    def simplify(self, **kwargs):
         """Simplify each element."""
         
-        return self.__class__([simplify(v) for v in self])
+        return self.__class__([simplify(v, **kwargs) for v in self])
 
     @property    
     def symbols(self):
@@ -178,12 +178,12 @@ class ExprDict(ExprPrint, ExprContainer, ExprMisc, OrderedDict):
             new[k] = v
         return new
 
-    def simplify(self):
+    def simplify(self, **kwargs):
         """Simplify each element but not the keys."""
 
         new = self.__class__()
         for k, v in self.items():
-            new[k] = simplify(v)
+            new[k] = simplify(v, **kwargs)
         return new
 
     def evalf(self, n=15):
@@ -2125,7 +2125,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         ret = sym.limit(self.expr, var, value, dir=dir)
         return self.__class__(ret, **self.assumptions)
 
-    def simplify(self):
+    def simplify(self, **kwargs):
         """Simplify expression.
 
         This throws the kitchen sink at the problem but can be slow.
@@ -2135,9 +2135,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         # Perhaps roll this into symsimplify?
         if self.has(AppliedUndef):
             new, defs = self.remove_undefs(return_mappings=True)
-            return new.simplify().subs(defs)
+            return new.simplify(**kwargs).subs(defs)
 
-        ret = symsimplify(self.expr)
+        ret = symsimplify(self.expr, **kwargs)
         return self.__class__(ret, **self.assumptions)
 
     def simplify_units(self):
@@ -2147,20 +2147,20 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         ret.units = units.simplify_units(self.units)
         return ret
 
-    def simplify_terms(self):
+    def simplify_terms(self, **kwargs):
         """Simplify terms in expression individually."""
 
         result = 0
         for term in self.expr.as_ordered_terms():
-            result += symsimplify(term)
+            result += symsimplify(term, **kwargs)
         return self.__class__(result, **self.assumptions)
 
-    def simplify_factors(self):
+    def simplify_factors(self, **kwargs):
         """Simplify factors in expression individually."""
 
         result = 0
         for factor in self.expr.as_ordered_factors():
-            result *= symsimplify(factor)
+            result *= symsimplify(factor, **kwargs)
         return self.__class__(result, **self.assumptions)
 
     def simplify_sin_cos(self, as_cos=False, as_sin=False):
