@@ -190,31 +190,15 @@ Gt = Function(sym.Gt)
 
 Ge = Function(sym.Ge)
 
-    
-class Add(sym.Add):
-    def __new__(cls, op1, op2, **options):
-        return expr(super(Add, cls).__new__(cls, delcapify(op1), delcapify(op2), **options))
+Add = Function(sym.Add)
 
-    
-class Mul(sym.Mul):
-    def __new__(cls, op1, op2, **options):
-        return expr(super(Mul, cls).__new__(cls, delcapify(op1), delcapify(op2), **options))
+Mul = Function(sym.Mul)
 
-    
-class MatAdd(sym.MatAdd):
-    def __new__(cls, op1, op2, **options):
-        return expr(super(MatAdd, cls).__new__(cls, delcapify(op1), delcapify(op2), **options))
+MatAdd = Function(sym.MatAdd)
 
-    
-class MatMul(sym.MatMul):
-    def __new__(cls, op1, op2, **options):
-        return expr(super(MatMul, cls).__new__(cls, delcapify(op1), delcapify(op2), **options))
+MatMul = Function(sym.MatMul)
 
-
-class Sum(sym.Sum):
-    def __new__(cls, op1, op2, **options):
-        return expr(super(Sum, cls).__new__(cls, delcapify(op1), delcapify(op2), **options))
-    
+Sum = Function(sym.Sum)
 
 ui = unitimpulse = UnitImpulse = Function(UnitImpulse1)
 
