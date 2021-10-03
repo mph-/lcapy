@@ -18,6 +18,9 @@ __all__ = ('ZT', )
 # Check the structure of the given expression
 def is_multiplied_with(expr, n, cmp, ret):
 
+    if expr.is_Piecewise:
+        return False
+    
     ret_flag = False   
     # Check for multiplication  with n
     if cmp == 'n' and expr == n:  #only n
