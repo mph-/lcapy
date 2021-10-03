@@ -40,12 +40,12 @@ class LaplaceTransformer(UnilateralForwardTransformer):
                                       (t, t0, sym.oo)),
                          t0, 0, dir='-')
 
-    def check(self, expr, t, s, **assumptions):
+    def check(self, expr, t, s, **kwargs):
 
         if expr.has(s):
             self.error('Expression depends on s')
 
-    def key(self, expr, t, s, **assumptions):
+    def key(self, expr, t, s, **kwargs):
         return expr, t, s,
 
     def limits(self, expr, t, s, tmin, tmax):
@@ -230,20 +230,20 @@ class LaplaceTransformer(UnilateralForwardTransformer):
 laplace_transformer = LaplaceTransformer()
 
 
-def laplace_transform(expr, t, s, evaluate=True, **assumptions):
+def laplace_transform(expr, t, s, evaluate=True, **kwargs):
     """Compute unilateral Laplace transform of expr with lower limit 0-.    
     """
     
     return laplace_transformer.transform(expr, t, s,
                                          evaluate=evaluate,
-                                         **assumptions)
+                                         **kwargs)
 
 
-def LT(expr, t, s, evaluate=True, **assumptions):
+def LT(expr, t, s, evaluate=True, **kwargs):
     """Compute unilateral Laplace transform of expr with lower limit 0-.    
     """    
 
     return laplace_transformer.transform(expr, t, s,
                                          evaluate=evaluate,
-                                         **assumptions)
+                                         **kwargs)
 

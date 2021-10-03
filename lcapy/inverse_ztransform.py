@@ -26,20 +26,16 @@ class InverseZTransformer(UnilateralInverseTransformer):
         # Construct Cauchy integral.
         self.error('TODO')
 
-    def check(self, expr, z, n, **assumptions):
-
-        self.damping = assumptions.get('damping', None)
-        self.causal = assumptions.get('causal', False)
-        self.pairs = assumptions.get('pairs', True)
+    def check(self, expr, z, n, **kwargs):
         
         if expr.has(n):
             self.error('Expression depends on n')
 
-    def key(self, expr, z, n, **assumptions):
+    def key(self, expr, z, n, **kwargs):
         return (expr, z, n,
-                assumptions.get('causal', False),
-                assumptions.get('pairs', True),            
-                assumptions.get('damping', None))
+                kwargs.get('causal', False),
+                kwargs.get('pairs', True),            
+                kwargs.get('damping', None))
 
     def func(self, expr, n, z, inverse=False):
 
@@ -82,7 +78,7 @@ class InverseZTransformer(UnilateralInverseTransformer):
             result = result * z ** shift
         return result
 
-    def ratfun(self, expr, z, n):
+    def ratfun(self, expr, z, n, **kwargs):
 
         expr = expr / z
 
@@ -143,8 +139,8 @@ class InverseZTransformer(UnilateralInverseTransformer):
             if factor == sym.oo:
                 return factor, factor
 
-        zexpr = Ratfun(expr, z)
-        poles = zexpr.poles(damping=self.damping)
+        zexpr = Ratfun(expr, z, **kwargs)
+        poles = zexpr.poles(damping=kwargs.get('damping', None))
         poles_dict = {}
         for pole in poles:
             # Replace cos()**2-1 by sin()**2
@@ -158,7 +154,7 @@ class InverseZTransformer(UnilateralInverseTransformer):
 
         # Make two dictionaries in order to handle them differently and make 
         # pretty expressions
-        if self.pairs:
+        if kwargs.get('pairs', True):
             pole_pair_dict, pole_single_dict = pair_conjugates(poles_dict)
         else:
             pole_pair_dict, pole_single_dict = {}, poles_dict
@@ -299,14 +295,14 @@ class InverseZTransformer(UnilateralInverseTransformer):
 
         return cresult, uresult
 
-    def product(self, expr, z, n):
+    def product(self, expr, z, n, **kwargs):
 
         # Handle expressions with a function of z, e.g., V(z) * Y(z), V(z)
         # / z etc.
 
         zsym = sympify(str(z))    
 
-        if self.causal:
+        if kwargs.get('causal', False):
             # Assume that all functions are causal in the expression.
             n1 = sym.S.Zero
             n2 = n
@@ -343,10 +339,10 @@ class InverseZTransformer(UnilateralInverseTransformer):
             if len(terms) >= 2:
                 result = sym.S.Zero
                 for term in terms:
-                    result += self.product(factors[1] * term, z, n)
+                    result += self.product(factors[1] * term, z, n, **kwargs)
                 return const * result
 
-        cresult, uresult = self.term1(factors[0], z, n)
+        cresult, uresult = self.term1(factors[0], z, n, **kwargs)
         result = cresult + uresult
 
         intnum = 0
@@ -390,7 +386,7 @@ class InverseZTransformer(UnilateralInverseTransformer):
             # Convert product to convolution
             dummy = self.dummy_var(expr, 'm', level=intnum, real=True)
             intnum += 1
-            cresult, uresult = self.term1(factors[m + 1], z, n)
+            cresult, uresult = self.term1(factors[m + 1], z, n, **kwargs)
             expr2 = cresult + uresult
             kernel = result.subs(n, n - dummy) * expr2.subs(n, dummy)
             sresult = sym.Sum(kernel, (dummy, n1, n2))
@@ -427,7 +423,7 @@ class InverseZTransformer(UnilateralInverseTransformer):
 
         self.error('Expression is not a power of z')
 
-    def term1(self, expr, z, n):
+    def term1(self, expr, z, n, **kwargs):
 
         const, expr = factor_const(expr, z)
 
@@ -441,7 +437,7 @@ class InverseZTransformer(UnilateralInverseTransformer):
             return const * result, sym.S.Zero
 
         if expr.has(AppliedUndef):
-            return const * self.product(expr, z, n), sym.S.Zero
+            return const * self.product(expr, z, n, **kwargs), sym.S.Zero
 
         if expr == z:
             print('Warning, dodgy z-transform.  Have advance of unit impulse.') 
@@ -462,13 +458,13 @@ class InverseZTransformer(UnilateralInverseTransformer):
             pass
 
         # As last resort see if can convert to convolutions...
-        return sym.S.Zero, const * self.product(expr, z, n)
+        return sym.S.Zero, const * self.product(expr, z, n, **kwargs)
 
-    def term(self, expr, z, n):
+    def term(self, expr, z, n, **kwargs):
 
-        cresult, uresult = self.term1(expr, z, n)
+        cresult, uresult = self.term1(expr, z, n, **kwargs)
 
-        if self.causal:
+        if kwargs.get('causal', False):
             uresult = uresult * UnitStep(n)
 
         return cresult, uresult
@@ -477,34 +473,32 @@ class InverseZTransformer(UnilateralInverseTransformer):
 inverse_ztransformer = InverseZTransformer()
 
 
-def inverse_ztransform(expr, z, n, evaluate=True, **assumptions):
+def inverse_ztransform(expr, z, n, evaluate=True, **kwargs):
     """Calculate inverse z-Transform of X(s) and return x[n].
 
     The unilateral z-Transform transform cannot determine x[n] for n < 0
-    unless given additional information in the way of assumptions.
+    unless given additional information:
 
-    The assumptions are:
-    dc -- x[n] = constant
-    causal -- x[n] = 0 for n < 0.
-    ac -- x[n] = A cos(a * n) + B * sin(b * n)
+    `dc` -- x[n] = constant
+    `causal` -- x[n] = 0 for n < 0.
+    `ac` -- x[n] = A cos(a * n) + B * sin(b * n)
     """
     
     return inverse_ztransformer.transform(expr, z, n, evaluate=evaluate,
-                                          **assumptions)
+                                          **kwargs)
 
 
-def IZT(expr, z, n, evaluate=True, **assumptions):
+def IZT(expr, z, n, evaluate=True, **kwargs):
     """Calculate inverse z-Transform of X(s) and return x[n].
 
     The unilateral z-Transform transform cannot determine x[n] for n < 0
-    unless given additional information in the way of assumptions.
+    unless given additional information:
 
-    The assumptions are:
-    dc -- x[n] = constant
-    causal -- x[n] = 0 for n < 0.
-    ac -- x[n] = A cos(a * n) + B * sin(b * n)
+    `dc` -- x[n] = constant
+    `causal` -- x[n] = 0 for n < 0.
+    `ac` -- x[n] = A cos(a * n) + B * sin(b * n)
     """    
 
     return inverse_ztransformer.transform(expr, z, n, evaluate=evaluate,
-                                          **assumptions)    
+                                          **kwargs)    
 

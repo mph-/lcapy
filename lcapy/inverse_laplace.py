@@ -23,20 +23,16 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         # Construct Bromwich integral.
         self.error('TODO')
 
-    def check(self, expr, s, t, **assumptions):
+    def check(self, expr, s, t, **kwargs):
 
-        self.damping = assumptions.get('damping', None)
-        self.damped_sin = assumptions.get('damped_sin', False)
-        self.causal = assumptions.get('causal', False)
-        
         if expr.has(t):
             self.error('Expression depends on t')
 
-    def key(self, expr, s, t, **assumptions):
+    def key(self, expr, s, t, **kwargs):
         return (expr, s, t,
-                assumptions.get('causal', False),
-                assumptions.get('damped_sin', True),            
-                assumptions.get('damping', None))
+                kwargs.get('causal', False),
+                kwargs.get('damped_sin', True),            
+                kwargs.get('damping', None))
 
     def func(self, expr, t, s):
 
@@ -104,11 +100,11 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
 
         return K * kCd * sym.DiracDelta(t), G
 
-    def ratfun(self, expr, s, t):
+    def ratfun(self, expr, s, t, **kwargs):
 
         sexpr = Ratfun(expr, s)
 
-        if self.damped_sin:
+        if kwargs.get('damped_sin', False):
             if sexpr.degree == 2:
                 return self.do_damped_sin(sexpr, s, t)
             #if False and sexpr.degree == 3 and Ratfun(expr * s).degree == 2:
@@ -130,7 +126,8 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
                 return factor
 
         sexpr = Ratfun(expr, s)
-        poles = sexpr.poles(damping=self.damping)
+        poles = sexpr.poles(damping=kwargs.get('damping', None))
+
         polesdict = {}
         for pole in poles:
             polesdict[pole.expr] = pole.n
@@ -184,12 +181,11 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
 
         return cresult, uresult
 
-    def product(self, expr, s, t):
+    def product(self, expr, s, t, **kwargs):
 
         # Handle expressions with a function of s, e.g., V(s) * Y(s), V(s)
         # / s etc.
-
-        if self.causal:
+        if kwargs.get('causal', False):
             # Assume that all functions are causal in the expression.
             t1 = sym.S.Zero
             t2 = t
@@ -201,7 +197,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
 
         factors = expr.as_ordered_factors()
         if len(factors) < 2:
-            cresult, uresult = self.term1(expr, s, t)
+            cresult, uresult = self.term1(expr, s, t, **kwargs)
             return const * (cresult + uresult)
 
         if (len(factors) > 2 and not
@@ -216,10 +212,10 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             if len(terms) >= 2:
                 result = sym.S.Zero
                 for term in terms:
-                    result += self.product(factors[1] * term, s, t)
+                    result += self.product(factors[1] * term, s, t, **kwargs)
                 return result * const
 
-        cresult, uresult = self.term1(factors[0], s, t)
+        cresult, uresult = self.term1(factors[0], s, t, **kwargs)
         result = cresult + uresult
 
         intnum = 0
@@ -248,7 +244,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             # Convert product to convolution
             tau = self.dummy_var(expr, 'tau', level=intnum, real=True)
             intnum += 1
-            cresult, uresult = self.term1(factors[m + 1], s, t)
+            cresult, uresult = self.term1(factors[m + 1], s, t, **kwargs)
             expr2 = cresult + uresult
             result = sym.Integral(result.subs(t, t - tau) * expr2.subs(t, tau),
                                   (tau, t1, t2))
@@ -307,7 +303,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             
         return result
 
-    def term1(self, expr, s, t):
+    def term1(self, expr, s, t, **kwargs):
 
         const, expr = factor_const(expr, s)
 
@@ -318,11 +314,11 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             return result * const, sym.S.Zero
 
         if expr.has(AppliedUndef):
-            return const * self.product(expr, s, t), sym.S.Zero
+            return const * self.product(expr, s, t, **kwargs), sym.S.Zero
 
         try:
             # This is the common case.
-            cresult, uresult = self.ratfun(expr, s, t)
+            cresult, uresult = self.ratfun(expr, s, t, **kwargs)
             return const * cresult, const * uresult
         except:
             pass
@@ -336,14 +332,13 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             return sym.S.Zero, const * self.power(expr, s, t)
 
         # As last resort see if can convert to convolutions...
-        return sym.S.Zero, const * self.product(expr, s, t)
+        return sym.S.Zero, const * self.product(expr, s, t, **kwargs)
 
-
-    def term(self, expr, s, t):
+    def term(self, expr, s, t, **kwargs):
 
         expr, delay = self.delay_factor(expr, s)
 
-        cresult, uresult = self.term1(expr, s, t)
+        cresult, uresult = self.term1(expr, s, t, **kwargs)
 
         if delay != 0:
             cresult = cresult.subs(t, t - delay)
@@ -352,7 +347,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         # TODO, should check for delay < 0.  If so the causal
         # part is no longer causal.
 
-        if self.causal:
+        if kwargs.get('causal', False):
             uresult = uresult * sym.Heaviside(t - delay)
 
         return cresult, uresult
@@ -361,35 +356,33 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
 inverse_laplace_transformer = InverseLaplaceTransformer()
 
 
-def inverse_laplace_transform(expr, s, t, evaluate=True, **assumptions):
+def inverse_laplace_transform(expr, s, t, evaluate=True, **kwargs):
     """Calculate inverse Laplace of X(s) and return x(t).
 
     The unilateral Laplace transform cannot determine x(t) for n < 0
-    unless given additional information in the way of assumptions.
+    unless given additional information:
 
-    The assumptions are:
-    dc -- x(t) = constant
-    causal -- x(t) = 0 for n < 0.
-    ac -- x(t) = A cos(a * n) + B * sin(b * n)
+    `dc` -- x(t) = constant
+    `causal` -- x(t) = 0 for n < 0.
+    `ac` -- x(t) = A cos(a * n) + B * sin(b * n)
     """
     
     return inverse_laplace_transformer.transform(expr, s, t,
                                                  evaluate=evaluate,
-                                                 **assumptions)
+                                                 **kwargs)
 
 
-def ILT(expr, s, t, evaluate=True, **assumptions):
+def ILT(expr, s, t, evaluate=True, **kwargs):
     """Calculate inverse Laplace of X(s) and return x(t).
 
     The unilateral Laplace transform cannot determine x(t) for n < 0
-    unless given additional information in the way of assumptions.
+    unless given additional information:
 
-    The assumptions are:
-    dc -- x(t) = constant
-    causal -- x(t) = 0 for n < 0.
-    ac -- x(t) = A cos(a * n) + B * sin(b * n)
-    """    
+    `dc` -- x(t) = constant
+    `causal` -- x(t) = 0 for n < 0.
+    `ac` -- x(t) = A cos(a * n) + B * sin(b * n)
+    """
 
     return inverse_laplace_transformer.transform(expr, s, t,
                                                  evaluate=evaluate,
-                                                 **assumptions)
+                                                 **kwargs)

@@ -154,12 +154,12 @@ class ZTransformer(UnilateralForwardTransformer):
         # This is needed to handle expressions like (2*n + 3)**2
         return sym.expand(expr)
     
-    def check(self, expr, n, z, **assumptions):
+    def check(self, expr, n, z, **kwargs):
 
         if expr.has(z):
             self.error('Expression depends on z')
 
-    def key(self, expr, n, z, **assumptions):
+    def key(self, expr, n, z, **kwargs):
         return expr, n, z,
 
     def func(self, expr, n, z):
@@ -372,21 +372,21 @@ class ZTransformer(UnilateralForwardTransformer):
 ztransformer = ZTransformer()
 
 
-def ZT(expr, n, z, evaluate=True, **assumptions):
+def ZT(expr, n, z, evaluate=True, **kwargs):
     """Compute unilateral Z-Transform transform of expr with lower limit 0.
 
     Undefined functions such as v[n] are converted to V(z)."""
     
     return ztransformer.transform(expr, n, z,
-                                  evaluate=evaluate, **assumptions)
+                                  evaluate=evaluate, **kwargs)
 
-def ztransform(expr, n, z, evaluate=True, **assumptions):
+def ztransform(expr, n, z, evaluate=True, **kwargs):
     """Compute unilateral Z-Transform transform of expr with lower limit 0.
 
     Undefined functions such as v[n] are converted to V(z)."""
 
     return ztransformer.transform(expr, n, z,
-                                  evaluate=evaluate, **assumptions)    
+                                  evaluate=evaluate, **kwargs)    
 
 
 from .expr import Expr

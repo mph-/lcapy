@@ -31,7 +31,7 @@ class InverseFourierTransformer(FourierTransformer):
 inverse_fourier_transformer = InverseFourierTransformer()
 
 
-def IFT(expr, f, t, **assumptions):
+def IFT(expr, f, t, **kwargs):
     """Compute bilateral inverse Fourier transform of expr.
 
     Undefined functions such as V(f) are converted to v(t)
@@ -40,10 +40,10 @@ def IFT(expr, f, t, **assumptions):
     inverse Fourier transform, such as a, cos(a * f), sin(a * f), exp(I *
     a * f)."""    
     
-    return inverse_fourier_transformer.transform(expr, f, t, **assumptions)
+    return inverse_fourier_transformer.transform(expr, f, t, **kwargs)
 
 
-def inverse_fourier_transform(expr, f, t, **assumptions):
+def inverse_fourier_transform(expr, f, t, **kwargs):
     """Compute bilateral inverse Fourier transform of expr.
 
     Undefined functions such as V(f) are converted to v(t)
@@ -52,4 +52,4 @@ def inverse_fourier_transform(expr, f, t, **assumptions):
     inverse Fourier transform, such as a, cos(a * f), sin(a * f), exp(I *
     a * f)."""    
     
-    return inverse_fourier_transformer.transform(expr, f, t, **assumptions)
+    return inverse_fourier_transformer.transform(expr, f, t, **kwargs)

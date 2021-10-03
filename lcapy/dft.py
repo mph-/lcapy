@@ -442,8 +442,8 @@ class DFTTransformer(BilateralForwardTransformer):
     name = 'DFT'
     is_inverse = False
     
-    def key(self, expr, n, k, **assumptions):
-        return expr, n, k, assumptions.get('N', None), assumptions.get('piecewise', False)
+    def key(self, expr, n, k, **kwargs):
+        return expr, n, k, kwargs.get('N', None), kwargs.get('piecewise', False)
 
     def noevaluate(self, expr, n, k):
 
@@ -451,7 +451,7 @@ class DFTTransformer(BilateralForwardTransformer):
         result = sym.Sum(foo, (n, 0, self.N - 1))
         return result
 
-    def check(self, expr, n, k, N=None, **assumptions):
+    def check(self, expr, n, k, N=None, **kwargs):
 
         try:
             N = N.expr
@@ -467,7 +467,6 @@ class DFTTransformer(BilateralForwardTransformer):
             raise ValueError('%s not positive, redefine with positive=True' % N)
         
         self.N = N
-        self.piecewise = assumptions.get('piecewise', None)        
         
         if expr.has(k):
             self.error('Expression depends on k')
@@ -1083,7 +1082,7 @@ class DFTTransformer(BilateralForwardTransformer):
         return None
     
     
-    def term(self, expr, n, k):
+    def term(self, expr, n, k, **kwargs):
         
         const, expr = factor_const(expr, n)
         if self.is_inverse:
@@ -1109,7 +1108,9 @@ class DFTTransformer(BilateralForwardTransformer):
             # Simplify q**N terms
             res.simp_qN(q, self.N)
             # Make final transform by putting all cases and terms together
-            res.make_transform(self.N, self.is_inverse, q, sym.exp(-sym.I * 2 * pi / self.N * k), k, self.piecewise)
+            res.make_transform(self.N, self.is_inverse, q,
+                               sym.exp(-sym.I * 2 * pi / self.N * k), k,
+                               kwargs.get('piecewise', None))
             result = res.Xk
             
             # TODO smart simplification of result since simplify takes
@@ -1142,24 +1143,24 @@ dft_transformer = DFTTransformer()
 
 
 def discrete_fourier_transform(expr, n, k, N=None, evaluate=True, 
-                               **assumptions):
+                               **kwargs):
     """Compute bilateral discrete Fourier transform of expr.
 
     Undefined functions such as x(n) are converted to X(k)
     """
 
     return dft_transformer.transform(expr, n, k, evaluate=evaluate, N=N, 
-                                     **assumptions)
+                                     **kwargs)
 
 
-def DFT(expr, n, k, N=None, evaluate=True, **assumptions):
+def DFT(expr, n, k, N=None, evaluate=True, **kwargs):
     """Compute bilateral discrete Fourier transform of expr.
 
     Undefined functions such as x(n) are converted to X(k)
     """
 
     return dft_transformer.transform(expr, n, k, evaluate=evaluate, N=N, 
-                                     **assumptions)    
+                                     **kwargs)    
 
 
 def DFTmatrix(N):

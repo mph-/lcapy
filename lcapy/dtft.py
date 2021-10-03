@@ -26,8 +26,8 @@ class DTFTTransformer(BilateralForwardTransformer):
 
     name = 'DTFT'
     
-    def key(self, expr, n, f, **assumptions):
-        return expr, n, f, assumptions.get('images', 0)
+    def key(self, expr, n, f, **kwargs):
+        return expr, n, f, kwargs.get('images', 0)
 
     def noevaluate(self, expr, n, f):
 
@@ -35,7 +35,7 @@ class DTFTTransformer(BilateralForwardTransformer):
         result = sym.Sum(foo, (n, -oo, oo))
         return result
 
-    def check(self, expr, n, f, images=0, **assumptions):
+    def check(self, expr, n, f, images=0, **kwargs):
 
         self.images = images
         if images == oo:
@@ -87,7 +87,7 @@ class DTFTTransformer(BilateralForwardTransformer):
         # Perhaps return X_(1/dt)(f) but how to denote?
         return self.add_images(result, f)
 
-    def function(self, expr, n, f):
+    def function(self, expr, n, f, **kwargs):
 
         # Handle expressions with a function of FOO, e.g.,
         # v(n), v(n) * y(n),  3 * v(n) / n, v(4 * a * n), etc.,
@@ -122,14 +122,14 @@ class DTFTTransformer(BilateralForwardTransformer):
             exprs = exprs + [rest]
             rest = sym.S.One
 
-        result = self.term(exprs[0], n, f) * rest
+        result = self.term(exprs[0], n, f, **kwargs) * rest
 
         if len(exprs) == 1:
             return result * const
 
         self.error('TODO')
 
-    def term(self, expr, n, f):
+    def term(self, expr, n, f, **kwargs):
 
         const, expr = factor_const(expr, n)
         args = expr.args
@@ -142,7 +142,7 @@ class DTFTTransformer(BilateralForwardTransformer):
 
         elif expr.has(AppliedUndef):
             # Handle v(n), v(n) * y(n), 3 * v(n) / n etc.
-            return self.function(expr, n, f) * const
+            return self.function(expr, n, f, **kwargs) * const
         
         # Handle step u(n-n0)  or u(-n-n0)  only 
         elif expr.is_Function and expr.func in (sym.Heaviside, UnitStep):
@@ -161,7 +161,7 @@ class DTFTTransformer(BilateralForwardTransformer):
             ref = xn_fac[-1].args
             aa = ref[0].coeff(n, 1) / sym.I
             bb = ref[0].coeff(n, 0) 
-            X =  self.term(expr, n, f)
+            X =  self.term(expr, n, f, **kwargs)
             res = X.subs(f,  f - aa / twopidt)
             return const * res * sym.exp(bb)
         
@@ -171,7 +171,7 @@ class DTFTTransformer(BilateralForwardTransformer):
             ref = xn_fac[-1].args
             bb = ref[0].coeff(n, 1)
             cc = ref[0].coeff(n, 0)              
-            X = self.term(expr, n, f)
+            X = self.term(expr, n, f, **kwargs)
             Xp = X.subs(f, f + bb / twopidt)
             Xm = X.subs(f, f - bb / twopidt)
             res = sym.I * (Xp * sym.exp(-sym.I * cc) - Xm * sym.exp(sym.I * cc))
@@ -183,7 +183,7 @@ class DTFTTransformer(BilateralForwardTransformer):
             ref = xn_fac[-1].args
             bb = ref[0].coeff(n, 1)
             cc = ref[0].coeff(n, 0)              
-            X = self.term(expr, n, f)
+            X = self.term(expr, n, f, **kwargs)
             Xp = X.subs(f, f + bb / twopidt)
             Xm = X.subs(f, f - bb / twopidt)
             res = (Xp * sym.exp(-sym.I * cc) + Xm * sym.exp(sym.I * cc))
@@ -192,7 +192,7 @@ class DTFTTransformer(BilateralForwardTransformer):
         # Multiplication with n       use n * x(n)  o--o  j / twopidt * d/df X(f)
         elif is_multiplied_with(expr, n, 'n', xn_fac):
             expr = expr / xn_fac[-1]
-            X = self.term(expr, n, f)
+            X = self.term(expr, n, f, **kwargs)
             return const / twopidt * sym.I * sym.simplify(sym.diff(X, f))
                 
         # Handle u(n+n0) * a **n * exp(b*n+c) 
@@ -325,21 +325,21 @@ dtft_transformer = DTFTTransformer()
 
 
 def discrete_time_fourier_transform(expr, n, f, images=0, evaluate=True,
-                                    **assumptions):
+                                    **kwargs):
     """Compute bilateral discrete-time Fourier transform of expr.
 
     Undefined functions such as x(n) are converted to X(f)
     """
 
     return dtft_transformer.transform(expr, n, f, evaluate=evaluate,
-                                      images=images, **assumptions)
+                                      images=images, **kwargs)
 
 
-def DTFT(expr, n, f, images=0, evaluate=True, **assumptions):
+def DTFT(expr, n, f, images=0, evaluate=True, **kwargs):
     """Compute bilateral discrete-time Fourier transform of expr.
 
     Undefined functions such as x(n) are converted to X(f)
     """
 
     return dtft_transformer.transform(expr, n, f, evaluate=evaluate,
-                                      images=images, **assumptions)    
+                                      images=images, **kwargs)    

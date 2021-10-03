@@ -32,7 +32,7 @@ class FourierTransformer(BilateralForwardTransformer):
 
     name = 'Fourier transform'
 
-    def key(self, expr, t, f, **assumptions):
+    def key(self, expr, t, f, **kwargs):
         return expr, t, f
 
     def simplify_term(self, expr, var):
@@ -332,7 +332,7 @@ class FourierTransformer(BilateralForwardTransformer):
 fourier_transformer = FourierTransformer()
 
 
-def FT(expr, t, f, **assumptions):
+def FT(expr, t, f, **kwargs):
     """Compute bilateral Fourier transform of expr.
 
     Undefined functions such as v(t) are converted to V(f)
@@ -340,10 +340,10 @@ def FT(expr, t, f, **assumptions):
     This also handles some expressions that do not really have a Fourier
     transform, such as a, cos(a * t), sin(a * t), exp(I * a * t)."""    
     
-    return fourier_transformer.transform(expr, t, f, **assumptions)
+    return fourier_transformer.transform(expr, t, f, **kwargs)
 
 
-def fourier_transform(expr, t, f, **assumptions):
+def fourier_transform(expr, t, f, **kwargs):
     """Compute bilateral Fourier transform of expr.
 
     Undefined functions such as v(t) are converted to V(f)
@@ -351,4 +351,4 @@ def fourier_transform(expr, t, f, **assumptions):
     This also handles some expressions that do not really have a Fourier
     transform, such as a, cos(a * t), sin(a * t), exp(I * a * t)."""    
     
-    return fourier_transformer.transform(expr, t, f, **assumptions)
+    return fourier_transformer.transform(expr, t, f, **kwargs)
