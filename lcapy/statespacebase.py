@@ -560,6 +560,19 @@ class StateSpaceBase(object):
 
         elim_states = hsv.numpy.squeeze() < threshold
         return self.reduce(elim_states, method)
+
+    def subs(self, *args, **kwargs):
+        """Return new state space object after substituting variables in A, B,
+        C, D matrices, see sympy.subs for usage.
+
+        """
+
+        return self.__class__(self.A.subs(*args, **kwargs),
+                              self.B.subs(*args, **kwargs),
+                              self.C.subs(*args, **kwargs),
+                              self.D.subs(*args, **kwargs),
+                              self._u, self._y, self._x, self._x0)        
+        
     
 from .symbols import t, s
 from .expr import ExprList

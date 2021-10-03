@@ -468,6 +468,15 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         return self.fourier(causal=True).nichols_plot(fvector, **kwargs)        
 
+    def generalized_bilinear_transform(self, alpha=0.5):
+        
+        from .discretetime import z, dt
+
+        if alpha < 0 or alpha > 1:
+            raise ValueError("alpha must be between 0 and 1 inclusive")
+        
+        return self.subs((1 / dt) * (1 - z**-1) / (alpha + (1 - alpha) * z**-1))
+        
     def bilinear_transform(self):
         """Approximate s = ln(z) / dt
 
@@ -477,30 +486,41 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         trapezoidal method."""
 
         # TODO: add frequency warping as an option
-
-        from .discretetime import z, dt
-
-        return self.subs((2 / dt) * (1 - z**-1) / (1 + z**-1))
+        return self.generalized_bilinear_transform(0.5)
 
     def forward_euler_transform(self):
         """Approximate s = ln(z)
 
         by s = (1 / dt) * (1 - z**-1) / z**-1"""
 
-        from .discretetime import z, dt
-        
-        return self.subs((1 / dt) * (1 - z**-1) / (z**-1))
+        return self.generalized_bilinear_transform(0)
 
     def backward_euler_transform(self):
         """Approximate s = ln(z)
 
         by s = (1 / dt) * (1 - z**-1)"""
 
-        from .discretetime import z, dt
-        
-        return self.subs((1 / dt) * (1 - z**-1))        
+        return self.generalized_bilinear_transform(1)
 
+    def discretize(self, method='bilinear', alpha=0.5):
+        """Convert to a discrete-time approximation.
 
+        The default method is 'bilinear'.  Other methods are
+        'forward_euler', 'backward_euler', and 'gbf'.
+        The latter has a parameter `alpha`."""
+
+        if method == 'gbf':
+            return self.generalized_bilinear_transform(alpha)
+        elif method in ('bilinear', 'tustin'):
+            return self.generalized_bilinear_transform(0.5)
+        elif method in ('euler', 'forward_diff', 'forward_euler'):
+            return self.generalized_bilinear_transform(0)
+        elif method in ('backward_diff', 'backward_euler'):
+            return self.generalized_bilinear_transform(1)
+        else:
+            raise ValueError('Unsupported method %s' % method)        
+
+ 
 def tf(numer, denom=1, var=None):
     """Create a transfer function from lists of the coefficient
     for the numerator and denominator."""

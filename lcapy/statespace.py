@@ -73,7 +73,7 @@ class StateSpace(StateSpaceBase):
     @cached_property
     def H(self):
         """X(s) / U(s)"""
-        return LaplaceDomainMatrix(self.Phi * self._B).canonical()
+        return LaplaceDomainMatrix(self.Phi * self._B)
 
     @property
     def h(self):
@@ -85,7 +85,7 @@ class StateSpace(StateSpaceBase):
         """System transfer functions.
         For a SISO system, use G[0].
         """
-        return LaplaceDomainMatrix(self._C * self.H + self._D).canonical()
+        return LaplaceDomainMatrix(self._C * self.H + self._D)
 
     def state_equations(self):
         """System of first-order differential state equations:
@@ -123,7 +123,7 @@ class StateSpace(StateSpaceBase):
         """s-domain state transition matrix."""
 
         M = LaplaceDomainMatrix(sym.eye(self.Nx) * ssym - self._A)
-        return LaplaceDomainMatrix(M.inv().canonical())
+        return LaplaceDomainMatrix(M.inv())
 
     @cached_property
     def phi(self):
@@ -144,7 +144,7 @@ class StateSpace(StateSpaceBase):
 
         `lambda(s) = |s * I - A|`"""        
 
-        return self.characteristic_polynomial().canonical()
+        return self.characteristic_polynomial()
 
     @cached_property    
     def Lambda(self):
@@ -224,7 +224,7 @@ class StateSpace(StateSpaceBase):
         """Observability gramian matrix."""
         return self.observability_gramian
 
-    def _discretize_gbf(self, alpha=0.5):
+    def generalized_bilinear_transform(self, alpha=0.5):
 
         from .dsym import dt
         from .dtstatespace import DTStateSpace
@@ -242,18 +242,22 @@ class StateSpace(StateSpaceBase):
         return DTStateSpace(Ad, Bd, Cd, Dd,
                             self._u, self._y, self._x, self._x0)
         
-    def discretize(self, method='gbf', alpha=0.5):
+    def discretize(self, method='bilinear', alpha=0.5):
+        """Convert to a discrete-time state space approximation.
+
+        The default method is 'bilinear'.  Other methods are
+        'forward_euler', 'backward_euler', and 'gbf'.
+        The latter has a parameter `alpha`."""
 
         if method == 'gbf':
-            return self._discretize_gbf(alpha)
+            return self.generalized_bilinear_transform(alpha)
         elif method in ('bilinear', 'tustin'):
             return self.discretize('gbf', 0.5)
-        elif method in ('euler', 'forward_diff'):
+        elif method in ('euler', 'forward_diff', 'forward_euler'):
             return self.discretize('gbf', 0)
-        elif method == 'backward_diff':
+        elif method in ('backward_diff', 'backward_euler'):
             return self.discretize('gbf', 1)
         else:
             raise ValueError('Unsupported method %s' % method)
-        
     
 from .sexpr import LaplaceDomainExpression

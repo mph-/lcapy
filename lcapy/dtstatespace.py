@@ -77,7 +77,7 @@ class DTStateSpace(StateSpaceBase):
     @cached_property
     def H(self):
         """X(z) / U(z)"""
-        return ZDomainMatrix(self.Phi * self._B).canonical()
+        return ZDomainMatrix(self.Phi * self._B)
 
     @property
     def h(self):
@@ -89,7 +89,7 @@ class DTStateSpace(StateSpaceBase):
         """System transfer functions.
         For a SISO system, use G[0].
         """
-        return ZDomainMatrix(self._C * self.H + self._D).canonical()
+        return ZDomainMatrix(self._C * self.H + self._D)
 
     def state_equations(self):
         """System of first-order differential state equations:
@@ -127,7 +127,7 @@ class DTStateSpace(StateSpaceBase):
         """z-domain state transition matrix."""
 
         M = ZDomainMatrix(sym.eye(self.Nx) * zsym - self._A)
-        return ZDomainMatrix(M.inv().canonical())
+        return ZDomainMatrix(M.inv())
 
     @cached_property
     def phi(self):
@@ -148,7 +148,7 @@ class DTStateSpace(StateSpaceBase):
 
         `lambda(z) = |z * I - A|`"""        
 
-        return self.characteristic_polynomial().canonical()
+        return self.characteristic_polynomial()
     
     @cached_property    
     def Lambda(self):
@@ -196,7 +196,7 @@ class DTStateSpace(StateSpaceBase):
     def reachability_gramian(self):
         """Reachability gramian matrix.  This is equivalent to the
         controllability gramian matrix for a linear time independent
-        system."""
+        system provided A is not singular."""
 
         return self.controllability_gramian
 
