@@ -229,6 +229,9 @@ class StateSpace(StateSpaceBase):
         from .dsym import dt
         from .dtstatespace import DTStateSpace
 
+        if alpha < 0 or alpha > 1:
+            raise ValueError("alpha must be between 0 and 1 inclusive")
+        
         I = sym.eye(self.Nx)
         M = I - alpha * dt * self.A
         Minv = M.inv()
@@ -252,11 +255,11 @@ class StateSpace(StateSpaceBase):
         if method == 'gbf':
             return self.generalized_bilinear_transform(alpha)
         elif method in ('bilinear', 'tustin'):
-            return self.discretize('gbf', 0.5)
+            return self.generalized_bilinear_transform(0.5)
         elif method in ('euler', 'forward_diff', 'forward_euler'):
-            return self.discretize('gbf', 0)
+            return self.generalized_bilinear_transform(0)
         elif method in ('backward_diff', 'backward_euler'):
-            return self.discretize('gbf', 1)
+            return self.generalized_bilinear_transform(1)
         else:
             raise ValueError('Unsupported method %s' % method)
     
