@@ -1,5 +1,5 @@
 """This module defines the StateSpace class for representing a linear
-continuous time-invariant system as a state-space model.
+discrete time-invariant system as a state-space model.
 
 Copyright 2021 Michael Hayes, UCECE
 
@@ -7,102 +7,106 @@ Copyright 2021 Michael Hayes, UCECE
 
 from .cache import cached_property
 from .matrix import Matrix
-from .smatrix import LaplaceDomainMatrix
-from .tmatrix import TimeDomainMatrix
+from .zmatrix import ZDomainMatrix
+from .nmatrix import DiscreteTimeDomainMatrix
 from .statespacebase import StateSpaceBase
-from .texpr import t, texpr
+from .nexpr import n, nexpr
 from .expr import expr
-from .sym import ssym
+from .dsym import zsym
 import sympy as sym
 
-class StateSpace(StateSpaceBase):
-    """Continuous-time linear time-invariant state space model."""    
+# TODO: reachability implies controllability but controllability only
+# implies reachability if A matrix is full rank.
+
+class DTStateSpace(StateSpaceBase):
+    """Discrete-time linear time-invariant state space model."""
 
     @property
     def u(self):
         """Input vector."""
         if self._u is None:
-            self._u = TimeDomainMatrix([texpr('u_%d(t)' % i) for i in
-                                        range(self.Nu)])
+            self._u = DiscreteTimeDomainMatrix([nexpr('u_%d(n)' % i) for i in
+                                                range(self.Nu)])
         return self._u
     
     @property
     def x(self):
         """State variable vector."""
         if self._x is None:
-            self._x = TimeDomainMatrix([texpr('x_%d(t)' % i) for i in
-                                        range(self.Nx)])
+            self._x = DiscreteTimeDomainMatrix([nexpr('x_%d(n)' % i) for i in
+                                                range(self.Nx)])
         return self._x
 
     @cached_property
-    def dotx(self):
+    def xnext(self):
         """Time derivative of state variable vector."""
-        return TimeDomainMatrix([sym.Derivative(x1, t) for x1 in self.x])
+        return DiscreteTimeDomainMatrix([nexpr('x_%d(n + 1)' % i) for i in
+                                                range(self.Nx)])
     
     @property
     def x0(self):
         """State variable initial value vector."""
         if self._x0 is None:
-            self._x0 = TimeDomainMatrix([texpr('x_0_%d(t)' % i) for i in
-                                         range(self.Nx)])
+            self._x0 = DiscreteTimeDomainMatrix([nexpr('x_0_%d(n)' % i) for i in
+                                                 range(self.Nx)])
         return self._x0        
 
     @property
     def y(self):
         """Output vector."""
         if self._y is None:
-            self._y = TimeDomainMatrix([texpr('y_%d(t)' % i) for i in
-                                        range(self.Ny)])
+            self._y = DiscreteTimeDomainMatrix([nexpr('y_%d(n)' % i) for i in
+                                                range(self.Ny)])
         return self._y    
-    
+
     @property
     def U(self):
-        """Laplace transform of input vector."""
-        return LaplaceDomainMatrix(self.u.laplace())
+        """Z transform of input vector."""
+        return ZDomainMatrix(self.u.ZT())
 
     @property
     def X(self):
-        """Laplace transform of state-variable vector."""        
-        return LaplaceDomainMatrix(self.x.laplace())
+        """Z transform of state-variable vector."""        
+        return ZDomainMatrix(self.x.ZT())
 
     @property
     def Y(self):
-        """Laplace transform of output vector."""        
-        return LaplaceDomainMatrix(self.y.laplace())
+        """Z transform of output vector."""        
+        return ZDomainMatrix(self.y.ZT())
 
     @cached_property
     def H(self):
-        """X(s) / U(s)"""
-        return LaplaceDomainMatrix(self.Phi * self._B)
+        """X(z) / U(z)"""
+        return ZDomainMatrix(self.Phi * self._B)
 
     @property
     def h(self):
-        """ILT{X(s) / U(s)}"""        
-        return TimeDomainMatrix(self.H.ILT(causal=True))
+        """ILT{X(z) / U(z)}"""        
+        return DiscreteTimeDomainMatrix(self.H.ILT(causal=True))
 
     @cached_property
     def G(self):
         """System transfer functions.
         For a SISO system, use G[0].
         """
-        return LaplaceDomainMatrix(self._C * self.H + self._D)
+        return ZDomainMatrix(self._C * self.H + self._D)
 
     def state_equations(self):
         """System of first-order differential state equations:
 
-        dotx(t) = A x(t) + B u(t)
+        x[n + 1] = A x[n] + B u[n]
 
         where x is the state vector and u is the input vector.
         """
         
-        return expr(sym.Eq(self.dotx, sym.MatAdd(sym.MatMul(self._A, self.x),
-                                                 sym.MatMul(self._B, self.u)),
+        return expr(sym.Eq(self.xnext, sym.MatAdd(sym.MatMul(self._A, self.x),
+                                                  sym.MatMul(self._B, self.u)),
                            evaluate=False))
 
     def output_equations(self):
         """System of output equations:
 
-        y(t) = C x(t) + D u(t)
+        y[n] = C x[n] + D u[n]
 
         where y is the output vector, x is the state vector and u is
         the input vector.
@@ -116,36 +120,36 @@ class StateSpace(StateSpaceBase):
     @property
     def g(self):
         """System impulse responses."""        
-        return TimeDomainMatrix(self.G.ILT(causal=True))
+        return DiscreteTimeDomainMatrix(self.G.IZT(causal=True))
     
     @cached_property
     def Phi(self):
-        """s-domain state transition matrix."""
+        """z-domain state transition matrix."""
 
-        M = LaplaceDomainMatrix(sym.eye(self.Nx) * ssym - self._A)
-        return LaplaceDomainMatrix(M.inv())
+        M = ZDomainMatrix(sym.eye(self.Nx) * zsym - self._A)
+        return ZDomainMatrix(M.inv())
 
     @cached_property
     def phi(self):
         """State transition matrix."""        
-        return TimeDomainMatrix(self.Phi.ILT(causal=True))
+        return DiscreteTimeDomainMatrix(self.Phi.ILT(causal=True))
 
     def characteristic_polynomial(self):
         """Characteristic polynomial (aka system polynomial).
 
-        `lambda(s) = |s * I - A|`"""
+        `lambda(z) = |z * I - A|`"""
 
-        M = LaplaceDomainMatrix(sym.eye(self.Nx) * ssym - self._A)        
-        return LaplaceDomainExpression(M.det()).simplify()
+        M = ZDomainMatrix(sym.eye(self.Nx) * zsym - self._A)        
+        return ZDomainExpression(M.det()).simplify()
 
     @cached_property
     def P(self):
         """Characteristic polynomial (aka system polynomial).
 
-        `lambda(s) = |s * I - A|`"""        
+        `lambda(z) = |z * I - A|`"""        
 
         return self.characteristic_polynomial()
-
+    
     @cached_property    
     def Lambda(self):
         """Diagonal matrix of eigenvalues."""
@@ -155,7 +159,7 @@ class StateSpace(StateSpaceBase):
         # return L
         
         e = self.eigenvalues
-        return LaplaceDomainMatrix(sym.diag(*e))
+        return ZDomainMatrix(sym.diag(*e))
 
     @cached_property    
     def M(self):
@@ -163,7 +167,7 @@ class StateSpace(StateSpaceBase):
 
         E, L = self._A.diagonalize()
         
-        return LaplaceDomainMatrix(E)
+        return ZDomainMatrix(E)
     
     @cached_property            
     def controllability_gramian(self):
@@ -176,7 +180,7 @@ class StateSpace(StateSpaceBase):
 
         # Find Wc given A @ Wc + Wc @ A.T = Q        
         # Wc > o if (A, B) controllable
-        Wc = linalg.solve_continuous_lyapunov(self.A.evaluate(), Q)
+        Wc = linalg.solve_discrete_lyapunov(self.A.evaluate(), Q)
 
         # Wc should be symmetric positive semi-definite
         Wc = (Wc + Wc.T) / 2        
@@ -192,7 +196,7 @@ class StateSpace(StateSpaceBase):
     def reachability_gramian(self):
         """Reachability gramian matrix.  This is equivalent to the
         controllability gramian matrix for a linear time independent
-        system."""
+        system provided A is not singular."""
 
         return self.controllability_gramian
 
@@ -212,7 +216,7 @@ class StateSpace(StateSpaceBase):
 
         # Find Wo given A.T @ Wo + Wo @ A = Q
         # Wo > o if (C, A) observable
-        Wo = linalg.solve_continuous_lyapunov(self.A.evaluate().T, Q)
+        Wo = linalg.solve_discrete_lyapunov(self.A.evaluate().T, Q)
 
         # Wo should be symmetric positive semi-definite
         Wo = (Wo + Wo.T) / 2
@@ -223,44 +227,5 @@ class StateSpace(StateSpaceBase):
     def Wo(self):
         """Observability gramian matrix."""
         return self.observability_gramian
-
-    def generalized_bilinear_transform(self, alpha=0.5):
-
-        from .dsym import dt
-        from .dtstatespace import DTStateSpace
-
-        if alpha < 0 or alpha > 1:
-            raise ValueError("alpha must be between 0 and 1 inclusive")
-        
-        I = sym.eye(self.Nx)
-        M = I - alpha * dt * self.A
-        Minv = M.inv()
-
-        Ad = Minv * (I + (1 - alpha) * dt * self.A)
-        Bd = Minv * dt * self.B
-        Cd = (Minv.T * self.C.T).T
-        Dd = self.D + alpha * self.C * Bd
-
-        # FIXME for u, y, x, x0.
-        return DTStateSpace(Ad, Bd, Cd, Dd,
-                            self._u, self._y, self._x, self._x0)
-        
-    def discretize(self, method='bilinear', alpha=0.5):
-        """Convert to a discrete-time state space approximation.
-
-        The default method is 'bilinear'.  Other methods are
-        'forward_euler', 'backward_euler', and 'gbf'.
-        The latter has a parameter `alpha`."""
-
-        if method == 'gbf':
-            return self.generalized_bilinear_transform(alpha)
-        elif method in ('bilinear', 'tustin'):
-            return self.generalized_bilinear_transform(0.5)
-        elif method in ('euler', 'forward_diff', 'forward_euler'):
-            return self.generalized_bilinear_transform(0)
-        elif method in ('backward_diff', 'backward_euler'):
-            return self.generalized_bilinear_transform(1)
-        else:
-            raise ValueError('Unsupported method %s' % method)
     
-from .sexpr import LaplaceDomainExpression
+from .zexpr import ZDomainExpression

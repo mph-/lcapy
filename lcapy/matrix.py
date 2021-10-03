@@ -246,5 +246,29 @@ def matrix_inverse(M, method='default'):
 
     return M.inv(method=method)
 
+    def canonical(self):
+
+        return self.applyfunc(self._typewrap.canonical)
+
+    def general(self):
+
+        return self.applyfunc(self._typewrap.general)
+
+    def mixedfrac(self):
+
+        return self.applyfunc(self._typewrap.mixedfrac)
+
+    def partfrac(self):
+
+        return self.applyfunc(self._typewrap.partfrac)
+
+    def timeconst(self):
+
+        return self.applyfunc(self._typewrap.timeconst)   
+
+    def ZPK(self):
+
+        return self.applyfunc(self._typewrap.ZPK)    
+
     
 from .expr import Expr, expr

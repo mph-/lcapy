@@ -307,13 +307,13 @@ def domainsymbol(name, **assumptions):
     return dsym
 
 
-def symsimplify(expr, var=None):
+def symsimplify(expr, var=None, **kwargs):
     """Simplify a SymPy expression.  This is a hack to work around
     problems with SymPy's simplify API."""
 
     # Handle Matrix types
     if hasattr(expr, 'applyfunc'):
-        return expr.applyfunc(lambda x: symsimplify(x))
+        return expr.applyfunc(lambda x: symsimplify(x, **kwargs))
 
     if expr.has(sym.DiracDelta):
         expr = simplify_dirac_delta(expr)
@@ -338,17 +338,17 @@ def symsimplify(expr, var=None):
     except:
         pass
 
-    expr = sym.simplify(expr)
+    expr = sym.simplify(expr, **kwargs)
 
     return expr
 
 
-def simplify(expr):
+def simplify(expr, **kwargs):
     """Simplify an Lcapy expression.  This is not straightforward, see
     sympy.simplify."""
 
     try:
-        return expr.simplify()
+        return expr.simplify(**kwargs)
     except:
         pass
 
@@ -356,7 +356,7 @@ def simplify(expr):
     if isinstance(expr, LExpr):
         expr = expr.expr
 
-    return symsimplify(expr)
+    return symsimplify(expr, **kwargs)
 
 
 def is_sympy(expr):
