@@ -128,7 +128,7 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
 
         return self.__class__(limit(self.expr, self.var, oo))
 
-    def DFT(self, N=None, evaluate=True):
+    def DFT(self, N=None, evaluate=True, piecewise=False):
         """Determine DFT.  
         
         `N` needs to be a positive integer symbol or a str specifying
@@ -141,7 +141,8 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
         elif isinstance(N, str):
             N = symsymbol(N, integer=True, positive=True)            
 
-        result = DFT(self.expr, nsym, ksym, N, evaluate=evaluate)
+        result = DFT(self.expr, nsym, ksym, N, evaluate=evaluate,
+                     piecewise=piecewise)
         result = self.change(result, domain='discrete fourier')        
         result = result.simplify_unit_impulse()
         return result

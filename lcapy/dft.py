@@ -369,7 +369,7 @@ class QkTransform(object):
                 for full_base in terms:
                     self.case_expr[key][1] = self.case_expr[key][1].replace(full_base**NN, (full_base / ba)**NN)                
          
-    def make_transform(self, NN, backward, q, sub, k, piecewise=False):
+    def make_transform(self, NN, backward, q, sub, k, piecewise):
         """Assemble the final tranform from all the cases, the general case, or Xk.
          
         backward is True for IDFT
@@ -417,7 +417,7 @@ class QkTransform(object):
                 
                 if (case_val == sym.nan or case_val.has(sym.zoo) or
                     case_val == sym.oo or case_val == -sym.oo):
-                    # On option add piecewise here
+
                     if piecewise:
                         self.Xk += sym.Piecewise((this_expr, neq))
                     else:
@@ -443,7 +443,7 @@ class DFTTransformer(BilateralForwardTransformer):
     is_inverse = False
     
     def key(self, expr, n, k, **assumptions):
-        return expr, n, k, assumptions.get('N', None)
+        return expr, n, k, assumptions.get('N', None), assumptions.get('piecewise', False)
 
     def noevaluate(self, expr, n, k):
 
@@ -467,6 +467,7 @@ class DFTTransformer(BilateralForwardTransformer):
             raise ValueError('%s not positive, redefine with positive=True' % N)
         
         self.N = N
+        self.piecewise = assumptions.get('piecewise', None)        
         
         if expr.has(k):
             self.error('Expression depends on k')
@@ -1082,11 +1083,7 @@ class DFTTransformer(BilateralForwardTransformer):
         return None
     
     
-    def term(self, expr, n, k, piecewise=False):
-        
-        # TODO please add an option piecewise to the DFT method, 
-        # so the DFT excludes cases with sym.Piecewise were the denominator is zero. 
-        # If not (1-delta(k-k0)) is used as "workaround"
+    def term(self, expr, n, k):
         
         const, expr = factor_const(expr, n)
         if self.is_inverse:
@@ -1097,11 +1094,12 @@ class DFTTransformer(BilateralForwardTransformer):
             result = const * self.function(expr, n, k)
             return result  
 
-        # 
         # Transforms of type x[n] o--o X(q) with q=exp(-j*2*pi/N*k)
-        # (mainly used with the forward transform, but works also for backward transforms)         
+        # (mainly used with the forward transform, but works also for
+        # backward transforms)
         
-        # Call transform, use inversion for first case (change sign later back for second case)
+        # Call transform, use inversion for first case (change sign
+        # later back for second case)
         k = -k if self.is_inverse else k
         
         q = sym.Symbol('q')
@@ -1111,12 +1109,12 @@ class DFTTransformer(BilateralForwardTransformer):
             # Simplify q**N terms
             res.simp_qN(q, self.N)
             # Make final transform by putting all cases and terms together
-            res.make_transform(self.N, self.is_inverse, q, sym.exp(-sym.I * 2 * pi / self.N * k), k, piecewise)
+            res.make_transform(self.N, self.is_inverse, q, sym.exp(-sym.I * 2 * pi / self.N * k), k, self.piecewise)
             result = res.Xk
             
-            # TODO smart simplification of result since simplify takes too long or
-            # makes sometimes weird expressions might be better in
-            # make_transform
+            # TODO smart simplification of result since simplify takes
+            # too long or makes sometimes weird expressions might be
+            # better in make_transform
             
             # result = sym.simplify(result)   #only useful if handles found
             return const * result
