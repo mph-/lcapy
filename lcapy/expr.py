@@ -3435,6 +3435,25 @@ def deg(arg, **assumptions):
     return expr1
 
 
+def delcapify(expr):
+    """De-lcapify expression to create pure SymPy expression."""
+
+    if isinstance(expr, tuple):
+        return tuple([delcapify(arg) for arg in expr])
+    elif isinstance(expr, list):
+        return [delcapify(arg) for arg in expr]
+    elif isinstance(expr, dict):
+        ret = {}
+        for key, val in expr.items():
+            ret[delcapify(key)] = delcapify(val)
+        return ret
+    elif hasattr(expr, 'expr'):
+        return expr.expr
+    
+    return expr
+
+
+
 from .cexpr import cexpr, ConstantDomainExpression
 from .fexpr import f, fexpr, FourierDomainExpression
 from .omegaexpr import omega, omegaexpr, AngularFourierDomainExpression
