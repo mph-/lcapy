@@ -189,7 +189,7 @@ def make_polynom_table2(var, p, varN=None, prn=False):
     ret_pol = []
     for i in range(p):
         rhs = list(All_rhs[:, i])
-        repl=dict(zip(r, rhs))
+        repl = dict(zip(r, rhs))
 
         if prn:
             print("q**", i, " :  linear factors of basic transform [x_i] = ", sol.subs(repl).args[0])
@@ -243,7 +243,7 @@ def simp_rat(expr, q, method=1):
         for ii, xx in enumerate(f_d[1]):
             for jj, yy in enumerate(f_n[1]):
                 hits = sym.cancel(yy[0] / xx[0])
-                if  not hits.has(q):
+                if not hits.has(q):
                     # Common factor found
                     f_n[0] *= hits**yy[1]
                     # Exponents
@@ -276,7 +276,7 @@ class QkTransform(object):
 
     X(q) = sum_lower^upper x(n) * q**N  
 
-    As special cases are possible (e.q. for q=0) the class handles the
+    As special cases are possible (e.g., for q=0) the class handles the
     general expression and special cases"""
     
     def __init__(self, val_q, k0=None, val0=None, valqk=None, val_k=0):
@@ -346,8 +346,7 @@ class QkTransform(object):
         self.Xq = (self.Xq).subs(q, q_new)
         if self.has_special:
             for key in self.case_expr:
-                self.case_expr[key][1] = self.case_expr[key][1].subs(q, q_new)        
-    
+                self.case_expr[key][1] = self.case_expr[key][1].subs(q, q_new)
 
     def simp_qN(self, ba, NN, all=False):
         """Simplifies ba**NN to 1 
@@ -1180,4 +1179,3 @@ def DFTmatrix(N):
             a[row, col] = w ** (row * col)
     return a
 
-
