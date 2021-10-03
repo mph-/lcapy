@@ -409,13 +409,14 @@ class QkTransform(object):
                 
                 # check if val is at k0 is unlimted and prepare for piecewise
                 if not backward:
-                    case_val = this_expr.subs(k,k0) 
-                    neq = sym.Ne(k,k0)
+                    case_val = this_expr.subs(k, k0) 
+                    neq = sym.Ne(k, k0)
                 else:
-                    case_val = this_expr.subs(-k,-k0)
-                    neq = sym.Ne(-k,-k0)
+                    case_val = this_expr.subs(-k, -k0)
+                    neq = sym.Ne(-k, -k0)
                 
-                if case_val == sym.nan or case_val.has(sym.zoo) or case_val==sym.oo or case_val==-sym.oo:
+                if (case_val == sym.nan or case_val.has(sym.zoo) or
+                    case_val == sym.oo or case_val == -sym.oo):
                     # On option add piecewise here
                     if piecewise:
                         self.Xk += sym.Piecewise((this_expr, neq))
@@ -993,9 +994,9 @@ class DFTTransformer(BilateralForwardTransformer):
         this_case = False
         # Check for piecewise
         if expr.is_Piecewise:
-            match = list(expr.args[0][1].find(sym.Ne(qq, p0)))
+            match = list(expr.args[0][1].find(sym.Ne(n, p0)))
             n0 = match[0].args[1]
-            div_expr = expr.args[0][0]
+            div_expr = expr_qq.args[0][0]
             this_case = True
         # Check for (1-delta) factor
         else:    
