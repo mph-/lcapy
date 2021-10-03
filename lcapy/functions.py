@@ -14,7 +14,8 @@ __all__ = ('conjugate', 'sqrt', 'exp', 'log', 'log10', 'sin', 'cos',
            'heaviside', 'Heaviside', 'delta', 'DiracDelta', 'ui',
            'us', 'unitimpulse', 'unitstep', 'UnitImpulse', 'UnitStep',
            'rect', 'sinc', 'sincn', 'sincu', 'psinc', 'tri', 'trap',
-           'Sum', 'dtrect', 'dtsign')
+           'Sum', 'dtrect', 'dtsign', 'Piecewise', 'Eq', 'Ne',
+           'Lt', 'Le', 'Gt', 'Ge')
 
 from .extrafunctions import UnitImpulse as UnitImpulse1
 from .extrafunctions import UnitStep as UnitStep1
@@ -41,35 +42,42 @@ class Function(object):
 
     def __call__(self, *args):
 
-        e_args = list(map(expr, args))
-        
-        cls = e_args[0].__class__
-
-        # Handle cases like atan2(1, omega)
-        if len(e_args) > 1:
-            if e_args[0].is_constant:
-                cls = e_args[1].__class__                
-
         func = self.expr
-        if cls.is_discrete_time_domain or cls.is_discrete_fourier_domain:
+            
+        e_args = list(map(expr, args))
 
-            mapping = {sym.Heaviside: UnitStep1,
-                       sym.DiracDelta: UnitImpulse1,
-                       rect1: dtrect,
-                       sym.sign: dtsign}
+        if func == sym.Piecewise:
+            cls = e_args[0][0].__class__
+        else:
+            cls = e_args[0].__class__
+            
+            # Handle cases like atan2(1, omega)
+            if len(e_args) > 1:
+                if e_args[0].is_constant:
+                    cls = e_args[1].__class__                
 
-            for old, new in mapping.items():
-                if func is old:
-                    func = new
-                    break
+        try:
+            if cls.is_discrete_time_domain or cls.is_discrete_fourier_domain:
+
+                mapping = {sym.Heaviside: UnitStep1,
+                           sym.DiracDelta: UnitImpulse1,
+                           rect1: dtrect,
+                           sym.sign: dtsign}
                 
-        result = func(*_ex(e_args))
+                for old, new in mapping.items():
+                    if func is old:
+                        func = new
+                        break
+        except:
+            pass
+                
+        result = func(*delcapify(e_args))
 
         result = cls(result)        
             
-        if (e_args[0].is_phase and
-            self.expr in (sym.sin, sym.cos, sym.tan, sym.cot, sym.exp,
-                          sym.sinh, sym.cosh, sym.tanh, sym.coth)):
+        if (self.expr in (sym.sin, sym.cos, sym.tan, sym.cot, sym.exp,
+                          sym.sinh, sym.cosh, sym.tanh, sym.coth)
+            and e_args[0].is_phase):
             result.part = ''
         elif self.expr in (sym.atan, sym.atan2):
             result.units = uu.rad
@@ -168,52 +176,44 @@ u = H = heaviside = Heaviside = Function(sym.Heaviside)
 
 delta = DiracDelta = Function(sym.DiracDelta)
 
+Piecewise = Function(sym.Piecewise)
 
-def _ex(expr):
-    """De-lcapify expression."""
+Eq = Function(sym.Eq)
+
+Ne = Function(sym.Ne)
+
+Lt = Function(sym.Lt)
+
+Le = Function(sym.Le)
+
+Gt = Function(sym.Gt)
+
+Ge = Function(sym.Ge)
+
     
-    if hasattr(expr, 'expr'):
-        return expr.expr
-    elif isinstance(expr, tuple):
-        return tuple([_ex(arg) for arg in expr])
-    elif isinstance(expr, list):
-        return [_ex(arg) for arg in expr]
-    elif isinstance(expr, dict):
-        ret = {}
-        for key, val in expr.items():
-            ret[_ex(key)] = _ex(val)
-        return ret
-    return expr
-
-
-class Eq(sym.Eq):
-    def __new__(cls, lhs, rhs=None, **options):
-        return expr(super(Eq, cls).__new__(cls, _ex(lhs), _ex(rhs), **options))
-
-
 class Add(sym.Add):
     def __new__(cls, op1, op2, **options):
-        return expr(super(Add, cls).__new__(cls, _ex(op1), _ex(op2), **options))
+        return expr(super(Add, cls).__new__(cls, delcapify(op1), delcapify(op2), **options))
 
     
 class Mul(sym.Mul):
     def __new__(cls, op1, op2, **options):
-        return expr(super(Mul, cls).__new__(cls, _ex(op1), _ex(op2), **options))
+        return expr(super(Mul, cls).__new__(cls, delcapify(op1), delcapify(op2), **options))
 
     
 class MatAdd(sym.MatAdd):
     def __new__(cls, op1, op2, **options):
-        return expr(super(MatAdd, cls).__new__(cls, _ex(op1), _ex(op2), **options))
+        return expr(super(MatAdd, cls).__new__(cls, delcapify(op1), delcapify(op2), **options))
 
     
 class MatMul(sym.MatMul):
     def __new__(cls, op1, op2, **options):
-        return expr(super(MatMul, cls).__new__(cls, _ex(op1), _ex(op2), **options))
+        return expr(super(MatMul, cls).__new__(cls, delcapify(op1), delcapify(op2), **options))
 
 
 class Sum(sym.Sum):
     def __new__(cls, op1, op2, **options):
-        return expr(super(Sum, cls).__new__(cls, _ex(op1), _ex(op2), **options))
+        return expr(super(Sum, cls).__new__(cls, delcapify(op1), delcapify(op2), **options))
     
 
 ui = unitimpulse = UnitImpulse = Function(UnitImpulse1)
@@ -239,4 +239,4 @@ tri = Function(tri1)
 trap = Function(trap1)
  
 
-from .expr import Expr, expr
+from .expr import Expr, expr, delcapify
