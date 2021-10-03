@@ -65,7 +65,7 @@ def find_pow(q_expr, base, NN):
     return result
 
 
-def special_diff(var, Q, o,s, var_a, var_N):
+def special_diff(var, Q, o, s, var_a, var_N):
     """Make derivative of a**(k-s)*Q / (1-a**N)**o with respect to a, and
        divide result by a**(k-s-1)/(1-a**N)**(o+1) to obtain a
        polynom in n.  This is used with make_polynom_table.
@@ -74,7 +74,7 @@ def special_diff(var, Q, o,s, var_a, var_N):
     return ((var - s) * Q + var_a*sym.diff(Q, var_a)) * (1 - var_a**var_N) + o * var_N * Q * var_a**var_N
 
 
-def make_polynom_table1(var, MaxP, aa=None,NN=None, prn=False):
+def make_polynom_table1(var, MaxP, aa=None, NN=None, prn=False):
     """ This Table contains solutions of the DFT of
           exp(j*2*pi/N*n*mu) / (1-a*exp(j*2*pi/N*n))**p 
           where mu < p  and mu, p are integer
@@ -95,11 +95,11 @@ def make_polynom_table1(var, MaxP, aa=None,NN=None, prn=False):
           The parameter a and N can be set, if not a and N remain a symbol 
     """
     a = sym.Symbol('a')
-    N = sym.Symbol('N',integer=True)  
+    N = sym.Symbol('N', integer=True)  
     Qpoly=[[], [1]]
     # Make the Polynoms Q_p_mu
     # Run through all p, as the formula is recursiv (manuscript)
-    for l in range(2, MaxP + 1,1):
+    for l in range(2, MaxP + 1, 1):
         # Special derivative when polynoms are involved (see also handle n**p in termXq)
         Q0 = special_diff(var, Qpoly[l - 1][0], l - 1, 0, a, N) + Qpoly[l - 1][0] * (1 - a**N) * (l - 1) 
         this_Qpoly = [sym.simplify(sym.expand(Q0))]
@@ -125,7 +125,7 @@ def make_polynom_table1(var, MaxP, aa=None,NN=None, prn=False):
             if prn:
                 print("mu = ", mu, " kn**", r, "  :  ", dj)
         if prn:
-            print("Q = ", pol,"\n")    
+            print("Q = ", pol, "\n")    
         ret_pol += [pol]
     # Return polynom for MaxP only, otherwise Qpoly must be returned
     return ret_pol 
@@ -157,10 +157,10 @@ def make_polynom_table2(var, p, varN=None, prn=False):
     for i in range(p):
         a_p = sym.expand((q - q**2) * sym.diff(a_p, q) + (i + 1) * q * a_p)
         b_p = sym.expand(NN * (1 - q) * b_p + (q - q ** 2) * sym.diff(b_p, q) + (i + 1) * q * b_p) 
-        pol,rem=sym.div(a_p - b_p, 1 - q)
+        pol, rem=sym.div(a_p - b_p, 1 - q)
         AllC += [(pol/NN).as_poly(q).as_expr()]
     if prn:
-        print("p=1, ...., ",p,"  Ci(q) = ", AllC[1:])
+        print("p=1, ...., ", p, "  Ci(q) = ", AllC[1:])
 
     # Solve the equation x_p*C_p + x_(p-1)*C_(p-1)(1-q) +... = q**s = r_1 +r_2*q + .. r_p*q**(p-1)
     # to find the linear factors xi by equating coefficients in the variable q
@@ -188,22 +188,22 @@ def make_polynom_table2(var, p, varN=None, prn=False):
     # e.g.  if q**2/(1-q)**p is to be found, then chose r_1=r_2=0    r_3=1   r_4=..=r_p=0
     ret_pol = []
     for i in range(p):
-        rhs = list(All_rhs[:,i])
+        rhs = list(All_rhs[:, i])
         repl=dict(zip(r, rhs))
 
         if prn:
-            print("q**",i," :  linear factors of basic transform [x_i] = ",sol.subs(repl).args[0])
-        # Find finally the polynoms in k for the new transforms  1/(1-q),,,, q**(p-1)/(1-q)**p
+            print("q**", i, " :  linear factors of basic transform [x_i] = ", sol.subs(repl).args[0])
+        # Find finally the polynoms in k for the new transforms  1/(1-q), , , , q**(p-1)/(1-q)**p
         trans_i = 0 * var
         for ii in range(p):
             # Sum k**(ii+1)
             faulh = sym.factor((sym.bernoulli(ii + 2, NN) - sym.bernoulli(ii + 2, 0)) / (ii + 2))
-            trans_i += sol.subs(repl).args[0][ii] * (var ** (ii+1) - faulh / NN)
+            trans_i += sol.subs(repl).args[0][ii] * (var ** (ii + 1) - faulh / NN)
         if not varN is None:
             trans_i = trans_i.subs(NN, varN)            
         ret_pol += [trans_i.as_poly(var).as_expr()]
         if prn:
-            print("q**", i," :  D(.) = ", trans_i.as_poly(var).as_expr(),"\n")
+            print("q**", i, " :  D(.) = ", trans_i.as_poly(var).as_expr(), "\n")
 
     return ret_pol 
 
@@ -219,7 +219,7 @@ def simp_rat(expr, q, method=1):
     """
     if method == 1:
         #ret_expr = sym.simplify(expr)
-        #ret_expr = sym.cancel(expr,q)
+        #ret_expr = sym.cancel(expr, q)
         try:
             # that does not work with parameter
             ret_expr = sym.cancel(expr, q)
@@ -237,8 +237,8 @@ def simp_rat(expr, q, method=1):
         Num = sym.numer(expr)
         Denom = sym.denom(expr)
         # Make factor list
-        f_n = list(sym.factor_list(Num,q))
-        f_d = list(sym.factor_list(Denom,q)) 
+        f_n = list(sym.factor_list(Num, q))
+        f_d = list(sym.factor_list(Denom, q)) 
         # Check for common factors
         for ii, xx in enumerate(f_d[1]):
             for jj, yy in enumerate(f_n[1]):
@@ -370,7 +370,7 @@ class QkTransform(object):
                 for full_base in terms:
                     self.case_expr[key][1] = self.case_expr[key][1].replace(full_base**NN, (full_base / ba)**NN)                
          
-    def make_transform(self, NN, backward, q, sub, k,piecewise=False):
+    def make_transform(self, NN, backward, q, sub, k, piecewise=False):
         """Assemble the final tranform from all the cases, the general case, or Xk.
          
         backward is True for IDFT
@@ -395,19 +395,20 @@ class QkTransform(object):
                 # Special case * delta     
                 self.Xk += self.case_expr[ca][0] * UnitImpulse(arg_delta) 
                 
-                # Rest * (1-delta) to avoid unwanted superposition
-                # try to make expressions as compact as possible by using simp_rat
+                # Rest * (1-delta) to avoid unwanted superposition try
+                # to make expressions as compact as possible by using
+                # simp_rat
                 this_expr = self.case_expr[ca][1] 
                 if this_expr.is_Add:
-                    sum_expr = 0*q
+                    sum_expr = 0 * q
                     for expr_i in this_expr.args:
-                        sum_expr += simp_rat(expr_i,q,method=simp_method)
+                        sum_expr += simp_rat(expr_i, q, method=simp_method)
                     this_expr = sum_expr
                 else:
-                    this_expr = simp_rat(this_expr,q,method=simp_method)
+                    this_expr = simp_rat(this_expr, q, method=simp_method)
                 this_expr = this_expr.subs(q, sub)
                 
-                # check if val is at k0 is unlimted and prepare for piecewise
+                # Check if val is at k0 is unlimted and prepare for piecewise
                 if not backward:
                     case_val = this_expr.subs(k, k0) 
                     neq = sym.Ne(k, k0)
@@ -423,12 +424,12 @@ class QkTransform(object):
                     else:
                         self.Xk += this_expr * (1 - UnitImpulse(arg_delta))
                 else:
-                    # Finite value, so write slightly different  
+                    # Finite value, so write slightly differently
                     self.Xk += this_expr - case_val*UnitImpulse(arg_delta)
         else:
             this_expr = self.Xq
             if this_expr.is_Add:
-                sum_expr = 0*q
+                sum_expr = 0 * q
                 for expr_i in this_expr.args:
                     sum_expr += simp_rat(expr_i, q, method=simp_method)                   
                 this_expr = sum_expr
@@ -628,15 +629,15 @@ class DFTTransformer(BilateralForwardTransformer):
             # TODO additional option to make a smart simplification by inspection of upper and lower
             else:    
                 # First polynoms
-                A_l = 1 +0*q   
-                B_u = 1+0*q   
+                A_l = 1 + 0 * q   
+                B_u = 1 + 0 * q   
                 # Find the next recursively
                 for i in range(p):
                     A_l = sym.expand(lower * A_l + (q - q**2) * sym.diff(A_l, q) - q * lower * A_l + (i + 1) * q *A_l)
                     B_u = sym.expand((upper + 1) * B_u + (q - q**2) * sym.diff(B_u, q) - (upper + 1) * B_u * q + (i + 1) * q * B_u) 
                 A_l = A_l.as_poly(q).as_expr()
                 B_u = B_u.as_poly(q).as_expr()                    
-            result_q = const * (q**lower * A_l - q**(upper + 1) * B_u) / (1 - q)**(p+1)        
+            result_q = const * (q**lower * A_l - q**(upper + 1) * B_u) / (1 - q)**(p + 1)        
             
             # Special case k=0, use Faulhaber's formula
             result_1 = const * sym.factor((sym.bernoulli(p + 1, upper + 1) - sym.bernoulli(p + 1, lower)) / (p + 1))
@@ -698,9 +699,9 @@ class DFTTransformer(BilateralForwardTransformer):
                     nn0 = bb
                     rg = is_in_interval(lower, upper, nn0, comment='Step:')
                     if rg == 1:
-                        result= self.termXq(expr, n, k, q, lower, upper)
+                        result = self.termXq(expr, n, k, q, lower, upper)
                     elif rg == 0:
-                        result= self.termXq(expr, n, k, q, lower, nn0)
+                        result = self.termXq(expr, n, k, q, lower, nn0)
                     else:
                         result = QkTransform(0 * q)
 
@@ -879,8 +880,8 @@ class DFTTransformer(BilateralForwardTransformer):
             Denom = sym.denom(expr_qq)
             
             # Polynomial division  d0+d1*q+..+dN*q**N + rem/Denom
-            pol, rem = sym.div(Num,Denom)
-            poly_coeff = sym.Poly(pol,qq).all_coeffs()[-1::-1]            
+            pol, rem = sym.div(Num, Denom)
+            poly_coeff = sym.Poly(pol, qq).all_coeffs()[-1::-1]            
             
             # First part c0+c1*q+....
             result_0 = 0
@@ -914,7 +915,7 @@ class DFTTransformer(BilateralForwardTransformer):
                     a2N = aN**2
                     N2 = NN**2
                     Q_p_mu = [N2*a2N + N2*aN - 3*NN*a2N + 3*NN*aN + 2*a2N - 4*aN + 2 + kn* (-2*NN*a2N + 2*NN*aN + 3*a2N - 6*aN + 3) + kn**2*(aN - 1)**2, 
-                              N2*a2N + N2*aN - NN*a2N + NN*aN + kn* (-2*NN*a2N + 2*NN*aN + a2N - 2*aN + 1) + kn**2*(aN - 1)**2,
+                              N2*a2N + N2*aN - NN*a2N + NN*aN + kn* (-2*NN*a2N + 2*NN*aN + a2N - 2*aN + 1) + kn**2*(aN - 1)**2, 
                               N2*a2N + N2*aN + NN*a2N - NN*aN + kn*(-2*NN*a2N + 2*NN*aN - a2N + 2*aN - 1) + kn**2*(aN-1)**2]                
                 elif pp == 4:
                     a2N = aN**2
@@ -924,11 +925,11 @@ class DFTTransformer(BilateralForwardTransformer):
                     Q_p_mu = [N3*a3N + 4*N3*a2N + N3*aN - 6*N2*a3N + 6*N2*aN + 11*NN*a3N - 22*NN*a2N + 11*NN*aN - 6*a3N + 18*a2N - 18*aN + 6 +
                               kn**3*(-a3N + 3*a2N - 3*aN + 1) + 
                               kn**2*(3*NN*a3N - 6*NN*a2N + 3*NN*aN - 6*a3N + 18*a2N - 18*aN + 6) + 
-                              kn*(-3*N2*a3N + 3*N2*aN + 12*NN*a3N - 24*NN*a2N + 12*NN*aN - 11*a3N + 33*a2N - 33*aN + 11),
+                              kn*(-3*N2*a3N + 3*N2*aN + 12*NN*a3N - 24*NN*a2N + 12*NN*aN - 11*a3N + 33*a2N - 33*aN + 11), 
                               N3*a3N + 4*N3*a2N + N3*aN - 3*N2*a3N + 3*N2*aN + 2*NN*a3N - 4*NN*a2N + 2*NN*aN + 
                               k**3*(-a3N + 3*a2N - 3*aN + 1) + 
                               k**2*(3*NN*a3N - 6*NN*a2N + 3*NN*aN - 3*a3N + 9*a2N - 9*aN + 3) + 
-                              k*(-3*N2*a3N + 3*N2*aN + 6*NN*a3N - 12*NN*a2N + 6*NN*aN - 2*a3N + 6*a2N - 6*aN + 2),
+                              k*(-3*N2*a3N + 3*N2*aN + 6*NN*a3N - 12*NN*a2N + 6*NN*aN - 2*a3N + 6*a2N - 6*aN + 2), 
                               N3*a3N + 4*N3*a2N + N3*aN - NN*a3N + 2*NN*a2N - NN*aN + 
                               k**3*(-a3N + 3*a2N - 3*aN + 1) + 
                               k**2*(3*NN*a3N - 6*NN*a2N + 3*NN*aN) + 
@@ -952,16 +953,16 @@ class DFTTransformer(BilateralForwardTransformer):
                               N4*a4N + 11*N4*a3N + 11*N4*a2N + N4*aN - 6*N3*a4N - 18*N3*a3N + 18*N3*a2N + 6*N3*aN + 11*N2*a4N - 11*N2*a3N - 11*N2*a2N + 11*N2*aN - 6*NN*a4N + 18*NN*a3N - 18*NN*a2N + 6*NN*aN + k**4*(a4N - 4*a3N + 6*a2N - 4*aN + 1) + 
                               kn**3*(-4*NN*a4N + 12*NN*a3N - 12*NN*a2N + 4*NN*aN + 6*a4N - 24*a3N + 36*a2N - 24*aN + 6) + 
                               kn**2*(6*N2*a4N - 6*N2*a3N - 6*N2*a2N + 6*N2*aN - 18*NN*a4N + 54*NN*a3N - 54*NN*a2N + 18*NN*aN + 11*a4N - 44*a3N + 66*a2N - 44*aN + 11) + 
-                              kn*(-4*N3*a4N - 12*N3*a3N + 12*N3*a2N + 4*N3*aN + 18*N2*a4N - 18*N2*a3N - 18*N2*a2N + 18*N2*aN - 22*NN*a4N + 66*NN*a3N - 66*NN*a2N + 22*NN*aN + 6*a4N - 24*a3N + 36*a2N - 24*aN + 6),
+                              kn*(-4*N3*a4N - 12*N3*a3N + 12*N3*a2N + 4*N3*aN + 18*N2*a4N - 18*N2*a3N - 18*N2*a2N + 18*N2*aN - 22*NN*a4N + 66*NN*a3N - 66*NN*a2N + 22*NN*aN + 6*a4N - 24*a3N + 36*a2N - 24*aN + 6), 
                               N4*a4N + 11*N4*a3N + 11*N4*a2N + N4*aN - 2*N3*a4N - 6*N3*a3N + 6*N3*a2N + 2*N3*aN - N2*a4N + N2*a3N + N2*a2N - N2*aN + 2*NN*a4N - 6*NN*a3N + 6*NN*a2N - 2*NN*aN + 
                               kn**4*(a4N - 4*a3N + 6*a2N - 4*aN + 1) + 
                               kn**3*(-4*NN*a4N + 12*NN*a3N - 12*NN*a2N + 4*NN*aN + 2*a4N - 8*a3N + 12*a2N - 8*aN + 2) + 
                               kn**2*(6*N2*a4N - 6*N2*a3N - 6*N2*a2N + 6*N2*aN - 6*NN*a4N + 18*NN*a3N - 18*NN*a2N + 6*NN*aN - a4N + 4*a3N - 6*a2N + 4*aN - 1) + 
-                              kn*(-4*N3*a4N - 12*N3*a3N + 12*N3*a2N + 4*N3*aN + 6*N2*a4N - 6*N2*a3N - 6*N2*a2N + 6*N2*aN + 2*NN*a4N - 6*NN*a3N + 6*NN*a2N - 2*NN*aN - 2*a4N + 8*a3N - 12*a2N + 8*aN - 2),
+                              kn*(-4*N3*a4N - 12*N3*a3N + 12*N3*a2N + 4*N3*aN + 6*N2*a4N - 6*N2*a3N - 6*N2*a2N + 6*N2*aN + 2*NN*a4N - 6*NN*a3N + 6*NN*a2N - 2*NN*aN - 2*a4N + 8*a3N - 12*a2N + 8*aN - 2), 
                               N4*a4N + 11*N4*a3N + 11*N4*a2N + N4*aN + 2*N3*a4N + 6*N3*a3N - 6*N3*a2N - 2*N3*aN - N2*a4N + N2*a3N + N2*a2N - N2*aN - 2*NN*a4N + 6*NN*a3N - 6*NN*a2N + 2*NN*aN + 
                               kn**4*(a4N - 4*a3N + 6*a2N - 4*aN + 1) + k**3*(-4*NN*a4N + 12*NN*a3N - 12*NN*a2N + 4*NN*aN - 2*a4N + 8*a3N - 12*a2N + 8*aN - 2) + 
                               kn**2*(6*N2*a4N - 6*N2*a3N - 6*N2*a2N + 6*N2*aN + 6*NN*a4N - 18*NN*a3N + 18*NN*a2N - 6*NN*aN - a4N + 4*a3N - 6*a2N + 4*aN - 1) + 
-                              kn*(-4*N3*a4N - 12*N3*a3N + 12*N3*a2N + 4*N3*aN - 6*N2*a4N + 6*N2*a3N + 6*N2*a2N - 6*N2*aN + 2*NN*a4N - 6*NN*a3N + 6*NN*a2N - 2*NN*aN + 2*a4N - 8*a3N + 12*a2N - 8*aN + 2),
+                              kn*(-4*N3*a4N - 12*N3*a3N + 12*N3*a2N + 4*N3*aN - 6*N2*a4N + 6*N2*a3N + 6*N2*a2N - 6*N2*aN + 2*NN*a4N - 6*NN*a3N + 6*NN*a2N - 2*NN*aN + 2*a4N - 8*a3N + 12*a2N - 8*aN + 2), 
                               N4*a4N + 11*N4*a3N + 11*N4*a2N + N4*aN + 6*N3*a4N + 18*N3*a3N - 18*N3*a2N - 6*N3*aN + 11*N2*a4N - 11*N2*a3N - 11*N2*a2N + 11*N2*aN + 6*NN*a4N - 18*NN*a3N + 18*NN*a2N - 6*NN*aN + 
                               kn**4*(a4N - 4*a3N + 6*a2N - 4*aN + 1) + k**3*(-4*NN*a4N + 12*NN*a3N - 12*NN*a2N + 4*NN*aN - 6*a4N + 24*a3N - 36*a2N + 24*aN - 6) + 
                               kn**2*(6*N2*a4N - 6*N2*a3N - 6*N2*a2N + 6*N2*aN + 18*NN*a4N - 54*NN*a3N + 54*NN*a2N - 18*NN*aN + 11*a4N - 44*a3N + 66*a2N - 44*aN + 11) + 
@@ -974,14 +975,14 @@ class DFTTransformer(BilateralForwardTransformer):
                     Q_p_mu = make_polynom_table1(kn, pp, aa, NN)
                 
                 # case   d0/(1-a*qq)**p   + d1*qq/(1-a*qq)**p + .... + dm *qq**(p-1)/(1-a*qq)**p 
-                num_coeff = sym.Poly(rem,qq).all_coeffs()[-1::-1]
+                num_coeff = sym.Poly(rem, qq).all_coeffs()[-1::-1]
                 if len(num_coeff) > len(Q_p_mu):
                     raise ValueError(" Error : polynomial division may be wrong! ")
                 # sum up
                 result = 0
                 for i in range(len(num_coeff)):
                     result += num_coeff[i] * Q_p_mu[i] / aa**i 
-                result *= NN / sym.factorial(pp-1) * aa**kn / (1 - aN) **pp / c0**pp / 2 
+                result *= NN / sym.factorial(pp - 1) * aa**kn / (1 - aN) **pp / c0**pp / 2 
                 return 2 * const * (result_0 + result)
             
             else:
@@ -989,7 +990,7 @@ class DFTTransformer(BilateralForwardTransformer):
         
         # Second case, denominators has roots for integer n, 
         # so term must contain a factor (1-delta(k-k0)) to indicate that k!=k0
-        # better the expression is defined with sym.Piecewise sym.Piecewise((expr,sym.Ne(k,k0)))
+        # better the expression is defined with sym.Piecewise sym.Piecewise((expr, sym.Ne(k, k0)))
         # search for a factor (1-delta(n-n0)) or for piecewise. 
         this_case = False
         # Check for piecewise
@@ -1000,7 +1001,7 @@ class DFTTransformer(BilateralForwardTransformer):
             this_case = True
         # Check for (1-delta) factor
         else:    
-            match = list(expr.find(1-UnitImpulse(n - p0)))
+            match = list(expr.find(1 - UnitImpulse(n - p0)))
             if len(match) == 1:
                 n0 = -((-match[0] + 1).args[0] - n)   
                 div_expr = expr_qq / match[0]
@@ -1013,7 +1014,7 @@ class DFTTransformer(BilateralForwardTransformer):
                 
                 # Polynomial division  d0+d1*q+..+dN*q**N + rem/N
                 pol, rem = sym.div(Num, Denom)
-                poly_coeff = sym.Poly(pol,qq).all_coeffs()[-1::-1]            
+                poly_coeff = sym.Poly(pol, qq).all_coeffs()[-1::-1]            
                 
                 # First part c0+c1*q+....
                 result_0 = 0
@@ -1030,7 +1031,7 @@ class DFTTransformer(BilateralForwardTransformer):
                     # remainder
                     aa = -a0 / c0      
                     if not aa == sym.exp(-sg * j * 2 * pi / self.N * n0):
-                        print("Rewrite expression as ", expr / match[0] - expr.subs(n,n0))
+                        print("Rewrite expression as ", expr / match[0] - expr.subs(n, n0))
                         return None
                     # Result
                     result = ((self.N - 1) / 2 - kn) * sym.exp(-sg * j * 2 * pi * k * n0 / self.N) / c0
@@ -1111,7 +1112,7 @@ class DFTTransformer(BilateralForwardTransformer):
             # Simplify q**N terms
             res.simp_qN(q, self.N)
             # Make final transform by putting all cases and terms together
-            res.make_transform(self.N, self.is_inverse, q, sym.exp(-sym.I * 2 * pi / self.N * k), k,piecewise)
+            res.make_transform(self.N, self.is_inverse, q, sym.exp(-sym.I * 2 * pi / self.N * k), k, piecewise)
             result = res.Xk
             
             # TODO smart simplification of result since simplify takes too long or
@@ -1134,9 +1135,9 @@ class DFTTransformer(BilateralForwardTransformer):
         # No special handle identified, general expression
         k = -k if self.is_inverse else k
         if not self.N.is_symbol:
-            result = sym.summation(expr * sym.exp(-j * 2 * pi * n * k / self.N), (n, 0, self.N-1))
+            result = sym.summation(expr * sym.exp(-j * 2 * pi * n * k / self.N), (n, 0, self.N - 1))
         else:
-            result = sym.Sum(expr * sym.exp(-j * 2 * pi * n * k / self.N), (n, 0, self.N-1))
+            result = sym.Sum(expr * sym.exp(-j * 2 * pi * n * k / self.N), (n, 0, self.N - 1))
         return const * result
     
     
