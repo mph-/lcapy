@@ -12,6 +12,7 @@ from .tmatrix import TimeDomainMatrix
 from .voltage import voltage
 from .current import current
 from .statespace import StateSpace
+from .circuitgraph import CircuitGraph
 from .sym import sympify
 import sympy as sym
 
@@ -38,7 +39,7 @@ __all__ = ('StateSpacemaker', )
 #
 # This is required when have a current source in series with an inductor;
 # here the inductor current is not a state variable since it is equivalent
-# to an input.  However, the output equation for the inductor voltage
+# to an input.  Moreover, the output equation for the inductor voltage
 # requires the derivative of the input current.
 
 
@@ -62,7 +63,11 @@ class StateSpaceMaker(object):
     components.
 
     The currents through inductors and the voltage across capacitors
-    are chosen as the state variables.
+    are chosen as the state variables.  However, this fails when a
+    current source is in series with an inductor.  In this case, the
+    inductor current is not a state variable since it is equivalent to
+    an input.  Moreover, the output equation for the inductor voltage
+    requires the derivative of the input current.
 
     This does not (yet) look for degenerate circuits.  These are
     circuits with a loop consisting only of voltage sources and/or
@@ -82,7 +87,8 @@ class StateSpaceMaker(object):
         
         inductors = []
         capacitors = []
-        independent_sources = []
+        independent_current_sources = []
+        independent_voltage_sources = []
 
         # Determine state variables (current through inductors and
         # voltage across acapacitors) and replace inductors with
@@ -106,9 +112,22 @@ class StateSpaceMaker(object):
                     raise ValueError('Name conflict %s, either rename the component or improve the code!' % sselt.name)
                 
                 capacitors.append(elt)
-            elif isinstance(elt, (I, V)):
-                independent_sources.append(elt)                
-                
+            elif elt.is_independent_source and elt.is_current_source:
+                independent_current_sources.append(elt)
+            elif elt.is_independent_source and elt.is_voltage_source:
+                independent_voltage_sources.append(elt)                
+
+        independent_sources = independent_voltage_sources + independent_current_sources
+
+        # Build circuit graph and check if have inductor in series with
+        # current source.
+        if independent_current_sources != [] and inductors != []:
+            cg = CircuitGraph(cct)
+            for elt in independent_current_sources:
+                for name in cg.in_series(elt.name):
+                    if cct[name].is_inductor:
+                        raise ValueError('Cannot create state-space model since have inductor %s in series with independent current source %s' % (name, elt.name))
+        
         cct = cct
         sscct = sscct
         # sscct can be analysed in the time domain since it has no
