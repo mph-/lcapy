@@ -719,6 +719,8 @@ attribute.  A diagonal matrix of the eigenvalues is returned by the
 
 The singular values of the system are returned by the `singular_values` attribute.
 
+For other methods and attributes, see :ref:`state-space`.
+
 
 CircuitGraph
 ============
