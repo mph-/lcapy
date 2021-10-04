@@ -442,6 +442,9 @@ class StateSpaceBase(object):
 
         from numpy import sqrt
         from numpy.linalg import eig
+
+        if not self.is_stable:
+            raise ValueError('System not stable')
         
         Wc = self.controllability_gramian.evaluate()
         Wo = self.observability_gramian.evaluate()
@@ -506,7 +509,10 @@ class StateSpaceBase(object):
 
     def reduce(self, elim_states, method='truncate'):
         """Perform model reduction given array `elim_states` of
-        states to remove."""
+        states to remove.
+
+        `method` can be `'truncate'` or `'matchdc'`.
+        """
 
         from numpy import arange, array, bool_, hstack, linalg
 
@@ -595,4 +601,3 @@ class StateSpaceBase(object):
     
 from .symbols import t, s
 from .expr import ExprList
-
