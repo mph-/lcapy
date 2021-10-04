@@ -79,28 +79,28 @@ def plot_deltas(ax, t, deltas, var, plot_type='real', color='k'):
         if t0 >= min(t) and t0 <= max(t):
             vals.append((t0, const))
 
-        vals = np.array(vals)
+    vals = np.array(vals)
 
-        tmin, tmax = ax.get_xlim()        
-        T = tmax - tmin
-        ymin, ymax = ax.get_ylim()
-        yvalsmax = vals[:, 1].max()
+    tmin, tmax = ax.get_xlim()        
+    T = tmax - tmin
+    ymin, ymax = ax.get_ylim()
+    yvalsmax = vals[:, 1].max()
+    
+    for t0, y in vals:
         
-        for t0, y in vals:
-
-            # TODO: determine best scaling
-            y1 = y / yvalsmax * ymax / 2
-            
-            st = T / 10
-            sy = ymax
-
-            ax.arrow(t0, 0, 0, y1, fc=color, ec=color,
-                     width = 0.025 * st, head_width=0.1 * st,
-                     head_length=0.1 * sy, overhang=0,
-                     length_includes_head=True, clip_on=False)
-
-            # TODO: nicely format the scale factor
-            ax.text(t0 + T / 100, y1 + ymax / 100, '%.*g' % (3, y))
+        # TODO: determine best scaling
+        y1 = y / yvalsmax * ymax / 2
+        
+        st = T / 10
+        sy = ymax
+        
+        ax.arrow(t0, 0, 0, y1, fc=color, ec=color,
+                 width = 0.025 * st, head_width=0.1 * st,
+                 head_length=0.1 * sy, overhang=0,
+                 length_includes_head=True, clip_on=False)
+        
+        # TODO: nicely format the scale factor
+        ax.text(t0 + T / 100, y1 + ymax / 100, '%.*g' % (3, y))
 
             
 def plot_pole_zero(obj, **kwargs):
