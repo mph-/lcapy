@@ -364,19 +364,30 @@ class StateSpaceBase(object):
                 return False
         return True
 
-    @cached_property        
-    def controllability_matrix(self):
-        """Return controllability matrix."""
+    def controllability_matrix_steps(self, steps=None):
+        """Return controllability matrix for specified number of time
+        steps."""
+
+        if steps is None:
+            steps = self.Nx
+        if steps < 0:
+            raise ValueError('steps must be positive')
         
         B = self.B
         A = self.A
 
         R = B
         Q = B
-        for n in range(self.Nx - 1):
+        for n in range(steps - 1):
             Q = A * Q
             R = R.hstack(R, Q)
         return R
+    
+    @cached_property        
+    def controllability_matrix(self):
+        """Return controllability matrix."""
+        
+        return self.controllability_matrix_steps()
 
     @property        
     def R(self):
@@ -418,6 +429,14 @@ class StateSpaceBase(object):
         O = self.observability_matrix
         return O.rank() == O.shape[1]
 
+    @cached_property        
+    def reachability_range(self):
+        """Return reachability range (image, column space)
+        as a list of vectors that span the columnspace
+        of the controllability matrix."""
+
+        return self.controllability_matrix.columnspace()
+    
     @cached_property            
     def hankel_singular_values(self):
 

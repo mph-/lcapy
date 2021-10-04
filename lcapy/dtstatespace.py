@@ -227,5 +227,44 @@ class DTStateSpace(StateSpaceBase):
     def Wo(self):
         """Observability gramian matrix."""
         return self.observability_gramian
-    
+
+    def minimum_energy_input(self, steps, xfinal, xinitial=None):
+        """Determine minimum energy (least norm) input vector that results in
+        state `xfinal` in `steps` time steps from initial state
+        `xinitial`."""
+
+        if xinitial is None:
+            xinitial = self.x0
+        else:
+            xinitial = Matrix(xinitial)        
+
+        xfinal = Matrix(xfinal)
+            
+        if steps < 0:
+            raise ValueError('steps must be positive')            
+        
+        C = self.controllability_matrix_steps(steps)
+
+        xdiff = xfinal - xinitial
+
+        uflip = C.T * (C * C.T).inv() * xdiff
+        return uflip[::-1,:]
+
+    def state_transfer(self, u, xinitial=None):
+        """Return transitioned state given inputs `u` specified as a list of
+        column vectors; one for each time step."""
+
+        if xinitial is None:
+            xinitial = self.x0
+        else:
+            xinitial = Matrix(xinitial)
+            
+        u = Matrix(u)
+        steps = u.shape[0]
+        
+        C = self.controllability_matrix_steps(steps)
+
+        xfinal = self.A**steps * xinitial + C * u[::-1,:]
+        return xfinal
+        
 from .zexpr import ZDomainExpression

@@ -59,3 +59,15 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(np.allclose(ssb.Wo.numpy, H), True, "Hankel singular values")
         self.assertEqual(ss.eigenvalues, [-1, -2], "eigen values")
         
+
+    def transfer(self):
+
+        ss = DTStateSpace(((0, 1), (1, 1)), (1, 1), ((1,2),), [1])
+        
+        umin = ss.minimum_energy_input(2, [5, 7], [0, 0])
+        self.assertEqual(umin, [2, 3], "minimum_energy_input")
+
+        xfinal = ss.state_transfer([[2], [3]], xinitial=[0, 0])
+        self.assertEqual(xfinal, [5, 7], "state_transfer")
+        
+
