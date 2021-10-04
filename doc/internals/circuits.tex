@@ -1,0 +1,1175 @@
+\documentclass[a4paper, 12pt]{article}
+\usepackage{amsmath}
+
+\setlength{\oddsidemargin}{0mm}
+\setlength{\evensidemargin}{-14mm}
+\setlength{\marginparwidth}{0cm}
+\setlength{\marginparsep}{0cm}
+\setlength{\topmargin}{2mm}
+\setlength{\headheight}{0mm}
+\setlength{\headsep}{0cm}
+\setlength{\textheight}{240mm}
+\setlength{\textwidth}{168mm}
+\setlength{\topskip}{0mm}
+\setlength{\footskip}{10mm}
+\setlength{\parindent}{8ex}
+
+\newcommand{\ud}{\mathrm{d}}
+\newcommand{\udby}[1]{\frac{\ud}{\ud #1}}
+\newcommand{\mat}[1]{\mathbf{#1}}
+\newcommand{\encp}[1]{\left(#1\right)}
+\newcommand{\bigspace}{\;\;\;\;}
+
+\newcommand{\refeqn}[1]{\mbox{(\ref{eqn:#1})}}
+
+
+\begin{document}
+
+
+
+\section{Modified nodal analysis}
+
+Nodal analysis solves a system of equations,
+%
+\begin{equation}
+  \mat{G} \vec{V} = \vec{I},
+\end{equation}
+%
+where $\mat{G}$ is a matrix of admittances, $\vec{V}$ is a vector of
+unknown node voltages, and $\vec{I}$ is a vector of known currents
+produced by independent currents sources.
+
+Modified nodal analysis handles independent voltage sources using a
+similar system of equations,
+%
+\begin{equation}
+  \mat{A} \vec{X} = \vec{Z},
+\end{equation}
+%
+where the vector of unknowns, $\vec{X}$, includes the currents,
+$\vec{J}$, through the independent voltage sources,
+%
+\begin{equation}
+  \mat{X} =   
+  \begin{bmatrix}
+    \vec{V} \\ \vec{J}
+  \end{bmatrix}.
+\end{equation}
+%
+The vector of knowns, $\vec{Z}$, includes the voltages, $\vec{E}$,
+produced by the independent voltage sources,
+%
+\begin{equation}
+    \mat{Z} =   
+  \begin{bmatrix}
+    \vec{I} \\ \vec{E}
+  \end{bmatrix},
+\end{equation}
+%
+and the matrix $\mat{A}$ has the form
+%
+\begin{equation}
+  \mat{A} =
+  \begin{bmatrix}
+    \mat{G} & \mat{B} \\
+    \mat{C} & \mat{D} \\
+  \end{bmatrix}.
+\end{equation}
+%
+Thus the system of equations has the form
+%
+\begin{equation}
+  \begin{bmatrix}
+    \mat{G} & \mat{B} \\
+    \mat{C} & \mat{D} \\
+  \end{bmatrix}
+  \begin{bmatrix}
+    \vec{V} \\ \vec{J}
+  \end{bmatrix}
+=
+  \begin{bmatrix}
+    \vec{I} \\ \vec{E}
+  \end{bmatrix}.
+\end{equation}
+
+
+\subsection{Component stamps}
+
+In the following, one-port components are specified where $I_1$ is the
+current flowing into one node and $I_1'$ is the current flowing into
+the other node.
+
+
+\subsection{Capacitor stamps}
+
+There are two possible stamps for a capacitor, $C$.  In the first,
+the current through the capacitor $I_C=I_1=-I_1'$ is required to be solved,
+%
+\begin{equation}
+  \begin{bmatrix}
+     &  & 1 \\
+     &  & -1 \\
+1 & -1 & -\frac{1}{sC}
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ V_1' \\ I_C
+  \end{bmatrix}
+=
+\begin{bmatrix}
+  0 \\ 0 \\ \frac{v_0}{s}
+\end{bmatrix}.
+\end{equation}
+%
+This comes from the equations:
+%
+\begin{eqnarray}
+\label{eqn:C_I1}
+  I_1 & = & I_C, \\
+  I_1' & = & -I_C,
+\label{eqn:C_I2}
+\end{eqnarray}
+%
+with
+%
+\begin{equation}
+    V_1 - V_1'  =  \frac{I_C}{sC} + \frac{v_0}{s},
+\end{equation}
+%
+and thus
+%
+\begin{equation}
+    V_1 - V_1' - \frac{I_C}{sC} =  \frac{v_0}{s}.
+\end{equation}
+
+
+The second formulation does not directly solve the current through the
+capacitor and thus has a smaller matrix to solve:
+%
+\begin{equation}
+  \begin{bmatrix}
+    sC & -sC \\
+   -sC & sC
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ V_1'
+  \end{bmatrix}
+=
+\begin{bmatrix}
+  C v_0 \\ -C v_0
+\end{bmatrix}.
+\end{equation}
+%
+This comes from \refeqn{C_I1} and \refeqn{C_I2} with 
+%
+\begin{equation}
+    I_C  =  \encp{V_1 - V_1'}sC - C v_0.
+\end{equation}
+
+
+\subsection{Inductor stamps}
+
+The two MNA formulations for an inductor are
+%
+\begin{equation}
+  \begin{bmatrix}
+     &  & 1 \\
+     &  & -1 \\
+1 & -1 & -sL
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ V_1' \\ I_L
+  \end{bmatrix}
+=
+\begin{bmatrix}
+  0 \\ 0 \\ L i_0
+\end{bmatrix},
+\end{equation}
+%
+and
+%
+\begin{equation}
+  \begin{bmatrix}
+    \frac{1}{sL} & -\frac{1}{sL} \\
+   -\frac{1}{sL} & \frac{1}{sL}
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ V_1'
+  \end{bmatrix}
+=
+\begin{bmatrix}
+  -\frac{i_0}{s} \\ \frac{i_0}{s}
+\end{bmatrix}.
+\end{equation}
+%
+Here
+%
+\begin{eqnarray}
+\label{eqn:L_I1}
+  I_1 & = & I_L, \\
+  I_1' & = & -I_L,
+\label{eqn:L_I2}
+\end{eqnarray}
+%
+and
+%
+\begin{equation}
+ V_1 - V_1' = s L I_L - L i_0, 
+\end{equation}
+%
+yielding
+%
+\begin{equation}
+  V_1 - V_1' - s L I_L = -L i_0.
+\end{equation}
+%
+For the second formulation, $I_L$ is substituted in \refeqn{L_I1} and
+\refeqn{L_I2} with
+%
+\begin{equation}
+  I_L = \frac{V_1 - V_1'}{sL} + \frac{i_0}{s}.
+\end{equation}
+
+Let's now consider two uncoupled inductors.  The two formulations are:
+%
+\begin{equation}
+  \begin{bmatrix}
+     &  &  &    &  1 & \\
+     &  &  &    & -1 & \\
+     &  &  &    &    & 1\\
+     &  &  &    &    & -1\\
+1 & -1  &  &    & -sL_1 & \\
+     &  & 1 & -1 &  & -sL_2
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ V_1' \\ V_2 \\ V_2' \\ I_{L1} \\ I_{L2}
+  \end{bmatrix}
+=
+\begin{bmatrix}
+  0 \\ 0 \\ 0 \\ 0 \\ -L_1 i_{10} \\ -L_2 i_{20}
+\end{bmatrix}.
+\label{eqn:L1L2_stamp1}
+\end{equation}
+
+
+\begin{equation}
+  \begin{bmatrix}
+    \frac{1}{sL_1} & -\frac{1}{sL_1} &   & \\
+   -\frac{1}{sL_1} & \frac{1}{sL_1}  &   & \\
+   & &  \frac{1}{sL_2} & -\frac{1}{sL_2}   \\
+   & & -\frac{1}{sL_2} & \frac{1}{sL_2}  
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ V_1' \\ V_2 \\ V_2'
+  \end{bmatrix}
+=
+\begin{bmatrix}
+  -\frac{i_{10}}{s} \\ \frac{i_{10}}{s} \\
+  -\frac{i_{20}}{s} \\ \frac{i_{20}}{s}
+\end{bmatrix}
+\label{eqn:L1L2_stamp2}
+\end{equation}
+
+
+\subsection{Mutual inductance stamp}
+
+If there is mutual inductance $M$, the system of equations is
+%
+\begin{eqnarray}
+  I_1 & = & I_{L1}, \\
+  I_1' & = & -I_{L1}, \\
+  I_2 & = & I_{L2}, \\
+  I_2' & = & -I_{L2},
+\end{eqnarray}
+%
+with
+%
+\begin{eqnarray}
+  I_{L1} & = & \frac{L_2\encp{V_1 - V_1'} - M\encp{V_2 - V_2'}}{s\encp{L_1 L_2 - M^2}} - \frac{i_{10}}{s}, \\
+  I_{L2} & = & \frac{L_1\encp{V_2 - V_2'} - M\encp{V_1 - V_1'}}{s\encp{L_1 L_2 - M^2}} - \frac{i_{20}}{s}.
+\end{eqnarray}
+%
+Defining,
+%
+\begin{equation}
+  D  = L_1 L_2 - M^2,
+\end{equation}
+%
+gives
+%
+\begin{eqnarray}
+  I_{L1} & = & \frac{L_2\encp{V_1 - V_1'} - M\encp{V_2 - V_2'}}{sD} - \frac{i_{10}}{s}, \\
+  I_{L2} & = & \frac{L_1\encp{V_2 - V_2'} - M\encp{V_1 - V_1'}}{sD} - \frac{i_{20}}{s}.
+\end{eqnarray}
+%
+
+\begin{equation}
+  \begin{bmatrix}
+    \frac{L_2}{sD} & -\frac{L_2}{sD} & -\frac{M}{sD}  & \frac{M}{sD} \\
+   -\frac{L_2}{sD} & \frac{L_2}{sD}  & \frac{M}{sD}  & -\frac{M}{sD} \\
+  -\frac{M}{sD} & \frac{M}{sD} &  \frac{L_1}{sD} & -\frac{L_1}{sD}   \\
+   \frac{M}{sD} & -\frac{M}{sD} & -\frac{L_1}{sD} & \frac{L_1}{sD}  
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ V_1' \\ V_2 \\ V_2'
+  \end{bmatrix}
+=
+\begin{bmatrix}
+  -\frac{i_{10}}{s} \\ \frac{i_{10}}{s} \\
+  -\frac{i_{20}}{s} \\ \frac{i_{20}}{s}
+\end{bmatrix}
+\label{eqn:mutual_stamp1}
+\end{equation}
+
+Alternatively, the stamps for the uncoupled inductors can be augmented
+with a stamp describing the coupling, using
+%
+\begin{eqnarray}
+  I'_{L1} & = & \frac{M^2\encp{V_1 - V_1'}}{sL_1 D} - \frac{M\encp{V_2 - V_2'}}{sD}, \\
+  I'_{L2} & = & \frac{M^2\encp{V_2 - V_2'}}{sL_2 D} - \frac{M\encp{V_1 - V_1'}}{sD}.  
+\end{eqnarray}
+%
+These equations produce the stamp:
+%
+\begin{equation}
+  \begin{bmatrix}
+    \frac{M^2}{sL_1 D} & -\frac{M^2}{sL_1 D} & -\frac{M}{sD}  & \frac{M}{sD} \\
+   -\frac{M^2}{sL_1 D} & \frac{M^2}{sL_1 D}  & \frac{M}{sD}  & -\frac{M}{sD} \\
+  -\frac{M}{sD} & \frac{M}{sD} &  \frac{M^2}{sL_2 D} & -\frac{M^2}{sL_2 D}   \\
+   \frac{M}{sD} & -\frac{M}{sD} & -\frac{M^2}{sL_2 D} & \frac{M^2}{sL_2 D}  
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ V_1' \\ V_2 \\ V_2'
+  \end{bmatrix}
+=
+\begin{bmatrix}
+0 \\ 0 \\ 0 \\ 0
+\end{bmatrix}.
+\end{equation}
+%
+This can be added to \refeqn{L1L2_stamp2} to produce
+\refeqn{mutual_stamp1}.  Note, when there is no coupling $M=0$, and so
+the stamp is all zeroes.  When the coupling is perfect, $D=0$ and the
+stamp blows up.
+
+The alternative stamp formulation includes the currents through the
+inductors,
+%
+\begin{equation}
+  \begin{bmatrix}
+     &  &  &    &  1 & \\
+     &  &  &    & -1 & \\
+     &  &  &    &    & 1\\
+     &  &  &    &    & -1\\
+1 & -1  &  &    & -sL_1 & -sM\\
+     &  & 1 & -1 & -sM & -sL_2
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ V_1' \\ V_2 \\ V_2' \\ I_{L1} \\ I_{L2}
+  \end{bmatrix}
+=
+\begin{bmatrix}
+  0 \\ 0 \\ 0 \\ 0 \\ -L_1 i_{10} \\ -L_2 i_{20}
+\end{bmatrix}.
+\end{equation}
+%
+This can be achieved by summing the stamp \refeqn{L1L2_stamp1} with
+%
+\begin{equation}
+  \begin{bmatrix}
+     &  &  &    &    & \\
+     &  &  &    &    & \\
+     &  &  &    &    & \\
+     &  &  &    &    & \\
+     &  &  &    &    & -sM\\
+     &  &  &    & -sM & 
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ V_1' \\ V_2 \\ V_2' \\ I_{L1} \\ I_{L2}
+  \end{bmatrix}
+=
+\begin{bmatrix}
+  0 \\ 0 \\ 0 \\ 0 \\ 0 \\ 0
+\end{bmatrix}.
+\end{equation}
+
+
+\subsection{Z-parameter two-port stamp}
+
+The Z-parameter two-port stamp is
+%
+\begin{equation}
+  \begin{bmatrix}
+   &   &   &   &  1 &    \\
+   &   &   &   & -1 &    \\
+   &   &   &   &    &  1 \\
+   &   &   &   &    &  -1 \\
+   -1& 1 &   &    & Z_{11} & Z_{12} \\
+    &   & -1 & 1 & Z_{21} & Z_{22} \\
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ V_1' \\ V_1' \\ V_2' \\ I_{Z_{11}} \\ I_{Z_{22}}
+  \end{bmatrix}
+=
+\begin{bmatrix}
+  I_1 \\ I_1' \\ I_2 \\ I_2' \\ 0 \\ 0
+\end{bmatrix}.
+\end{equation}
+%
+When $V_1' = V_2' = 0$, this simplifies to
+%
+\begin{equation}
+  \begin{bmatrix}
+      & & 1 &   \\
+      & &   & 1 \\
+    -1 &   & Z_{11} & Z_{12} \\
+      & -1 & Z_{21} & Z_{22} \\
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ V_2 \\ I_{Z_{11}} \\ I_{Z_{22}}
+  \end{bmatrix}
+=
+\begin{bmatrix}
+  I_1 \\ I_2 \\ 0 \\ 0
+\end{bmatrix}.
+\end{equation}
+%
+
+
+
+\subsection{A-parameter two-port stamp}
+
+The A-parameter two-port stamp is
+%
+\begin{equation}
+  \begin{bmatrix}
+   &   &  A_{21} & -A_{21} & A_{22} \\ 
+   &   & -A_{21} & A_{21}  & -A_{22} \\
+   &   &         &        & -1    \\
+   &   &         &        &  1    \\
+   -1 & 1  & A_{11} & -A_{11} & A_{12} \\
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ V_1' \\ V_2 \\ V_2' \\ I_{A_{22}}
+  \end{bmatrix}
+=
+\begin{bmatrix}
+  I_1 \\ I_1' \\ I_2 \\ I_2' \\ 0
+\end{bmatrix}.
+\end{equation}
+%
+When $V_1' = V_2' = 0$, this simplifies to
+%
+\begin{equation}
+  \begin{bmatrix}
+ &  A_{21}  & A_{22}  \\
+         &       & -1 \\
+      -1 & A_{11} & A_{12} \\
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ V_2 \\ I_{A_{22}}
+  \end{bmatrix}
+=
+\begin{bmatrix}
+  I_1 \\ I_2 \\ 0
+\end{bmatrix}.
+\end{equation}
+%
+
+
+
+\subsection{Y-parameter two-port stamp}
+
+The Y-parameter two-port stamp is
+%
+\begin{equation}
+  \begin{bmatrix}
+Y_{11} & -Y_{11} & Y_{12} & -Y_{12} \\
+-Y_{11} & Y_{11} & -Y_{12} & Y_{12} \\
+Y_{21} & -Y_{21} & Y_{22} & -Y_{22} \\
+-Y_{21} & Y_{21} & -Y_{22} & Y_{22} \\
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ V_1' \\ V_2 \\ V_2'
+  \end{bmatrix}
+=
+\begin{bmatrix}
+  I_1 \\ I_1' \\ I_2 \\ I_2'
+\end{bmatrix}.
+\end{equation}
+%
+When $V_1' = V_2' = 0$, this simplifies to
+%
+\begin{equation}
+  \begin{bmatrix}
+Y_{11} & Y_{12} \\
+Y_{21} & Y_{22}
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ V_2 
+  \end{bmatrix}
+=
+\begin{bmatrix}
+  I_1 \\ I_2 
+\end{bmatrix}.
+\end{equation}
+%
+For example, consider a series capacitor, with
+%
+\begin{equation}
+  \mat{Y} =
+  \begin{bmatrix}
+    sC & -sC \\
+   -sC &  sC
+  \end{bmatrix}.
+\end{equation}
+
+
+
+\section{Mutual inductances}
+
+
+If $i_1$ is the current flowing into the dot of inductor $L_1$ and
+$i_2$ is the current flowing into the dot of coupled inductor $L_2$,
+%
+then
+%
+\begin{eqnarray}
+ v_1(t) & = & L_1 \udby{t} i_1(t) + M \udby{t} i_2(t),\\
+ v_2(t) & = & M \udby{t} i_1(t) + L_2 \udby{t} i_2(t),
+\label{eqn:mut}
+\end{eqnarray}
+%
+where the mutual inductance $M$ is
+%
+\begin{equation}
+  M = k \sqrt{L_1 L_2},
+\end{equation}
+%
+for a coupling coefficient $0 \le k \le 1$.  Note an ideal transformer
+requires $L_1 = L_2 = \infty$ and $k=1$; it also works at DC.
+
+Taking Laplace transforms of \refeqn{mut} yields,
+%
+\begin{eqnarray}
+\label{eqn:mut_V1}
+ V_1(s) & = & s L_1 I_1(s) + s M I_2(s) - L i_1(0^{-}) - M i_2(0^{-}), \\
+ V_2(s) & = & s M I_1(s) + s L_2 I_2(s) - M i_1(0^{-}) - L i_2(0^{-}),
+\label{eqn:mut_V2}
+\end{eqnarray}
+%
+where $i_1(0^{-})$ and $i_2(0^{-})$ are the initial currents.
+Thus each inductor can be modelled by an impedance in series with a
+current controlled voltage source and voltage source.
+
+Solving for $I_2$ from \refeqn{mut_V1} gives
+%
+\begin{equation} 
+  I_2(s) = \frac{1}{M s} \left(- I_1(s) L_1 s + L_1 i_1(0^{-}) + M i_2(0^{-}) + V_1(s)\right)
+\label{eqn:mut_I2V1}
+\end{equation}
+%
+and solving for $I_2$ from \refeqn{mut_V2} gives
+%
+\begin{equation}
+I_2(s) = \frac{1}{L_2 s} \left(- I_1(s) M s + L_2 i_2(0^{-}) + M i_1(0^{-}) + V_2(s)\right).
+\label{eqn:mut_I2V2}
+\end{equation}
+%
+Equating \refeqn{mut_I2V1} and \refeqn{mut_I2V2} yields,
+%
+\begin{equation}
+I_1(s) =\frac{L_2 V_1(s) - M V_2(s)}{s \left(L_1 L_2 - M^{2}\right)}
+- \frac{i_1(0^{-})}{s}
+ \end{equation}
+%
+Similarly,
+%
+\begin{equation}
+I_2(s) =\frac{L_1 V_2(s) - M V_1(s)}{s \left(L_1 L_2 - M^{2}\right)}
+- \frac{i_2(0^{-})}{s}
+ \end{equation}
+
+
+Substituting for $M$ gives
+%
+\begin{equation}
+I_1(s) =\frac{L_2 V_1(s) - k\sqrt{L_1 L_2} V_2(s)}{s L_1 L_2 \left(1 - k^2\right)}
+- \frac{i_1(0^{-})}{s}.
+ \end{equation}
+
+
+
+If $k=0$ then $M=0$ and so
+%
+\begin{equation}
+I_1(s) = \frac{V_1(s)}{s L_1} - \frac{i_1(0^{-})}{s}
+ \end{equation}
+%
+and
+%
+\begin{equation}
+I_2(s) = \frac{V_2(s)}{s L_2} - \frac{i_2(0^{-})}{s}
+\end{equation}
+%
+as expected for independent inductors.
+
+
+The additional current due to the mutual coupling is
+%
+\begin{eqnarray}
+  I_1'(s) & = & I_1(s) - \encp{\frac{V_1(s)}{s L_1} - \frac{i_1(0^{-})}{s}}, \\
+          & = & \frac{M^2}{s L_1 \encp{L_1 L_2 - M^2}} V_1 - \frac{M}{s \encp{L_1 L_2 - M^2}} V_2.
+\end{eqnarray}
+%
+In terms of the coupling coefficient, $k$, this can be expressed as
+%
+\begin{equation}
+  I_1'(s) = \frac{k^2}{s L_1 \encp{1-k^2}} V_1 - \frac{k}{s\sqrt{L_1 L_2}\encp{1-k^2}}V_2.
+\end{equation}
+
+
+If a transformer has a turns ratio $a$ then
+%
+\begin{equation}
+N_2 = a N_1.
+\end{equation}
+%
+If the coils share a common core and are wound similarly, then
+%
+\begin{equation}
+  L_2 = a^2 L_1.
+\end{equation}
+%
+If there is perfect coupling, $k=1$, and thus the mutual inductance is
+%
+\begin{equation}
+  M = a L_1.
+\end{equation}
+%
+The relationship between the currents and voltages from \refeqn{mut}
+then becomes
+%
+\begin{eqnarray}
+ v_1(t) & = & L_1 \udby{t} i_1(t) + a L_1 \udby{t} i_2(t),\\
+ v_2(t) & = & a L_1 \udby{t} i_1(t) + a^2 L_1 \udby{t} i_2(t).
+\label{eqn:mut_transformer}
+\end{eqnarray}
+
+
+An ideal transformer occurs when $k=1$ and $L_1$ and $L_2$ are
+infinite.  In practice, this cannot be achieved.  It can be
+approximated by making $k$ close to 1 and choosing $L_1$ and $L_2$
+to have large inductances.
+
+Let's consider the case when a voltage source is applied to the
+primary and the secondary is open circuit so that $i_2=0$.  The
+transformer equations simplify to
+%
+\begin{eqnarray}
+ v_1(t) & = & L_1 \udby{t} i_1(t),\\
+ v_2(t) & = & a L_1 \udby{t} i_1(t).
+\label{eqn:mut_transformer_oc}
+\end{eqnarray}
+%
+By inspection, 
+%
+\begin{equation}
+v_2(t) = a v_1(t),  
+\end{equation}
+%
+and thus the open-circuit secondary voltage is $a$ times the primary.
+Let's now consider the short-circuit secondary current when $v_2=0$.
+The transformer equations are now
+%
+\begin{eqnarray}
+ v_1(t) & = & L_1 \udby{t} i_1(t) + a L_1 \udby{t} i_2(t),\\
+      0 & = & a L_1 \udby{t} i_1(t) + a^2 L_1 \udby{t} i_2(t).
+\label{eqn:mut_transformer_sc}
+\end{eqnarray}
+%
+From the second of these equations,
+%
+\begin{equation}
+  a L_1 \udby{t} i_1(t) = -a^2 L_1 \udby{t} i_2(t),
+\end{equation}
+%
+and so
+%
+\begin{equation}
+  i_1(t) = -a i_2(t),
+\end{equation}
+%
+or equivalently,
+%
+\begin{equation}
+  i_2(t) = -\frac{1}{a} i_1(t).
+\end{equation}
+%
+The negative sign results from the definition of the direction of the
+currents, as used by two-port networks.
+
+A tee model can be used to represent a transformer if the primary and
+secondary share a common ground.  However, this will result in
+non-realisable negative inductances when $M > L_1$ or $M > L_2$.
+
+
+When modelling, the secondary of a transformer requires a DC
+connection to ground; either by having a ground common with the
+primary or using a large resistance.
+
+
+
+\section{Two-port networks}
+
+
+\subsection{A model}
+
+\begin{eqnarray}
+  V_1 & = & A_{11} V_2 - A_{12} I_2 + V_{1a}, \\
+  I_1 & = & A_{21} V_2 - A_{22} I_2 + I_{1a}.
+\end{eqnarray}
+
+Rearranging gives
+%
+\begin{equation}
+ V_2 = \frac{A_{22}}{\det{A}} V_1 - \frac{A_{12}}{\det{A}} + \frac{A_{12}}{\det{A}} I_{1a}. 
+\end{equation}
+%
+Thus
+%
+\begin{equation}
+ B_{11} = \frac{A_{22}}{\det{A}}, \bigspace B_{12} = -\frac{A_{12}}{\det{A}}, \bigspace V_{2b} = \frac{A_{12}}{\det{A}} I_{1a} 
+\end{equation}
+
+
+\subsection{B model}
+
+\begin{eqnarray}
+\label{eqn:BV2}
+  V_2 & = & B_{11} V_1 + B_{12} I_1 + V_{2b}, \\
+  I_2 & = & -B_{21} V_1 - B_{22} I_1 - I_{2b}.
+\label{eqn:BI2}
+\end{eqnarray}
+
+From \refeqn{BV2},
+%
+\begin{equation}
+  V_1 = -\frac{B_{12}}{B_{11}} I_1 + \frac{1}{B_{11}} V_2 - \frac{1}{B_{11}} V_{2b},
+\bigspace \mbox{(H form)},
+\label{eqn:BV1H}
+\end{equation}
+%
+and
+%
+\begin{equation}
+  I_1  =  -\frac{B_{11}}{B_{12}} V_1 - \frac{1}{B_{12}} V_2 - \frac{1}{B_{12}} V_{2b} \bigspace \mbox{(Y form)}.
+\label{eqn:BI1Y}
+\end{equation}
+%
+From \refeqn{BI2},
+%
+\begin{equation}
+  V_1 = -\frac{B_{22}}{B_{21}} I_1 - \frac{1}{B_{21}} I_2  - \frac{1}{B_{21}} I_{2b} \bigspace \mbox{(Z form)},
+\label{eqn:BV1Z}
+\end{equation}
+%
+and
+%
+\begin{equation}
+  I_1 = -\frac{B_{21}}{B_{22}} V_1 - \frac{1}{B_{22}} I_2 - \frac{1}{B_{22}} I_{2b}
+\bigspace \mbox{(G form)}.
+\label{eqn:BI1G}
+\end{equation}
+%
+Substituting \refeqn{BV1H} into \refeqn{BI2} gives
+%
+\begin{equation}
+  I_2 = \frac{\det{B}}{B_{11}} I_1 + \frac{1}{B_{11}} V_2 - \frac{B_{21}}{B_{11}} V_{2b} - I_{2b} \bigspace \mbox{(H form)}.
+\label{eqn:BI2H}
+\end{equation}
+%
+Substituting \refeqn{BI1Y} into \refeqn{BI2} gives
+%
+\begin{equation}
+  I_2 = \frac{\det B}{B_{12}} V_1 + \frac{B_{22}}{B_{12}} V_2 + \frac{B_{22}}{B_{12}} V_{2b} - I_{2b} \bigspace \mbox{(Y form)}.
+\label{eqn:BI2Y}
+\end{equation}
+%
+Substituting \refeqn{BV1Z} into \refeqn{BV2} gives
+%
+\begin{equation}
+  V_2 = -\frac{\det B}{B_{21}} I_1 - \frac{B_{11}}{B_{21}} I_2  - \frac{B_{11}}{B_{21}} I_{2b} + V_{2b}  \bigspace \mbox{(Z form)}.
+\label{eqn:BV2Z}
+\end{equation}
+%
+Substituting \refeqn{BI1G} into \refeqn{BV2} gives
+%
+\begin{equation}
+  V_2 = -\frac{\det B}{B_{22}} V_1 - \frac{B_{12}}{B_{22}} I_2  - \frac{B_{12}}{B_{22}} I_{2b} + V_{2b}  \bigspace \mbox{(G form)}.
+\label{eqn:BV2G}
+\end{equation}
+
+\begin{equation}
+  V_{2b} = \frac{1}{H_{12}} V_{1h} = -\frac{Y_{11}}{Y_{12}} I_{1y}
+\end{equation}
+
+\begin{equation}
+  I_{2b} = \frac{H_{22}}{H_{12}} V_{1h} - I_{2h}
+\end{equation}
+
+
+\begin{eqnarray}
+  V_{1h} & = & -\frac{1}{B_{11}} V_{2b}, \\
+  I_{2h} & = & \frac{B_{21}}{B_{11}} V_{2b} - I_{2b}
+\end{eqnarray}
+
+%
+\begin{eqnarray}
+  I_{1y} & = & -\frac{1}{B_{12}} V_{2b}, \\
+  I_{2y} & = & \frac{B_{22}}{B_{12}} V_{2b} - I_{2b}.
+\end{eqnarray}
+
+%
+\begin{eqnarray}
+V_{1z} & = & -\frac{1}{B_{21}} I_{2b}, \\
+V_{2z} & = & V_{2b} -\frac{B_{11}}{B_{21}} I_{2b}.
+\end{eqnarray}
+
+
+
+\subsection{G model}
+
+\begin{eqnarray}
+\label{eqn:GI1}
+  I_1 & = & G_{11} V_1 + G_{12} I_2 + I_{1g}, \\
+  V_2 & = & G_{21} V_1 + G_{22} I_2 + V_{2g}.
+\label{eqn:GV2}
+\end{eqnarray}
+
+
+Equating \refeqn{BI1G} to \refeqn{GI1} yields
+%
+\begin{equation}
+ G_{11} = - \frac{B_{21}}{B_{22}}, \bigspace G_{12} = -\frac{1}{B_{22}}, \bigspace I_{1g} = -\frac{1}{B_{22}} I_{2b},
+\end{equation}
+%
+and equating \refeqn{BV2G} to \refeqn{GV2} yields
+%
+\begin{equation}
+  G_{21} = -\frac{\det{B}}{B_{22}}, \bigspace G_{22} = -\frac{B_{12}}{B_{22}}, \bigspace V_{2g} = V_{2b} - \frac{B_{12}}{B_{22}} I_{2b}.
+\end{equation}
+
+
+\subsection{H model}
+
+\begin{eqnarray}
+\label{eqn:HV1}
+  V_1 & = & H_{11} I_1 + H_{12} V_2 + V_{1h}, \\
+  I_2 & = & H_{21} I_1 + H_{22} V_2 + I_{2h}.
+\label{eqn:HI2}
+\end{eqnarray}
+
+
+Equating \refeqn{BV1H} to \refeqn{HV1}, yields,
+%
+\begin{equation}
+  H_{11} = -\frac{B_{12}}{B_{11}}, \bigspace H_{12} = \frac{1}{B_{11}}, \bigspace V_{1h} = -\frac{V_{2b}}{B_{11}},
+\end{equation}
+%
+and equating to \refeqn{HI2}, yields,
+%
+\begin{equation}
+  H_{21} = \frac{\det{B}}{B_{11}}, \bigspace H_{22} = -\frac{B_{21}}{B_{11}}, \bigspace I_{2h} = \frac{B_{21}}{B_{11}} V_{2b} - I_{2b}.
+\end{equation}
+
+
+\begin{eqnarray}
+  V_{2b} & = & \frac{1}{H_{12}} V_{1h}, \\
+  I_{2b} & = & \frac{H_{22}}{H_{12}} V_{1h} - I_{2h}.
+\end{eqnarray}
+
+
+
+
+\subsection{Y model}
+
+\begin{eqnarray}
+\label{eqn:YI1}
+  I_1 & = & Y_{11} V_1 + Y_{12} V_2 + I_{1y}, \\
+  I_2 & = & Y_{21} V_1 + Y_{22} V_2 + I_{2y}.
+\label{eqn:YI2}
+\end{eqnarray}
+
+
+
+\begin{equation}
+  V_1 = \frac{1}{Y_{11}} I_1 - \frac{Y_{12}}{Y_{11}} V_2 - \frac{1}{Y_{11}} I_{1y} \bigspace \mbox{(H form)}
+\end{equation}
+
+\begin{equation}
+  V_2 = \frac{1}{Y_{12}} I_1 - \frac{Y_{11}}{Y_{12}} V_1 - \frac{1}{Y_{12}} I_{1y} \bigspace \mbox{(B form)}
+\end{equation}
+
+\begin{equation}
+  V_1 = \frac{1}{Y_{21}} I_2 - \frac{Y_{22}}{Y_{21}} V_2 - \frac{1}{Y_{21}} I_{2y} \bigspace \mbox{(A form)}
+\end{equation}
+
+
+\begin{equation}
+  V_2 = -\frac{Y_{21}}{Y_{22}} V_1 + \frac{1}{Y_{22}} I_2 - \frac{1}{Y_{22}} I_{2y} \bigspace \mbox{(G form)}
+\end{equation}
+
+
+\begin{equation}
+  V_2 = -\frac{Y_{21}}{\det{Y}} I_1 + \frac{Y_{11}}{\det{Y}} I_2 - \frac{Y_{11}}{\det{Y}} I_{2y} + \frac{Y_{21}}{\det{Y}} I_{1y} \bigspace \mbox{(Z form)}
+\end{equation}
+
+
+\begin{equation}
+  V_1 = \frac{Y_{22}}{\det{Y}} I_1 - \frac{Y_{12}}{\det{Y}} I_2 + \frac{Y_{12}}{\det{Y}} I_{2y} - \frac{Y_{22}}{\det{Y}} I_{1y} \bigspace \mbox{(Z form)}
+\end{equation}
+
+
+
+\subsection{Z model}
+
+\begin{eqnarray}
+\label{eqn:ZV1}
+  V_1 & = & Z_{11} I_1 + Z_{12} I_2 + V_{1z}, \\
+  V_2 & = & Z_{21} I_1 + Z_{22} I_2 + V_{2z}.
+\label{eqn:ZV2}
+\end{eqnarray}
+
+
+
+\begin{equation}
+  I_1 = \frac{1}{Z_{11}} V_1 - \frac{Z_{12}}{Z_{11}} I_2 - \frac{1}{Z_{11}} V_{1z} \bigspace \mbox{(G form)}
+\end{equation}
+
+\begin{equation}
+  I_2 = \frac{1}{Z_{12}} V_1 - \frac{Z_{11}}{Z_{12}} I_1 - \frac{1}{Z_{12}} V_{1z} \bigspace \mbox{(B form)}
+\end{equation}
+
+\begin{equation}
+  I_1 = \frac{1}{Z_{21}} V_2 - \frac{Z_{22}}{Z_{21}} I_2 - \frac{1}{Z_{12}} V_{2z} \bigspace \mbox{(A form)}
+\end{equation}
+
+
+\begin{equation}
+  I_2 = -\frac{Z_{21}}{Z_{22}} I_1 + \frac{1}{Z_{22}} V_2 - \frac{1}{Z_{22}} V_{2z} \bigspace \mbox{(H form)}
+\end{equation}
+
+
+\begin{equation}
+  I_1 = \frac{Z_{22}}{\det{Z}} V_1 - \frac{Z_{12}}{\det{Z}} V_2 - \frac{Z_{12}}{\det{Z}} V_{2z} - \frac{Z_{22}}{\det{Z}} V_{1z} \bigspace \mbox{(Z form)}
+\end{equation}
+
+CHECK
+\begin{equation}
+  I_2 = -\frac{Z_{21}}{\det{Z}} V_1 + \frac{Z_{11}}{\det{Z}} V_2 - \frac{Z_{11}}{\det{Z}} V_{2z} + \frac{Z_{21}}{\det{Z}} V_{1z} \bigspace \mbox{(Z form)}
+\end{equation}
+
+
+Equating \refeqn{ZV1} to \refeqn{BV1Z} gives
+%
+\begin{equation}
+  V_{1z} = -\frac{1}{B_{21}} I_{2b}
+\end{equation}
+
+
+
+
+%% When $I_1 = I_2 = 0$,
+%% %
+%% \begin{eqnarray}
+%%   0 & = & A_{21} V_2 + I_{1a},\\
+%%   0 & = & -B_{21} V_2 - I_{2b},\\ 
+%%   V_1 & = & V_{1z}, \\
+%%   V_2 & = & V_{2z},
+%% \end{eqnarray}
+%% %
+%% and so
+%% %
+%% \begin{eqnarray}
+%%   I_{1a} & = & -A_{21} V_{2z}, \\
+%%   I_{2b} & = & -B_{21} V_{1z}.
+%% \end{eqnarray}
+
+%% When $V_1 = V_2 = 0$,
+%% %
+%% \begin{eqnarray}
+%%   0 & = & -A_{12} I_2 + V_{1a}, \\
+%%   0 & = & B_{12} I_1 + V_{2b}, \\
+%%   I_1 & = & I_{1y}, \\
+%%   I_2 & = & I_{2y},
+%% \end{eqnarray}
+%% %
+%% and so
+%% %
+%% \begin{eqnarray}
+%%   V_{1a} & = & -A_{12} I_{2y}, \\
+%%   V_{2b} & = & -B_{12} I_{1y}.
+%% \end{eqnarray}
+
+
+%% \begin{eqnarray}
+%% V_{1\mathrm{oc}} & = & V_{1z} = V_{1a} - I_{1a} Z_{11}, \\
+%% V_{2\mathrm{oc}} & = & V_{2z} = V_{2b} - I_{2b} Z_{22}, \\
+%% I_{1\mathrm{sc}} & = & I_{1y} = I_{1a} - V_{1a} Y_{11}, \\
+%% I_{2\mathrm{sc}} & = & I_{2y} = I_{2b} - V_{2b} Y_{22}.
+%% \end{eqnarray}
+
+
+%% \begin{eqnarray}
+%%   V_{1z} & = & Z_{11} I_{1y}, \\
+%%   V_{1a} & = & -A_{12} I_{2y}, \\
+%%   V_{2z} & = & Z_{22} I_{2y}, \\
+%%   V_{2b} & = & -B_{12} I_{1y}, \\
+%%   I_{1a} & = & -A_{21} V_{2z}, \\
+%%   I_{1y} & = & Y_{11} V_{1z}, \\
+%%   I_{2b} & = & -B_{21} V_{1z}, \\
+%%   I_{2y} & = & Y_{22} V_{2z}, \\
+%% \end{eqnarray}
+
+
+%% \begin{eqnarray}
+%%   V_{1z} & = & -\frac{I_{2b}}{B_{21}}, \\
+%%   V_{2z} & = & V_{2b} + \frac{A_{22}}{A_{21}} I_{2b}, \\
+%% \end{eqnarray}
+
+
+%% \begin{eqnarray}
+%%   I_{2b} & = & -B_{21} V_{1z}, \\
+%%   V_{2b} & = & V_{2z} - B_{11} V_{1z}.
+%% \end{eqnarray}
+
+
+\section{Two-port devices}
+
+
+\subsection{Voltage amplifier}
+
+A voltage amplifier with forward voltage gain $A_f$, reverse voltage
+gain $A_r$, input admittance, $Y_i$, and output impedance, $Z_o$.
+Thus $G_{21} = A_f$, $H_{12} = A_r$, $Y_{11} = Y_i$, and $Z_{22} =
+Z_o$ and the voltage amplifier can be described by the following
+two-port matrices:
+%
+\begin{equation}
+\mat{A} = \left[\begin{matrix}\frac{1}{A_{f}} & - A_{r} Z_{o} + \frac{Z_{o}}{A_{f}}\\- A_{r} Y_{i} + \frac{Y_{i}}{A_{f}} & - A_{r} Y_{i} Z_{o} + \frac{Y_{i} Z_{o}}{A_{f}}\end{matrix}\right]
+\end{equation}
+
+\begin{equation}
+\mat{B} = \left[\begin{matrix}\frac{1}{A_{r}} & - \frac{1}{A_{r} Y_{i}}\\- \frac{1}{A_{r} Z_{o}} & - \frac{1}{A_{r} Y_{i} Z_{o} \left(A_{f} A_{r} - 1\right)}\end{matrix}\right]
+\end{equation}
+
+\begin{equation}
+\mat{G} = \left[\begin{matrix}Y_{i} \left(- A_{f} A_{r} + 1\right) & A_{r} Y_{i} Z_{o} \left(A_{f} A_{r} - 1\right)\\A_{f} & Z_{o} \left(- A_{f} A_{r} + 1\right)\end{matrix}\right]
+\end{equation}
+
+\begin{equation}
+\mat{H} = \left[\begin{matrix}\frac{1}{Y_{i}} & A_{r}\\\frac{A_{f}}{Y_{i} Z_{o} \left(A_{f} A_{r} - 1\right)} & \frac{1}{Z_{o}}\end{matrix}\right]
+\end{equation}
+
+\begin{equation}
+\mat{Y} = \left[\begin{matrix}Y_{i} & - A_{r} Y_{i}\\\frac{A_{f}}{Z_{o} \left(A_{f} A_{r} - 1\right)} & - \frac{1}{Z_{o} \left(A_{f} A_{r} - 1\right)}\end{matrix}\right]
+\end{equation}
+
+\begin{equation}
+\mat{Z} = \left[\begin{matrix}- \frac{1}{Y_{i} \left(A_{f} A_{r} - 1\right)} & A_{r} Z_{o}\\- \frac{A_{f}}{Y_{i} \left(A_{f} A_{r} - 1\right)} & Z_{o}\end{matrix}\right]
+\end{equation}
+
+
+When $A_r=0$
+
+\begin{equation}
+\mat{A} = \left[\begin{matrix}\frac{1}{A_{f}} & \frac{Z_{o}}{A_{f}}\\\frac{Y_{i}}{A_{f}} & \frac{Y_{i} Z_{o}}{A_{f}}\end{matrix}\right]
+\end{equation}
+
+\begin{equation}
+\mat{B} = \left[\begin{matrix}\frac{\tilde{\infty} Y_{i}}{A_{f}} Z_{o} & \frac{\tilde{\infty} Z_{o}}{A_{f}}\\\frac{\tilde{\infty} Y_{i}}{A_{f}} & \frac{\tilde{\infty}}{A_{f}}\end{matrix}\right]
+\end{equation}
+
+\begin{equation}
+\mat{G} = \left[\begin{matrix}Y_{i} & 0\\A_{f} & Z_{o}\end{matrix}\right]
+\end{equation}
+
+\begin{equation}
+\mat{H} =\left[\begin{matrix}\frac{1}{Y_{i}} & 0\\- \frac{A_{f}}{Y_{i} Z_{o}} & \frac{1}{Z_{o}}\end{matrix}\right]
+\end{equation}
+
+
+\begin{equation}
+\mat{Y} = \left[\begin{matrix}Y_{i} & 0\\- \frac{A_{f}}{Z_{o}} & \frac{1}{Z_{o}}\end{matrix}\right]
+\end{equation}
+
+\begin{equation}
+\mat{Z} = \left[\begin{matrix}\frac{1}{Y_{i}} & 0\\\frac{A_{f}}{Y_{i}} & Z_{o}\end{matrix}\right]
+\end{equation}
+
+
+\subsection{Current amplifier}
+
+A current amplifier with forward current gain $A_f$, reverse current
+gain $A_r$, input impedance, $Z_i$, and output admittance, $Y_o$.
+Thus
+%
+\begin{eqnarray}
+A_f & = &  H_{21} = -\frac{1}{A_{22}}, \\
+A_r & = &  G_{12} = -\frac{\det{A}}{A_{11}}, \\
+Z_i & = &  Z_{11} = \frac{A_{11}}{A_{21}}, \\
+Y_o & = &  Y_{22} = \frac{A_{11}}{A_{12}}.
+\end{eqnarray}
+
+\begin{equation}
+  A_{22} = \frac{1}{A_f}
+\end{equation}
+
+\begin{eqnarray}
+  A_r & = & A_{22} - \frac{A_{12} A_{21}}{A_{11}}, \\
+      & = & \frac{1}{A_f} - \frac{A_{12}}{Z_i}.
+\end{eqnarray}
+
+\begin{equation}
+  A_{12} = \encp{\frac{1}{A_f} - A_r} Z_i.
+\end{equation}
+
+\begin{equation}
+  A_{11} = A_{12} Y_o = \encp{\frac{1}{A_f} - A_r} Z_i Y_o.
+\end{equation}
+
+\begin{equation}
+  A_{21} = \frac{A_{11}}{Z_i} = \encp{\frac{1}{A_f} - A_r} Y_o.
+\end{equation}
+
+
+The current amplifier can be described by the following two-port
+matrices:
+\begin{equation}
+\mat{A} = \left[\begin{matrix}\frac{1}{A_{f}} & - A_{r} Z_{i} + \frac{Z_{i}}{A_{f}}\\- A_{r} Y_{o} + \frac{Y_{o}}{A_{f}} & - A_{r} Y_{o} Z_{i} + \frac{Y_{o} Z_{i}}{A_{f}}\end{matrix}\right]
+\end{equation}
+
+\begin{equation}
+\mat{B} = \left[\begin{matrix}\frac{1}{A_{r}} & - \frac{1}{A_{r} Y_{o}}\\- \frac{1}{A_{r} Z_{i}} & - \frac{1}{A_{r} Y_{o} Z_{i} \left(A_{f} A_{r} - 1\right)}\end{matrix}\right]
+\end{equation}
+
+\begin{equation}
+\mat{G} = \left[\begin{matrix}Y_{o} \left(- A_{f} A_{r} + 1\right) & A_{r} Y_{o} Z_{i} \left(A_{f} A_{r} - 1\right)\\A_{f} & Z_{i} \left(- A_{f} A_{r} + 1\right)\end{matrix}\right]
+\end{equation}
+
+\begin{equation}
+\mat{H} = \left[\begin{matrix}\frac{1}{Y_{o}} & A_{r}\\\frac{A_{f}}{Y_{o} Z_{i} \left(A_{f} A_{r} - 1\right)} & \frac{1}{Z_{i}}\end{matrix}\right]
+\end{equation}
+
+\begin{equation}
+\mat{Y} = \left[\begin{matrix}Y_{o} & - A_{r} Y_{o}\\\frac{A_{f}}{Z_{i} \left(A_{f} A_{r} - 1\right)} & - \frac{1}{Z_{i} \left(A_{f} A_{r} - 1\right)}\end{matrix}\right]
+\end{equation}
+
+\begin{equation}
+\mat{Z} = \left[\begin{matrix}- \frac{1}{Y_{o} \left(A_{f} A_{r} - 1\right)} & A_{r} Z_{i}\\- \frac{A_{f}}{Y_{o} \left(A_{f} A_{r} - 1\right)} & Z_{i}\end{matrix}\right]
+\end{equation}
+
+
+
+\end{document}
+
