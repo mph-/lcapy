@@ -250,6 +250,26 @@ class DTStateSpace(StateSpaceBase):
         uflip = C.T * (C * C.T).inv() * xdiff
         return uflip[::-1,:]
 
+    def minimum_energy(self, steps, xfinal, xinitial=None):
+        """Determine minimum energy that results in state `xfinal` in `steps`
+        time steps from initial state `xinitial`."""
+
+        if xinitial is None:
+            xinitial = self.x0
+        else:
+            xinitial = Matrix(xinitial)        
+
+        xfinal = Matrix(xfinal)
+            
+        if steps < 0:
+            raise ValueError('steps must be positive')            
+        
+        C = self.controllability_matrix_steps(steps)
+
+        xdiff = xfinal - xinitial
+
+        return (xdiff.T * (C * C.T).inv() * xdiff)[0]
+
     def state_transfer(self, u, xinitial=None):
         """Return transitioned state given inputs `u` specified as a list of
         column vectors; one for each time step."""

@@ -67,6 +67,9 @@ class LcapyTester(unittest.TestCase):
         umin = ss.minimum_energy_input(2, [5, 7], [0, 0])
         self.assertEqual(umin, [2, 3], "minimum_energy_input")
 
+        umin = ss.minimum_energy(2, [5, 7], [0, 0])
+        self.assertEqual(umin, 13, "minimum_energy")        
+
         xfinal = ss.state_transfer([[2], [3]], xinitial=[0, 0])
         self.assertEqual(xfinal, [5, 7], "state_transfer")
         
