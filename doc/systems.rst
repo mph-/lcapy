@@ -93,7 +93,30 @@ Discrete-time state-space representation
 
 Discrete-time state-space objects are defined in a similar manner to
 continuous-time state-space objects and share many methods and
-attributes.  For example::
+attributes.  A discrete-time state-space object is created from the
+state matrix, `A`, input matrix, `B`, output matrix `C`, and
+feed-through matrix `D`::
+
+    >>> ss = DTStateSpace(A, B, C, D)
+
+A state-space object can also be created from lists of the numerator
+and denominator coefficients `b` and `a`::
+
+   >>> ss = DTStateSpace.from_ba(b, a)
+
+By default, the controllable canonical form CCF is created.  The
+observable canonical form OCF is created with::
+  
+   >>> ss = DTStateSpace.from_ba(b, a, form='OCF')
+
+Similarly, the diagonal canonical form DCF is created with::
+
+   >>> ss = DTStateSpace.from_ba(b, a, form='DCF')
+
+For the DCF, the poles of the transfer function must be unique.
+
+
+For example::
 
    >>> ss = DTStateSpace(((0, 1), (1, 0)), (1, 1), ((1, 2), ), [1])
 
@@ -113,6 +136,18 @@ attributes.  For example::
    >>> ss.D
    [1]
 
+   >>> ss.state_equations()
+   ⎡x₀(n + 1)⎤   ⎡0  1⎤ ⎡x₀(n)⎤   ⎡1⎤        
+   ⎢         ⎥ = ⎢    ⎥⋅⎢     ⎥ + ⎢ ⎥⋅[u₀(n)]
+   ⎣x₁(n + 1)⎦   ⎣1  0⎦ ⎣x₁(n)⎦   ⎣1⎦        
+
+   >>> ss.output_equations()
+                    ⎡x₀(n)⎤              
+   [y₀(n)] = [1  2]⋅⎢     ⎥ + [1]⋅[u₀(n)]
+                    ⎣x₁(n)⎦              
+
+
+   
    >>> ss.controllability_matrix
    ⎡1  1⎤
    ⎢    ⎥
@@ -193,6 +228,8 @@ Hankel singular values on the diagonal.  For example::
 
    >>> ss2 = ss.balance()
 
+Note, this requires numerical A, B, C, D matrices.   
+   
 
 Model reduction
 ---------------
@@ -202,7 +239,7 @@ A balanced reduction can be performed using::
    >>> ss2 = ss.balance_reduce(threshold=0.1)
 
 where states are removed with a Hankel singular value below the
-threshold.
+threshold.   Note, this requires numerical A, B, C, D matrices.
 
 Alternatively, specific states can be removed.  For example::
 

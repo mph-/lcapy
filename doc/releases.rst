@@ -2,6 +2,40 @@
 Release notes
 =============
 
+V0.99
+=====
+
+- Separates state-space generation from state-space representation
+
+- Adds discrete-time state-space representation `DTStateSpace`
+
+- Adds creation of state-space models from transfer functions
+
+- Adds state-space balancing
+
+- Adds state-space model reduction
+
+- Adds many DFTs
+
+- Checks if have series L and independent current source for state-space generation
+
+- Makes `Piecewise`, `Ne`, `Lt`, `Le`, `Gt`, `Ge` Lcapy functions
+
+- Generalizes model discretization
+
+- Adds matrix classes for discrete-time domains
+
+- Adds Nichols plots
+  
+- Fixes printing of Piecewise
+
+- Makes `conjugate` a method and adds `conj` as an attribute
+
+- Fixes `evalf()`
+
+- Adds `a` and `b` attributes for denominator and numerator coefficients
+
+  
 V0.98
 =====
 
