@@ -196,6 +196,7 @@ class StateSpaceMaker(object):
             B, b = sym.linear_eq_to_matrix(dotx_exprs, *sourcesyms)
         else:
             B = []
+            print('State-space: no independent sources found')
 
         # Determine output variables.
         yexprs = []
@@ -235,13 +236,22 @@ class StateSpaceMaker(object):
         u = TimeDomainMatrix(sources)
 
         A = Matrix(A)
-        B = Matrix(B)        
+        if B == []:
+            # No sources
+            B = Matrix.zeros(A.shape[0], 0)
+        else:
+            B = Matrix(B)        
             
         # Perhaps could use v_R1(t) etc. as the output voltages?
         y = TimeDomainMatrix(y)
 
         C = Matrix(Cmat)
-        D = Matrix(D)
 
+        if D == []:
+            # No sources
+            D = Matrix.zeros(C.shape[0], 0)
+        else:
+            D = Matrix(D)        
+        
         return StateSpace(A, B, C, D, u, y, x, x0)
     
