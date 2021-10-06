@@ -1472,18 +1472,27 @@ class NetlistMixin(object):
         self._sim = Simulator(self)
         return self._sim
     
-    def state_space(self):
-        """Generate state-space representation."""        
+    def state_space(self, node_voltages=None, branch_currents=None):
+        """Generate state-space representation.
 
-        if hasattr(self, '_ss'):
-            return self._ss
+        `node_voltages` is a list of node names to use as voltage outputs.
+        If `None` use all the unique node names.
+        
+        `branch_currents` is a list of component names to use as
+        current outputs.  If `None` use all the components.
 
-        self._ss = StateSpaceMaker().from_circuit(self)
-        return self._ss
+        Here's an example:
+        `cct = Circuit('cct.sch')
+        ss = cct.state_space(node_voltages=['1', '3'], branch_currents=['L1', 'L2'])`
+        """
+
+        ss = StateSpaceMaker().from_circuit(self, node_voltages,
+                                            branch_currents)
+        return ss
 
     @property
     def ss(self):
-        """Generate state-space representation."""        
+        """Generate state-space representation.  See also `state_space()`"""
         return self.state_space()
     
     def replace(self, oldname, newname):

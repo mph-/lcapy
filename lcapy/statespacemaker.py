@@ -80,10 +80,21 @@ class StateSpaceMaker(object):
     def __init__(self):
         pass
         
-    def from_circuit(self, cct, node_voltages=True, branch_currents=False):
+    def from_circuit(self, cct, node_voltages=None, branch_currents=None):
+        """`node_voltages` is a list of node names to use as voltage outputs.
+        If `None` use all the unique node names.
 
-        if not node_voltages and not branch_currents:
-            raise ValueError('No outputs')
+        `branch_currents` is a list of component names to use as
+        current outputs.  If `None` use all the components."""
+
+        if node_voltages is None:
+            node_voltages = cct.node_list
+
+        if branch_currents is None:
+            branch_currents = cct.branch_list
+        
+        if node_voltages == [] and branch_currents == []:
+            raise ValueError('State-space: no outputs')
         
         inductors = []
         capacitors = []
@@ -202,21 +213,19 @@ class StateSpaceMaker(object):
         yexprs = []
         y = []
 
-        if node_voltages:
-            for node in cct.node_list:
-                if node == '0':
-                    continue
-                yexprs.append(sscct[node].v.subs(subsdict).expand().expr)
-                # Note, this can introduce a name conflict
-                y.append(voltage('v_%s(t)' % node))
+        for node in node_voltages:
+            if node == '0':
+                continue
+            yexprs.append(sscct[node].v.subs(subsdict).expand().expr)
+            # Note, this can introduce a name conflict
+            y.append(voltage('v_%s(t)' % node))
 
-        if branch_currents:
-            for name in cct.branch_list:
-                # Perhaps ignore L since the current through it is a
-                # state variable?
-                name2 = cpt_map[name]                    
-                yexprs.append(sscct[name2].i.subs(subsdict).expand().expr)
-                y.append(current('i_%s(t)' % name))                    
+        for name in branch_currents:
+            # Perhaps ignore L since the current through it is a
+            # state variable?
+            name2 = cpt_map[name]                    
+            yexprs.append(sscct[name2].i.subs(subsdict).expand().expr)
+            y.append(current('i_%s(t)' % name))                    
 
         Cmat, b = sym.linear_eq_to_matrix(yexprs, *statesyms)
         if sourcesyms != []:        
@@ -254,4 +263,3 @@ class StateSpaceMaker(object):
             D = Matrix(D)        
         
         return StateSpace(A, B, C, D, u, y, x, x0)
-    
