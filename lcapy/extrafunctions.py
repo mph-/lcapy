@@ -158,7 +158,8 @@ class psinc(sym.Function):
 
         M = self.args[0]        
         x = sym.pi * self.args[1]
-        return sym.sin(M * x) / (M * sym.sin(x))
+        # If evaluate, SymPy will convert sin(n * pi) to 0.
+        return sym.sin(M * x, evaluate=False) / (M * sym.sin(x, evaluate=False))
 
     
 class tri(sym.Function):
