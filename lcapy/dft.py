@@ -451,7 +451,7 @@ class DFTTransformer(BilateralForwardTransformer):
         result = sym.Sum(foo, (n, 0, self.N - 1))
         return result
 
-    def check(self, expr, n, k, N=None, **kwargs):
+    def check(self, expr, n, k, N, **kwargs):
 
         try:
             N = N.expr
@@ -463,6 +463,11 @@ class DFTTransformer(BilateralForwardTransformer):
 
         if not N.is_integer and not N.is_positive:
             raise ValueError("%s not positive integer, redefine as %s = symbol('%s', integer=True, positive=True)" % (N, N, N))
+
+        symbols = expr.free_symbols
+        symbol_names = [str(e) for e in symbols]
+        if str(N) in symbol_names and N not in symbols:
+            print('Warning: There is a symbol in the expression with the same name as the DFT size %s but is not the same symbol' % N)
         
         self.N = N
         
