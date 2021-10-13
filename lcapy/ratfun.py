@@ -7,6 +7,7 @@ Copyright 2016--2020 Michael Hayes, UCECE
 from __future__ import division
 import sympy as sym
 from .sym import sympify, AppliedUndef
+from .cache import lru_cache
 from .utils import pair_conjugates
 
 class Pole(object):
@@ -345,19 +346,22 @@ class Ratfun(object):
             rest *= f
     
         return const, undef, rest
-    
+
+    @lru_cache()    
     def roots(self):
         """Return roots of expression as a dictionary
         Note this may not find them all."""
 
         return sym.roots(sym.Poly(self.expr, self.var))
 
+    @lru_cache()    
     def zeros(self):
         """Return zeroes of expression as a dictionary
         Note this may not find them all."""
 
         return Ratfun(self.numerator, self.var).roots()    
 
+    @lru_cache()
     def poles(self, damping=None):
         """Return poles of expression as a dictionary of Pole objects.
         Note this may not find all the poles."""
@@ -376,6 +380,7 @@ class Ratfun(object):
         
         return poles
 
+    @lru_cache()    
     def residue(self, pole, poles):
         """Determine residue for given pole."""
 

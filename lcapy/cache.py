@@ -9,3 +9,4 @@ try:
 except:
     from property_cached import cached_property
     
+from functools import lru_cache
