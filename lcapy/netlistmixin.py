@@ -617,32 +617,46 @@ class NetlistMixin(object):
         are ignored.  Since the result is causal, the frequency response
         can be found by substituting j * omega for s.
 
-        An alternative syntax is transfer(cpt1, cpt2)."""
+        Alternative forms are:
+            transfer(cpt1, cpt2)
+            transfer((N1p, N1m), cpt2)
+            transfer(cpt1, (N2p, N2m))
+        """
 
         if N2p is None and N2m is None:
-            try:
-                N1p = self.elements[N1p]
-            except:
-                pass
-            try:
-                N1m = self.elements[N1m]
-            except:
-                pass            
-            
-            if N1p not in self.elements.values():
-                raise ValueError('Unknown component %s' % N1p)
-            if N1m not in self.elements.values():
-                raise ValueError('Unknown component %s' % N1m)
 
-            if N1p.is_voltage_source:
-                # The killed voltage source will short the applied signal.
-                raise ValueError("Cannot determine transfer function across voltage source %s; you will need to remove it say with new = cct.remove('%s')" % (N1p, N1p))
+            arg1, arg2 = N1p, N1m
             
-            N2p, N2m = [n.name for n in N1m.nodes[0:2]]
-            N1p, N1m = [n.name for n in N1p.nodes[0:2]]
+            if isinstance(arg1, tuple):
+                N1p, N1m = arg1
+                # TODO: check if there is voltage source across these nodes
+                # that will short out the applied source.
+            else:                
+                try:
+                    arg1 = self.elements[arg1]
+                except:
+                    pass
+                if arg1 not in self.elements.values():
+                    raise ValueError('Unknown component %s' % arg1.name)
+                if arg1.is_voltage_source:
+                    # The killed voltage source will short the applied signal.
+                    raise ValueError("Cannot determine transfer function across voltage source %s; you will need to remove it, e.g., new = cct.remove('%s')" % (arg1.name, arg1.name))
+                N1p, N1m = [n.name for n in arg1.nodes[0:2]]
+
+            if isinstance(arg2, tuple):
+                N2p, N2m = arg2                
+            else:     
+                try:
+                    arg2 = self.elements[arg2]
+                except:
+                    pass            
+            
+                if arg2 not in self.elements.values():
+                    raise ValueError('Unknown component %s' % arg2.name)
+                N2p, N2m = [n.name for n in arg2.nodes[0:2]]
             
         elif N2p is None or N2m is None:
-            raise ValueError('Expecting transfer(cpt1, cpt2) or transfer(N1p, N1m, N2p, N2m)')
+            raise ValueError('Expecting transfer(cpt1, cpt2), transfer(cpt1, (N2p, N2m), transfer((N1p, N1m), cpt2), or transfer(N1p, N1m, N2p, N2m)')
 
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
         
