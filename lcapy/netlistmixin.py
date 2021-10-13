@@ -632,7 +632,12 @@ class NetlistMixin(object):
             if N1p not in self.elements.values():
                 raise ValueError('Unknown component %s' % N1p)
             if N1m not in self.elements.values():
-                raise ValueError('Unknown component %s' % N1m)            
+                raise ValueError('Unknown component %s' % N1m)
+
+            if N1p.is_voltage_source:
+                # The killed voltage source will short the applied signal.
+                raise ValueError('Cannot determine transfer function across voltage source %s' % N1p)                
+            
             N2p, N2m = [n.name for n in N1m.nodes[0:2]]
             N1p, N1m = [n.name for n in N1p.nodes[0:2]]
             

@@ -121,11 +121,10 @@ class StateSpaceMaker(object):
             elif elt.is_capacitor:
                 if sselt.name in cct.elements:
                     raise ValueError('Name conflict %s, either rename the component or improve the code!' % sselt.name)
-                
                 capacitors.append(elt)
-            elif elt.is_independent_source and elt.is_current_source:
+            elif elt.is_independent_current_source:
                 independent_current_sources.append(elt)
-            elif elt.is_independent_source and elt.is_voltage_source:
+            elif elt.is_independent_voltage_source:
                 independent_voltage_sources.append(elt)                
 
         independent_sources = independent_voltage_sources + independent_current_sources
