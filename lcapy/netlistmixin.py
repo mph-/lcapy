@@ -636,7 +636,7 @@ class NetlistMixin(object):
 
             if N1p.is_voltage_source:
                 # The killed voltage source will short the applied signal.
-                raise ValueError('Cannot determine transfer function across voltage source %s' % N1p)                
+                raise ValueError("Cannot determine transfer function across voltage source %s; you will need to remove it say with new = cct.remove('%s')" % (N1p, N1p))
             
             N2p, N2m = [n.name for n in N1m.nodes[0:2]]
             N1p, N1m = [n.name for n in N1p.nodes[0:2]]
