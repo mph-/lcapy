@@ -495,7 +495,9 @@ class Ratfun(object):
             else:
                 expr = sym.Mul(N, 1 / D, evaluate=False)                
 
-            expr = sym.Mul(K, expr, undef, evaluate=False)
+            if K != 1:
+                expr = sym.Mul(K, expr, evaluate=False)
+            expr *= undef
         else:
             C = Dpoly.LC()
             D = Dpoly.monic().as_expr()
