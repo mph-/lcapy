@@ -437,13 +437,33 @@ class Cpt(ImmittanceMixin):
     def is_voltage_source(self):
         """Return True if component is a voltage source (dependent or
         independent)"""
-        return self.cpt.is_voltage_source    
+        return self.cpt.is_voltage_source
 
+    @property
+    def is_dependent_voltage_source(self):
+        """Return True if component is a dependent voltage source."""
+        return self.cpt.is_voltage_source and self.dependent_source
+
+    @property
+    def is_independent_voltage_source(self):
+        """Return True if component is a independent voltage source."""
+        return self.cpt.is_voltage_source and self.independent_source
+    
     @property
     def is_current_source(self):
         """Return True if component is a current source (dependent or
         independent)"""
-        return self.cpt.is_current_source    
+        return self.cpt.is_current_source
+
+    @property
+    def is_dependent_current_source(self):
+        """Return True if component is a dependent current source."""
+        return self.cpt.is_current_source and self.dependent_source
+
+    @property
+    def is_independent_current_source(self):
+        """Return True if component is a independent current source."""
+        return self.cpt.is_current_source and self.independent_source
         
     @property
     def zeroic(self):
