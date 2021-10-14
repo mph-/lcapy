@@ -64,7 +64,7 @@ large matrix.
 
 6. Use better assumptions propagation.
 
-7. Implement a Matrix class that does not lose the class information
+7. Redo Matrix classes that does not lose the class information
 for each element.
 
 8. Improve context switching to avoid sharing of symbols between
@@ -171,8 +171,9 @@ will be useful for noisy models.
 SymPy
 =====
 
-1. Advocate for SymPy to consider lower limit of Laplace transform integral
-to sneak past 0 so that DiracDelta(t) -> 1 instead of 0.5.
+1. Advocate for SymPy to consider lower limit of Laplace transform
+integral to sneak past 0 so that DiracDelta(t) -> 1 instead of 0.5.
+This seems to have changed with SymPy-1.9.
 
 2. Contribute Fourier/Laplace code to SymPy.
 
@@ -184,21 +185,17 @@ to sneak past 0 so that DiracDelta(t) -> 1 instead of 0.5.
 Discrete-time
 =============
 
-1. Approximate tExpr with nExpr.
+1. Rewrite rational functions in terms of z^-1.
 
-2. Rewrite rational functions in terms of z^-1.
+2. Symbol for z^-1, say invz or iz?  Would need special casing to handle invz * z etc.  Better to not allow mixed expressions with z and invz.  Would need special handling to have invz correctly printed.
 
-3. Symbol for z^-1, say invz or iz?  Would need special casing to handle invz * z etc.  Better to not allow mixed expressions with z and invz.  Would need special handling to have invz correctly printed.
+3. Unit lag operator L() ? 
 
-4. Perhaps have a Transformer class with registered transforms?
+4. Difference operator D() for first-order differences?
 
-5. Unit lag operator L() ? 
+5. Coerce sympy to print ordered sum of delayed impulses.
 
-6. Difference operator D() for first-order differences?
-
-7. Coerce sympy to print ordered sum of delayed impulses.
-
-8. Fourier series?
+6. Fourier series?
 
 
 Transforms
