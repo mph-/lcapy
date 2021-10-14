@@ -288,7 +288,11 @@ class LcapyTester(unittest.TestCase):
         h = H.inverse_laplace()
         self.assertEqual2(h, exp(-t / 2) * Heaviside(t) / 2,
                           "Incorrect impulse response")        
-
+        H1 = a.transfer((1, 0), (2, 0))
+        self.assertEqual2(H1, H, "Incorrect transfer function")
+        H2 = a.transfer('R1', 'C1')
+        self.assertEqual2(H2, H, "Incorrect transfer function")
+        
 
     def test_VRC2(self):
         """Check VRC circuit with arbitrary s-domain source
