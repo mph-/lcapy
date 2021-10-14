@@ -380,7 +380,6 @@ class Ratfun(object):
         
         return poles
 
-    @lru_cache()    
     def residue(self, pole, poles):
         """Determine residue for given pole."""
 
