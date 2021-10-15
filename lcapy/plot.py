@@ -334,7 +334,9 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
     plot1_type = 'default'
     plot2_type = None
 
-    if not obj.is_complex:
+    V = obj.evaluate(f)        
+    
+    if not V.dtype == complex:
         if (plot_type in ('dB-phase', 'dB-phase-degrees',
                           'mag-phase','mag-phase-degrees',
                           'real-imag', 'phase',
@@ -399,8 +401,7 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
         cls = obj.__class__
         rest, deltas = separate_dirac_delta(obj.expr)
         obj = cls(rest, **obj.assumptions)
-        
-    V = obj.evaluate(f)
+        V = obj.evaluate(f)        
 
     ax = make_axes(figsize=kwargs.pop('figsize', None),
                    axes=kwargs.pop('axes', None))
@@ -718,8 +719,9 @@ def plot_nyquist(obj, f, norm=False, **kwargs):
         else:
             fmin, fmax = parse_range(f, 1e-1, positive=False)            
             f = np.linspace(fmin, fmax, npoints)                    
-    
-    if not obj.is_complex:
+
+    V = obj.evaluate(f)
+    if not V.dtype == complex:
         raise ValueError('Data not complex')
     
     obj = obj.doit()
@@ -730,7 +732,6 @@ def plot_nyquist(obj, f, norm=False, **kwargs):
     if unitcircle:
         ax.add_artist(Circle((0, 0), 1, color='blue', linestyle='--', fill=False))
 
-    V = obj.evaluate(f)
     lines = ax.plot(V.real, V.imag)
 
     if fn is not None:
@@ -815,8 +816,9 @@ def plot_nichols(obj, f, norm=False, **kwargs):
         else:
             fmin, fmax = parse_range(f, 1e-1, positive=False)            
             f = np.linspace(fmin, fmax, npoints)                    
-    
-    if not obj.is_complex:
+
+    V = obj.evaluate(f)
+    if not V.dtype == complex:
         raise ValueError('Data not complex')
     
     obj = obj.doit()
@@ -824,7 +826,6 @@ def plot_nichols(obj, f, norm=False, **kwargs):
     ax = make_axes(figsize=kwargs.pop('figsize', None),
                    axes=kwargs.pop('axes', None))
 
-    V = obj.evaluate(f)
     lines = ax.plot(np.angle(V), 20 * np.log10(abs(V)))
 
     if fn is not None:
