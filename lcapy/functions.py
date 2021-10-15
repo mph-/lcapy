@@ -28,7 +28,6 @@ from .extrafunctions import dtsign as dtsign1
 from .extrafunctions import tri as tri1
 from .extrafunctions import trap as trap1
 
-
 class Function(object):
 
     def __init__(self, arg):
@@ -59,12 +58,8 @@ class Function(object):
         try:
             if cls.is_discrete_time_domain or cls.is_discrete_fourier_domain:
 
-                mapping = {sym.Heaviside: UnitStep1,
-                           sym.DiracDelta: UnitImpulse1,
-                           rect1: dtrect,
-                           sym.sign: dtsign}
-                
-                for old, new in mapping.items():
+                # TODO: fix for Heaviside change
+                for old, new in function_mapping.items():
                     if func is old:
                         func = new
                         break
@@ -221,6 +216,10 @@ psinc = PsincFunction(psinc1)
 tri = Function(tri1)
 
 trap = Function(trap1)
- 
+
+function_mapping = {sym.Heaviside: UnitStep1,
+                    sym.DiracDelta: UnitImpulse1,
+                    rect1: dtrect,
+                    sym.sign: dtsign}
 
 from .expr import Expr, expr, delcapify

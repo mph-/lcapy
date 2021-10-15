@@ -8,8 +8,9 @@ Copyright 2020--2021 Michael Hayes, UCECE
 
 from .dexpr import DiscreteExpression
 from .sequence import Sequence
-from .functions import Heaviside, DiracDelta, rect, sign
+from .functions import function_mapping
 from .extrafunctions import UnitStep, UnitImpulse, dtrect, dtsign
+from sympy import Heaviside
 from numpy import arange
 
 
@@ -20,16 +21,24 @@ class SequenceExpression(DiscreteExpression):
 
         super(SequenceExpression, self).__init__(val, **assumptions)
 
-        mapping = {Heaviside: UnitStep,
-                   DiracDelta: UnitImpulse,
-                   rect: dtrect,
-                   sign: dtsign}
+        def remap_continuous_discrete(expr):
+        
+            def query(expr):
+                return expr.is_Function and expr.func in function_mapping
 
-        # Use discrete-time function variants, see also functions.py
-        for old, new in mapping.items():
-            if self.has(old):
-                self.expr = self.replace(old, new).expr                
-                
+            def value(expr):
+                # Note, Heaviside behaviour changed in SymPy-1.9
+                # The second arg now defaults to 1/2, so we need
+                # to remove it.
+                if expr.func == Heaviside:
+                    return UnitStep(expr.args[0])
+                return function_mapping[expr.func](*expr.args)
+
+            # Use discrete-time function variants, see also functions.py
+            return expr.replace(query, value)
+        
+        self.expr = remap_continuous_discrete(self.expr)
+        
     def first_index(self, ni=None):
 
         if ni is None:
