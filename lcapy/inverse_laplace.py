@@ -169,12 +169,14 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
 
             # Handle repeated poles.
             expr2 = expr * (s - p) ** o
-            expr2 = expr2.simplify()        
+            expr2 = expr2.simplify()
+            bino = 1
             for n in range(1, o + 1):
                 m = o - n
                 r = sym.limit(
                     sym.diff(expr2, s, m), s, p) / sym.factorial(m)
-                uresult += r * sym.exp(p * t) * t**(n - 1)
+                uresult += r * sym.exp(p * t) * t**(n - 1) / bino
+                bino *= n                
 
         # cresult is a sum of Dirac deltas and its derivatives so is known
         # to be causal.
