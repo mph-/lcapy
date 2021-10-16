@@ -122,7 +122,7 @@ class StateSpace(StateSpaceBase):
     def Phi(self):
         """s-domain state transition matrix."""
 
-        M = LaplaceDomainMatrix(sym.eye(self.Nx) * ssym - self._A)
+        M = LaplaceDomainMatrix(sym.eye(self.Nx) * ssym - self._A.sympy)
         return LaplaceDomainMatrix(M.inv())
 
     @cached_property
@@ -135,7 +135,7 @@ class StateSpace(StateSpaceBase):
 
         `lambda(s) = |s * I - A|`"""
 
-        M = LaplaceDomainMatrix(sym.eye(self.Nx) * ssym - self._A)        
+        M = LaplaceDomainMatrix(sym.eye(self.Nx) * ssym - self._A.sympy)        
         return LaplaceDomainExpression(M.det()).simplify()
 
     @cached_property

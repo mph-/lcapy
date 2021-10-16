@@ -126,7 +126,7 @@ class DTStateSpace(StateSpaceBase):
     def Phi(self):
         """z-domain state transition matrix."""
 
-        M = ZDomainMatrix(sym.eye(self.Nx) * zsym - self._A)
+        M = ZDomainMatrix(sym.eye(self.Nx) * zsym - self._A.sympy)
         return ZDomainMatrix(M.inv())
 
     @cached_property
@@ -139,7 +139,7 @@ class DTStateSpace(StateSpaceBase):
 
         `lambda(z) = |z * I - A|`"""
 
-        M = ZDomainMatrix(sym.eye(self.Nx) * zsym - self._A)        
+        M = ZDomainMatrix(sym.eye(self.Nx) * zsym - self._A.sympy)        
         return ZDomainExpression(M.det()).simplify()
 
     @cached_property
@@ -248,7 +248,7 @@ class DTStateSpace(StateSpaceBase):
         xdiff = xfinal - xinitial
 
         uflip = C.T * (C * C.T).inv() * xdiff
-        return uflip[::-1,:]
+        return uflip[::-1, :]
 
     def minimum_energy(self, steps, xfinal, xinitial=None):
         """Determine minimum energy that results in state `xfinal` in `steps`
