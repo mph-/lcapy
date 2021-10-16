@@ -28,14 +28,28 @@ class Matrix(sym.Matrix):
     # original type information and associated methods.  As a hack, we
     # try to wrap elements when they are read using __getitem__.  This
     # assumes that all the elements have the same type.  This is not
-    # the case for A, B, G, and H matrices.  This could he handled by
-    # having another matrix to specify the type for each element.
+    # the case for A, B, G, and H two-port matrices.  This could be
+    # handled by having another matrix to specify the type for each
+    # element.  What's worse, is that calling _sympify on each element
+    # creates different variables than what we are expecting.  For
+    # example, the LaplaceDomainExpression s looks the same but gets
+    # different attributes.  We prevent this by defining _sympify.
 
-    # What's worse, is that calling _sympify on each element creates
-    # different variables than what we are expecting.  For example,
-    # the LaplaceDomainExpression s looks the same but gets different
-    # attributes.  We prevent this by defining _sympify.
+    # Unfortunately, as of SymPy-1.9, having non-SymPy quantities
+    # for SymPy matrix elements is deprecated.   Having Lcapy quantities
+    # as SymPy matrix elements almost works for many operations.
 
+    # An alternative approach is for Lcapy to define its own Matrix
+    # class, similar to the SymPy Matrix class but independent.  This
+    # would store Lcapy quantities for each matrix element.  The
+    # advantage is that different matrix classes are not required for
+    # each domain.  The down-sides are that there is a divergence with
+    # SymPy matrix behaviour and that many of the SymPy Matrix
+    # operations need to be reimplemented or wrapped.  Wrapping is
+    # easier but the units may be wrong, say with a matrix inverse
+    # operation.
+    
+    # _sympify is called for each matrix element when a matrix is created.
     _sympify = staticmethod(msympify)
 
     def __getitem__(self, key):
