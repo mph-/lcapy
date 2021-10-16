@@ -201,21 +201,21 @@ class InverseZTransformer(UnilateralInverseTransformer):
             # Handle repeated poles.
             all_derivatives = [expr2]
             for i in range(1, o):
-                all_derivatives += [sym.diff(all_derivatives[i - 1], z)]         
+                all_derivatives += [sym.diff(all_derivatives[i - 1], z)] 
 
             bino = 1
             sum_p = 0
             for i in range(1, o + 1):
                 m = o - i
                 derivative = all_derivatives[m]
-                # derivative at z=p 
+                # Derivative at z=p 
                 derivative = sym.expand(derivative.subs(z, p))
                 r = sym.simplify(derivative) / sym.factorial(m)
 
                 if p == 0:
                     cresult += r * UnitImpulse(n - i + 1)
                 else:
-                    sum_p += r * bino * p **(1- i) / sym.factorial(i - 1)
+                    sum_p += r * bino * p**(1- i) / sym.factorial(i - 1)
                     bino *= n - i + 1
 
             uresult += sym.simplify(sum_p * p**n)
