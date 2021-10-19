@@ -1904,7 +1904,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                               'Heaviside' : heaviside,
                               'UnitImpulse' : unitimpulse,
                               'UnitStep' : unitstep,
-                              'dtrect' : dtrect, 'dtsign' : dtsign,                              
+                              'dtrect' : dtrect, 'dtsign' : dtsign,
                               'sinc' : sinc, 'sincn' : sincn,
                               'sincu' : sincu, 'psinc' : psinc,
                               'rect' : rect, 'tri' : tri, 'trap' : trap,
@@ -1933,11 +1933,17 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 return result
             
             try:
+                # Try to flush out weirdness using first argument
                 response = func(arg0)
             except NameError as e:
                 raise RuntimeError('Cannot evaluate expression %s: %s' % (self, e))
             except AttributeError as e:
-                if False and expr.is_Piecewise:
+                # Could return NaN but this would take some jiggery
+                # pokery.  One solution is to find Piecewise with a
+                # single clause, such as t >= 0 add another Piecewise
+                # clause for t < 0 to return NaN.  Adding Piecewise to
+                # lambdify functions does not seem to work.
+                if expr.is_Piecewise:
                     raise RuntimeError(
                         'Cannot evaluate expression %s,'
                         ' due to undetermined conditional result' % self)
