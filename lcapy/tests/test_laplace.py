@@ -44,7 +44,9 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(expr('1/(s**3)').inverse_laplace(causal=True), expr('t**2 * u(t) / 2'), "1/(s**3)")                
         self.assertEqual(expr('s/(s+a)').inverse_laplace(causal=True), expr('-a * exp(-a * t) * u(t) + delta(t)'), "s/(s+a)")
         self.assertEqual(expr('s/(s**2+a**2)').inverse_laplace(causal=True), expr('cos(a * t) * u(t)'), "s/(s**2+a**2)")
-        self.assertEqual(expr('a/(s**2+a**2)').inverse_laplace(causal=True), expr('sin(a * t) * u(t)'), "a/(s**2+a**2)")                                                                           
+        self.assertEqual(expr('a/(s**2+a**2)').inverse_laplace(causal=True), expr('sin(a * t) * u(t)'), "a/(s**2+a**2)")
+        self.assertEqual(expr('(1/s - exp(-s)/s)/s').ILT(causal=True),
+                         expr('(t*u(t) + (1 - t)*u(t - 1))*u(t)'), "(1/s - exp(-s)/s)/s")
 
     def test_damped_sin(self):
 

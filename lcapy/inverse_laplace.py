@@ -322,6 +322,21 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             # This is the common case.
             cresult, uresult = self.ratfun(expr, s, t, **kwargs)
             return const * cresult, const * uresult
+        except ValueError:
+
+            terms = expr.expand().as_ordered_terms()
+
+            if len(terms) > 1:
+            
+                uresult = 0
+                cresult = 0
+                
+                for term in terms:
+                    cterm, uterm = self.term(term, s, t, **kwargs)
+                    cresult += cterm
+                    uresult += uterm
+                return cresult, uresult
+            
         except:
             pass
 
