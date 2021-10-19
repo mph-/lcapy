@@ -322,7 +322,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             # This is the common case.
             cresult, uresult = self.ratfun(expr, s, t, **kwargs)
             return const * cresult, const * uresult
-        except ValueError:
+        except:
 
             terms = expr.expand().as_ordered_terms()
 
@@ -336,20 +336,15 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
                     cresult += cterm
                     uresult += uterm
                 return cresult, uresult
-            
-        except:
-            pass
 
-        try:
-            return sym.S.Zero, const * self.sympy(expr, s, t)
-        except:
-            pass
+        if len(terms) > 1:
+            # See if can convert to convolutions...
+            return sym.S.Zero, const * self.product(expr, s, t, **kwargs)
 
         if expr.is_Pow and expr.args[0] == s:
-            return sym.S.Zero, const * self.power(expr, s, t)
+            return sym.S.Zero, const * self.power(expr, s, t)            
 
-        # As last resort see if can convert to convolutions...
-        return sym.S.Zero, const * self.product(expr, s, t, **kwargs)
+        return sym.S.Zero, const * self.sympy(expr, s, t)
 
     def term(self, expr, s, t, **kwargs):
 
