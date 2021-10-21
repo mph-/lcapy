@@ -509,7 +509,10 @@ class Ratfun(object):
             if D == 1:
                 expr = N
             else:
-                expr = sym.Mul(N, 1 / D, evaluate=False)
+                if N == 1:
+                    expr = 1 / D
+                else:
+                    expr = sym.Mul(N, 1 / D, evaluate=False)
             if delay != 0:
                 expr *= sym.exp(self.var * delay)
             expr *= undef
