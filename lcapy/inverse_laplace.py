@@ -339,7 +339,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
 
         if len(terms) > 1:
             # See if can convert to convolutions...
-            return sym.S.Zero, const * self.product(expr, s, t, **kwargs)
+            return const * self.product(expr, s, t, **kwargs), sym.S.Zero
 
         if expr.is_Pow and expr.args[0] == s:
             return sym.S.Zero, const * self.power(expr, s, t)            
