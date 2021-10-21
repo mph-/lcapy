@@ -111,6 +111,9 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             #    return self.do_damped_sin3(sexpr, s, t)
 
         Q, M, D, delay, undef = sexpr.as_QMD()
+        if delay != 0:
+            # This will be caught and trigger expansion of the expression.
+            raise ValueError('Unhandled delay %s' % delay)
 
         cresult = sym.S.Zero
 
@@ -302,7 +305,6 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
 
         if result.has(sym.InverseLaplaceTransform):
             raise ValueError('SymPy cannot find inverse Laplace transform of %s' % expr)
-
         return result
 
     def term1(self, expr, s, t, **kwargs):
@@ -323,44 +325,90 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             cresult, uresult = self.ratfun(expr, s, t, **kwargs)
             return const * cresult, const * uresult
         except:
-
-            terms = expr.expand().as_ordered_terms()
-
-            if len(terms) > 1:
-            
-                uresult = 0
-                cresult = 0
-                
-                for term in terms:
-                    cterm, uterm = self.term(term, s, t, **kwargs)
-                    cresult += cterm
-                    uresult += uterm
-                return cresult, uresult
-
-        if len(terms) > 1:
-            # See if can convert to convolutions...
-            return const * self.product(expr, s, t, **kwargs), sym.S.Zero
+            pass
 
         if expr.is_Pow and expr.args[0] == s:
             return sym.S.Zero, const * self.power(expr, s, t)            
 
-        return sym.S.Zero, const * self.sympy(expr, s, t)
+        raise ValueError('Cannot determine inverse Laplace transform')
 
     def term(self, expr, s, t, **kwargs):
 
         expr, delay = self.delay_factor(expr, s)
 
-        cresult, uresult = self.term1(expr, s, t, **kwargs)
+        if delay == 0 and expr.has(sym.exp):
+            # Handle cases like 1 / (s**2 * exp(5 * s) + s * exp(5 * s))
+            expr1 = expr.simplify()
+            expr2, delay = self.delay_factor(expr1, s)
+            if not expr2.has(sym.exp):
+                # Simplify can make things worse, e.g., 1 - exp(-5 *s)
+                # becomes exp(-5 * s) * (exp(5 * s) - 1)
+                expr = expr2
+                delay = sym.S.Zero
+
+        try:
+            cresult, uresult = self.term1(expr, s, t, **kwargs)
+        except:
+
+            # With deep=True, SymPy makes mess of (1 - exp(-s * T))
+            terms = expr.expand(deep=False).as_ordered_terms()
+           
+            if len(terms) > 1:
+
+                try:
+                    # See if can convert to convolutions...
+                    return const * self.product(expr, s, t, **kwargs), sym.S.Zero
+                except:
+                    pass
+                
+                uresult = 0
+                cresult = 0
+                
+                for term in terms:
+                    term = term.simplify()
+                    cterm, uterm = self.term(term, s, t, **kwargs)
+                    cresult += cterm
+                    uresult += uterm
+                return cresult, uresult
+
+            expr = expr.simplify()            
+ 
+            try:
+                cresult, uresult = self.term1(expr, s, t, **kwargs)
+            except:           
+                return sym.S.Zero, const * self.sympy(expr, s, t)
 
         if delay != 0:
             cresult = cresult.subs(t, t - delay)
             uresult = uresult.subs(t, t - delay)
 
-        # TODO, should check for delay < 0.  If so the causal
-        # part is no longer causal.
+            # h(t) = g(t - T)
+            # If h(t) is known to be causal and T >= 0, then g(t)
+            # is also causal.  If T > 0, then causality is violated.
 
-        if kwargs.get('causal', False):
-            uresult = uresult * sym.Heaviside(t - delay)
+            # If h(t) is not known to be causal then we can only infer
+            # it for t >= 0 from its Laplace transform H(s).
+            # From the delay theorem, H(s) = G(s) * exp(-s * T).
+            # So given G(s) we can only infer g(t) for t >= 0.
+            # This implies that we can only infer h(t) for t >= T.
+            # This creates a can of worms since different terms of
+            # an expression can have different conditions, say
+            # exp(-3 * s) / s**2 + exp(-4 * s) / s.  So for now,
+            # assume causal expression...
+
+            if not kwargs.get('causal', False):
+                print('Warning, assuming causal expression')
+            
+            if delay.is_positive:
+                cresult += uresult * sym.Heaviside(t - delay)
+                uresult = sym.S.Zero
+            else:
+                raise ValueError('Causality violated with time advance %s.' % delay)
+
+        else:
+            if kwargs.get('causal', False):
+                cresult += uresult * sym.Heaviside(t)
+                uresult = sym.S.Zero                
 
         return cresult, uresult
 
