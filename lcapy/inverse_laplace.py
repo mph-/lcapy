@@ -297,12 +297,12 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
     def sympy(self, expr, s, t):
 
         # This barfs when needing to generate Dirac deltas
-        from sympy.integrals.transforms import laplace_transform
-        result = laplace_transform(expr, t, s)
+        from sympy.integrals.transforms import inverse_laplace_transform
+        result = inverse_laplace_transform(expr, s, t)
 
         if result.has(sym.InverseLaplaceTransform):
-            self.error('SymPy cannot do it')
-            
+            raise ValueError('SymPy cannot find inverse Laplace transform of %s' % expr)
+
         return result
 
     def term1(self, expr, s, t, **kwargs):
