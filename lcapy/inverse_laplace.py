@@ -11,6 +11,9 @@ from .sym import sympify, simplify, AppliedUndef
 from .utils import factor_const, scale_shift, as_sum_terms
 import sympy as sym
 
+Zero = sym.S.Zero
+One = sym.S.One
+
 __all__ = ('ILT', 'inverse_laplace_transform')
 
 
@@ -83,7 +86,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         #h = K * sym.exp(-sigma1 * t) * sym.sinh(omega0 * mu * t)
 
         if len(ncoeffs) == 1:
-            return sym.S.Zero, h
+            return Zero, h
 
         C = sym.cos(omega1 * t)
         kCd = omega1
@@ -91,7 +94,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         hd = K * E * (kCd * C + kSd * S)
 
         if len(ncoeffs) == 2:
-            return sym.S.Zero, K * E * (kCd * C + (ncoeffs[1] + kSd) * S)
+            return Zero, K * E * (kCd * C + (ncoeffs[1] + kSd) * S)
 
         kCdd = -2 * omega1 * sigma1
         kSdd = sigma1**2 - omega1**2
@@ -115,7 +118,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             # This will be caught and trigger expansion of the expression.
             raise ValueError('Unhandled delay %s' % delay)
 
-        cresult = sym.S.Zero
+        cresult = Zero
 
         if Q:
             Qpoly = sym.Poly(Q, s)        
@@ -126,7 +129,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         expr = M / D
         for factor in expr.as_ordered_factors():
             if factor == sym.oo:
-                return sym.S.Zero, factor
+                return Zero, factor
 
         sexpr = Ratfun(expr, s)
         poles = sexpr.poles(damping=kwargs.get('damping', None))
@@ -135,7 +138,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         for pole in poles:
             polesdict[pole.expr] = pole.n
 
-        uresult = sym.S.Zero
+        uresult = Zero
 
         for pole in poles:
 
@@ -192,7 +195,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         # / s etc.
         if kwargs.get('causal', False):
             # Assume that all functions are causal in the expression.
-            t1 = sym.S.Zero
+            t1 = Zero
             t2 = t
         else:
             t1 = -sym.oo
@@ -215,7 +218,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             # Try to expose more simple cases, e.g. (R + s * L) * V(s)
             terms = factors[0].expand().as_ordered_terms()
             if len(terms) >= 2:
-                result = sym.S.Zero
+                result = Zero
                 for term in terms:
                     result += self.product(factors[1] * term, s, t, **kwargs)
                 return result * const
@@ -280,8 +283,8 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
 
     def delay_factor(self, expr, var):
 
-        delay = sym.S.Zero    
-        rest = sym.S.One
+        delay = Zero    
+        rest = One
 
         for f in expr.as_ordered_factors():
             b, e = f.as_base_exp()
@@ -315,10 +318,10 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             # Handle V(s), 3 * V(s) etc.  If causal is True it is assumed
             # that the unknown functions are causal.
             result = self.func(expr, s, t)
-            return result * const, sym.S.Zero
+            return result * const, Zero
 
         if expr.has(AppliedUndef):
-            return const * self.product(expr, s, t, **kwargs), sym.S.Zero
+            return const * self.product(expr, s, t, **kwargs), Zero
 
         try:
             # This is the common case.
@@ -328,7 +331,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             pass
 
         if expr.is_Pow and expr.args[0] == s:
-            return sym.S.Zero, const * self.power(expr, s, t)            
+            return Zero, const * self.power(expr, s, t)            
 
         raise ValueError('Cannot determine inverse Laplace transform')
 
@@ -344,7 +347,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
                 # Simplify can make things worse, e.g., 1 - exp(-5 *s)
                 # becomes exp(-5 * s) * (exp(5 * s) - 1)
                 expr = expr2
-                delay = sym.S.Zero
+                delay = Zero
 
         try:
             cresult, uresult = self.term1(expr, s, t, **kwargs)
@@ -357,12 +360,12 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
 
                 try:
                     # See if can convert to convolutions...
-                    return const * self.product(expr, s, t, **kwargs), sym.S.Zero
+                    return const * self.product(expr, s, t, **kwargs), Zero
                 except:
                     pass
                 
-                uresult = 0
-                cresult = 0
+                uresult = Zero
+                cresult = Zero
                 
                 for term in terms:
                     term = term.simplify()
@@ -376,7 +379,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             try:
                 cresult, uresult = self.term1(expr, s, t, **kwargs)
             except:           
-                return sym.S.Zero, const * self.sympy(expr, s, t)
+                return Zero, const * self.sympy(expr, s, t)
 
         if delay != 0:
             cresult = cresult.subs(t, t - delay)
@@ -401,14 +404,14 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             
             if delay.is_positive:
                 cresult += uresult * sym.Heaviside(t - delay)
-                uresult = sym.S.Zero
+                uresult = Zero
             else:
                 raise ValueError('Causality violated with time advance %s.' % delay)
 
         else:
             if kwargs.get('causal', False):
                 cresult += uresult * sym.Heaviside(t)
-                uresult = sym.S.Zero                
+                uresult = Zero                
 
         return cresult, uresult
 
