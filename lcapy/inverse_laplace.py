@@ -123,7 +123,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         expr = M / D
         for factor in expr.as_ordered_factors():
             if factor == sym.oo:
-                return factor
+                return sym.S.Zero, factor
 
         sexpr = Ratfun(expr, s)
         poles = sexpr.poles(damping=kwargs.get('damping', None))
