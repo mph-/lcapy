@@ -342,12 +342,12 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         if delay == 0 and expr.has(sym.exp):
             # Handle cases like 1 / (s**2 * exp(5 * s) + s * exp(5 * s))
             expr1 = expr.simplify()
-            expr2, delay = self.delay_factor(expr1, s)
+            expr2, delay2 = self.delay_factor(expr1, s)
             if not expr2.has(sym.exp):
                 # Simplify can make things worse, e.g., 1 - exp(-5 *s)
                 # becomes exp(-5 * s) * (exp(5 * s) - 1)
                 expr = expr2
-                delay = Zero
+                delay = delay2
 
         try:
             cresult, uresult = self.term1(expr, s, t, **kwargs)
