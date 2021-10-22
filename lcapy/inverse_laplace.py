@@ -360,7 +360,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
 
                 try:
                     # See if can convert to convolutions...
-                    return const * self.product(expr, s, t, **kwargs), Zero
+                    return self.product(expr, s, t, **kwargs), Zero
                 except:
                     pass
                 
@@ -379,7 +379,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             try:
                 cresult, uresult = self.term1(expr, s, t, **kwargs)
             except:           
-                return Zero, const * self.sympy(expr, s, t)
+                return Zero, self.sympy(expr, s, t)
 
         if delay != 0:
             cresult = cresult.subs(t, t - delay)
