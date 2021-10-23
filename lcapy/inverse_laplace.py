@@ -402,7 +402,9 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             if not kwargs.get('causal', False):
                 print('Warning, assuming causal expression')
             
-            if delay.is_positive:
+            if not delay.is_negative:
+                if not delay.is_positive:
+                    print('Assuming %s is positive' % delay)
                 cresult += uresult * sym.Heaviside(t - delay)
                 uresult = Zero
             else:
