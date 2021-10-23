@@ -94,7 +94,6 @@ class LaplaceTransformer(UnilateralForwardTransformer):
             result = result * sym.exp(s * shift / scale)    
         return result
 
-
     def integral(self, expr, t, s):
 
         const, expr = factor_const(expr, t)
@@ -158,19 +157,58 @@ class LaplaceTransformer(UnilateralForwardTransformer):
 
     def sin_cos(self, expr, t, s):
 
+        # Handle exp(-alpha * t) * sin(omega * t + phi) * u(t - tau)
+        # The exp(-alpha * t) and u(t - tau) parts are optional.
+        
         # Sympy sometimes has problems with this...
 
-        if not expr.is_Function or expr.func not in (sym.sin, sym.cos):
-            self.error('Expression not sin or cos')
-        arg = expr.args[0]
-        a, b = scale_shift(arg, t)
+        factors = expr.as_ordered_factors()    
+        
+        if len(factors) > 3:
+            raise ValueError('Not expsin, too many factors')
 
-        d = s**2 + a**2
+        alpha = 0
+        beta = 0
+        m = 0
+        if (factors[m].is_Function and factors[m].func is sym.exp):        
+            exparg = factors[m].args[0]
+            alpha, beta = scale_shift(exparg, t)            
+            m += 1
 
-        if expr.func is sym.sin:
-            return (a * sym.cos(b) + s * sym.sin(b)) / d
-        else:
-            return (-a * sym.sin(b) + s * sym.cos(b)) / d        
+        if not (factors[m].is_Function and factors[m].func in (sym.sin, sym.cos)):
+            raise ValueError('Not expsin, no sin/cos')
+
+        sincosarg = factors[m].args[0]
+        omega, phi = scale_shift(sincosarg, t)
+
+        if factors[m].func is sym.cos:
+            phi += sym.pi / 2
+        
+        m += 1
+
+        if len(factors) == m + 1 and not (factors[m].is_Function and factors[m].func is sym.Heaviside):        
+            raise ValueError('Not expsin, no Heaviside')
+
+        tau = 0
+        if len(factors) == m + 1:
+            eta, tau = scale_shift(factors[m].args[0], t)
+            if eta != 1:
+                raise ValueError('Need to use similarity theorem')
+
+        if tau != 0:
+            phi -= omega * tau
+            
+        E = (omega * sym.cos(phi) + (s - alpha) * sym.sin(phi)) / (omega**2 + (s - alpha)**2)
+
+        if tau != 0:            
+            E *= sym.exp(tau * s)
+            if alpha != 0:
+                E *= sym.exp(-alpha * tau)
+
+        if beta != 0:
+            E = sym.exp(beta) * E
+                
+        return E
 
     def term(self, expr, t, s):
 
@@ -180,7 +218,7 @@ class LaplaceTransformer(UnilateralForwardTransformer):
 
         const, expr = factor_const(expr, t)
 
-        terms = expr.as_ordered_terms()
+        terms = expr.expand(deep=False).as_ordered_terms()
         if len(terms) > 1:
             result = 0
             for term in terms:
@@ -193,8 +231,11 @@ class LaplaceTransformer(UnilateralForwardTransformer):
         if expr.has(sym.Integral):
             return self.integral(expr, t, s) * const
 
-        if expr.is_Function and expr.func in (sym.sin, sym.cos) and expr.args[0].has(t):
-            return self.sin_cos(expr, t, s) * const
+        if expr.has(sym.sin, sym.cos):
+            try:
+                return self.sin_cos(expr, t, s) * const
+            except:
+                pass
 
         if expr.has(AppliedUndef):
 
