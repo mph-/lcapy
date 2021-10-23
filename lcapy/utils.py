@@ -43,7 +43,8 @@ def scale_shift(expr, var):
         
     if expr == var:
         return sym.S.One, sym.S.Zero
-    
+
+    expr = expr.expand()
     if not expr.as_poly(var).is_linear:
         raise ValueError('Expression not a linear function of %s: %s' % (var, expr))
 
