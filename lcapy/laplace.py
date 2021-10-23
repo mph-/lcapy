@@ -191,19 +191,29 @@ class LaplaceTransformer(UnilateralForwardTransformer):
 
         tau = 0
         if len(factors) == m + 1:
-            eta, tau = scale_shift(factors[m].args[0], t)
+            eta, zeta = scale_shift(factors[m].args[0], t)
             if eta != 1:
                 raise ValueError('Need to use similarity theorem')
+            tau = -zeta
+
+            if tau.is_negative:
+                tau = 0
+            elif tau.is_Symbol and not tau.is_positive:
+                print('Assuming %s is positive' % tau)
+            elif (tau.is_Mul and len(tau.args) == 2 and
+                  tau.args[0].is_negative and tau.args[1].is_Symbol):
+                print('Assuming %s is positive' % -tau)
+                tau = 0
 
         if tau != 0:
-            phi -= omega * tau
+            phi += omega * tau
             
         E = (omega * sym.cos(phi) + (s - alpha) * sym.sin(phi)) / (omega**2 + (s - alpha)**2)
 
         if tau != 0:            
-            E *= sym.exp(tau * s)
+            E *= sym.exp(-tau * s)
             if alpha != 0:
-                E *= sym.exp(-alpha * tau)
+                E *= sym.exp(alpha * tau)
 
         if beta != 0:
             E = sym.exp(beta) * E
