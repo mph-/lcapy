@@ -90,6 +90,10 @@ class NetlistMixin(object):
         return self
 
     @property
+    def cpts(self):
+        return list(self._elements.keys())
+    
+    @property
     def params(self):
         """Return list of symbols used as arguments in the circuit."""
 
@@ -1996,7 +2000,7 @@ class NetlistMixin(object):
 
     def annotate_node_voltages(self, nodes=None, domainvar=None,
                                label_voltages=False, show_units=False,
-                               num_digits=3, anchor='south west'):
+                               evalf=True, num_digits=3, anchor='south west'):
         """Create a new netlist with the node voltages annotated.  This is
         useful for drawing a schematic with the node voltages shown.
         For example,
@@ -2011,6 +2015,9 @@ class NetlistMixin(object):
         `label_voltages` (default False) if True prefixes the
         annotation with V1= for node 1, etc.
 
+        `evalf` (default False) if True prints floating point
+        numbers as decimals otherwise they are shown as rationals
+
         `show_units` (default False) if True applies the units (e.g.,
         V for volts)
 
@@ -2021,6 +2028,7 @@ class NetlistMixin(object):
         voltage label
 
         """
+        
         if nodes is None:
             nodes = self.node_list
         elif not isiterable(nodes):
@@ -2031,14 +2039,17 @@ class NetlistMixin(object):
 
         new = self.copy()
         for node in nodes:
-            v = self[node].V(domainvar).evalf(num_digits)
+            v = self[node].V(domainvar)
+            if evalf:
+                v = v.evalf(num_digits)
+
+            vstr = '%s' % v.latex()
+                
             if show_units:
-                vstr = '%s\,%s' % (v, v.units)
-            else:
-                vstr = '%s' % v
+                vstr += '\,%s' % v.units
+
             if label_voltages:
-                vstr = 'V%s=' % node + vstr
+                vstr = 'V_{%s}=' % node + vstr
                 
             new.add('A%s %s; l={%s}, anchor=%s' % (node, node, vstr, anchor))
         return new
-    

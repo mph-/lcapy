@@ -272,5 +272,3 @@ class Netlist(NetlistMixin, NetfileMixin):
         
         """        
         return SubNetlist(self, 'laplace')    
-    
-    
