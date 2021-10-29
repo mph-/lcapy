@@ -1013,7 +1013,12 @@ example::
 
     ;;\node[blue,draw,dashed,inner sep=5mm, fit=(R2) (C2), label=CMOS input model]{};
 
+With this example, the netlist must be stored in a file or as a raw string to avoid the `\n` being interpreted as a new line.  For example,
 
+    >>> a = Circuit(r"""
+    ;;\node[blue,draw,dashed,inner sep=5mm, fit=(R2) (C2), label=CMOS input model]{};
+    """)
+    
 When referring to an anchor of a component it is necessary to use `@` instead of `.`, for example, `U1@tl` instead of `U1.tl`.  Here's an example:
 
 
