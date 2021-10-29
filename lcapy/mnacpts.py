@@ -74,14 +74,11 @@ class Cpt(ImmittanceMixin):
 
         self._string = string
         #self.net = string.split(';')[0]
-        # This is the initial opts_string from which the opts attribute
-        # is derived.
-        self.opts_string = opts_string
         self.args = args
         self.explicit_args = args        
         self.classname = self.__class__.__name__
         self.keyword = keyword
-        self.opts = Opts(self.opts_string)
+        self.opts = Opts(opts_string)
 
         # No defined cpt
         if self.type in ('XX', 'Cable'):
