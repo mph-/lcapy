@@ -292,18 +292,35 @@ class NetlistMixin(object):
         self._node_map = node_map
         return node_map
 
-    def annotate_current(self, cpts, var=None, flow=False, pos=''):
+    def annotate_current(self, cpts, domainvar=None, flow=False, pos='',
+                         evalf=True, num_digits=3):
         """Annotate specified list of component names `cpts` with current (or
-        flow).  `pos` specifies where to position the labels."""
+        flow).
+
+        `domainvar` specifies the domain to calculate the voltages for
+        (e.g., `t` for time-domain, `s` for Laplace-domain)
+
+        `flow` (default False) if True annotates current as a flow
+
+        `pos` specifies where to position the labels (see docs)
+
+        `evalf` (default False) if True prints floating point
+        numbers as decimals otherwise they are shown as rationals
+
+        `show_units` (default False) if True applies the units (e.g.,
+        V for volts)
+
+        """
 
         new = self._new()        
         for cpt in self._elements.values():
             net = cpt._copy()
             if cpt.name in cpts:
                 I = cpt.I
-                if var is not None:
-                    I = I(var)
-
+                if domainvar is not None:
+                    I = I(domainvar)
+                if evalf:
+                    I = I.evalf(num_digits)
                 net += ', ' if ';' in net else '; '
                 if flow:
                     net += ', f%s=$%s$' % (pos, I.latex())
@@ -312,21 +329,92 @@ class NetlistMixin(object):
             new.add(net)
         return new
 
-    def annotate_voltage(self, cpts, var=None, pos=''):
+    def annotate_voltage(self, cpts, domainvar=None, pos='',
+                         evalf=True, num_digits=3):
         """Annotate specified list of component names `cpts` with voltage.
-        `pos` specifies where to position the labels."""
+
+        `domainvar` specifies the domain to calculate the voltages for
+        (e.g., `t` for time-domain, `s` for Laplace-domain)
+
+        `pos` specifies where to position the labels, see docs
+
+        `evalf` (default False) if True prints floating point
+        numbers as decimals otherwise they are shown as rationals
+
+        `show_units` (default False) if True applies the units (e.g.,
+        V for volts)
+
+        """
 
         new = self._new()                
         for cpt in self._elements.values():
             net = cpt._copy()
             if cpt.name in cpts:
                 V = cpt.V
-                if var is not None:
-                    V = V(var)
+                if domainvar is not None:
+                    V = V(domainvar)
+                if evalf:
+                    V = V.evalf(num_digits)                    
                 net += ', ' if ';' in net else '; '                    
                 net += 'v%s=$%s$' % (pos, V.latex())
             new.add(net)
         return new                
+
+    def annotate_node_voltages(self, nodes=None, domainvar=None,
+                               label_voltages=False, show_units=False,
+                               evalf=True, num_digits=3, anchor='south west'):
+        """Create a new netlist with the node voltages annotated.  This is
+        useful for drawing a schematic with the node voltages shown.
+        For example,
+
+        `cct.annotate_node_voltages((1, 2, 3)).draw()`
+
+        `nodes` is a list of the nodes to annotate or `None` for all.
+
+        `domainvar` specifies the domain to calculate the voltages for
+        (e.g., `t` for time-domain, `s` for Laplace-domain)
+
+        `label_voltages` (default False) if True prefixes the
+        annotation with V1= for node 1, etc.
+
+        `evalf` (default False) if True prints floating point
+        numbers as decimals otherwise they are shown as rationals
+
+        `show_units` (default False) if True applies the units (e.g.,
+        V for volts)
+
+        `num_digits` (default 3) specfies the number of digits to print
+        for floating point numbers
+
+        `anchor` (default 'south west') specifies the position of the
+        voltage label
+
+        """
+        
+        if nodes is None:
+            nodes = self.node_list
+        elif not isiterable(nodes):
+            nodes = (nodes, )
+            
+        if domainvar is None:
+            domainvar = t
+
+        new = self.copy()
+        for node in nodes:
+            v = self[node].V(domainvar)
+            if evalf:
+                v = v.evalf(num_digits)
+
+            vstr = '%s' % v.latex()
+                
+            if show_units:
+                vstr += '\,%s' % v.units
+
+            if label_voltages:
+                vstr = 'V_{%s}=' % node + vstr
+                
+            new.add('A%s %s; l={%s}, anchor=%s' % (node, node, vstr, anchor))
+        return new
     
     def augment_node_map(self, node_map=None):
         """Create a mapping dict for all nodes."""
@@ -1997,59 +2085,3 @@ class NetlistMixin(object):
 
     def Iname(self, name):
         return Iname(name, self.kind)    
-
-    def annotate_node_voltages(self, nodes=None, domainvar=None,
-                               label_voltages=False, show_units=False,
-                               evalf=True, num_digits=3, anchor='south west'):
-        """Create a new netlist with the node voltages annotated.  This is
-        useful for drawing a schematic with the node voltages shown.
-        For example,
-
-        `cct.annotate_node_voltages((1, 2, 3)).draw()`
-
-        `nodes` is a list of the nodes to annotate or `None` for all.
-
-        `domainvar` specifies the domain to calculate the voltages for
-        (e.g., `t` for time-domain, `s` for Laplace-domain)
-
-        `label_voltages` (default False) if True prefixes the
-        annotation with V1= for node 1, etc.
-
-        `evalf` (default False) if True prints floating point
-        numbers as decimals otherwise they are shown as rationals
-
-        `show_units` (default False) if True applies the units (e.g.,
-        V for volts)
-
-        `num_digits` (default 3) specfies the number of digits to print
-        for floating point numbers
-
-        `anchor` (default 'south west') specifies the position of the
-        voltage label
-
-        """
-        
-        if nodes is None:
-            nodes = self.node_list
-        elif not isiterable(nodes):
-            nodes = (nodes, )
-            
-        if domainvar is None:
-            domainvar = t
-
-        new = self.copy()
-        for node in nodes:
-            v = self[node].V(domainvar)
-            if evalf:
-                v = v.evalf(num_digits)
-
-            vstr = '%s' % v.latex()
-                
-            if show_units:
-                vstr += '\,%s' % v.units
-
-            if label_voltages:
-                vstr = 'V_{%s}=' % node + vstr
-                
-            new.add('A%s %s; l={%s}, anchor=%s' % (node, node, vstr, anchor))
-        return new
