@@ -15,6 +15,10 @@ from .expr import expr
 from .sym import ssym
 import sympy as sym
 
+# Note, need to be careful with simplification since a pole can
+# cancel a zero.
+
+
 class StateSpace(StateSpaceBase):
     """Continuous-time linear time-invariant state space model."""    
 
