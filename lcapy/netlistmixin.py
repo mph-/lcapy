@@ -22,6 +22,9 @@ from .current import Iname, current
 from .simulator import Simulator
 from .netlistnamespace import NetlistNamespace
 from .matrix import Matrix
+from .utils import isiterable
+from .texpr import t
+
 
 from . import mnacpts
 from collections import OrderedDict
@@ -1991,3 +1994,47 @@ class NetlistMixin(object):
     def Iname(self, name):
         return Iname(name, self.kind)    
 
+    def annotate_node_voltages(self, nodes=None, domainvar=None,
+                               label_voltages=False, show_units=False, n=3):
+        """Create a new netlist with the node voltages annotated.  This is
+        useful for drawing a schematic with the node voltages shown.
+        For example,
+
+        `cct.annotate_node_voltages((1, 2, 3)).draw()`
+
+        `nodes` is a list of the nodes to annotate or `None` for all.
+
+        `domainvar` specifies the domain to calculate the voltages for
+        (e.g., `t` for time-domain, `s` for Laplace-domain)
+
+        `label_voltages` (default False) if True prefixes the
+        annotation with V1= for node 1, etc.
+
+        `show_units` (default False) if True applies the units (e.g.,
+        V for volts)
+
+        `n` (default 3) specfies the number of digits to print
+        floating point numbers as.
+
+        """
+        if nodes is None:
+            nodes = self.node_list
+        if not isiterable(nodes):
+            nodes = (nodes, )
+            
+        if domainvar is None:
+            domainvar = t
+
+        new = self.copy()
+        for node in nodes:
+            v = self[node].V(domainvar).evalf(n)
+            if show_units:
+                vstr = '%s\,%s' % (v, v.units)
+            else:
+                vstr = '%s' % v
+            if label_voltages:
+                vstr = 'V%s=' % node + vstr
+                
+            new.add('A%s %s; l=%s, anchor=south west' % (node, node, vstr))
+        return new
+    
