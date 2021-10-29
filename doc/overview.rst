@@ -1020,13 +1020,35 @@ Transfer functions can be created from netlists using the `transfer()` method.  
    ... R 1 2
    ... C 2 0""")
    >>> H = cct.transfer(1, 0, 2, 0)
-   >>> H(s)
-         1      
-   ─────────────
-       ⎛     1 ⎞
-   C⋅R⋅⎜s + ───⎟
-       ⎝    C⋅R⎠
+   >>> H
+    ⎛ 1 ⎞ 
+    ⎜───⎟ 
+    ⎝C⋅R⎠ 
+   ───────
+        1 
+   s + ───
+       C⋅R
 
+Transfer functions are defined in the Laplace domain but can be
+converted to the phasor domain::
+
+   >>> H(jw)
+            1       
+   ───────────────
+       ⎛       1 ⎞
+   C⋅R⋅⎜ⅉ⋅ω + ───⎟
+       ⎝      C⋅R⎠
+
+The `transfer()` method determines the ratio of the output to the
+input Laplace voltage, where the voltages are calculated from the
+given the input and output nodes.  An alternative syntax is to specify
+the components that the voltages are measured over, for example::
+
+   >>> H = cct.transfer('R', 'C')
+
+Furthermore, a component and a tuple of nodes can be used instead::
+
+   >>> H = cct.transfer('R', (2, 0))  
 
 Transfer functions can also be created in a similar manner to Matlab,
 either using lists of numerator and denominator coefficients::
