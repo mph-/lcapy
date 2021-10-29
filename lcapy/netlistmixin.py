@@ -322,7 +322,6 @@ class NetlistMixin(object):
         return new                
     
     def augment_node_map(self, node_map=None):
-
         """Create a mapping dict for all nodes."""
 
         if node_map is None:
@@ -1199,8 +1198,8 @@ class NetlistMixin(object):
             return set()
         return names
 
-    def _do_simplify_combine(self, string, subset, net, explain=False, add=False,
-                     series=False):
+    def _do_simplify_combine(self, string, subset, net,
+                             explain=False, add=False, series=False):
 
         if explain:
             print(string % subset)
