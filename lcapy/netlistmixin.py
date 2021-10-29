@@ -1995,7 +1995,8 @@ class NetlistMixin(object):
         return Iname(name, self.kind)    
 
     def annotate_node_voltages(self, nodes=None, domainvar=None,
-                               label_voltages=False, show_units=False, n=3):
+                               label_voltages=False, show_units=False,
+                               num_digits=3, anchor='south west'):
         """Create a new netlist with the node voltages annotated.  This is
         useful for drawing a schematic with the node voltages shown.
         For example,
@@ -2013,13 +2014,16 @@ class NetlistMixin(object):
         `show_units` (default False) if True applies the units (e.g.,
         V for volts)
 
-        `n` (default 3) specfies the number of digits to print
-        floating point numbers as.
+        `num_digits` (default 3) specfies the number of digits to print
+        for floating point numbers
+
+        `anchor` (default 'south west') specifies the position of the
+        voltage label
 
         """
         if nodes is None:
             nodes = self.node_list
-        if not isiterable(nodes):
+        elif not isiterable(nodes):
             nodes = (nodes, )
             
         if domainvar is None:
@@ -2027,7 +2031,7 @@ class NetlistMixin(object):
 
         new = self.copy()
         for node in nodes:
-            v = self[node].V(domainvar).evalf(n)
+            v = self[node].V(domainvar).evalf(num_digits)
             if show_units:
                 vstr = '%s\,%s' % (v, v.units)
             else:
@@ -2035,6 +2039,6 @@ class NetlistMixin(object):
             if label_voltages:
                 vstr = 'V%s=' % node + vstr
                 
-            new.add('A%s %s; l=%s, anchor=south west' % (node, node, vstr))
+            new.add('A%s %s; l={%s}, anchor=%s' % (node, node, vstr, anchor))
         return new
     
