@@ -84,6 +84,7 @@ class Opts(dict):
         return stripped
 
     def strip_voltage_labels(self):
+        """Strip voltage labels."""        
 
         return self.strip('v', 'vr', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<')
 
@@ -100,6 +101,7 @@ class Opts(dict):
         return self.strip('l', 'l^', 'l_')
 
     def strip_all_labels(self):
+        """Strip voltage, current, flow, and labels."""
 
         stripped = Opts()
         
