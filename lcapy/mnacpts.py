@@ -760,6 +760,8 @@ class XX(Dummy):
     def __str__(self):        
         return self._string
     
+class A(XX):
+    pass
     
 class IndependentSource(Cpt):
 
