@@ -292,8 +292,9 @@ class NetlistMixin(object):
         self._node_map = node_map
         return node_map
 
-    def annotate_current(self, cpts, domainvar=None, flow=False, pos='',
-                         evalf=True, num_digits=3):
+    def annotate_currents(self, cpts, domainvar=None, flow=False,
+                          eng_format=True, evalf=True, num_digits=3,
+                          show_units=False, pos=''):
         """Annotate specified list of component names `cpts` with current (or
         flow).
 
@@ -302,7 +303,8 @@ class NetlistMixin(object):
 
         `flow` (default False) if True annotates current as a flow
 
-        `pos` specifies where to position the labels (see docs)
+        `eng_format` (default True) if True use engineering format if
+        the current is a number, e.g., 100\,mV instead of 0.1\,V
 
         `evalf` (default False) if True prints floating point
         numbers as decimals otherwise they are shown as rationals
@@ -310,7 +312,10 @@ class NetlistMixin(object):
         `show_units` (default False) if True applies the units (e.g.,
         V for volts)
 
+        `pos` specifies where to position the labels (see docs)
         """
+
+        label = ('f' if flow else 'i') + pos
 
         new = self._new()        
         for cpt in self._elements.values():
@@ -322,15 +327,13 @@ class NetlistMixin(object):
                 if evalf:
                     I = I.evalf(num_digits)
                 net += ', ' if ';' in net else '; '
-                if flow:
-                    net += ', f%s=$%s$' % (pos, I.latex())
-                else:
-                    net += ', i%s=$%s$' % (pos, I.latex())
+                net += ', %s={$%s$}' % (label, I.latex_with_units(eng_format=eng_format, evalf=evalf, num_digits=num_digits, show_units=show_units))
             new.add(net)
         return new
 
-    def annotate_voltage(self, cpts, domainvar=None, pos='',
-                         evalf=True, num_digits=3):
+    def annotate_voltages(self, cpts, domainvar=None,
+                          eng_format=True, evalf=True, num_digits=3,
+                          show_units=False, pos=''):
         """Annotate specified list of component names `cpts` with voltage.
 
         `domainvar` specifies the domain to calculate the voltages for
@@ -338,12 +341,16 @@ class NetlistMixin(object):
 
         `pos` specifies where to position the labels, see docs
 
+        `eng_format` (default True) if True use engineering format if
+        the voltage is a number, e.g., 100\,mV instead of 0.1\,V
+
         `evalf` (default False) if True prints floating point
         numbers as decimals otherwise they are shown as rationals
 
         `show_units` (default False) if True applies the units (e.g.,
         V for volts)
 
+        `pos` specifies where to position the labels (see docs)
         """
 
         new = self._new()                
@@ -356,13 +363,14 @@ class NetlistMixin(object):
                 if evalf:
                     V = V.evalf(num_digits)                    
                 net += ', ' if ';' in net else '; '                    
-                net += 'v%s=$%s$' % (pos, V.latex())
+                net += 'v%s={$%s$}' % (pos, V.latex_with_units(eng_format=eng_format, evalf=evalf, num_digits=num_digits, show_units=show_units))
             new.add(net)
         return new                
 
     def annotate_node_voltages(self, nodes=None, domainvar=None,
-                               label_voltages=False, show_units=False,
-                               evalf=True, num_digits=3, anchor='south west'):
+                               label_voltages=False, eng_format=True,
+                               evalf=True, num_digits=3,
+                               show_units=False, anchor='south west'):
         """Create a new netlist with the node voltages annotated.  This is
         useful for drawing a schematic with the node voltages shown.
         For example,
@@ -377,14 +385,17 @@ class NetlistMixin(object):
         `label_voltages` (default False) if True prefixes the
         annotation with V1= for node 1, etc.
 
+        `eng_format` (default True) if True use engineering format if
+        the voltage is a number, e.g., 100\,mV instead of 0.1\,V
+
         `evalf` (default False) if True prints floating point
         numbers as decimals otherwise they are shown as rationals
 
-        `show_units` (default False) if True applies the units (e.g.,
-        V for volts)
-
         `num_digits` (default 3) specfies the number of digits to print
         for floating point numbers
+
+        `show_units` (default False) if True applies the units (e.g.,
+        V for volts)
 
         `anchor` (default 'south west') specifies the position of the
         voltage label
@@ -405,11 +416,10 @@ class NetlistMixin(object):
             if evalf:
                 v = v.evalf(num_digits)
 
-            vstr = '%s' % v.latex()
-                
-            if show_units:
-                vstr += '\,%s' % v.units
-
+            vstr = '%s' % v.latex_with_units(eng_format=eng_format, evalf=evalf,
+                                             num_digits=num_digits,
+                                             show_units=show_units)
+            
             if label_voltages:
                 vstr = 'V_{%s}=' % node + vstr
                 

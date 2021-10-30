@@ -89,6 +89,34 @@ class ExprPrint(object):
         """Make latex string."""
         return latex(self._pexpr, **kwargs)
 
+    def latex_with_units(self, eng_format=False, show_units=True,
+                         evalf=True, num_digits=3, **kwargs):
+        """Make latex string with optional units."""
+
+        from .engformatter import EngFormatter
+        
+        expr = self
+        
+        if evalf:
+            expr = expr.evalf(num_digits)
+
+        if show_units:
+            units = str(expr.units)
+            if units == '1':
+                units = ''
+        else:
+            units = ''
+
+        value = expr.sympy
+            
+        if value.is_number and eng_format:
+            return EngFormatter(num_digits=num_digits).latex(value, units)
+
+        s = latex(value, **kwargs)
+        if show_units and units != '':
+            s += '\,' + units
+        return s
+
     def latex_math(self, **kwargs):
         """Make latex math-mode string."""
         return '$' + self.latex(**kwargs) + '$'
