@@ -24,7 +24,7 @@ from .netlistnamespace import NetlistNamespace
 from .matrix import Matrix
 from .utils import isiterable
 from .texpr import t
-
+from .deprecation import LcapyDeprecationWarning
 
 from . import mnacpts
 from collections import OrderedDict
@@ -294,7 +294,7 @@ class NetlistMixin(object):
 
     def annotate_currents(self, cpts, domainvar=None, flow=False,
                           eng_format=True, evalf=True, num_digits=3,
-                          show_units=False, pos=''):
+                          show_units=True, pos=''):
         """Annotate specified list of component names `cpts` with current (or
         flow).
 
@@ -309,7 +309,7 @@ class NetlistMixin(object):
         `evalf` (default False) if True prints floating point
         numbers as decimals otherwise they are shown as rationals
 
-        `show_units` (default False) if True applies the units (e.g.,
+        `show_units` (default True) if True applies the units (e.g.,
         V for volts)
 
         `pos` specifies where to position the labels (see docs)
@@ -317,13 +317,14 @@ class NetlistMixin(object):
 
         label = ('f' if flow else 'i') + pos
 
+        if domainvar is None:
+            domainvar = t
+
         new = self._new()        
         for cpt in self._elements.values():
             net = cpt._copy()
             if cpt.name in cpts:
-                I = cpt.I
-                if domainvar is not None:
-                    I = I(domainvar)
+                I = cpt.I(domainvar)
                 if evalf:
                     I = I.evalf(num_digits)
                 net += ', ' if ';' in net else '; '
@@ -333,7 +334,7 @@ class NetlistMixin(object):
 
     def annotate_voltages(self, cpts, domainvar=None,
                           eng_format=True, evalf=True, num_digits=3,
-                          show_units=False, pos=''):
+                          show_units=True, pos=''):
         """Annotate specified list of component names `cpts` with voltage.
 
         `domainvar` specifies the domain to calculate the voltages for
@@ -347,19 +348,20 @@ class NetlistMixin(object):
         `evalf` (default False) if True prints floating point
         numbers as decimals otherwise they are shown as rationals
 
-        `show_units` (default False) if True applies the units (e.g.,
+        `show_units` (default True) if True applies the units (e.g.,
         V for volts)
 
         `pos` specifies where to position the labels (see docs)
         """
 
+        if domainvar is None:
+            domainvar = t
+        
         new = self._new()                
         for cpt in self._elements.values():
             net = cpt._copy()
             if cpt.name in cpts:
-                V = cpt.V
-                if domainvar is not None:
-                    V = V(domainvar)
+                V = cpt.V(domainvar)
                 if evalf:
                     V = V.evalf(num_digits)                    
                 net += ', ' if ';' in net else '; '                    
@@ -370,7 +372,7 @@ class NetlistMixin(object):
     def annotate_node_voltages(self, nodes=None, domainvar=None,
                                label_voltages=False, eng_format=True,
                                evalf=True, num_digits=3,
-                               show_units=False, anchor='south west'):
+                               show_units=True, anchor='south west'):
         """Create a new netlist with the node voltages annotated.  This is
         useful for drawing a schematic with the node voltages shown.
         For example,
@@ -394,7 +396,7 @@ class NetlistMixin(object):
         `num_digits` (default 3) specfies the number of digits to print
         for floating point numbers
 
-        `show_units` (default False) if True applies the units (e.g.,
+        `show_units` (default True) if True applies the units (e.g.,
         V for volts)
 
         `anchor` (default 'south west') specifies the position of the
@@ -425,6 +427,26 @@ class NetlistMixin(object):
                 
             new.add('A%s %s; l={%s}, anchor=%s' % (node, node, vstr, anchor))
         return new
+
+    def annotate_voltage(self, cpts, domainvar=None, pos=''):
+        LcapyDeprecationWarning(
+            feature="annotate_voltage",
+            useinstead="annotate_voltages",
+            deprecated_since_version="1.0",
+            issue=61
+        ).warn()
+        return self.annotate_voltages(cpts, domainvar=domainvar,
+                                      pos=pos, evalf=True, num_digits=3)
+
+    def annotate_current(self, cpts, domainvar=None, flow=False, pos=''):
+        LcapyDeprecationWarning(
+            feature="annotate_current",
+            useinstead="annotate_currents",
+            deprecated_since_version="1.0",
+            issue=61
+        ).warn()
+        return self.annotate_currents(cpts, domainvar=domainvar, flow=flow,
+                                      pos=pos, evalf=True, num_digits=3)
     
     def augment_node_map(self, node_map=None):
         """Create a mapping dict for all nodes."""
