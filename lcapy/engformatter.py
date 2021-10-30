@@ -13,13 +13,21 @@ class EngFormatter(object):
         self.trim = trim
         self.hundreds = hundreds
         self.num_digits = num_digits
+
+    def _fmt(self, valstr, unit='', prefix='', space='', mbox_prefix='',
+             mbox_suffix=''):
+
+        if unit == '' and prefix == '':
+            return valstr
+
+        return valstr + space + mbox_prefix + unit + mbox_suffix
         
     def _do(self, value, unit, prefixes, space='', mbox_prefix='',
             mbox_suffix=''):
 
         value = value
         if value == 0:
-            return '0' + space + mbox_prefix + unit + mbox_suffix
+            return self._fmt('0', unit, '', space, mbox_prefix, mbox_suffix)
 
         m = log10(abs(value))
 
@@ -37,10 +45,10 @@ class EngFormatter(object):
         idx = n + 5
         if idx < 0:
             idx = 0
-            return '%e\,' % value + unit
+            return self._fmt('%e' % value, unit, '', space, mbox_prefix, mbox_suffix)
         elif idx >= len(prefixes):
             idx = len(prefixes) - 1
-            return '%e\,' % value + unit
+            return self._fmt('%e' % value, unit, '', space, mbox_prefix, mbox_suffix)            
 
         if dp < 0:
             dp = 0
@@ -49,13 +57,15 @@ class EngFormatter(object):
         n = idx - 5
         value = value * 10**(-3 * n)
 
-        string = fmt % value
+        valstr = fmt % value
 
         if self.trim:
             # Remove trailing zeroes after decimal point
-            string = string.rstrip('0').rstrip('.')
+            valstr = valstr.rstrip('0').rstrip('.')
 
-        return string + space + mbox_prefix + prefixes[idx] + unit + mbox_suffix
+        return self._fmt(valstr, unit, prefixes[idx], space,
+                         mbox_prefix, mbox_suffix)
+            
 
     def latex_math(self, value, unit):
         """Make latex math-mode string."""
@@ -75,4 +85,3 @@ class EngFormatter(object):
         return self._do(value, unit,
                         ('f', 'p', 'n', 'u', 'm', '', 'k', 'M', 'G', 'T'),
                         ' ', '', '')
-    
