@@ -30,9 +30,9 @@ class LcapyDeprecationWarning(DeprecationWarning):
         if last_supported_version:
             self.fullMessage += ("It will be last supported in Lcapy "
                 "version %s. ") % last_supported_version
+
         if useinstead:
             self.fullMessage += "Use %s instead. " % useinstead
-
 
         if issue is not None:
             self.fullMessage += ("See "
