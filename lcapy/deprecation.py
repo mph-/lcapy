@@ -13,11 +13,8 @@ class LcapyDeprecationWarning(DeprecationWarning):
     r"""A warning for deprecated features of Lcapy.
     """
 
-    def __init__(self, value=None, feature=None, last_supported_version=None,
+    def __init__(self, feature=None, last_supported_version=None,
                  useinstead=None, issue=None, deprecated_since_version=None):
-
-        self.args = (value, feature, last_supported_version, useinstead,
-                issue, deprecated_since_version)
 
         self.fullMessage = ""
 
@@ -41,15 +38,6 @@ class LcapyDeprecationWarning(DeprecationWarning):
             self.fullMessage += ("See "
                                  "https://github.com/mph-/lcapy/issues/%d for more "
                                  "info. ") % issue
-
-        if value:
-            if not isinstance(value, str):
-                value = "(%s)" % repr(value)
-            value = " " + value
-        else:
-            value = ""
-
-        self.fullMessage += value
 
     def __str__(self):
         return '\n%s\n' % filldedent(self.fullMessage)
