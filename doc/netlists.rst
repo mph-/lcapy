@@ -282,26 +282,109 @@ circuit elements (Components).  For example,
    >>> cct.R1
    R1 1 2
 
-   
+- `components` dictionary of the components defined by the netlist
+
+- `nodes` dictionary of nodes used in the netlist
+
+- `subcircuits` dictionary of sub-circuits (for ac, dc, transient, etc.)
+
+- `is_ac` all independent sources are ac
+
+- `is_causal`  all independent sources are causal (they are zero for :math:`t < 0`)
+
+- `is_dc` all independent sources are dc
+
+- `is_time_domain` netlist can be analysed in time domain
+
+- `is_superposition` netlist must be analysed as a superposition
+
+- `ivp` initial value problem
+
+- `has_ic` initial conditions are specified
+
+- `has_ac` an independent source has an ac component
+
+- `has_dc` an independent source has a dc component
+
+- `has_s_transient` an independent source has a transient component defined in s-domain
+
+- `has_transient` an independent source has a transient component
+
+- `control_sources` list of voltage sources used to specify control current for CCVS and CCCS components
+
+- `dependent_sources` list of dependent sources
+
+- `ics` list of components with explicit initial conditions
+
+- `independent_sources` list of independent sources
+
+- `reactances` list of capacitors and inductors
+
+- `sources` list of sources
+
+- `is_connected`  all components are connected
+
 
 Circuit methods
 ---------------
 
-- `admittance(Np, Nm)` returns the driving-point admittance between nodes `Np` and `Nm`.
+- `admittance(Np, Nm)` Returns the driving-point admittance between
+  nodes `Np` and `Nm` and `admittance(cpt)` returns the driving-point
+  admittance between the nodes of the specified component.
 
-- `impedance(Np, Nm)` returns the driving-point impedance between nodes `Np` and `Nm`.
+- `annotate_node_voltages()` Produces a new netlist with drawing
+  commands to annotate node voltages for specified nodes
 
-The above methods can be called with a component name, for example,
+- `annotate_voltages()` Produces a new netlist with drawing
+  commands to annotate component voltages for specified components
 
-   >>> a.admittance('L1')
+- `annotate_currents()` Produces a new netlist with drawing
+  commands to annotate component currents for specified components  
 
-This calculates the driving-point admittance that would be measured across the nodes of `L1`.
+- `describe()` Prints message describing how netlist is solved
 
-- `in_parallel()` returns a list of sets of component names that are connected in parallel.
+- `has()` Returns True if component in netlist
 
-- `in_series()` returns a list of sets of component names that are connected in series.
+- `impedance(Np, Nm)` Returns the driving-point impedance between
+  nodes `Np` and `Nm` and `impedance(cpt)` returns the driving-point
+  impedance between the nodes of the specified component.
 
-- `subs(subs_dict)` substitutes symbolic values in the netlist using a dictionary of symbols `subs_dict`.  For example,
+- `in_parallel()` Returns a list of sets of component names that are connected in parallel.
+
+- `in_series()` Returns a list of sets of component names that are connected in series.
+
+- `kill()` Kills specified independent sources (voltage sources
+  become short-circuits and current sources become open-circuits)
+
+- `kill_except()` Kills all but the specified independent sources
+
+- `noise_model()` Replaces resistors with a series combination of a
+  resistor and a noise voltage source
+  
+- `replace(name, net)` Replaces the named component.  For example,
+
+   >>> cct = Circuit("""
+   ... V1 1 0 Vs}
+   ... R1 1 2
+   ... L1 2 0""")
+   >>> cct2 = cct.replace('L1', 'C1 2 0')
+   >>> cct2
+   ... V1 1 0 Vs}
+   ... R1 1 2
+   ... C1 2 0""")   
+
+- `r_model()` Creates a resistive equivalent model using companion
+  circuits (this is used for time-stepping simulation)
+
+- `replace()` Replaces component with new component in netlist
+
+- `s_model()` Converts sources to the s-domain and represents
+  reactive components as impedances
+
+- `state_space_model()` Creates a state-space model by replacing inductors
+  with current sources and capacitors with voltage sources
+  
+- `subs(subs_dict)` Substitutes symbolic values in the netlist using a dictionary of symbols `subs_dict`.  For example,
 
    >>> cct = Circuit("""
    ... V1 1 0 Vs}
@@ -313,83 +396,39 @@ This calculates the driving-point admittance that would be measured across the n
    R1 1 2
    L1 2 0 3
 
-- `replace(name, net)` replaces the named component.  For example,
+- `transfer(N1p, N1m, N2p, N2m)` Returns the s-domain transfer function `V2(s) / V1(s)`, between the ports defined by nodes `N1p`, `N1m`, `N2p`, and `N2m` where `V1 = V[N1p] - V[N1m]` and `V2 = V[N2p] - V[N2m]`.
 
-   >>> cct = Circuit("""
-   ... V1 1 0 Vs}
-   ... R1 1 2
-   ... L1 2 0""")
-   >>> cct2 = cct.replace('L1', 'C1 2 0')
-   >>> cct2
-   ... V1 1 0 Vs}
-   ... R1 1 2
-   ... C1 2 0""")   
-   
-- `transfer(N1p, N1m, N2p, N2m)` returns the s-domain transfer function `V2(s) / V1(s)`, between the ports defined by nodes `N1p`, `N1m`, `N2p`, and `N2m` where `V1 = V[N1p] - V[N1m]` and `V2 = V[N2p] - V[N2m]`.
+- `Aparams(N1p, N1m, N2p, N2m)` Returns the two-port A-parameters matrix for the two-port defined by nodes `N1p`, `N1m`, `N2p`, and `N2m`, where `I1` is the current flowing into `N1p` and out of `N1m`, `I2` is the current flowing into `N2p` and out of `N2m`, `V1 = V[N1p] - V[N1m]`, and `V2 = V[N2p] - V[N2m]`.  See :ref:`A-parameters`.
 
-- `Aparams(N1p, N1m, N2p, N2m)` returns the two-port A-parameters matrix for the two-port defined by nodes `N1p`, `N1m`, `N2p`, and `N2m`, where `I1` is the current flowing into `N1p` and out of `N1m`, `I2` is the current flowing into `N2p` and out of `N2m`, `V1 = V[N1p] - V[N1m]`, and `V2 = V[N2p] - V[N2m]`.  See :ref:`A-parameters`.
+- `Bparams(N1p, N1m, N2p, N2m)` Returns the two-port B-parameters matrix.  See :ref:`B-parameters`.
 
-- `Bparams(N1p, N1m, N2p, N2m)` returns the two-port B-parameters matrix.  See :ref:`B-parameters`.
+- `Gparams(N1p, N1m, N2p, N2m)` Returns the two-port G-parameters matrix.  See :ref:`G-parameters`.
 
-- `Gparams(N1p, N1m, N2p, N2m)` returns the two-port G-parameters matrix.  See :ref:`G-parameters`.
+- `Hparams(N1p, N1m, N2p, N2m)` Returns the two-port H-parameters matrix.  See :ref:`H-parameters`.
 
-- `Hparams(N1p, N1m, N2p, N2m)` returns the two-port H-parameters matrix.  See :ref:`H-parameters`.
+- `Sparams(N1p, N1m, N2p, N2m)` Returns the two-port S-parameters matrix.  See :ref:`S-parameters`.
 
-- `Sparams(N1p, N1m, N2p, N2m)` returns the two-port S-parameters matrix.  See :ref:`S-parameters`.
+- `Tparams(N1p, N1m, N2p, N2m)` Returns the two-port T-parameters matrix.  See :ref:`T-parameters`.
 
-- `Tparams(N1p, N1m, N2p, N2m)` returns the two-port T-parameters matrix.  See :ref:`T-parameters`.
+- `Yparams(N1p, N1m, N2p, N2m)` Returns the two-port Y-parameters matrix.  See :ref:`Y-parameters`.
 
-- `Yparams(N1p, N1m, N2p, N2m)` returns the two-port Y-parameters matrix.  See :ref:`Y-parameters`.
+- `Zparams(N1p, N1m, N2p, N2m)` Returns the two-port Z-parameters matrix.  See :ref:`Z-parameters`.
 
-- `Zparams(N1p, N1m, N2p, N2m)` returns the two-port Z-parameters matrix.  See :ref:`Z-parameters`.
+- `Yparamsn(N1p, N1m, N2p, N2m, ...)` Returns the n-port Y-parameters matrix.  See :ref:`Y-parameters`.
 
-- `Yparamsn(N1p, N1m, N2p, N2m, ...)` returns the n-port Y-parameters matrix.  See :ref:`Y-parameters`.
+- `Zparamsn(N1p, N1m, N2p, N2m, ...)` Returns the n-port Z-parameters matrix.  See :ref:`Z-parameters`.
 
-- `Zparamsn(N1p, N1m, N2p, N2m, ...)` returns the n-port Z-parameters matrix.  See :ref:`Z-parameters`.
-   
-
-Nodes
-=====
-
-A node object is obtained using indexing notation.  For example,
-
-   >>> n1 = cct[1]
-   >>> n2 = cct['2']
-
-
-Node attributes
----------------
-
-Nodes have many attributes including: `name`, `v`, `V`, `dpY`, and `dpZ`.
-
-`v` is the time-domain voltage (with respect to the ground node 0).
-`V` is a superposition of the node voltage in the different transform
-domains.
-
-For example,
-   
-   >>> cct[2].v
-    -R₁⋅t              
-    ──────             
-      L₁               
-   e      ⋅Heaviside(t)
-
-
-`dpY` and `dpZ` return the driving-point admittance and impedance for the node with respect to ground, for example,
-
-   >>> cct[2].dpZ
-    R₁⋅s 
-   ──────
-       R₁
-   s + ──
-       L₁
-
+  
 Circuit components
 ==================
 
 A Component object is obtained from a Circuit object using member notation.  For example,
 
    >>> cpt = cct.R1
+
+Alternatively, a Component object can be obtained using array notation.  For rxample,
+
+   >>> cpt = cct['R1']
 
 
 Component attributes
@@ -474,8 +513,7 @@ circuit:
    ⎜── - ───────⎟⋅Heaviside(t)
    ⎝R₁      R₁  ⎠             
 
-The `V` and `I` attributes provide the voltage and current as a
-superposition in the transform domains, for example,
+The `V` and `I` attributes provide the voltage and current as a superposition in the transform domains, for example,
 
    >>> cct.V1.V
    ⎧   1⎫
@@ -502,6 +540,135 @@ The generalized s-domain driving point admittance and impedance can be found usi
 Note, this is the total impedance across `L1`, not just the impedance of the component as given by `cct.L1.Z(s)`.
        
 
+Here is the complete list of component attributes.
+
+- `connected` list of components connected to the component
+
+- `is_ac` source is only ac
+
+- `is_causal`  source or component is causal
+
+- `is_capacitor` component is a capacitor
+
+- `is_current_source` component is a current source
+
+- `is_dependent_source` source is dependent
+
+- `is_dc` source is only dc
+
+- `is_inductor` component is an inductor
+
+- `is_independent_source` source is independent
+
+- `is_noisy` source only has a noisy component
+
+- `is_resistor` component is a resistor
+
+- `is_reactance` component is a capacitor or inductor
+
+- `is_source` component is a source
+
+- `is_voltage_source` component is a voltage source
+
+- `has_ic` initial conditions are specified
+
+- `has_ac` source has an ac component
+
+- `has_dc` source has a dc component
+
+- `has_noisy` source has a noisy component
+
+- `has_s_transient` source has a transient component defined in s-domain
+
+- `has_t_transient` source has a transient component defined in time domain
+
+- `has_transient` source has a transient component
+
+- `nodes` list of nodes
+
+- `nodenames` list of node names
+
+
+Component methods
+-----------------
+
+- `norton()` Create Norton oneport object viewed from nodes of the component.
+
+- `thevenin()` Create Thevenin oneport object viewed from nodes of the component.
+
+- `oneport()` Create Thevenin or Noton oneport object as appropriate when viewed from nodes of the component.
+
+- `transfer(cpt)` Create transfer function for the voltage across `cpt` divided by the voltage across the component.
+
+- `connected()` Return list of components connected to this component.
+
+- `is_connected(cpt)` Returns True if connected to specified `cpt`.
+
+- `noisy(T='T')` Create noisy model where resistors are replaced with a noiseless resistor and a noise voltage source.
+
+- `noisy_except(resistors, T='T')` Create noisy model where all but the specified resistors are replaced with a noiseless resistance and a noise voltage source.
+
+  
+Nodes
+=====
+
+A Node object is obtained from a Circuit object using indexing
+notation.  For example,
+
+   >>> n1 = cct[1]
+   >>> n2 = cct['2']
+
+Node objects are also obtained from a Component object using the `nodes` attribute, for example,
+
+   >>> cct.R1.nodes
+
+
+Node attributes
+---------------
+
+Nodes have many attributes including: `name`, `v`, `V`, `dpY`, and `dpZ`.
+
+- `v` is the time-domain voltage (with respect to the ground node 0).
+  
+- `V` is a superposition of the node voltage in the different transform domains.
+
+For example,
+   
+   >>> cct[2].v
+    -R₁⋅t              
+    ──────             
+      L₁               
+   e      ⋅Heaviside(t)
+
+
+- `dpY` and `dpZ` return the driving-point admittance and impedance for the node with respect to ground, for example,
+
+   >>> cct[2].dpZ
+    R₁⋅s 
+   ──────
+       R₁
+   s + ──
+       L₁
+
+- `connected` list of components connected to node
+
+
+Node methods
+------------
+  
+- `is_connected(node)` Returns True if connected to specified node by a single component.
+
+- `norton(node)` Creates Norton oneport object with respect to specified node (default ground).
+
+- `oneport(node)` Creates oneport object with respect to specified node (default ground).
+
+- `thevenin(node)` Creates Thevenin oneport object with respect to specified node (default ground).
+  
+
+.. image:: examples/netlists/graph1.png
+   :width: 8cm
+  
+
 Oneports
 ========
 
@@ -509,11 +676,11 @@ A Oneport object is defined by a pair of nodes or by a component name.
 There are three circuit methods that will create a Oneport object from
 a Circuit object:
 
-- `thevenin(Np, Nm)`  This creates a series combination of a voltage source and an impedance.
+- `thevenin(Np, Nm)`  Creates a series combination of a voltage source and an impedance.
 
-- `norton(Np, Nm)`  This creates a parallel combination of a current source and an impedance.
+- `norton(Np, Nm)`  Creates a parallel combination of a current source and an impedance.
 
-- `oneport(Np, Nm)` This creates either a Norton model, Thevenin model, source, or impedance as appropriate.
+- `oneport(Np, Nm)` Creates either a Norton model, Thevenin model, source, or impedance as appropriate.
 
 A Oneport object is a Network object so shares the same attributes and
 methods, see :ref:`network_attributes` and :ref:`network_methods`.
@@ -711,170 +878,3 @@ For example,
              k⋅s
 
 With this analogue d'Alemberts law is equivalent to Kirchhoff's voltage law.  Thus every loop in the electrical circuit is analogous to a point in the mechanical system.   This also means that series combinations transform to parallel combinations and vice-versa.
-
-
-Interrogation
-=============
-
-Netlist attributes
-------------------
-
-- `components` dictionary of components
-
-- `nodes` dictionary of nodes
-
-- `subcircuits` dictionary of sub-circuits (for ac, dc, transient, etc.)
-
-- `is_ac` all independent sources are ac
-
-- `is_causal`  all independent sources are causal
-
-- `is_dc` all independent sources are dc
-
-- `is_time_domain` netlist can be analysed in time domain
-
-- `is_superposition` netlist must be analysed as a superposition
-
-- `ivp` initial value problem
-
-- `has_ic` initial conditions are specified
-
-- `has_ac` an independent source has an ac component
-
-- `has_dc` an independent source has a dc component
-
-- `has_s_transient` an independent source has a transient component defined in s-domain
-
-- `has_transient` an independent source has a transient component
-
-- `control_sources` list of voltage sources used to specify control current for CCVS and CCCS components
-
-- `dependent_sources` list of dependent sources
-
-- `ics` list of components with explicit initial conditions
-
-- `independent_sources` list of independent sources
-
-- `reactances` list of capacitors and inductors
-
-- `sources` list of sources
-
-- `is_connected`  all components are connected
-
-
-Netlist methods
----------------
-
-- `describe()` print message describing how netlist is solved
-
-- `has()` returns True if component in netlist
-
-- `kill()` kills specified independent sources (voltage sources
-  become short-circuits and current sources become open-circuits)
-
-- `kill_except()` kills all but the specified independent sources
-
-- `noise_model()` replaces resistors with a series combination of a
-  resistor and a noise voltage source
-  
-- `r_model()` creates a resistive equivalent model using companion
-  circuits (this is used for time-stepping simulation)
-
-- `replace()` replace component with new component in netlist
-
-- `s_model()` converts sources to the s-domain and represents
-  reactive components as impedances
-
-- `state_space_model()` creates a state-space model by replacing inductors
-  with current sources and capacitors with voltage sources
-
-- `subs()` substitutes symbolic component values
-
-
-Component attributes
---------------------
-
-- `connected` list of components connected to the component
-
-- `is_ac` source is only ac
-
-- `is_causal`  source or component is causal
-
-- `is_capacitor` component is a capacitor
-
-- `is_current_source` component is a current source
-
-- `is_dependent_source` source is dependent
-
-- `is_dc` source is only dc
-
-- `is_inductor` component is an inductor
-
-- `is_independent_source` source is independent
-
-- `is_noisy` source only has a noisy component
-
-- `is_resistor` component is a resistor
-
-- `is_reactance` component is a capacitor or inductor
-
-- `is_source` component is a source
-
-- `is_voltage_source` component is a voltage source
-
-- `has_ic` initial conditions are specified
-
-- `has_ac` source has an ac component
-
-- `has_dc` source has a dc component
-
-- `has_noisy` source has a noisy component
-
-- `has_s_transient` source has a transient component defined in s-domain
-
-- `has_t_transient` source has a transient component defined in time domain
-
-- `has_transient` source has a transient component
-
-- `nodes` list of nodes
-
-- `nodenames` list of node names
-
-
-Component methods
------------------
-
-- `norton()` Create Norton oneport object viewed from nodes of the component
-
-- `thevenin()` Create Thevenin oneport object viewed from nodes of the component
-
-- `oneport()` Create Thevenin or Noton oneport object as appropriate when viewed from nodes of the component
-
-- `transfer(cpt)` Create transfer function for the voltage across `cpt` divided by the voltage across the component
-
-- `connected()` Return list of components connected to this component
-
-- `is_connected(cpt)` True if connected to specified `cpt`
-
-- `noisy(T='T')` create noisy model where resistors are replaced with a noiseless resistor and a noise voltage source.
-
-- `noisy_except(resistors, T='T')` create noisy model where all but the specified resistors are replaced with a noiseless resistance and a noise voltage source.  
-
-  
-
-Node attributes
----------------
-
-- `connected` list of components connected to node
-
-
-Node methods
-------------
-
-- `is_connected(node)` True if connected to specified node
-
-
-.. image:: examples/netlists/graph1.png
-   :width: 8cm
-           
-
