@@ -20,7 +20,7 @@ class EngFormatter(object):
         if unit == '' and prefix == '':
             return valstr
 
-        return valstr + space + mbox_prefix + unit + mbox_suffix
+        return valstr + space + mbox_prefix + prefix + unit + mbox_suffix
         
     def _do(self, value, unit, prefixes, space='', mbox_prefix='',
             mbox_suffix=''):
