@@ -91,6 +91,9 @@ class NetlistMixin(object):
 
     @property
     def cpts(self):
+        """Return list of component names."""
+        
+        # Perhaps should prune wires, open-circuits, etc. ?
         return list(self._elements.keys())
     
     @property
@@ -306,7 +309,7 @@ class NetlistMixin(object):
         `eng_format` (default True) if True use engineering format if
         the current is a number, e.g., 100\,mV instead of 0.1\,V
 
-        `evalf` (default False) if True prints floating point
+        `evalf` (default True) if True prints floating point
         numbers as decimals otherwise they are shown as rationals
 
         `show_units` (default True) if True applies the units (e.g.,
@@ -345,7 +348,7 @@ class NetlistMixin(object):
         `eng_format` (default True) if True use engineering format if
         the voltage is a number, e.g., 100\,mV instead of 0.1\,V
 
-        `evalf` (default False) if True prints floating point
+        `evalf` (default True) if True prints floating point
         numbers as decimals otherwise they are shown as rationals
 
         `show_units` (default True) if True applies the units (e.g.,
@@ -390,7 +393,7 @@ class NetlistMixin(object):
         `eng_format` (default True) if True use engineering format if
         the voltage is a number, e.g., 100\,mV instead of 0.1\,V
 
-        `evalf` (default False) if True prints floating point
+        `evalf` (default True) if True prints floating point
         numbers as decimals otherwise they are shown as rationals
 
         `num_digits` (default 3) specfies the number of digits to print

@@ -650,11 +650,12 @@ class Schematic(NetfileMixin):
             if key not in kwargs:            
                 kwargs[key] = val            
 
-        # Global options (at end of list for historical reasons)
-        for eltname in reversed(self.elements):
+        # Global options (usually at end of netlist for historical reasons)
+        # These can be overwritten
+        for eltname in self.elements:
             elt = self.elements[eltname]
             if not elt.directive:
-                break
+                continue
             for key, val in elt.opts.items():
                 # val is a str
                 kwargs[key] = val
