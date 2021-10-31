@@ -166,6 +166,7 @@ figs:
 	cd examples/tutorials/opampnoise; make
 	cd examples/tutorials/opamps; make
 	cd examples/tutorials/shield-guard; make
+	cd examples/tutorials/annotations; make
 
 extra: fourier_transforms.rst laplace_transforms.rst ztransforms.rst DTFTs.rst DFTs.rst ODTFTs.rst
 

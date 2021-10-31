@@ -266,7 +266,7 @@ The following netlist describes a first-order RC low-pass filter (the
 .. image:: examples/tutorials/basic/VRC2.png
    :width: 6cm
 
-Here :math:`v_i(t)` is the input voltage and :math:`v_o(t)` is the output voltage.  The transfer function of the filter can be found by specifying nodes:
+Here :math:`v_i(t)` is the input voltage and :math:`v_o(t)` is the output voltage.  The Laplace domain transfer function of the filter can be found by specifying nodes:
 
    >>> H = a.transfer(1, 0, 3, 0)
 
@@ -322,8 +322,7 @@ Using an inverse Laplace transform, the output voltage signal in the time-domain
    6⋅⎜────────── - ──────── + ─────────────────────────── ⎟⋅u(t)
      ⎝    39          13                  169            ⎠     
 
-This can be simplified, however, SymPy has trouble with this as a whole.  Instead it is better
-to simplify the expression term by term::
+This can be simplified, however, SymPy has trouble with this as a whole.  Instead it is better to simplify the expression term by term::
 
   >>> v_o.simplify_terms()
                                           -2⋅t     
@@ -544,10 +543,8 @@ The time-domain response can now be found::
      ⎝     ⎝                            ω₁        ⎠            ω₁        ⎠           
    ───────────────────────────────────────────────────────────────────────  for t ≥ 0
                                      L⋅i₀                                            
-                                                                                     
 
-Finally, the result in terms of R, L, and C can be found by
-substituting the parameter definitions::
+Finally, the result in terms of R, L, and C can be found by substituting the parameter definitions::
 
    >>> VR(t).subs(defs)
    
@@ -1372,3 +1369,111 @@ red curve shows the noise voltage ASD due to thermal noise in the
 source and amplifier resistances.  In this example, the total noise is
 dominated by the thermal noise and thus lower value amplifier
 resistances should be selected.
+
+
+.. _annotated_schematics:
+
+Annotated schematics
+====================
+
+Schematics can be automatically annotated with the node voltages,
+component voltages, and component currents.
+
+The following examples use this schematic
+
+.. image:: examples/tutorials/annotations/circuit1.png
+   :width: 9cm   
+
+described by the netlist
+
+.. literalinclude:: examples/tutorials/annotations/circuit1.sch
+
+The circuit can be drawn using:
+
+   >>> from lcapy import Circuit
+   >>> cct = Circuit('circuit1.sch')
+   >>> cct.draw()
+
+
+.. _annotated_node_voltages:
+   
+Annotated node voltages
+-----------------------
+           
+The node voltages can be annotated using the `annotate_node_voltages()` method:
+
+   >>> cct.annotate_node_voltages().draw(draw_nodes='primary')
+   
+which produces:   
+   
+.. image:: examples/tutorials/annotations/circuit1_node_voltages1.png
+   :width: 9cm   
+
+
+The `annotate_node_voltages()` method has a number of arguments for
+selecting the nodes, the number representation, the number of digits,
+units, SI prefixes, and labelling of the node voltages.  For example:
+
+   >>> cct.annotate_node_voltages(label_voltages=True, show_units=False).draw(draw_nodes='primary')
+   
+which produces:   
+   
+.. image:: examples/tutorials/annotations/circuit1_node_voltages2.png
+   :width: 9cm   
+
+The clutter can be reduced by increasing the schematic node spacing:
+
+   >>> cct.annotate_node_voltages(label_voltages=True, show_units=False).draw(draw_nodes='primary', node_spacing=2.5)
+   
+which produces:   
+   
+.. image:: examples/tutorials/annotations/circuit1_node_voltages3.png
+   :width: 12cm   
+
+
+.. _annotated_voltages:
+           
+Annotated component voltages
+----------------------------
+
+The component voltages can be annotated using the `annotate_voltages()` method:
+
+   >>> cct.annotate_voltages(('R1', 'R2', 'R3', 'R4')).draw(draw_nodes='connections')
+   
+which produces:   
+   
+.. image:: examples/tutorials/annotations/circuit1_component_voltages1.png
+   :width: 9cm   
+
+.. _annotated_currents:
+           
+Annotated component currents
+----------------------------
+
+The component currents can be annotated using the `annotate_currents()` method:
+
+   >>> cct.annotate_currents(('R1', 'R2', 'R3', 'R4')).draw(draw_nodes='connections')
+   
+which produces:   
+   
+.. image:: examples/tutorials/annotations/circuit1_component_currents1.png
+   :width: 9cm   
+
+The currents can also be specified as flows using `flow=True`:
+
+   >>> cct.annotate_currents(('R1', 'R2', 'R3', 'R4'), flow=True).draw(draw_nodes='connections')
+   
+which produces:   
+   
+.. image:: examples/tutorials/annotations/circuit1_component_currents2.png
+   :width: 9cm   
+
+The currents can shown as rational numbers by setting `evalf=False`.
+
+   >>> cct.annotate_currents(('R1', 'R2', 'R3', 'R4'), evalf=False, flow=True).draw(draw_nodes='connections')
+
+which produces:   
+   
+.. image:: examples/tutorials/annotations/circuit1_component_currents3.png
+   :width: 9cm
+         

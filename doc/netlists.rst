@@ -333,13 +333,13 @@ Circuit methods
   admittance between the nodes of the specified component.
 
 - `annotate_node_voltages()` Produces a new netlist with drawing
-  commands to annotate node voltages for specified nodes
+  commands to annotate node voltages for specified nodes (see :ref:`annotated_node_voltages`)
 
 - `annotate_voltages()` Produces a new netlist with drawing
-  commands to annotate component voltages for specified components
+  commands to annotate component voltages for specified components (see :ref:`annotated_voltages`)
 
 - `annotate_currents()` Produces a new netlist with drawing
-  commands to annotate component currents for specified components  
+  commands to annotate component currents for specified components (see :ref:`annotated_currents`)
 
 - `describe()` Prints message describing how netlist is solved
 
