@@ -295,7 +295,7 @@ class NetlistMixin(object):
         self._node_map = node_map
         return node_map
 
-    def annotate_currents(self, cpts, domainvar=None, flow=False,
+    def annotate_currents(self, cpts=None, domainvar=None, flow=False,
                           eng_format=True, evalf=True, num_digits=3,
                           show_units=True, pos=''):
         """Annotate specified list of component names `cpts` with current (or
@@ -318,6 +318,13 @@ class NetlistMixin(object):
         `pos` specifies where to position the labels (see docs)
         """
 
+        if cpts is None:
+            cpts = []
+            for elt in self._elements.values():            
+                if (elt.is_resistor or elt.is_capacitor or
+                    elt.is_inductor or elt.is_voltage_source):
+                    cpts.append(elt.name)
+        
         label = ('f' if flow else 'i') + pos
 
         if domainvar is None:
@@ -356,6 +363,13 @@ class NetlistMixin(object):
 
         `pos` specifies where to position the labels (see docs)
         """
+
+        if cpts is None:
+            cpts = []
+            for elt in self._elements.values():
+                if (elt.is_resistor or elt.is_capacitor or
+                    elt.is_inductor or elt.is_current_source):
+                    cpts.append(elt.name)
 
         if domainvar is None:
             domainvar = t
