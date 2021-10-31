@@ -109,7 +109,7 @@ class ExprPrint(object):
 
         value = expr.sympy
             
-        if value.is_number and eng_format:
+        if evalf and value.is_number and eng_format:
             return EngFormatter(num_digits=num_digits).latex(value, units)
 
         s = latex(value, **kwargs)
