@@ -465,14 +465,14 @@ class Schematic(NetfileMixin):
         if 'preamble' in kwargs:
             s += '  ' + kwargs.pop('preamble') + '\n'
         
-        help = float(kwargs.pop('help_lines', 0))
+        help_lines = float(kwargs.pop('help_lines', 0))
         color = kwargs.pop('color', 'blue')
-        if help != 0:
+        if help_lines != 0:
             start = Pos(-0.5, -0.5) * self.node_spacing
             stop = Pos(self.width + 0.5, self.height + 0.5) * self.node_spacing
 
             s += r'  \draw[help lines, %s] (%s) grid [xstep=%s, ystep=%s] (%s);''\n' % (
-                color, start, help, help, stop)
+                color, start, help_lines, help_lines, stop)
 
         # Write coordinates.  TODO, not all coordinates are needed
         # so those can be weeded out to simplify the generated file.
