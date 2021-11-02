@@ -79,7 +79,10 @@ class Cpt(object):
                  'nowires', 'nolabels', 'steps', 'free', 'fliplr', 'flipud',
                  'nodots', 'draw_nodes', 'label_nodes', 'nodraw',
                  'mirrorinputs')
+    label_opt_keys = ('label_values', 'label_ids', 'annotate_values')
 
+    special_keys = voltage_keys + current_keys + flow_keys + label_keys + inner_label_keys + annotation_keys + misc_keys + implicit_keys + label_opt_keys
+    
     can_rotate = True
     can_scale = False
     can_mirror = False
@@ -776,20 +779,21 @@ class Cpt(object):
 
         return self.opts_str(self.inner_label_keys)    
 
-    @property
-    def args_list(self):
+    def args_list(self, **kwargs):
 
         def fmt(key, val):
             return '%s=%s' % (key, latex_format_label(val))
 
-        special_keys = self.voltage_keys + self.current_keys + self.flow_keys + self.label_keys + self.inner_label_keys + self.annotation_keys + self.misc_keys + self.implicit_keys
-    
-        return [fmt(key, val) for key, val in self.opts.items() if key not in special_keys]
+        kwargs = kwargs.copy()
+        for key, val in self.opts.items():
+            # Override with element opts
+            kwargs[key] = val
+        
+        return [fmt(key, val) for key, val in kwargs.items() if key not in self.special_keys]
 
-    @property
-    def args_str(self):
+    def args_str(self, **kwargs):
 
-        return ','.join(self.args_list)
+        return ','.join(self.args_list(**kwargs))
     
     def label(self, keys=None, default=True, **kwargs):
 
@@ -857,7 +861,7 @@ class Cpt(object):
         if closed:
             path += ' %s cycle' % join
 
-        args_str = self.args_str
+        args_str = self.args_str()
         if style == '':
             s = args_str
         elif args_str == '':
@@ -888,7 +892,7 @@ class Cpt(object):
             keys = self.label_keys
         
         return self.annotate(pos, self.label(keys, default=default,
-                                             **kwargs), self.args_str)
+                                             **kwargs), self.args_str())
     
 
 class A(Cpt):
@@ -899,7 +903,7 @@ class A(Cpt):
     def draw(self, **kwargs):
 
         n = self.nodes[0]
-        s = r'  \draw[%s] (%s) node {%s};''\n' % (self.args_str, n.s,
+        s = r'  \draw[%s] (%s) node {%s};''\n' % (self.args_str(**kwargs), n.s,
                                                   self.label(**kwargs))
         return s
     
@@ -1037,7 +1041,7 @@ class Bipole(StretchyCpt):
             # This is useful for hiding the control voltage source
             # required for a CCVS and a CCCS.
             s = r'  \draw[-, %s] (%s) to (%s);''\n' % (
-                self.args_str, n1.s, n2.s)
+                self.args_str(**kwargs), n1.s, n2.s)
             return s
 
         tikz_cpt = self.tikz_cpt
@@ -1137,7 +1141,7 @@ class Bipole(StretchyCpt):
         else:
             node_pair_str = self._node_pair_str(n1, n2, **kwargs)
 
-        args_str = self.args_str
+        args_str = self.args_str(**kwargs)
         args_str2 = ','.join([self.voltage_str, self.current_str, self.flow_str])
 
         if self.mirror:
@@ -1401,7 +1405,7 @@ class Shape(FixedCpt):
             # This affects the image positioning.
             text_width = self.width
 
-        args_str = self.args_str
+        args_str = self.args_str(**kwargs)
         if not self.nodraw:
             args_str += ', draw'
         
@@ -1453,7 +1457,7 @@ class Cable(Shape):
 
             q = self.tf(centre, ((0.0125, 0)))
         
-            s += r'  \draw[%s] (%s) node[cylinder, draw, rotate=%s, minimum width=%scm, minimum height=%scm, xscale=%s] {};''\n' % (self.args_str, q, self.angle, width, length, xscale)        
+            s += r'  \draw[%s] (%s) node[cylinder, draw, rotate=%s, minimum width=%scm, minimum height=%scm, xscale=%s] {};''\n' % (self.args_str(**kwargs), q, self.angle, width, length, xscale)        
 
         if kind == 'tline':
             s += self.draw_label(centre, **kwargs)
@@ -1530,7 +1534,7 @@ class Transistor(FixedCpt):
             xscale = -xscale            
         
         s = r'  \draw (%s) node[%s, %s, xscale=%s, yscale=%s, rotate=%d] (%s) {};''\n' % (
-            centre, self.tikz_cpt, self.args_str, xscale, yscale,
+            centre, self.tikz_cpt, self.args_str(**kwargs), xscale, yscale,
             self.angle, self.s)
         s += self.draw_label(centre, **kwargs)
 
@@ -1612,7 +1616,7 @@ class MT(Bipole):
         centre = (n1.pos + n2.pos) * 0.5
 
         s = r'  \draw (%s) node[elmech, %s, rotate=%d] (%s) {};''\n' % (
-            centre, self.args_str, self.angle + 90, self.s)
+            centre, self.args_str(**kwargs), self.angle + 90, self.s)
         # Draw label separately, shape border rotate does not seem to work
         s += self.draw_label(centre, **kwargs)        
         s += r'  \draw (%s) |- (%s.north);''\n' % (n1.s, self.s)
@@ -1869,9 +1873,9 @@ class Transformer(TF1):
         n1, n2, n3, n4 = self.nodes[0:4]
 
         s = r' \draw[%s] (%s) to [inductor, scale=%s] (%s);''\n' % (
-            self.args_str, n3.s, self.scale, n4.s)
+            self.args_str(**kwargs), n3.s, self.scale, n4.s)
         s += r' \draw[%s] (%s) to [inductor, scale=%s] (%s);''\n' % (
-            self.args_str, n2.s, self.scale, n1.s)
+            self.args_str(**kwargs), n2.s, self.scale, n1.s)
 
         s += super(Transformer, self).draw(link=False, **kwargs)
         return s
@@ -1962,7 +1966,7 @@ class Gyrator(FixedCpt):
 
         s = r'  \draw (%s) node[gyrator, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
             self.midpoint(self.nodes[0], self.nodes[3]),
-            self.args_str, 0.95 * self.scale, 0.89 * yscale,
+            self.args_str(**kwargs), 0.95 * self.scale, 0.89 * yscale,
             -self.angle, self.s)        
 
         s += self.draw_label(self.centre, **kwargs)
@@ -2025,7 +2029,7 @@ class SPDT(FixedCpt):
             args_str += ', invert'            
         
         s = r'  \draw (%s) node[spdt, %s, %s] (%s) {};''\n' % (
-            centre, self.args_str, args_str, self.s)            
+            centre, self.args_str(**kwargs), args_str, self.s)            
             
         # TODO, fix label position.
         centre = (n1.pos + n3.pos) * 0.5 + Pos(0.5, -0.5)
@@ -2232,7 +2236,7 @@ class Chip(Shape):
         label = self.label(**kwargs)
         if label != '':
             s += r'  \draw (%s) node[text width=%.2fcm, align=center, %s] {%s};''\n'% (
-                centre.s, self.width - 0.5, self.args_str, label)
+                centre.s, self.width - 0.5, self.args_str(**kwargs), label)
 
         # Draw clock symbols
         for m, n in enumerate(self.nodes):
@@ -2599,7 +2603,7 @@ class Uinverter(Chip):
         centre = self.node('mid')                
         q = self.tf(centre.pos, ((0.45, 0)))
         s += r'  \draw[thick] (%s) node[ocirc, scale=%s, %s] {};''\n' % (
-            q, 1.8 * self.size * self.scale, self.args_str)
+            q, 1.8 * self.size * self.scale, self.args_str(**kwargs))
         return s
 
 
@@ -2630,7 +2634,7 @@ class Udiffdriver(Chip):
         centre = self.node('mid')                
         q = self.tf(centre.pos, ((0.05, -0.25)))
         s += r'  \draw[thick] (%s) node[ocirc, scale=%s, %s] {};''\n' % (
-            q, 1.8 * self.size * self.scale, self.args_str)
+            q, 1.8 * self.size * self.scale, self.args_str(**kwargs))
         return s    
 
     
@@ -2746,7 +2750,7 @@ class Eopamp(Chip):
         # Note, scale scales by area, xscale and yscale scale by length.
         s = r'  \draw (%s) node[op amp, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
             centre.s,
-            self.args_str, 2 * self.scale * 0.95, yscale,
+            self.args_str(**kwargs), 2 * self.scale * 0.95, yscale,
             -self.angle, self.s)
         if not self.nowires:
             s += r'  \draw (%s.out) |- (%s);''\n' % (self.s, self.node('out').s)
@@ -2806,7 +2810,7 @@ class Efdopamp(Chip):
             yscale = -yscale
 
         s = r'  \draw (%s) node[fd op amp, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
-            centre.s, self.args_str, 2 * self.scale * 0.95, yscale,
+            centre.s, self.args_str(**kwargs), 2 * self.scale * 0.95, yscale,
             -self.angle, self.s)
         s += r'  \draw (%s.out +) |- (%s);''\n' % (self.s, self.node('out+').s)
         s += r'  \draw (%s.out -) |- (%s);''\n' % (self.s, self.node('out-').s)
@@ -2852,7 +2856,7 @@ class Eamp(Chip):
         # Note, scale scales by area, xscale and yscale scale by length.
         s = r'  \draw (%s) node[buffer, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
             centre.s,
-            self.args_str, 2 * self.scale * 0.95, yscale,
+            self.args_str(**kwargs), 2 * self.scale * 0.95, yscale,
             -self.angle, self.s)
         if not self.nowires:
             s += r'  \draw (%s.out) |- (%s);''\n' % (self.s, self.node('out').s)
@@ -3186,7 +3190,7 @@ class Wire(Bipole):
         if self.steps is None:
             s = r'  \draw[%s-%s, %s, %s] (%s) to (%s);''\n' % (
                 arrow_map(startarrow), arrow_map(endarrow), style,
-                self.args_str, n1.s, n2.s)
+                self.args_str(**kwargs), n1.s, n2.s)
         else:
 
             steps = Steps(self.steps, n1.pos, n2.pos)
@@ -3197,7 +3201,7 @@ class Wire(Bipole):
 
             s = r'  \draw[%s-%s, %s, %s] %s;''\n' % (
                 arrow_map(startarrow), arrow_map(endarrow), style,
-                self.args_str, path)
+                self.args_str(**kwargs), path)
 
         if self.voltage_str != '':
             print('There is no voltage drop across an ideal wire!')
@@ -3210,10 +3214,10 @@ class Wire(Bipole):
             # To handle multiple labels, we need to draw separate wires.
             for label_str in self.label_str_list:
                 s += r'  \draw[%s] (%s) [short, %s, %s] to (%s);''\n' % (
-                    self.args_str, n1.s, self.current_str, label_str, n2.s)
+                    self.args_str(**kwargs), n1.s, self.current_str, label_str, n2.s)
             if self.label_str_list == []:
                 s += r'  \draw[%s] (%s) [short, %s] to (%s);''\n' % (
-                    self.args_str, n1.s, self.current_str, n2.s)
+                    self.args_str(**kwargs), n1.s, self.current_str, n2.s)
         return s
 
 

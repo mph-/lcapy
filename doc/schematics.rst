@@ -1292,6 +1292,15 @@ The schematic attributes can be overridden using arguments to the `draw` method.
  
     >>> sch.draw(draw_nodes='alpha')
 
+The schematic attributes are also overridden by the component attributes.  For example::
+
+    ; right, fill=blue
+    Z1 1 2
+    Z2 2 3
+    Z3 3 4; fill=green
+
+In this example, all the components are drawn with the `right` attribute and a re filled as blue, except for Z3 that is filled as green.
+
 
 Includes
 ========

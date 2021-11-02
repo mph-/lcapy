@@ -479,22 +479,23 @@ class Schematic(NetfileMixin):
         for n in self.nodes.values():
             s += r'  \coordinate (%s) at (%s);''\n' % (n.s, n.pos)
 
-        # keyword args for second pass
+        # Keyword args for second pass
         kwargs2 = kwargs.copy()
             
-        # Draw components
+        # Pass 1: Draw components
         for elt in self.elements.values():
             if elt.ignore:
                 continue
             if elt.directive:            
                 for key, val in elt.opts.items():
+                    # Update kwargs
                     kwargs[key] = val 
 
             s += elt.draw(**kwargs)
             s += elt.draw_nodes(**kwargs)
             s += elt.draw_pins()
 
-        # Add the node labels
+        # Pass 2: Add the node labels
         for elt in self.elements.values():
             if elt.ignore:
                 continue                        
