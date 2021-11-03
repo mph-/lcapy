@@ -1207,7 +1207,7 @@ Component attributes
   
 - `free`: place no constraints on the node positions; this is useful for stepped wires.  With this attribute the `size` and `rotate` attributes are ignored.
   
-- `i`: current label (also `i`, `i_`, `i^`, `i_>`,  `i_<`, `i^>`, `i^<`, `i>_`, `i<_`, `i>^`, `i<^`, `i>`, `i<`, `ir`)
+- `i`: current label (also `i`, `i_`, `i^`, `i_>`, `i_<`, `i^>`, `i^<`, `i>_`, `i<_`, `i>^`, `i<^`, `i>`, `i<`, `ir`)
 
 - `ignore`: do not connect to the other components and do not draw (this is useful for simulating multiple mutual inductances but where it it is too hard to show them on a schematic)
 
@@ -1299,7 +1299,10 @@ The schematic attributes are also overridden by the component attributes.  For e
     Z2 2 3
     Z3 3 4; fill=green
 
-In this example, all the components are drawn with the `right` attribute and a re filled as blue, except for Z3 that is filled as green.
+In this example, all the components are drawn with the `right` attribute and are filled as blue, except for Z3 that is filled as green.
+
+.. image:: examples/schematics/attr1.png
+   :width: 5cm
 
 
 Includes
