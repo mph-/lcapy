@@ -8,6 +8,7 @@ There are a number of domain variables for discrete-time signals:
 
   - `n` for discrete-time signals, for example, `3 * u(n - 2)`
   - `f` for linear frequency from a DTFT
+  - `F` for normalized linear frequency, `F = f * dt`
   - `k` for discrete-frequency spectra
   - `omega` for angular frequency from a DTFT, `omega = 2 * pi * f`
   - `z` for z-transforms, for example, `Y(z)`
