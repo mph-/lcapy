@@ -1296,7 +1296,10 @@ class TwoPort(Network, TwoPortMixin):
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
 
-        raise NotImplementedError('_net_make needs to be subclassed for each two-port')
+        if hasattr(self, 'tp'):
+            return self.tp._net_make(netlist, n1, n2, n3, n4, dir)
+        
+        raise NotImplementedError('_net_make needs to be subclassed for %s' % self)
 
     def _add_elements(self):
         raise ValueError('Cannot generate netlist for two-port objects')
@@ -2716,8 +2719,9 @@ class TSection(TwoPortBModel):
 
         self.args = (OP1, OP2, OP3)
         _check_oneport_args(self.args)
-        super(TSection, self).__init__(
-            Series(OP1).chain(Shunt(OP2)).chain(Series(OP3)))
+        self.tp = Series(OP1).chain(Shunt(OP2)).chain(Series(OP3))
+        
+        super(TSection, self).__init__(self.tp)
 
     def Pisection(self):
 
@@ -2760,9 +2764,9 @@ class TwinTSection(TwoPortBModel):
 
         self.args = (OP1a, OP2a, OP3a, OP1b, OP2b, OP3b)
         _check_oneport_args(self.args)
-
-        super(TwinTSection, self).__init__(
-            TSection(OP1a, OP2a, OP3a).parallel(TSection(OP1b, OP2b, OP3b)))
+        self.tp = TSection(OP1a, OP2a, OP3a).parallel(TSection(OP1b, OP2b, OP3b))
+        super(TwinTSection, self).__init__(self.tp)
+      
 
 
 class BridgedTSection(TwoPortBModel):
@@ -2791,9 +2795,8 @@ class BridgedTSection(TwoPortBModel):
 
         self.args = (OP1, OP2, OP3, OP4)
         _check_oneport_args(self.args)
-
-        super(TwinTSection, self).__init__(
-            TSection(OP1, OP2, OP3).parallel(Series(OP4)))
+        self.tp = TSection(OP1, OP2, OP3).parallel(Series(OP4))
+        super(TwinTSection, self).__init__(self.tp)
 
 
 class PiSection(TwoPortBModel):
@@ -2816,9 +2819,9 @@ class PiSection(TwoPortBModel):
 
     def __init__(self, OP1, OP2, OP3):
 
-        super(PiSection, self).__init__(
-            Shunt(OP1).chain(Series(OP2)).chain(Shunt(OP3)))
         self.args = (OP1, OP2, OP3)
+        self.tp = Shunt(OP1).chain(Series(OP2)).chain(Shunt(OP3))
+        super(PiSection, self).__init__(self.tp)
 
     def Tsection(self):
 
@@ -2848,9 +2851,9 @@ class LSection(TwoPortBModel):
     def __init__(self, OP1, OP2):
 
         self.args = (OP1, OP2)
-        _check_oneport_args(self.args)
-
-        super(LSection, self).__init__(Series(OP1).chain(Shunt(OP2)))
+        _check_oneport_args(self.args)        
+        self.tp = Series(OP1).chain(Shunt(OP2))
+        super(LSection, self).__init__(self.tp)
 
 
 class Ladder(TwoPortBModel):
@@ -2876,16 +2879,16 @@ class Ladder(TwoPortBModel):
         self.args = (OP1, ) + args
         _check_oneport_args(self.args)
 
-        TP = Series(OP1)
+        self.tp = Series(OP1)
 
         for m, arg in enumerate(args):
 
             if m & 1:
-                TP = TP.chain(Series(arg))
+                self.tp = self.tp.chain(Series(arg))
             else:
-                TP = TP.chain(Shunt(arg))
+                self.tp = self.tp.chain(Shunt(arg))
 
-        super(Ladder, self).__init__(TP)
+        super(Ladder, self).__init__(self.tp)
 
     def simplify(self):
 
