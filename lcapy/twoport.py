@@ -1284,6 +1284,7 @@ class ZMatrix(TwoPortMatrix):
         return cls.Tsection(Za, Zb, Zc)
 
 
+# Probably should only inherit a subset of Network    
 class TwoPort(Network, TwoPortMixin):
 
     """
@@ -1292,11 +1293,25 @@ class TwoPort(Network, TwoPortMixin):
     opposite directions).  This is called the port condition.
     """
 
+    def _net_make(self, netlist, n1=None, n2=None, dir='right'):
+
+        raise NotImplementedError('_net_make needs to be subclassed for each two-port')
+
     def _add_elements(self):
         raise ValueError('Cannot generate netlist for two-port objects')
 
+
     def netlist(self, layout='horizontal', evalf=None):
-        raise ValueError('Cannot generate netlist for two-port objects')
+        """Create a netlist.
+
+        `layout` can be 'horizontal'.
+
+        `evalf` can be False or an integer specifying the number of
+        decimal places used to evaluate floats.
+        """
+
+        from .netlistmaker import NetlistMaker        
+        return NetlistMaker(self, layout=layout, evalf=evalf)()
 
     def _check_twoport_args(self):
 
@@ -2211,7 +2226,6 @@ class TwoPortZModel(TwoPort):
 
 
 class Chain(TwoPortBModel):
-
     """Connect two-port networks in a chain (aka cascade)"""
 
     def __init__(self, *args):
@@ -2230,6 +2244,41 @@ class Chain(TwoPortBModel):
             B = B * arg.Bparams
 
         super(Chain, self).__init__(B, LaplaceDomainVoltage(foo[0, 0]), LaplaceDomainCurrent(foo[1, 0]))
+
+    def _net_make(self, netlist, n1=None, n2=None, dir='right'):
+
+        if n2 == None:
+            n2 = netlist._node
+        if n1 == None:
+            n1 = netlist._node
+        n4 = netlist._node
+        n3 = netlist._node                    
+
+        nets = []
+        args = self.args
+        if isinstance(args[0], Shunt):
+            if isinstance(args[1], Shunt):
+                nets.append(args[0]._net_make(netlist, n1, n2))
+                nets.append(args[1]._net_make(netlist, n3, n4))
+                nets.append('W %s %s; right' % (n1, n3))
+                nets.append('W %s %s; right' % (n2, n4))
+            elif isinstance(args[1], Series):
+                nets.append(args[0]._net_make(netlist, n1, n2))
+                nets.append(args[1]._net_make(netlist, n1, n2, n3, n4))
+            else:
+                raise ValueError('Unhandled twoport %s' % args[1])
+        elif isinstance(args[0], Series):
+            if isinstance(args[1], Shunt):
+                nets.append(args[0]._net_make(netlist, n1, n2, n3, n4))
+                nets.append(args[1]._net_make(netlist, n3, n4))
+            elif isinstance(args[1], Series):
+                nets.append(args[0]._net_make(netlist, n1, n2, n3, n4))
+                n6 = netlist._node
+                n5 = netlist._node                
+                nets.append(args[1]._net_make(netlist, n3, n4, n5, n6))
+        else:
+            raise ValueError('Unhandled twoport %s' % args[0])
+        return '\n'.join(nets)
 
     def simplify(self):
 
@@ -2389,6 +2438,26 @@ class Series(TwoPortBModel):
         _check_oneport_args(self.args)
         super(Series, self).__init__(BMatrix.Zseries(OP.Z.laplace()), LaplaceDomainVoltage(OP.Voc.laplace()), LaplaceDomainCurrent(0))
 
+    def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
+                  dir='right'):
+
+        dir = 'right'
+        net = self
+        if n2 == None:
+            n2 = netlist._node
+        if n1 == None:
+            n1 = netlist._node
+        if n4 == None:
+            n4 = netlist._node
+        if n3 == None:
+            n3 = netlist._node                    
+
+        nets = []
+        nets.append(self.args[0]._net_make(netlist, n1, n3, dir))
+        nets.append('W %s %s; %s' % (n2, n4, dir))
+        nets.append('O %s %s; down' % (n1, n2))
+        return '\n'.join(nets)
+        
 
 class Shunt(TwoPortBModel):
 
@@ -2417,6 +2486,10 @@ class Shunt(TwoPortBModel):
         super(Shunt, self).__init__(BMatrix.Yshunt(OP.Y.laplace()), LaplaceDomainVoltage(0),
                                     LaplaceDomainCurrent(OP.Isc.laplace()))
 
+    def _net_make(self, netlist, n1=None, n2=None, dir='right'):
+
+        return self.args[0]._net_make(netlist, n1, n2, 'down')
+        
 
 class IdealTransformer(TwoPortBModel):
 
