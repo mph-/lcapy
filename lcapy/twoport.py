@@ -520,7 +520,6 @@ class TwoPortMatrix(Matrix, TwoPortMixin):
     
 
 class AMatrix(TwoPortMatrix):
-
     """A-parameters (ABCD parameters, chain matrix)
     ::
        +-  -+     +-       -+   +-  -+
@@ -686,7 +685,6 @@ class AMatrix(TwoPortMatrix):
 
 
 class BMatrix(TwoPortMatrix):
-
     """B-parameters (inverse ABCD parameters)
     ::
        +-  -+     +-       -+   +-  -+
@@ -942,7 +940,6 @@ class BMatrix(TwoPortMatrix):
 
 
 class GMatrix(TwoPortMatrix):
-
     """G-parameters (inverse hybrid parameters)
 
     ::
@@ -1000,7 +997,6 @@ class GMatrix(TwoPortMatrix):
 
 
 class HMatrix(TwoPortMatrix):
-
     """H-parameters (hybrid parameters)
     ::
        +-  -+     +-       -+   +-  -+
@@ -1055,7 +1051,6 @@ class HMatrix(TwoPortMatrix):
 
 
 class SMatrix(TwoPortMatrix):
-
     """S-parameters (scattering parameters)
     ::
        +-  -+     +-       -+   +-  -+
@@ -1104,7 +1099,6 @@ class SMatrix(TwoPortMatrix):
         
     
 class TMatrix(TwoPortMatrix):
-    
     """T-parameters (scattering transfer parameters)
     ::
        +-  -+     +-       -+   +-  -+
@@ -1145,9 +1139,7 @@ class TMatrix(TwoPortMatrix):
         return self.Aparams.Zparams
 
 
-    
 class YMatrix(TwoPortMatrix):
-
     """Y-parameters (admittance parameters)
     ::
        +-  -+     +-       -+   +-  -+
@@ -1207,7 +1199,6 @@ class YMatrix(TwoPortMatrix):
 
 
 class ZMatrix(TwoPortMatrix):
-
     """Z-parameters (impedance parameters)
     ::
        +-  -+     +-       -+   +-  -+
@@ -1286,7 +1277,6 @@ class ZMatrix(TwoPortMatrix):
 
 # Probably should only inherit a subset of Network    
 class TwoPort(Network, TwoPortMixin):
-
     """
     General class for two-port networks.  Two-port networks are
     constrained to have the same current at each port (but flowing in
@@ -1821,7 +1811,6 @@ class TwoPort(Network, TwoPortMixin):
     
 
 class TwoPortBModel(TwoPort):
-
     """
     ::
             +-------------------+    +------+
@@ -1942,7 +1931,6 @@ class TwoPortBModel(TwoPort):
 
 
 class TwoPortGModel(TwoPort):
-
     """
     """
 
@@ -1999,7 +1987,6 @@ class TwoPortGModel(TwoPort):
 
 
 class TwoPortHModel(TwoPort):
-
     """
     ::
          +------+   +-------------------+
@@ -2075,7 +2062,6 @@ class TwoPortHModel(TwoPort):
 
 
 class TwoPortYModel(TwoPort):
-
     """
     ::
                      +-------------------+
@@ -2147,7 +2133,6 @@ class TwoPortYModel(TwoPort):
 
 
 class TwoPortZModel(TwoPort):
-
     """
     ::
          +------+    +-------------------+    +------+
@@ -2392,7 +2377,6 @@ class Ser2(TwoPortZModel):
 
 
 class Hybrid2(TwoPortHModel):
-
     """Connect two-port networks in hybrid configuration (inputs in
     series, outputs in parallel)"""
 
@@ -2415,7 +2399,6 @@ class Hybrid2(TwoPortHModel):
 
 
 class InverseHybrid2(TwoPortGModel):
-
     """Connect two-port networks in inverse hybrid configuration (outputs in
     series, inputs in parallel)"""
 
@@ -2438,7 +2421,6 @@ class InverseHybrid2(TwoPortGModel):
 
 
 class Series(TwoPortBModel):
-
     """
     Two-port comprising a single one-port in series configuration
     ::
@@ -2472,7 +2454,6 @@ class Series(TwoPortBModel):
         
 
 class Shunt(TwoPortBModel):
-
     """
     Two-port comprising a single one-port in shunt configuration
     ::
@@ -2513,7 +2494,6 @@ class Shunt(TwoPortBModel):
         
 
 class IdealTransformer(TwoPortBModel):
-
     """Ideal transformer voltage gain alpha, current gain 1 / alpha.
     Note, alpha = 1 / a where a is the turns ratio defined as the
     number of primary turns to the number of secondary turns, a = N_2 / N_1."""
@@ -2530,7 +2510,6 @@ class TF(IdealTransformer):
 
 
 class IdealGyrator(TwoPortBModel):
-
     """Ideal gyrator with gyration resistance R.
 
     A gyrator converts a voltage to current and a current to voltage.
@@ -2544,7 +2523,6 @@ class IdealGyrator(TwoPortBModel):
 
 
 class VoltageFollower(TwoPortBModel):
-
     """Voltage follower"""
 
     def __init__(self):
@@ -2554,7 +2532,6 @@ class VoltageFollower(TwoPortBModel):
 
 
 class VoltageAmplifier(TwoPortBModel):
-
     """Voltage amplifier"""
 
     def __init__(self, Av=1, Af=0, Yin=0, Zout=0):
@@ -2570,7 +2547,6 @@ class VoltageAmplifier(TwoPortBModel):
 
 
 class IdealVoltageAmplifier(VoltageAmplifier):
-
     """Ideal voltage amplifier"""
 
     def __init__(self, Av=1):
@@ -2582,7 +2558,6 @@ class IdealVoltageAmplifier(VoltageAmplifier):
 
 
 class IdealDelay(TwoPortBModel):
-
     """Ideal buffered delay"""
 
     def __init__(self, delay=0):
@@ -2594,7 +2569,6 @@ class IdealDelay(TwoPortBModel):
 
 
 class IdealVoltageDifferentiator(TwoPortBModel):
-
     """Voltage differentiator"""
 
     def __init__(self, Av=1):
@@ -2606,7 +2580,6 @@ class IdealVoltageDifferentiator(TwoPortBModel):
 
 
 class IdealVoltageIntegrator(TwoPortBModel):
-
     """Ideal voltage integrator"""
 
     def __init__(self, Av=1):
@@ -2618,7 +2591,6 @@ class IdealVoltageIntegrator(TwoPortBModel):
 
 
 class CurrentFollower(TwoPortBModel):
-
     """Current follower"""
 
     def __init__(self):
@@ -2628,7 +2600,6 @@ class CurrentFollower(TwoPortBModel):
 
 
 class IdealCurrentAmplifier(TwoPortBModel):
-
     """Ideal current amplifier"""
 
     def __init__(self, Ai=1):
@@ -2640,7 +2611,6 @@ class IdealCurrentAmplifier(TwoPortBModel):
 
 
 class IdealCurrentDifferentiator(TwoPortBModel):
-
     """Ideal current differentiator"""
 
     def __init__(self, Ai=1):
@@ -2652,7 +2622,6 @@ class IdealCurrentDifferentiator(TwoPortBModel):
 
 
 class IdealCurrentIntegrator(TwoPortBModel):
-
     """Ideal current integrator"""
 
     def __init__(self, Ai=1):
@@ -2664,7 +2633,6 @@ class IdealCurrentIntegrator(TwoPortBModel):
 
 
 class OpampInverter(TwoPortBModel):
-
     """Opamp inverter"""
 
     def __init__(self, R1, R2):
@@ -2679,7 +2647,6 @@ class OpampInverter(TwoPortBModel):
 
 
 class OpampIntegrator(TwoPortBModel):
-
     """Inverting opamp integrator"""
 
     def __init__(self, R1, C1):
@@ -2693,7 +2660,6 @@ class OpampIntegrator(TwoPortBModel):
 
 
 class OpampDifferentiator(TwoPortBModel):
-
     """Inverting opamp differentiator"""
 
     def __init__(self, R1, C1):
@@ -2707,7 +2673,6 @@ class OpampDifferentiator(TwoPortBModel):
 
 
 class TSection(TwoPortBModel):
-
     """T (Y) section
     ::
 
@@ -2745,7 +2710,6 @@ class TSection(TwoPortBModel):
 
 
 class TwinTSection(TwoPortBModel):
-
     """Twin T section
     ::
 
@@ -2782,7 +2746,6 @@ class TwinTSection(TwoPortBModel):
 
 
 class BridgedTSection(TwoPortBModel):
-
     """Bridged T section
         ::
 
@@ -2812,7 +2775,6 @@ class BridgedTSection(TwoPortBModel):
 
 
 class PiSection(TwoPortBModel):
-
     """Pi (delta) section
     ::
 
@@ -2844,7 +2806,6 @@ class PiSection(TwoPortBModel):
 
 
 class LSection(TwoPortBModel):
-
     """L Section
     ::
 
@@ -2869,7 +2830,6 @@ class LSection(TwoPortBModel):
 
 
 class Ladder(TwoPortBModel):
-
     """(Unbalanced) ladder network with alternating Series and Shunt
     networks chained
     ::
@@ -2918,7 +2878,6 @@ class Ladder(TwoPortBModel):
 
 
 class GeneralTxLine(TwoPortBModel):
-
     """General transmission line
 
     Z0 is the (real) characteristic impedance (ohms)
@@ -2944,7 +2903,6 @@ class GeneralTxLine(TwoPortBModel):
 
 
 class LosslessTxLine(GeneralTxLine):
-
     """Losslees transmission line
         Z0 is the (real) characteristic impedance (ohms)
         c is the propagation speed (m/s)
@@ -2959,7 +2917,6 @@ class LosslessTxLine(GeneralTxLine):
 
 
 class TxLine(GeneralTxLine):
-
     """Transmission line
 
     R series resistance/metre
