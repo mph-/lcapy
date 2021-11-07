@@ -2252,17 +2252,7 @@ class Chain(TwoPortBModel):
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
 
-        if n2 == None:
-            n2 = netlist._node
-        if n1 == None:
-            n1 = netlist._node
-        if n4 is None:
-            n4 = netlist._node
-        if n3 is None:
-            n3 = netlist._node                    
-
-        n6 = netlist._node
-        n5 = netlist._node
+        n2, n1, n4, n3, n6, n5 = netlist._make_nodes(n2, n1, n4, n3, None, None)
 
         nets = []
         args = self.args
@@ -2431,15 +2421,7 @@ class Series(TwoPortBModel):
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
 
-        net = self
-        if n2 == None:
-            n2 = netlist._node
-        if n1 == None:
-            n1 = netlist._node
-        if n4 == None:
-            n4 = netlist._node
-        if n3 == None:
-            n3 = netlist._node
+        n2, n1, n4, n3 = netlist._make_nodes(n2, n1, n4, n3)
 
         nets = []
         nets.append(self.args[0]._net_make(netlist, n1, n3, dir='right'))
@@ -2478,18 +2460,7 @@ class Shunt(TwoPortBModel):
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
 
-        net = self
-        if n2 == None:
-            n2 = netlist._node
-        if n1 == None:
-            n1 = netlist._node
-        if n4 == None:
-            n4 = netlist._node
-        if n3 == None:
-            n3 = netlist._node
-
-        n6 = netlist._node
-        n5 = netlist._node
+        n2, n1, n4, n3, n6, n5 = netlist._make_nodes(n2, n1, n4, n3, None, None)
             
         nets = []        
         nets.append(self.args[0]._net_make(netlist, n5, n6, dir='down'))
