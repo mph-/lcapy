@@ -1294,7 +1294,8 @@ class TwoPort(Network, TwoPortMixin):
             return self.tp._net_make(netlist, n1, n2, n3, n4, dir)
 
         n2, n1, n4, n3 = netlist._make_nodes(n2, n1, n4, n3)
-        return 'TP %s %s %s %s; right' % (n3, n4, n1, n2)
+        # TODO: choose appropriate label
+        return 'TP? %s %s %s %s; right, l={}' % (n3, n4, n1, n2)
 
     def _add_elements(self):
         raise ValueError('Cannot generate netlist for two-port objects')

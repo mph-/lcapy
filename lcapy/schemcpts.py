@@ -89,6 +89,7 @@ class Cpt(object):
     can_invert = False
     do_transpose = False    
     can_stretch = True
+    shape_scale = 1.0
     default_width = 1.0
     default_aspect = 1.0
     # node_pinnames maps node numbers to pinnames
@@ -213,7 +214,7 @@ class Cpt(object):
             val = self.default_width
         if val == '':
             val = self.default_width
-        return float(val)
+        return float(val) * self.shape_scale
 
     @property
     def scale(self):
@@ -913,7 +914,7 @@ class StretchyCpt(Cpt):
     can_stretch = True
 
     def xtf(self, centre, offset, angle_offset=0.0):
-        """Transform coordinate."""
+        """Transform x coordinate."""
 
         # Note the size attribute is not used.   This only scales the x coords.
         if isinstance(offset[0], tuple):
@@ -2172,23 +2173,44 @@ class Triangle(Shape):
 class TwoPort(Shape):
     """Two-port"""
 
-    default_width = 2
+    shape_scale = 4.0 / 3
+    default_width = 1
     default_aspect = 1
     shape = 'rectangle'
-    pins = {'wnw' : ('l', -0.5, 0.375),
-            'w' : ('l', -0.5, 0),
-            'wsw' : ('l', -0.5, -0.375),
-            'ssw' : ('b', -0.25, -0.5),                              
-            's' : ('b', 0, -0.5),
-            'sse' : ('b', 0.25, -0.5),
-            'ese' : ('r', 0.5, -0.375),                              
-            'e' : ('r', 0.5, 0),
-            'ene' : ('r', 0.5, 0.375),
-            'nne' : ('t', 0.25, 0.5),
-            'n' : ('t', 0, 0.5),
-            'nnw' : ('t', -0.25, 0.5)}
-    node_pinnames = ('ene', 'ese', 'wnw', 'wsw')
+    x = 0.5
+    p = 0.375
+    n = 0.75
+    pins = {'w' : ('l', -x, 0),
+            'ssw' : ('b', -p, -x),                              
+            's' : ('b', 0, -x),
+            'sse' : ('b', p, -x),
+            'e' : ('r', x, 0),
+            'nne' : ('t', p, x),
+            'n' : ('t', 0, x),
+            'nnw' : ('t', -p, x),
+            'in+' : ('lx', -n, p),
+            'in-' : ('lx', -n, -p),
+            'out+' : ('rx', n, p),
+            'out-' : ('rx', n, -p)}
+
+    auxiliary = {'wnw' : ('l', -x, p),                        
+                 'wsw' : ('l', -x, -p),
+                 'ene' : ('l', x, p),                        
+                 'ese' : ('l', x, -p)}
+    auxiliary.update(Shape.auxiliary)
     
+    node_pinnames = ('out+', 'out-', 'in+', 'in-')
+
+
+    def draw(self, **kwargs):    
+
+        s = super(TwoPort, self).draw(**kwargs)
+        s += r'  \draw (%s) -- (%s);''\n' % (self.node('in+').s, self.node('wnw').s)
+        s += r'  \draw (%s) -- (%s);''\n' % (self.node('in-').s, self.node('wsw').s)
+        s += r'  \draw (%s) -- (%s);''\n' % (self.node('ene').s, self.node('out+').s)
+        s += r'  \draw (%s) -- (%s);''\n' % (self.node('ese').s, self.node('out-').s)                
+        
+        return s
 
 class TR(Box2):
     """Transfer function"""
@@ -2936,7 +2958,6 @@ class Ufdopamp(Chip):
                  'lin-' : ('c', -0.375, -0.2),
                  'lout+' : ('c', 0, -0.17),
                  'lout-' : ('c', 0, 0.17)}
-                 
     auxiliary.update(Chip.auxiliary)
     
     ppins = {'out-' : ('r', 0.1, 0.2),

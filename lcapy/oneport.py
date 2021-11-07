@@ -623,7 +623,7 @@ class Par(ParSer):
         num_branches = N // 2
 
         # Draw component in centre if have odd number in parallel.
-        if (N & 1):
+        if N & 1:
             s.append(self.args[N // 2]._net_make(netlist, n3, n4, dir))
 
         na, nb = n3, n4
