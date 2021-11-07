@@ -18,9 +18,9 @@ class NetlistHelper(object):
         self._node_counter += 1
         return ret
 
-    def _make_nodes(self, nodes):
+    def _make_nodes(self, *nodes):
 
-        return [node for node in nodes if node is not None else self._node]
+        return [self._node if node is None else node for node in nodes]
     
     def _make_id(self, kind):
         """Make identifier"""

@@ -2255,9 +2255,8 @@ class Chain(TwoPortBModel):
         n2, n1, n4, n3, n6, n5 = netlist._make_nodes(n2, n1, n4, n3, None, None)
 
         nets = []
-        args = self.args
-        nets.append(args[0]._net_make(netlist, n1, n2, n5, n6))
-        nets.append(args[1]._net_make(netlist, n5, n6, n3, n4))        
+        nets.append(self.args[0]._net_make(netlist, n1, n2, n5, n6))
+        nets.append(self.args[1]._net_make(netlist, n5, n6, n3, n4))        
         return '\n'.join(nets)
 
     def simplify(self):
@@ -2275,7 +2274,6 @@ class Chain(TwoPortBModel):
 
 
 class Par2(TwoPortYModel):
-
     """Connect two-port networks in parallel"""
 
     def __init__(self, *args):
@@ -2301,6 +2299,33 @@ class Par2(TwoPortYModel):
 
         super(Par2, self).__init__(Y, I1y, I2y)
 
+    def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
+                  dir='right'):
+
+        n2, n1, n4, n3, n6, n5, n8, n7 = netlist._make_nodes(n2, n1, n4, n3, *([None] * 4))
+        n10, n9, n12, n11, n14, n13, n16, n15, n18, n17, n20, n19 = netlist._make_nodes(*([None] * 12))
+
+        nets = []
+        nets.append(self.args[0]._net_make(netlist, n5, n6, n7, n8))
+        nets.append(self.args[1]._net_make(netlist, n9, n10, n11, n12))
+        nets.append('W %s %s; right=0.75' % (n1, n13))
+        nets.append('W %s %s; right=0.25' % (n13, n5))
+        nets.append('W %s %s; right=0.75' % (n7, n14))
+        nets.append('W %s %s; right=0.25' % (n14, n3))                        
+        nets.append('W %s %s; right=0.75' % (n15, n6))
+        nets.append('W %s %s; right=0.25' % (n8, n16))
+        nets.append('W %s %s; right=0.25' % (n17, n9))
+        nets.append('W %s %s; right=0.75' % (n11, n18))
+        nets.append('W %s %s; right=0.25' % (n2, n19))
+        nets.append('W %s %s; right=0.75' % (n19, n10))
+        nets.append('W %s %s; right=0.25' % (n12, n20))
+        nets.append('W %s %s; right=0.75' % (n20, n4))
+        nets.append('W %s %s; down=1.5' % (n15, n19))
+        nets.append('W %s %s; down=1.5' % (n13, n17))
+        nets.append('W %s %s; down=1.5' % (n16, n20))
+        nets.append('W %s %s; down=1.5' % (n14, n18))
+        return '\n'.join(nets)        
+            
     def simplify(self):
 
         if isinstance(self.args[0], Shunt) and isinstance(self.args[1], Shunt):
@@ -2316,7 +2341,6 @@ class Par2(TwoPortYModel):
 
 
 class Ser2(TwoPortZModel):
-
     """Connect two-port networks in series (note this is unusual and can
     break the port condition)"""
 
