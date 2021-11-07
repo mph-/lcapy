@@ -1293,7 +1293,8 @@ class TwoPort(Network, TwoPortMixin):
     opposite directions).  This is called the port condition.
     """
 
-    def _net_make(self, netlist, n1=None, n2=None, dir='right'):
+    def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
+                  dir='right'):
 
         raise NotImplementedError('_net_make needs to be subclassed for each two-port')
 
@@ -2245,39 +2246,25 @@ class Chain(TwoPortBModel):
 
         super(Chain, self).__init__(B, LaplaceDomainVoltage(foo[0, 0]), LaplaceDomainCurrent(foo[1, 0]))
 
-    def _net_make(self, netlist, n1=None, n2=None, dir='right'):
+    def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
+                  dir='right'):
 
         if n2 == None:
             n2 = netlist._node
         if n1 == None:
             n1 = netlist._node
-        n4 = netlist._node
-        n3 = netlist._node                    
+        if n4 is None:
+            n4 = netlist._node
+        if n3 is None:
+            n3 = netlist._node                    
+
+        n6 = netlist._node
+        n5 = netlist._node
 
         nets = []
         args = self.args
-        if isinstance(args[0], Shunt):
-            if isinstance(args[1], Shunt):
-                nets.append(args[0]._net_make(netlist, n1, n2))
-                nets.append(args[1]._net_make(netlist, n3, n4))
-                nets.append('W %s %s; right' % (n1, n3))
-                nets.append('W %s %s; right' % (n2, n4))
-            elif isinstance(args[1], Series):
-                nets.append(args[0]._net_make(netlist, n1, n2))
-                nets.append(args[1]._net_make(netlist, n1, n2, n3, n4))
-            else:
-                raise ValueError('Unhandled twoport %s' % args[1])
-        elif isinstance(args[0], Series):
-            if isinstance(args[1], Shunt):
-                nets.append(args[0]._net_make(netlist, n1, n2, n3, n4))
-                nets.append(args[1]._net_make(netlist, n3, n4))
-            elif isinstance(args[1], Series):
-                nets.append(args[0]._net_make(netlist, n1, n2, n3, n4))
-                n6 = netlist._node
-                n5 = netlist._node                
-                nets.append(args[1]._net_make(netlist, n3, n4, n5, n6))
-        else:
-            raise ValueError('Unhandled twoport %s' % args[0])
+        nets.append(args[0]._net_make(netlist, n1, n2, n5, n6))
+        nets.append(args[1]._net_make(netlist, n5, n6, n3, n4))        
         return '\n'.join(nets)
 
     def simplify(self):
@@ -2450,7 +2437,7 @@ class Series(TwoPortBModel):
         if n4 == None:
             n4 = netlist._node
         if n3 == None:
-            n3 = netlist._node                    
+            n3 = netlist._node
 
         nets = []
         nets.append(self.args[0]._net_make(netlist, n1, n3, dir))
@@ -2486,9 +2473,29 @@ class Shunt(TwoPortBModel):
         super(Shunt, self).__init__(BMatrix.Yshunt(OP.Y.laplace()), LaplaceDomainVoltage(0),
                                     LaplaceDomainCurrent(OP.Isc.laplace()))
 
-    def _net_make(self, netlist, n1=None, n2=None, dir='right'):
+    def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
+                  dir='right'):
 
-        return self.args[0]._net_make(netlist, n1, n2, 'down')
+        net = self
+        if n2 == None:
+            n2 = netlist._node
+        if n1 == None:
+            n1 = netlist._node
+        if n4 == None:
+            n4 = netlist._node
+        if n3 == None:
+            n3 = netlist._node
+
+        n6 = netlist._node
+        n5 = netlist._node
+            
+        nets = []        
+        nets.append(self.args[0]._net_make(netlist, n5, n6, 'down'))
+        nets.append('W %s %s; right=0.5' % (n1, n5))
+        nets.append('W %s %s; right=0.5' % (n5, n3))
+        nets.append('W %s %s; right=0.5' % (n2, n6))
+        nets.append('W %s %s; right=0.5' % (n6, n4))                
+        return '\n'.join(nets)
         
 
 class IdealTransformer(TwoPortBModel):
