@@ -107,7 +107,9 @@ __all__ = ('Chain', 'Par2', 'Ser2', 'Hybrid2', 'InverseHybrid2',
            'TSection', 'TwinTSection', 'BridgedTSection', 'PiSection',
            'LSection', 'Ladder', 'GeneralTxLine', 'LosslessTxLine',
            'TxLine', 'AMatrix', 'BMatrix', 'GMatrix', 'HMatrix',
-           'SMatrix', 'TMatrix', 'YMatrix', 'ZMatrix')
+           'SMatrix', 'TMatrix', 'YMatrix', 'ZMatrix',
+           'TwoPortBModel', 'TwoPortZModel', 'TwoPortYModel',
+           'TwoPortGModel', 'TwoPortGModel')
 
 def DeltaWye(Z1, Z2, Z3):
 
@@ -1283,9 +1285,13 @@ class TwoPort(Network, TwoPortMixin):
     opposite directions).  This is called the port condition.
     """
 
-    def __init__(self, *args):
+    label = ''
+
+    def __init__(self, *args, **kwargs):
 
         self.args = args
+        if 'label' in kwargs:
+            self.label = kwargs['label']
     
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
@@ -1294,8 +1300,8 @@ class TwoPort(Network, TwoPortMixin):
             return self.tp._net_make(netlist, n1, n2, n3, n4, dir)
 
         n2, n1, n4, n3 = netlist._make_nodes(n2, n1, n4, n3)
-        # TODO: choose appropriate label
-        return 'TP? %s %s %s %s; right, l={}' % (n3, n4, n1, n2)
+
+        return 'TP? %s %s %s %s; right, l={%s}' % (n3, n4, n1, n2, self.label)
 
     def _add_elements(self):
         raise ValueError('Cannot generate netlist for two-port objects')
@@ -1873,7 +1879,7 @@ class TwoPortBModel(TwoPort):
     # problem, however, they cannot be extended to three or more ports.
     #
 
-    def __init__(self, B, V2b=None, I2b=None):
+    def __init__(self, B, V2b=None, I2b=None, **kwargs):
 
         if V2b is None:
             V2b = LaplaceDomainVoltage(0)
@@ -1892,7 +1898,7 @@ class TwoPortBModel(TwoPort):
         if not isinstance(I2b, LaplaceDomainCurrent):
             raise ValueError('I2b not LaplaceDomainCurrent')
 
-        super(TwoPortBModel, self).__init__()
+        super(TwoPortBModel, self).__init__(**kwargs)
         self._M = B
         self._V2b = V2b
         self._I2b = I2b
@@ -1939,7 +1945,7 @@ class TwoPortGModel(TwoPort):
     """
     """
 
-    def __init__(self, G, I1g=None, V2g=None):
+    def __init__(self, G, I1g=None, V2g=None, **kwargs):
 
         if I1g is None:
             I1g = LaplaceDomainCurrent(0)
@@ -1958,7 +1964,7 @@ class TwoPortGModel(TwoPort):
         if not isinstance(V2g, LaplaceDomainVoltage):
             raise ValueError('V2g not LaplaceDomainVoltage')
 
-        super(TwoPortGModel, self).__init__()
+        super(TwoPortGModel, self).__init__(**kwargs)
         self._M = G
         self._V1g = I1g
         self._I2g = V2g
@@ -2016,7 +2022,7 @@ class TwoPortHModel(TwoPort):
     +-  -+     +-        -+   +-  -+     +-   -+
     """
 
-    def __init__(self, H, V1h=None, I2h=None):
+    def __init__(self, H, V1h=None, I2h=None, **kwargs):
 
         if V1h is None:
             V1h = LaplaceDomainVoltage(0)
@@ -2035,7 +2041,7 @@ class TwoPortHModel(TwoPort):
         if not isinstance(I2h, LaplaceDomainCurrent):
             raise ValueError('I2h not LaplaceDomainCurrent')
 
-        super(TwoPortHModel, self).__init__()
+        super(TwoPortHModel, self).__init__(**kwargs)
         self._M = H
         self._V1h = V1h
         self._I2h = I2h
@@ -2092,7 +2098,7 @@ class TwoPortYModel(TwoPort):
     Ymn = Im / Vn for Vm = 0
     """
 
-    def __init__(self, Y, I1y=None, I2y=None):
+    def __init__(self, Y, I1y=None, I2y=None, **kwargs):
 
         if I1y is None:
             I1y = LaplaceDomainCurrent(0)
@@ -2110,7 +2116,7 @@ class TwoPortYModel(TwoPort):
         if not isinstance(I2y, LaplaceDomainCurrent):
             raise ValueError('I2y not LaplaceDomainCurrent')
 
-        super(TwoPortYModel, self).__init__()
+        super(TwoPortYModel, self).__init__(**kwargs)
         self._M = Y
         self._I1y = I1y
         self._I2y = I2y
@@ -2162,7 +2168,7 @@ class TwoPortZModel(TwoPort):
 
     """
 
-    def __init__(self, Z, V1z=None, V2z=None):
+    def __init__(self, Z, V1z=None, V2z=None, **kwargs):
 
         if V1z is None:
             V1z = LaplaceDomainVoltage(0)
@@ -2180,7 +2186,7 @@ class TwoPortZModel(TwoPort):
         if not isinstance(V2z, LaplaceDomainVoltage):
             raise ValueError('V2z not LaplaceDomainVoltage')
 
-        super(TwoPortZModel, self).__init__()
+        super(TwoPortZModel, self).__init__(**kwargs)
         self._M = Z
         self._V1z = V1z
         self._V2z = V2z
@@ -2274,7 +2280,7 @@ class Par2(TwoPortYModel):
         # not have a valid Y model.
         # We can special case this.
         if isinstance(args[0], Shunt) or isinstance(args[1], Shunt):
-            print('Warning: need to handle a Shunt in parallel')
+            warn('A parallel Shunt not properly handled')
 
         arg = args[0]
         I1y = arg.I1y
@@ -2339,8 +2345,8 @@ class Ser2(TwoPortZModel):
         self._check_twoport_args(args)
 
         # Need to be more rigorous.
-        if isinstance(self.args[1], (Series, LSection, TSection)):
-            print('Warning: This can violate the port condition')
+        if isinstance(args[1], (Series, LSection, TSection)):
+            warn('This can violate the port condition')
 
         arg = args[0]
         V1z = arg.V1z
@@ -2368,8 +2374,8 @@ class Ser2(TwoPortZModel):
         nets.append('W %s %s; right=0.75' % (n7, n3))
         nets.append('W %s %s; right=0.75' % (n2, n10))
         nets.append('W %s %s; right=0.75' % (n12, n4))        
-        nets.append('W %s %s; down=1.5' % (n6, n9))
-        nets.append('W %s %s; down=1.5' % (n8, n11))
+        nets.append('W %s %s; down=0.75' % (n6, n9))
+        nets.append('W %s %s; down=0.75' % (n8, n11))
         return '\n'.join(nets)        
         
     def simplify(self):
