@@ -101,10 +101,8 @@ class OnePort(Network, ImmittanceMixin):
             return self._Voc
         if self._Isc is not None:
             return self._Isc._mul(self.impedance)
-        if self._Z is not None:        
+        if self._Z is not None or self._Y is not None:
             return SuperpositionVoltage(0)
-        if self._Y is not None:        
-            return SuperpositionCurrent(0)
         raise ValueError('_Isc, _Voc, _Y, or _Z undefined for %s' % self)
     
     @property
