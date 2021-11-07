@@ -2127,7 +2127,7 @@ class Circle4(Shape):
 
 
 class Triangle(Shape):
-    """Equilateral triangle, The triangle shape can be altered by defining
+    """Equilateral triangle. The triangle shape can be altered by defining
     aspect."""    
 
     shape = 'triangle'
@@ -2342,6 +2342,7 @@ class Uchip4141(Chip):
             'r1': ('r', 0.5, 0.375),
             'vdd': ('t', 0.0, 0.5)}
 
+    
 class Uchip4444(Chip):
     """Chip of size 4 4 4 4"""
 
@@ -2385,6 +2386,7 @@ class Uchip8181(Chip):
             'r1': ('r', 0.5, 0.4375),            
             'vdd': ('t', 0.0, 0.5)}
 
+    
 class Uchip8888(Chip):
     """Chip of size 8 8 8 8"""
 
@@ -2421,6 +2423,7 @@ class Uchip8888(Chip):
             't7' : ('t', 0.3125, 0.5),
             't8' : ('t', -0.4375, 0.5)}
 
+    
 class Mux(Chip):
     """Multiplexer"""
 
@@ -3036,6 +3039,7 @@ class Uisoamp(Ufdopamp):
     def path(self):
         return [((-0.5, -0.5), (-0.5, 0.5), (-0.2, 0.35), (-0.2, -0.35)),
                 ((-0.1, -0.3), (-0.1, 0.3), (0.5, 0), (-0.1, -0.3))]
+
     
 class Wire(Bipole):
 
