@@ -518,7 +518,7 @@ class TwoPortMatrix(Matrix, TwoPortMixin):
         import pdb; pdb.set_trace()
         return self
     
-
+    
 class AMatrix(TwoPortMatrix):
     """A-parameters (ABCD parameters, chain matrix)
     ::
@@ -1283,17 +1283,21 @@ class TwoPort(Network, TwoPortMixin):
     opposite directions).  This is called the port condition.
     """
 
+    def __init__(self, *args):
+
+        self.args = args
+    
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
 
         if hasattr(self, 'tp'):
             return self.tp._net_make(netlist, n1, n2, n3, n4, dir)
-        
-        raise NotImplementedError('_net_make needs to be subclassed for %s' % self)
+
+        n2, n1, n4, n3 = netlist._make_nodes(n2, n1, n4, n3)
+        return 'TP %s %s %s %s; right' % (n3, n4, n1, n2)
 
     def _add_elements(self):
         raise ValueError('Cannot generate netlist for two-port objects')
-
 
     def netlist(self, layout='horizontal', evalf=None):
         """Create a netlist.
@@ -1307,13 +1311,13 @@ class TwoPort(Network, TwoPortMixin):
         from .netlistmaker import NetlistMaker        
         return NetlistMaker(self, layout=layout, evalf=evalf)()
 
-    def _check_twoport_args(self):
+    def _check_twoport_args(self, args):
 
         # This is an interim measure until Par2, Ser2, etc. generalised.
-        if len(self.args) != 2:
+        if len(args) != 2:
             raise ValueError('Only two args supported for %s' %
                              self.__class__.__name__)
-        for arg1 in self.args:
+        for arg1 in args:
             if not isinstance(arg1, TwoPort):
                 raise ValueError('%s not a TwoPort' % arg1)
 
@@ -2219,8 +2223,7 @@ class Chain(TwoPortBModel):
 
     def __init__(self, *args):
 
-        self.args = args
-        self._check_twoport_args()
+        self._check_twoport_args(args)
 
         arg1 = args[-1]
         B = arg1.Bparams
@@ -2233,6 +2236,7 @@ class Chain(TwoPortBModel):
             B = B * arg.Bparams
 
         super(Chain, self).__init__(B, LaplaceDomainVoltage(foo[0, 0]), LaplaceDomainCurrent(foo[1, 0]))
+        self.args = args
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
@@ -2263,8 +2267,7 @@ class Par2(TwoPortYModel):
 
     def __init__(self, *args):
 
-        self.args = args
-        self._check_twoport_args()
+        self._check_twoport_args(args)
 
         # This will fail with a Shunt as an argument since it does
         # not have a valid Y model.
@@ -2283,6 +2286,7 @@ class Par2(TwoPortYModel):
             Y += arg.Yparams
 
         super(Par2, self).__init__(Y, I1y, I2y)
+        self.args = args
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
@@ -2331,8 +2335,7 @@ class Ser2(TwoPortZModel):
 
     def __init__(self, *args):
 
-        self.args = args
-        self._check_twoport_args()
+        self._check_twoport_args(args)
 
         # Need to be more rigorous.
         if isinstance(self.args[1], (Series, LSection, TSection)):
@@ -2349,6 +2352,7 @@ class Ser2(TwoPortZModel):
             Z += arg.Zparams
 
         super(Ser2, self).__init__(Z, V1z, V2z)
+        self.args = args
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
@@ -2382,8 +2386,7 @@ class Hybrid2(TwoPortHModel):
 
     def __init__(self, *args):
 
-        self.args = args
-        self._check_twoport_args()
+        self._check_twoport_args(args)
 
         arg = args[0]
         V1h = arg.V1h
@@ -2396,16 +2399,16 @@ class Hybrid2(TwoPortHModel):
             H += arg.Hparams
 
         super(Hybrid2, self).__init__(H, V1h, I2h)
+        self.args = args
 
-
+        
 class InverseHybrid2(TwoPortGModel):
     """Connect two-port networks in inverse hybrid configuration (outputs in
     series, inputs in parallel)"""
 
     def __init__(self, *args):
 
-        self.args = args
-        self._check_twoport_args()
+        self._check_twoport_args(args)
 
         arg = args[0]
         I1g = arg.I1g
@@ -2418,6 +2421,7 @@ class InverseHybrid2(TwoPortGModel):
             G += arg.Gparams
 
         super(Hybrid2, self).__init__(G, I1g, V2g)
+        self.args = args
 
 
 class Series(TwoPortBModel):
@@ -2436,10 +2440,11 @@ class Series(TwoPortBModel):
 
     def __init__(self, OP):
 
+        _check_oneport_args((OP, ))
+        
+        super(Series, self).__init__(BMatrix.Zseries(OP.Z.laplace()), LaplaceDomainVoltage(OP.Voc.laplace()), LaplaceDomainCurrent(0))
         self.OP = OP
         self.args = (OP, )
-        _check_oneport_args(self.args)
-        super(Series, self).__init__(BMatrix.Zseries(OP.Z.laplace()), LaplaceDomainVoltage(OP.Voc.laplace()), LaplaceDomainCurrent(0))
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
@@ -2473,11 +2478,11 @@ class Shunt(TwoPortBModel):
 
     def __init__(self, OP):
 
-        self.OP = OP
-        self.args = (OP, )
-        _check_oneport_args(self.args)
+        _check_oneport_args((OP, ))        
         super(Shunt, self).__init__(BMatrix.Yshunt(OP.Y.laplace()), LaplaceDomainVoltage(0),
                                     LaplaceDomainCurrent(OP.Isc.laplace()))
+        self.OP = OP
+        self.args = (OP, )
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
@@ -2500,11 +2505,11 @@ class IdealTransformer(TwoPortBModel):
 
     def __init__(self, alpha=1):
 
+        super(IdealTransformer, self).__init__(BMatrix.transformer(alpha))
         self.alpha = ConstantDomainExpression(alpha)
         self.args = (alpha, )
-        super(IdealTransformer, self).__init__(BMatrix.transformer(alpha))
 
-
+        
 class TF(IdealTransformer):
     pass
 
@@ -2517,9 +2522,9 @@ class IdealGyrator(TwoPortBModel):
 
     def __init__(self, R=1):
 
+        super(IdealGyrator, self).__init__(BMatrix.gyrator(R))
         self.R = ConstantDomainExpression(R)
         self.args = (R, )
-        super(IdealGyrator, self).__init__(BMatrix.gyrator(R))
 
 
 class VoltageFollower(TwoPortBModel):
@@ -2527,8 +2532,8 @@ class VoltageFollower(TwoPortBModel):
 
     def __init__(self):
 
-        self.args = ()
         super(VoltageFollower, self).__init__(BMatrix.voltage_amplifier(1))
+        self.args = ()
 
 
 class VoltageAmplifier(TwoPortBModel):
@@ -2541,9 +2546,9 @@ class VoltageAmplifier(TwoPortBModel):
         Yin = LaplaceDomainExpression(Yin)
         Zout = LaplaceDomainExpression(Zout)
 
-        self.args = (Av, Af, Yin, Zout)
         super(VoltageAmplifier, self).__init__(
             BMatrix.voltage_amplifier(Av, Af, Yin, Zout))
+        self.args = (Av, Af, Yin, Zout)
 
 
 class IdealVoltageAmplifier(VoltageAmplifier):
@@ -2694,11 +2699,12 @@ class TSection(TwoPortBModel):
 
     def __init__(self, OP1, OP2, OP3):
 
-        self.args = (OP1, OP2, OP3)
-        _check_oneport_args(self.args)
+        _check_oneport_args((OP1, OP2, OP3))
         self.tp = Series(OP1).chain(Shunt(OP2)).chain(Series(OP3))
         
         super(TSection, self).__init__(self.tp)
+        self.args = (OP1, OP2, OP3)
+        
 
     def Pisection(self):
 
@@ -2738,11 +2744,10 @@ class TwinTSection(TwoPortBModel):
 
     def __init__(self, OP1a, OP2a, OP3a, OP1b, OP2b, OP3b):
 
-        self.args = (OP1a, OP2a, OP3a, OP1b, OP2b, OP3b)
-        _check_oneport_args(self.args)
+        _check_oneport_args((OP1a, OP2a, OP3a, OP1b, OP2b, OP3b))
         self.tp = TSection(OP1a, OP2a, OP3a).parallel(TSection(OP1b, OP2b, OP3b))
         super(TwinTSection, self).__init__(self.tp)
-      
+        self.args = (OP1a, OP2a, OP3a, OP1b, OP2b, OP3b)
 
 
 class BridgedTSection(TwoPortBModel):
@@ -2768,10 +2773,10 @@ class BridgedTSection(TwoPortBModel):
 
     def __init__(self, OP1, OP2, OP3, OP4):
 
-        self.args = (OP1, OP2, OP3, OP4)
-        _check_oneport_args(self.args)
+        _check_oneport_args((OP1, OP2, OP3, OP4))
         self.tp = TSection(OP1, OP2, OP3).parallel(Series(OP4))
         super(TwinTSection, self).__init__(self.tp)
+        self.args = (OP1, OP2, OP3, OP4)
 
 
 class PiSection(TwoPortBModel):
@@ -2793,9 +2798,9 @@ class PiSection(TwoPortBModel):
 
     def __init__(self, OP1, OP2, OP3):
 
-        self.args = (OP1, OP2, OP3)
         self.tp = Shunt(OP1).chain(Series(OP2)).chain(Shunt(OP3))
         super(PiSection, self).__init__(self.tp)
+        self.args = (OP1, OP2, OP3)
 
     def Tsection(self):
 
@@ -2823,10 +2828,10 @@ class LSection(TwoPortBModel):
 
     def __init__(self, OP1, OP2):
 
-        self.args = (OP1, OP2)
-        _check_oneport_args(self.args)        
+        _check_oneport_args((OP1, OP2))
         self.tp = Series(OP1).chain(Shunt(OP2))
         super(LSection, self).__init__(self.tp)
+        self.args = (OP1, OP2)
 
 
 class Ladder(TwoPortBModel):
@@ -2848,8 +2853,7 @@ class Ladder(TwoPortBModel):
 
     def __init__(self, OP1, *args):
 
-        self.args = (OP1, ) + args
-        _check_oneport_args(self.args)
+        _check_oneport_args((OP1, ) + args)
 
         self.tp = Series(OP1)
 
@@ -2861,6 +2865,7 @@ class Ladder(TwoPortBModel):
                 self.tp = self.tp.chain(Shunt(arg))
 
         super(Ladder, self).__init__(self.tp)
+        self.args = (OP1, ) + args
 
     def simplify(self):
 
