@@ -2365,6 +2365,23 @@ class Ser2(TwoPortZModel):
 
         super(Ser2, self).__init__(Z, V1z, V2z)
 
+    def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
+                  dir='right'):
+
+        n2, n1, n4, n3 = netlist._make_nodes(n2, n1, n4, n3)
+        n6, n5, n8, n7, n10, n9, n12, n11 = netlist._make_nodes(*([None] * 8))
+
+        nets = []
+        nets.append(self.args[0]._net_make(netlist, n5, n6, n7, n8))
+        nets.append(self.args[1]._net_make(netlist, n9, n10, n11, n12))
+        nets.append('W %s %s; right=0.75' % (n1, n5))
+        nets.append('W %s %s; right=0.75' % (n7, n3))
+        nets.append('W %s %s; right=0.75' % (n2, n10))
+        nets.append('W %s %s; right=0.75' % (n12, n4))        
+        nets.append('W %s %s; down=1.5' % (n6, n9))
+        nets.append('W %s %s; down=1.5' % (n8, n11))
+        return '\n'.join(nets)        
+        
     def simplify(self):
 
         if isinstance(self.args[0], Shunt) and isinstance(self.args[1], Shunt):
