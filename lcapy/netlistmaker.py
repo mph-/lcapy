@@ -25,4 +25,4 @@ class NetlistMaker(NetlistHelper):
 
         n1 = self._node
         n2 = self._node        
-        return self.net._net_make(self, n2, n1, self.dir)    
+        return self.net._net_make(self, n2, n1, dir=self.dir)    

@@ -2428,7 +2428,6 @@ class Series(TwoPortBModel):
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
 
-        dir = 'right'
         net = self
         if n2 == None:
             n2 = netlist._node
@@ -2440,8 +2439,8 @@ class Series(TwoPortBModel):
             n3 = netlist._node
 
         nets = []
-        nets.append(self.args[0]._net_make(netlist, n1, n3, dir))
-        nets.append('W %s %s; %s' % (n2, n4, dir))
+        nets.append(self.args[0]._net_make(netlist, n1, n3, dir='right'))
+        nets.append('W %s %s; right' % (n2, n4))
         nets.append('O %s %s; down' % (n1, n2))
         return '\n'.join(nets)
         
@@ -2490,7 +2489,7 @@ class Shunt(TwoPortBModel):
         n5 = netlist._node
             
         nets = []        
-        nets.append(self.args[0]._net_make(netlist, n5, n6, 'down'))
+        nets.append(self.args[0]._net_make(netlist, n5, n6, dir='down'))
         nets.append('W %s %s; right=0.5' % (n1, n5))
         nets.append('W %s %s; right=0.5' % (n5, n3))
         nets.append('W %s %s; right=0.5' % (n2, n6))
