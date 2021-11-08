@@ -109,7 +109,7 @@ __all__ = ('Chain', 'Par2', 'Ser2', 'Hybrid2', 'InverseHybrid2',
            'TxLine', 'AMatrix', 'BMatrix', 'GMatrix', 'HMatrix',
            'SMatrix', 'TMatrix', 'YMatrix', 'ZMatrix',
            'TwoPortBModel', 'TwoPortZModel', 'TwoPortYModel',
-           'TwoPortGModel', 'TwoPortGModel', 'GenericTwoPort')
+           'TwoPortGModel', 'TwoPortGModel', 'GenericTwoPort', 'TP')
 
 def DeltaWye(Z1, Z2, Z3):
 
@@ -2232,7 +2232,12 @@ class GenericTwoPort(TwoPortBModel):
 
         B = BMatrix.generic()
         super (GenericTwoPort, self).__init__(B, **kwargs)
-                                              
+
+
+class TP(GenericTwoPort):
+    """A generic two-port network."""
+    pass
+
 
 class Chain(TwoPortBModel):
     """Connect two-port networks in a chain (aka cascade)"""
@@ -2955,3 +2960,4 @@ class TxLine(GeneralTxLine):
         Z0 = sym.sqrt(Z / Y)
 
         super(TxLine, self).__init__(Z0, gamma, l)
+
