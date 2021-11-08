@@ -446,7 +446,7 @@ Parallel R-L-C network
 Two-port networks
 =================
 
-Two-port networks are represented in the Laplace domain.
+Two-port networks are represented in the Laplace domain.   Basic two-ports networks can be combined to produce more complicated two-port networks.
 
 
 Shunt two-port
@@ -542,7 +542,7 @@ List of two-ports
 
 
 Two-port combinations
----------------------
+=====================
 
 Two-port networks can be combined in series, parallel, series at the
 input with parallel at the output (hybrid), parallel at the input with
@@ -558,8 +558,45 @@ series one-port::
    >>> n.Vtransfer
    R_2/(R_1 + R_2)
 
-           
 
+Chain
+-----
+
+   >>> from lcapy import TP
+   >>> tp1 = TP(label='Two-port 1')
+   >>> tp2 = TP(label='Two-port 2')
+   >>> tp = tp1.chain(tp2)   
+
+.. image:: examples/networks/twoport-chain1.png
+   :width: 8cm             
+   
+
+Parallel
+--------
+
+   >>> from lcapy import TP
+   >>> tp1 = TP(label='Two-port 1')
+   >>> tp2 = TP(label='Two-port 2')
+   >>> tp = tp1.parallel(tp2)   
+
+.. image:: examples/networks/twoport-parallel1.png
+   :width: 8cm             
+
+
+Series
+------
+
+Warning, a series combination of two-ports can break the port condition.
+
+   >>> from lcapy import TP
+   >>> tp1 = TP(label='Two-port 1')
+   >>> tp2 = TP(label='Two-port 2')
+   >>> tp = tp1.series(tp2)   
+
+.. image:: examples/networks/twoport-series1.png
+   :width: 8cm             
+
+           
 Two-port network parameters
 ===========================
 
