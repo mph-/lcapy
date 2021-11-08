@@ -65,7 +65,7 @@ large matrix.
 6. Use better assumptions propagation.
 
 7. Redo Matrix classes that does not lose the class information
-for each element.
+for each element.  See matrix branch.
 
 8. Improve context switching to avoid sharing of symbols between
 different netlists.  Could use Python context manager with __enter__
@@ -104,6 +104,8 @@ an answer that appears valid for DC.
 22. Fix (R(10e-3) + L(90e-3)).Z(t).plot()
 
 23. Test response method.
+
+24. TwoPort should only inherit a subset of Network
 
 
 Testing

@@ -21,10 +21,6 @@ from .oneport import OnePort, I, V, Y, Z
 from .network import Network
 from .functions import Eq, MatMul
 
-
-# This needs to be generalised for superpositions.
-# For now, it uses only the s-domain.
-
 # TODO:
 # 1. Defer the choice of the two-port model.  For example, a T section
 # would store the three sub-networks rather than generating a B matrix.
@@ -38,7 +34,8 @@ from .functions import Eq, MatMul
 # singular Y matrix.
 #
 # 2. Fix handling of buffered two ports (amplifier / delay).
-
+#
+# 3. Inherit a subset of the Network methods
 
 # Consider chaining a resistor shunt to a two-port network described by the
 # A matrix A1.  The shunt has an A matrix A2.  The result has an A matrix A3.
@@ -1680,7 +1677,7 @@ class TwoPort(Network, TwoPortMixin):
         return Chain(self, TP)
 
     def append(self, TP):
-        """Return the model with, TP, appended"""
+        """Return the model with, TP, appended (this is equivalent to chain)"""
 
         return self.chain(TP)
 
@@ -1690,7 +1687,7 @@ class TwoPort(Network, TwoPortMixin):
         return TP.chain(self)
 
     def cascade(self, TP):
-        """Return the model with, TP, appended"""
+        """Return the model with, TP, appended (this is equivalent to chain)"""
 
         return self.chain(TP)
 
@@ -1749,14 +1746,14 @@ class TwoPort(Network, TwoPortMixin):
     # Other operations: swapping the input terminals negates the A matrix.
     # switching ports.
 
-    def bridge(self, TP):
+    def bridge(self, OP):
         """Bridge the ports with a one-port element"""
 
-        if not issubclass(TP.__class__, OnePort):
+        if not issubclass(OP.__class__, OnePort):
             raise TypeError('Argument not ', OnePort)
 
         # FIXME
-        return self.parallel(Series(TP))
+        return self.parallel(Series(OP))
 
     def load(self, TP):
         """Apply a one-port load and return a Thevenin (one-port) object"""
