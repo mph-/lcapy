@@ -109,7 +109,7 @@ __all__ = ('Chain', 'Par2', 'Ser2', 'Hybrid2', 'InverseHybrid2',
            'TxLine', 'AMatrix', 'BMatrix', 'GMatrix', 'HMatrix',
            'SMatrix', 'TMatrix', 'YMatrix', 'ZMatrix',
            'TwoPortBModel', 'TwoPortZModel', 'TwoPortYModel',
-           'TwoPortGModel', 'TwoPortGModel')
+           'TwoPortGModel', 'TwoPortGModel', 'GenericTwoPort')
 
 def DeltaWye(Z1, Z2, Z3):
 
@@ -2225,6 +2225,15 @@ class TwoPortZModel(TwoPort):
         return self._V2z
 
 
+class GenericTwoPort(TwoPortBModel):
+    """A generic two-port network."""
+
+    def __init__(self, **kwargs):
+
+        B = BMatrix.generic()
+        super (GenericTwoPort, self).__init__(B, **kwargs)
+                                              
+
 class Chain(TwoPortBModel):
     """Connect two-port networks in a chain (aka cascade)"""
 
@@ -2533,7 +2542,7 @@ class IdealGyrator(TwoPortBModel):
         self.R = ConstantDomainExpression(R)
         self.args = (R, )
 
-
+        
 class VoltageFollower(TwoPortBModel):
     """Voltage follower"""
 
