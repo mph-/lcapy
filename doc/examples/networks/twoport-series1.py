@@ -1,8 +1,7 @@
-from lcapy import GenericTwoPort
+from lcapy import TP
 
-tp1 = GenericTwoPort(label='Two-port 1')
-tp2 = GenericTwoPort(label='Two-port 2')
+tp1 = TP(label='Two-port 1')
+tp2 = TP(label='Two-port 2')
+tp = tp1.series(tp2)
 
-n = tp1.series(tp2)
-
-n.draw(__file__.replace('.py', '.png'))
+tp.draw(__file__.replace('.py', '.png'))
