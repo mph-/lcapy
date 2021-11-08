@@ -449,6 +449,113 @@ Two-port networks
 Two-port networks are represented in the Laplace domain.   Basic two-ports networks can be combined to produce more complicated two-port networks.
 
 
+Two-port network attributes
+---------------------------
+
+Here are some of the two-port network attributes:
+
+- `is_bilateral`: True if the two-port is bilateral
+
+- `is_buffered`: True if the two-port is buffered, i.e., any load on the output has no affect on the input
+
+- `is_reciprocal`: True if the  two-port is reciprocal
+
+- `is_series`: True if the two-port is a series network
+
+- `is_shunt`: True if the two-port is a shunt network
+
+- `is_symmetrical`: True if the two-port is symmetrical
+
+- `Voc`: voltage vector with both ports open-circuit
+
+- `V1oc`: open-circuit input voltage
+
+- `V2oc`: open-circuit output voltage
+
+- `Isc`: current vector with both ports short-circuit
+
+- `I1sc`: short-circuit input current
+
+- `I2sc`: short-circuit output current
+
+- `Zoc`: impedance vector with both ports open-circuit
+
+- `Z1oc`: input impedance with output port open-circuit
+
+- `Z2oc`: output impedance with input port open-circuit  
+
+- `Ysc`: admittance vector with both ports short-circuit    
+
+- `Y1sc`: input admittance with output port short-circuit
+
+- `Y2sc`: output admittance with input port short-circuit  
+  
+- `Aparams`: the A-parameters (ABCD)
+
+- `Bparams`: the A-parameters (inverse ABCD)
+
+- `Gparams`: the G-parameters (inverse hybrid)
+
+- `Hparams`: the H-parameters (hybrid)
+
+- `Sparams`: the S-parameters (scattering)
+
+- `Tparams`: the T-parameters (scattering transmission)
+
+- `Yparams`: the Y-parameters (admittance)
+
+- `Zparams`: the Z-parameters (impedance)
+
+The individual elements of a parameter matrix for a two-port `n` can be accessed using `n.A11`, `n.S21`, `n.Z22` etc.
+
+
+Two-port network methods
+------------------------
+
+Here are some of the two-port network methods:
+
+- `chain(TP)`: chain (cascade) two two-port networks together
+
+- `series(TP)`: combine two two-port networks in series
+
+- `parallel(TP)`: combine two two-port networks in parallel
+  
+- `bridge(OP)`: bridge a two-port network with a one-port network
+
+- `load(OP)`: apply a one-port network load and return a one-port network
+
+- `source(OP)`: apply a one-port network source and return a one-port network  
+
+- `draw()`: draw a two-port network
+
+
+Basic two-port networks
+=======================
+
+
+Generic two-port
+----------------
+
+A generic two-port has an optional B-parameter matrix argument:
+
+   >>> n = TP(BMatrix(((1, 2), (3, 4))))
+
+Without an argument, the B-parameters are defined as::
+
+    ⎡B₁₁  B₁₂⎤
+    ⎢        ⎥
+    ⎣B₂₁  B₂₂⎦
+
+
+.. image:: examples/schematics/twoport1.png
+   :width: 12cm
+
+There is an optional `label` argument to specify a label when the
+two-port is drawn, for example,
+
+   >>> n = TP(label='Two-port')
+
+           
 Shunt two-port
 --------------
 
@@ -517,7 +624,8 @@ List of two-ports
 - `Series`
 - `LSection`
 - `TSection`
-- `PiSection`  
+- `PiSection`
+- `GenericTwoPort`  
 - `IdealTransformer`
 - `IdealGyrator`
 - `VoltageFollower`
@@ -637,17 +745,17 @@ Note, in this example, the A-parameters are converted to S-parameters.
 
 Each parameterisation has the following attributes:
 
-`is_bilateral`: True if the two-port is bilateral
+- `is_bilateral`: True if the two-port is bilateral
 
-`is_buffered`: True if the two-port is buffered, i.e., any load on the output has no affect on the input
+- `is_buffered`: True if the two-port is buffered, i.e., any load on the output has no affect on the input
 
-`is_reciprocal`: True if the  two-port is reciprocal
+- `is_reciprocal`: True if the  two-port is reciprocal
 
-`is_series`: True if the two-port is a series network
+- `is_series`: True if the two-port is a series network
 
-`is_shunt`: True if the two-port is a shunt network
+- `is_shunt`: True if the two-port is a shunt network
 
-`is_symmetrical`: True if the two-port is symmetrical
+- `is_symmetrical`: True if the two-port is symmetrical
 
 
 .. _A-parameters:
