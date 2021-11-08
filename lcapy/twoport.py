@@ -106,7 +106,7 @@ __all__ = ('Chain', 'Par2', 'Ser2', 'Hybrid2', 'InverseHybrid2',
            'TxLine', 'AMatrix', 'BMatrix', 'GMatrix', 'HMatrix',
            'SMatrix', 'TMatrix', 'YMatrix', 'ZMatrix',
            'TwoPortBModel', 'TwoPortZModel', 'TwoPortYModel',
-           'TwoPortGModel', 'TwoPortGModel', 'GenericTwoPort', 'TP')
+           'TwoPortGModel', 'TwoPortGModel', 'GenericTwoPort', 'TP', 'TPB')
 
 def DeltaWye(Z1, Z2, Z3):
 
@@ -1298,7 +1298,7 @@ class TwoPort(Network, TwoPortMixin):
 
         n2, n1, n4, n3 = netlist._make_nodes(n2, n1, n4, n3)
 
-        return 'TP? %s %s %s %s; right, l={%s}' % (n3, n4, n1, n2, self.label)
+        return 'TP? %s %s %s %s B %s %s %s %s; right, l={%s}' % (n3, n4, n1, n2, self.B11, self.B12, self.B21, self.B22, self.label)
 
     def _add_elements(self):
         raise ValueError('Cannot generate netlist for two-port objects')
@@ -2234,6 +2234,15 @@ class GenericTwoPort(TwoPortBModel):
 class TP(GenericTwoPort):
     """A generic two-port network."""
     pass
+
+
+class TPB(TwoPortBModel):
+    """B-parameter two-port network."""
+
+    def __init__(self, B11, B12, B21, B22, **kwargs):
+    
+        B = BMatrix(((B11, B12), (B21, B22)))
+        super (TPB, self).__init__(B, **kwargs)
 
 
 class Chain(TwoPortBModel):

@@ -555,6 +555,14 @@ two-port is drawn, for example,
 
    >>> n = TP(label='Two-port')
 
+
+B-parameter two-port
+--------------------
+
+A B-parameter two-port is created with:
+
+   >>> n = TPB(B11, B12, B21, B22)
+
            
 Shunt two-port
 --------------

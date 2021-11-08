@@ -1464,6 +1464,13 @@ class TP(Misc):
     pass
 
 
+class TPB(Misc):
+    """B-parameter two port"""
+
+    # TODO, add stamp
+    pass
+
+
 class TR(Dummy):
     """Transfer function.  This is equivalent to a VCVS with the input and
     output referenced to node 0."""

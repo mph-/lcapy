@@ -91,7 +91,8 @@ TFcore: TFname Np Nm Ncp Ncm core [Value]; Transformer with core (works to DC!)
 TFtap: TFname Np Nm Ncp Ncm tap Nt Nt [Value]; Tapped transformer (works to DC!)
 TFtapcore: TFname Np Nm Ncp Ncm tapcore Nt Nt [Value]; Tapped transformer with core (works to DC!)
 TL: TLname Np Nm Ncp Ncm [Value]; Transmission line
-TP: TPname Np Nm Ncp Ncm [Value]; Two port
+TP: TPname Np Nm Ncp Ncm; Two port
+TPB: TPname Np Nm Ncp Ncm B B11 B12 B21 B22; Two port
 TR: TRname Pi Po [Value]; Transfer function
 Ubuffer: Uname buffer; Buffer
 Uinverter: Uname inverter; Inverter
@@ -204,6 +205,7 @@ push: keyword;
 dff: keyword; D flip-flop
 jkff: keyword; JK flip-flop
 rslatch: keyword; RS latch
+B: keyword;
 P: pin; Pin
 Pi: pin; Input pin
 Po: pin; Output pin
@@ -238,4 +240,8 @@ Lname1: name; Inductor1 name
 Lname2: name; Inductor2 name 
 Vcontrol: name; Control voltage name 
 Ac: value; Common-mode gain
+B11: value; B11
+B12: value; B12
+B21: value; B21
+B22: value; B22
 """

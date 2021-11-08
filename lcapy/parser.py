@@ -246,11 +246,12 @@ class Parser(object):
         # Perhaps a factory should sort this out?
         rule = self.ruledict[cpt_type][0]
         keyword = ''
+
         for rule1 in self.ruledict[cpt_type]:
             pos = rule1.pos
             if pos is None:
                 continue
-            if len(fields) > pos and fields[pos].lower() == rule1.params[pos]:
+            if len(fields) > pos and fields[pos].lower() == rule1.params[pos].lower():
                 rule = rule1
                 keyword = rule1.params[pos]
                 break

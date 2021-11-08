@@ -3407,6 +3407,7 @@ defcpt('TF', Transformer, 'Transformer', 'ideal transformer')
 defcpt('TFcore', Transformer, 'Transformer with core', 'transformer core')
 defcpt('TFtapcore', TFtap, 'Tapped transformer with core', 'transformer core')
 defcpt('TP', TwoPort, 'Two port', '')
+defcpt('TPB', TwoPort, 'B-parameter two port', '')
 
 defcpt('Ubox', Box2, 'Box')
 defcpt('Ucircle', Circle2, 'Circle')
