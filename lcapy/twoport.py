@@ -1765,7 +1765,7 @@ class TwoPort(Network, TwoPortMixin):
             raise TypeError('Argument not ', OnePort)
 
         foo = self.chain(Shunt(TP))
-        return Z(foo.Z1oc) + V(foo.V1oc)
+        return (V(foo.V1oc) + Z(foo.Z1oc)).simplify()
 
     def source(self, TP):
         """Apply a one-port source and return a Thevenin (one-port) object"""
@@ -1774,7 +1774,7 @@ class TwoPort(Network, TwoPortMixin):
             raise TypeError('Argument not ', OnePort)
 
         foo = Shunt(TP).chain(self)
-        return Z(foo.Z2oc) +  V(foo.V2oc)
+        return (V(foo.V2oc) + Z(foo.Z2oc)).simplify()
 
     def short_circuit(self, port=2):
         """Apply a short-circuit to specified port and return a
@@ -1784,7 +1784,7 @@ class TwoPort(Network, TwoPortMixin):
         Yval = self.Yparams[1 - p, 1 - p]
         Ival = self.Isc[1 - p]
 
-        return Y(Yval) | I(Ival)
+        return (I(Ival) | Y(Yval)).simplify()
 
     def open_circuit(self, port=2):
         """Apply a open-circuit to specified port and return a
@@ -1794,7 +1794,7 @@ class TwoPort(Network, TwoPortMixin):
         Zval = self.Zparams[1 - p, 1 - p]
         Vval = self.Voc[1 - p]
 
-        return Z(Zval) + V(Vval)
+        return (V(Vval) + Z(Zval)).simplify()
 
     def simplify(self):
 

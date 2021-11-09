@@ -632,9 +632,9 @@ class NetlistMixin(object):
         If Np is a component name, create model using the component nodes."""
 
         try:
-            return self.norton(Np, Nm).simplify()
+            return self.norton(Np, Nm)
         except:
-            return self.thevenin(Np, Nm).simplify()
+            return self.thevenin(Np, Nm)
     
     def thevenin(self, Np, Nm=None):
         """Return s-domain Thevenin oneport model between nodes Np and Nm.
@@ -651,7 +651,7 @@ class NetlistMixin(object):
         # Convert to time-domain to handle arbitrary sources.  Either
         # this or define a way to represent a superposition in a
         # netlist.
-        return V(Voc.time()) + Z(Zoc)
+        return (V(Voc.time()) + Z(Zoc)).simplify()
 
     def norton(self, Np, Nm=None):
         """Return s-domain Norton model between nodes Np and Nm.
@@ -668,7 +668,7 @@ class NetlistMixin(object):
         # Convert to time-domain to handle arbitrary sources.  Either
         # this or define a way to represent a superposition in a
         # netlist.        
-        return I(Isc.time()) | Y(Ysc)
+        return (I(Isc.time()) | Y(Ysc)).simplify()
 
     def match(self, pattern):
         """Return list of components names matching regular 
