@@ -756,10 +756,12 @@ class XX(Dummy):
 
     def __str__(self):        
         return self._string
+
     
 class A(XX):
     pass
-    
+
+
 class IndependentSource(Cpt):
 
     independent_source = True
@@ -1474,10 +1476,48 @@ class TPB(Misc):
 class TPY(Misc):
     """Y-parameter two port"""
 
-    # TODO, add stamp
-    pass
+    def _stamp(self, cct):
 
+        n1, n2, n3, n4 = self.node_indexes
+        Y11, Y12, Y21, Y22 = self.Y11, self.Y12, self.Y21, self.Y22
 
+        if n1 >= 0:
+            cct._G[n1, n1] = Y11
+            if n2 >= 0:            
+                cct._G[n1, n2] = -Y11
+            if n3 >= 0:            
+                cct._G[n1, n3] = Y12
+            if n4 >= 0:            
+                cct._G[n1, n4] = -Y12
+
+        if n2 >= 0:
+            if n1 >= 0:                        
+                cct._G[n2, n1] = -Y11
+            cct._G[n2, n2] = Y11
+            if n3 >= 0:            
+                cct._G[n2, n3] = -Y12
+            if n4 >= 0:            
+                cct._G[n2, n4] = Y12
+
+        if n3 >= 0:
+            if n1 >= 0:                        
+                cct._G[n3, n1] = Y21
+            if n2 >= 0:            
+                cct._G[n3, n2] = -Y21
+            cct._G[n3, n3] = Y22
+            if n4 >= 0:            
+                cct._G[n3, n4] = -Y22
+
+        if n4 >= 0:
+            if n1 >= 0:                        
+                cct._G[n4, n1] = -Y21
+            if n2 >= 0:            
+                cct._G[n4, n2] = Y21
+            if n3 >= 0:            
+                cct._G[n4, n3] = -Y22
+            cct._G[n4, n4] = Y22
+
+                
 class TPZ(Misc):
     """Z-parameter two port"""
 

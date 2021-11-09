@@ -28,10 +28,10 @@ from .functions import Eq, MatMul
 # avoid the inversion of singular matrices. The downside is that each
 # object would require methods to generate each type of two-port model.
 #
-# Some multiport networks, such as a shunt R, have a singular Z matrix.
-# Thus switching to the Y matrix and back to the Z matrix produces a
-# bogus result.  The same thing occurs for a series R; this has a
-# singular Y matrix.
+# Some multiport networks, such as a shunt R (or L, C) have a singular
+# Y matrix.  Thus switching to the Z matrix and back to the Y matrix
+# produces a bogus result.  The same thing occurs for a series R (or
+# L, C); this has a singular Z matrix.
 #
 # 2. Fix handling of buffered two ports (amplifier / delay).
 #

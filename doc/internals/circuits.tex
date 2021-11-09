@@ -433,24 +433,24 @@ The Z-parameter two-port stamp is
 \end{bmatrix}.
 \end{equation}
 %
-When $V_1' = V_2' = 0$, this simplifies to
-%
-\begin{equation}
-  \begin{bmatrix}
-      & & 1 &   \\
-      & &   & 1 \\
-    -1 &   & Z_{11} & Z_{12} \\
-      & -1 & Z_{21} & Z_{22} \\
-  \end{bmatrix}
-  \begin{bmatrix}
-    V_1 \\ V_2 \\ I_{Z_{11}} \\ I_{Z_{22}}
-  \end{bmatrix}
-=
-\begin{bmatrix}
-  I_1 \\ I_2 \\ 0 \\ 0
-\end{bmatrix}.
-\end{equation}
-%
+%% When $V_1' = V_2' = 0$, this simplifies to
+%% %
+%% \begin{equation}
+%%   \begin{bmatrix}
+%%       & & 1 &   \\
+%%       & &   & 1 \\
+%%     -1 &   & Z_{11} & Z_{12} \\
+%%       & -1 & Z_{21} & Z_{22} \\
+%%   \end{bmatrix}
+%%   \begin{bmatrix}
+%%     V_1 \\ V_2 \\ I_{Z_{11}} \\ I_{Z_{22}}
+%%   \end{bmatrix}
+%% =
+%% \begin{bmatrix}
+%%   I_1 \\ I_2 \\ 0 \\ 0
+%% \end{bmatrix}.
+%% \end{equation}
+%% %
 
 
 
@@ -475,22 +475,22 @@ The A-parameter two-port stamp is
 \end{bmatrix}.
 \end{equation}
 %
-When $V_1' = V_2' = 0$, this simplifies to
-%
-\begin{equation}
-  \begin{bmatrix}
- &  A_{21}  & A_{22}  \\
-         &       & -1 \\
-      -1 & A_{11} & A_{12} \\
-  \end{bmatrix}
-  \begin{bmatrix}
-    V_1 \\ V_2 \\ I_{A_{22}}
-  \end{bmatrix}
-=
-\begin{bmatrix}
-  I_1 \\ I_2 \\ 0
-\end{bmatrix}.
-\end{equation}
+%% When $V_1' = V_2' = 0$, this simplifies to
+%% %
+%% \begin{equation}
+%%   \begin{bmatrix}
+%%  &  A_{21}  & A_{22}  \\
+%%          &       & -1 \\
+%%       -1 & A_{11} & A_{12} \\
+%%   \end{bmatrix}
+%%   \begin{bmatrix}
+%%     V_1 \\ V_2 \\ I_{A_{22}}
+%%   \end{bmatrix}
+%% =
+%% \begin{bmatrix}
+%%   I_1 \\ I_2 \\ 0
+%% \end{bmatrix}.
+%% \end{equation}
 %
 
 
@@ -515,31 +515,31 @@ Y_{21} & -Y_{21} & Y_{22} & -Y_{22} \\
 \end{bmatrix}.
 \end{equation}
 %
-When $V_1' = V_2' = 0$, this simplifies to
+%% When $V_1' = V_2' = 0$, this simplifies to
+%% %
+%% \begin{equation}
+%%   \begin{bmatrix}
+%% Y_{11} & Y_{12} \\
+%% Y_{21} & Y_{22}
+%%   \end{bmatrix}
+%%   \begin{bmatrix}
+%%     V_1 \\ V_2 
+%%   \end{bmatrix}
+%% =
+%% \begin{bmatrix}
+%%   I_1 \\ I_2 
+%% \end{bmatrix}.
+%% \end{equation}
 %
-\begin{equation}
-  \begin{bmatrix}
-Y_{11} & Y_{12} \\
-Y_{21} & Y_{22}
-  \end{bmatrix}
-  \begin{bmatrix}
-    V_1 \\ V_2 
-  \end{bmatrix}
-=
-\begin{bmatrix}
-  I_1 \\ I_2 
-\end{bmatrix}.
-\end{equation}
-%
-For example, consider a series capacitor.  This has an admittance matrix
-%
-\begin{equation}
-  \mat{Y} =
-  \begin{bmatrix}
-    sC & -sC \\
-   -sC &  sC
-  \end{bmatrix}.
-\end{equation}
+%% For example, consider a series capacitor.  This has an admittance matrix
+%% %
+%% \begin{equation}
+%%   \mat{Y} =
+%%   \begin{bmatrix}
+%%     sC & -sC \\
+%%    -sC &  sC
+%%   \end{bmatrix}.
+%% \end{equation}
 
 
 
