@@ -36,20 +36,20 @@ class NetlistHelper(object):
             self._anon[kind] = 0
         self._anon[kind] += 1
         return self._anon[kind]
-    
+
+    def _netarg(self, arg):
+
+        if self.evalf:
+            arg = arg.evalf(n=self.evalf)
+
+        arg = str(arg)
+
+        # TODO: make more robust to catch expressions.
+        if ('(' in arg) or (')' in arg) or (' ' in arg) or (',' in arg) or ('*' in arg) or ('/' in arg):
+            return '{%s}' % arg
+        return arg
+
     def _netargs(self, net):
 
-        def process(arg):
-
-            if self.evalf:
-                arg = arg.evalf(n=self.evalf)
-
-            arg = str(arg)
-
-            # TODO: make more robust to catch expressions.
-            if ('(' in arg) or (')' in arg) or (' ' in arg) or (',' in arg) or ('*' in arg) or ('/' in arg):
-                return '{%s}' % arg
-            return arg
-
-        return ' '.join([process(arg) for arg in net.args])
+        return ' '.join([self._netarg(arg) for arg in net.args])
 
