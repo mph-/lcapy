@@ -93,6 +93,8 @@ TFtapcore: TFname Np Nm Ncp Ncm tapcore Nt Nt [Value]; Tapped transformer with c
 TL: TLname Np Nm Ncp Ncm [Value]; Transmission line
 TP: TPname Np Nm Ncp Ncm; Two port
 TPB: TPname Np Nm Ncp Ncm B B11 B12 B21 B22; Two port
+TPY: TPname Np Nm Ncp Ncm Y Y11 Y12 Y21 Y22; Two port
+TPZ: TPname Np Nm Ncp Ncm Z Z11 Z12 Z21 Z22; Two port
 TR: TRname Pi Po [Value]; Transfer function
 Ubuffer: Uname buffer; Buffer
 Uinverter: Uname inverter; Inverter
@@ -206,6 +208,8 @@ dff: keyword; D flip-flop
 jkff: keyword; JK flip-flop
 rslatch: keyword; RS latch
 B: keyword;
+Y: keyword;
+Z: keyword;
 P: pin; Pin
 Pi: pin; Input pin
 Po: pin; Output pin
@@ -244,4 +248,12 @@ B11: value; B11
 B12: value; B12
 B21: value; B21
 B22: value; B22
+Y11: value; Y11
+Y12: value; Y12
+Y21: value; Y21
+Y22: value; Y22
+Z11: value; Z11
+Z12: value; Z12
+Z21: value; Z21
+Z22: value; Z22
 """
