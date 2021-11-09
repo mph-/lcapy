@@ -21,6 +21,7 @@
 \newcommand{\bigspace}{\;\;\;\;}
 
 \newcommand{\refeqn}[1]{\mbox{(\ref{eqn:#1})}}
+\renewcommand{\vec}[1]{\mathbf{#1}}
 
 
 \begin{document}
@@ -37,7 +38,7 @@ Nodal analysis solves a system of equations,
 %
 where $\mat{G}$ is a matrix of admittances, $\vec{V}$ is a vector of
 unknown node voltages, and $\vec{I}$ is a vector of known currents
-produced by independent currents sources.
+produced by independent current sources.
 
 Modified nodal analysis handles independent voltage sources using a
 similar system of equations,
@@ -89,7 +90,24 @@ Thus the system of equations has the form
 =
   \begin{bmatrix}
     \vec{I} \\ \vec{E}
-  \end{bmatrix}.
+  \end{bmatrix},
+\end{equation}
+%
+which can be inverted to find the unknown node voltages and the
+currents through voltage sources:
+%
+\begin{equation}
+  \begin{bmatrix}
+    \vec{I} \\ \vec{E}
+  \end{bmatrix}
+=
+  \begin{bmatrix}
+    \mat{G} & \mat{B} \\
+    \mat{C} & \mat{D} \\
+  \end{bmatrix}^{-1}
+  \begin{bmatrix}
+    \vec{V} \\ \vec{J}.
+  \end{bmatrix}
 \end{equation}
 
 
@@ -513,7 +531,7 @@ Y_{21} & Y_{22}
 \end{bmatrix}.
 \end{equation}
 %
-For example, consider a series capacitor, with
+For example, consider a series capacitor.  This has an admittance matrix
 %
 \begin{equation}
   \mat{Y} =
