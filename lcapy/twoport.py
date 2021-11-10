@@ -105,8 +105,8 @@ __all__ = ('Chain', 'Par2', 'Ser2', 'Hybrid2', 'InverseHybrid2',
            'LSection', 'Ladder', 'GeneralTxLine', 'LosslessTxLine',
            'TxLine', 'AMatrix', 'BMatrix', 'GMatrix', 'HMatrix',
            'SMatrix', 'TMatrix', 'YMatrix', 'ZMatrix',
-           'TwoPortBModel', 'TwoPortZModel', 'TwoPortYModel',
-           'TwoPortGModel', 'TwoPortGModel', 'TP',
+           'TwoPortAModel', 'TwoPortBModel', 'TwoPortYModel', 'TwoPortZModel',
+           'TwoPortGModel', 'TwoPortHModel', 'TP',
            'TPA', 'TPB', 'TPY', 'TPZ')
 
 def DeltaWye(Z1, Z2, Z3):
@@ -1934,6 +1934,48 @@ class TwoPortBModel(TwoPort):
         return self.V2b - LaplaceDomainVoltage(self.I2b * self._B11 / self._B21)
 
 
+class TwoPortAModel(TwoPort):
+    """
+    """
+
+    def __init__(self, A, V1a=None, I1a=None, **kwargs):
+
+        if V1a is None:
+            V1a = LaplaceDomainVoltage(0)
+        if I1a is None:
+            I1a = LaplaceDomainCurrent(0)            
+
+        if issubclass(A.__class__, TwoPortAModel):
+            A, V1a, I1a = A._M, A._V1a, A._I1a
+
+        if not isinstance(A, AMatrix):
+            raise ValueError('A not AMatrix')
+
+        if not isinstance(V1a, LaplaceDomainVoltage):
+            raise ValueError('V1a not LaplaceDomainVoltage')
+
+        if not isinstance(I1a, LaplaceDomainCurrent):
+            raise ValueError('I1a not LaplaceDomainCurrent')
+
+        super(TwoPortAModel, self).__init__(**kwargs)
+        self._M = A
+        self._V1a = V1a
+        self._I1a = I1a
+
+    @property
+    def Aparams(self):
+        """Return chain matrix"""
+        return self._M
+
+    @property
+    def I1a(self):
+        return self._I1a
+
+    @property
+    def V1a(self):
+        return self._V1a
+
+
 class TwoPortGModel(TwoPort):
     """
     """
@@ -2218,7 +2260,7 @@ class TwoPortZModel(TwoPort):
         return self._V2z
 
 
-class TPA(TwoPortBModel):
+class TPA(TwoPortAModel):
     """A-parameter two-port network."""
 
     def __init__(self, A11=None, A12=None, A21=None, A22=None, **kwargs):
@@ -2232,9 +2274,7 @@ class TPA(TwoPortBModel):
             A22 = 'A22' if A22 is None else A22            
             A = AMatrix(((A11, A12), (A21, A22)))
             
-        # FIXME once have added TwoPortAModel
-        B = A.Bparams
-        super (TPA, self).__init__(B, **kwargs)
+        super (TPA, self).__init__(A, **kwargs)
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
