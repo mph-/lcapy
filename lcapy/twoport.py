@@ -106,7 +106,7 @@ __all__ = ('Chain', 'Par2', 'Ser2', 'Hybrid2', 'InverseHybrid2',
            'TxLine', 'AMatrix', 'BMatrix', 'GMatrix', 'HMatrix',
            'SMatrix', 'TMatrix', 'YMatrix', 'ZMatrix',
            'TwoPortBModel', 'TwoPortZModel', 'TwoPortYModel',
-           'TwoPortGModel', 'TwoPortGModel', 'GenericTwoPort', 'TP',
+           'TwoPortGModel', 'TwoPortGModel', 'TP',
            'TPA', 'TPB', 'TPY', 'TPZ')
 
 def DeltaWye(Z1, Z2, Z3):
@@ -2218,26 +2218,20 @@ class TwoPortZModel(TwoPort):
         return self._V2z
 
 
-class GenericTwoPort(TwoPortBModel):
-    """A generic two-port network."""
-
-    def __init__(self, **kwargs):
-
-        B = BMatrix.generic()
-        super (GenericTwoPort, self).__init__(B, **kwargs)
-
-
-class TP(GenericTwoPort):
-    """A generic two-port network."""
-    pass
-
-
 class TPA(TwoPortBModel):
     """A-parameter two-port network."""
 
-    def __init__(self, A11, A12, A21, A22, **kwargs):
-    
-        A = AMatrix(((A11, A12), (A21, A22)))
+    def __init__(self, A11=None, A12=None, A21=None, A22=None, **kwargs):
+
+        if A11 is not None and A12 is None and A21 is None and A22 is None:
+            A = A11
+        else:
+            A11 = 'A11' if A11 is None else A11
+            A12 = 'A12' if A12 is None else A12
+            A21 = 'A21' if A21 is None else A21
+            A22 = 'A22' if A22 is None else A22            
+            A = AMatrix(((A11, A12), (A21, A22)))
+            
         # FIXME once have added TwoPortAModel
         B = A.Bparams
         super (TPA, self).__init__(B, **kwargs)
@@ -2255,9 +2249,17 @@ class TPA(TwoPortBModel):
 class TPB(TwoPortBModel):
     """B-parameter two-port network."""
 
-    def __init__(self, B11, B12, B21, B22, **kwargs):
-    
-        B = BMatrix(((B11, B12), (B21, B22)))
+    def __init__(self, B11=None, B12=None, B21=None, B22=None, **kwargs):
+
+        if B11 is not None and B12 is None and B21 is None and B22 is None:
+            B = B11
+        else:
+            B11 = 'B11' if B11 is None else B11
+            B12 = 'B12' if B12 is None else B12
+            B21 = 'B21' if B21 is None else B21
+            B22 = 'B22' if B22 is None else B22            
+            B = BMatrix(((B11, B12), (B21, B22)))
+        
         super (TPB, self).__init__(B, **kwargs)
 
 
@@ -2274,9 +2276,17 @@ class TPB(TwoPortBModel):
 class TPY(TwoPortYModel):
     """Y-parameter two-port network."""
 
-    def __init__(self, Y11, Y12, Y21, Y22, **kwargs):
+    def __init__(self, Y11=None, Y12=None, Y21=None, Y22=None, **kwargs):
     
-        Y = YMatrix(((Y11, Y12), (Y21, Y22)))
+        if Y11 is not None and Y12 is None and Y21 is None and Y22 is None:
+            Y = Y11
+        else:
+            Y11 = 'Y11' if Y11 is None else Y11
+            Y12 = 'Y12' if Y12 is None else Y12
+            Y21 = 'Y21' if Y21 is None else Y21
+            Y22 = 'Y22' if Y22 is None else Y22            
+            Y = YMatrix(((Y11, Y12), (Y21, Y22)))
+
         super (TPY, self).__init__(Y, **kwargs)
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
@@ -2291,9 +2301,17 @@ class TPY(TwoPortYModel):
 class TPZ(TwoPortZModel):
     """Z-parameter two-port network."""
 
-    def __init__(self, Z11, Z12, Z21, Z22, **kwargs):
-    
-        Z = ZMatrix(((Z11, Z12), (Z21, Z22)))
+    def __init__(self, Z11=None, Z12=None, Z21=None, Z22=None, **kwargs):
+
+        if Z11 is not None and Z12 is None and Z21 is None and Z22 is None:
+            Z = Z11
+        else:
+            Z11 = 'Z11' if Z11 is None else Z11
+            Z12 = 'Z12' if Z12 is None else Z12
+            Z21 = 'Z21' if Z21 is None else Z21
+            Z22 = 'Z22' if Z22 is None else Z22            
+            Z = ZMatrix(((Z11, Z12), (Z21, Z22)))
+
         super (TPZ, self).__init__(Z, **kwargs)                
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
@@ -2304,8 +2322,14 @@ class TPZ(TwoPortZModel):
         return 'TP? %s %s %s %s Z %s %s %s %s; right, l={%s}' % (n3, n4, n1, n2,
              netlist._netarg(self.Z11), netlist._netarg(self.Z12),
              netlist._netarg(self.Z21), netlist._netarg(self.Z22), self.label)
-        
 
+    
+class TP(TPB):
+    """A generic two-port network."""
+
+    pass
+
+    
 class Chain(TwoPortBModel):
     """Connect two-port networks in a chain (aka cascade)"""
 
