@@ -1904,11 +1904,8 @@ class TwoPortBModel(TwoPort):
         if not isinstance(B, BMatrix):
             raise ValueError('B not BMatrix')
 
-        if not isinstance(V2b, LaplaceDomainVoltage):
-            raise ValueError('V2b not LaplaceDomainVoltage')
-
-        if not isinstance(I2b, LaplaceDomainCurrent):
-            raise ValueError('I2b not LaplaceDomainCurrent')
+        V2b = LaplaceDomainVoltage(V2b)
+        I2b = LaplaceDomainCurrent(I2b)
 
         super(TwoPortBModel, self).__init__(**kwargs)
         self._M = B
@@ -1987,11 +1984,8 @@ class TwoPortAModel(TwoPort):
         if not isinstance(A, AMatrix):
             raise ValueError('A not AMatrix')
 
-        if not isinstance(V1a, LaplaceDomainVoltage):
-            raise ValueError('V1a not LaplaceDomainVoltage')
-
-        if not isinstance(I1a, LaplaceDomainCurrent):
-            raise ValueError('I1a not LaplaceDomainCurrent')
+        V1a = LaplaceDomainVoltage(V1a)
+        I1a = LaplaceDomainCurrent(I1a)        
 
         super(TwoPortAModel, self).__init__(**kwargs)
         self._M = A
@@ -2046,11 +2040,8 @@ class TwoPortGModel(TwoPort):
         if not isinstance(G, GMatrix):
             raise ValueError('G not GMatrix')
 
-        if not isinstance(I1g, LaplaceDomainCurrent):
-            raise ValueError('I1g not LaplaceDomainCurrent')
-
-        if not isinstance(V2g, LaplaceDomainVoltage):
-            raise ValueError('V2g not LaplaceDomainVoltage')
+        I1g = LaplaceDomainCurrent(I1g)                
+        V2g = LaplaceDomainVoltage(V2g)
 
         super(TwoPortGModel, self).__init__(**kwargs)
         self._M = G
@@ -2140,11 +2131,8 @@ class TwoPortHModel(TwoPort):
         if not isinstance(H, HMatrix):
             raise ValueError('H not HMatrix')
 
-        if not isinstance(V1h, LaplaceDomainVoltage):
-            raise ValueError('V1h not LaplaceDomainVoltage')
-
-        if not isinstance(I2h, LaplaceDomainCurrent):
-            raise ValueError('I2h not LaplaceDomainCurrent')
+        V1h = LaplaceDomainVoltage(V1h)
+        I2h = LaplaceDomainCurrent(I2h)        
 
         super(TwoPortHModel, self).__init__(**kwargs)
         self._M = H
@@ -2233,10 +2221,8 @@ class TwoPortYModel(TwoPort):
         if not isinstance(Y, YMatrix):
             raise ValueError('Y not YMatrix')
 
-        if not isinstance(I1y, LaplaceDomainCurrent):
-            raise ValueError('I1y not LaplaceDomainCurrent')
-        if not isinstance(I2y, LaplaceDomainCurrent):
-            raise ValueError('I2y not LaplaceDomainCurrent')
+        I1y = LaplaceDomainCurrent(I1y)
+        I2y = LaplaceDomainCurrent(I2y)        
 
         super(TwoPortYModel, self).__init__(**kwargs)
         self._M = Y
@@ -2320,10 +2306,8 @@ class TwoPortZModel(TwoPort):
         if not isinstance(Z, ZMatrix):
             raise ValueError('Z not ZMatrix')
 
-        if not isinstance(V1z, LaplaceDomainVoltage):
-            raise ValueError('V1z not LaplaceDomainVoltage')
-        if not isinstance(V2z, LaplaceDomainVoltage):
-            raise ValueError('V2z not LaplaceDomainVoltage')
+        V1z = LaplaceDomainVoltage(V1z)
+        V2z = LaplaceDomainVoltage(V2z)        
 
         super(TwoPortZModel, self).__init__(**kwargs)
         self._M = Z
