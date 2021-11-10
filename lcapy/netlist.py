@@ -20,7 +20,7 @@ from .netlistmixin import NetlistMixin
 from .netfile import NetfileMixin
 from .expr import Expr, expr
 from .subnetlist import SubNetlist
-from .mna import MNAMixin, Nodedict, Branchdict
+from .mna import Nodedict, Branchdict
 from .symbols import omega
 from copy import copy
 

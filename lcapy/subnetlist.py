@@ -10,7 +10,6 @@ from .state import state
 from .symbols import omega
 
 
-
 class SubNetlist(NetlistMixin, MNAMixin):
     """This is a representation of a netlist for a particular
     transformation domain, such as ac, dc, transient, or noise."""

@@ -107,7 +107,7 @@ __all__ = ('Chain', 'Par2', 'Ser2', 'Hybrid2', 'InverseHybrid2',
            'SMatrix', 'TMatrix', 'YMatrix', 'ZMatrix',
            'TwoPortBModel', 'TwoPortZModel', 'TwoPortYModel',
            'TwoPortGModel', 'TwoPortGModel', 'GenericTwoPort', 'TP',
-           'TPB', 'TPY', 'TPZ')
+           'TPA', 'TPB', 'TPY', 'TPZ')
 
 def DeltaWye(Z1, Z2, Z3):
 
@@ -1872,13 +1872,6 @@ class TwoPortBModel(TwoPort):
 
     """
 
-    # A disadvantage of the Y and Z matrices is that they become
-    # singular for some simple networks.  For example, the Z matrix is
-    # singular for a shunt element and the Y matrix is singular for a
-    # series element.  The A and B matrices do not seem to have this
-    # problem, however, they cannot be extended to three or more ports.
-    #
-
     def __init__(self, B, V2b=None, I2b=None, **kwargs):
 
         if V2b is None:
@@ -2239,6 +2232,26 @@ class TP(GenericTwoPort):
     pass
 
 
+class TPA(TwoPortBModel):
+    """A-parameter two-port network."""
+
+    def __init__(self, A11, A12, A21, A22, **kwargs):
+    
+        A = AMatrix(((A11, A12), (A21, A22)))
+        # FIXME once have added TwoPortAModel
+        B = A.Bparams
+        super (TPA, self).__init__(B, **kwargs)
+
+    def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
+                  dir='right'):
+
+        n2, n1, n4, n3 = netlist._make_nodes(n2, n1, n4, n3)
+
+        return 'TP? %s %s %s %s A %s %s %s %s; right, l={%s}' % (n3, n4, n1, n2,
+             netlist._netarg(self.A11), netlist._netarg(self.A12),
+             netlist._netarg(self.A21), netlist._netarg(self.A22), self.label)
+
+        
 class TPB(TwoPortBModel):
     """B-parameter two-port network."""
 
@@ -2248,6 +2261,16 @@ class TPB(TwoPortBModel):
         super (TPB, self).__init__(B, **kwargs)
 
 
+    def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
+                  dir='right'):
+
+        n2, n1, n4, n3 = netlist._make_nodes(n2, n1, n4, n3)
+
+        return 'TP? %s %s %s %s B %s %s %s %s; right, l={%s}' % (n3, n4, n1, n2,
+             netlist._netarg(self.B11), netlist._netarg(self.B12),
+             netlist._netarg(self.B21), netlist._netarg(self.B22), self.label)
+    
+
 class TPY(TwoPortYModel):
     """Y-parameter two-port network."""
 
@@ -2256,6 +2279,14 @@ class TPY(TwoPortYModel):
         Y = YMatrix(((Y11, Y12), (Y21, Y22)))
         super (TPY, self).__init__(Y, **kwargs)
 
+    def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
+                  dir='right'):
+
+        n2, n1, n4, n3 = netlist._make_nodes(n2, n1, n4, n3)
+
+        return 'TP? %s %s %s %s Y %s %s %s %s; right, l={%s}' % (n3, n4, n1, n2,
+             netlist._netarg(self.Y11), netlist._netarg(self.Y12),
+             netlist._netarg(self.Y21), netlist._netarg(self.Y22), self.label)        
         
 class TPZ(TwoPortZModel):
     """Z-parameter two-port network."""
@@ -2265,6 +2296,15 @@ class TPZ(TwoPortZModel):
         Z = ZMatrix(((Z11, Z12), (Z21, Z22)))
         super (TPZ, self).__init__(Z, **kwargs)                
 
+    def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
+                  dir='right'):
+
+        n2, n1, n4, n3 = netlist._make_nodes(n2, n1, n4, n3)
+
+        return 'TP? %s %s %s %s Z %s %s %s %s; right, l={%s}' % (n3, n4, n1, n2,
+             netlist._netarg(self.Z11), netlist._netarg(self.Z12),
+             netlist._netarg(self.Z21), netlist._netarg(self.Z22), self.label)
+        
 
 class Chain(TwoPortBModel):
     """Connect two-port networks in a chain (aka cascade)"""

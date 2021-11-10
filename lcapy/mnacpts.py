@@ -1466,10 +1466,53 @@ class TP(Misc):
     pass
 
 
-class TPB(Misc):
+class TPA(Misc):
+    """A-parameter two port"""
+
+    def _stamp(self, cct):
+
+        m = self.branch_index        
+        n1, n2, n3, n4 = self.node_indexes
+        A11, A12, A21, A22 = self.A11, self.A12, self.A21, self.A22
+
+        if n1 >= 0:
+            if n3 >= 0:
+                cct._G[n1, n3] = A21
+            if n4 >= 0:
+                cct._G[n1, n3] = -A21
+            cct._G[n1, m] = A22
+
+        if n2 >= 0:
+            if n3 >= 0:
+                cct._G[n2, n3] = -A21
+            if n4 >= 0:
+                cct._G[n2, n3] = A21
+            cct._G[n2, m] = -A22            
+            
+        if n3 >= 0:
+            cct._G[n3, m] = -1
+
+        if n4 >= 0:
+            cct._G[n4, m] = 1
+
+        if n1 >= 0:
+            cct._G[m, n1] = -1
+
+        if n2 >= 0:
+            cct._G[m, n2] = 1
+
+        if n3 >= 0:
+            cct._G[m, n3] = A11
+
+        if n4 >= 0:
+            cct._G[m, n4] = -A11
+
+        cct._G[m, m] = A12
+
+        
+class TPB(TPA):
     """B-parameter two port"""
 
-    # TODO, add stamp
     pass
 
 
