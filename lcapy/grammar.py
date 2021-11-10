@@ -91,11 +91,13 @@ TFcore: TFname Np Nm Ncp Ncm core [Value]; Transformer with core (works to DC!)
 TFtap: TFname Np Nm Ncp Ncm tap Nt Nt [Value]; Tapped transformer (works to DC!)
 TFtapcore: TFname Np Nm Ncp Ncm tapcore Nt Nt [Value]; Tapped transformer with core (works to DC!)
 TL: TLname Np Nm Ncp Ncm [Value]; Transmission line
-TP: TPname Np Nm Ncp Ncm; Two port
-TPA: TPname Np Nm Ncp Ncm A A11 A12 A21 A22; A-parameter two-port
-TPB: TPname Np Nm Ncp Ncm B B11 B12 B21 B22; B-parameter two-port
-TPY: TPname Np Nm Ncp Ncm Y Y11 Y12 Y21 Y22; Y-parameter two-port
-TPZ: TPname Np Nm Ncp Ncm Z Z11 Z12 Z21 Z22; Z-parameter two-port
+TP: TPname Np Nm Ncp Ncm; Generic two-port
+TPA: TPname Np Nm Ncp Ncm A A11 A12 A21 A22 [V1] [I1]; A-parameter two-port
+TPB: TPname Np Nm Ncp Ncm B B11 B12 B21 B22 [V2] [I2]; B-parameter two-port
+TPG: TPname Np Nm Ncp Ncm G G11 G12 G21 G22 [I1] [V2]; G-parameter two-port
+TPH: TPname Np Nm Ncp Ncm H H11 H12 H21 H22 [V1] [I2]; H-parameter two-port
+TPY: TPname Np Nm Ncp Ncm Y Y11 Y12 Y21 Y22 [I1] [I2]; Y-parameter two-port
+TPZ: TPname Np Nm Ncp Ncm Z Z11 Z12 Z21 Z22 [V1] [V2]; Z-parameter two-port
 TR: TRname Pi Po [Value]; Transfer function
 Ubuffer: Uname buffer; Buffer
 Uinverter: Uname inverter; Inverter
@@ -210,6 +212,8 @@ jkff: keyword; JK flip-flop
 rslatch: keyword; RS latch
 A: keyword;
 B: keyword;
+G: keyword;
+H: keyword;
 Y: keyword;
 Z: keyword;
 P: pin; Pin
@@ -254,6 +258,14 @@ B11: value; B11
 B12: value; B12
 B21: value; B21
 B22: value; B22
+G11: value; G11
+G12: value; G12
+G21: value; G21
+G22: value; G22
+H11: value; H11
+H12: value; H12
+H21: value; H21
+H22: value; H22
 Y11: value; Y11
 Y12: value; Y12
 Y21: value; Y21
@@ -262,4 +274,8 @@ Z11: value; Z11
 Z12: value; Z12
 Z21: value; Z21
 Z22: value; Z22
+V1: value; V1
+I1: value; I1
+V2: value; V2
+I2: value; I2
 """

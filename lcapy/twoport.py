@@ -107,7 +107,7 @@ __all__ = ('Chain', 'Par2', 'Ser2', 'Hybrid2', 'InverseHybrid2',
            'SMatrix', 'TMatrix', 'YMatrix', 'ZMatrix',
            'TwoPortAModel', 'TwoPortBModel', 'TwoPortYModel', 'TwoPortZModel',
            'TwoPortGModel', 'TwoPortHModel', 'TP',
-           'TPA', 'TPB', 'TPY', 'TPZ')
+           'TPA', 'TPB', 'TPG', 'TPH', 'TPY', 'TPZ')
 
 def DeltaWye(Z1, Z2, Z3):
 
@@ -1303,6 +1303,15 @@ class TwoPort(Network, TwoPortMixin):
              netlist._netarg(self.B11), netlist._netarg(self.B12),
              netlist._netarg(self.B21), netlist._netarg(self.B22), self.label)
 
+    def _TP_make(self, netlist, n1, n2, n3, n4, kind, *args):
+        
+        n2, n1, n4, n3 = netlist._make_nodes(n2, n1, n4, n3)
+
+        args =  ' '.join([netlist._netarg(arg) for arg in args])
+
+        return 'TP? %s %s %s %s %s %s; right, l={%s}' % (n3, n4, n1, n2,
+                                                         kind, args, self.label)
+    
     def _add_elements(self):
         raise ValueError('Cannot generate netlist for two-port objects')
 
@@ -1649,26 +1658,26 @@ class TwoPort(Network, TwoPortMixin):
     @property
     def Bmodel(self):
 
-        return TwoPortBModel(self.Bparams, self.V2b, self.I2b)
+        return TwoPortBModel(self.Bparams, V2b=self.V2b, I2b=self.I2b)
 
     @property
     def Hmodel(self):
 
-        return TwoPortHModel(self.Hparams, self.V1h, self.I2h)
+        return TwoPortHModel(self.Hparams, V1h=self.V1h, I2h=self.I2h)
 
     @property
     def Ymodel(self):
 
         if self.is_shunt:
             warn('Converting a shunt two-port to a Y model is dodgy...')
-        return TwoPortYModel(self.Yparams, self.I1y, self.I2y)
+        return TwoPortYModel(self.Yparams, I1y=self.I1y, I2y=self.I2y)
 
     @property
     def Zmodel(self):
 
         if self.is_series:
             warn('Converting a series two-port to a Z model is dodgy...')
-        return TwoPortZModel(self.Zparams, self.V1z, self.V2z)
+        return TwoPortZModel(self.Zparams, V1z=self.V1z, V2z=self.V2z)
 
     def chain(self, TP):
         """Return the model with, TP, appended (cascade or
@@ -1872,8 +1881,18 @@ class TwoPortBModel(TwoPort):
 
     """
 
-    def __init__(self, B, V2b=None, I2b=None, **kwargs):
+    def __init__(self, B11=None, B12=None, B21=None, B22=None,
+                  V2b=None, I2b=None, **kwargs):
 
+        if B11 is not None and B12 is None and B21 is None and B22 is None:
+            B = B11
+        else:
+            B11 = 'B11' if B11 is None else B11
+            B12 = 'B12' if B12 is None else B12
+            B21 = 'B21' if B21 is None else B21
+            B22 = 'B22' if B22 is None else B22            
+            B = BMatrix(((B11, B12), (B21, B22)))
+        
         if V2b is None:
             V2b = LaplaceDomainVoltage(0)
         if I2b is None:
@@ -1895,6 +1914,13 @@ class TwoPortBModel(TwoPort):
         self._M = B
         self._V2b = V2b
         self._I2b = I2b
+
+    def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
+                  dir='right'):
+
+        return self._TP_make(netlist, n1, n2, n3, n4, 'B',
+                             self.B11, self.B12, self.B21, self.B22,
+                             self.V2b, self.I2b)
 
     @property
     def Bparams(self):
@@ -1938,8 +1964,18 @@ class TwoPortAModel(TwoPort):
     """
     """
 
-    def __init__(self, A, V1a=None, I1a=None, **kwargs):
+    def __init__(self, A11=None, A12=None, A21=None, A22=None,
+                 V1a=None, I1a=None, **kwargs):
 
+        if A11 is not None and A12 is None and A21 is None and A22 is None:
+            A = A11
+        else:
+            A11 = 'A11' if A11 is None else A11
+            A12 = 'A12' if A12 is None else A12
+            A21 = 'A21' if A21 is None else A21
+            A22 = 'A22' if A22 is None else A22            
+            A = AMatrix(((A11, A12), (A21, A22)))
+            
         if V1a is None:
             V1a = LaplaceDomainVoltage(0)
         if I1a is None:
@@ -1962,6 +1998,13 @@ class TwoPortAModel(TwoPort):
         self._V1a = V1a
         self._I1a = I1a
 
+    def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
+                  dir='right'):
+
+        return self._TP_make(netlist, n1, n2, n3, n4, 'A',
+                             self.A11, self.A12, self.A21, self.A22,
+                             self.V1a, self.I1a)
+    
     @property
     def Aparams(self):
         """Return chain matrix"""
@@ -1980,8 +2023,18 @@ class TwoPortGModel(TwoPort):
     """
     """
 
-    def __init__(self, G, I1g=None, V2g=None, **kwargs):
+    def __init__(self, G11=None, G12=None, G21=None, G22=None,
+                 I1g=None, V2g=None, **kwargs):
 
+        if G11 is not None and G12 is None and G21 is None and G22 is None:
+            G = G11
+        else:
+            G11 = 'G11' if G11 is None else G11
+            G12 = 'G12' if G12 is None else G12
+            G21 = 'G21' if G21 is None else G21
+            G22 = 'G22' if G22 is None else G22            
+            G = GMatrix(((G11, G12), (G21, G22)))
+    
         if I1g is None:
             I1g = LaplaceDomainCurrent(0)
         if V2g is None:
@@ -2004,6 +2057,13 @@ class TwoPortGModel(TwoPort):
         self._V1g = I1g
         self._I2g = V2g
 
+    def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
+                  dir='right'):
+
+        return self._TP_make(netlist, n1, n2, n3, n4, 'G',
+                             self.G11, self.G12, self.G21, self.G22,
+                             self.I1g, self.V2g)
+        
     @property
     def Gparams(self):
         """Return hybrid matrix"""
@@ -2057,7 +2117,17 @@ class TwoPortHModel(TwoPort):
     +-  -+     +-        -+   +-  -+     +-   -+
     """
 
-    def __init__(self, H, V1h=None, I2h=None, **kwargs):
+    def __init__(self, H11=None, H12=None, H21=None, H22=None,
+                 V1h=None, I2h=None, **kwargs):
+
+        if H11 is not None and H12 is None and H21 is None and H22 is None:
+            H = H11
+        else:
+            H11 = 'H11' if H11 is None else H11
+            H12 = 'H12' if H12 is None else H12
+            H21 = 'H21' if H21 is None else H21
+            H22 = 'H22' if H22 is None else H22            
+            H = HMatrix(((H11, H12), (H21, H22)))
 
         if V1h is None:
             V1h = LaplaceDomainVoltage(0)
@@ -2080,6 +2150,13 @@ class TwoPortHModel(TwoPort):
         self._M = H
         self._V1h = V1h
         self._I2h = I2h
+
+    def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
+                  dir='right'):
+
+        return self._TP_make(netlist, n1, n2, n3, n4, 'H',
+                             self.H11, self.H12, self.H21, self.H22,
+                             self.V1h, self.I2h)
 
     @property
     def Hparams(self):
@@ -2133,7 +2210,17 @@ class TwoPortYModel(TwoPort):
     Ymn = Im / Vn for Vm = 0
     """
 
-    def __init__(self, Y, I1y=None, I2y=None, **kwargs):
+    def __init__(self, Y11=None, Y12=None, Y21=None, Y22=None,
+                 I1y=None, I2y=None, **kwargs):
+    
+        if Y11 is not None and Y12 is None and Y21 is None and Y22 is None:
+            Y = Y11
+        else:
+            Y11 = 'Y11' if Y11 is None else Y11
+            Y12 = 'Y12' if Y12 is None else Y12
+            Y21 = 'Y21' if Y21 is None else Y21
+            Y22 = 'Y22' if Y22 is None else Y22            
+            Y = YMatrix(((Y11, Y12), (Y21, Y22)))
 
         if I1y is None:
             I1y = LaplaceDomainCurrent(0)
@@ -2156,6 +2243,13 @@ class TwoPortYModel(TwoPort):
         self._I1y = I1y
         self._I2y = I2y
 
+    def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
+                  dir='right'):
+
+        return self._TP_make(netlist, n1, n2, n3, n4, 'Y',
+                             self.Y11, self.Y12, self.Y21, self.Y22,
+                             self.I1y, self.I2y)
+        
     @property
     def Yparams(self):
         """Return admittance matrix"""
@@ -2203,7 +2297,17 @@ class TwoPortZModel(TwoPort):
 
     """
 
-    def __init__(self, Z, V1z=None, V2z=None, **kwargs):
+    def __init__(self, Z11=None, Z12=None, Z21=None, Z22=None,
+                 V1z=None, V2z=None, **kwargs):
+
+        if Z11 is not None and Z12 is None and Z21 is None and Z22 is None:
+            Z = Z11
+        else:
+            Z11 = 'Z11' if Z11 is None else Z11
+            Z12 = 'Z12' if Z12 is None else Z12
+            Z21 = 'Z21' if Z21 is None else Z21
+            Z22 = 'Z22' if Z22 is None else Z22            
+            Z = ZMatrix(((Z11, Z12), (Z21, Z22)))
 
         if V1z is None:
             V1z = LaplaceDomainVoltage(0)
@@ -2225,6 +2329,13 @@ class TwoPortZModel(TwoPort):
         self._M = Z
         self._V1z = V1z
         self._V2z = V2z
+
+    def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
+                  dir='right'):
+
+        return self._TP_make(netlist, n1, n2, n3, n4, 'Z',
+                             self.Z11, self.Z12, self.Z21, self.Z22,
+                             self.V1z, self.V2z)
 
     @property
     def Zparams(self):
@@ -2263,105 +2374,37 @@ class TwoPortZModel(TwoPort):
 class TPA(TwoPortAModel):
     """A-parameter two-port network."""
 
-    def __init__(self, A11=None, A12=None, A21=None, A22=None, **kwargs):
-
-        if A11 is not None and A12 is None and A21 is None and A22 is None:
-            A = A11
-        else:
-            A11 = 'A11' if A11 is None else A11
-            A12 = 'A12' if A12 is None else A12
-            A21 = 'A21' if A21 is None else A21
-            A22 = 'A22' if A22 is None else A22            
-            A = AMatrix(((A11, A12), (A21, A22)))
-            
-        super (TPA, self).__init__(A, **kwargs)
-
-    def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
-                  dir='right'):
-
-        n2, n1, n4, n3 = netlist._make_nodes(n2, n1, n4, n3)
-
-        return 'TP? %s %s %s %s A %s %s %s %s; right, l={%s}' % (n3, n4, n1, n2,
-             netlist._netarg(self.A11), netlist._netarg(self.A12),
-             netlist._netarg(self.A21), netlist._netarg(self.A22), self.label)
+    pass
 
         
 class TPB(TwoPortBModel):
     """B-parameter two-port network."""
 
-    def __init__(self, B11=None, B12=None, B21=None, B22=None, **kwargs):
-
-        if B11 is not None and B12 is None and B21 is None and B22 is None:
-            B = B11
-        else:
-            B11 = 'B11' if B11 is None else B11
-            B12 = 'B12' if B12 is None else B12
-            B21 = 'B21' if B21 is None else B21
-            B22 = 'B22' if B22 is None else B22            
-            B = BMatrix(((B11, B12), (B21, B22)))
-        
-        super (TPB, self).__init__(B, **kwargs)
+    pass
 
 
-    def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
-                  dir='right'):
+class TPG(TwoPortGModel):
+    """G-parameter two-port network."""
 
-        n2, n1, n4, n3 = netlist._make_nodes(n2, n1, n4, n3)
+    pass
 
-        return 'TP? %s %s %s %s B %s %s %s %s; right, l={%s}' % (n3, n4, n1, n2,
-             netlist._netarg(self.B11), netlist._netarg(self.B12),
-             netlist._netarg(self.B21), netlist._netarg(self.B22), self.label)
-    
+
+class TPH(TwoPortHModel):
+    """H-parameter two-port network."""
+
+    pass
+
 
 class TPY(TwoPortYModel):
     """Y-parameter two-port network."""
 
-    def __init__(self, Y11=None, Y12=None, Y21=None, Y22=None, **kwargs):
-    
-        if Y11 is not None and Y12 is None and Y21 is None and Y22 is None:
-            Y = Y11
-        else:
-            Y11 = 'Y11' if Y11 is None else Y11
-            Y12 = 'Y12' if Y12 is None else Y12
-            Y21 = 'Y21' if Y21 is None else Y21
-            Y22 = 'Y22' if Y22 is None else Y22            
-            Y = YMatrix(((Y11, Y12), (Y21, Y22)))
+    pass
 
-        super (TPY, self).__init__(Y, **kwargs)
-
-    def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
-                  dir='right'):
-
-        n2, n1, n4, n3 = netlist._make_nodes(n2, n1, n4, n3)
-
-        return 'TP? %s %s %s %s Y %s %s %s %s; right, l={%s}' % (n3, n4, n1, n2,
-             netlist._netarg(self.Y11), netlist._netarg(self.Y12),
-             netlist._netarg(self.Y21), netlist._netarg(self.Y22), self.label)        
         
 class TPZ(TwoPortZModel):
     """Z-parameter two-port network."""
 
-    def __init__(self, Z11=None, Z12=None, Z21=None, Z22=None, **kwargs):
-
-        if Z11 is not None and Z12 is None and Z21 is None and Z22 is None:
-            Z = Z11
-        else:
-            Z11 = 'Z11' if Z11 is None else Z11
-            Z12 = 'Z12' if Z12 is None else Z12
-            Z21 = 'Z21' if Z21 is None else Z21
-            Z22 = 'Z22' if Z22 is None else Z22            
-            Z = ZMatrix(((Z11, Z12), (Z21, Z22)))
-
-        super (TPZ, self).__init__(Z, **kwargs)                
-
-    def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
-                  dir='right'):
-
-        n2, n1, n4, n3 = netlist._make_nodes(n2, n1, n4, n3)
-
-        return 'TP? %s %s %s %s Z %s %s %s %s; right, l={%s}' % (n3, n4, n1, n2,
-             netlist._netarg(self.Z11), netlist._netarg(self.Z12),
-             netlist._netarg(self.Z21), netlist._netarg(self.Z22), self.label)
+    pass
 
     
 class TP(TPB):
@@ -2387,7 +2430,8 @@ class Chain(TwoPortBModel):
             foo += B * Vector(arg.V2b, arg.I2b)
             B = B * arg.Bparams
 
-        super(Chain, self).__init__(B, LaplaceDomainVoltage(foo[0, 0]), LaplaceDomainCurrent(foo[1, 0]))
+        super(Chain, self).__init__(B, V2b=LaplaceDomainVoltage(foo[0, 0]),
+                                    I2b=LaplaceDomainCurrent(foo[1, 0]))
         self.args = args
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
@@ -2437,7 +2481,7 @@ class Par2(TwoPortYModel):
             I2y += arg.I2y
             Y += arg.Yparams
 
-        super(Par2, self).__init__(Y, I1y, I2y)
+        super(Par2, self).__init__(Y, I1y=I1y, I2y=I2y)
         self.args = args
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
@@ -2503,7 +2547,7 @@ class Ser2(TwoPortZModel):
             V2z += arg.V2z
             Z += arg.Zparams
 
-        super(Ser2, self).__init__(Z, V1z, V2z)
+        super(Ser2, self).__init__(Z, V1z=V1z, V2z=V2z)
         self.args = args
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
@@ -2550,7 +2594,7 @@ class Hybrid2(TwoPortHModel):
             I2h += arg.I2h
             H += arg.Hparams
 
-        super(Hybrid2, self).__init__(H, V1h, I2h)
+        super(Hybrid2, self).__init__(H, V1h=V1h, I2h=I2h)
         self.args = args
 
         
@@ -2572,7 +2616,7 @@ class InverseHybrid2(TwoPortGModel):
             V2g += arg.V2g
             G += arg.Gparams
 
-        super(Hybrid2, self).__init__(G, I1g, V2g)
+        super(Hybrid2, self).__init__(G, I1g=I1g, V2g=V2g)
         self.args = args
 
 
@@ -2594,7 +2638,9 @@ class Series(TwoPortBModel):
 
         _check_oneport_args((OP, ))
         
-        super(Series, self).__init__(BMatrix.Zseries(OP.Z.laplace()), LaplaceDomainVoltage(OP.Voc.laplace()), LaplaceDomainCurrent(0))
+        super(Series, self).__init__(BMatrix.Zseries(OP.Z.laplace()),
+                                     V2b=LaplaceDomainVoltage(OP.Voc.laplace()),
+                                     I2b=LaplaceDomainCurrent(0))
         self.OP = OP
         self.args = (OP, )
 
@@ -2631,8 +2677,9 @@ class Shunt(TwoPortBModel):
     def __init__(self, OP):
 
         _check_oneport_args((OP, ))        
-        super(Shunt, self).__init__(BMatrix.Yshunt(OP.Y.laplace()), LaplaceDomainVoltage(0),
-                                    LaplaceDomainCurrent(OP.Isc.laplace()))
+        super(Shunt, self).__init__(BMatrix.Yshunt(OP.Y.laplace()),
+                                    V2b=LaplaceDomainVoltage(0),
+                                    I2b=LaplaceDomainCurrent(OP.Isc.laplace()))
         self.OP = OP
         self.args = (OP, )
 

@@ -1471,6 +1471,9 @@ class TPA(Misc):
 
     def _stamp(self, cct):
 
+        if self.V1a != 0 or self.I1a != 0:
+            raise ValueError('Sources not supported yet for %s' % self)
+        
         m = self.branch_index        
         n1, n2, n3, n4 = self.node_indexes
         A11, A12, A21, A22 = self.A11, self.A12, self.A21, self.A22
@@ -1513,14 +1516,48 @@ class TPA(Misc):
 class TPB(TPA):
     """B-parameter two port"""
 
-    pass
+    def _stamp(self, cct):
+            
+        if self.V2b != 0 or self.I2b != 0:
+            raise ValueError('Sources not supported yet for %s' % self)
 
+        super (TPB, self)._stamp(cct)
+
+
+class TPG(TPA):
+    """G-parameter two port"""
+
+    # TODO, create G stamp directly
+    
+    def _stamp(self, cct):
+            
+        if self.I1g != 0 or self.V2g != 0:
+            raise ValueError('Sources not supported yet for %s' % self)
+
+        super (TPG, self)._stamp(cct)        
+
+
+class TPH(TPA):
+    """H-parameter two port"""
+
+    # TODO, create H stamp directly
+    
+    def _stamp(self, cct):
+            
+        if self.V1h != 0 or self.I2h != 0:
+            raise ValueError('Sources not supported yet for %s' % self)
+
+        super (TPH, self)._stamp(cct)
+        
 
 class TPY(Misc):
     """Y-parameter two port"""
 
     def _stamp(self, cct):
 
+        if self.I1y != 0 or self.I2y != 0:
+            raise ValueError('Sources not supported yet for %s' % self)
+        
         n1, n2, n3, n4 = self.node_indexes
         Y11, Y12, Y21, Y22 = self.Y11, self.Y12, self.Y21, self.Y22
 
@@ -1561,11 +1598,17 @@ class TPY(Misc):
             cct._G[n4, n4] = Y22
 
                 
-class TPZ(Misc):
+class TPZ(TPY):
     """Z-parameter two port"""
 
-    # TODO, add stamp
-    pass
+    # TODO, create Z stamp directly
+    
+    def _stamp(self, cct):
+            
+        if self.V1z != 0 or self.V2z != 0:
+            raise ValueError('Sources not supported yet for %s' % self)
+
+        super (TPZ, self)._stamp(cct)
 
 
 class TR(Dummy):
