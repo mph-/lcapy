@@ -1,3 +1,9 @@
+"""This module provides the Opts class for handling schematic options.
+
+Copyright 2021 Michael Hayes, UCECE
+"""
+
+
 class Opts(dict):
 
     def __init__(self, arg=None):
