@@ -841,7 +841,7 @@ class NetlistMixin(object):
             A11 = net.V1_.V(s) / net.Voc(N2p, N2m)(s)
 
             # A12 = V1 / I2 with V2 = 0
-            # Apply V1 and measure I2 with port 2 short-circuit
+            # Apply V1 and measure -I2 with port 2 short-circuit
             A12 = net.V1_.V(s) / net.Isc(N2p, N2m)(s)
 
             net.remove('V1_')
@@ -860,7 +860,7 @@ class NetlistMixin(object):
                 A21 = 0                
 
             # A22 = I1 / I2 with V2 = 0
-            # Apply I1 and measure I2 with port 2 short-circuit
+            # Apply I1 and measure -I2 with port 2 short-circuit
             A22 = current(0 * s + 1) / net.Isc(N2p, N2m)(s)
 
             net.remove('I1_')

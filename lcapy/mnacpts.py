@@ -1466,49 +1466,56 @@ class TP(Misc):
     pass
 
 
-class TPA(Misc):
+class TPCpt(Cpt):
+    pass
+
+
+class TPA(TPCpt):
     """A-parameter two port"""
 
+    need_branch_current = True
+    
     def _stamp(self, cct):
 
-        if self.V1a != 0 or self.I1a != 0:
+        cpt = self.cpt
+        if cpt.V1a != 0 or cpt.I1a != 0:
             raise ValueError('Sources not supported yet for %s' % self)
         
         m = self.branch_index        
-        n1, n2, n3, n4 = self.node_indexes
-        A11, A12, A21, A22 = self.A11, self.A12, self.A21, self.A22
+        n3, n4, n1, n2 = self.node_indexes
+        A11, A12, A21, A22 = cpt.A11.expr, cpt.A12.expr, cpt.A21.expr, cpt.A22.expr
 
         if n1 >= 0:
             if n3 >= 0:
-                cct._G[n1, n3] = A21
+                cct._G[n3, n1] = A21
             if n4 >= 0:
-                cct._G[n1, n3] = -A21
-            cct._G[n1, m] = A22
+                cct._G[n3, n1] = -A21
+            cct._G[m, n1] = A22
 
         if n2 >= 0:
             if n3 >= 0:
-                cct._G[n2, n3] = -A21
+                cct._G[n3, n2] = -A21
             if n4 >= 0:
-                cct._G[n2, n3] = A21
-            cct._G[n2, m] = -A22            
+                cct._G[n3, n2] = A21
+            cct._G[m, n2] = -A22            
             
         if n3 >= 0:
-            cct._G[n3, m] = -1
+            cct._G[m, n3] = -1
 
         if n4 >= 0:
-            cct._G[n4, m] = 1
+            cct._G[m, n4] = 1
 
         if n1 >= 0:
-            cct._G[m, n1] = -1
+            cct._G[n1, m] = -1
 
         if n2 >= 0:
-            cct._G[m, n2] = 1
+            cct._G[n2, m] = 1
 
         if n3 >= 0:
-            cct._G[m, n3] = A11
+            cct._G[n3, m] = A11
 
         if n4 >= 0:
-            cct._G[m, n4] = -A11
+            cct._G[n4, m] = -A11
 
         cct._G[m, m] = A12
 
@@ -1518,7 +1525,7 @@ class TPB(TPA):
 
     def _stamp(self, cct):
             
-        if self.V2b != 0 or self.I2b != 0:
+        if self.cpt.V2b != 0 or self.cpt.I2b != 0:
             raise ValueError('Sources not supported yet for %s' % self)
 
         super (TPB, self)._stamp(cct)
@@ -1531,7 +1538,7 @@ class TPG(TPA):
     
     def _stamp(self, cct):
             
-        if self.I1g != 0 or self.V2g != 0:
+        if self.cpt.I1g != 0 or self.cpt.V2g != 0:
             raise ValueError('Sources not supported yet for %s' % self)
 
         super (TPG, self)._stamp(cct)        
@@ -1544,22 +1551,23 @@ class TPH(TPA):
     
     def _stamp(self, cct):
             
-        if self.V1h != 0 or self.I2h != 0:
+        if self.cpt.V1h != 0 or self.cpt.I2h != 0:
             raise ValueError('Sources not supported yet for %s' % self)
 
         super (TPH, self)._stamp(cct)
         
 
-class TPY(Misc):
+class TPY(TPCpt):
     """Y-parameter two port"""
 
     def _stamp(self, cct):
 
-        if self.I1y != 0 or self.I2y != 0:
+        cpt = self.cpt
+        if cpt.I1y != 0 or cpt.I2y != 0:
             raise ValueError('Sources not supported yet for %s' % self)
         
-        n1, n2, n3, n4 = self.node_indexes
-        Y11, Y12, Y21, Y22 = self.Y11, self.Y12, self.Y21, self.Y22
+        n3, n4, n1, n2 = self.node_indexes
+        Y11, Y12, Y21, Y22 = cpt.Y11.expr, cpt.Y12.expr, cpt.Y21.expr, cpt.Y22.expr
 
         if n1 >= 0:
             cct._G[n1, n1] = Y11
@@ -1605,7 +1613,7 @@ class TPZ(TPY):
     
     def _stamp(self, cct):
             
-        if self.V1z != 0 or self.V2z != 0:
+        if self.cpt.V1z != 0 or self.cpt.V2z != 0:
             raise ValueError('Sources not supported yet for %s' % self)
 
         super (TPZ, self)._stamp(cct)

@@ -1309,8 +1309,14 @@ class TwoPort(Network, TwoPortMixin):
 
         args =  ' '.join([netlist._netarg(arg) for arg in args])
 
-        return 'TP? %s %s %s %s %s %s; right, l={%s}' % (n3, n4, n1, n2,
+        s = 'TP? %s %s %s %s %s %s; right, l={%s}' % (n3, n4, n1, n2,
                                                          kind, args, self.label)
+
+        # Add invisible wire to constrain nodes n4 and n2 to
+        # be the same potential otherwise cannot solve
+        # circuit.
+        s += '\nW %s %s; free, invisible' % (n4, n2)
+        return s
     
     def _add_elements(self):
         raise ValueError('Cannot generate netlist for two-port objects')
