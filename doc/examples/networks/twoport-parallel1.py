@@ -1,7 +1,7 @@
 from lcapy import TP
 
-tp1 = TP(label='Two-port 1')
-tp2 = TP(label='Two-port 2')
+tp1 = TP(l='Two-port 1', fill='blue')
+tp2 = TP(l='Two-port 2', fill='blue')
 
 n = tp1.parallel(tp2)
 

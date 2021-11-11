@@ -341,6 +341,14 @@ For example,
    :width: 3cm
 
 
+The network components have optional keyword arguments (kwargs) that specify schematic attributes, for example,
+
+   >>> (R(2, color='blue') + C(3, color='green')).draw()
+
+.. image:: examples/networks/colors.png
+   :width: 5cm   
+           
+
 Network synthesis
 =================
 
@@ -550,10 +558,11 @@ Without an argument, the B-parameters are defined as::
 .. image:: examples/schematics/twoport1.png
    :width: 12cm
 
-There is an optional `label` argument to specify a label when the
-two-port is drawn, for example,
 
-   >>> n = TP(label='Two-port')
+There are optional keyword arguments (kwargs) to specify schematic attributes,
+for example,
+
+   >>> n = TP(l='Two-port', fill='blue')
 
 
 B-parameter two-port
@@ -679,8 +688,8 @@ Chain
 -----
 
    >>> from lcapy import TP
-   >>> tp1 = TP(label='Two-port 1')
-   >>> tp2 = TP(label='Two-port 2')
+   >>> tp1 = TP(l='Two-port 1', fill='blue')
+   >>> tp2 = TP(l='Two-port 2', fill='blue')
    >>> tp = tp1.chain(tp2)   
 
 .. image:: examples/networks/twoport-chain1.png
@@ -691,8 +700,8 @@ Parallel
 --------
 
    >>> from lcapy import TP
-   >>> tp1 = TP(label='Two-port 1')
-   >>> tp2 = TP(label='Two-port 2')
+   >>> tp1 = TP(l='Two-port 1', fill='blue')
+   >>> tp2 = TP(l='Two-port 2', fill='blue')
    >>> tp = tp1.parallel(tp2)   
 
 .. image:: examples/networks/twoport-parallel1.png
@@ -705,8 +714,8 @@ Series
 Warning, a series combination of two-ports can break the port condition.
 
    >>> from lcapy import TP
-   >>> tp1 = TP(label='Two-port 1')
-   >>> tp2 = TP(label='Two-port 2')
+   >>> tp1 = TP(l='Two-port 1', fill='blue')
+   >>> tp2 = TP(l='Two-port 2', fill='blue')
    >>> tp = tp1.series(tp2)   
 
 .. image:: examples/networks/twoport-series1.png

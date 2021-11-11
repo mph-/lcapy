@@ -1288,13 +1288,6 @@ class TwoPort(Network, TwoPortMixin):
         self.args = args
         self.kwargs = kwargs
 
-    def _opts_str(self):
-
-        parts = []
-        for key, val in self.kwargs.items():
-            parts.append('%s=%s' % (key, val))
-        return ', '.join(parts)
-    
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
 

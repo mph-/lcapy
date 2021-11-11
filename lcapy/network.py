@@ -33,6 +33,7 @@ class Network(object):
 
     netname = ''
     netkeyword = ''
+    kwargs = {}
 
     def __repr__(self):
 
@@ -78,6 +79,16 @@ class Network(object):
 
         print(self.pretty())
     
+    def _opts_str(self, arg=None):
+
+        parts = []
+        if arg is not None:
+            parts.append(arg)
+            
+        for key, val in self.kwargs.items():
+            parts.append('%s=%s' % (key, val))
+        return ', '.join(parts)
+    
     @property
     def analysis(self):
         return self.cct.analysis
@@ -109,15 +120,16 @@ class Network(object):
         
         netname = net.__class__.__name__ if net.netname == '' else net.netname
 
+        opts_str = self._opts_str(dir)
         netid = netlist._make_id(netname)
         if net.netkeyword != '':
             return '%s%s %s %s %s %s; %s' % (netname, netid,
                                              n1, n2, 
                                              net.netkeyword,
-                                             netlist._netargs(net), dir)
+                                             netlist._netargs(net), opts_str)
         else:
             return '%s%s %s %s %s; %s' % (netname, netid,
-                                          n1, n2, netlist._netargs(net), dir)
+                                          n1, n2, netlist._netargs(net), opts_str)
 
     @property 
     def _depths(self):

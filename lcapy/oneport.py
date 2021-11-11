@@ -775,8 +775,9 @@ class R(OnePort):
     is_resistor = True
     is_noiseless = False
     
-    def __init__(self, Rval='R'):
+    def __init__(self, Rval='R', **kwargs):
 
+        self.kwargs = kwargs
         self.args = (Rval, )
         self._R = cexpr(Rval)
         self._Z = impedance(self._R, causal=True)
@@ -802,8 +803,9 @@ class G(OnePort):
     is_conductor = True
     is_noiseless = False    
 
-    def __init__(self, Gval='G'):
+    def __init__(self, Gval='G', **kwargs):
 
+        self.kwargs = kwargs
         self.args = (Gval, )
         self._G = cexpr(Gval)
         self._Z = impedance(1 / self._G, causal=True)
@@ -814,7 +816,8 @@ class G(OnePort):
             n1 = netlist._node
         if n2 == None:
             n2 = netlist._node
-        return 'R? %s %s {%s}; %s' % (n1, n2, 1 / self._G, dir)
+        opts_str = self._opts_str(dir)            
+        return 'R? %s %s {%s}; %s' % (n1, n2, 1 / self._G, opts_str)
 
     def i_equation(self, v, kind='t'):
 
@@ -838,8 +841,9 @@ class L(OnePort):
 
     is_inductor = True
 
-    def __init__(self, Lval='L', i0=None):
+    def __init__(self, Lval='L', i0=None, **kwargs):
 
+        self.kwargs = kwargs
         self.has_ic = i0 is not None
         if i0 is None:
             i0 = 0
@@ -881,8 +885,9 @@ class C(OnePort):
 
     is_capacitor = True    
 
-    def __init__(self, Cval='C', v0=None):
+    def __init__(self, Cval='C', v0=None, **kwargs):
 
+        self.kwargs = kwargs
         self.has_ic = v0 is not None
         if v0 is None:
             v0 = 0
@@ -932,8 +937,9 @@ class CPE(OnePort):
     as a rational function and so there are no poles or zeros.  So
     don't be suprised if Lcapy throws an occasional wobbly."""
 
-    def __init__(self, K, alpha=0.5):
+    def __init__(self, K, alpha=0.5, **kwargs):
 
+        self.kwargs = kwargs
         self.args = (K, alpha)
 
         K = cexpr(K)
@@ -946,8 +952,9 @@ class CPE(OnePort):
 class Y(OnePort):
     """General admittance."""
 
-    def __init__(self, Yval):
+    def __init__(self, Yval='Y', **kwargs):
 
+        self.kwargs = kwargs
         self.args = (Yval, )
         Yval = admittance(Yval)
         self._Y = Yval
@@ -956,8 +963,9 @@ class Y(OnePort):
 class Z(OnePort):
     """General impedance."""
 
-    def __init__(self, Zval):
+    def __init__(self, Zval='Z', **kwargs):
 
+        self.kwargs = kwargs
         self.args = (Zval, )
         Zval = impedance(Zval)
         self._Z = Zval
@@ -979,8 +987,9 @@ class sV(VoltageSourceBase):
 
     netkeyword = 's'
 
-    def __init__(self, Vval):
+    def __init__(self, Vval, **kwargs):
 
+        self.kwargs = kwargs
         self.args = (Vval, )
         Vval = LaplaceDomainExpression(Vval)
         self._Voc = SuperpositionVoltage(LaplaceDomainExpression(Vval))
@@ -989,8 +998,9 @@ class sV(VoltageSourceBase):
 class V(VoltageSourceBase):
     """Arbitrary voltage source"""
 
-    def __init__(self, Vval='V'):
+    def __init__(self, Vval='V', **kwargs):
 
+        self.kwargs = kwargs
         self.args = (Vval, )
         self._Voc = SuperpositionVoltage(Vval)
 
@@ -1000,8 +1010,9 @@ class Vstep(VoltageSourceBase):
 
     netkeyword = 'step'
 
-    def __init__(self, v):
+    def __init__(self, v, **kwargs):
 
+        self.kwargs = kwargs
         self.args = (v, )
         v = cexpr(v)
         self._Voc = SuperpositionVoltage(TimeDomainExpression(v) * Heaviside(t))
@@ -1014,8 +1025,9 @@ class Vdc(VoltageSourceBase):
 
     netkeyword = 'dc'
     
-    def __init__(self, v):
+    def __init__(self, v, **kwargs):
 
+        self.kwargs = kwargs
         self.args = (v, )
         v = cexpr(v)
         self._Voc = SuperpositionVoltage(cexpr(v, dc=True))
@@ -1031,8 +1043,9 @@ class Vac(VoltageSourceBase):
 
     netkeyword = 'ac'
 
-    def __init__(self, V, phi=None, omega=None):
+    def __init__(self, V, phi=None, omega=None, **kwargs):
 
+        self.kwargs = kwargs
         if phi is None and omega is None:
             self.args = (V, )
         elif phi is not None and omega is None:
@@ -1071,8 +1084,9 @@ class Vnoise(VoltageSourceBase):
     netkeyword = 'noise'
     is_noisy = True
 
-    def __init__(self, V, nid=None):
+    def __init__(self, V, nid=None, **kwargs):
 
+        self.kwargs = kwargs
         V1 = AngularFourierNoiseDomainVoltage(V, nid=nid)
         self.args = (V, V1.nid)
         self._Voc = SuperpositionVoltage(V1)
@@ -1081,8 +1095,9 @@ class Vnoise(VoltageSourceBase):
 class v(VoltageSourceBase):
     """Arbitrary t-domain voltage source"""
 
-    def __init__(self, vval):
+    def __init__(self, vval, **kwargs):
 
+        self.kwargs = kwargs
         self.args = (vval, )
         Vval = TimeDomainExpression(vval)
         self._Voc = SuperpositionVoltage(Vval)
@@ -1110,8 +1125,9 @@ class sI(CurrentSourceBase):
 
     netkeyword = 's'
 
-    def __init__(self, Ival):
+    def __init__(self, Ival, **kwargs):
 
+        self.kwargs = kwargs
         self.args = (Ival, )
         Ival = LaplaceDomainExpression(Ival)
         self._Isc = SuperpositionCurrent(LaplaceDomainExpression(Ival))
@@ -1120,8 +1136,9 @@ class sI(CurrentSourceBase):
 class I(CurrentSourceBase):
     """Arbitrary current source"""
 
-    def __init__(self, Ival='I'):
+    def __init__(self, Ival='I', **kwargs):
 
+        self.kwargs = kwargs
         self.args = (Ival, )
         self._Isc = SuperpositionCurrent(Ival)
 
@@ -1131,8 +1148,9 @@ class Istep(CurrentSourceBase):
 
     netkeyword = 'step'
 
-    def __init__(self, i):
+    def __init__(self, i, **kwargs):
 
+        self.kwargs = kwargs
         self.args = (i, )
         i = cexpr(i)
         self._Isc = SuperpositionCurrent(TimeDomainExpression(i) * Heaviside(t))
@@ -1145,8 +1163,9 @@ class Idc(CurrentSourceBase):
 
     netkeyword = 'dc'
     
-    def __init__(self, i):
+    def __init__(self, i, **kwargs):
 
+        self.kwargs = kwargs
         self.args = (i, )
         i = cexpr(i)
         self._Isc = SuperpositionCurrent(cexpr(i, dc=True))
@@ -1162,8 +1181,9 @@ class Iac(CurrentSourceBase):
 
     netkeyword = 'ac'
 
-    def __init__(self, I, phi=0, omega=None):
+    def __init__(self, I, phi=0, omega=None, **kwargs):
 
+        self.kwargs = kwargs
         if phi is None and omega is None:
             self.args = (I, )
         elif phi is not None and omega is None:
@@ -1200,8 +1220,9 @@ class Inoise(CurrentSourceBase):
     netkeyword = 'noise'
     is_noisy = True
 
-    def __init__(self, I, nid=None):
+    def __init__(self, I, nid=None, **kwargs):
 
+        self.kwargs = kwargs
         I1 = AngularFourierNoiseDomainCurrent(I, nid=nid)
         self._Isc = SuperpositionCurrent(I1)
         self.args = (I, I1.nid)
@@ -1210,8 +1231,9 @@ class Inoise(CurrentSourceBase):
 class i(CurrentSourceBase):
     """Arbitrary t-domain current source"""
 
-    def __init__(self, ival):
+    def __init__(self, ival, **kwargs):
 
+        self.kwargs = kwargs
         self.args = (ival, )
         Ival = TimeDomainExpression(ival)
         self._Isc = SuperpositionCurrent(Ival)
@@ -1225,8 +1247,9 @@ class Xtal(OnePort):
     harmonic resonances are not modelled.
     """
 
-    def __init__(self, C0, R1, L1, C1):
+    def __init__(self, C0, R1, L1, C1, **kwargs):
 
+        self.kwargs = kwargs
         self.C0 = cexpr(C0)
         self.R1 = cexpr(R1)
         self.L1 = cexpr(L1)
@@ -1253,8 +1276,9 @@ class FerriteBead(OnePort):
     to a parallel R, L, C network (Rp, Lp, Cp).
     """
 
-    def __init__(self, Rs, Rp, Cp, Lp):
+    def __init__(self, Rs, Rp, Cp, Lp, **kwargs):
 
+        self.kwargs = kwargs
         self.Rs = cexpr(Rs)
         self.Rp = cexpr(Rp)
         self.Cp = cexpr(Cp)
@@ -1272,6 +1296,7 @@ class FerriteBead(OnePort):
         # TODO: draw this with a symbol
         net = self.expand()
         return net._net_make(netlist, n1, n2, dir)            
+
     
 class LoadCircuit(Network):
     """Circuit comprised of a load oneport connected in parallel with a
@@ -1319,8 +1344,9 @@ class ControlledSource(OnePort):
 
 class CCVS(ControlledSource):
 
-    def __init__(self, control, value):
+    def __init__(self, control, value, **kwargs):
 
+        self.kwargs = kwargs
         self.args = (control, value)        
         self._Voc = SuperpositionVoltage(0)
         self._Z = impedance(0)
@@ -1328,8 +1354,9 @@ class CCVS(ControlledSource):
         
 class CCCS(ControlledSource):
 
-    def __init__(self, control, value):
+    def __init__(self, control, value, **kwargs):
 
+        self.kwargs = kwargs
         self.args = (control, value)        
         self._Isc = SuperpositionCurrent(0)
         self._Y = admittance(0)     
@@ -1337,8 +1364,9 @@ class CCCS(ControlledSource):
         
 class VCVS(ControlledSource):
 
-    def __init__(self, value):
+    def __init__(self, value, **kwargs):
 
+        self.kwargs = kwargs
         self.args = (value, )        
         self._Voc = SuperpositionVoltage(0)
         self._Z = impedance(0)
@@ -1346,8 +1374,9 @@ class VCVS(ControlledSource):
         
 class VCCS(ControlledSource):
 
-    def __init__(self, value):
+    def __init__(self, value, **kwargs):
 
+        self.kwargs = kwargs
         self.args = (value, )
         self._Isc = SuperpositionCurrent(0)
         self._Y = admittance(0)     
@@ -1355,16 +1384,18 @@ class VCCS(ControlledSource):
 
 class Dummy(OnePort):
 
-    def __init__(self, *args):
+    def __init__(self, *args, **kwargs):
 
+        self.kwargs = kwargs
         self.args = args
 
 
 class K(Dummy):
     """Coupling coefficient"""
 
-    def __init__(self, L1, L2, K):
+    def __init__(self, L1, L2, K, **kwargs):
 
+        self.kwargs = kwargs
         self.args = (L1, L2, K)
         self.K = cexpr(K)
 
@@ -1372,8 +1403,9 @@ class K(Dummy):
 class W(Dummy):
     """Wire (short)"""
 
-    def __init__(self):
+    def __init__(self, **kwargs):
 
+        self.kwargs = kwargs
         self.args = ()
         self._Z = impedance(0)
 
@@ -1381,8 +1413,9 @@ class W(Dummy):
 class O(Dummy):
     """Open circuit"""
 
-    def __init__(self):
+    def __init__(self, **kwargs):
 
+        self.kwargs = kwargs
         self.args = ()
         self._Y = admittance(0)
 
