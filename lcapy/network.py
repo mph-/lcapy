@@ -35,9 +35,23 @@ class Network(object):
     netkeyword = ''
     kwargs = {}
 
+    def _opts_str(self, arg=None):
+
+        parts = []
+        if arg is not None:
+            parts.append(arg)
+            
+        for key, val in self.kwargs.items():
+            parts.append('%s=%s' % (key, val))
+        return ', '.join(parts)
+    
     def __repr__(self):
 
-        argsrepr = ', '.join([repr(arg) for arg in self.args])
+        parts = []        
+        for key, val in self.kwargs.items():
+            parts.append("%s='%s'" % (key, val))
+        
+        argsrepr = ', '.join([repr(arg) for arg in self.args] + parts)
         return '%s(%s)' % (self.__class__.__name__, argsrepr)
 
     def __str__(self):
@@ -60,8 +74,12 @@ class Network(object):
                 return arg.pretty(**kwargs)
             except:
                 return pretty(arg, **kwargs)
-        
-        argsrepr = ', '.join([pretty1(arg, **kwargs) for arg in self.args])
+
+        parts = []        
+        for key, val in self.kwargs.items():
+            parts.append("%s='%s'" % (key, val))
+            
+        argsrepr = ', '.join([pretty1(arg, **kwargs) for arg in self.args] + parts)
         return '%s(%s)' % (self.__class__.__name__, argsrepr)
 
     def latex(self, **kwargs):
@@ -78,16 +96,6 @@ class Network(object):
     def pprint(self):
 
         print(self.pretty())
-    
-    def _opts_str(self, arg=None):
-
-        parts = []
-        if arg is not None:
-            parts.append(arg)
-            
-        for key, val in self.kwargs.items():
-            parts.append('%s=%s' % (key, val))
-        return ', '.join(parts)
     
     @property
     def analysis(self):
