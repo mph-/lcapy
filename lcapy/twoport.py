@@ -1283,13 +1283,17 @@ class TwoPort(Network, TwoPortMixin):
     opposite directions).  This is called the port condition.
     """
 
-    label = ''
-
     def __init__(self, *args, **kwargs):
 
         self.args = args
-        if 'label' in kwargs:
-            self.label = kwargs['label']
+        self.kwargs = kwargs
+
+    def _opts_str(self):
+
+        parts = []
+        for key, val in self.kwargs.items():
+            parts.append('%s=%s' % (key, val))
+        return ', '.join(parts)
     
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
@@ -1299,9 +1303,11 @@ class TwoPort(Network, TwoPortMixin):
 
         n2, n1, n4, n3 = netlist._make_nodes(n2, n1, n4, n3)
 
-        return 'TP? %s %s %s %s B %s %s %s %s; right, l={%s}' % (n3, n4, n1, n2,
+        return 'TP? %s %s %s %s B %s %s %s %s; %s' % (n3, n4, n1, n2,
              netlist._netarg(self.B11), netlist._netarg(self.B12),
-             netlist._netarg(self.B21), netlist._netarg(self.B22), self.label)
+                                                      netlist._netarg(self.B21),
+                                                      netlist._netarg(self.B22),
+                                                      self._opts_str())
 
     def _TP_make(self, netlist, n1, n2, n3, n4, kind, *args):
         
@@ -1309,8 +1315,8 @@ class TwoPort(Network, TwoPortMixin):
 
         args =  ' '.join([netlist._netarg(arg) for arg in args])
 
-        s = 'TP? %s %s %s %s %s %s; right, l={%s}' % (n3, n4, n1, n2,
-                                                      kind, args, self.label)
+        s = 'TP? %s %s %s %s %s %s; right, %s' % (n3, n4, n1, n2,
+                                                  kind, args, self._opts_str())
 
         return s
     
