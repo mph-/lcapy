@@ -1311,12 +1311,7 @@ class TwoPort(Network, TwoPortMixin):
 
         s = 'TP? %s %s %s %s %s %s; right, l={%s}' % (n3, n4, n1, n2,
                                                       kind, args, self.label)
-        
-        # Add invisible wire to constrain nodes n4 and n2 to
-        # be the same potential otherwise cannot solve
-        # circuit.
-        s += '\nW %s %s; free, invisible' % (n4, n2)
-        warn("Adding invisible wire to constrain V2' = V1'")
+
         return s
     
     def _add_elements(self):
