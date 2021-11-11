@@ -740,3 +740,17 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.R1.is_independent_source, False, "R is_independent_source")                         
         self.assertEqual(a.R1.is_resistor, True, "E is_resistor")                
         
+
+    def test_TP(self):
+        """Test TP"""
+
+        n = Series(R(5)).chain(Shunt(R(10)))
+        b = n.Bmodel
+        c = b.circuit()
+        c.add('V 1 0 15; down')
+        self.assertEqual(c[3].V, 10, "Bmodel")                        
+        
+        d = n.Ymodel
+        e = d.circuit()
+        e.add('V 1 0 15; down')
+        self.assertEqual(e[3].V, 10, "Ymodel")                                

@@ -1482,42 +1482,42 @@ class TPA(TPCpt):
             raise ValueError('Sources not supported yet for %s' % self)
         
         m = self.branch_index        
-        n3, n4, n1, n2 = self.node_indexes
+        n4, n3, n2, n1 = self.node_indexes
         A11, A12, A21, A22 = cpt.A11.expr, cpt.A12.expr, cpt.A21.expr, cpt.A22.expr
 
         if n1 >= 0:
             if n3 >= 0:
-                cct._G[n3, n1] = A21
+                cct._G[n1, n3] += A21
             if n4 >= 0:
-                cct._G[n3, n1] = -A21
-            cct._G[m, n1] = A22
+                cct._G[n1, n4] -= A21
+            cct._B[n1, m] += A22
 
         if n2 >= 0:
             if n3 >= 0:
-                cct._G[n3, n2] = -A21
+                cct._G[n2, n3] -= A21
             if n4 >= 0:
-                cct._G[n3, n2] = A21
-            cct._G[m, n2] = -A22            
+                cct._G[n2, n4] += A21
+            cct._B[n2, m] -= A22            
             
         if n3 >= 0:
-            cct._G[m, n3] = -1
+            cct._B[n3, m] -= 1
 
         if n4 >= 0:
-            cct._G[m, n4] = 1
+            cct._B[n4, m] += 1
 
         if n1 >= 0:
-            cct._G[n1, m] = -1
+            cct._C[m, n1] -= 1
 
         if n2 >= 0:
-            cct._G[n2, m] = 1
+            cct._C[m, n2] += 1
 
         if n3 >= 0:
-            cct._G[n3, m] = A11
+            cct._C[m, n3] += A11
 
         if n4 >= 0:
-            cct._G[n4, m] = -A11
+            cct._C[m, n4] -= A11
 
-        cct._G[m, m] = A12
+        cct._D[m, m] += A12
 
         
 class TPB(TPA):
@@ -1570,40 +1570,40 @@ class TPY(TPCpt):
         Y11, Y12, Y21, Y22 = cpt.Y11.expr, cpt.Y12.expr, cpt.Y21.expr, cpt.Y22.expr
 
         if n1 >= 0:
-            cct._G[n1, n1] = Y11
+            cct._G[n1, n1] += Y11
             if n2 >= 0:            
-                cct._G[n1, n2] = -Y11
+                cct._G[n1, n2] -= Y11
             if n3 >= 0:            
-                cct._G[n1, n3] = Y12
+                cct._G[n1, n3] += Y12
             if n4 >= 0:            
-                cct._G[n1, n4] = -Y12
+                cct._G[n1, n4] -= Y12
 
         if n2 >= 0:
             if n1 >= 0:                        
-                cct._G[n2, n1] = -Y11
-            cct._G[n2, n2] = Y11
+                cct._G[n2, n1] -= Y11
+            cct._G[n2, n2] += Y11
             if n3 >= 0:            
-                cct._G[n2, n3] = -Y12
+                cct._G[n2, n3] -= Y12
             if n4 >= 0:            
-                cct._G[n2, n4] = Y12
+                cct._G[n2, n4] += Y12
 
         if n3 >= 0:
             if n1 >= 0:                        
-                cct._G[n3, n1] = Y21
+                cct._G[n3, n1] += Y21
             if n2 >= 0:            
-                cct._G[n3, n2] = -Y21
-            cct._G[n3, n3] = Y22
+                cct._G[n3, n2] -= Y21
+            cct._G[n3, n3] += Y22
             if n4 >= 0:            
-                cct._G[n3, n4] = -Y22
+                cct._G[n3, n4] -= Y22
 
         if n4 >= 0:
             if n1 >= 0:                        
-                cct._G[n4, n1] = -Y21
+                cct._G[n4, n1] -= Y21
             if n2 >= 0:            
-                cct._G[n4, n2] = Y21
+                cct._G[n4, n2] += Y21
             if n3 >= 0:            
-                cct._G[n4, n3] = -Y22
-            cct._G[n4, n4] = Y22
+                cct._G[n4, n3] -= Y22
+            cct._G[n4, n4] += Y22
 
                 
 class TPZ(TPY):
