@@ -31,7 +31,7 @@ class NetlistHelper(object):
         if not hasattr(self, '_namer'):
             self._namer = ComponentNamer()
 
-        return self._namer.name(kind)
+        return self._namer.name(kind, '')
 
     def _make_id(self, kind):
         """Make identifier"""
@@ -42,7 +42,7 @@ class NetlistHelper(object):
         if not hasattr(self, '_namer'):
             self._namer = ComponentNamer()
 
-        return self._namer.netid(kind)    
+        return self._namer.netid(kind, '')    
 
     def _netarg(self, arg):
 
