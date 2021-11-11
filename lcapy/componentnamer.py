@@ -12,7 +12,7 @@ class ComponentNamer(object):
 
         self.names = {}
 
-    def make(self, cpt_kind, name_kind='anon'):
+    def netid(self, cpt_kind, name_kind='anon'):
 
         if name_kind not in self.names:
             self.names[name_kind] = {}
@@ -24,10 +24,16 @@ class ComponentNamer(object):
 
         foo[cpt_kind] += 1
 
-        return cpt_kind + name_kind + str(foo[cpt_kind])
+        return name_kind + str(foo[cpt_kind])
+
+    def name(self, cpt_kind, name_kind='anon'):
+
+        netid = self.netid(cpt_kind, name_kind)
+
+        return cpt_kind + netid
     
     def __call__(self, cpt_kind, name_kind='anon'):
         """Create component name based on `cpt_kind` (`R`, `L`, etc.)
         and the name_kind (`anon`, `t`, etc)."""
 
-        return self.make(cpt_kind, name_kind)
+        return self.name(cpt_kind, name_kind)

@@ -634,7 +634,7 @@ class Cpt(ImmittanceMixin):
 
     def dummy_node(self):
 
-        return '_' + self.cct._make_anon('node')
+        return '_' + self.cct._make_anon_name('node')
 
     def oneport(self):
         """Create oneport object."""

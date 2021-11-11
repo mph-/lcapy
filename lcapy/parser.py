@@ -203,7 +203,7 @@ class Parser(object):
             cpt_type = 'XX'
             cpt_id = ''
             name = 'XX'
-            name += parent._make_anon(cpt_type)
+            name += parent._make_anon_netid(cpt_type)
             defname = namespace + cpt_type + cpt_id
 
             if string.startswith(';') and not string.startswith(';;'):
@@ -260,10 +260,10 @@ class Parser(object):
         name = defname
         if (cpt_id == '' and parent is not None
             and (cpt_type in ('A', 'W', 'O', 'P')) or self.allow_anon):
-            name += parent._make_anon(cpt_type)
+            name += parent._make_anon_netid(cpt_type)
         elif cpt_id == '?':
             # Automatically name cpts to ensure they are unique
-            name = name[:-1] + parent._make_anon(cpt_type)
+            name = name[:-1] + parent._make_anon_netid(cpt_type)
 
         nodes, args = rule.process(self.paramdict, net, fields, name, 
                                    namespace)
