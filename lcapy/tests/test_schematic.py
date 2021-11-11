@@ -33,8 +33,7 @@ class LcapyTester(unittest.TestCase):
         
         content = open('tmp.tex').read()
         if content != match:
-            raise Error('Schematic mismatch')
-
+            raise ValueError('Schematic mismatch')
 
     def test_schematic2(self):
 
@@ -73,7 +72,7 @@ C 1 3 3; right""")
         
         content = open('tmp.tex').read()
         if content != match:
-            raise Error('Schematic mismatch')
+            raise ValueError('Schematic mismatch')
         
     def test_network_node_positions1(self):
 
