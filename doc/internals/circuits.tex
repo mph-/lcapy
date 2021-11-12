@@ -726,7 +726,7 @@ or equivalently,
 The negative sign results from the definition of the direction of the
 currents, as used by two-port networks.
 
-A tee model can be used to represent a transformer if the primary and
+A tee-model can be used to represent a transformer if the primary and
 secondary share a common ground.  However, this will result in
 non-realisable negative inductances when $M > L_1$ or $M > L_2$.
 
@@ -740,27 +740,132 @@ primary or using a large resistance.
 \section{Two-port networks}
 
 
-\subsection{A model}
+\subsection{A-model}
 
+The A-model equations are:
+%
 \begin{eqnarray}
   V_1 & = & A_{11} V_2 - A_{12} I_2 + V_{1a}, \\
   I_1 & = & A_{21} V_2 - A_{22} I_2 + I_{1a}.
 \end{eqnarray}
-
-Rearranging gives
+%
+In matrix form:
 %
 \begin{equation}
- V_2 = \frac{A_{22}}{\det{A}} V_1 - \frac{A_{12}}{\det{A}} + \frac{A_{12}}{\det{A}} I_{1a}. 
+  \begin{bmatrix}
+    V_1 \\ I_1
+  \end{bmatrix}
+  =
+  \begin{bmatrix}
+    A_{11} & A_{12} \\
+    A_{21} & A_{22}
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_2 \\ -I_2
+  \end{bmatrix}  
+  +
+  \begin{bmatrix}
+    V_{1a} \\ I_{1a}
+  \end{bmatrix}. 
 \end{equation}
 %
-Thus
+This can be expressed as
 %
 \begin{equation}
- B_{11} = \frac{A_{22}}{\det{A}}, \bigspace B_{12} = -\frac{A_{12}}{\det{A}}, \bigspace V_{2b} = \frac{A_{12}}{\det{A}} I_{1a} 
+  \begin{bmatrix}
+    V_1 \\ I_1
+  \end{bmatrix}
+  =
+  \begin{bmatrix}
+    A_{11} & -A_{12} \\
+    A_{21} & -A_{22}
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_2 \\ I_2
+  \end{bmatrix}  
+  +
+  \begin{bmatrix}
+    V_{1a} \\ I_{1a}
+  \end{bmatrix}. 
+\end{equation}
+%
+Inverting gives
+%
+\begin{equation}
+  \begin{bmatrix}
+    V_2 \\ I_2
+  \end{bmatrix}
+  =
+  \frac{1}{\det{A}}
+  \begin{bmatrix}
+    A_{22} & A_{12} \\
+    -A_{21} & -A_{11}
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 - V_{1a} \\ I_1 - I_{1a}
+  \end{bmatrix},
+\end{equation}
+%
+which can be expressed as
+%
+\begin{equation}
+  \begin{bmatrix}
+    V_2 \\ I_2
+  \end{bmatrix}
+  =
+  \frac{1}{\det{A}}
+  \begin{bmatrix}
+    A_{22} & -A_{12} \\
+    -A_{21} & A_{11}
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 - V_{1a} \\ -I_1 + I_{1a}
+  \end{bmatrix}.
+\end{equation}
+%
+Finally,
+%
+\begin{equation}
+  \begin{bmatrix}
+    V_2 \\ I_2
+  \end{bmatrix}
+  =
+  \mat{A}^{-1}
+  \begin{bmatrix}  
+    V_1 \\ -I_1
+  \end{bmatrix}
+  +
+  \mat{A}^{-1}
+  \begin{bmatrix}  
+    -V_{1a} \\ I_{1a}
+  \end{bmatrix},
+\end{equation}
+%
+which is equivalent to
+%
+\begin{equation}
+  \begin{bmatrix}
+    V_2 \\ I_2
+  \end{bmatrix}
+  =
+  \mat{B}
+  \begin{bmatrix}  
+    V_1 \\ -I_1
+  \end{bmatrix}
+  +
+  \begin{bmatrix}  
+    V_{2b} \\ -I_{2b}
+  \end{bmatrix}.
+\end{equation}
+%
+Thus $\mat{B} = \mat{A}^{-1}$ and
+%
+\begin{equation}
+V_{2b} = -B_{11} V_{1a} + B_{12} I_{1a} \bigspace I_{2b} = B_{21} V_{1a} - B_{22} I_{1a}.
 \end{equation}
 
 
-\subsection{B model}
+\subsection{B-model}
 
 \begin{eqnarray}
 \label{eqn:BV2}
@@ -855,7 +960,130 @@ V_{2z} & = & V_{2b} -\frac{B_{11}}{B_{21}} I_{2b}.
 
 
 
-\subsection{G model}
+The B-model equations are:
+%
+\begin{eqnarray}
+  V_2 & = & B_{11} V_1 - B_{12} I_1 + V_{2b}, \\
+  I_2 & = & B_{21} V_1 - B_{22} I_1 - I_{2b}.
+\end{eqnarray}
+%
+In matrix form:
+%
+\begin{equation}
+  \begin{bmatrix}
+    V_2 \\ I_2
+  \end{bmatrix}
+  =
+  \begin{bmatrix}
+    B_{11} & B_{12} \\
+    B_{21} & B_{22}
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ -I_1
+  \end{bmatrix}  
+  +
+  \begin{bmatrix}
+    V_{2b} \\ -I_{2b}
+  \end{bmatrix}. 
+\end{equation}
+%
+This can be expressed as
+%
+\begin{equation}
+  \begin{bmatrix}
+    V_2 \\ I_2
+  \end{bmatrix}
+  =
+  \begin{bmatrix}
+    B_{11} & -B_{12} \\
+    B_{21} & -B_{22}
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ I_1
+  \end{bmatrix}  
+  +
+  \begin{bmatrix}
+    V_{2b} \\ -I_{2b}
+  \end{bmatrix}. 
+\end{equation}
+%
+Inverting gives
+%
+\begin{equation}
+  \begin{bmatrix}
+    V_1 \\ I_1
+  \end{bmatrix}
+  =
+  \frac{1}{\det{B}}
+  \begin{bmatrix}
+    B_{22} & B_{12} \\
+    -B_{21} & -B_{11}
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_2 - V_{2b} \\ I_2 + I_{2b}
+  \end{bmatrix},
+\end{equation}
+%
+which can be expressed as
+%
+\begin{equation}
+  \begin{bmatrix}
+    V_1 \\ I_1
+  \end{bmatrix}
+  =
+  \frac{1}{\det{B}}
+  \begin{bmatrix}
+    B_{22} & -B_{12} \\
+    -B_{21} & B_{11}
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_2 - V_{2b} \\ -I_2 - I_{2b}
+  \end{bmatrix}.
+\end{equation}
+%
+Finally,
+%
+\begin{equation}
+  \begin{bmatrix}
+    V_1 \\ I_1
+  \end{bmatrix}
+  =
+  \mat{B}^{-1}
+  \begin{bmatrix}  
+    V_2 \\ -I_2
+  \end{bmatrix}
+  +
+  \mat{B}^{-1}
+  \begin{bmatrix}  
+    -V_{2b} \\ -I_{2b}
+  \end{bmatrix},
+\end{equation}
+%
+which is equivalent to
+%
+\begin{equation}
+  \begin{bmatrix}
+    V_1 \\ I_1
+  \end{bmatrix}
+  =
+  \mat{A}
+  \begin{bmatrix}  
+    V_2 \\ -I_2
+  \end{bmatrix}
+  +
+  \begin{bmatrix}  
+    V_{1a} \\ I_{1a}
+  \end{bmatrix}.
+\end{equation}
+%
+Thus $\mat{A} = \mat{B}^{-1}$ and
+%
+\begin{equation}
+V_{1a} = -A_{11} V_{2b} + A_{12} I_{2b} \bigspace I_{1a} = A_{21} V_{2b} - A_{22} I_{2b}.
+\end{equation}
+
+
+\subsection{G-model}
 
 \begin{eqnarray}
 \label{eqn:GI1}
@@ -878,7 +1106,7 @@ and equating \refeqn{BV2G} to \refeqn{GV2} yields
 \end{equation}
 
 
-\subsection{H model}
+\subsection{H-model}
 
 \begin{eqnarray}
 \label{eqn:HV1}
@@ -909,7 +1137,7 @@ and equating to \refeqn{HI2}, yields,
 
 
 
-\subsection{Y model}
+\subsection{Y-model}
 
 \begin{eqnarray}
 \label{eqn:YI1}
@@ -949,7 +1177,7 @@ and equating to \refeqn{HI2}, yields,
 
 
 
-\subsection{Z model}
+\subsection{Z-model}
 
 \begin{eqnarray}
 \label{eqn:ZV1}

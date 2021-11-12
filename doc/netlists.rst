@@ -250,7 +250,23 @@ simulation (additional components can be drawn, see
 - Mechanical damper:
 
    `rname Np Nm r`
-   
+
+- Two-port:
+
+   `TPname Np Nm Nip Nim A A11 A12 A21 A22 V1a I1a`
+
+   `TPname Np Nm Nip Nim B B11 B12 B21 B22 V2b I2b`
+
+   `TPname Np Nm Nip Nim G G11 G12 G21 G22 I1g V2g`
+
+   `TPname Np Nm Nip Nim H H11 H12 H21 H22 V1h I2h`
+
+   `TPname Np Nm Nip Nim Y Y11 Y12 Y21 Y22 I1y I2y`
+
+   `TPname Np Nm Nip Nim Z Z11 Z12 Z21 Z22 V1z V2z`            
+
+    The last two arguments default to zero.   Note, Lcapy assumes that the nodes Nm and Nim are at the same potential.
+    
    
 Np denotes the positive node; Np denotes the negative node.  For
 two-port devices, Nip denotes the positive input node and Nim denotes
@@ -264,6 +280,7 @@ For example,
    `C1 1 0` is equivalent to `C1 1 0 C1`
 
 
+   
 Circuit attributes
 ------------------
 

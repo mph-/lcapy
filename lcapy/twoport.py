@@ -1380,12 +1380,11 @@ class TwoPort(Network, TwoPortMixin):
 
     @property
     def I1a(self):
-        return LaplaceDomainCurrent(-self.V2b / self._B12)
+        return LaplaceDomainCurrent(self.A21 * self.V2b) - self.A22 * self.I2b
 
     @property
     def V1a(self):
-        # CHECKME
-        return LaplaceDomainVoltage(-self.I2b / self._B21)
+        return -self.A11 * self.V2b + LaplaceDomainVoltage(self.A12 * self.I2b)
 
     @property
     def I1g(self):
@@ -1655,6 +1654,11 @@ class TwoPort(Network, TwoPortMixin):
         """Return current vector with all ports short-circuited
         (i.e., V1 = V2 = 0)"""
         return LaplaceDomainCurrentMatrix((self.I1y, self.I2y))
+
+    @property
+    def Amodel(self):
+
+        return TwoPortAModel(self.Aparams, V1a=self.V1a, I1a=self.I1a)    
 
     @property
     def Bmodel(self):
@@ -2012,6 +2016,14 @@ class TwoPortAModel(TwoPort):
     @property
     def V1a(self):
         return self._V1a
+
+    @property
+    def I2b(self):
+        return LaplaceDomainCurrent(self.B21 * self.V1a) - self.B22 * self.I1a
+
+    @property
+    def V2b(self):
+        return -self.B11 * self.V1a + LaplaceDomainVoltage(self.B12 * self.I1a)
 
 
 class TwoPortGModel(TwoPort):
