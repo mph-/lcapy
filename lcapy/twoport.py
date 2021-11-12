@@ -1176,8 +1176,8 @@ class YMatrix(TwoPortMatrix):
     @property
     def Bparams(self):
         det = self.det().expr        
-        return BMatrix(((-self._Y11 / self._Y12, -1 / self._Y12),
-                        (-det / self._Y12, -self._Y22 / self._Y12)))
+        return BMatrix(((-self._Y11 / self._Y12, 1 / self._Y12),
+                        (det / self._Y12, -self._Y22 / self._Y12)))
 
     @property
     def Hparams(self):
