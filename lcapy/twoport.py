@@ -1339,44 +1339,52 @@ class TwoPort(Network, TwoPortMixin):
                 raise ValueError('%s not a TwoPort' % arg1)
 
     @property
+    def params(self):
+        return self._params
+
+    @property
+    def sources(self):
+        return self._sources
+    
+    @property
     def Aparams(self):
         """Return chain parameters"""
-        return self._M.Aparams
+        return self._params.Aparams
 
     @property
     def Bparams(self):
         """Return inverse chain parameters"""
-        return self._M.Bparams
+        return self._params.Bparams
 
     @property
     def Gparams(self):
         """Return inverse hybrid parameters"""
-        return self._M.Gparams
+        return self._params.Gparams
 
     @property
     def Hparams(self):
         """Return hybrid parameters"""
-        return self._M.Hparams
+        return self._params.Hparams
 
     @property
     def Sparams(self):
         """Return scattering parameters"""
-        return self._M.Sparams
+        return self._params.Sparams
 
     @property
     def Tparams(self):
         """Return scattering transfer parameters"""
-        return self._M.Tparams    
+        return self._params.Tparams    
 
     @property
     def Yparams(self):
         """Return admittance parameters"""
-        return self._M.Yparams
+        return self._params.Yparams
 
     @property
     def Zparams(self):
         """Return impedance parameters"""
-        return self._M.Zparams
+        return self._params.Zparams
 
     @property
     def I1a(self):
@@ -1904,7 +1912,7 @@ class TwoPortBModel(TwoPort):
             I2b = LaplaceDomainCurrent(0)            
 
         if issubclass(B.__class__, TwoPortBModel):
-            B, V2b, I2b = B._M, B._V2b, B._I2b
+            B, V2b, I2b = B._params, B._V2b, B._I2b
 
         if not isinstance(B, BMatrix):
             raise ValueError('B not BMatrix')
@@ -1913,9 +1921,10 @@ class TwoPortBModel(TwoPort):
         I2b = LaplaceDomainCurrent(I2b)
 
         super(TwoPortBModel, self).__init__(**kwargs)
-        self._M = B
+        self._params = B
         self._V2b = V2b
         self._I2b = I2b
+        self._sources = Vector(V2b, I2b)
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
@@ -1927,7 +1936,7 @@ class TwoPortBModel(TwoPort):
     @property
     def Bparams(self):
         """Return chain matrix"""
-        return self._M
+        return self._params
 
     @property
     def I2b(self):
@@ -1984,7 +1993,7 @@ class TwoPortAModel(TwoPort):
             I1a = LaplaceDomainCurrent(0)            
 
         if issubclass(A.__class__, TwoPortAModel):
-            A, V1a, I1a = A._M, A._V1a, A._I1a
+            A, V1a, I1a = A._params, A._V1a, A._I1a
 
         if not isinstance(A, AMatrix):
             raise ValueError('A not AMatrix')
@@ -1993,9 +2002,10 @@ class TwoPortAModel(TwoPort):
         I1a = LaplaceDomainCurrent(I1a)        
 
         super(TwoPortAModel, self).__init__(**kwargs)
-        self._M = A
+        self._params = A
         self._V1a = V1a
         self._I1a = I1a
+        self._sources = Vector(V1a, I1a)        
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
@@ -2007,7 +2017,7 @@ class TwoPortAModel(TwoPort):
     @property
     def Aparams(self):
         """Return chain matrix"""
-        return self._M
+        return self._params
 
     @property
     def I1a(self):
@@ -2048,7 +2058,7 @@ class TwoPortGModel(TwoPort):
             V2g = LaplaceDomainVoltage(0)            
         
         if issubclass(G.__class__, TwoPortGModel):
-            G, I1g, V2g = G._M, G._I1g, G._V2g
+            G, I1g, V2g = G._params, G._I1g, G._V2g
 
         if not isinstance(G, GMatrix):
             raise ValueError('G not GMatrix')
@@ -2057,9 +2067,10 @@ class TwoPortGModel(TwoPort):
         V2g = LaplaceDomainVoltage(V2g)
 
         super(TwoPortGModel, self).__init__(**kwargs)
-        self._M = G
+        self._params = G
         self._V1g = I1g
         self._I2g = V2g
+        self._sources = Vector(V1g, I2g)        
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
@@ -2071,7 +2082,7 @@ class TwoPortGModel(TwoPort):
     @property
     def Gparams(self):
         """Return hybrid matrix"""
-        return self._M
+        return self._params
 
     @property
     def V2b(self):
@@ -2139,7 +2150,7 @@ class TwoPortHModel(TwoPort):
             I2h = LaplaceDomainCurrent(0)            
         
         if issubclass(H.__class__, TwoPortHModel):
-            H, V1h, I2h = H._M, H._V1h, H._I2h
+            H, V1h, I2h = H._params, H._V1h, H._I2h
 
         if not isinstance(H, HMatrix):
             raise ValueError('H not HMatrix')
@@ -2148,9 +2159,10 @@ class TwoPortHModel(TwoPort):
         I2h = LaplaceDomainCurrent(I2h)        
 
         super(TwoPortHModel, self).__init__(**kwargs)
-        self._M = H
+        self._params = H
         self._V1h = V1h
         self._I2h = I2h
+        self._sources = Vector(V1h, I2h)        
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
@@ -2162,7 +2174,7 @@ class TwoPortHModel(TwoPort):
     @property
     def Hparams(self):
         """Return hybrid matrix"""
-        return self._M
+        return self._params
 
     @property
     def V2b(self):
@@ -2229,7 +2241,7 @@ class TwoPortYModel(TwoPort):
             I2y = LaplaceDomainCurrent(0)            
         
         if issubclass(Y.__class__, TwoPortYModel):
-            Y, I1y, I2y = Y._M, Y._I1y, Y._I2y
+            Y, I1y, I2y = Y._params, Y._I1y, Y._I2y
 
         if not isinstance(Y, YMatrix):
             raise ValueError('Y not YMatrix')
@@ -2238,9 +2250,10 @@ class TwoPortYModel(TwoPort):
         I2y = LaplaceDomainCurrent(I2y)        
 
         super(TwoPortYModel, self).__init__(**kwargs)
-        self._M = Y
+        self._params = Y
         self._I1y = I1y
         self._I2y = I2y
+        self._sources = Vector(I1y, I2y)        
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
@@ -2252,7 +2265,7 @@ class TwoPortYModel(TwoPort):
     @property
     def Yparams(self):
         """Return admittance matrix"""
-        return self._M
+        return self._params
 
     @property
     def I2b(self):
@@ -2314,7 +2327,7 @@ class TwoPortZModel(TwoPort):
             V2z = LaplaceDomainVoltage(0)            
         
         if issubclass(Z.__class__, TwoPortZModel):
-            Z, V1z, V2z = Z._M, Z._V1z, Z._V2z
+            Z, V1z, V2z = Z._params, Z._V1z, Z._V2z
 
         if not isinstance(Z, ZMatrix):
             raise ValueError('Z not ZMatrix')
@@ -2323,9 +2336,10 @@ class TwoPortZModel(TwoPort):
         V2z = LaplaceDomainVoltage(V2z)        
 
         super(TwoPortZModel, self).__init__(**kwargs)
-        self._M = Z
+        self._params = Z
         self._V1z = V1z
         self._V2z = V2z
+        self._sources = Vector(V1z, V2z)        
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
@@ -2337,7 +2351,7 @@ class TwoPortZModel(TwoPort):
     @property
     def Zparams(self):
         """Return impedance matrix"""
-        return self._M
+        return self._params
 
     @property
     def I2b(self):
