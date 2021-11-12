@@ -1388,11 +1388,11 @@ class TwoPort(Network, TwoPortMixin):
 
     @property
     def I1a(self):
-        return LaplaceDomainCurrent(self.A21 * self.V2b) - self.A22 * self.I2b
+        return -LaplaceDomainCurrent(self.A21 * self.V2b) - self.A22 * self.I2b
 
     @property
     def V1a(self):
-        return -self.A11 * self.V2b + LaplaceDomainVoltage(self.A12 * self.I2b)
+        return -self.A11 * self.V2b - LaplaceDomainVoltage(self.A12 * self.I2b)
 
     @property
     def I1g(self):
@@ -1920,7 +1920,7 @@ class TwoPortBModel(TwoPort):
         V2b = LaplaceDomainVoltage(V2b)
         I2b = LaplaceDomainCurrent(I2b)
 
-        super(TwoPortBModel, self).__init__(**kwargs)
+        super(TwoPortBModel, self).__init__(B[0, 0], B[0, 1], B[1, 0], B[1, 1], V2b, I2b, **kwargs)
         self._params = B
         self._V2b = V2b
         self._I2b = I2b
@@ -2001,7 +2001,7 @@ class TwoPortAModel(TwoPort):
         V1a = LaplaceDomainVoltage(V1a)
         I1a = LaplaceDomainCurrent(I1a)        
 
-        super(TwoPortAModel, self).__init__(**kwargs)
+        super(TwoPortAModel, self).__init__(A[0, 0], A[0, 1], A[1, 0], A[1, 1], V1a, I1a, **kwargs)
         self._params = A
         self._V1a = V1a
         self._I1a = I1a
@@ -2029,11 +2029,11 @@ class TwoPortAModel(TwoPort):
 
     @property
     def I2b(self):
-        return LaplaceDomainCurrent(self.B21 * self.V1a) - self.B22 * self.I1a
+        return -LaplaceDomainCurrent(self.B21 * self.V1a) - self.B22 * self.I1a
 
     @property
     def V2b(self):
-        return -self.B11 * self.V1a + LaplaceDomainVoltage(self.B12 * self.I1a)
+        return -self.B11 * self.V1a - LaplaceDomainVoltage(self.B12 * self.I1a)
 
 
 class TwoPortGModel(TwoPort):
@@ -2066,7 +2066,7 @@ class TwoPortGModel(TwoPort):
         I1g = LaplaceDomainCurrent(I1g)                
         V2g = LaplaceDomainVoltage(V2g)
 
-        super(TwoPortGModel, self).__init__(**kwargs)
+        super(TwoPortGModel, self).__init__(G[0, 0], G[0, 1], G[1, 0], G[1, 1], I1g, V2g, **kwargs)
         self._params = G
         self._I1g = I1g
         self._V2g = V2g
@@ -2157,7 +2157,7 @@ class TwoPortHModel(TwoPort):
         V1h = LaplaceDomainVoltage(V1h)
         I2h = LaplaceDomainCurrent(I2h)        
 
-        super(TwoPortHModel, self).__init__(**kwargs)
+        super(TwoPortHModel, self).__init__(H[0, 0], H[0, 1], H[1, 0], H[1, 1], V1h, I2h, **kwargs)
         self._params = H
         self._V1h = V1h
         self._I2h = I2h
@@ -2179,7 +2179,7 @@ class TwoPortHModel(TwoPort):
     def V2b(self):
         """Return V2b"""
 
-        return LaplaceDomainVoltage(self.V1h / self.Hparams._H12)
+        return LaplaceDomainVoltage(self.I2h / self.Hparams._H22)
 
     @property
     def I2b(self):
@@ -2248,7 +2248,7 @@ class TwoPortYModel(TwoPort):
         I1y = LaplaceDomainCurrent(I1y)
         I2y = LaplaceDomainCurrent(I2y)        
 
-        super(TwoPortYModel, self).__init__(**kwargs)
+        super(TwoPortYModel, self).__init__(Y[0, 0], Y[0, 1], Y[1, 0], Y[1, 1], I1y, I2y, **kwargs)
         self._params = Y
         self._I1y = I1y
         self._I2y = I2y
@@ -2334,7 +2334,7 @@ class TwoPortZModel(TwoPort):
         V1z = LaplaceDomainVoltage(V1z)
         V2z = LaplaceDomainVoltage(V2z)        
 
-        super(TwoPortZModel, self).__init__(**kwargs)
+        super(TwoPortZModel, self).__init__(Z[0, 0], Z[0, 1], Z[1, 0], Z[1, 1], V1z, V2z, **kwargs)
         self._params = Z
         self._V1z = V1z
         self._V2z = V2z

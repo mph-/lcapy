@@ -769,75 +769,21 @@ In matrix form:
   \end{bmatrix}. 
 \end{equation}
 %
-This can be expressed as
-%
-\begin{equation}
-  \begin{bmatrix}
-    V_1 \\ I_1
-  \end{bmatrix}
-  =
-  \begin{bmatrix}
-    A_{11} & -A_{12} \\
-    A_{21} & -A_{22}
-  \end{bmatrix}
-  \begin{bmatrix}
-    V_2 \\ I_2
-  \end{bmatrix}  
-  +
-  \begin{bmatrix}
-    V_{1a} \\ I_{1a}
-  \end{bmatrix}. 
-\end{equation}
-%
 Inverting gives
 %
 \begin{equation}
   \begin{bmatrix}
-    V_2 \\ I_2
-  \end{bmatrix}
-  =
-  \frac{1}{\det{A}}
-  \begin{bmatrix}
-    A_{22} & A_{12} \\
-    -A_{21} & -A_{11}
-  \end{bmatrix}
-  \begin{bmatrix}
-    V_1 - V_{1a} \\ I_1 - I_{1a}
-  \end{bmatrix},
-\end{equation}
-%
-which can be expressed as
-%
-\begin{equation}
-  \begin{bmatrix}
-    V_2 \\ I_2
-  \end{bmatrix}
-  =
-  \frac{1}{\det{A}}
-  \begin{bmatrix}
-    A_{22} & -A_{12} \\
-    -A_{21} & A_{11}
-  \end{bmatrix}
-  \begin{bmatrix}
-    V_1 - V_{1a} \\ -I_1 + I_{1a}
-  \end{bmatrix}.
-\end{equation}
-%
-Finally,
-%
-\begin{equation}
-  \begin{bmatrix}
-    V_2 \\ I_2
+    V_2 \\ -I_2
   \end{bmatrix}
   =
   \mat{A}^{-1}
   \begin{bmatrix}  
-    V_1 \\ -I_1
+    V_1 \\ I_1
   \end{bmatrix}
-  +
+  -
   \mat{A}^{-1}
   \begin{bmatrix}  
-    -V_{1a} \\ I_{1a}
+    V_{1a} \\ I_{1a}
   \end{bmatrix},
 \end{equation}
 %
@@ -845,16 +791,16 @@ which is equivalent to
 %
 \begin{equation}
   \begin{bmatrix}
-    V_2 \\ I_2
+    V_2 \\ -I_2
   \end{bmatrix}
   =
   \mat{B}
   \begin{bmatrix}  
-    V_1 \\ -I_1
+    V_1 \\ I_1
   \end{bmatrix}
   +
   \begin{bmatrix}  
-    V_{2b} \\ -I_{2b}
+    V_{2b} \\ I_{2b}
   \end{bmatrix}.
 \end{equation}
 %
@@ -867,32 +813,59 @@ V_{2b} = -B_{11} V_{1a} + B_{12} I_{1a} \bigspace I_{2b} = B_{21} V_{1a} - B_{22
 
 \subsection{B-model}
 
+
+The B-model equations are:
+%
 \begin{eqnarray}
 \label{eqn:BV2}
   V_2 & = & B_{11} V_1 + B_{12} I_1 + V_{2b}, \\
   I_2 & = & -B_{21} V_1 - B_{22} I_1 - I_{2b}.
 \label{eqn:BI2}
 \end{eqnarray}
+%
+In matrix form:
+%
+\begin{equation}
+  \begin{bmatrix}
+    V_2 \\ -I_2
+  \end{bmatrix}
+  =
+  \begin{bmatrix}
+    B_{11} & B_{12} \\
+    B_{21} & B_{22}
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ I_1
+  \end{bmatrix}  
+  +
+  \begin{bmatrix}
+    V_{2b} \\ I_{2b}
+  \end{bmatrix}.
+  \label{eqn:Bmat}
+\end{equation}
+
+
+
 
 From \refeqn{BV2},
 %
 \begin{equation}
   V_1 = -\frac{B_{12}}{B_{11}} I_1 + \frac{1}{B_{11}} V_2 - \frac{1}{B_{11}} V_{2b},
-\bigspace \mbox{(H form)},
+\bigspace \mbox{(H1 form)},
 \label{eqn:BV1H}
 \end{equation}
 %
 and
 %
 \begin{equation}
-  I_1  =  -\frac{B_{11}}{B_{12}} V_1 - \frac{1}{B_{12}} V_2 - \frac{1}{B_{12}} V_{2b} \bigspace \mbox{(Y form)}.
+  I_1  =  -\frac{B_{11}}{B_{12}} V_1 - \frac{1}{B_{12}} V_2 - \frac{1}{B_{12}} V_{2b} \bigspace \mbox{(Y1 form)}.
 \label{eqn:BI1Y}
 \end{equation}
 %
 From \refeqn{BI2},
 %
 \begin{equation}
-  V_1 = -\frac{B_{22}}{B_{21}} I_1 - \frac{1}{B_{21}} I_2  - \frac{1}{B_{21}} I_{2b} \bigspace \mbox{(Z form)},
+  V_1 = -\frac{B_{22}}{B_{21}} I_1 - \frac{1}{B_{21}} I_2  - \frac{1}{B_{21}} I_{2b} \bigspace \mbox{(Z1 form)},
 \label{eqn:BV1Z}
 \end{equation}
 %
@@ -900,35 +873,35 @@ and
 %
 \begin{equation}
   I_1 = -\frac{B_{21}}{B_{22}} V_1 - \frac{1}{B_{22}} I_2 - \frac{1}{B_{22}} I_{2b}
-\bigspace \mbox{(G form)}.
+\bigspace \mbox{(G1 form)}.
 \label{eqn:BI1G}
 \end{equation}
 %
 Substituting \refeqn{BV1H} into \refeqn{BI2} gives
 %
 \begin{equation}
-  I_2 = \frac{\det{B}}{B_{11}} I_1 + \frac{1}{B_{11}} V_2 - \frac{B_{21}}{B_{11}} V_{2b} - I_{2b} \bigspace \mbox{(H form)}.
+  I_2 = \frac{\det{B}}{B_{11}} I_1 + \frac{1}{B_{11}} V_2 - \frac{B_{21}}{B_{11}} V_{2b} - I_{2b} \bigspace \mbox{(H2 form)}.
 \label{eqn:BI2H}
 \end{equation}
 %
 Substituting \refeqn{BI1Y} into \refeqn{BI2} gives
 %
 \begin{equation}
-  I_2 = \frac{\det B}{B_{12}} V_1 + \frac{B_{22}}{B_{12}} V_2 + \frac{B_{22}}{B_{12}} V_{2b} - I_{2b} \bigspace \mbox{(Y form)}.
+  I_2 = \frac{\det B}{B_{12}} V_1 + \frac{B_{22}}{B_{12}} V_2 + \frac{B_{22}}{B_{12}} V_{2b} - I_{2b} \bigspace \mbox{(Y2 form)}.
 \label{eqn:BI2Y}
 \end{equation}
 %
 Substituting \refeqn{BV1Z} into \refeqn{BV2} gives
 %
 \begin{equation}
-  V_2 = -\frac{\det B}{B_{21}} I_1 - \frac{B_{11}}{B_{21}} I_2  - \frac{B_{11}}{B_{21}} I_{2b} + V_{2b}  \bigspace \mbox{(Z form)}.
+  V_2 = -\frac{\det B}{B_{21}} I_1 - \frac{B_{11}}{B_{21}} I_2  - \frac{B_{11}}{B_{21}} I_{2b} + V_{2b}  \bigspace \mbox{(Z2 form)}.
 \label{eqn:BV2Z}
 \end{equation}
 %
 Substituting \refeqn{BI1G} into \refeqn{BV2} gives
 %
 \begin{equation}
-  V_2 = -\frac{\det B}{B_{22}} V_1 - \frac{B_{12}}{B_{22}} I_2  - \frac{B_{12}}{B_{22}} I_{2b} + V_{2b}  \bigspace \mbox{(G form)}.
+  V_2 = -\frac{\det B}{B_{22}} V_1 - \frac{B_{12}}{B_{22}} I_2  - \frac{B_{12}}{B_{22}} I_{2b} + V_{2b}  \bigspace \mbox{(G2 form)}.
 \label{eqn:BV2G}
 \end{equation}
 
@@ -959,89 +932,7 @@ V_{2z} & = & V_{2b} -\frac{B_{11}}{B_{21}} I_{2b}.
 \end{eqnarray}
 
 
-
-The B-model equations are:
-%
-\begin{eqnarray}
-  V_2 & = & B_{11} V_1 - B_{12} I_1 + V_{2b}, \\
-  I_2 & = & B_{21} V_1 - B_{22} I_1 - I_{2b}.
-\end{eqnarray}
-%
-In matrix form:
-%
-\begin{equation}
-  \begin{bmatrix}
-    V_2 \\ I_2
-  \end{bmatrix}
-  =
-  \begin{bmatrix}
-    B_{11} & B_{12} \\
-    B_{21} & B_{22}
-  \end{bmatrix}
-  \begin{bmatrix}
-    V_1 \\ -I_1
-  \end{bmatrix}  
-  +
-  \begin{bmatrix}
-    V_{2b} \\ -I_{2b}
-  \end{bmatrix}. 
-\end{equation}
-%
-This can be expressed as
-%
-\begin{equation}
-  \begin{bmatrix}
-    V_2 \\ I_2
-  \end{bmatrix}
-  =
-  \begin{bmatrix}
-    B_{11} & -B_{12} \\
-    B_{21} & -B_{22}
-  \end{bmatrix}
-  \begin{bmatrix}
-    V_1 \\ I_1
-  \end{bmatrix}  
-  +
-  \begin{bmatrix}
-    V_{2b} \\ -I_{2b}
-  \end{bmatrix}. 
-\end{equation}
-%
-Inverting gives
-%
-\begin{equation}
-  \begin{bmatrix}
-    V_1 \\ I_1
-  \end{bmatrix}
-  =
-  \frac{1}{\det{B}}
-  \begin{bmatrix}
-    B_{22} & B_{12} \\
-    -B_{21} & -B_{11}
-  \end{bmatrix}
-  \begin{bmatrix}
-    V_2 - V_{2b} \\ I_2 + I_{2b}
-  \end{bmatrix},
-\end{equation}
-%
-which can be expressed as
-%
-\begin{equation}
-  \begin{bmatrix}
-    V_1 \\ I_1
-  \end{bmatrix}
-  =
-  \frac{1}{\det{B}}
-  \begin{bmatrix}
-    B_{22} & -B_{12} \\
-    -B_{21} & B_{11}
-  \end{bmatrix}
-  \begin{bmatrix}
-    V_2 - V_{2b} \\ -I_2 - I_{2b}
-  \end{bmatrix}.
-\end{equation}
-%
-Finally,
+Inverting \refeqn{Bmat} gives
 %
 \begin{equation}
   \begin{bmatrix}
@@ -1052,10 +943,10 @@ Finally,
   \begin{bmatrix}  
     V_2 \\ -I_2
   \end{bmatrix}
-  +
+  -
   \mat{B}^{-1}
   \begin{bmatrix}  
-    -V_{2b} \\ -I_{2b}
+    V_{2b} \\ I_{2b}
   \end{bmatrix},
 \end{equation}
 %
@@ -1149,30 +1040,30 @@ and equating to \refeqn{HI2}, yields,
 
 
 \begin{equation}
-  V_1 = \frac{1}{Y_{11}} I_1 - \frac{Y_{12}}{Y_{11}} V_2 - \frac{1}{Y_{11}} I_{1y} \bigspace \mbox{(H form)}
+  V_1 = \frac{1}{Y_{11}} I_1 - \frac{Y_{12}}{Y_{11}} V_2 - \frac{1}{Y_{11}} I_{1y} \bigspace \mbox{(H1 form)}
 \end{equation}
 
 \begin{equation}
-  V_2 = \frac{1}{Y_{12}} I_1 - \frac{Y_{11}}{Y_{12}} V_1 - \frac{1}{Y_{12}} I_{1y} \bigspace \mbox{(B form)}
+  V_2 = \frac{1}{Y_{12}} I_1 - \frac{Y_{11}}{Y_{12}} V_1 - \frac{1}{Y_{12}} I_{1y} \bigspace \mbox{(B1 form)}
 \end{equation}
 
 \begin{equation}
-  V_1 = \frac{1}{Y_{21}} I_2 - \frac{Y_{22}}{Y_{21}} V_2 - \frac{1}{Y_{21}} I_{2y} \bigspace \mbox{(A form)}
-\end{equation}
-
-
-\begin{equation}
-  V_2 = -\frac{Y_{21}}{Y_{22}} V_1 + \frac{1}{Y_{22}} I_2 - \frac{1}{Y_{22}} I_{2y} \bigspace \mbox{(G form)}
+  V_1 = \frac{1}{Y_{21}} I_2 - \frac{Y_{22}}{Y_{21}} V_2 - \frac{1}{Y_{21}} I_{2y} \bigspace \mbox{(A1 form)}
 \end{equation}
 
 
 \begin{equation}
-  V_2 = -\frac{Y_{21}}{\det{Y}} I_1 + \frac{Y_{11}}{\det{Y}} I_2 - \frac{Y_{11}}{\det{Y}} I_{2y} + \frac{Y_{21}}{\det{Y}} I_{1y} \bigspace \mbox{(Z form)}
+  V_2 = -\frac{Y_{21}}{Y_{22}} V_1 + \frac{1}{Y_{22}} I_2 - \frac{1}{Y_{22}} I_{2y} \bigspace \mbox{(G2 form)}
 \end{equation}
 
 
 \begin{equation}
-  V_1 = \frac{Y_{22}}{\det{Y}} I_1 - \frac{Y_{12}}{\det{Y}} I_2 + \frac{Y_{12}}{\det{Y}} I_{2y} - \frac{Y_{22}}{\det{Y}} I_{1y} \bigspace \mbox{(Z form)}
+  V_2 = -\frac{Y_{21}}{\det{Y}} I_1 + \frac{Y_{11}}{\det{Y}} I_2 - \frac{Y_{11}}{\det{Y}} I_{2y} + \frac{Y_{21}}{\det{Y}} I_{1y} \bigspace \mbox{(Z2 form)}
+\end{equation}
+
+
+\begin{equation}
+  V_1 = \frac{Y_{22}}{\det{Y}} I_1 - \frac{Y_{12}}{\det{Y}} I_2 + \frac{Y_{12}}{\det{Y}} I_{2y} - \frac{Y_{22}}{\det{Y}} I_{1y} \bigspace \mbox{(Z1 form)}
 \end{equation}
 
 
@@ -1189,30 +1080,30 @@ and equating to \refeqn{HI2}, yields,
 
 
 \begin{equation}
-  I_1 = \frac{1}{Z_{11}} V_1 - \frac{Z_{12}}{Z_{11}} I_2 - \frac{1}{Z_{11}} V_{1z} \bigspace \mbox{(G form)}
+  I_1 = \frac{1}{Z_{11}} V_1 - \frac{Z_{12}}{Z_{11}} I_2 - \frac{1}{Z_{11}} V_{1z} \bigspace \mbox{(G1 form)}
 \end{equation}
 
 \begin{equation}
-  I_2 = \frac{1}{Z_{12}} V_1 - \frac{Z_{11}}{Z_{12}} I_1 - \frac{1}{Z_{12}} V_{1z} \bigspace \mbox{(B form)}
+  I_2 = \frac{1}{Z_{12}} V_1 - \frac{Z_{11}}{Z_{12}} I_1 - \frac{1}{Z_{12}} V_{1z} \bigspace \mbox{(B2 form)}
 \end{equation}
 
 \begin{equation}
-  I_1 = \frac{1}{Z_{21}} V_2 - \frac{Z_{22}}{Z_{21}} I_2 - \frac{1}{Z_{12}} V_{2z} \bigspace \mbox{(A form)}
-\end{equation}
-
-
-\begin{equation}
-  I_2 = -\frac{Z_{21}}{Z_{22}} I_1 + \frac{1}{Z_{22}} V_2 - \frac{1}{Z_{22}} V_{2z} \bigspace \mbox{(H form)}
+  I_1 = \frac{1}{Z_{21}} V_2 - \frac{Z_{22}}{Z_{21}} I_2 - \frac{1}{Z_{12}} V_{2z} \bigspace \mbox{(A1 form)}
 \end{equation}
 
 
 \begin{equation}
-  I_1 = \frac{Z_{22}}{\det{Z}} V_1 - \frac{Z_{12}}{\det{Z}} V_2 - \frac{Z_{12}}{\det{Z}} V_{2z} - \frac{Z_{22}}{\det{Z}} V_{1z} \bigspace \mbox{(Z form)}
+  I_2 = -\frac{Z_{21}}{Z_{22}} I_1 + \frac{1}{Z_{22}} V_2 - \frac{1}{Z_{22}} V_{2z} \bigspace \mbox{(H2 form)}
+\end{equation}
+
+
+\begin{equation}
+  I_1 = \frac{Z_{22}}{\det{Z}} V_1 - \frac{Z_{12}}{\det{Z}} V_2 - \frac{Z_{12}}{\det{Z}} V_{2z} - \frac{Z_{22}}{\det{Z}} V_{1z} \bigspace \mbox{(Z1 form)}
 \end{equation}
 
 CHECK
 \begin{equation}
-  I_2 = -\frac{Z_{21}}{\det{Z}} V_1 + \frac{Z_{11}}{\det{Z}} V_2 - \frac{Z_{11}}{\det{Z}} V_{2z} + \frac{Z_{21}}{\det{Z}} V_{1z} \bigspace \mbox{(Z form)}
+  I_2 = -\frac{Z_{21}}{\det{Z}} V_1 + \frac{Z_{11}}{\det{Z}} V_2 - \frac{Z_{11}}{\det{Z}} V_{2z} + \frac{Z_{21}}{\det{Z}} V_{1z} \bigspace \mbox{(Z2 form)}
 \end{equation}
 
 
