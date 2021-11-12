@@ -975,8 +975,8 @@ class GMatrix(TwoPortMatrix):
     def Bparams(self):
         # return self.Hparams.Bparams
         det = self.det().expr        
-        return BMatrix(((-det / self._G12),
-                        (self._G22 / self._G12, self._G11 / self._G12, -1 / self._G12)))
+        return BMatrix(((-det / self._G12, (self._G22 / self._G12)),
+                        (self._G11 / self._G12, -1 / self._G12)))
 
     @property
     def Gparams(self):
@@ -2068,9 +2068,9 @@ class TwoPortGModel(TwoPort):
 
         super(TwoPortGModel, self).__init__(**kwargs)
         self._params = G
-        self._V1g = I1g
-        self._I2g = V2g
-        self._sources = Vector(V1g, I2g)        
+        self._I1g = I1g
+        self._V2g = V2g
+        self._sources = Vector(I1g, V2g)        
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
@@ -2096,15 +2096,15 @@ class TwoPortGModel(TwoPort):
         """Return I2b"""
 
         # FIXME
-        return LaplaceDomainCurrent(self.G._G22 / self.G._G12 * self.I1g) - self.V2g
+        return LaplaceDomainCurrent(self.G22 / self.G12 * self.I1g) - self.V2g
 
     @property
     def I1g(self):
-        return self._V1g
+        return self._I1g
 
     @property
     def V2g(self):
-        return self._I2g
+        return self._V2g
 
 
 class TwoPortHModel(TwoPort):
