@@ -39,7 +39,7 @@ class Function(object):
         
         return self.expr
 
-    def __call__(self, *args):
+    def __call__(self, *args, **kwargs):
 
         func = self.expr
             
@@ -66,7 +66,7 @@ class Function(object):
         except:
             pass
                 
-        result = func(*delcapify(e_args))
+        result = func(*delcapify(e_args), **kwargs)
 
         result = cls(result)        
             
