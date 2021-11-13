@@ -734,9 +734,9 @@ class BMatrix(TwoPortMatrix):
     @property
     def Hparams(self):
 
-        det = self.det().expr        
         return HMatrix(((-self._B12 / self._B11, 1 / self._B11),
-                        (-det / self._B11, -self._B21 / self._B11)))
+                        (self._B21 * self._B12 / self._B11 - self._B22,
+                         -self._B21 / self._B11)))
 
     @property
     def Yparams(self):
@@ -1034,9 +1034,10 @@ class HMatrix(TwoPortMatrix):
     @property
     def Bparams(self):
         if not hasattr(self, '_Bparams'):        
-            det = self.det().expr
             self._Bparams = BMatrix(((1 / self._H12, -self._H11 / self._H12),
-                                     (-self._H22 / self._H12, det / self._H12)))
+                                     (-self._H22 / self._H12,
+                                     self._H22 * self._H11 / self._H12 - self._H21)))
+                                      
         return self._Bparams
 
     @property
@@ -1190,11 +1191,9 @@ class YMatrix(TwoPortMatrix):
 
     @property
     def Hparams(self):
-        if not hasattr(self, '_Bparams'):                        
-            det = self.det().expr
-            self._Bparams = HMatrix(((1 / self._Y11, -self._Y12 / self._Y11),
-                                     (self._Y21 / self._Y11, det / self._Y11)))
-        return self._Bparams        
+        det = self.det().expr
+        return HMatrix(((1 / self._Y11, -self._Y12 / self._Y11),
+                        (self._Y21 / self._Y11, det / self._Y11)))
 
     @property
     def Yparams(self):
@@ -1415,7 +1414,7 @@ class TwoPort(Network, TwoPortMixin):
 
     @property
     def V2g(self):
-        return LaplaceDomainVoltage(self.V2b - self._B12 / self._B22 * self.I2b)
+        return self.V2b - LaplaceDomainVoltage(self._B21 / self._B22 * self.I2b)
 
     @property
     def V1h(self):
@@ -1689,9 +1688,14 @@ class TwoPort(Network, TwoPortMixin):
         return TwoPortBModel(self.Bparams, V2b=self.V2b, I2b=self.I2b)
 
     @property
+    def Gmodel(self):
+
+        return TwoPortGModel(self.Gparams, I1g=self.I1g, V2g=self.V2g)
+
+    @property
     def Hmodel(self):
 
-        return TwoPortHModel(self.Hparams, V1h=self.V1h, I2h=self.I2h)
+        return TwoPortHModel(self.Hparams, V1h=self.V1h, I2h=self.I2h)    
 
     @property
     def Ymodel(self):
@@ -2103,8 +2107,8 @@ class TwoPortGModel(TwoPort):
     def V2b(self):
         """Return V2b"""
 
-        # FIXME
-        return LaplaceDomainVoltage(self.I1g / self.Gparams._G12)
+        #return self._V2g - LaplaceDomainVoltage(self._I1g / self.Gparams._G12)
+        return self._V2g - LaplaceDomainVoltage(self._I1g * self.B21)    
 
     @property
     def I2b(self):
@@ -2194,13 +2198,13 @@ class TwoPortHModel(TwoPort):
     def V2b(self):
         """Return V2b"""
 
-        return LaplaceDomainVoltage(self.I2h / self.Hparams._H22)
+        return LaplaceDomainVoltage(-self.V1h / self.Hparams._H12)
 
     @property
     def I2b(self):
         """Return I2b"""
 
-        return LaplaceDomainCurrent(self.H22 / self.H12 * self.V1h) - self.I2h
+        return LaplaceDomainCurrent(-self.H22 / self.H12 * self.V1h) - self.I2h
 
     @property
     def V1h(self):

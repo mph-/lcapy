@@ -1067,7 +1067,6 @@ and equating to \refeqn{HI2}, yields,
 \end{equation}
 
 
-
 \subsection{Z-model}
 
 \begin{eqnarray}
@@ -1076,8 +1075,6 @@ and equating to \refeqn{HI2}, yields,
   V_2 & = & Z_{21} I_1 + Z_{22} I_2 + V_{2z}.
 \label{eqn:ZV2}
 \end{eqnarray}
-
-
 
 \begin{equation}
   I_1 = \frac{1}{Z_{11}} V_1 - \frac{Z_{12}}{Z_{11}} I_2 - \frac{1}{Z_{11}} V_{1z} \bigspace \mbox{(G1 form)}
@@ -1179,6 +1176,68 @@ Equating \refeqn{ZV1} to \refeqn{BV1Z} gives
 %%   I_{2b} & = & -B_{21} V_{1z}, \\
 %%   V_{2b} & = & V_{2z} - B_{11} V_{1z}.
 %% \end{eqnarray}
+
+
+In matrix form:
+%
+\begin{equation}
+  \begin{bmatrix}
+    V_1 \\ V_2
+  \end{bmatrix}
+  =
+  \begin{bmatrix}
+    Z_{11} & Z_{12} \\
+    Z_{21} & Z_{22}
+  \end{bmatrix}
+  \begin{bmatrix}
+    I_1 \\ I_2
+  \end{bmatrix}  
+  +
+  \begin{bmatrix}
+    V_{1z} \\ I_{1z}
+  \end{bmatrix}. 
+\end{equation}
+%
+Inverting gives
+%
+\begin{equation}
+  \begin{bmatrix}
+    I_1 \\ I_2
+  \end{bmatrix}
+  =
+  \mat{Z}^{-1}
+  \begin{bmatrix}  
+    V_1 \\ I_1
+  \end{bmatrix}
+  -
+  \mat{Z}^{-1}
+  \begin{bmatrix}  
+    V_{1z} \\ I_{2z}
+  \end{bmatrix},
+\end{equation}
+%
+which is equivalent to
+%
+\begin{equation}
+  \begin{bmatrix}
+    I_1 \\ I_2
+  \end{bmatrix}
+  =
+  \mat{Y}
+  \begin{bmatrix}  
+    V_1 \\ V_2
+  \end{bmatrix}
+  +
+  \begin{bmatrix}  
+    I_{1y} \\ I_{2y}
+  \end{bmatrix}.
+\end{equation}
+%
+Thus $\mat{Z} = \mat{Y}^{-1}$ and
+%
+\begin{equation}
+I_{1y} = -Y_{11} V_{1z} - Y_{12} V_{2z} \bigspace I_{2y} = -Y_{21} V_{1z} - Y_{21} V_{2z}.
+\end{equation}
 
 
 \section{Two-port devices}
