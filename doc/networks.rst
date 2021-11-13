@@ -456,118 +456,73 @@ Two-port networks
 
 Two-port networks are represented in the Laplace domain.   Basic two-ports networks can be combined to produce more complicated two-port networks.
 
+A two-port is an electrical black-box with two pairs of terminals.  A pair of terminals is considered a port if the port condition is satisfied, i.e., the flow of current into one terminal is the same as the current flowing out of the other terminal.
 
-Two-port network attributes
----------------------------
+.. image:: examples/schematics/twoport1.png
+   :width: 12cm
 
-Here are some of the two-port network attributes:
+Two-port networks are usually considered to be free of independent sources, however, 
+Lcapy uses a generalized form that has two optional independent sources.  For lack of a better term, these are currently called two-port models.   They consist of a 2x2 matrix describing the network parameters and a 2x1 vector describing the independent sources (see :ref:`two-port-models`).  For example, consider the network::
 
-- `is_bilateral`: True if the two-port is bilateral
+   >>> tp = Shunt(R('R1')).chain(Series(R('R2') + V('V1')))
 
-- `is_buffered`: True if the two-port is buffered, i.e., any load on the output has no affect on the input
+This can be drawn using::
 
-- `is_reciprocal`: True if the  two-port is reciprocal
+   >>> tp.draw()
+   
+.. image:: examples/networks/twoport-chain2.png
+   :width: 8cm           
 
-- `is_series`: True if the two-port is a series network
+This network is represented by B-parameters but can be converted to a Z-parameter model using the `Zmodel` attribute::
 
-- `is_shunt`: True if the two-port is a shunt network
+   >>> ztp = tp.Zmodel
 
-- `is_symmetrical`: True if the two-port is symmetrical
+The Z-parameters are obtained with the `params` attribute::
 
-- `Voc`: voltage vector with both ports open-circuit
+   >>> ztp.params
+    
+   ⎡R₁       R₁      ⎤
+   ⎢                 ⎥
+   ⎢        ⎛     R₂⎞⎥
+   ⎢R₁  -R₁⋅⎜-1 - ──⎟⎥
+   ⎣        ⎝     R₁⎠⎦
 
-- `V1oc`: open-circuit input voltage
+   
+The sources are obtained with the `sources` attribute::
 
-- `V2oc`: open-circuit output voltage
+   >>> ztp.sources
+   
+   ⎡0 ⎤
+   ⎢  ⎥
+   ⎢V₁⎥
+   ⎢──⎥
+   ⎣s ⎦
 
-- `Isc`: current vector with both ports short-circuit
 
-- `I1sc`: short-circuit input current
+The system of equations can be obtained using the `equation()` method, for example::
 
-- `I2sc`: short-circuit output current
-
-- `Zoc`: impedance vector with both ports open-circuit
-
-- `Z1oc`: input impedance with output port open-circuit
-
-- `Z2oc`: output impedance with input port open-circuit  
-
-- `Ysc`: admittance vector with both ports short-circuit    
-
-- `Y1sc`: input admittance with output port short-circuit
-
-- `Y2sc`: output admittance with input port short-circuit  
+   >>> ztp.equation()
   
-- `Amodel`: the A-parameters model (ABCD)
+          ⎡R₁       R₁      ⎤        ⎡0 ⎤
+   ⎡V₁⎤   ⎢                 ⎥ ⎡I₁⎤   ⎢  ⎥
+   ⎢  ⎥ = ⎢        ⎛     R₂⎞⎥⋅⎢  ⎥ + ⎢V₁⎥
+   ⎣V₂⎦   ⎢R₁  -R₁⋅⎜-1 - ──⎟⎥ ⎣I₂⎦   ⎢──⎥
+          ⎣        ⎝     R₁⎠⎦        ⎣s ⎦
 
-- `Bmodel`: the A-parameters model (inverse ABCD)
-
-- `Gmodel`: the G-parameters model (inverse hybrid / parallel-series)
-
-- `Hmodel`: the H-parameters model (hybrid / series-parallel)
-
-- `Smodel`: the S-parameters model (scattering)
-
-- `Tmodel`: the T-parameters model (scattering transmission)
-
-- `Ymodel`: the Y-parameters model (admittance)
-
-- `Zmodel`: the Z-parameters model (impedance)  
-
-- `params`: the 2x2 matrix of parameters
-
-- `sources`: the 2x1 vector of sources
-  
-The individual elements of a parameter matrix for a two-port `n` can be accessed using `n.A11`, `n.S21`, `n.Z22` etc.
-
-
-Two-port network methods
-------------------------
-
-Here are some of the two-port network methods:
-
-- `chain(TP)`: chain (cascade) two two-port networks together
-
-- `series(TP)`: combine two two-port networks in series
-
-- `parallel(TP)`: combine two two-port networks in parallel
-
-- `hybrid(TP)`: combine two two-port networks in series-parallel
-
-- `inverse_hybrid(TP)`: combine two two-port networks in parallel-series    
-  
-- `bridge(OP)`: bridge a two-port network with a one-port network
-
-- `load(OP)`: apply a one-port network load and return a one-port network
-
-- `source(OP)`: apply a one-port network source and return a one-port network  
-
-- `draw()`: draw a two-port network
-
-- `circuit()`: convert a two-port network to a `Circuit` object
 
 
 Basic two-port networks
 =======================
 
 
-Generic two-port
-----------------
+A-parameter two-port
+--------------------   
 
-A generic two-port has an optional B-parameter matrix argument:
+An A-parameter two-port model is created with:
 
-   >>> n = TP(BMatrix(((1, 2), (3, 4))))
+   >>> n = TPA(A11, A12, A21, A22, V1a, I1a)
 
-Without an argument, the B-parameters are defined as::
-
-    ⎡B₁₁  B₁₂⎤
-    ⎢        ⎥
-    ⎣B₂₁  B₂₂⎦
-
-
-.. image:: examples/schematics/twoport1.png
-   :width: 12cm
-
+By default `V1a=0` and `I1a=0`. 
 
 There are optional keyword arguments (kwargs) to specify schematic attributes,
 for example,
@@ -578,9 +533,51 @@ for example,
 B-parameter two-port
 --------------------
 
-A B-parameter two-port is created with:
+A B-parameter two-port model is created with:
 
-   >>> n = TPB(B11, B12, B21, B22)
+   >>> n = TPB(B11, B12, B21, B22, V2b, I2b)
+
+By default `V2b=0` and `I2b=0`.
+
+
+G-parameter two-port
+--------------------
+
+A G-parameter two-port model is created with:
+
+   >>> n = TPG(G11, G12, G21, G22, I1g, V2g)
+
+By default `I1g=0` and `V2g=0`.
+
+
+H-parameter two-port
+--------------------
+
+A H-parameter two-port model is created with:
+
+   >>> n = TPH(H11, H12, H21, H22, V1h, I2h)
+
+By default `V1h=0` and `I2h=0`.
+
+
+Y-parameter two-port
+--------------------
+
+A Y-parameter two-port model is created with:
+
+   >>> n = TPY(Y11, Y12, Y21, Y22, I1y, I2y)
+
+By default `I1y=0` and `I2y=0`.
+
+
+Z-parameter two-port
+--------------------
+
+A Z-parameter two-port model is created with:
+
+   >>> n = TPZ(Z11, Z12, Z21, Z22, V1z, V2z)
+
+By default `V1z=0` and `V2z=0`. 
 
            
 Shunt two-port
@@ -674,6 +671,116 @@ List of two-ports
 - `GeneralTxLine`
 - `LosslessTxLine`
 - `TxLine`
+- `TPA`
+- `TPB`
+- `TPG`
+- `TPH`
+- `TPY`
+- `TPZ`    
+
+           
+Two-port network attributes
+---------------------------
+
+Here are some of the two-port network attributes:
+
+- `is_bilateral`: True if the two-port is bilateral
+
+- `is_buffered`: True if the two-port is buffered, i.e., any load on the output has no affect on the input
+
+- `is_reciprocal`: True if the  two-port is reciprocal
+
+- `is_series`: True if the two-port is a series network
+
+- `is_shunt`: True if the two-port is a shunt network
+
+- `is_symmetrical`: True if the two-port is symmetrical
+
+- `Voc`: voltage vector with both ports open-circuit
+
+- `V1oc`: open-circuit input voltage
+
+- `V2oc`: open-circuit output voltage
+
+- `Isc`: current vector with both ports short-circuit
+
+- `I1sc`: short-circuit input current
+
+- `I2sc`: short-circuit output current
+
+- `Zoc`: impedance vector with both ports open-circuit
+
+- `Z1oc`: input impedance with output port open-circuit
+
+- `Z2oc`: output impedance with input port open-circuit  
+
+- `Ysc`: admittance vector with both ports short-circuit    
+
+- `Y1sc`: input admittance with output port short-circuit
+
+- `Y2sc`: output admittance with input port short-circuit  
+  
+- `Amodel`: the equivalent A-parameters model (ABCD)
+
+- `Bmodel`: the equivalent B-parameters model (inverse ABCD)
+
+- `Gmodel`: the equivalent G-parameters model (inverse hybrid / parallel-series)
+
+- `Hmodel`: the equivalent H-parameters model (hybrid / series-parallel)
+
+- `Ymodel`: the equivalent Y-parameters model (admittance)
+
+- `Zmodel`: the equivalent Z-parameters model (impedance)
+
+- `Aparams`: the A-parameters (ABCD)
+
+- `Bparams`: the A-parameters (inverse ABCD)
+
+- `Gparams`: the G-parameters (inverse hybrid / parallel-series)
+
+- `Hparams`: the H-parameters (hybrid / series-parallel)
+
+- `Sparams`: the S-parameters (scattering)
+
+- `Tparams`: the T-parameters (scattering transmission)
+
+- `Yparams`: the Y-parameters (admittance)
+
+- `Zparams`: the Z-parameters (impedance)    
+
+- `params`: the 2x2 matrix of parameters
+
+- `sources`: the 2x1 vector of sources
+  
+The individual elements of a parameter matrix for a two-port `n` can be accessed using `n.A11`, `n.S21`, `n.Z22` etc.
+
+
+Two-port network methods
+------------------------
+
+Here are some of the two-port network methods:
+
+- `chain(TP)`: chain (cascade) two two-port networks together
+
+- `series(TP)`: combine two two-port networks in series
+
+- `parallel(TP)`: combine two two-port networks in parallel
+
+- `hybrid(TP)`: combine two two-port networks in series-parallel
+
+- `inverse_hybrid(TP)`: combine two two-port networks in parallel-series    
+  
+- `bridge(OP)`: bridge a two-port network with a one-port network
+
+- `load(OP)`: apply a one-port network load and return a one-port network
+
+- `source(OP)`: apply a one-port network source and return a one-port network  
+
+- `draw()`: draw a two-port network
+
+- `circuit()`: convert a two-port network to a `Circuit` object
+
+- `equation()`: return the system of equations in matrix form  
 
 
 Two-port combinations
@@ -755,35 +862,32 @@ Inverse hybrid (parallel-series)
 .. image:: examples/networks/twoport-inverse-hybrid1.png
    :width: 8cm                                   
 
+
+.. _two-port-models:           
+
            
-Two-port network parameters
-===========================
+Two-port network models
+=======================
 
 Lcapy describes two-port networks in the Laplace domain using A, B, G,
-H, S, T, Y, and Z matrices.  These are defined in the following sections.
-Note, for some network configurations some of these matrices can be
-singular.
+H, S, T, Y, and Z matrices.  Note, for some network configurations some of these matrices can be singular.
 
+Each model can be converted to the other parameterisations, for example,
 
-.. image:: examples/schematics/twoport1.png
-   :width: 12cm
-
-
-Each matrix has methods for converting to the other parameterisations, for example,
-
->>> A = AMatrix.generic()
+>>> A = TPA()
+>>> TPA.params
 
 .. math::
 
     \left[\begin{matrix}A_{11} & A_{12}\\A_{21} & A_{22}\end{matrix}\right]
 
->>> A.Zparams    
+>>> A.Zmodel.params    
 
 .. math::
    
     \left[\begin{matrix}\frac{A_{11}}{A_{21}} & \frac{A_{11} A_{22} - A_{12} A_{21}}{A_{21}}\\\frac{1}{A_{21}} & \frac{A_{22}}{A_{21}}\end{matrix}\right]
 
-The elements can be accessed by name, for example:
+The elements of the parameter matrix can be accessed by name, for example:
 
 >>> A.S11
 
@@ -794,20 +898,6 @@ The elements can be accessed by name, for example:
 Note, in this example, the A-parameters are converted to S-parameters.
 
 
-Each parameterisation has the following attributes:
-
-- `is_bilateral`: True if the two-port is bilateral
-
-- `is_buffered`: True if the two-port is buffered, i.e., any load on the output has no affect on the input
-
-- `is_reciprocal`: True if the  two-port is reciprocal
-
-- `is_series`: True if the two-port is a series network
-
-- `is_shunt`: True if the two-port is a shunt network
-
-- `is_symmetrical`: True if the two-port is symmetrical
-
 
 .. _A-parameters:
 
@@ -816,7 +906,7 @@ A-parameters (ABCD)
 
 .. math::
 
-    \left[\begin{matrix}V_{1}\\I_{1}\end{matrix}\right] = \left[\begin{matrix}A_{11} & A_{12}\\A_{21} & A_{22}\end{matrix}\right] \left[\begin{matrix}V_{2}\\- I_{2}\end{matrix}\right]
+    \left[\begin{matrix}V_{1}\\I_{1}\end{matrix}\right] = \left[\begin{matrix}A_{11} & A_{12}\\A_{21} & A_{22}\end{matrix}\right] \left[\begin{matrix}V_{2}\\- I_{2}\end{matrix}\right] + \left[\begin{matrix}V_{1a}\\I_{1a}\end{matrix}\right]
 
 The A matrix is the inverse of the B matrix.            
 
@@ -828,7 +918,7 @@ B-parameters (inverse ABCD)
 
 .. math::
 
-    \left[\begin{matrix}V_{2}\\I_{2}\end{matrix}\right] = \left[\begin{matrix}B_{11} & B_{12}\\B_{21} & B_{22}\end{matrix}\right] \left[\begin{matrix}V_{1}\\- I_{1}\end{matrix}\right]
+    \left[\begin{matrix}V_{2}\\I_{2}\end{matrix}\right] = \left[\begin{matrix}B_{11} & B_{12}\\B_{21} & B_{22}\end{matrix}\right] \left[\begin{matrix}V_{1}\\- I_{1}\end{matrix}\right]  + \left[\begin{matrix}V_{2b}\\I_{2b}\end{matrix}\right]
 
 The B matrix is the inverse of the A matrix.    
 
@@ -840,7 +930,7 @@ G-parameters (inverse hybrid)
 
 .. math::
 
-    \left[\begin{matrix}I_{1}\\V_{2}\end{matrix}\right] = \left[\begin{matrix}G_{11} & G_{12}\\G_{21} & G_{22}\end{matrix}\right] \left[\begin{matrix}V_{1}\\I_{2}\end{matrix}\right]
+    \left[\begin{matrix}I_{1}\\V_{2}\end{matrix}\right] = \left[\begin{matrix}G_{11} & G_{12}\\G_{21} & G_{22}\end{matrix}\right] \left[\begin{matrix}V_{1}\\I_{2}\end{matrix}\right]  + \left[\begin{matrix}I_{1g}\\V_{2g}\end{matrix}\right]
 
 The G matrix is the inverse of the H matrix.        
 
@@ -852,7 +942,7 @@ H-parameters (hybrid)
 
 .. math::
 
-    \left[\begin{matrix}V_{1}\\I_{2}\end{matrix}\right] = \left[\begin{matrix}H_{11} & H_{12}\\H_{21} & H_{22}\end{matrix}\right] \left[\begin{matrix}I_{1}\\V_{2}\end{matrix}\right]
+    \left[\begin{matrix}V_{1}\\I_{2}\end{matrix}\right] = \left[\begin{matrix}H_{11} & H_{12}\\H_{21} & H_{22}\end{matrix}\right] \left[\begin{matrix}I_{1}\\V_{2}\end{matrix}\right]  + \left[\begin{matrix}V_{1h}\\I_{2h}\end{matrix}\right]
    
 The H matrix is the inverse of the G matrix.    
 
@@ -884,7 +974,7 @@ Y-parameters (admittance)
 
 .. math::    
 
-    \left[\begin{matrix}I_{1}\\I_{2}\end{matrix}\right] = \left[\begin{matrix}Y_{11} & Y_{12}\\Y_{21} & Y_{22}\end{matrix}\right] \left[\begin{matrix}V_{1}\\V_{2}\end{matrix}\right]
+    \left[\begin{matrix}I_{1}\\I_{2}\end{matrix}\right] = \left[\begin{matrix}Y_{11} & Y_{12}\\Y_{21} & Y_{22}\end{matrix}\right] \left[\begin{matrix}V_{1}\\V_{2}\end{matrix}\right]  + \left[\begin{matrix}I_{1y}\\I_{2y}\end{matrix}\right]
 
 The Y matrix is the inverse of the Z matrix.           
 
@@ -896,6 +986,6 @@ Z-parameters (impedance)
 
 .. math::
 
-   \left[\begin{matrix}V_{1}\\V_{2}\end{matrix}\right] = \left[\begin{matrix}Z_{11} & Z_{12}\\Z_{21} & Z_{22}\end{matrix}\right] \left[\begin{matrix}I_{1}\\I_{2}\end{matrix}\right]
+   \left[\begin{matrix}V_{1}\\V_{2}\end{matrix}\right] = \left[\begin{matrix}Z_{11} & Z_{12}\\Z_{21} & Z_{22}\end{matrix}\right] \left[\begin{matrix}I_{1}\\I_{2}\end{matrix}\right] + \left[\begin{matrix}V_{1z}\\V_{2z}\end{matrix}\right]
 
 The Z matrix is the inverse of the Y matrix.       
