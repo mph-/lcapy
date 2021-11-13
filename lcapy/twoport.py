@@ -488,7 +488,9 @@ class TwoPortMatrix(Matrix, TwoPortMixin):
 
     @property
     def Bparams(self):
-        return BMatrix(self.Aparams.inv())
+        if not hasattr(self, '_Bparams'):
+            self._Bparams = BMatrix(self.Aparams.inv())
+        return self._Bparams
 
     @property
     def Gparams(self):
@@ -552,13 +554,15 @@ class AMatrix(TwoPortMatrix):
 
     @property
     def Bparams(self):
-
-        # Inverse
-        det = self.det().expr
-        if det == 0:
-            warn('Producing dodgy B matrix')
-        return BMatrix(((self._A22 / det, -self._A12 / det),
-                        (-self._A21 / det, self._A11 / det)))
+        if not hasattr(self, '_Bparams'):
+            # Inverse
+            det = self.det().expr
+            if det == 0:
+                warn('Producing dodgy B matrix')
+            self._Bparams = BMatrix(((self._A22 / det, -self._A12 / det),
+                                     (-self._A21 / det, self._A11 / det)))
+        return self._Bparams
+            
 
     @property
     def Hparams(self):
@@ -973,10 +977,11 @@ class GMatrix(TwoPortMatrix):
 
     @property
     def Bparams(self):
-        # return self.Hparams.Bparams
-        det = self.det().expr        
-        return BMatrix(((-det / self._G12, (self._G22 / self._G12)),
-                        (self._G11 / self._G12, -1 / self._G12)))
+        if not hasattr(self, '_Bparams'):
+            det = self.det().expr        
+            self._Bparams = BMatrix(((-det / self._G12, (self._G22 / self._G12)),
+                                     (self._G11 / self._G12, -1 / self._G12)))
+        return self._Bparams
 
     @property
     def Gparams(self):
@@ -1028,9 +1033,11 @@ class HMatrix(TwoPortMatrix):
 
     @property
     def Bparams(self):
-        det = self.det().expr
-        return BMatrix(((1 / self._H12, -self._H11 / self._H12),
-                        (-self._H22 / self._H12, det / self._H12)))
+        if not hasattr(self, '_Bparams'):        
+            det = self.det().expr
+            self._Bparams = BMatrix(((1 / self._H12, -self._H11 / self._H12),
+                                     (-self._H22 / self._H12, det / self._H12)))
+        return self._Bparams
 
     @property
     def Hparams(self):
@@ -1175,15 +1182,19 @@ class YMatrix(TwoPortMatrix):
 
     @property
     def Bparams(self):
-        det = self.det().expr        
-        return BMatrix(((-self._Y11 / self._Y12, 1 / self._Y12),
-                        (det / self._Y12, -self._Y22 / self._Y12)))
+        if not hasattr(self, '_Bparams'):                
+            det = self.det().expr        
+            self._Bparams = BMatrix(((-self._Y11 / self._Y12, 1 / self._Y12),
+                                     (det / self._Y12, -self._Y22 / self._Y12)))
+        return self._Bparams
 
     @property
     def Hparams(self):
-        det = self.det().expr
-        return HMatrix(((1 / self._Y11, -self._Y12 / self._Y11),
-                        (self._Y21 / self._Y11, det / self._Y11)))
+        if not hasattr(self, '_Bparams'):                        
+            det = self.det().expr
+            self._Bparams = HMatrix(((1 / self._Y11, -self._Y12 / self._Y11),
+                                     (self._Y21 / self._Y11, det / self._Y11)))
+        return self._Bparams        
 
     @property
     def Yparams(self):
@@ -1234,9 +1245,11 @@ class ZMatrix(TwoPortMatrix):
 
     @property
     def Bparams(self):
-        det = self.det().expr
-        return BMatrix(((self._Z22 / self._Z12, -det / self._Z12),
-                        (-1 / self._Z12, self._Z11 / self._Z12)))
+        if not hasattr(self, '_Bparams'):                
+            det = self.det().expr
+            self._Bparams = BMatrix(((self._Z22 / self._Z12, -det / self._Z12),
+                                     (-1 / self._Z12, self._Z11 / self._Z12)))
+        return self._Bparams
 
     @property
     def Hparams(self):
@@ -1354,7 +1367,9 @@ class TwoPort(Network, TwoPortMixin):
     @property
     def Bparams(self):
         """Return inverse chain parameters"""
-        return self._params.Bparams
+        if not hasattr(self, '_Bparams'):
+            self._Bparams = self._params.Bparams
+        return self._Bparams
 
     @property
     def Gparams(self):
@@ -1416,7 +1431,7 @@ class TwoPort(Network, TwoPortMixin):
 
     @property
     def I2y(self):
-        return LaplaceDomainCurrent(-self.V2b * self._B22 / self._B12) - self.I2b
+        return LaplaceDomainCurrent(self.V2b * self._B22 / self._B12) - self.I2b
 
     @property
     def V1z(self):
