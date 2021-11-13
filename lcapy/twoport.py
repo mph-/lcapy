@@ -1312,7 +1312,7 @@ class TwoPort(Network, TwoPortMixin):
              netlist._netarg(self.B11), netlist._netarg(self.B12),
                                                       netlist._netarg(self.B21),
                                                       netlist._netarg(self.B22),
-                                                      self._opts_str())
+                                                      self._opts_str(l=''))
 
     def _TP_make(self, netlist, n1, n2, n3, n4, kind, *args):
         
@@ -1321,7 +1321,8 @@ class TwoPort(Network, TwoPortMixin):
         args =  ' '.join([netlist._netarg(arg) for arg in args])
 
         s = 'TP? %s %s %s %s %s %s; right, %s' % (n3, n4, n1, n2,
-                                                  kind, args, self._opts_str())
+                                                  kind, args,
+                                                  self._opts_str(l=''))
 
         return s
     
@@ -2534,10 +2535,10 @@ class Par2(TwoPortYModel):
         nets.append('W %s %s; right=0.75' % (n19, n10))
         nets.append('W %s %s; right=0.25' % (n12, n20))
         nets.append('W %s %s; right=0.75' % (n20, n4))
-        nets.append('W %s %s; down=1.5' % (n15, n19))
-        nets.append('W %s %s; down=1.5' % (n13, n17))
-        nets.append('W %s %s; down=1.5' % (n16, n20))
-        nets.append('W %s %s; down=1.5' % (n14, n18))
+        nets.append('W %s %s; down=1.75' % (n15, n19))
+        nets.append('W %s %s; down=1.75' % (n13, n17))
+        nets.append('W %s %s; down=1.75' % (n16, n20))
+        nets.append('W %s %s; down=1.75' % (n14, n18))
         return '\n'.join(nets)        
             
     def simplify(self):
@@ -2626,6 +2627,30 @@ class Hybrid2(TwoPortHModel):
         super(Hybrid2, self).__init__(H, V1h=V1h, I2h=I2h)
         self.args = args
 
+    def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
+                  dir='right'):
+
+        n2, n1, n4, n3, n6, n5, n8, n7 = netlist._make_nodes(n2, n1, n4, n3, *([None] * 4))
+        n10, n9, n12, n11, n14, n13, n16, n15, n18, n17 = netlist._make_nodes(*([None] * 10))
+
+        nets = []
+        nets.append(self.args[0]._net_make(netlist, n5, n6, n7, n8))
+        nets.append(self.args[1]._net_make(netlist, n9, n10, n11, n12))
+        nets.append('W %s %s; right=0.75' % (n1, n5))
+        nets.append('W %s %s; right=0.75' % (n7, n13))
+        nets.append('W %s %s; right=0.25' % (n13, n3))
+        nets.append('W %s %s; right=0.25' % (n14, n6))
+        nets.append('W %s %s; right=0.25' % (n8, n15))
+        nets.append('W %s %s; right=0.25' % (n16, n9))
+        nets.append('W %s %s; right=0.75' % (n11, n17))
+        nets.append('W %s %s; right=0.75' % (n2, n10))
+        nets.append('W %s %s; right=0.25' % (n12, n18))
+        nets.append('W %s %s; right=0.75' % (n18, n4))                
+        nets.append('W %s %s; down=0.75' % (n14, n16))
+        nets.append('W %s %s; down=1' % (n15, n18))
+        nets.append('W %s %s; down=1' % (n13, n17))
+        return '\n'.join(nets)        
+        
         
 class InverseHybrid2(TwoPortGModel):
     """Connect two-port networks in inverse hybrid configuration (outputs in
@@ -2645,8 +2670,32 @@ class InverseHybrid2(TwoPortGModel):
             V2g += arg.V2g
             G += arg.Gparams
 
-        super(Hybrid2, self).__init__(G, I1g=I1g, V2g=V2g)
+        super(InverseHybrid2, self).__init__(G, I1g=I1g, V2g=V2g)
         self.args = args
+
+    def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
+                  dir='right'):
+
+        n2, n1, n4, n3, n6, n5, n8, n7 = netlist._make_nodes(n2, n1, n4, n3, *([None] * 4))
+        n10, n9, n12, n11, n14, n13, n16, n15, n18, n17 = netlist._make_nodes(*([None] * 10))
+
+        nets = []
+        nets.append(self.args[0]._net_make(netlist, n5, n6, n7, n8))
+        nets.append(self.args[1]._net_make(netlist, n9, n10, n11, n12))
+        nets.append('W %s %s; right=0.75' % (n1, n13))
+        nets.append('W %s %s; right=0.75' % (n7, n3))
+        nets.append('W %s %s; right=0.25' % (n13, n5))        
+        nets.append('W %s %s; right=0.75' % (n14, n6))
+        nets.append('W %s %s; right=0.25' % (n8, n15))
+        nets.append('W %s %s; right=0.25' % (n16, n9))
+        nets.append('W %s %s; right=0.25' % (n11, n17))
+        nets.append('W %s %s; right=0.25' % (n2, n18))
+        nets.append('W %s %s; right=0.75' % (n18, n10))
+        nets.append('W %s %s; right=0.75' % (n12, n4))                
+        nets.append('W %s %s; down=1' % (n13, n16))
+        nets.append('W %s %s; down=1' % (n14, n18))
+        nets.append('W %s %s; down=0.75' % (n15, n17))        
+        return '\n'.join(nets)                
 
 
 class Series(TwoPortBModel):

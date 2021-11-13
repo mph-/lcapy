@@ -35,11 +35,14 @@ class Network(object):
     netkeyword = ''
     kwargs = {}
 
-    def _opts_str(self, arg=None):
+    def _opts_str(self, arg=None, **kwargs):
 
         parts = []
-        if arg is not None:
+        if arg is not None and arg != '':
             parts.append(arg)
+
+        for key, val in kwargs.items():
+            parts.append('%s=%s' % (key, val))
             
         for key, val in self.kwargs.items():
             parts.append('%s=%s' % (key, val))
