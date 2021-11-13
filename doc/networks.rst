@@ -498,22 +498,26 @@ Here are some of the two-port network attributes:
 
 - `Y2sc`: output admittance with input port short-circuit  
   
-- `Aparams`: the A-parameters (ABCD)
+- `Amodel`: the A-parameters model (ABCD)
 
-- `Bparams`: the A-parameters (inverse ABCD)
+- `Bmodel`: the A-parameters model (inverse ABCD)
 
-- `Gparams`: the G-parameters (inverse hybrid)
+- `Gmodel`: the G-parameters model (inverse hybrid / parallel-series)
 
-- `Hparams`: the H-parameters (hybrid)
+- `Hmodel`: the H-parameters model (hybrid / series-parallel)
 
-- `Sparams`: the S-parameters (scattering)
+- `Smodel`: the S-parameters model (scattering)
 
-- `Tparams`: the T-parameters (scattering transmission)
+- `Tmodel`: the T-parameters model (scattering transmission)
 
-- `Yparams`: the Y-parameters (admittance)
+- `Ymodel`: the Y-parameters model (admittance)
 
-- `Zparams`: the Z-parameters (impedance)
+- `Zmodel`: the Z-parameters model (impedance)  
 
+- `params`: the 2x2 matrix of parameters
+
+- `sources`: the 2x1 vector of sources
+  
 The individual elements of a parameter matrix for a two-port `n` can be accessed using `n.A11`, `n.S21`, `n.Z22` etc.
 
 
@@ -527,6 +531,10 @@ Here are some of the two-port network methods:
 - `series(TP)`: combine two two-port networks in series
 
 - `parallel(TP)`: combine two two-port networks in parallel
+
+- `hybrid(TP)`: combine two two-port networks in series-parallel
+
+- `inverse_hybrid(TP)`: combine two two-port networks in parallel-series    
   
 - `bridge(OP)`: bridge a two-port network with a one-port network
 
@@ -535,6 +543,8 @@ Here are some of the two-port network methods:
 - `source(OP)`: apply a one-port network source and return a one-port network  
 
 - `draw()`: draw a two-port network
+
+- `circuit()`: convert a two-port network to a `Circuit` object
 
 
 Basic two-port networks
@@ -719,7 +729,31 @@ Warning, a series combination of two-ports can break the port condition.
    >>> tp = tp1.series(tp2)   
 
 .. image:: examples/networks/twoport-series1.png
-   :width: 8cm             
+   :width: 8cm
+
+
+Hybrid (series-parallel)
+------------------------
+
+   >>> from lcapy import TP
+   >>> tp1 = TP(l='Two-port 1', fill='blue')
+   >>> tp2 = TP(l='Two-port 2', fill='blue')
+   >>> tp = tp1.hybrid(tp2)   
+
+.. image:: examples/networks/twoport-hybrid1.png
+   :width: 8cm
+
+
+Inverse hybrid (parallel-series)
+--------------------------------
+
+   >>> from lcapy import TP
+   >>> tp1 = TP(l='Two-port 1', fill='blue')
+   >>> tp2 = TP(l='Two-port 2', fill='blue')
+   >>> tp = tp1.hybrid(tp2)   
+
+.. image:: examples/networks/twoport-inverse-hybrid1.png
+   :width: 8cm                                   
 
            
 Two-port network parameters
