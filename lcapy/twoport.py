@@ -2379,7 +2379,7 @@ class TwoPortZModel(TwoPort):
     def I1y(self):
 
         Zdet = self.Zparams.det().expr
-        return LaplaceDomainCurrent(-self.V1z * self._Z22 / Zdet - self.V2z * self._Z12 / Zdet)
+        return LaplaceDomainCurrent(-self.V1z * self._Z22 / Zdet + self.V2z * self._Z12 / Zdet)
 
     @property
     def I2y(self):
