@@ -19,7 +19,7 @@ from .vector import Vector
 from .matrix import Matrix
 from .oneport import OnePort, I, V, Y, Z
 from .network import Network
-from .functions import Eq, MatMul
+from .functions import Eq, MatMul, MatAdd
 
 # TODO:
 # 1. Defer the choice of the two-port model.  For example, a T section
@@ -1861,6 +1861,18 @@ class TwoPort(Network, TwoPortMixin):
         """Chained combination"""
 
         return self.chain(OP)    
+
+    def equation(self):
+        """Return equation describing model."""
+
+        input = Matrix(self.input)
+        output = Matrix(self.output)
+
+        return expr(sym.Eq(output.expr,
+                           sym.MatAdd(sym.MatMul(self.params.expr,
+                                                 input.expr),
+                                      self.sources.expr),
+                           evaluate=False))
     
 
 class TwoPortBModel(TwoPort):
@@ -1914,6 +1926,11 @@ class TwoPortBModel(TwoPort):
 
     """
 
+    model = 'B'
+    input = ('V1', '-I1')
+    output = ('V2', 'I2')
+    offset = ('V2b', 'I2b')
+    
     def __init__(self, B11=None, B12=None, B21=None, B22=None,
                   V2b=None, I2b=None, **kwargs):
 
@@ -1995,6 +2012,11 @@ class TwoPortAModel(TwoPort):
     """
     """
 
+    model = 'A'
+    input = ('V2', '-I2')
+    output = ('V1', 'I1')
+    offset = ('V1a', 'I1a')    
+    
     def __init__(self, A11=None, A12=None, A21=None, A22=None,
                  V1a=None, I1a=None, **kwargs):
 
@@ -2059,6 +2081,11 @@ class TwoPortAModel(TwoPort):
 class TwoPortGModel(TwoPort):
     """
     """
+
+    model = 'G'
+    input = ('V1', 'I2')
+    output = ('I1', 'V2')
+    offset = ('I1g', 'V2g')    
 
     def __init__(self, G11=None, G12=None, G21=None, G22=None,
                  I1g=None, V2g=None, **kwargs):
@@ -2151,6 +2178,11 @@ class TwoPortHModel(TwoPort):
     +-  -+     +-        -+   +-  -+     +-   -+
     """
 
+    model = 'H'
+    input = ('I1', 'V2')
+    output = ('V1', 'I2')
+    offset = ('V1h', 'I2h')    
+    
     def __init__(self, H11=None, H12=None, H21=None, H22=None,
                  V1h=None, I2h=None, **kwargs):
 
@@ -2242,6 +2274,11 @@ class TwoPortYModel(TwoPort):
     Ymn = Im / Vn for Vm = 0
     """
 
+    model = 'Y'
+    input = ('V1', 'V2')
+    output = ('I1', 'I2')
+    offset = ('I1y', 'I2y')    
+
     def __init__(self, Y11=None, Y12=None, Y21=None, Y22=None,
                  I1y=None, I2y=None, **kwargs):
     
@@ -2327,6 +2364,11 @@ class TwoPortZModel(TwoPort):
     +-  -+     +-        -+   +-  -+     +-   -+
 
     """
+
+    model = 'Z'
+    input = ('I1', 'I2')
+    output = ('V1', 'V2')
+    offset = ('V1z', 'V2z')    
 
     def __init__(self, Z11=None, Z12=None, Z21=None, Z22=None,
                  V1z=None, V2z=None, **kwargs):
