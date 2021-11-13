@@ -2539,6 +2539,8 @@ class Par2(TwoPortYModel):
         nets.append('W %s %s; down=1.75' % (n13, n17))
         nets.append('W %s %s; down=1.75' % (n16, n20))
         nets.append('W %s %s; down=1.75' % (n14, n18))
+        nets.append('O %s %s; down' % (n1, n2))
+        nets.append('O %s %s; down' % (n3, n4))                
         return '\n'.join(nets)        
             
     def simplify(self):
@@ -2595,6 +2597,8 @@ class Ser2(TwoPortZModel):
         nets.append('W %s %s; right=0.75' % (n12, n4))        
         nets.append('W %s %s; down=0.75' % (n6, n9))
         nets.append('W %s %s; down=0.75' % (n8, n11))
+        nets.append('O %s %s; down' % (n1, n2))
+        nets.append('O %s %s; down' % (n3, n4))        
         return '\n'.join(nets)        
         
     def simplify(self):
@@ -2649,6 +2653,8 @@ class Hybrid2(TwoPortHModel):
         nets.append('W %s %s; down=0.75' % (n14, n16))
         nets.append('W %s %s; down=1' % (n15, n18))
         nets.append('W %s %s; down=1' % (n13, n17))
+        nets.append('O %s %s; down' % (n1, n2))
+        nets.append('O %s %s; down' % (n3, n4))        
         return '\n'.join(nets)        
         
         
@@ -2694,7 +2700,9 @@ class InverseHybrid2(TwoPortGModel):
         nets.append('W %s %s; right=0.75' % (n12, n4))                
         nets.append('W %s %s; down=1' % (n13, n16))
         nets.append('W %s %s; down=1' % (n14, n18))
-        nets.append('W %s %s; down=0.75' % (n15, n17))        
+        nets.append('W %s %s; down=0.75' % (n15, n17))
+        nets.append('O %s %s; down' % (n1, n2))
+        nets.append('O %s %s; down' % (n3, n4))                        
         return '\n'.join(nets)                
 
 
@@ -2731,6 +2739,7 @@ class Series(TwoPortBModel):
         nets.append(self.args[0]._net_make(netlist, n1, n3, dir='right'))
         nets.append('W %s %s; right' % (n2, n4))
         nets.append('O %s %s; down' % (n1, n2))
+        nets.append('O %s %s; down' % (n3, n4))        
         return '\n'.join(nets)
         
 
