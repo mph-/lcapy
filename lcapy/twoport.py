@@ -3225,7 +3225,7 @@ class GeneralTxLine(TwoPortBModel):
     l     transmission line length (m)
     """
 
-    def __init__(self, Z0='Z0', gamma='gamma', l='l'):
+    def __init__(self, Z0='Z0(s)', gamma='gamma(s)', l='l'):
 
         Z0 = LaplaceDomainExpression(Z0)
         gamma = LaplaceDomainExpression(gamma)
