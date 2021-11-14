@@ -829,9 +829,9 @@ class BMatrix(TwoPortMatrix):
         # Perhaps default Ar, Yin, and Zout to 1e-10 to get a reasonable
         # B matrix?
 
-        return cls(((1 / Ar, -1 / (Ar * Yin),
-                    ( -1 / (Ar * Zout)), -1 / (Ar * Yin * Zout * (Af * Ar - 1)))))
-
+        return cls(((1 / Ar, -1 / (Ar * Yin)),
+                    (-1 / (Ar * Zout), -1 / (Ar * Yin * Zout * (Af * Ar - 1)))))
+    
     @classmethod
     def current_amplifier(cls, Af, Ar=1e-9, Zin=1e-9, Yout=1e-9):
         """Current amplifier
@@ -2886,7 +2886,7 @@ class VoltageAmplifier(TwoPortBModel):
         self.args = (Av, Af, Yin, Zout)
 
 
-class IdealVoltageAmplifier(VoltageAmplifier):
+class IdealVoltageAmplifier(TwoPortBModel):
     """Ideal voltage amplifier"""
 
     def __init__(self, Av=1):
