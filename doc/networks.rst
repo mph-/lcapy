@@ -352,8 +352,7 @@ The network components have optional keyword arguments (kwargs) that specify sch
 Network synthesis
 =================
 
-Networks can be created using network synthesis techniques given an impedance or admittance expression,
-for example,
+Networks can be created using network synthesis techniques given an impedance or admittance expression, for example,
 
     >>> Z = impedance(4*s**2 + 3 * s + 1 / 6) / (s**2 + 2 * s / 3)
     >>> Z.network()
@@ -586,10 +585,21 @@ Shunt two-port
 .. image:: examples/schematics/shunt.png
    :width: 5cm           
 
-A shunt two-port has a single one-port argument, `Shunt(OP)`, for example
+A shunt two-port has a single one-port argument, `Shunt(OP)`, for example,
            
    >>> n = Shunt(R('R1'))
 
+The A-parameters can be found using::
+
+   >>> n.Amodel.params
+   ⎡1   0⎤
+   ⎢     ⎥
+   ⎢1    ⎥
+   ⎢──  1⎥
+   ⎣R₁   ⎦
+
+The Y-parameters do not exist for a `Shunt` two-port.
+   
    
 Series two-port
 ---------------
@@ -602,6 +612,15 @@ example
            
    >>> n = Series(L('L1'))           
 
+The A-parameters can be found using::
+
+   >>> n.Amodel.params
+   ⎡1  L₁⋅s⎤
+   ⎢       ⎥
+   ⎣0   1  ⎦
+
+The Z-parameters do not exist for a `Series` two-port.
+
            
 L-section two-port
 ------------------
@@ -609,8 +628,7 @@ L-section two-port
 .. image:: examples/schematics/lsection.png
    :width: 5.5cm             
 
-An L-section two-port has two one-port arguments, `LSection(OP1,
-OP2)`, for example
+An L-section two-port has two one-port arguments, `LSection(OP1, OP2)`, for example,
            
    >>> n = LSection(L('L1'), R('R1'))
 
@@ -639,6 +657,32 @@ Pi-section two-port
 A pi-section two-port has three one-port arguments, `PiSection(OP1, OP2, OP3)`, for example
            
    >>> n = PiSection(L('L1'), R('R1'), C('C1'))   
+
+   
+Transmission lines
+------------------
+
+There are three transmission line two-port classes: `TxLine`,
+`LosslessTxLine` and `GeneralTxLine`.  Here's an example of use:
+
+   >>> a = GeneralTxLine()
+   >>> a.equation()
+          ⎡ cosh(γ⋅l)   -Z₀⋅sinh(γ⋅l)⎤      
+   ⎡V₂⎤   ⎢                          ⎥ ⎡V₁ ⎤
+   ⎢  ⎥ = ⎢-sinh(γ⋅l)                ⎥⋅⎢   ⎥
+   ⎣I₂⎦   ⎢───────────    cosh(γ⋅l)  ⎥ ⎣-I₁⎦
+          ⎣     Z₀                   ⎦      
+
+Here :math:`Z_0` is the characteristic impedance, :math:`\gamma` is
+the propagation constant, and :math:`l` is the transmission line
+length.  These can be specified when `GeneralTxLine` is constructed.
+
+The input impedance to the transmission line can be found from the
+`Z11` parameter:
+   >>> a.Z11
+       Z₀   
+   ─────────
+   tanh(γ⋅l)
 
    
 List of two-ports
