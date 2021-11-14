@@ -19,7 +19,7 @@ from .vector import Vector
 from .matrix import Matrix
 from .oneport import OnePort, I, V, Y, Z
 from .network import Network
-from .functions import Eq, MatMul, MatAdd
+from .functions import exp, sqrt, Eq, MatMul, MatAdd
 
 # TODO:
 # 1. Defer the choice of the two-port model.  For example, a T section
@@ -484,21 +484,21 @@ class TwoPortMatrix(Matrix, TwoPortMixin):
 
     @property
     def Aparams(self):
-        return AMatrix(self.Bparams.inv())
+        return AMatrix(self.Bparams.inv()).simplify()
 
     @property
     def Bparams(self):
         if not hasattr(self, '_Bparams'):
-            self._Bparams = BMatrix(self.Aparams.inv())
+            self._Bparams = BMatrix(self.Aparams.inv()).simplify()
         return self._Bparams
 
     @property
     def Gparams(self):
-        return GMatrix(self.Hparams.inv())
+        return GMatrix(self.Hparams.inv()).simplify()
 
     @property
     def Hparams(self):
-        return HMatrix(self.Gparams.inv())
+        return HMatrix(self.Gparams.inv()).simplify()
 
     @property
     def Sparams(self):
@@ -510,11 +510,11 @@ class TwoPortMatrix(Matrix, TwoPortMixin):
 
     @property
     def Yparams(self):
-        return YMatrix(self.Zparams.inv())
+        return YMatrix(self.Zparams.inv()).simplify()
 
     @property
     def Zparams(self):
-        return ZMatrix(self.Yparams.inv())
+        return ZMatrix(self.Yparams.inv()).simplify()
 
     def pdb(self):
         import pdb; pdb.set_trace()
@@ -559,8 +559,7 @@ class AMatrix(TwoPortMatrix):
             det = self.det().expr
             if det == 0:
                 warn('Producing dodgy B matrix')
-            self._Bparams = BMatrix(((self._A22 / det, -self._A12 / det),
-                                     (-self._A21 / det, self._A11 / det)))
+            self._Bparams = BMatrix(self.inv()).simplify()
         return self._Bparams
             
 
@@ -571,7 +570,7 @@ class AMatrix(TwoPortMatrix):
             warn('Producing dodgy H matrix')
         det = self.det().expr            
         return HMatrix(((self._A12 / self._A22, det / self._A22),
-                        (-1 / self._A22, self._A21 / self._A22)))
+                        (-1 / self._A22, self._A21 / self._A22))).simplify()
 
 
     @property
@@ -580,7 +579,7 @@ class AMatrix(TwoPortMatrix):
         d = self._A12 + Z0 * (self._A11 + self._A22) + Z0**2 * self._A21
         return SMatrix((((self._A12 + Z0 * (self._A11 - self._A22) - Z0**2 * self._A21) / d,
                          (2 * Z0 * (self._A11 * self._A22 - self._A12 * self._A21)) / d),
-                         (2 * Z0 / d, (self._A12 - Z0 * (self._A11 - self._A22) - Z0**2 * self._A21) / d)))
+                         (2 * Z0 / d, (self._A12 - Z0 * (self._A11 - self._A22) - Z0**2 * self._A21) / d))).simplify()
 
 
     @property
@@ -592,7 +591,7 @@ class AMatrix(TwoPortMatrix):
             warn('Producing dodgy Y matrix')
         det = self.det().expr            
         return YMatrix(((self._A22 / self._A12, -det / self._A12),
-                        (-1 / self._A12, self._A11 / self._A12)))
+                        (-1 / self._A12, self._A11 / self._A12))).simplify()
 
     @property
     def Zparams(self):
@@ -603,7 +602,7 @@ class AMatrix(TwoPortMatrix):
             warn('Producing dodgy Z matrix')
         det = self.det().expr            
         return ZMatrix(((self._A11 / self._A21, det / self._A21),
-                        (1 / self._A21, self._A22 / self._A21)))
+                        (1 / self._A21, self._A22 / self._A21))).simplify()
 
     @property
     def Z1oc(self):
@@ -714,10 +713,7 @@ class BMatrix(TwoPortMatrix):
         
     @property
     def Aparams(self):
-        # Inverse
-        det = self.det().expr
-        return AMatrix(((self._B22 / det, -self._B12 / det),
-                        (-self._B21 / det, self._B11 / det)))
+        return AMatrix(self.inv()).simplify()        
 
     @property
     def Bparams(self):
@@ -729,28 +725,28 @@ class BMatrix(TwoPortMatrix):
 
         det = self.det().expr        
         return GMatrix(((-self._B21 / self._B22, -1 / self._B22),
-                        (det / self._B22, -self._B12 / self._B22)))
+                        (det / self._B22, -self._B12 / self._B22))).simplify()
 
     @property
     def Hparams(self):
 
         return HMatrix(((-self._B12 / self._B11, 1 / self._B11),
                         (self._B21 * self._B12 / self._B11 - self._B22,
-                         -self._B21 / self._B11)))
+                         -self._B21 / self._B11))).simplify()
 
     @property
     def Yparams(self):
 
         det = self.det().expr
         return YMatrix(((-self._B11 / self._B12, 1 / self._B12),
-                        (det / self._B12, -self._B22 / self._B12)))
+                        (det / self._B12, -self._B22 / self._B12))).simplify()
 
     @property
     def Zparams(self):
 
         det = self.det().expr        
         return ZMatrix(((-self._B22 / self._B21, -1 / self._B21),
-                        (-det / self._B21, -self._B11 / self._B21)))
+                        (-det / self._B21, -self._B11 / self._B21))).simplify()
 
     @property
     def Z1oc(self):
@@ -973,14 +969,14 @@ class GMatrix(TwoPortMatrix):
         # return self.Hparams.Aparams
         det = self.det().expr        
         return AMatrix(((1 / self._G21, self._G22 / self._G21),
-                        (self._G11 / self._G21, det / self._G21)))
+                        (self._G11 / self._G21, det / self._G21))).simplify()
 
     @property
     def Bparams(self):
         if not hasattr(self, '_Bparams'):
             det = self.det().expr        
             self._Bparams = BMatrix(((-det / self._G12, (self._G22 / self._G12)),
-                                     (self._G11 / self._G12, -1 / self._G12)))
+                                     (self._G11 / self._G12, -1 / self._G12))).simplify()
         return self._Bparams
 
     @property
@@ -990,7 +986,7 @@ class GMatrix(TwoPortMatrix):
 
     @property
     def Hparams(self):
-        return HMatrix(self.inv())
+        return HMatrix(self.inv()).simplify()
 
     @property
     def Yparams(self):
@@ -1029,14 +1025,14 @@ class HMatrix(TwoPortMatrix):
     def Aparams(self):
         det = self.det().expr
         return AMatrix(((-det / self._H21, -self._H11 / self._H21),
-                        (-self._H22 / self._H21, -1 / self._H21)))
+                        (-self._H22 / self._H21, -1 / self._H21))).simplify()
 
     @property
     def Bparams(self):
         if not hasattr(self, '_Bparams'):        
             self._Bparams = BMatrix(((1 / self._H12, -self._H11 / self._H12),
                                      (-self._H22 / self._H12,
-                                     self._H22 * self._H11 / self._H12 - self._H21)))
+                                     self._H22 * self._H11 / self._H12 - self._H21))).simplify()
                                       
         return self._Bparams
 
@@ -1049,13 +1045,13 @@ class HMatrix(TwoPortMatrix):
     def Yparams(self):
         det = self.det().expr        
         return YMatrix(((1 / self._H11, -self._H12 / self._H11),
-                        (self._H21 / self._H11, det / self._H11)))
+                        (self._H21 / self._H11, det / self._H11))).simplify()
 
     @property
     def Zparams(self):
         det = self.det().expr        
         return ZMatrix(((det / self._H22, self._H12 / self._H22),
-                        (-self._H21 / self._H22, 1 / self._H22)))
+                        (-self._H21 / self._H22, 1 / self._H22))).simplify()
 
 
 class SMatrix(TwoPortMatrix):
@@ -1136,7 +1132,7 @@ class TMatrix(TwoPortMatrix):
     def Sparams(self):
         det = self.det().expr        
         return SMatrix(((self._T12 / self._T22, det / self._T22),
-                        (1 / self._T22, -self._T21 / self._T22)))
+                        (1 / self._T22, -self._T21 / self._T22))).simplify()
     
     @property
     def Tparams(self):
@@ -1179,21 +1175,21 @@ class YMatrix(TwoPortMatrix):
     def Aparams(self):
         det = self.det().expr        
         return AMatrix(((-self._Y22 / self._Y21, -1 / self._Y21),
-                        (-det / self._Y21, -self._Y11 / self._Y21)))
+                        (-det / self._Y21, -self._Y11 / self._Y21))).simplify()
 
     @property
     def Bparams(self):
         if not hasattr(self, '_Bparams'):                
             det = self.det().expr        
             self._Bparams = BMatrix(((-self._Y11 / self._Y12, 1 / self._Y12),
-                                     (det / self._Y12, -self._Y22 / self._Y12)))
+                                     (det / self._Y12, -self._Y22 / self._Y12))).simplify()
         return self._Bparams
 
     @property
     def Hparams(self):
         det = self.det().expr
         return HMatrix(((1 / self._Y11, -self._Y12 / self._Y11),
-                        (self._Y21 / self._Y11, det / self._Y11)))
+                        (self._Y21 / self._Y11, det / self._Y11))).simplify()
 
     @property
     def Yparams(self):
@@ -1205,7 +1201,7 @@ class YMatrix(TwoPortMatrix):
         # Inverse
         det = self.det().expr
         return ZMatrix(((self._Y22 / det, -self._Y12 / det),
-                        (-self._Y21 / det, self._Y11 / det)))
+                        (-self._Y21 / det, self._Y11 / det))).simplify()
 
 
 class ZMatrix(TwoPortMatrix):
@@ -1240,28 +1236,28 @@ class ZMatrix(TwoPortMatrix):
     def Aparams(self):
         det = self.det().expr
         return AMatrix(((self._Z11 / self._Z21, det / self._Z21),
-                        (1 / self._Z21, self._Z22 / self._Z21)))
+                        (1 / self._Z21, self._Z22 / self._Z21))).simplify()
 
     @property
     def Bparams(self):
         if not hasattr(self, '_Bparams'):                
             det = self.det().expr
             self._Bparams = BMatrix(((self._Z22 / self._Z12, -det / self._Z12),
-                                     (-1 / self._Z12, self._Z11 / self._Z12)))
+                                     (-1 / self._Z12, self._Z11 / self._Z12))).simplify()
         return self._Bparams
 
     @property
     def Hparams(self):
         det = self.det().expr
         return HMatrix(((det / self._Z22, self._Z12 / self._Z22),
-                        (-self._Z21 / self._Z22, 1 / self._Z22)))
+                        (-self._Z21 / self._Z22, 1 / self._Z22))).simplify()
 
     @property
     def Yparams(self):
-        # Inverse
+
         det = self.det().expr
         return YMatrix(((self._Z22 / det, -self._Z12 / det),
-                        (-self._Z21 / det, self._Z11 / det)))
+                        (-self._Z21 / det, self._Z11 / det))).simplify()
 
     @property
     def Zparams(self):
@@ -1862,17 +1858,28 @@ class TwoPort(Network, TwoPortMixin):
 
         return self.chain(OP)    
 
+    def __eq__(self, x):
+
+        if x.__class__ != self.__class__:
+            return False
+
+        return self.params == x.params and self.sources == x.sources
+    
     def equation(self):
         """Return equation describing model."""
 
-        input = Matrix(self.input)
-        output = Matrix(self.output)
+        input = Matrix(self.input).expr
+        output = Matrix(self.output).expr
+        params = self.params.expr
+        sources = self.sources.expr
 
-        return expr(sym.Eq(output.expr,
-                           sym.MatAdd(sym.MatMul(self.params.expr,
-                                                 input.expr),
-                                      self.sources.expr),
-                           evaluate=False))
+        if sources[0] == 0 and sources[1] == 0:
+            return expr(sym.Eq(output, sym.MatMul(params, input),
+                               evaluate=False))
+        
+        return expr(sym.Eq(output,
+                           sym.MatAdd(sym.MatMul(params, input),
+                                      sources), evaluate=False))
     
 
 class TwoPortBModel(TwoPort):
@@ -2897,7 +2904,7 @@ class IdealDelay(TwoPortBModel):
 
         delay = ConstantDomainExpression(delay)
         super(IdealDelay, self).__init__(
-            BMatrix.voltage_amplifier(sym.exp(-s * delay)))
+            BMatrix.voltage_amplifier(exp(-s * delay)))
         self.args = (delay, )
 
 
@@ -3213,58 +3220,62 @@ class Ladder(TwoPortBModel):
 class GeneralTxLine(TwoPortBModel):
     """General transmission line
 
-    Z0 is the (real) characteristic impedance (ohms)
-    gamma is the propagation constant (1/m)
-    l is the transmission line length (m)
+    Z0    (real) characteristic impedance (ohms)
+    gamma propagation constant (1/m)
+    l     transmission line length (m)
     """
 
-    def __init__(self, Z0, gamma, l):
+    def __init__(self, Z0='Z0', gamma='gamma', l='l'):
 
         Z0 = LaplaceDomainExpression(Z0)
         gamma = LaplaceDomainExpression(gamma)
         l = ConstantDomainExpression(l)
 
-        H = sym.exp(gamma * l)
+        H = exp(gamma * l).expr
 
-        B11 = 0.5 * (H + 1 / H)
-        B12 = 0.5 * (1 / H - H) * Z0
-        B21 = 0.5 * (1 / H - H) / Z0
-        B22 = 0.5 * (H + 1 / H)
+        B11 = sym.S.Half * (H + 1 / H)
+        B12 = sym.S.Half * (1 / H - H) * Z0
+        B21 = sym.S.Half * (1 / H - H) / Z0
+        B22 = sym.S.Half * (H + 1 / H)
 
-        super(GeneralTxLine, self).__init__(BMatrix(((B11, B12), (B21, B22))))
+        B = BMatrix(((B11, B12), (B21, B22))).simplify()
+        
+        super(GeneralTxLine, self).__init__(B)
         self.args = (Z0, gamma, l)
 
 
 class LosslessTxLine(GeneralTxLine):
     """Losslees transmission line
-        Z0 is the (real) characteristic impedance (ohms)
-        c is the propagation speed (m/s)
-        l is the transmission line length (m)
+        Z0 (real) characteristic impedance (ohms)
+        c  propagation speed (m/s)
+        l  transmission line length (m)
         """
 
-    def __init__(self, Z0, c=1.5e8, l=1):
+    def __init__(self, Z0='Z0', c='c', l='l'):
 
         gamma = s / c
 
         super(LosslessTxLine, self).__init__(Z0, gamma, l)
+        self.args = (Z0, c, l)        
 
 
 class TxLine(GeneralTxLine):
     """Transmission line
 
-    R series resistance/metre
-    L series inductance/metre
-    G shunt conductance/metre
-    C shunt capacitance/metre
-    l is the transmission line length
+    R series resistance/unit length
+    L series inductance/unit length
+    G shunt conductance/unit length
+    C shunt capacitance/unit length
+    l transmission line length
     """
 
-    def __init__(self, R, L, G, C, l=1):
+    def __init__(self, R='R', L='L', G='G', C='C', l='l'):
 
         Z = R + s * L
         Y = G + s * C
-        gamma = sym.sqrt(Z * Y)
-        Z0 = sym.sqrt(Z / Y)
+        gamma = sqrt(Z * Y).expr
+        Z0 = sqrt(Z / Y).expr
 
         super(TxLine, self).__init__(Z0, gamma, l)
-
+        self.args = (R, L, G, C, l)
+        
