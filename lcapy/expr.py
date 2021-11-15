@@ -1119,6 +1119,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             return x.__mul__(self)
         
         if not isinstance(x, Expr):
+            if isinstance(x, (tuple, list, dict)):
+                raise ValueError('Cannot multiply %s by a tuple, list, or dict %s' % (self, x))
             x = expr(x)
 
         # Handle omega * t
@@ -3432,6 +3434,8 @@ def symbols(names, **assumptions):
     symbols = []
     for name in namelist:
         symbols.append(symbol(name, **assumptions))
+    if len(symbols) == 1:
+        return symbols[0]
     return symbols
 
 
