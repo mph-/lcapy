@@ -44,6 +44,7 @@ or
 rather than
 
    >>> expr(2 / 3)
+
 The floating-point approximation can be found using `fval` attribute for a Python float or `cval` for a Python complex number::
 
   >>> expr(2 / 3).fval
@@ -196,7 +197,7 @@ Lcapy has the following built-in functions: `sin`, `cos`, `tan`,
 `tanh`, `asinh`, `acosh`, `atanh`, `gcd`, `exp`, `sqrt`, `log`,
 `log10`, `sign`, `conjugate`, `rect`, `dtrect`, `sinc`, `sincn`, `sincu`, `tri`,
 `trap`, `Heaviside`, `H`, `u`, `DiracDelta`, `delta`, `unitimpulse`,
-and `unitstep`.
+`unitstep`, `Piecewise`, `Derivative`, and `Integral` among others.
 
 Other SymPy functions can be converted to Lcapy functions using the
 `Function` class, for example:
@@ -455,6 +456,82 @@ Expressions have the following attributes for units:
 - `expr_with_units` returns a SymPy expression multiplied by the units
 
 
+Containers
+==========
+
+  
+Lists
+-----
+
+Lcapy uses its own list type `ExprList` that wraps each element as an Lcapy `Expr` object.  For example,
+
+    >>> a = expr([t, t**2, '3 * t'])
+    >>> a
+    ⎡    2     ⎤
+    ⎣t, t , 3⋅t⎦
+
+An `ExprList` can be converted to a list suitable for sympy using the
+`sympy` attribute:
+
+    >>> a.sympy
+    ⎡    2     ⎤
+    ⎣t, t , 3⋅t⎦
+   
+ `ExprList` objects have many similar printing methods to `Expr` objects such as `pprint()` and `latex()`.  Other methods include:
+
+ - `subs()` to substitute symbols
+
+ - `solve()` to solve a system of equations
+
+ - `fval()` evaluate each expression in the list and return a list of Python float values
+
+ - `cval()` evaluate each expression in the list and return a list of Python complex values   
+
+
+Tuples
+------
+
+Lcapy uses its own tuple type `ExprTuple` that wraps each element as an Lcapy `Expr` object.  For example,
+
+    >>> a = expr((t, t**2, '3 * t'))
+    >>> a
+    ⎛    2     ⎞
+    ⎝t, t , 3⋅t⎠
+
+`ExprTuple` objects have the same methods and attributes as `ExprList` objects.
+
+
+Dicts
+-----
+
+Lcapy uses its own dict type `ExprDict` that wraps each element and key as an Lcapy `Expr` object.  For example,
+
+   >>> expr({1:t, 't':2 * t, 4 * t:2 * t})
+   {t: 2⋅t, 1: t, 4⋅t: 2⋅t}
+
+`ExprDict` objects share the printing methods of `ExprTuple` and `ExprList` objects.
+
+
+Matrices
+--------
+
+Matrix objects are created with the `Matrix` class.  Currently, there are different flavours of Matrix class for the different domains, for example, `LaplaceDomainMatrix` and `TimeDomainMatrix`.   These are likely to be replaced with a generic `Matrix` class in the future.  Here's an example of usage::
+
+   >>> Matrix(((1, t), (3, '4')))
+   ⎡1  t⎤
+   ⎢    ⎥
+   ⎣3  4⎦
+
+Note, currently, the quantity associated with each matrix element is lost.   The `Matrix` class subclasses the SymPy `Matrix` class and thus all the SymPy `Matrix` methods are supported, such as `inv()` to invert a matrix and `det()` to calculate the determinant.
+
+
+Vectors
+-------
+
+Vector objects are created with the `Vector` class.  These are a
+subclass of the `Matrix` class.
+
+   
 Signals and transfer functions
 ==============================
 

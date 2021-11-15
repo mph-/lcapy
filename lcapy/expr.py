@@ -175,7 +175,7 @@ class ExprMisc(object):
         
 class ExprDict(ExprPrint, ExprContainer, ExprMisc, OrderedDict):
 
-    """Decorator class for dictionary created by sympy."""
+    """Facade class for dictionary created by sympy."""
 
     def __getitem__(self, key):
 
@@ -264,7 +264,7 @@ class ExprDict(ExprPrint, ExprContainer, ExprMisc, OrderedDict):
 
     
 class ExprList(ExprPrint, list, ExprContainer, ExprMisc):
-    """Decorator class for list created by sympy."""
+    """Facade class for list created by sympy."""
 
     # Have ExprPrint first so that its _repr__pretty_ is called
     # in preference to list's one.  Alternatively, add explicit
@@ -319,7 +319,7 @@ class ExprList(ExprPrint, list, ExprContainer, ExprMisc):
 
     
 class ExprTuple(ExprPrint, tuple, ExprContainer, ExprMisc):
-    """Decorator class for tuple created by sympy."""
+    """Facade class for tuple created by sympy."""
 
     # Tuples are immutable, need to use __new__
     def __new__(cls, iterable, **assumptions):
@@ -332,6 +332,14 @@ class ExprTuple(ExprPrint, tuple, ExprContainer, ExprMisc):
         
         return expr(tuple([e.subs(*args, **kwargs) for e in self]))
 
+    def solve(self, *symbols, **kwargs):
+        """Solve system of equations, see sympy.solve for usage."""
+
+        symbols = delcapify(symbols)
+        system = delcapify(self)
+        solutions = sym.solve(system, symbols, **kwargs)
+        return expr(tuple(solutions))
+    
     @property
     def expr(self):
         return tuple([e.expr for e in self])
@@ -452,7 +460,7 @@ class ExprDomain(object):
 
     
 class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
-    """Decorator class for sympy classes derived from sympy.Expr."""
+    """Facade class for sympy classes derived from sympy.Expr."""
 
     var = None
 
