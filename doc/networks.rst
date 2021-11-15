@@ -667,11 +667,11 @@ There are three transmission line two-port classes: `TxLine`,
 
    >>> a = GeneralTxLine()
    >>> a.equation()
-       ⎡ cosh(l⋅γ(s))   -Z₀(s)⋅sinh(l⋅γ(s))⎤      
-⎡V₂⎤   ⎢                                   ⎥ ⎡V₁ ⎤
-⎢  ⎥ = ⎢-sinh(l⋅γ(s))                      ⎥⋅⎢   ⎥
-⎣I₂⎦   ⎢──────────────     cosh(l⋅γ(s))    ⎥ ⎣-I₁⎦
-       ⎣    Z₀(s)                          ⎦      
+          ⎡ cosh(l⋅γ(s))   -Z₀(s)⋅sinh(l⋅γ(s))⎤      
+   ⎡V₂⎤   ⎢                                   ⎥ ⎡V₁ ⎤
+   ⎢  ⎥ = ⎢-sinh(l⋅γ(s))                      ⎥⋅⎢   ⎥
+   ⎣I₂⎦   ⎢──────────────     cosh(l⋅γ(s))    ⎥ ⎣-I₁⎦
+          ⎣    Z₀(s)                          ⎦      
 
 
 Here :math:`Z_0` is the characteristic impedance, :math:`\gamma` is
