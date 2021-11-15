@@ -2,6 +2,32 @@
 Release notes
 =============
 
+V1.00
+=====
+
+- Overhauls `TwoPort` and associated classes
+
+- Adds schematic support for two-ports
+
+- Adds `solve()` to `ExprList` and `ExprTuple`
+
+- Adds `Derivative`, `Integral`, and `Piecewise` functions
+
+- Adds drawing hints to `Network` objects
+
+- Fixes anonymous component names
+
+- Adds MNA stamps for two-ports
+
+- Adds `annotate_node_voltages()`, `annotate_voltages()`, and `annotate_currents()` methods
+
+- Speeds up some Laplace Transforms
+
+- Fixes odd bugs
+
+- Fixes compatability with SymPy-1.9
+
+
 V0.99
 =====
 
