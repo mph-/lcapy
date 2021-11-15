@@ -292,6 +292,14 @@ class ExprList(ExprPrint, list, ExprContainer, ExprMisc):
         """Substitute variables in expression, see sympy.subs for usage."""
         
         return expr([e.subs(*args, **kwargs) for e in self])
+
+    def solve(self, *symbols, **kwargs):
+        """Solve system of equations, see sympy.solve for usage."""
+
+        symbols = delcapify(symbols)
+        system = delcapify(self)
+        solutions = sym.solve(system, symbols, **kwargs)
+        return expr(solutions)
         
     @property
     def expr(self):
