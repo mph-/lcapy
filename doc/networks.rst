@@ -955,6 +955,8 @@ A-parameters (ABCD)
 
 The A matrix is the inverse of the B matrix.            
 
+.. image:: examples/schematics/TPA.png
+   :width: 12cm
 
 .. _B-parameters:
 
@@ -963,9 +965,13 @@ B-parameters (inverse ABCD)
 
 .. math::
 
-    \left[\begin{matrix}V_{2}\\I_{2}\end{matrix}\right] = \left[\begin{matrix}B_{11} & B_{12}\\B_{21} & B_{22}\end{matrix}\right] \left[\begin{matrix}V_{1}\\- I_{1}\end{matrix}\right]  + \left[\begin{matrix}V_{2b}\\I_{2b}\end{matrix}\right]
+    \left[\begin{matrix}V_{2}\\-I_{2}\end{matrix}\right] = \left[\begin{matrix}B_{11} & B_{12}\\B_{21} & B_{22}\end{matrix}\right] \left[\begin{matrix}V_{1}\\I_{1}\end{matrix}\right]  + \left[\begin{matrix}V_{2b}\\I_{2b}\end{matrix}\right]
 
 The B matrix is the inverse of the A matrix.    
+
+
+.. image:: examples/schematics/TPB.png
+   :width: 12cm
 
 
 .. _G-parameters:
@@ -979,6 +985,9 @@ G-parameters (inverse hybrid)
 
 The G matrix is the inverse of the H matrix.        
 
+.. image:: examples/schematics/TPG.png
+   :width: 12cm
+
 
 .. _H-parameters:
 
@@ -991,6 +1000,8 @@ H-parameters (hybrid)
    
 The H matrix is the inverse of the G matrix.    
 
+.. image:: examples/schematics/TPH.png
+   :width: 12cm
 
 .. _S-parameters:
 
@@ -1024,6 +1035,10 @@ Y-parameters (admittance)
 The Y matrix is the inverse of the Z matrix.           
 
 
+.. image:: examples/schematics/TPY.png
+   :width: 9cm
+
+
 .. _Z-parameters:
 
 Z-parameters (impedance)
@@ -1034,3 +1049,7 @@ Z-parameters (impedance)
    \left[\begin{matrix}V_{1}\\V_{2}\end{matrix}\right] = \left[\begin{matrix}Z_{11} & Z_{12}\\Z_{21} & Z_{22}\end{matrix}\right] \left[\begin{matrix}I_{1}\\I_{2}\end{matrix}\right] + \left[\begin{matrix}V_{1z}\\V_{2z}\end{matrix}\right]
 
 The Z matrix is the inverse of the Y matrix.       
+
+.. image:: examples/schematics/TPZ.png
+   :width: 12cm
+           
