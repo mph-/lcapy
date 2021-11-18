@@ -1052,4 +1052,4 @@ The Z matrix is the inverse of the Y matrix.
 
 .. image:: examples/schematics/TPZ.png
    :width: 12cm
-           
+

@@ -1542,6 +1542,10 @@ A PDF file can be produced using:
 Drawing tips
 ============
 
+The fastest way to generate a schematic is to draw a rough sketch,
+enumerate the nodes, and then enter a netlist.  To reduce confusion if
+this is an error, test it as you go, say using the `schtex` program.
+
 Lcapy uses a semi-automated approach to component layout.  For each
 component it needs its orientation and size.  By default the size
 is 1.  This is the minimum distance between its nodes (for a one-port
@@ -1549,11 +1553,10 @@ device). If the component can be stretched, Lcapy will increase but
 never decrease this distance.
 
 The x and y positions of nodes are computed independently using a
-graph.  An error can occur if components have the wrong orientation
+graph algorithm.  An error can occur if components have the wrong orientation
 since this makes the graph inconsistent.  Unfortunately, it is not
 trivial to find the offending component so it is best to draw a
-schematic incrementally and to test it as you go.  A sketch on a piece
-of paper showing the nodes is useful.
+schematic incrementally and to test it as you go.
 
 Problems can occur using components, such as integrated circuits and
 opamps, that cannot be stretched.  Usually this is due to a conflict
@@ -1573,5 +1576,17 @@ example::
    ;;\draw[help lines] (0,0) grid [xstep=0.1, ystep=0.1] (10,5);  
   
 
-Unfortunately, the drawing quality depends on the installed version of
-Circuitikz due to slight tweakings of component sizes.
+By default, for circuit analysis, the primary circuit nodes are shown
+and labelled.  However, for a schematic it is best to only show the
+nodes where components are connected; this can be achieved with::
+
+  ;;draw_nodes=connections
+
+The node labels can be removed with::
+
+  ;;label_nodes=none
+  
+
+The drawing quality depends on the installed version of Circuitikz due
+to slight tweakings of component sizes.
+  
