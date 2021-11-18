@@ -333,6 +333,12 @@ class ExprTuple(ExprPrint, tuple, ExprContainer, ExprMisc):
         eiterable = [expr(e, **assumptions) for e in iterable]
         return super (ExprTuple, cls).__new__(cls, eiterable)
 
+    def __call__(self, *args, **kwargs):
+        """Perform substitution/transformation on each element."""
+
+        ret = [elt(*args, **kwargs) for elt in self]
+        return self.__class__(ret)
+
     def subs(self, *args, **kwargs):
         """Substitute variables in expression, see sympy.subs for usage."""
         
