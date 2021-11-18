@@ -31,7 +31,7 @@ __all__ = ('LT', 'laplace_transform')
 
 class LaplaceTransformer(UnilateralForwardTransformer):
 
-    name = 'inverse Laplace transform'
+    name = 'Laplace transform'
     
     def noevaluate(self, expr, t, s):
 
