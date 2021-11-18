@@ -42,8 +42,8 @@ class Transformer(object):
         self.expr = expr
         
         if expr.is_Equality:
-            return Eq(self.transform(expr.args[0], var, conjvar),
-                      self.transform(expr.args[1], var, conjvar))        
+            return Eq(self.transform(expr.args[0], var, conjvar, evaluate, **kwargs),
+                      self.transform(expr.args[1], var, conjvar, evaluate, **kwargs))
 
         # Handle Lcapy symbols for the variable and conjugate variable
         try:
