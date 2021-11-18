@@ -308,12 +308,16 @@ class ExprList(ExprPrint, list, ExprContainer, ExprMisc):
         return expr([e.subs(*args, **kwargs) for e in self])
 
     def solve(self, *symbols, **kwargs):
-        """Solve system of equations, see sympy.solve for usage."""
+        """Solve system of equations and return as ExprDict.
+        See sympy.solve for usage."""
 
         symbols = delcapify(symbols)
         system = delcapify(self)
         solutions = sym.solve(system, *symbols, **kwargs)
-        return expr(solutions)
+        new = {}
+        for key, val in solutions.items():
+            new[key] = expr(val)
+        return ExprDict(new)
         
     @property
     def expr(self):
@@ -353,12 +357,16 @@ class ExprTuple(ExprPrint, tuple, ExprContainer, ExprMisc):
         return expr(tuple([e.subs(*args, **kwargs) for e in self]))
 
     def solve(self, *symbols, **kwargs):
-        """Solve system of equations, see sympy.solve for usage."""
+        """Solve system of equations, and return as ExprDict.
+        See sympy.solve for usage."""
 
         symbols = delcapify(symbols)
         system = delcapify(self)
         solutions = sym.solve(system, *symbols, **kwargs)
-        return expr(tuple(solutions))
+        new = {}
+        for key, val in solutions.items():
+            new[key] = expr(val)
+        return ExprDict(new)        
     
     @property
     def expr(self):
