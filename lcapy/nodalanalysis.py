@@ -7,7 +7,7 @@ Copyright 2019-2021 Michael Hayes, UCECE
 
 from .circuitgraph import CircuitGraph
 from .tmatrix import TimeDomainMatrix
-from .expr import equation
+from .expr import equation, ExprTuple
 from .systemequations import SystemEquations
 import sympy as sym
 
@@ -207,6 +207,13 @@ class NodalAnalysis(object):
             self._sys = self._analyse()
         return self._sys.format(form, invert)
 
+    @property
+    def unknowns(self):
+        """Return tuple of the unknown voltages"""
+
+        return ExprTuple(self.y)
+
+    
 from .expr import ExprDict, expr
 from .voltage import Vname
 from .current import Itype
