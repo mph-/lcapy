@@ -227,7 +227,7 @@ class ExprDict(ExprPrint, ExprContainer, ExprMisc, OrderedDict):
         See sympy.solve for usage."""
 
         symbols = delcapify(symbols)
-        system = delcapify(self.values())
+        system = list(delcapify(self).values())
         solutions = sym.solve(system, *symbols, **kwargs)
         new = {}
         for key, val in solutions.items():
