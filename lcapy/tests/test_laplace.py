@@ -102,5 +102,8 @@ class LcapyTester(unittest.TestCase):
 
         a = expr('Integral(3 * x(t - tau), (tau, 0, oo))')
         self.assertEqual(a(s), expr('3 * X(s) / s'), "3 * X / s")
+
+        a = expr('Integral(3 * x(tau), (tau, 0, t))')
+        self.assertEqual(a(s), expr('3 * X(s) / s'), "3 * X / s")        
         
  

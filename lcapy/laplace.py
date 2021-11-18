@@ -117,6 +117,12 @@ class LaplaceTransformer(UnilateralForwardTransformer):
             expr2.args[0] == t - var and limits[0] == 0 and limits[1] == sym.oo):
             return const2 * self.term(expr2.subs(t - var, t), t, s) / s
 
+        # Handle integral(x(tau), (tau, -oo, t))
+        if not limits[0].is_positive and limits[1] == t:
+            if isinstance(expr2, AppliedUndef):
+                if expr2.args[0] == expr.args[1][0]:
+                    return const2 * self.func(expr2, expr2.args[0], s) / s
+        
         # Look for convolution integral
         # TODO, handle convolution with causal functions.
         if (limits[0] != -sym.oo) or (limits[1] != sym.oo):
