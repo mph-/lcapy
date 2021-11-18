@@ -187,6 +187,14 @@ class ExprDict(ExprPrint, ExprContainer, ExprMisc, OrderedDict):
         except:
             return super(ExprDict, self).__getitem__(key)            
     
+    def __call__(self, *args, **kwargs):
+        """Perform substitution/transformation on each element."""
+
+        new = {}
+        for key, val in self.items():
+            new[key] = val(*args, **kwargs)
+        return self.__class__(new)
+
     def evaluate(self):
         """Evaluate each element to convert to floating point.
         The keys are also converted if possible to handle
@@ -304,7 +312,7 @@ class ExprList(ExprPrint, list, ExprContainer, ExprMisc):
 
         symbols = delcapify(symbols)
         system = delcapify(self)
-        solutions = sym.solve(system, symbols, **kwargs)
+        solutions = sym.solve(system, *symbols, **kwargs)
         return expr(solutions)
         
     @property
@@ -349,7 +357,7 @@ class ExprTuple(ExprPrint, tuple, ExprContainer, ExprMisc):
 
         symbols = delcapify(symbols)
         system = delcapify(self)
-        solutions = sym.solve(system, symbols, **kwargs)
+        solutions = sym.solve(system, *symbols, **kwargs)
         return expr(tuple(solutions))
     
     @property
