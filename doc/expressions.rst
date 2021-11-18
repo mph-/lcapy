@@ -481,7 +481,22 @@ An `ExprList` can be converted to a list suitable for sympy using the
 
  - `subs()` to substitute symbols
 
- - `solve()` to solve a system of equations
+ - `solve()` to solve a system of equations, for example,
+
+   >>> v = expr('v(t)')
+   >>> vR = expr('vR(t)')
+   >>> vL = expr('vL(t)')
+   >>> i = expr('i(t)')
+   >>> R = symbol('R')
+   >>> L = symbol('L')
+   >>> system = expr([Eq(v, vR + vL), Eq(vR, i * R), Eq(vL, Derivative(i, t) * L)])
+   >>> unknowns = expr((vR, vL, i))
+   >>> # Solve in Laplace domain
+   >>> solutions = system(s).solve(unknowns(s))
+   >>> solutions
+   ⎧        V(s)           L⋅s⋅V(s)           R⋅V(s)⎫
+   ⎨I(s): ───────, V_L(s): ────────, V_R(s): ───────⎬
+   ⎩      L⋅s + R          L⋅s + R           L⋅s + R⎭
 
  - `fval()` evaluate each expression in the list and return a list of Python float values
 
