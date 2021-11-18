@@ -222,6 +222,18 @@ class ExprDict(ExprPrint, ExprContainer, ExprMisc, OrderedDict):
             new[k] = simplify(v, **kwargs)
         return new
 
+    def solve(self, *symbols, **kwargs):
+        """Solve system of equations, and return as ExprDict.
+        See sympy.solve for usage."""
+
+        symbols = delcapify(symbols)
+        system = delcapify(self.values())
+        solutions = sym.solve(system, *symbols, **kwargs)
+        new = {}
+        for key, val in solutions.items():
+            new[key] = expr(val)
+        return ExprDict(new)
+
     def evalf(self, n=15):
         """Evaluate each element to convert to floating point values.
         `n` is the number of decimal places."""
