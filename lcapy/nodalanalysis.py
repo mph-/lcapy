@@ -213,6 +213,14 @@ class NodalAnalysis(object):
 
         return ExprTuple(self.y)
 
+    def solve_laplace(self):
+        """Determine the unknown voltages using Laplace transforms and
+        return as a dict"""
+
+        from .sexpr import s
+        
+        return self.nodal_equations()(s).solve(self.unknowns(s))
+    
     
 from .expr import ExprDict, expr
 from .voltage import Vname
