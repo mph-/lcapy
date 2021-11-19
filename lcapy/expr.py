@@ -192,7 +192,7 @@ class ExprDict(ExprPrint, ExprContainer, ExprMisc, OrderedDict):
 
         new = {}
         for key, val in self.items():
-            new[key] = val(*args, **kwargs)
+            new[key] = expr(val)(*args, **kwargs)
         return self.__class__(new)
 
     def evaluate(self):
@@ -1492,11 +1492,19 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     def convolve(self, x, commutate=False, **assumptions):
         """Convolve self with x.
 
-        If `commutate` is True, swap order of functions in integral."""
+        If `commutate` is True, swap order of functions in integral.
+
+        This does not simplify the convolution integral if one of the
+        functions contains a Dirac delta.  This can be done by calling
+        the `simplify_dirac_delta()` method followed by the
+        `simplify()` method.
+
+        """
 
         if self.domain != x.domain:        
             self._incompatible_domains(x, 'convolve')
 
+        x = expr(x)
         f1 = self.expr
         f2 = x.expr
         if commutate:
