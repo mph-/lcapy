@@ -1519,14 +1519,14 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         if commutate:
             if x.is_causal:
-                taumin = self.var
-            if self.is_causal:
-                taumax = 0
-        else:
-            if x.is_causal:
                 taumax = self.var
             if self.is_causal:
                 taumin = 0
+        else:
+            if x.is_causal:
+                taumin = 0
+            if self.is_causal:
+                taumax = self.var
 
         if x.is_causal and self.is_causal:
             assumptions['causal'] = True
