@@ -124,9 +124,11 @@ class LaplaceTransformer(UnilateralForwardTransformer):
                     return const2 * self.func(expr2, expr2.args[0], s) / s
         
         # Look for convolution integral
-        # TODO, handle convolution with causal functions.
-        if (limits[0] != -sym.oo) or (limits[1] != sym.oo):
-            self.error('Need indefinite limits')
+        if limits[0].is_positive:
+            self.error('Cannot handle lower limit %s' % limits[0])
+
+        if limits[1] < t:
+            self.error('Cannot handle upper limit %s' % limits[1])
 
         if ((len(expr.args) != 2) or not expr2.is_Mul or
             not expr2.args[0].is_Function or not expr2.args[1].is_Function):
