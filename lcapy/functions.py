@@ -47,6 +47,13 @@ class Function(object):
 
         if func == sym.Piecewise:
             cls = e_args[0][0].__class__
+        elif func in (sym.Integral, sym.integrate):
+            # Integral(const, (tau, 0, t)) -> use t class
+            # Integral(integrand, (tau, a, b)) -> use integrand class
+            if e_args[0].is_constant:
+                cls = e_args[1][2].__class__                
+            else:
+                cls = e_args[0].__class__            
         else:
             cls = e_args[0].__class__
             

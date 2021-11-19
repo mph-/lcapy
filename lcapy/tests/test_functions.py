@@ -26,7 +26,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(rect(n).rewrite(), us(n + 1 / 2) - us(n - 1 / 2), "rect(n)")
 
         integral = Function(sym.Integral)
-        r = integral(u(t - tausym), (tausym, 0, oo))
+        r = integral(1, (tausym, 0, t))
         e = u(t).convolve(u(t)).simplify()
         
         self.assertEqual(e, r, "simplify integral with u(t)")        
