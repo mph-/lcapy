@@ -1492,6 +1492,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     def convolve(self, x, commutate=False, **assumptions):
         """Convolve self with x.
 
+        y(t) = int_taumin^taumax self(tau) x(t - tau) d tau
+
         If `commutate` is True, swap order of functions in integral.
 
         This does not simplify the convolution integral if one of the
@@ -1511,10 +1513,27 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             f1, f2 = f2, f1
 
         dummyvar = tausym if self.is_time_domain else nusym
+
+        taumin = -oo
+        taumax = oo
+
+        if commutate:
+            if x.is_causal:
+                taumin = self.var
+            if self.is_causal:
+                taumax = 0
+        else:
+            if x.is_causal:
+                taumax = self.var
+            if self.is_causal:
+                taumin = 0
+
+        if x.is_causal and self.is_causal:
+            assumptions['causal'] = True
             
         result = sym.Integral(f1.subs(self.var, self.var - dummyvar) *
                               f2.subs(self.var, dummyvar),
-                              (dummyvar, -oo, oo))
+                              (dummyvar, taumin, taumax))
         ret = self.__class__(result, **assumptions)
         ret.units = self.units * x.units * self.domain_units
         return ret
