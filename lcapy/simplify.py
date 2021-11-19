@@ -31,7 +31,6 @@ def simplify_dirac_delta_product_term(expr):
             else:
                 parts.append(factor)        
 
-        # TODO: handle DiracDelta(symbol + constant).
         if arg is None or not arg.has(Symbol):
             return expr
         results = solve(arg, dict=True)
@@ -137,7 +136,7 @@ def simplify_heaviside_integral(expr):
         for factor in integrand.as_ordered_factors():
             if isinstance(factor, (Heaviside, UnitStep)):
                 arg = factor.args[0]
-                if arg == var and lower_limit == -oo:
+                if arg == var and not lower_limit.is_positive:
                     lower_limit = 0
                     factor = 1
                 elif arg == -var and upper_limit == oo:
