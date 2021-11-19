@@ -1500,6 +1500,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         functions contains a Dirac delta.  This can be done by calling
         the `simplify_dirac_delta()` method followed by the
         `simplify()` method.
+        
+        The integral can be further simplified using the `doit()` method.
+        This will attempt the integration.
 
         """
 

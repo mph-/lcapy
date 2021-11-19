@@ -747,6 +747,12 @@ Miscellaneous
     ⌡                  
     -∞
 
+    Note, this does not simplify the convolution integral if one of
+    the functions contains a Dirac delta.  This can be done using the
+    `simplify_dirac_delta()` method. The integral can be further
+    simplified using the `doit()` method.  This will attempt the
+    integration.
+
 - `differentiate()` differentiates expression.
 
 - `divide_top_and_bottom(expr)` divides numerator and denominator by `expr`.
@@ -960,7 +966,7 @@ Utility functions
 
 Note, SymPy does not allow symbol names that are Python keywords.  For example, `expr('is(t)')` fails.  A workaround is to use an underscore in the name, for example, `expr('i_s(t)')`.
 
-- `simplify()` throw kitchen sink to try and simplify expression.  Often it is better to use specific simplifications such as `expand`, `cancel`, `trigsimp`, etc.
+- `simplify()` throw kitchen sink at problem to try and simplify expression.  Often it is better to use specific simplifications such as `expand`, `cancel`, `trigsimp`, etc.
 
 - `simplify_dirac_delta()` apply simplifications to expressions with Dirac deltas.
 
