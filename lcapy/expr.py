@@ -1492,17 +1492,17 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     def convolve(self, x, commutate=False, **assumptions):
         """Convolve self with x.
 
-        y(t) = int_taumin^taumax self(tau) x(t - tau) d tau
+        y(t) = int_{taumin}^{taumax} self(tau) x(t - tau) d tau
 
         If `commutate` is True, swap order of functions in integral.
 
-        This does not simplify the convolution integral if one of the
-        functions contains a Dirac delta.  This can be done by calling
-        the `simplify_dirac_delta()` method followed by the
+        The result is an unevaluated integral.  It can be evaluated using
+        the `doit()` method.
+    
+        Note, this method not simplify the convolution integral if one
+        of the functions contains a Dirac delta.  This can be done
+        calling the `simplify_dirac_delta()` method followed by the
         `simplify()` method.
-        
-        The integral can be further simplified using the `doit()` method.
-        This will attempt the integration.
 
         """
 
@@ -2254,8 +2254,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         See also simplify_terms and simplify_factors."""
 
-        # Perhaps roll this into symsimplify?
-        if self.has(AppliedUndef):
+        # This might be dodgy...
+        if self.has(AppliedUndef) and not self.has(sym.Integral):
             new, defs = self.remove_undefs(return_mappings=True)
             return new.simplify(**kwargs).subs(defs)
 
