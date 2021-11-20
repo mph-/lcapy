@@ -130,8 +130,7 @@ def simplify_heaviside_integral(expr):
 
         # Rewrite integral limits if Heaviside is a factor of the
         # integrand.
-        # TODO, be more clever if limits not infinite, say using min(l1, l2)
-        
+
         result = 1
         for factor in integrand.as_ordered_factors():
             if isinstance(factor, (Heaviside, UnitStep)):
@@ -142,16 +141,15 @@ def simplify_heaviside_integral(expr):
                 elif arg == -var:
                     upper_limit = Min(upper_limit, 0)
                     factor = 1
-                elif arg.is_Add and arg.has(-var):
-                    upper_limit = Min(upper_limit, var + arg)
-                    factor = 1
-                elif arg.is_Add and arg.has(var) and lower_limit == oo:
-                    lower_limit = Max(lower_limit, var - arg)
-                    factor = 1                                        
+                elif (arg.is_Add and arg.args[1].is_Mul and
+                      arg.args[1].args[0] == -1 and arg.args[1].args[1] == var):
+                    upper_limit = Min(upper_limit, arg.args[0])
+                    # Cannot remove Heaviside function in general.
                     
             result *= factor
 
-        return Integral(result, (var, lower_limit, upper_limit))
+        ret = Integral(result, (var, lower_limit, upper_limit))
+        return ret
     
     expr = expr.replace(query, value)
     
