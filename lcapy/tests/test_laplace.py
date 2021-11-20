@@ -106,4 +106,29 @@ class LcapyTester(unittest.TestCase):
         a = expr('Integral(3 * x(tau), (tau, 0, t))')
         self.assertEqual(a(s), expr('3 * X(s) / s'), "3 * X / s")        
         
- 
+        a = expr('x(t)').convolve(expr('g(t)'))
+        self.assertEqual(a(s), expr('X(s) * G(s)'), "X(s) * G(s)")
+
+        a = expr('x(t)').convolve(expr('g(t)'), commutate=True)
+        self.assertEqual(a(s), expr('X(s) * G(s)'), "X(s) * G(s)")        
+
+        a = expr('x(t)').convolve(expr('g(t)', causal=True))
+        self.assertEqual(a(s), expr('X(s) * G(s)'), "X(s) * G(s)")
+
+        a = expr('x(t)').convolve(expr('g(t)', causal=True), commutate=True)
+        self.assertEqual(a(s), expr('X(s) * G(s)'), "X(s) * G(s)")
+
+        a = expr('x(t)', causal=True).convolve(expr('g(t)'))
+        self.assertEqual(a(s), expr('X(s) * G(s)'), "X(s) * G(s)")
+
+        a = expr('x(t)', causal=True).convolve(expr('g(t)', commutate=True))
+        self.assertEqual(a(s), expr('X(s) * G(s)'), "X(s) * G(s)")
+
+        a = expr('x(t)', causal=True).convolve(expr('g(t)', causal=True))
+        self.assertEqual(a(s), expr('X(s) * G(s)'), "X(s) * G(s)")
+
+        a = expr('x(t)', causal=True).convolve(expr('g(t)', causal=True,
+                                                    commutate=True))
+        self.assertEqual(a(s), expr('X(s) * G(s)'), "X(s) * G(s)")                                                                                               
+
+
