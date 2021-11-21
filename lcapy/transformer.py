@@ -76,7 +76,7 @@ class Transformer(object):
 
         for dummy in dummies:
             if level == 0:
-                nu = symsymbol(dummy, integer=True)
+                nu = symsymbol(dummy, **kwargs)
             else:
                 nu = symsymbol(dummy + '_%d' % level, **kwargs)                
             if not expr.has(nu):
