@@ -31,6 +31,10 @@ from .extrafunctions import trap as trap1
 class Function(object):
 
     def __init__(self, arg):
+
+        if isinstance(arg, str):
+            # Handled AppliedUndef
+            arg = sym.Function(arg)
         self.expr = arg
     
     @property
