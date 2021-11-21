@@ -1008,12 +1008,17 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
         return wrap
 
     def debug(self):
-        """Print the SymPy epxression and the assumptions for all symbols in
-        the expression."""
+        """Print the SymPy expression and the assumptions for all symbols in
+        the expression.  See also srepr."""
 
         name = self.__class__.__name__
         s = '%s(' % name
         print(symdebug(self.expr, s, len(name) + 1))
+
+    def srepr(self):
+        """Print the SymPy abstract syntax tree for the expression."""
+
+        sym.srepr(self.sympy)
 
     @property
     def sympy(self):
@@ -3332,7 +3337,7 @@ def exprcontainer(arg, **assumptions):
         return arg
     elif isinstance(arg, list):
         return ExprList(arg, **assumptions)
-    elif isinstance(arg, tuple):
+    elif isinstance(arg, (tuple, sym.Tuple)):
         return ExprTuple(arg, **assumptions)
     elif isinstance(arg, dict):
         return ExprDict(arg)
