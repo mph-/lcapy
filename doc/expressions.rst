@@ -195,9 +195,10 @@ Mathematical functions
 Lcapy has the following built-in functions: `sin`, `cos`, `tan`,
 `cot`, `asin`, `acos`, `atan`, `atan2`, `acot`, `sinh`, `cosh`,
 `tanh`, `asinh`, `acosh`, `atanh`, `gcd`, `exp`, `sqrt`, `log`,
-`log10`, `sign`, `conjugate`, `rect`, `dtrect`, `sinc`, `sincn`, `sincu`, `tri`,
-`trap`, `Heaviside`, `H`, `u`, `DiracDelta`, `delta`, `unitimpulse`,
-`unitstep`, `Piecewise`, `Derivative`, and `Integral` among others.
+`log10`, `sign`, `conjugate`, `rect`, `dtrect`, `sinc`, `sincn`,
+`sincu`, `tri`, `trap`, `Heaviside`, `H`, `u`, `DiracDelta`, `delta`,
+`unitimpulse`, `unitstep`, `Piecewise`, `Derivative`, `Integral`,
+`integrate`, `diff`, `Min`, and `Max` among others.  
 
 Other SymPy functions can be converted to Lcapy functions using the
 `Function` class, for example:
@@ -732,26 +733,14 @@ Miscellaneous
 
 - `as_sum()` rewrite expression as a sum of terms where the denominator of each term has a common polynomial expression (see :ref:`expressionsresponses`).
 
-- `convolve(x)` convolves expressions.  For example::
+- `convolve(x)` convolves expressions (see :ref:`convolution`).
 
-    >>> current('i(t)').convolve(impedance('z(t)'))
-    ∞                  
-    ⌠                  
-    ⎮  i(t - τ)⋅z(τ) dτ
-    ⌡                  
-    -∞
-    >>> current('i(t)').convolve(impedance('z(t)'), commutate=True)
-    ∞                  
-    ⌠                  
-    ⎮  i(τ)⋅z(t - τ) dτ
-    ⌡                  
-    -∞
-
-    Note, this does not simplify the convolution integral if one of
+    The result is an unevaluated integral.  It can be evaluated using
+    the `doit()` method.
+    
+    Note, this method not simplify the convolution integral if one of
     the functions contains a Dirac delta.  This can be done using the
-    `simplify_dirac_delta()` method. The integral can be further
-    simplified using the `doit()` method.  This will attempt the
-    integration.
+    `simplify_dirac_delta()` method. 
 
 - `differentiate()` differentiates expression.
 
@@ -784,8 +773,65 @@ Miscellaneous
 - `rewrite(args, hints)` rewrite expression in terms of the `args`.  For example, `exp(j*a*t).rewrite(cos)` gives  `ⅉ⋅sin(4⋅t) + cos(4⋅t)`.  Similarly, `cos(2 * t).rewrite(exp)` will expand the cosine as two complex exponentials.
   
 - `solve(symbols, flags)` returns list of solutions.
-  
-  
+
+
+.. _convolution:    
+
+Convolution
+-----------
+
+The `convolution()` method has two different forms::
+
+    >>> expr('i(t)').convolve(expr('z(t)'))
+    ∞                  
+    ⌠                  
+    ⎮  i(t - τ)⋅z(τ) dτ
+    ⌡                  
+    -∞
+    >>> expr('i(t)').convolve(expr('z(t)'), commutate=True)
+    ∞                  
+    ⌠                  
+    ⎮  i(τ)⋅z(t - τ) dτ
+    ⌡                  
+    -∞
+
+The infinite limits of the convolution integral are constrained if either of the functions is known to be causal.  For example::
+
+    >>> expr('i(t)').convolve(expr('z(t)', causal=True))
+    ∞                  
+    ⌠                  
+    ⎮  i(t - τ)⋅z(τ) dτ
+    ⌡                  
+    0
+    >>> expr('i(t)', causal=True).convolve(expr('z(t)'))
+    t
+    ⌠                  
+    ⎮  i(t - τ)⋅z(τ) dτ
+    ⌡                  
+    -∞
+    >>> expr('i(t)', causal=True).convolve(expr('z(t)', causal=True))
+    t
+    ⌠                  
+    ⎮  i(t - τ)⋅z(τ) dτ
+    ⌡                  
+    0        
+
+The `convolve()` method does not simplify the convolution integral, for example::
+    
+    >>> expr('i(t)').convolve(expr('u(t)'))
+    ∞                  
+    ⌠                  
+    ⎮  i(t - τ)⋅u(τ) dτ
+    ⌡                  
+    0    
+    >>> expr('i(t)').convolve(expr('u(t)')).simplify()
+    ∞                  
+    ⌠                  
+    ⎮  i(t - τ) dτ
+    ⌡                  
+    0          
+
+    
 .. _expressionsprinting:  
   
 Formatting methods

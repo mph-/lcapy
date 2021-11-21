@@ -109,6 +109,8 @@ an answer that appears valid for DC.
 
 25. expr(3)(jw)
 
+26. Add sifting theorem to simplify_dirac_delta
+
 
 Testing
 =======
