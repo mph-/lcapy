@@ -37,23 +37,21 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
                 kwargs.get('damped_sin', True),            
                 kwargs.get('damping', None))
 
-    def func(self, expr, t, s):
+    def func(self, expr, s, t):
 
         if not isinstance(expr, AppliedUndef):
             self.error('Expecting function')
 
-        scale, shift = scale_shift(expr.args[0], t)    
-
-        ssym = sympify(str(s))
+        scale, shift = scale_shift(expr.args[0], s)    
 
         # Convert V(s) to v(t), etc.
         name = expr.func.__name__
-        func = name[0].lower() + name[1:] + '(%s)' % s
+        undef = sym.Function(name[0].lower() + name[1:])(t)
 
-        result = sympify(func).subs(ssym, s / scale) / abs(scale)
+        result = undef.subs(t, t / scale) / abs(scale)
 
         if shift != 0:
-            result = result * sym.exp(s * shift / scale)    
+            result = result * sym.exp(t * shift / scale)    
         return result
 
     def do_damped_sin(self, expr, s, t):
