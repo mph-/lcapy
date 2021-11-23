@@ -3582,6 +3582,15 @@ def delcapify(expr):
     return expr
 
 
+def check(expr):
+
+    args = getattr(expr, 'args', None)
+    if args is not None:
+        for arg in args:
+            if isinstance(arg, Expr):
+                print(arg)
+            check(arg)
+
 
 from .cexpr import cexpr, ConstantDomainExpression
 from .fexpr import f, fexpr, FourierDomainExpression

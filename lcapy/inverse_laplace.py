@@ -7,7 +7,7 @@ Copyright 2021 Michael Hayes, UCECE
 
 from .transformer import UnilateralInverseTransformer
 from .ratfun import Ratfun
-from .sym import sympify, simplify, AppliedUndef
+from .sym import simplify, AppliedUndef
 from .utils import factor_const, scale_shift, as_sum_terms
 import sympy as sym
 
