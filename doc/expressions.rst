@@ -1714,7 +1714,7 @@ transform.
 Assumptions for symbols
 -----------------------
 
-The more specific assumptions are, the easier it is for SymPy to solve
+The more specific the assumptions are, the easier it is for SymPy to solve
 an expression.  For example::
 
    >>> C_1 = symbol('C_1', positive=True)
@@ -1727,7 +1727,7 @@ is more appropriate for a capacitor value than::
 Notes:
 
    1. By default, the `symbol` and `expr` functions assume `positive=True` unless `real=True` or `positive=False` are specified.
-   2. SymPy considers variables of the same name but different assumptions to be different.  This can cause much confusion since the variables look identical when printed.  To avoid this problem, Lcapy creates a symbol cache for each circuit.  The assumptions associated with the symbol are from when it is created.
+   2. SymPy considers variables of the same name but different assumptions to be different.  This can cause much confusion since the variables look identical when printed.  To avoid this problem, Lcapy creates a symbol cache for each circuit.  The assumptions associated with the symbol are from when it was created.
 
 
 The list of explicit assumptions for an expression can be found from
@@ -2481,27 +2481,106 @@ Notes:
    :width: 12cm  
   
   
-SymPy
-=====
 
-The underlying SymPy expression can be obtained using the `expr`
+Expression manipulation tips
+============================
+
+
+SymPy expressions
+-----------------
+
+Lcapy does not support all the SymPy functions.  However, the
+underlying SymPy expression can be obtained using the `sympy`
 attribute of an Lcapy expression.  For example::
 
    >>> a = 2 * t + 3
-   >>> a.expr
+   >>> a.sympy
    2⋅t + 3
 
-The methods of the SymPy expression can be accessed from the Lcapy expression, for example::
+The result can then be converted back to an Lcapy expression using the
+`expr()` function.
 
-   >>> a.as_ordered_terms()
-   [2⋅t, 3]
 
-Another example is accessing the SymPy symbol assumptions::
+Functions
+---------
+    
+Lcapy does not explicitly support all the SymPy functions.  However, a
+SymPy function can be made into an Lcapy function using the `Function`
+class, for example::
 
+   >>> import sympy
+   >>> from lcapy import Function
+   >>> gamma = Function(sympy.Gamma)
+
+The `Integral` and `Derivative` functions are not evaluated unlike the
+corresponding `integrate` and `diff` functions.  The evaluation can be
+performed using the `doit()` method.
+
+
+Assumptions
+-----------
+
+Correct assumptions are required for Lcapy (and SymPy) to simplify
+expressions.  Note, there are two sets of assumptions.  Firstly there
+are assumptions that Lcapy maintains for an Lcapy expression.  These
+can be found with the `assumptions` attribute.  Secondly, there are
+assumptions that SymPy uses for a symbol.  These can be found with the
+`assumptions0` attribute.  For example::
+
+   >>> t.assumptions
+   {'real': True}
+  
    >>> t.assumptions0
-   {'commutative': True,
-    'complex': True,
-    'hermitian': True,
-    'imaginary': False,
-    'real': True}
-   
+   {'real': True,
+   'complex': True,
+   'infinite': False,
+   'hermitian': True,
+   'commutative': True,
+   'finite': True,
+   'imaginary': False,
+   'extended_real': True}
+
+   >>> x = symbol('x', positive=True, integer=True)
+   >>> x.assumptions0
+   {'positive': True,
+   'complex': True,
+   'nonpositive': False,
+   'infinite': False,
+   'nonzero': True,
+   'hermitian': True,
+   'extended_nonzero': True,
+   'zero': False,
+   'real': True,
+   'commutative': True,
+   'extended_negative': False,
+   'negative': False,
+   'extended_nonnegative': True,
+   'extended_nonpositive': False,
+   'finite': True,
+   'imaginary': False,
+   'nonnegative': True,
+   'extended_real': True,
+   'extended_positive': True,
+   'integer': True,
+   'algebraic': True,
+   'rational': True,
+   'irrational': False,
+   'noninteger': False,
+   'transcendental': False}
+
+Note, the symbol `x` has `positive`, `integer`, `real`, and `complex`
+attributes since it is represents a positive integer value, integers
+are in the set of reals, and the reals are within the set of complex
+numbers.  However, it is not a complex value::
+
+  >>>  x.is_complex
+  False
+
+  
+Parameterization
+----------------
+
+Symbolic expressions can get unweildy.  One approach is to
+parameterize an expression using the `parameterize()` method, perform
+manipulations, and then substitute for the parameter definitions.
+

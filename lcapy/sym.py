@@ -364,6 +364,7 @@ def is_sympy(expr):
 
 
 def symdebug(expr, s='', indent=0):
+    """See also the SymPy function srepr."""
 
     def _debug_args(args, s='', indent=0):
 
