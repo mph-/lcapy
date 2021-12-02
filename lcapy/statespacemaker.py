@@ -77,7 +77,8 @@ class StateSpaceMaker(object):
 
     """
 
-    def from_circuit(self, cct, node_voltages=None, branch_currents=None):
+    @classmethod
+    def from_circuit(cls, cct, node_voltages=None, branch_currents=None):
         """`node_voltages` is a list of node names to use as voltage outputs.
         If `None` use all the unique node names.
 
