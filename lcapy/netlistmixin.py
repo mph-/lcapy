@@ -1246,7 +1246,6 @@ class NetlistMixin(object):
         self._cg = CircuitGraph.from_circuit(self)
         return self._cg
 
-    @property
     def loop_analysis(self):
         """Perform loop analysis for this netlist.   This is cached."""        
 
