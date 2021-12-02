@@ -25,6 +25,8 @@ import inspect
 import sys
 import sympy as sym
 
+__all__ = ()
+
 module = sys.modules[__name__]
 
 cptaliases = {'E': 'VCVS', 'F': 'CCCS',

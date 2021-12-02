@@ -36,22 +36,16 @@ def canonical_loop(cycle):
 
 class CircuitGraph(object):
 
-    def __init__(self, cct, G=None):
+    @classmethod
+    def from_circuit(cls, cct):
 
-        self.cct = cct
-        self.node_map = cct.node_map
-
-        if G is not None:
-            self.G = G
-            return
-        
-        self.G = nx.Graph()
+        G = nx.Graph()
         
         dummy = 0
         # Dummy nodes are used to avoid parallel edges.
         dummy_nodes = {}
 
-        self.G.add_nodes_from(cct.node_list)
+        G.add_nodes_from(cct.node_list)
 
         node_map = cct.node_map
 
@@ -63,17 +57,28 @@ class CircuitGraph(object):
             nodename1 = node_map[elt.nodenames[0]]
             nodename2 = node_map[elt.nodenames[1]]
             
-            if self.G.has_edge(nodename1, nodename2):
+            if G.has_edge(nodename1, nodename2):
                 # Add dummy node in graph to avoid parallel edges.
                 dummynode = '*%d' % dummy
                 dummycpt = 'W%d' % dummy                
-                self.G.add_edge(nodename1, dummynode, name=name)
-                self.G.add_edge(dummynode, nodename2, name=dummycpt)
+                G.add_edge(nodename1, dummynode, name=name)
+                G.add_edge(dummynode, nodename2, name=dummycpt)
                 dummy_nodes[dummynode] = nodename2
                 dummy += 1
             else:
-                self.G.add_edge(nodename1, nodename2, name=name)
+                G.add_edge(nodename1, nodename2, name=name)
 
+        return cls(cct, G)
+    
+    def __init__(self, cct, G=None):
+
+        # For backwards compatibility
+        if G is None:
+            G = self.from_circuit(cct).G
+
+        self.cct = cct
+        self.node_map = cct.node_map
+        self.G = G
 
     def connected_cpts(self, node):
         """Components connected to specified node."""

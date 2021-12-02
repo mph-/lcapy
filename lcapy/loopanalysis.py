@@ -43,7 +43,7 @@ class LoopAnalysis(object):
     def __init__(self, cct):
 
         self.cct = cct
-        self.cg = CircuitGraph(cct)
+        self.cg = CircuitGraph.from_circuit(cct)
 
         self.kind = self.cct.kind
         if self.kind == 'super':

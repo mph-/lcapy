@@ -51,7 +51,7 @@ class NodalAnalysis(object):
         component voltages and node voltages."""
 
         self.cct = cct
-        self.cg = CircuitGraph(cct)
+        self.cg = CircuitGraph.from_circuit(cct)
 
         self.kind = self.cct.kind
         if self.kind == 'super':

@@ -1236,15 +1236,39 @@ class NetlistMixin(object):
 
     @property
     def cg(self):
-        """Generate graph for this netlist.   This is cached."""        
+        """Generate circuit graph for this netlist.   This is cached."""        
 
         from .circuitgraph import CircuitGraph
         
         if hasattr(self, '_cg'):
             return self._cg
 
-        self._cg = CircuitGraph(self)
+        self._cg = CircuitGraph.from_circuit(self)
         return self._cg
+
+    @property
+    def loop_analysis(self):
+        """Perform loop analysis for this netlist.   This is cached."""        
+
+        from .loopanalysis import LoopAnalysis
+        
+        if hasattr(self, '_la'):
+            return self._na
+
+        self._la = LoopAnalysis.from_circuit(self)
+        return self._la
+
+    @property
+    def nodal_analysis(self):
+        """Perform nodal analysis for this netlist.   This is cached."""        
+
+        from .nodalanalysis import NodalAnalysis
+        
+        if hasattr(self, '_na'):
+            return self._na
+
+        self._na = NodalAnalysis.from_circuit(self)
+        return self._na    
     
     def _potential_combine_names(self):
 
