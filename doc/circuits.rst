@@ -295,7 +295,7 @@ law around each loop in a circuit.  For example, consider the netlist:
            
 The mesh equations are found using::           
    
-   >>> l = LoopAnalysis(cct)
+   >>> l = cct.loop_analysis()
    >>> l.mesh_equations()
    ⎧                                              t                                                                                 
    ⎪                                              ⌠                                                                                 
@@ -319,7 +319,7 @@ Note, the dictionary is keyed by the mesh current.
 
 The mesh equations can be formulated in the s-domain using:
 
-   >>> l = LoopAnalysis(cct.laplace())
+   >>> l = cct.laplace().loop_analysis()
    >>> l.mesh_equations()
    ⎧                              I₁(s) - I₂(s)                                                  I₁(s) - I₂(s)                                               1    ⎫
    ⎨I₁(s): -R₂⋅I₁(s) - R₃⋅I₁(s) + ───────────── = 0, I₂(s): -L₁⋅s⋅I₂(s) + L₂⋅s⋅(I₂(s) - I₃(s)) + ───────────── = 0, I₃(s): L₂⋅s⋅(I₂(s) - I₃(s)) - R₁⋅I₃(s) + ─ = 0⎬
@@ -374,7 +374,7 @@ law at each node in a circuit.  For example, consider the netlist:
            
 The nodal equations are found using::           
    
-   >>> n = NodalAnalysis(cct)
+   >>> n = cct.nodal_analysis()
    >>> n.nodal_equations()
    ⎧                    
    ⎪                   
@@ -409,12 +409,12 @@ The nodal equations are found using::
         
 
 Note, these are keyed by the node names.  The `node_prefix` argument
-can be used with `NodalAnalysis` to resolve ambiguities with component
+can be used with `nodal_analysis()` to resolve ambiguities with component
 voltages and node voltages.
 
 The nodal equations can be formulated in the s-domain using::
 
-   >>> na = NodalAnalysis(cct.laplace())
+   >>> na = cct.laplace().nodal_analysis()
    >>> na.nodal_equations()
    ⎧           1  
    ⎨1: V₁(s) = ─,
@@ -748,7 +748,7 @@ The graph is:
 
 The loops in the graph can be found using::
   
-   >>> cg = CircuitGraph(cct)
+   >>> cg = cct.circuit_graph()
    >>> cg.loops()                                                              
    [['0', '1', '3'], ['0', '1', '2']]
    >>> cg.draw()
@@ -779,12 +779,12 @@ The graph is:
 
 The loops in the graph can be found using::
 
-  >>> cg = CircuitGraph(cct)
+  >>> cg = cct.circuit_graph()
    >>> cg.loops()
    [['0', '3', '4'], ['0', '2', '3'], ['0', '1', '2']]
    >>> cg.draw()
 
-Note, `CircuitGraph` inserts dummy nodes and wires to avoid parallel edges.  For example::
+Note, `circuit_graph()` inserts dummy nodes and wires to avoid parallel edges.  For example::
 
      >>> cct = Circuit("""
      V 1 0 {v(t)}; down

@@ -1238,6 +1238,11 @@ class NetlistMixin(object):
     def cg(self):
         """Generate circuit graph for this netlist.   This is cached."""        
 
+        return self.circuit_graph()
+
+    def circuit_graph(self):
+        """Generate circuit graph for this netlist.   This is cached."""        
+
         from .circuitgraph import CircuitGraph
         
         if hasattr(self, '_cg'):
@@ -1245,7 +1250,7 @@ class NetlistMixin(object):
 
         self._cg = CircuitGraph.from_circuit(self)
         return self._cg
-
+    
     def loop_analysis(self):
         """Perform loop analysis for this netlist.   This is cached."""        
 
