@@ -266,5 +266,13 @@ class StateSpace(StateSpaceBase):
             return self.generalized_bilinear_transform(1)
         else:
             raise ValueError('Unsupported method %s' % method)
-    
+
+    @classmethod
+    def from_circuit(cls, cct, node_voltages=None, branch_currents=None):
+
+        from .statespacemaker import StateSpaceMaker
+
+        return StateSpaceMaker.from_circuit(cct, node_voltages, branch_currents)
+
+        
 from .sexpr import LaplaceDomainExpression

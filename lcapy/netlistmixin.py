@@ -16,7 +16,7 @@ from .schematic import Schematic
 from .symbols import j, s, omega
 from .attrdict import AttrDict
 from .netfile import NetfileMixin
-from .statespacemaker import StateSpaceMaker
+from .statespace import StateSpace
 from .voltage import Vname
 from .current import Iname, current
 from .simulator import Simulator
@@ -1652,8 +1652,7 @@ class NetlistMixin(object):
         ss = cct.state_space(node_voltages=['1', '3'], branch_currents=['L1', 'L2'])`
         """
 
-        ss = StateSpaceMaker().from_circuit(self, node_voltages,
-                                            branch_currents)
+        ss = StateSpace.from_circuit(self, node_voltages, branch_currents)
         return ss
 
     @property

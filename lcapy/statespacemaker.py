@@ -16,7 +16,7 @@ from .circuitgraph import CircuitGraph
 from .sym import sympify
 import sympy as sym
 
-__all__ = ('StateSpacemaker', )
+__all__ = ('StateSpaceMaker', )
 
 # TODO
 # 1. Use a better Matrix class that preserves the class of each
@@ -77,9 +77,6 @@ class StateSpaceMaker(object):
 
     """
 
-    def __init__(self):
-        pass
-        
     def from_circuit(self, cct, node_voltages=None, branch_currents=None):
         """`node_voltages` is a list of node names to use as voltage outputs.
         If `None` use all the unique node names.
