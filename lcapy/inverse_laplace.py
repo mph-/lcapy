@@ -9,6 +9,7 @@ from .transformer import UnilateralInverseTransformer
 from .ratfun import Ratfun
 from .sym import simplify, AppliedUndef
 from .utils import factor_const, scale_shift, as_sum_terms
+from warnings import warn
 import sympy as sym
 
 Zero = sym.S.Zero
@@ -69,7 +70,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         zeta = dcoeffs[1] / (2 * omega0)
 
         if zeta.is_constant() and zeta > 1:
-            print('Warning: expression is overdamped')
+            warn('Expression is overdamped')
 
         sigma1 = (zeta * omega0).simplify()
         omega1 = (omega0 * sym.sqrt(1 - zeta**2)).simplify()
@@ -397,12 +398,12 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             # exp(-3 * s) / s**2 + exp(-4 * s) / s.  So for now,
             # assume causal expression...
 
-            if not kwargs.get('causal', False):
-                print('Warning, assuming causal expression')
+            if not kwargs.get('causal', False) and expr.has(AppliedUndef):
+                warn('Assuming causal expression')
             
             if not delay.is_negative:
                 if not delay.is_positive:
-                    print('Assuming %s is positive' % delay)
+                    warn('Assuming %s is positive' % delay)
                 cresult += uresult * sym.Heaviside(t - delay)
                 uresult = Zero
             else:
