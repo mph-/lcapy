@@ -2867,7 +2867,6 @@ class Eamp(Chip):
 
     pinlabels = {'vdd' : 'VDD', 'vss' : 'VSS'}
 
-
     def draw(self, **kwargs):
 
         if not self.check():

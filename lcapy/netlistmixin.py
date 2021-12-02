@@ -1593,22 +1593,22 @@ class NetlistMixin(object):
             V2b = net.Voc(N2p, N2m)(s)
             I2b = net.Isc(N2p, N2m)(s)
             A = net.Aparams(N1p, N1m, N2p, N2m)
-            return TwoPortBModel(A.Bparams, V2b, I2b)
+            return TwoPortBModel(A.Bparams, V2b=V2b, I2b=I2b)
         elif model == 'Z':
             V1 = net.Voc(N1p, N1m)(s)
             V2 = net.Voc(N2p, N2m)(s)
             Z = net.Zparams(N1p, N1m, N2p, N2m)            
-            return TwoPortZModel(Z, V1, V2)
-        elif model == 'Z':
+            return TwoPortZModel(Z, V1z=V1, V2z=V2)
+        elif model == 'Y':
             I1 = net.Isc(N1p, N1m)(s)
             I2 = net.Isc(N2p, N2m)(s)
             Z = net.Zparams(N1p, N1m, N2p, N2m)            
-            return TwoPortYModel(Z.Y, I1, I2)        
+            return TwoPortYModel(Z.Y, I1y=I1, I2y=I2)        
         elif model == 'H':
             V1 = net.Voc(N1p, N1m)(s)
             I2 = net.Isc(N2p, N2m)(s)
             Z = net.Zparams(N1p, N1m, N2p, N2m)            
-            return TwoPortHModel(Z.H, V1, I2)
+            return TwoPortHModel(Z.H, V1h=V1, I2h=I2)
         else:
             raise ValueError('Model %s unknown, must be B, H, Y, or Z' % model)
 
