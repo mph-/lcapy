@@ -20,7 +20,7 @@ class LcapyTester(unittest.TestCase):
         C 3_a 0_4
         W 0_3 0_4""")
 
-        na = NodalAnalysis(a)
+        na = a.nodal_analysis()
 
         na_eqs = na.nodal_equations()
 

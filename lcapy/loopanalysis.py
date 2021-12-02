@@ -39,6 +39,11 @@ class LoopAnalysis(object):
     >>> la.mesh_equations().pprint()
 
     """
+
+    @classmethod
+    def from_circuit(cls, cct):
+
+        return cls(cct)
     
     def __init__(self, cct):
 

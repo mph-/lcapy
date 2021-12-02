@@ -20,7 +20,7 @@ class LcapyTester(unittest.TestCase):
         R4 3_a 0_4
         W 0_3 0_4""")
 
-        la = LoopAnalysis(a)
+        la = a.loop_analysis()
 
         la_eqs = la.mesh_equations()
         loops = la.loops_by_cpt_name()

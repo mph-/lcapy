@@ -45,6 +45,11 @@ class NodalAnalysis(object):
 
     """
 
+    @classmethod
+    def from_circuit(cls, cct, node_prefix=''):
+
+        return cls(cct, node_prefix)
+
     def __init__(self, cct, node_prefix=''):
         """`cct` is a netlist
         `node_prefix` can be used to avoid ambiguity between

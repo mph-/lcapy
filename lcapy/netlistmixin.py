@@ -1257,7 +1257,6 @@ class NetlistMixin(object):
         self._la = LoopAnalysis.from_circuit(self)
         return self._la
 
-    @property
     def nodal_analysis(self):
         """Perform nodal analysis for this netlist.   This is cached."""        
 
