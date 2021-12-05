@@ -193,7 +193,7 @@ class SimulationResults(object):
         
         if name in cct._elements:
             return SimulationResultsCpt(self.cpt_voltages_get(name),
-                                        self.cpt_currents_get(name))
+                                        self.cpt_current_get(name))
 
         raise AttributeError('Unknown element or node name %s' % name)
 
@@ -209,29 +209,29 @@ class SimulationResults(object):
 
         return self.__getitem__(attr)
 
-    def node_voltages_get(self, n):
+    def node_voltage_get(self, n):
 
         index = self.r_model._node_index(n)
         # NB, node_voltages is zero for index = -1
         return self.node_voltages[index]
         
-    def cpt_voltages_get(self, cptname):
+    def cpt_voltage_get(self, cptname):
 
         cpt = self.cct.elements[cptname]        
 
-        v1 = self.node_voltages_get(cpt.nodenames[0])
-        v2 = self.node_voltages_get(cpt.nodenames[1])        
+        v1 = self.node_voltage_get(cpt.nodenames[0])
+        v2 = self.node_voltage_get(cpt.nodenames[1])        
         return v1 - v2
 
     def cpt_voltage_get(self, cptname, n):
 
         cpt = self.cct.elements[cptname]
         
-        v1 = self.node_voltages_get(cpt.nodenames[0])[n]
-        v2 = self.node_voltages_get(cpt.nodenames[1])[n]     
+        v1 = self.node_voltage_get(cpt.nodenames[0])[n]
+        v2 = self.node_voltage_get(cpt.nodenames[1])[n]     
         return v1 - v2
 
-    def cpt_currents_get(self, cptname):
+    def cpt_current_get(self, cptname):
 
         try:
             index = self.r_model._branch_index(cptname)
@@ -241,9 +241,9 @@ class SimulationResults(object):
             if cpt.is_capacitor or cpt.is_inductor:
                 # For a capacitor we can find the current through the
                 # companion resistor or voltage source.
-                return self.cpt_currents_get('V%seq' % cptname)
+                return self.cpt_current_get('V%seq' % cptname)
 
-            Vd = self.cpt_voltages_get(cptname)            
+            Vd = self.cpt_voltage_get(cptname)            
             if cpt.is_resistor or cpt.is_conductor:
                 return Vd / cpt.R.expr
                 
@@ -252,20 +252,13 @@ class SimulationResults(object):
 
     def cpt_current_get(self, cptname, n):
 
-        return self.cpt_currents_get(cptname)[n]
+        return self.cpt_current_get(cptname)[n]
         
     @property
     def V(self, node):
         """Node voltage with respect to ground."""
 
-        return self.get_Vd(node, '0')
-
-
-    def get_Vd(self, Np, Nm=None):
-        """Voltage drop between nodes"""
-
-        self._solve()
-        return (self._Vdict[Np] - self._Vdict[Nm]).canonical()    
+        return self.node_voltage_get(node)
 
     
 class Simulator(object):
