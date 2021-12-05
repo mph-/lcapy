@@ -753,7 +753,7 @@ The loops in the graph can be found using::
    [['0', '1', '3'], ['0', '1', '2']]
    >>> cg.draw()
 
-Here's another example:           
+Here's another example::           
 
    >>> cct = Circuit("""
    ...V1 1 0; down

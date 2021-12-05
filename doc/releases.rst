@@ -2,6 +2,26 @@
 Release notes
 =============
 
+V1.1
+====
+
+- Adds `loop_analysis` and `nodal_analysis` methods to `Circuit`
+
+- Fixes creating two-port from netlist
+
+- Improves Laplace transforms for convolutions
+
+- Adds `Min` and `Max` functions
+
+- Adds `solve()` method to `Expr` to solve expression
+  
+- Adds `solve()` methods to `ExprDict`, `ExprTuple`, and `ExprList` to solve system of equations
+
+- Supports `AppliedUndef` for `Function`
+
+- Uses `warn()` function throughout.
+  
+
 V1.00
 =====
 
