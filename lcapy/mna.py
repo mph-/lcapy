@@ -68,43 +68,7 @@ class MNA(object):
         self.cct = cct
         self.kind = cct.kind
 
-        # Perhaps remove lazy analysis and analyse circuit now?
-        # The disadvantage is that cannot check matrices without
-        # evaluation.
-    
-    def _invalidate(self):
-        for attr in ('_A', '_Vdict', '_Idict'):
-            if hasattr(self, attr):
-                delattr(self, attr)
-
-    def _cpt_node_indexes(self, cpt):
-
-        return [self._node_index(n) for n in cpt.nodenames]
-
-    def _cpt_branch_index(self, cpt):
-
-        return self._branch_index(cpt.name)
-
-    def _node_index(self, node):
-        """Return node index; ground is -1"""
-        return self.cct.node_list.index(self.cct.node_map[node]) - 1
-
-    def _branch_index(self, cpt_name):
-
-        try:
-            index = self.unknown_branch_currents.index(cpt_name)
-            return index
-        except ValueError:
-            raise ValueError('Unknown component name %s for branch current' % cpt_name)
-
-    def _analyse(self):
-        """Analyse network."""
-
-        if hasattr(self, '_A'):
-            return
-
-        # Hack, to indirectly generate element list for network.
-        if self.cct.elements == {}:
+        if cct.elements == {}:
             raise ValueError('No elements to analyse')
 
         # TODO: think this out.  When a circuit is converted
@@ -146,6 +110,32 @@ class MNA(object):
         # to form Z vector.
         self._Z = self._Is.col_join(self._Es)
 
+    
+    def _invalidate(self):
+        for attr in ('_A', '_Vdict', '_Idict'):
+            if hasattr(self, attr):
+                delattr(self, attr)
+
+    def _cpt_node_indexes(self, cpt):
+
+        return [self._node_index(n) for n in cpt.nodenames]
+
+    def _cpt_branch_index(self, cpt):
+
+        return self._branch_index(cpt.name)
+
+    def _node_index(self, node):
+        """Return node index; ground is -1"""
+        return self.cct.node_list.index(self.cct.node_map[node]) - 1
+
+    def _branch_index(self, cpt_name):
+
+        try:
+            index = self.unknown_branch_currents.index(cpt_name)
+            return index
+        except ValueError:
+            raise ValueError('Unknown component name %s for branch current' % cpt_name)
+
     def _failure_reasons(self):
 
         message = 'The MNA A matrix is not invertible for %s analysis:\n' % self.kind
@@ -170,7 +160,6 @@ class MNA(object):
         
         if hasattr(self, '_Vdict'):
             return
-        self._analyse()
 
         if '0' not in self.cct.node_map:
             raise RuntimeError('Cannot solve: nothing connected to ground node 0')
@@ -245,63 +234,53 @@ class MNA(object):
     def A(self):
         """Return A matrix for MNA"""
 
-        self._analyse()
         return Matrix(self._A)
 
     @property
     def B(self):
         """Return B matrix for MNA"""
 
-        self._analyse()
         return Matrix(self._B)
 
     @property
     def C(self):
         """Return C matrix for MNA"""
 
-        self._analyse()
         return Matrix(self._C)
 
     @property
     def D(self):
         """Return D matrix for MNA"""
 
-        self._analyse()
         return Matrix(self._D)
 
     @property
     def G(self):
         """Return G matrix for MNA"""
 
-        self._analyse()
         return Matrix(self._G)    
 
     @property
     def Z(self):
         """Return Z vector for MNA"""
 
-        self._analyse()
         return Vector(self._Z)
 
     @property
     def E(self):
         """Return E vector for MNA"""
 
-        self._analyse()
         return Vector(self._Es)
 
     @property
     def I(self):
         """Return I vector for MNA"""
 
-        self._analyse()
         return Vector(self._Is)        
 
     @property
     def X(self):
         """Return X vector (of unknowns) for MNA"""
-
-        self._analyse()
         
         V = [self.cct.Vname('Vn%s' % node) for node in self.cct.node_list[1:]]
         I = [self.cct.Iname('I%s' % branch) for branch in self.unknown_branch_currents]
@@ -334,8 +313,6 @@ class MNA(object):
 
         If `invert` is True, evaluate the matrix inverse."""
 
-        self._analyse()
-        
         sys = SystemEquations(self._A, self._Z, self.X)        
         return sys.format(form, invert)        
 

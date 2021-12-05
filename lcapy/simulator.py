@@ -346,9 +346,6 @@ class Simulator(object):
 
         r_model = self.r_model
 
-        # Construct MNA matrices.
-        r_model.mna._analyse()
-
         Asubsdict = {}
         Zsubsdict = {}        
         self.reactive_cpts = []        
