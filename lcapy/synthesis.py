@@ -355,7 +355,8 @@ class Synthesis(object):
         try:
             method = getattr(self, form)
         except AttributeError:
-            raise ValueError('Unknown form %s, known forms: %s' % form.keys())
+            raise ValueError(
+                '''Unknown form %s, known forms include: cauerI, cauerII, fosterI, fosterII''' % form)
 
         net = method(lexpr)
         return net

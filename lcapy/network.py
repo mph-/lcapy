@@ -317,7 +317,7 @@ class Network(object):
         symbols.update(state.global_context.symbols)
         return symbols
 
-    def transform(self, form='causerI'):
+    def transform(self, form='cauerI'):
         """Transform the network into an alternative form.  The transformation
         is performed using network synthesis of the network's
         impedance (note, this ignores the sources).  `form` includes:
