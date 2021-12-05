@@ -2,6 +2,7 @@ from numpy import zeros, hstack, dot, argsort, min, max, vstack
 from scipy.linalg import inv, lu
 from .cnodes import Cnodes
 from .schemplacerbase import SchemPlacerBase
+from warnings import warn
 
 # This is an experimental component placement algorithm for schematics
 # based on solving a system of linear equations.  The unknowns are the
@@ -169,7 +170,7 @@ class Lineq(object):
         # unknowns will be selected.
         for m in range(Nnodes - 1, xx.shape[0]):
             if xx[m] < 0:
-                print('Warning negative stretch %s' % xx[m])
+                warn('Negative stretch %s' % xx[m])
         
         minx = min(x)
         width = max(x) - minx
@@ -224,5 +225,5 @@ class SchemLineqPlacer(SchemPlacerBase):
         self.xgraph = Lineq('horizontal', nodes, debug)
         self.ygraph = Lineq('vertical', nodes, debug)
 
-        print('Warning, this is experimental')
+        warn('This is experimental')
         

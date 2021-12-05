@@ -16,6 +16,8 @@ from .utils import factor_const, scale_shift
 from .matrix import Matrix
 from .ztransform import is_multiplied_with
 from copy import deepcopy
+from warnings import warn
+
 
 __all__ = ('DFT', 'DFTmatrix')
 
@@ -29,8 +31,9 @@ def is_in_interval(n0, n1, nk, comment=''):
       0  if bin is in interval
       1  if bin is not in interval and is on the right side
 
-    If n0, n1 or nk contain parameter, 0 is returned if no decision is possible and
-    a comment is printed.
+    If n0, n1 or nk contain parameter, 0 is returned if no decision is
+    possible and a comment is printed.
+
     """
     
     # Is in [n0, n1]
@@ -44,7 +47,8 @@ def is_in_interval(n0, n1, nk, comment=''):
         return 1
     # No decision, assume in interval
     else:
-        print(comment, 'assume bin', nk, 'is in interval [%s, %s]' % (n0, n1))
+        warn('DFT of %s, assuming %s is in interval [%s, %s]' %
+             (comment, nk, n0, n1))
         return 0 
 
     
@@ -467,7 +471,7 @@ class DFTTransformer(BilateralForwardTransformer):
         symbols = expr.free_symbols
         symbol_names = [str(e) for e in symbols]
         if str(N) in symbol_names and N not in symbols:
-            print('Warning: There is a symbol in the expression with the same name as the DFT size %s but is not the same symbol' % N)
+            warn('There is a symbol in the expression with the same name as the DFT size %s but is not the same symbol' % N)
         
         self.N = N
         
@@ -588,7 +592,7 @@ class DFTTransformer(BilateralForwardTransformer):
             bb = args[0].coeff(n, 0) 
             nn0 = -bb / aa
             if nn0.is_integer:
-                if is_in_interval(lower, upper, nn0, comment='Delta:') == 0:
+                if is_in_interval(lower, upper, nn0, comment='delta') == 0:
                     # Shift frequency to -pi/2 ...  pi/2 
                     if nn0.has(self.N):
                         nn0 = nn0.subs(self.N, 0)
@@ -688,7 +692,7 @@ class DFTTransformer(BilateralForwardTransformer):
                 # Positive step
                 if aa == 1:
                     nn0 = -bb
-                    rg = is_in_interval(lower, upper, nn0, comment='Step:')
+                    rg = is_in_interval(lower, upper, nn0, comment='step')
                     if rg == -1:
                         result= self.termXq(expr, n, k, q, lower, upper)
                     elif rg == 0:
@@ -721,7 +725,7 @@ class DFTTransformer(BilateralForwardTransformer):
             result = self.termXq(expr, n, k, q, lower, upper)
             # Check frequency
             if aa.is_constant() and abs(aa) > pi:
-                print("Warning: Frequency may be out of range")       
+                warn("Frequency may be out of range")       
                 
             result.subs(q, q * sym.exp(sym.I * aa))            
             # Check special case and shift accordingly
@@ -741,7 +745,7 @@ class DFTTransformer(BilateralForwardTransformer):
             cc = ref[0].coeff(n, 0) 
             # Check frequency
             if bb.is_constant() and abs(bb) > pi:
-                print("Warning: Frequency may be out of range")    
+                warn("Frequency may be out of range")    
                 
             result = self.termXq(expr, n, k, q, lower, upper)
             # Make copies for the transformation:
@@ -775,7 +779,7 @@ class DFTTransformer(BilateralForwardTransformer):
             cc = ref[0].coeff(n, 0) 
             # Check frequency
             if bb.is_constant() and abs(bb) > pi:
-                print("Warning: Frequency may be out of range")    
+                warn("Frequency may be out of range")    
                 
             result = self.termXq(expr, n, k, q, lower, upper)
             # Make copies for the transformation:

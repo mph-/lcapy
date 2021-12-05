@@ -33,6 +33,8 @@ from .sym import simplify
 from .simplify import simplify_sin_cos, simplify_heaviside, simplify_dirac_delta, simplify_rect, simplify_unit_impulse
 from .config import heaviside_zero, unitstep_zero
 from collections import OrderedDict
+from warnings import warn
+
 
 __all__ = ('expr', 'symbol', 'symbols', 'deg', 'rad', 'degrees',
            'radians', 'equation', 'difference_equation')
@@ -2179,7 +2181,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             if len(expr) == 1:
                 expr = expr[0]
             else:
-                print('Warning, substituting a list...')
+                warn('Substituting a list...')
         
         result = self.expr.subs(old, expr, **kwargs)
 
@@ -3426,7 +3428,7 @@ def expr(arg, override=False, **assumptions):
     # 5 * t * u.volts -> V
     # 5 * cos(t) * u.volts -> V
     # 5 * s * u.volts -> V / Hz
-    print('Warning: this may be deprecated since the units may not be what you expect')
+    warn('This may be deprecated since the units may not be what you expect')
     
     if units == uu.volts:
         return cls(expr, **assumptions).as_voltage()
@@ -3438,7 +3440,7 @@ def expr(arg, override=False, **assumptions):
         return cls(expr, **assumptions).as_admittance()            
     elif units == uu.watts:
         return cls(expr, **assumptions).as_power()            
-    print('Warning: unhandled units: %s' % units)
+    warn('Unhandled units: %s' % units)
     return lexpr
 
     

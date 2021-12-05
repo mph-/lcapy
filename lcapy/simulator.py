@@ -1,12 +1,13 @@
 """
 This module implements an experimental time-stepping simulation.
 
-Copyright 2020 Michael Hayes, UCECE
+Copyright 2021 Michael Hayes, UCECE
 """
 
 from numpy import zeros, array, float, linalg, dot
 from .sym import tsym, symbol_map
 from .symbols import oo
+from warnings import warn
 
 __all__ = ('Simulator', )
 
@@ -375,7 +376,7 @@ class Simulator(object):
                 continue
 
             if not elt.has_ic:
-                print('Warning, initial conditions for %s ignored' % elt.name)
+                warn('Initial conditions for %s ignored' % elt.name)
             
             v1_index = r_model._node_index(elt.nodenames[0])
             v2_index = r_model._node_index(elt.nodenames[1])

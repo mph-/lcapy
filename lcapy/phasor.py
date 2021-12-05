@@ -43,6 +43,8 @@ from .admittancemixin import AdmittanceMixin
 from .impedancemixin import ImpedanceMixin
 from .transfermixin import TransferMixin
 from sympy import Expr as symExpr
+from warnings import warn
+
 
 __all__ = ('phasor', )
 
@@ -92,7 +94,7 @@ class PhasorExpression(Expr):
         """Angular Fourier transform."""
 
         if self.has(omega):
-            print('Warning: expression contains omega, should substitute with a different symbol')
+            warn('Expression contains omega, should substitute with a different symbol')
         
         return self.time().angular_fourier()            
     
@@ -192,8 +194,7 @@ class PhasorTimeDomainExpression(PhasorTimeDomain, PhasorExpression):
         assumptions['ac'] = True
 
         if expr.is_transform_domain:
-            print('Warning, converting %s-domain to time-domain first.' %
-                  expr.domain)
+            warn('Converting %s-domain to time-domain first.' % expr.domain)
             expr = expr.time()
             
         check = ACChecker(expr, t)
@@ -205,7 +206,7 @@ class PhasorTimeDomainExpression(PhasorTimeDomain, PhasorExpression):
             raise ValueError('Expecting omega=%s, found omega=%s.' % (omega, check.omega))
 
         if check.omega == 0:
-            print('Warning, DC phasor.')
+            warn('DC phasor.')
         
         result = check.amp * exp(j * check.phase)
         assumptions['omega'] = check.omega

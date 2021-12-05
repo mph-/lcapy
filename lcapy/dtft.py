@@ -17,6 +17,7 @@ from .dsym import dt
 from .utils import factor_const, scale_shift
 from .ztransform import is_multiplied_with
 from .extrafunctions import UnitImpulse, UnitStep, sincu, sincn, dtrect, dtsign, tri
+from warnings import warn
 
 
 __all__ = ('DTFT', )
@@ -205,7 +206,7 @@ class DTFTTransformer(BilateralForwardTransformer):
             bb = ref[0].coeff(n, 0)
             # Check argument of step function
             if abs(aa) != 1 or not (bb.is_integer or bb.is_integer is None) :
-                print("Warning: Check argument of Step function")            
+                warn("Check argument of Step function")            
             delay = -bb / aa
             #             
             prefac = sym.exp(-sym.I * twopidt * f * delay)   
@@ -237,7 +238,7 @@ class DTFTTransformer(BilateralForwardTransformer):
             
             if not expr.has(n):
                 if e_fac.is_integer and abs(e_fac) > 1:
-                    print("Warning:  Check for convergence")
+                    warn("Check for convergence")
                 res = expr / (1 - e_fac * sym.exp(-sym.I * twopidt * f)) 
                 if aa.is_negative:
                     res = res.subs(f, -f)
@@ -269,7 +270,7 @@ class DTFTTransformer(BilateralForwardTransformer):
               args[0].is_polynomial(n) and args[0].as_poly(n).is_linear):
             aa = args[0].coeff(n, 1)
             if aa.is_number and abs(aa) > pi:
-                print("Warning, Argument out of range (-pi, pi)")
+                warn("Argument out of range (-pi, pi)")
             bb = args[0].coeff(n, 0) 
             delay = bb / aa
             K = aa / dt
@@ -287,7 +288,7 @@ class DTFTTransformer(BilateralForwardTransformer):
               args[0].args[0].is_polynomial(n) and args[0].args[0].as_poly(n).is_linear):
             aa = args[0].args[0].coeff(n, 1)
             if aa.is_number and abs(aa) > pi:
-                print("Warning, Argument out of range (-pi, pi)")
+                warn("Argument out of range (-pi, pi)")
             bb = args[0].args[0].coeff(n, 0) 
             delay = bb / aa
             K = aa / dt
@@ -304,7 +305,7 @@ class DTFTTransformer(BilateralForwardTransformer):
               args[0].is_polynomial(n) and args[0].as_poly(n).is_linear):              
             N = 1 / args[0].coeff(n, 1)
             if N.is_negative:
-                print("Warning, negative N for dtrect((n-n0)/N)")
+                warn("Negative N for dtrect((n-n0)/N)")
             else:    
                 delay = N * args[0].coeff(n, 0)
                 if delay.is_integer:
@@ -312,9 +313,9 @@ class DTFTTransformer(BilateralForwardTransformer):
                         delay += S.Half
                     elif not N.is_odd:
                         if N.is_symbol:
-                            print("Warning, assuming %s odd; if even use %s = symbol('%s', even=True)" % (N, N, N))
+                            warn("Assuming %s odd; if even use %s = symbol('%s', even=True)" % (N, N, N))
                         else:
-                            print("Warning, assuming %s odd" % N)
+                            warn("Assuming %s odd" % N)
                     
                     return const * sym.exp(sym.I * delay * twopidt * f) * sym.sin(twopidt * f * N / 2) / sym.sin(twopidt * f / 2)
         

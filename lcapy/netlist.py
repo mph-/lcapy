@@ -23,6 +23,7 @@ from .subnetlist import SubNetlist
 from .mna import Nodedict, Branchdict
 from .symbols import omega
 from copy import copy
+from warnings import warn
 
 
 class Transformdomains(dict):
@@ -89,15 +90,14 @@ class Netlist(NetlistMixin, NetfileMixin):
                 return ', '.join([elt for elt in elements])
 
             if self.missing_ic != {}:
-                print('Warning: missing initial conditions for %s' %
+                warn('Missing initial conditions for %s' %
                       namelist(self.missing_ic))
 
             groups = self.independent_source_groups()                       
             newgroups = {'ivp' : []}
             for key, sources in groups.items():
                 if isinstance(key, str) and key[0] == 'n':
-                    print('Warning: ignoring noise source %'
-                          ' for initial value problem' % sources)
+                    warn('Ignoring noise source %s for initial value problem' % sources)
                 else:
                     newgroups['ivp'] += sources
             return newgroups

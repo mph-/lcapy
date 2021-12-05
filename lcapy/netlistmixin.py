@@ -1526,7 +1526,7 @@ class NetlistMixin(object):
                 for name in aset:
                     cpt = self._elements[name]                    
                     if cpt.type != 'I':
-                        print('Warning, have redundant %s in series with %s' % (name, Iname))
+                        warn('Have redundant %s in series with %s' % (name, Iname))
                 
         return net, False        
 
@@ -1546,7 +1546,7 @@ class NetlistMixin(object):
                 for name in aset:
                     cpt = self._elements[name]
                     if cpt.type != 'V':
-                        print('Warning, have redundant %s in parallel with %s' % (name, Vname))
+                        warn('Have redundant %s in parallel with %s' % (name, Vname))
 
         return net, False
 

@@ -1,5 +1,5 @@
 """
-Copyright 2014--2020 Michael Hayes, UCECE
+Copyright 2014--2021 Michael Hayes, UCECE
 """
 
 from __future__ import division
@@ -9,6 +9,8 @@ from .printing import latex, pretty
 from .schematic import Schematic
 from .circuit import Circuit
 from .state import state
+from warnings import warn
+
 
 class Network(object):
     """This is the base class for network objects."""
@@ -232,7 +234,7 @@ class Network(object):
             kwargs['draw_nodes'] = 'connections'
 
         if form is not None:
-            print('Warning: form is deprecated; use layout instead')
+            warn('Form is deprecated; use layout instead')
             layout = form
             
         self.sch(layout=layout, evalf=evalf).draw(filename=filename, **kwargs)

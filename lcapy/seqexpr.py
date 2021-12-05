@@ -12,6 +12,7 @@ from .functions import function_mapping
 from .extrafunctions import UnitStep, UnitImpulse, dtrect, dtsign
 from sympy import Heaviside
 from numpy import arange
+from warnings import warn
 
 
 class SequenceExpression(DiscreteExpression):
@@ -97,10 +98,10 @@ class SequenceExpression(DiscreteExpression):
             # Should search to handle cases such as 1, 1, 0, 1 but
             # when to stop?
             if self(n1 - 1) != 0:
-                print('Warning: sequence truncated at n1=%d' % n1)
+                warn('Sequence truncated at n1=%d' % n1)
                 start_trunc = True
             if self(n2 + 1) != 0:
-                print('Warning: sequence truncated at n2=%d' % n2)
+                warn('Sequence truncated at n2=%d' % n2)
                 end_trunc = True
             
         elif isinstance(ni, tuple):

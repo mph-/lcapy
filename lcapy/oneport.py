@@ -29,6 +29,7 @@ from .admittance import admittance
 from .voltage import voltage
 from .current import current
 from sympy import Derivative, Integral
+from warnings import warn
 
 
 __all__ = ('V', 'I', 'v', 'i', 'R', 'NR', 'L', 'C', 'G', 'Y', 'Z',
@@ -224,8 +225,7 @@ class OnePort(Network, ImmittanceMixin):
         Z = new.impedance
 
         if Voc.is_superposition and not Z.is_real:
-            print('Warning, detected superposition with reactive impedance,'
-                  ' using s-domain.')
+            warn('Detected superposition with reactive impedance, using s-domain.')
             Z1 = Z
             V1 = Voc.laplace()
         elif Voc.is_ac:
@@ -256,8 +256,7 @@ class OnePort(Network, ImmittanceMixin):
         Y = new.admittance
         
         if Isc.is_superposition and not Y.is_real:
-            print('Warning, detected superposition with reactive impedance,'
-                  ' using s-domain.')
+            warn('Detected superposition with reactive impedance, using s-domain.')
             Y1 = Y
             I1 = Isc.laplace()
         elif Isc.is_ac:

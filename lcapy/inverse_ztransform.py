@@ -13,6 +13,8 @@ from .utils import factor_const, scale_shift
 from .extrafunctions import UnitImpulse, UnitStep
 import sympy as sym
 from sympy.simplify.fu import TR6, TR9
+from warnings import warn
+
 
 __all__ = ('IZT', 'inverse_ztransform')
 
@@ -98,18 +100,18 @@ class InverseZTransformer(UnilateralInverseTransformer):
             elif expr.args[0].is_Pow and expr.args[0].args[0] == z:
                 a = expr.args[0].args[1]
                 if a.is_positive:
-                    print('Warning, dodgy z-transform 1.  Have advance of unit step.')
+                    warn('Dodgy z-transform 1.  Have advance of unit step.')
                 elif not a.is_negative:
-                    print('Warning, dodgy z-transform 2.  May have advance of unit step.')                
+                    warn('Dodgy z-transform 2.  May have advance of unit step.')                
                 delay = -a
             elif (expr.args[0].is_Pow and expr.args[0].args[0].is_Pow and
                   expr.args[0].args[0].args[0] == z and
                   expr.args[0].args[0].args[1] == -1):              
                 a = expr.args[0].args[1]
                 if a.is_negative:
-                    print('Warning, dodgy z-transform 3.  Have advance of unit step.')
+                    warn('Dodgy z-transform 3.  Have advance of unit step.')
                 elif not a.is_positive:
-                    print('Warning, dodgy z-transform 4.  May have advance of unit step.')                
+                    warn('Dodgy z-transform 4.  May have advance of unit step.')                
                 delay = a            
 
             if delay is not None:
@@ -402,9 +404,9 @@ class InverseZTransformer(UnilateralInverseTransformer):
             exponent = expr.args[1]
 
             if exponent.is_positive:
-                print('Warning, dodgy z-transform.  Have advance of unit impulse.')
+                warn('Dodgy z-transform.  Have advance of unit impulse.')
             elif not exponent.is_negative:
-                print('Warning, dodgy z-transform.  May have advance of unit impulse.')
+                warn('Dodgy z-transform.  May have advance of unit impulse.')
 
             return UnitImpulse(n + exponent), sym.S.Zero
 
@@ -415,9 +417,9 @@ class InverseZTransformer(UnilateralInverseTransformer):
             exponent = expr.args[1]
 
             if exponent.is_negative:
-                print('Warning, dodgy z-transform.  Have advance of unit impulse.')
+                warn('Dodgy z-transform.  Have advance of unit impulse.')
             elif not exponent.is_positive:
-                print('Warning, dodgy z-transform.  May have advance of unit impulse.')
+                warn('Dodgy z-transform.  May have advance of unit impulse.')
 
             return UnitImpulse(n - exponent), sym.S.Zero        
 
@@ -440,7 +442,7 @@ class InverseZTransformer(UnilateralInverseTransformer):
             return const * self.product(expr, z, n, **kwargs), sym.S.Zero
 
         if expr == z:
-            print('Warning, dodgy z-transform.  Have advance of unit impulse.') 
+            warn('Dodgy z-transform.  Have advance of unit impulse.') 
             return const * UnitImpulse(n + 1), sym.S.Zero        
 
         if (expr.is_Pow and
