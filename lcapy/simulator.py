@@ -189,10 +189,10 @@ class SimulationResults(object):
             name = '%d' % name
 
         if name in cct.nodes:
-            return SimulationResultsNode(self.node_voltages_get(name))
+            return SimulationResultsNode(self.node_voltage_get(name))
         
         if name in cct._elements:
-            return SimulationResultsCpt(self.cpt_voltages_get(name),
+            return SimulationResultsCpt(self.cpt_voltage_get(name),
                                         self.cpt_current_get(name))
 
         raise AttributeError('Unknown element or node name %s' % name)
@@ -211,7 +211,7 @@ class SimulationResults(object):
 
     def node_voltage_get(self, n):
 
-        index = self.r_model._node_index(n)
+        index = self.r_model.mna._node_index(n)
         # NB, node_voltages is zero for index = -1
         return self.node_voltages[index]
         
@@ -223,18 +223,10 @@ class SimulationResults(object):
         v2 = self.node_voltage_get(cpt.nodenames[1])        
         return v1 - v2
 
-    def cpt_voltage_get(self, cptname, n):
-
-        cpt = self.cct.elements[cptname]
-        
-        v1 = self.node_voltage_get(cpt.nodenames[0])[n]
-        v2 = self.node_voltage_get(cpt.nodenames[1])[n]     
-        return v1 - v2
-
     def cpt_current_get(self, cptname):
 
         try:
-            index = self.r_model._branch_index(cptname)
+            index = self.r_model.mna._branch_index(cptname)
             return self.branch_currents[index]
         except:
             cpt = self.cct._elements[cptname]
@@ -250,10 +242,6 @@ class SimulationResults(object):
             # Need to determine resistance of the cpt
             raise ValueError('FIXME')            
 
-    def cpt_current_get(self, cptname, n):
-
-        return self.cpt_current_get(cptname)[n]
-        
     @property
     def V(self, node):
         """Node voltage with respect to ground."""
@@ -359,7 +347,7 @@ class Simulator(object):
         r_model = self.r_model
 
         # Construct MNA matrices.
-        r_model._analyse()
+        r_model.mna._analyse()
 
         Asubsdict = {}
         Zsubsdict = {}        
@@ -371,11 +359,11 @@ class Simulator(object):
             if not elt.has_ic:
                 warn('Initial conditions for %s ignored' % elt.name)
             
-            v1_index = r_model._node_index(elt.nodenames[0])
-            v2_index = r_model._node_index(elt.nodenames[1])
-            i_index = r_model._branch_index('V%seq' % elt.name)
+            v1_index = r_model.mna._node_index(elt.nodenames[0])
+            v2_index = r_model.mna._node_index(elt.nodenames[1])
+            i_index = r_model.mna._branch_index('V%seq' % elt.name)
             relt = self.r_model.elements['R%seq' % elt.name]
-            v3_index = r_model._node_index(relt.nodenames[1])            
+            v3_index = r_model.mna._node_index(relt.nodenames[1])            
             
             if elt.is_inductor:
                 cls = Lcls
@@ -389,9 +377,9 @@ class Simulator(object):
             Zsubsdict[simcpt.Veqsym] = 0
 
         # Remove 1 / Req entries
-        Asym = r_model._A.subs(Asubsdict)
+        Asym = r_model.mna._A.subs(Asubsdict)
         # Remove Veq entries        
-        Zsym = r_model._Z.subs(Zsubsdict)
+        Zsym = r_model.mna._Z.subs(Zsubsdict)
 
         self.Asym = Asym
         self.Zsym = Zsym
@@ -402,8 +390,9 @@ class Simulator(object):
         # Convert to numpy ndarray
         self.A = array(Asym).astype(float)        
         
-        results = SimulationResults(tv, self.cct, r_model, r_model.node_list,
-                                    r_model.unknown_branch_currents)
+        results = SimulationResults(tv, self.cct, r_model,
+                                    r_model.node_list,
+                                    r_model.mna.unknown_branch_currents)
         
         for n, t1 in enumerate(tv):
             self._step(r_model, n, tv, results)

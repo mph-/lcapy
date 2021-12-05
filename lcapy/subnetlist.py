@@ -4,13 +4,13 @@ Copyright 2020 Michael Hayes, UCECE
 
 """
 
-from .mna import MNAMixin
+from .mna import MNA
 from .netlistmixin import NetlistMixin
 from .state import state
 from .symbols import omega
 
 
-class SubNetlist(NetlistMixin, MNAMixin):
+class SubNetlist(NetlistMixin):
     """This is a representation of a netlist for a particular
     transformation domain, such as ac, dc, transient, or noise."""
 
@@ -27,6 +27,8 @@ class SubNetlist(NetlistMixin, MNAMixin):
     def __init__(self, netlist, kind):
         """ kind can be 't', 'dc', 's', 'time', 'ivp', 'n*' or omega, 
         where 'n*' is a noise identifer and omega is an angular frequency."""
+
+        self.mna = MNA(self)
         
         if not isinstance(kind, str):
             return
@@ -40,8 +42,7 @@ class SubNetlist(NetlistMixin, MNAMixin):
     def get_I(self, name):
         """Current through component"""
 
-        self._solve()
-        return self._Idict[name].canonical()
+        return self.mna.Idict[name].canonical()
 
     def get_i(self, name):
         """Time-domain current through component"""
@@ -51,8 +52,7 @@ class SubNetlist(NetlistMixin, MNAMixin):
     def get_Vd(self, Np, Nm=None):
         """Voltage drop between nodes"""
 
-        self._solve()
-        return (self._Vdict[Np] - self._Vdict[Nm]).canonical()
+        return (self.mna.Vdict[Np] - self.mna.Vdict[Nm]).canonical()
 
     def get_vd(self, Np, Nm=None):
         """Time-domain voltage drop between nodes"""
