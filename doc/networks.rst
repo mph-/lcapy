@@ -663,7 +663,7 @@ Transmission lines
 ------------------
 
 There are three transmission line two-port classes: `TxLine`,
-`LosslessTxLine` and `GeneralTxLine`.  Here's an example of use:
+`LosslessTxLine` and `GeneralTxLine`.  Here's an example of use::
 
    >>> a = GeneralTxLine()
    >>> a.equation()
@@ -679,7 +679,8 @@ the propagation constant, and :math:`l` is the transmission line
 length.  These can be specified when `GeneralTxLine` is constructed.
 
 The input impedance to the transmission line can be found from the
-`Z11` parameter:
+`Z11` parameter::
+  
    >>> a.Z11
        Z₀   
    ─────────
