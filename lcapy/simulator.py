@@ -189,11 +189,11 @@ class SimulationResults(object):
             name = '%d' % name
 
         if name in cct.nodes:
-            return SimulationResultsNode(self.node_voltage_get(name))
+            return SimulationResultsNode(self._node_voltage_get(name))
         
         if name in cct._elements:
-            return SimulationResultsCpt(self.cpt_voltage_get(name),
-                                        self.cpt_current_get(name))
+            return SimulationResultsCpt(self._cpt_voltage_get(name),
+                                        self._cpt_current_get(name))
 
         raise AttributeError('Unknown element or node name %s' % name)
 
@@ -209,21 +209,21 @@ class SimulationResults(object):
 
         return self.__getitem__(attr)
 
-    def node_voltage_get(self, n):
+    def _node_voltage_get(self, n):
 
         index = self.r_model.mna._node_index(n)
         # NB, node_voltages is zero for index = -1
         return self.node_voltages[index]
         
-    def cpt_voltage_get(self, cptname):
+    def _cpt_voltage_get(self, cptname):
 
         cpt = self.cct.elements[cptname]        
 
-        v1 = self.node_voltage_get(cpt.nodenames[0])
-        v2 = self.node_voltage_get(cpt.nodenames[1])        
+        v1 = self._node_voltage_get(cpt.nodenames[0])
+        v2 = self._node_voltage_get(cpt.nodenames[1])        
         return v1 - v2
 
-    def cpt_current_get(self, cptname):
+    def _cpt_current_get(self, cptname):
 
         try:
             index = self.r_model.mna._branch_index(cptname)
@@ -233,11 +233,11 @@ class SimulationResults(object):
             if cpt.is_capacitor or cpt.is_inductor:
                 # For a capacitor we can find the current through the
                 # companion resistor or voltage source.
-                return self.cpt_current_get('V%seq' % cptname)
+                return self._cpt_current_get('V%seq' % cptname)
 
-            Vd = self.cpt_voltage_get(cptname)            
+            Vd = self._cpt_voltage_get(cptname)            
             if cpt.is_resistor or cpt.is_conductor:
-                return Vd / cpt.R.expr
+                return Vd / float(cpt.R.expr)
                 
             # Need to determine resistance of the cpt
             raise ValueError('FIXME')            
@@ -246,7 +246,7 @@ class SimulationResults(object):
     def V(self, node):
         """Node voltage with respect to ground."""
 
-        return self.node_voltage_get(node)
+        return self._node_voltage_get(node)
 
     
 class Simulator(object):

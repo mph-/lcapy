@@ -19,8 +19,12 @@ class LcapyTester(unittest.TestCase):
 
         results = cct.sim(np.linspace(0, 10))
 
-        self.assertEqual(results.R1.v[0], 0, 'v[0]')
-        self.assertEqual(np.round(results.R1.v[-1], 3), 10, 'v[-1]')
+        self.assertEqual(results.R1.v[0], 0, 'vR[0]')
+        self.assertEqual(np.round(results.R1.v[-1], 3), 10, 'vR[-1]')
+        self.assertEqual(np.round(results.R1.i[-1], 3), 2, 'iR[-1]')
+        self.assertEqual(np.round(results.L1.v[-1], 3), 0, 'vL[0]')        
+        self.assertEqual(np.round(results.L1.i[-1], 3), 2, 'iL[-1]')
+        
         
 
         
