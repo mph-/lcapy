@@ -2175,6 +2175,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             expr = sympify(expr)
 
         old = symbol_map(old)
+        if isinstance(old, Expr):
+            old = old.expr
 
         if isinstance(expr, list):
             # Get lists from solve.  These stymy sympy's subs.
