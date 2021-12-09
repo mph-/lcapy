@@ -318,13 +318,15 @@ class Network(object):
         return symbols
 
     def transform(self, form='cauerI'):
-        """Transform the network into an alternative form.  The transformation
-        is performed using network synthesis of the network's
-        impedance (note, this ignores the sources).  `form` includes:
-        cauerI, cauerII, fosterI, fosterII.
+        """Transform the network impedance into an alternative form.  The
+        transformation is performed using network synthesis of the
+        network's impedance (note, this ignores the sources).  `form`
+        includes: cauerI, cauerII, fosterI, fosterII.
 
         Note some methods generate networks with negative value
-        components."""
+        components.
+
+        """
 
         return self.Z(s).network(form)
 
