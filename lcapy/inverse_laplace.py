@@ -178,8 +178,9 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             bino = 1
             for n in range(1, o + 1):
                 m = o - n
-                r = sym.limit(
-                    sym.diff(expr2, s, m), s, p) / sym.factorial(m)
+                d = sym.diff(expr2, s, m)
+                r = sym.limit(d, s, p)
+                r = r / sym.factorial(m)
                 uresult += r * sym.exp(p * t) * t**(n - 1) / bino
                 bino *= n                
 
