@@ -248,8 +248,6 @@ class InverseZTransformer(UnilateralInverseTransformer):
             else:    
                 omega_0 = sym.simplify(sym.arg(p1_n))         
 
-
-
             if o1 == 1:
                 r1 = expr_1.subs(z, p1) 
                 r2 = expr_2.subs(z, p2) 
@@ -269,8 +267,8 @@ class InverseZTransformer(UnilateralInverseTransformer):
                 # Compute first all derivatives needed
                 all_derivatives_1 = [expr_1]
                 for i in range(1, o1):
-                    all_derivatives_1 += [sym.diff(all_derivatives_1[i - 1], z)] 
-
+                    all_derivatives_1 += [sym.diff(all_derivatives_1[i - 1], z)]
+                    
                 # Loop through the binomial series
                 for i in range(1, o1 + 1):
                     m = o1 - i

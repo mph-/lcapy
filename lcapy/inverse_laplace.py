@@ -125,6 +125,9 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             for n, c in enumerate(C):
                 cresult += c * sym.diff(sym.DiracDelta(t), t, len(C) - n - 1)
 
+        if M == 0:
+            return cresult, 0
+
         expr = M / D
         for factor in expr.as_ordered_factors():
             if factor == sym.oo:
@@ -133,56 +136,72 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         sexpr = Ratfun(expr, s)
         poles = sexpr.poles(damping=kwargs.get('damping', None))
 
-        polesdict = {}
-        for pole in poles:
-            polesdict[pole.expr] = pole.n
-
         uresult = Zero
-
+        syms = []
+        terms = []
+        allpoles = []
+        powers = []
+        i = 1
         for pole in poles:
+            for m in range(pole.n):
+                allpoles.append(pole.expr)
+                powers.append(m)
+                A = sym.Symbol('A_%d' % i)
+                d = (s - pole.expr) ** (m + 1)
+                syms.append(A)
+                terms.append(A / d)
+                i += 1
 
-            p = pole.expr
+        pf = sym.Add(*terms)
+        rhs = (pf * D).cancel()
 
-            # Number of occurrences of the pole.
-            o = polesdict[p]        
+        R = sym.poly(rhs.cancel(), s)
+        L = sym.poly(M.cancel(), s)
 
-            if o == 0:
+        rc = R.all_coeffs()
+        lc = L.all_coeffs()
+        if len(lc) < len(rc):
+            lc = [0] * (len(rc) - len(lc)) + lc
+
+        A, _ = sym.linear_eq_to_matrix(rc, syms)
+
+        # Solve system of equations to find residues A_n.
+        x = A.inv() * sym.Matrix(lc)
+
+        uresult = 0
+        for m, (p, n, A) in enumerate(zip(allpoles, powers, x)):
+
+            # This is zero for the conjugate pole.
+            if x == 0:
                 continue
 
-            if o == 1:
-                pc = pole.conj
-                r = sexpr.residue(p, poles)
+            # Search and remove conjugate pair.
+            conjpair = False
+            if p.is_complex:
+                pc = p.conjugate()
+                Ac = A.conjugate()
+                for m2, p2 in enumerate(allpoles[m + 1:]):
+                    m2 += m + 1
+                    if n == powers[m2] and p2 == pc and x[m2] == Ac:
+                        x[m2] = 0
+                        conjpair = True
+                        break
 
-                if pc != p and pc in polesdict:
-                    # Remove conjugate from poles and process pole with its
-                    # conjugate.  Unfortunately, for symbolic expressions
-                    # we cannot tell if a quadratic has two real poles,
-                    # a repeated real pole, or a complex conjugate pair of poles.
+            if conjpair:
+                # Combine conjugate pairs.
+                p_re = sym.re(p)
+                p_im = sym.im(p)
+                A_re = sym.re(A)
+                A_im = sym.im(A)
+                et = sym.exp(p_re * t)
+                result = 2 * A_re * et * sym.cos(p_im * t)
+                result -= 2 * A_im * et * sym.sin(p_im * t)
+            else:
+                result = A * sym.exp(p * t)
 
-                    polesdict[pc] -= 1
-
-                    p_re = sym.re(p)
-                    p_im = sym.im(p)
-                    r_re = sym.re(r)
-                    r_im = sym.im(r)
-                    et = sym.exp(p_re * t)
-                    uresult += 2 * r_re * et * sym.cos(p_im * t)
-                    uresult -= 2 * r_im * et * sym.sin(p_im * t)
-                else:
-                    uresult += r * sym.exp(p * t)
-                continue
-
-            # Handle repeated poles.
-            expr2 = expr * (s - p) ** o
-            expr2 = expr2.simplify()
-            bino = 1
-            for n in range(1, o + 1):
-                m = o - n
-                d = sym.diff(expr2, s, m)
-                r = sym.limit(d, s, p)
-                r = r / sym.factorial(m)
-                uresult += r * sym.exp(p * t) * t**(n - 1) / bino
-                bino *= n                
+            if n != 0:
+                result *= t ** n / sym.factorial(n)
+            uresult += result
 
         # cresult is a sum of Dirac deltas and its derivatives so is known
         # to be causal.
