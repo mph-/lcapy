@@ -15,7 +15,8 @@ __all__ = ('conjugate', 'sqrt', 'exp', 'log', 'log10', 'sin', 'cos',
            'us', 'unitimpulse', 'unitstep', 'UnitImpulse', 'UnitStep',
            'rect', 'sinc', 'sincn', 'sincu', 'psinc', 'tri', 'trap',
            'Sum', 'dtrect', 'dtsign', 'Piecewise', 'Eq', 'Ne',
-           'Lt', 'Le', 'Gt', 'Ge', 'Derivative', 'Integral', 'Max', 'Min')
+           'Lt', 'Le', 'Gt', 'Ge', 'Derivative', 'Integral', 'Max', 'Min',
+           're', 'im')
 
 from .extrafunctions import UnitImpulse as UnitImpulse1
 from .extrafunctions import UnitStep as UnitStep1
@@ -213,6 +214,10 @@ Sum = Function(sym.Sum)
 Min = Function(sym.Min)
 
 Max = Function(sym.Max)
+
+re = Function(sym.re)
+
+im = Function(sym.im)
 
 ui = unitimpulse = UnitImpulse = Function(UnitImpulse1)
 
