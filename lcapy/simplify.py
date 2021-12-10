@@ -4,7 +4,8 @@ Copyright 2020--2021 Michael Hayes, UCECE
 
 """
 
-from sympy import Add, Mul, DiracDelta, Heaviside, Integral, oo, sin, cos, sqrt, atan2, pi, Symbol, solve, Min, Max
+from sympy import Add, Mul, DiracDelta, Heaviside, Integral, re
+from sympy import oo, sin, cos, sqrt, atan2, pi, Symbol, solve, Min, Max
 from .extrafunctions import UnitStep, UnitImpulse, rect, dtrect
 
 
@@ -303,3 +304,34 @@ def simplify_unit_impulse(expr, var=None):
         return expr.func(var + (b / a).cancel())
     
     return expr.replace(query, value)        
+
+
+def simplify_conjugates(expr):
+
+    factors = expr.as_ordered_factors()
+
+    if len(factors) > 1:
+        sfactors = []
+        for factor in factors:
+            sfactors.append(simplify_conjugates(factor))
+        return Mul(*sfactors)
+
+    terms = expr.as_ordered_terms()
+
+    sterms = []
+    for m, term in enumerate(terms):
+        if term == 0:
+            continue
+        cterm = term.conjugate()
+
+        has_conjugate = False
+        for m1, term1 in enumerate(terms[m + 1:]):
+            if cterm == term1:
+                has_conjugate = True
+                terms[m1 + m + 1] = 0
+                break
+        if has_conjugate:
+            term = 2 * re(term)
+        sterms.append(term)
+
+    return Add(*sterms)

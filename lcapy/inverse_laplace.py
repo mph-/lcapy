@@ -176,7 +176,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
                 continue
 
             # Search and remove conjugate pair.
-            conjpair = False
+            has_conjpair = False
             if p.is_complex:
                 pc = p.conjugate()
                 Ac = A.conjugate()
@@ -184,10 +184,10 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
                     m2 += m + 1
                     if n == powers[m2] and p2 == pc and x[m2] == Ac:
                         x[m2] = 0
-                        conjpair = True
+                        has_conjpair = True
                         break
 
-            if conjpair:
+            if has_conjpair:
                 # Combine conjugate pairs.
                 p_re = sym.re(p)
                 p_im = sym.im(p)

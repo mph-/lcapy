@@ -30,7 +30,8 @@ import numpy as np
 import sympy as sym
 from sympy.utilities.lambdify import lambdify
 from .sym import simplify
-from .simplify import simplify_sin_cos, simplify_heaviside, simplify_dirac_delta, simplify_rect, simplify_unit_impulse
+from .simplify import simplify_sin_cos, simplify_heaviside, simplify_dirac_delta
+from .simplify import simplify_rect, simplify_unit_impulse, simplify_conjugates
 from .config import heaviside_zero, unitstep_zero
 from collections import OrderedDict
 from warnings import warn
@@ -2278,20 +2279,26 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         ret.units = units.simplify_units(self.units)
         return ret
 
-    def simplify_terms(self, **kwargs):
-        """Simplify terms in expression individually."""
+    def simplify_conjugates(self, **kwargs):
+        """Combine complex conjugate terms to make real."""
 
-        result = 0
-        for term in self.expr.as_ordered_terms():
-            result += symsimplify(term, **kwargs)
+        result = simplify_conjugates(self.expr)
         return self.__class__(result, **self.assumptions)
-
+    
     def simplify_factors(self, **kwargs):
         """Simplify factors in expression individually."""
 
         result = 0
         for factor in self.expr.as_ordered_factors():
             result *= symsimplify(factor, **kwargs)
+        return self.__class__(result, **self.assumptions)
+
+    def simplify_terms(self, **kwargs):
+        """Simplify terms in expression individually."""
+
+        result = 0
+        for term in self.expr.as_ordered_terms():
+            result += symsimplify(term, **kwargs)
         return self.__class__(result, **self.assumptions)
 
     def simplify_sin_cos(self, as_cos=False, as_sin=False):
