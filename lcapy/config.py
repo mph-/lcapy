@@ -40,9 +40,12 @@ subscripts = ('in', 'out', 'ref', 'rms', 'load', 'source', 'avg',
               'cc', 'ee', 'dd', 'ss', 'ih', 'il', 'oh', 'ol',
               'typ', 'pkg', 'comp', 'step')
 
-words = ('alpha', 'beta', 'gamma', 'delta', 'eta', 'zeta', 'theta',
-         'iota', 'kappa', 'mu', 'nu', 'omicron', 'pi', 'rho', 'sigma', 'tau',
-         'upsilon', 'omega')
+greek_letter_names = ('alpha', 'beta', 'gamma', 'delta', 'eta', 'zeta',
+                      'theta', 'iota', 'kappa', 'lambda', 'mu', 'nu',
+                      'omicron', 'pi', 'rho', 'sigma', 'tau',
+                      'upsilon', 'chi', 'psi', 'omega')
+
+words = greek_letter_names
 
 # Can be 'GE', 'LU', 'ADJ', 'LDL', 'CH', 'DM-GE', 'DM-LU', 'DM-charpoly'
 # Note, the DM methods require the git version of sympy otherwise

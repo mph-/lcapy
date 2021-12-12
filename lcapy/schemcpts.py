@@ -810,7 +810,7 @@ class Cpt(object):
         if label_ids is True:
             label_str = self.id_label
         if label_values and self.value_label != '':
-            label_str = self.value_label        
+            label_str = latex_format_label(self.value_label)
 
         has_label = False
         for key, val in self.opts.items():

@@ -1,5 +1,6 @@
 from lcapy import *
 from lcapy.discretetime import *
+from lcapy.latex import latex_format_label
 import unittest
 
 
@@ -26,5 +27,10 @@ class LcapyTesterLatex(unittest.TestCase):
 
     def test_latex_greek(self):
 
-        self.assertEqual(expr('alpha').latex(), '\\alpha', 'alpha')        
+        self.assertEqual(expr('alpha').latex(), '\\alpha', 'alpha')
+
+        self.assertEqual(latex_format_label('alpha'), '$\\alpha$', 'alpha')
+        self.assertEqual(latex_format_label(r'\alpha'), '$\\alpha$', r'\alpha')
+        self.assertEqual(latex_format_label(r'\frac'), '$\\frac$', r'\frac')
+        
 
