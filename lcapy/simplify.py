@@ -4,7 +4,7 @@ Copyright 2020--2021 Michael Hayes, UCECE
 
 """
 
-from sympy import Add, Mul, DiracDelta, Heaviside, Integral, re
+from sympy import Add, Mul, DiracDelta, Heaviside, Integral, re, im
 from sympy import oo, sin, cos, sqrt, atan2, pi, Symbol, solve, Min, Max
 from .extrafunctions import UnitStep, UnitImpulse, rect, dtrect
 
@@ -316,7 +316,7 @@ def simplify_conjugates(expr):
             sfactors.append(simplify_conjugates(factor))
         return Mul(*sfactors)
 
-    terms = expr.as_ordered_terms()
+    terms = expr.expand().as_ordered_terms()
 
     sterms = []
     for m, term in enumerate(terms):
@@ -324,14 +324,16 @@ def simplify_conjugates(expr):
             continue
         cterm = term.conjugate()
 
-        has_conjugate = False
         for m1, term1 in enumerate(terms[m + 1:]):
             if cterm == term1:
-                has_conjugate = True
                 terms[m1 + m + 1] = 0
+                term = 2 * re(term)                
                 break
-        if has_conjugate:
-            term = 2 * re(term)
+            elif cterm == -term1:
+                terms[m1 + m + 1] = 0
+                term = 2 * im(term)                
+                break            
+
         sterms.append(term)
 
     return Add(*sterms)
