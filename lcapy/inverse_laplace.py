@@ -104,6 +104,9 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
 
     def ratfun(self, expr, s, t, **kwargs):
 
+        if kwargs.get('debug', False):
+            import pdb; pdb.set_trace()
+        
         sexpr = Ratfun(expr, s)
 
         if kwargs.get('damped_sin', False):
@@ -136,12 +139,19 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         sexpr = Ratfun(expr, s)
         poles = sexpr.poles(damping=kwargs.get('damping', None))
 
+        if len(poles) == 1 and poles[0].n == 1:
+            # CHECKME for more general case
+            p = poles[0].expr
+            uresult = M * sym.exp(p * t)            
+            return cresult, uresult
+        
         uresult = Zero
         syms = []
-        terms = []
         allpoles = []
         powers = []
+        denoms = []
         i = 1
+        D_factored = One
         for pole in poles:
             for m in range(pole.n):
                 allpoles.append(pole.expr)
@@ -149,14 +159,17 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
                 A = sym.Symbol('A_%d' % i)
                 d = (s - pole.expr) ** (m + 1)
                 syms.append(A)
-                terms.append(A / d)
+                denoms.append(d)
                 i += 1
+            D_factored *= (s - pole.expr) ** pole.n
+                
+        rhs = Zero
+        for denom, residue in zip(denoms, syms):
+            # Could be more cunning to avoid using cancel
+            rhs += residue * (D_factored / denom).cancel()
 
-        pf = sym.Add(*terms)
-        rhs = (pf * D).cancel()
-
-        R = sym.poly(rhs.cancel(), s)
-        L = sym.poly(M.cancel(), s)
+        R = sym.poly(rhs, s)
+        L = sym.poly((expr * D_factored).cancel(), s)
 
         rc = R.all_coeffs()
         lc = L.all_coeffs()
@@ -172,12 +185,12 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         for m, (p, n, A) in enumerate(zip(allpoles, powers, x)):
 
             # This is zero for the conjugate pole.
-            if x == 0:
+            if x[m] == 0:
                 continue
 
             # Search and remove conjugate pair.
             has_conjpair = False
-            if p.is_complex:
+            if p.is_complex and kwargs.get('pairs', True):
                 pc = p.conjugate()
                 Ac = A.conjugate()
                 for m2, p2 in enumerate(allpoles[m + 1:]):
@@ -189,6 +202,8 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
 
             if has_conjpair:
                 # Combine conjugate pairs.
+                p = p.expand(complex=True)
+                A = A.expand(complex=True)                
                 p_re = sym.re(p)
                 p_im = sym.im(p)
                 A_re = sym.re(A)
