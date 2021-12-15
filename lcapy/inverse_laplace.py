@@ -9,6 +9,7 @@ from .transformer import UnilateralInverseTransformer
 from .ratfun import Ratfun
 from .sym import simplify, AppliedUndef
 from .utils import factor_const, scale_shift, as_sum_terms
+from .matrix import matrix_inverse
 from warnings import warn
 import sympy as sym
 
@@ -179,7 +180,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         A, _ = sym.linear_eq_to_matrix(rc, syms)
 
         # Solve system of equations to find residues A_n.
-        x = A.inv() * sym.Matrix(lc)
+        x = matrix_inverse(A) * sym.Matrix(lc)
 
         uresult = 0
         for m, (p, n, A) in enumerate(zip(allpoles, powers, x)):
