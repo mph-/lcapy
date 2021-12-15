@@ -2078,10 +2078,18 @@ class TwoPortAModel(TwoPort):
 
     @property
     def I2b(self):
+        # Avoid matrix inverse calculating Bparams
+        if self.V1a == 0 and self.I1a == 0:
+            return self.I1a
+        
         return -LaplaceDomainCurrent(self.B21 * self.V1a) - self.B22 * self.I1a
 
     @property
     def V2b(self):
+        # Avoid matrix inverse calculating Bparams
+        if self.V1a == 0 and self.I1a == 0:
+            return self.V1a
+        
         return -self.B11 * self.V1a - LaplaceDomainVoltage(self.B12 * self.I1a)
 
 
@@ -2499,6 +2507,8 @@ class Chain(TwoPortBModel):
 
         self._check_twoport_args(args)
 
+        # FIXME for non-invertible Aparams.
+        
         arg1 = args[-1]
         B = arg1.Bparams
 
