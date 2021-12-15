@@ -997,10 +997,8 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
             ret = a(*newargs, **newkwargs)
             
             if not isinstance(ret, sym.Expr):
-                # May have tuple, etc.   These could be wrapped but
-                # it appears that this leads to more grief when working
-                # with SymPy.
-                return ret
+                # Wrap list, tuple, etc.
+                return expr(ret)
             
             # Wrap the return value
             cls = self.__class__
@@ -1574,7 +1572,15 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
     @property
     def real(self):
-        """Return real part."""
+        """Return real part.
+
+        Note, SymPy does not always extract the real part.  One example is:
+        `exp(t*(-1 - sqrt(5)*j))/(20*sqrt(5) - 20*j)`
+
+        A work-around is to use `rationalize_denominator()` or
+        `expand(complex=True)` first.
+
+        """
 
         assumptions = self.assumptions.copy()
         assumptions['real'] = True        
@@ -1590,12 +1596,19 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
     @property
     def re(self):
-        """Return real part."""
+        """Return real part, see `real`"""
         return self.real    
 
     @property
     def imag(self):
-        """Return imaginary part."""
+        """Return imaginary part.
+
+        Note, SymPy does not always extract the real part.  One example is:
+        `exp(t*(-1 - sqrt(5)*j))/(20*sqrt(5) - 20*j)`
+
+        A work-around is to use `rationalize_denominator()` or
+        `expand(complex=True)` first.
+        """
 
         assumptions = self.assumptions.copy()
         if self.is_real:
@@ -1616,7 +1629,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
     @property
     def im(self):
-        """Return imaginary part."""
+        """Return imaginary part, see `im`"""
         return self.imag
 
     @property
@@ -2485,10 +2498,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     @property
     def symbols(self):
         """Return dictionary of symbols in the expression keyed by name."""
-        symdict = {sym.name:sym for sym in self.free_symbols}
+
+        expr = self.sympy
+        symdict = {sym.name:sym for sym in expr.free_symbols}
 
         # Look for V(s), etc.
-        funcdict = {atom.func.__name__:atom for atom in self.atoms(AppliedUndef)}        
+        funcdict = {atom.func.__name__:atom for atom in expr.atoms(AppliedUndef)}        
 
         symdict.update(funcdict)
         return symdict
