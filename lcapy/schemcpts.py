@@ -787,6 +787,13 @@ class Cpt(object):
 
         kwargs = kwargs.copy()
         for key, val in self.opts.items():
+            if key == 'anchor':
+                anchor_map = {'n':'north', 'e':'east', 's':'south', 'w':'west',
+                              'ne':'north east', 'nw':'north west',
+                              'se':'south east', 'sw':'south west'}
+                if val in anchor_map:
+                    val = anchor_map[val]
+            
             # Override with element opts
             kwargs[key] = val
         
