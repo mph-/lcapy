@@ -15,7 +15,7 @@ class Transformer(object):
     name = 'undefined'
     is_inverse = False
     is_bilateral = False
-    
+
     def __init__(self):
 
         self.cache = {}
@@ -23,24 +23,29 @@ class Transformer(object):
 
     def clear_cache(self):
 
-        self.cache = {}        
+        self.cache = {}
 
     def error(self, message=''):
         if message == '':
             raise ValueError('Could not compute %s for %s' % (self.name, self.expr))
-        raise ValueError('Could not compute %s for %s: %s' % (self.name, self.expr, message))        
-    
+        raise ValueError('Could not compute %s for %s: %s' % (self.name, self.expr, message))
+
+    def debug(self, message=''):
+        if self._debug:
+            print(self.name.capitalize() + ': ' + message)
+
     def simplify_term(self, expr, var):
         return expr
 
     def rewrite(self, expr, var):
-        return expr    
+        return expr
 
     def transform(self, expr, var, conjvar, evaluate=True, **kwargs):
 
         # Squirrel away original expression for error messages
         self.expr = expr
-        
+        self._debug = kwargs.pop('debug', False)
+
         if expr.is_Equality:
             return Eq(self.transform(expr.args[0], var, conjvar, evaluate, **kwargs),
                       self.transform(expr.args[1], var, conjvar, evaluate, **kwargs))
@@ -54,15 +59,15 @@ class Transformer(object):
         try:
             conjvar = conjvar.expr
         except:
-            pass        
+            pass
 
         # The variable may have been created with different attributes,
         # say when using sym.sympify('DiracDelta(t)') since this will
         # default to assuming that t is complex.  So if the symbol has the
-        # same representation, convert to the desired one.        
+        # same representation, convert to the desired one.
         svar = Symbol(str(var))
         expr = expr.replace(svar, var)
-        
+
         self.check(expr, var, conjvar, **kwargs)
 
         return self.doit(expr, var, conjvar, evaluate, **kwargs)
@@ -78,12 +83,12 @@ class Transformer(object):
             if level == 0:
                 nu = symsymbol(dummy, **kwargs)
             else:
-                nu = symsymbol(dummy + '_%d' % level, **kwargs)                
+                nu = symsymbol(dummy + '_%d' % level, **kwargs)
             if not expr.has(nu):
                 return nu
         raise self.error('Dummy variable conflict with symbols: %s' % ', '.join(dummies))
-    
-    
+
+
 class BilateralForwardTransformer(Transformer):
 
     is_bilateral = True
@@ -97,7 +102,7 @@ class BilateralForwardTransformer(Transformer):
         if key in self.cache:
             return const * self.cache[key]
 
-        expr = self.rewrite(expr, var)        
+        expr = self.rewrite(expr, var)
 
         terms = expr.as_ordered_terms()
         result = 0
@@ -109,7 +114,7 @@ class BilateralForwardTransformer(Transformer):
         self.cache[key] = result
         return const * result
 
-    
+
 class BilateralInverseTransformer(BilateralForwardTransformer):
 
     is_inverse = True
@@ -129,18 +134,18 @@ class UnilateralForwardTransformer(Transformer):
                 pass
             else:
                 rest *= factor
-        return rest        
+        return rest
 
     def simplify_term(self, expr, var):
 
         return self.remove_heaviside(expr, var)
-    
+
     def doit(self, expr, var, conjvar, evaluate=True, **kwargs):
-        
+
         # Unilateral transforms ignore expr for t < 0 so remove Piecewise.
         if expr.is_Piecewise and expr.args[0].args[1].has(var >= 0):
             expr = expr.args[0].args[0]
-        
+
         if not evaluate:
             return self.noevaluate(expr, var, conjvar)
 
@@ -171,27 +176,27 @@ class UnilateralInverseTransformer(Transformer):
     def make(self, var, const, cresult, uresult, **kwargs):
 
         result = const * (cresult + uresult)
-    
+
         if kwargs.get('dc', False):
             free_symbols = set([symbol.name for symbol in result.free_symbols])
             if str(var) in free_symbols:
                 self.error('Weirdness, expecting dc.')
-    
+
         elif kwargs.get('ac', False):
 
             if cresult != 0:
                 self.error('Weirdness, expecting ac.')
             # TODO, perform more checking of the result.
-        
+
         elif not kwargs.get('causal', False):
 
             # Cannot determine result for var < 0
             result = Piecewise((result, var >= 0))
-            
+
         return result
-        
+
     def doit(self, expr, var, conjvar, evaluate=True, **kwargs):
-        
+
         if not evaluate:
             return self.noevaluate(expr, var, conjvar)
 
@@ -212,7 +217,7 @@ class UnilateralInverseTransformer(Transformer):
             sterm = self.simplify_term(term, var)
             cterm, uterm = self.term(sterm, var, conjvar, **kwargs)
             cresult += cterm
-            uresult += uterm                        
+            uresult += uterm
 
         self.cache[key] = cresult, uresult
         return self.make(conjvar, const, *self.cache[key], **kwargs)
