@@ -34,7 +34,7 @@ from warnings import warn
 
 __all__ = ('V', 'I', 'v', 'i', 'R', 'NR', 'L', 'C', 'G', 'Y', 'Z',
            'Vdc', 'Vstep', 'Idc', 'Istep', 'Vac', 'sV', 'sI',
-           'Iac', 'Vnoise', 'Inoise', 
+           'Iac', 'Vnoise', 'Inoise',
            'Par', 'Ser', 'Xtal', 'FerriteBead', 'CPE', 'series', 'parallel',
            'ladder')
 
@@ -83,9 +83,9 @@ class OnePort(Network, ImmittanceMixin):
             return self._Z
         if self._Y is not None:
             return 1 / self._Y
-        if self._Voc is not None:        
+        if self._Voc is not None:
             return impedance(0)
-        if self._Isc is not None:        
+        if self._Isc is not None:
             return 1 / admittance(0)
         raise ValueError('_Isc, _Voc, _Y, or _Z undefined for %s' % self)
 
@@ -97,7 +97,7 @@ class OnePort(Network, ImmittanceMixin):
 
     @property
     def Voc(self):
-        """Open-circuit voltage."""        
+        """Open-circuit voltage."""
         if self._Voc is not None:
             return self._Voc
         if self._Isc is not None:
@@ -105,10 +105,10 @@ class OnePort(Network, ImmittanceMixin):
         if self._Z is not None or self._Y is not None:
             return SuperpositionVoltage(0)
         raise ValueError('_Isc, _Voc, _Y, or _Z undefined for %s' % self)
-    
+
     @property
     def Isc(self):
-        """Short-circuit current."""        
+        """Short-circuit current."""
         if self._Isc is not None:
             return self._Isc
         return self.Voc._mul(self.admittance)
@@ -143,10 +143,10 @@ class OnePort(Network, ImmittanceMixin):
     def has_series_I(self):
         return self.is_current_source
 
-    @property    
+    @property
     def has_parallel_V(self):
         return self.is_voltage_source
-    
+
     def series(self, OP):
         """Series combination"""
 
@@ -191,7 +191,7 @@ class OnePort(Network, ImmittanceMixin):
             raise TypeError('Load argument not ', OnePort)
 
         return LoadCircuit(self, OP2)
-    
+
     @property
     def voc(self):
         """Open-circuit time-domain voltage."""
@@ -199,7 +199,7 @@ class OnePort(Network, ImmittanceMixin):
 
     @property
     def isc(self):
-        """Short-circuit time-domain current."""        
+        """Short-circuit time-domain current."""
         return self.Isc.time()
 
     @property
@@ -214,7 +214,7 @@ class OnePort(Network, ImmittanceMixin):
 
     @property
     def y(self):
-        """Admittance impulse-response."""        
+        """Admittance impulse-response."""
         return self.admittance.time()
 
     def thevenin(self):
@@ -239,7 +239,7 @@ class OnePort(Network, ImmittanceMixin):
             Z1 = Z
 
         V1 = V1.cpt()
-        Z1 = Z1.cpt()        
+        Z1 = Z1.cpt()
 
         if Voc == 0:
             return Z1
@@ -254,7 +254,7 @@ class OnePort(Network, ImmittanceMixin):
         new = self.simplify()
         Isc = new.Isc
         Y = new.admittance
-        
+
         if Isc.is_superposition and not Y.is_real:
             warn('Detected superposition with reactive impedance, using s-domain.')
             Y1 = Y
@@ -270,8 +270,8 @@ class OnePort(Network, ImmittanceMixin):
             Y1 = Y
 
         I1 = I1.cpt()
-        Y1 = Y1.cpt()        
-            
+        Y1 = Y1.cpt()
+
         if Isc == 0:
             return Y1
         if Y == 0:
@@ -299,7 +299,7 @@ class OnePort(Network, ImmittanceMixin):
         elif self._Z is not None:
             return Z(self._Z)
         elif self._Y is not None:
-            return Y(self._Y)        
+            return Y(self._Y)
         raise RuntimeError('Internal error')
 
     def noise_model(self):
@@ -309,7 +309,7 @@ class OnePort(Network, ImmittanceMixin):
 
         if not isinstance(self, (R, G, Y, Z)):
             return self
-        
+
         R1 = self.R
         if R1 != 0:
             Vn = Vnoise('sqrt(4 * k_B * T * %s)' % R1(j * omega))
@@ -317,14 +317,32 @@ class OnePort(Network, ImmittanceMixin):
         return self
 
         def i_equation(self, v, kind='t'):
-            
+
             raise NotImplementedError('i_equation not defined')
 
         def v_equation(self, i, kind='t'):
-            
-            raise NotImplementedError('v_equation not defined')        
-        
-    
+
+            raise NotImplementedError('v_equation not defined')
+
+    def _Zkind(self, kind):
+
+        # This is for determining impedances
+        if not isinstance(kind, str):
+            # AC
+            domain = kind
+        elif kind in ('super', 'time', 't'):
+            domain = 't'
+        elif kind in ('laplace', 'ivp', 's'):
+            domain = 's'
+        elif kind == 'dc':
+            domain = 0
+        elif kind.startswith('n'):
+            domain = 'f'
+        else:
+            raise RuntimeError('Unhandled circuit kind ' + kind)
+        return self.Z(domain)
+
+
 class ParSer(OnePort):
     """Parallel/serial class"""
 
@@ -574,7 +592,7 @@ class Par(ParSer):
 
         if len(args) < 2:
             raise ValueError('Par requires at least two args')
-        
+
         _check_oneport_args(args)
         super(Par, self).__init__()
         self.args = args
@@ -617,7 +635,7 @@ class Par(ParSer):
         n3, n4 =  netlist._node, netlist._node
 
         H = [(arg.height + self.hsep) * 0.5 for arg in self.args]
-        
+
         N = len(H)
         num_branches = N // 2
 
@@ -670,9 +688,9 @@ class Par(ParSer):
         s.append('W %s %s; %s=%s' % (n4, n2, dir, self.wsep))
         return '\n'.join(s)
 
-    @property    
+    @property
     def has_parallel_V(self):
-        
+
         for cpt1 in self.args:
             if cpt1.has_parallel_V:
                 return True
@@ -693,13 +711,13 @@ class Ser(ParSer):
     """Series class"""
 
     _operator = '+'
-    is_series = True    
+    is_series = True
 
     def __init__(self, *args):
 
         if len(args) < 2:
             raise ValueError('Ser requires at least two args')
-        
+
         _check_oneport_args(args)
         super(Ser, self).__init__()
         self.args = args
@@ -713,7 +731,7 @@ class Ser(ParSer):
                     print('Warn: redundant component %s in series with current source %s' % (arg2, arg1))
 
                 elif isinstance(arg2, I):
-                    print('Warn: redundant component %s in series with current source %s' % (arg1, arg2))                    
+                    print('Warn: redundant component %s in series with current source %s' % (arg1, arg2))
 
     @property
     def height(self):
@@ -749,17 +767,17 @@ class Ser(ParSer):
         s.append(self.args[-1]._net_make(netlist, n1, n2, dir))
         return '\n'.join(s)
 
-    @property    
+    @property
     def has_series_I(self):
         for cpt1 in self.args:
-            if cpt1.has_series_I:            
+            if cpt1.has_series_I:
                 return True
         return False
-    
+
     @property
     def admittance(self):
         return 1 / self.impedance
-    
+
     @property
     def impedance(self):
         Z = 0
@@ -767,13 +785,13 @@ class Ser(ParSer):
             Z += arg.impedance
         return Z
 
-    
+
 class R(OnePort):
     """Resistor"""
 
     is_resistor = True
     is_noiseless = False
-    
+
     def __init__(self, Rval='R', **kwargs):
 
         self.kwargs = kwargs
@@ -800,7 +818,7 @@ class G(OnePort):
     """Conductor"""
 
     is_conductor = True
-    is_noiseless = False    
+    is_noiseless = False
 
     def __init__(self, Gval='G', **kwargs):
 
@@ -815,7 +833,7 @@ class G(OnePort):
             n1 = netlist._node
         if n2 == None:
             n2 = netlist._node
-        opts_str = self._opts_str(dir)            
+        opts_str = self._opts_str(dir)
         return 'R? %s %s {%s}; %s' % (n1, n2, 1 / self._G, opts_str)
 
     def i_equation(self, v, kind='t'):
@@ -825,14 +843,14 @@ class G(OnePort):
     def v_equation(self, i, kind='t'):
 
         return SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Z).select(kind)
-    
+
 
 class NG(G):
     """Noiseless conductor"""
 
     is_noiseless = True
-    
-    
+
+
 class L(OnePort):
     """Inductor
 
@@ -858,7 +876,7 @@ class L(OnePort):
         self.i0 = i0
         self._Z = impedance(s * Lval, causal=True)
         self._Voc = SuperpositionVoltage(LaplaceDomainExpression(-i0 * Lval))
-        self.zeroic = self.i0 == 0 
+        self.zeroic = self.i0 == 0
 
     def i_equation(self, v, kind='t'):
 
@@ -868,21 +886,21 @@ class L(OnePort):
             u = tausym
             v = expr(v).subs(t, u)
             return SuperpositionCurrent(expr(Integral(v.expr, (u, -oo, tsym))) / self.L).select(kind)
-        return SuperpositionCurrent(SuperpositionVoltage(v).select(kind) / self.Z(kind)).select(kind)
+        return SuperpositionCurrent(SuperpositionVoltage(v).select(kind) / self._Zkind(kind)).select(kind)
 
     def v_equation(self, i, kind='t'):
 
         if kind in ('t', 'time', 'super'):
             return SuperpositionVoltage(self.L * expr(Derivative(i.expr, t))).select(kind)
-        return SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Z(kind)).select(kind)
+        return SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Zkind(kind)).select(kind)
 
-    
+
 class C(OnePort):
     """Capacitor
 
     Capacitance Cval, initial voltage v0"""
 
-    is_capacitor = True    
+    is_capacitor = True
 
     def __init__(self, Cval='C', v0=None, **kwargs):
 
@@ -905,10 +923,10 @@ class C(OnePort):
         self.zeroic = self.v0 == 0
 
     def i_equation(self, v, kind='t'):
-        
+
         if kind in ('t', 'time', 'super'):
             return SuperpositionCurrent(self.C * expr(Derivative(v.expr, t))).select(kind)
-        return SuperpositionCurrent(SuperpositionVoltage(v).select(kind) / self._Z(kind)).select(kind)
+        return SuperpositionCurrent(SuperpositionVoltage(v).select(kind) / self._Zkind(kind)).select(kind)
 
     def v_equation(self, i, kind='t'):
 
@@ -918,7 +936,7 @@ class C(OnePort):
             u = tausym
             i = expr(i).subs(t, u)
             return SuperpositionVoltage(expr(Integral(i.expr, (u, -oo, tsym))) / self.C).select(kind)
-        return SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Z(kind)).select(kind)
+        return SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Zkind(kind)).select(kind)
 
 
 class CPE(OnePort):
@@ -977,9 +995,9 @@ class VoltageSourceBase(OnePort):
     is_noisy = False
 
     def v_equation(self, i, kind='t'):
-        
+
         return SuperpositionVoltage(self.voc).select(kind)
-    
+
 
 class sV(VoltageSourceBase):
     """Arbitrary s-domain voltage source"""
@@ -1003,7 +1021,7 @@ class V(VoltageSourceBase):
         self.args = (Vval, )
         self._Voc = SuperpositionVoltage(Vval)
 
-        
+
 class Vstep(VoltageSourceBase):
     """Step voltage source (s domain voltage of v / s)."""
 
@@ -1023,7 +1041,7 @@ class Vdc(VoltageSourceBase):
     an s domain voltage of V / s)."""
 
     netkeyword = 'dc'
-    
+
     def __init__(self, v, **kwargs):
 
         self.kwargs = kwargs
@@ -1050,13 +1068,13 @@ class Vac(VoltageSourceBase):
         elif phi is not None and omega is None:
             self.args = (V, phi)
         elif phi is None and omega is not None:
-            self.args = (V, 0, omega)            
+            self.args = (V, 0, omega)
         else:
-            self.args = (V, phi, omega)            
+            self.args = (V, phi, omega)
 
         if phi is None:
             phi = 0
-            
+
         if omega is None:
             omega = omega0sym
         omega = expr(omega)
@@ -1090,7 +1108,7 @@ class Vnoise(VoltageSourceBase):
         self.args = (V, V1.nid)
         self._Voc = SuperpositionVoltage(V1)
 
-        
+
 class v(VoltageSourceBase):
     """Arbitrary t-domain voltage source"""
 
@@ -1106,7 +1124,7 @@ class CurrentSourceBase(OnePort):
 
     is_current_source = True
     netname = 'I'
-    is_noisy = False    
+    is_noisy = False
 
     @property
     def I(self):
@@ -1116,9 +1134,9 @@ class CurrentSourceBase(OnePort):
 
     def i_equation(self, v, kind='t'):
 
-        return SuperpositionCurrent(self.isc).select(kind)        
-    
-    
+        return SuperpositionCurrent(self.isc).select(kind)
+
+
 class sI(CurrentSourceBase):
     """Arbitrary s-domain current source"""
 
@@ -1141,7 +1159,7 @@ class I(CurrentSourceBase):
         self.args = (Ival, )
         self._Isc = SuperpositionCurrent(Ival)
 
-            
+
 class Istep(CurrentSourceBase):
     """Step current source (s domain current of i / s)."""
 
@@ -1161,7 +1179,7 @@ class Idc(CurrentSourceBase):
     an s domain current of i / s)."""
 
     netkeyword = 'dc'
-    
+
     def __init__(self, i, **kwargs):
 
         self.kwargs = kwargs
@@ -1188,13 +1206,13 @@ class Iac(CurrentSourceBase):
         elif phi is not None and omega is None:
             self.args = (I, phi)
         elif phi is None and omega is not None:
-            self.args = (I, 0, omega)            
+            self.args = (I, 0, omega)
         else:
-            self.args = (I, phi, omega)            
+            self.args = (I, phi, omega)
 
         if phi is None:
             phi = 0
-            
+
         if omega is None:
             omega = omega0sym
         omega = cexpr(omega)
@@ -1226,7 +1244,7 @@ class Inoise(CurrentSourceBase):
         self._Isc = SuperpositionCurrent(I1)
         self.args = (I, I1.nid)
 
-        
+
 class i(CurrentSourceBase):
     """Arbitrary t-domain current source"""
 
@@ -1265,7 +1283,7 @@ class Xtal(OnePort):
 
         # TODO: draw this with a symbol
         net = self.expand()
-        return net._net_make(netlist, n1, n2, dir)    
+        return net._net_make(netlist, n1, n2, dir)
 
 
 class FerriteBead(OnePort):
@@ -1294,9 +1312,9 @@ class FerriteBead(OnePort):
 
         # TODO: draw this with a symbol
         net = self.expand()
-        return net._net_make(netlist, n1, n2, dir)            
+        return net._net_make(netlist, n1, n2, dir)
 
-    
+
 class LoadCircuit(Network):
     """Circuit comprised of a load oneport connected in parallel with a
     source oneport."""
@@ -1346,31 +1364,31 @@ class CCVS(ControlledSource):
     def __init__(self, control, value, **kwargs):
 
         self.kwargs = kwargs
-        self.args = (control, value)        
+        self.args = (control, value)
         self._Voc = SuperpositionVoltage(0)
         self._Z = impedance(0)
 
-        
+
 class CCCS(ControlledSource):
 
     def __init__(self, control, value, **kwargs):
 
         self.kwargs = kwargs
-        self.args = (control, value)        
+        self.args = (control, value)
         self._Isc = SuperpositionCurrent(0)
-        self._Y = admittance(0)     
+        self._Y = admittance(0)
 
-        
+
 class VCVS(ControlledSource):
 
     def __init__(self, value, **kwargs):
 
         self.kwargs = kwargs
-        self.args = (value, )        
+        self.args = (value, )
         self._Voc = SuperpositionVoltage(0)
         self._Z = impedance(0)
 
-        
+
 class VCCS(ControlledSource):
 
     def __init__(self, value, **kwargs):
@@ -1378,8 +1396,8 @@ class VCCS(ControlledSource):
         self.kwargs = kwargs
         self.args = (value, )
         self._Isc = SuperpositionCurrent(0)
-        self._Y = admittance(0)     
-        
+        self._Y = admittance(0)
+
 
 class Dummy(OnePort):
 
@@ -1408,7 +1426,7 @@ class W(Dummy):
         self.args = ()
         self._Z = impedance(0)
 
-        
+
 class O(Dummy):
     """Open circuit"""
 
@@ -1418,7 +1436,7 @@ class O(Dummy):
         self.args = ()
         self._Y = admittance(0)
 
-        
+
 class P(O):
     """Port (open circuit)"""
     pass
@@ -1461,7 +1479,7 @@ def series(*args):
 def parallel(*args):
     """Create a parallel combination of a number of components.
     Args that are None are ignored.  If there is only one
-    non-None component, return that component."""    
+    non-None component, return that component."""
 
     args = [net for net in args if net is not None]
     if args == []:
@@ -1481,7 +1499,7 @@ def ladder(*args, **kwargs):
     """
 
     start_series = kwargs.pop('start_series', True)
-    
+
     if len(args) == 0:
         return None
     elif len(args) == 1:
@@ -1491,7 +1509,7 @@ def ladder(*args, **kwargs):
     else:
         return parallel(args[0], ladder(*args[1:], start_series = not start_series))
 
-    
+
 # Imports at end to circumvent circular dependencies
 from .expr import Expr, expr
 from .cexpr import cexpr
@@ -1502,4 +1520,3 @@ from .noiseomegaexpr import AngularFourierNoiseDomainCurrent, AngularFourierNois
 from .superpositionvoltage import SuperpositionVoltage
 from .superpositioncurrent import SuperpositionCurrent
 from .twoport import Ladder, LSection, TSection
-

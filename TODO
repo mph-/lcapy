@@ -111,6 +111,9 @@ an answer that appears valid for DC.
 
 26. Add sifting theorem to simplify_dirac_delta
 
+27. Fix simplify_sin_cos for multiple cos and sin
+
+28. Expand cosh, sinh, for inverse Laplace
 
 Testing
 =======
@@ -195,7 +198,7 @@ Discrete-time
 
 2. Symbol for z^-1, say invz or iz?  Would need special casing to handle invz * z etc.  Better to not allow mixed expressions with z and invz.  Would need special handling to have invz correctly printed.
 
-3. Unit lag operator L() ? 
+3. Unit lag operator L() ?
 
 4. Difference operator D() for first-order differences?
 
