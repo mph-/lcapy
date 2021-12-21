@@ -40,7 +40,7 @@ class NetlistMixin(object):
         self.nodes = AttrDict()
         if context is None:
             context = state.new_context()
-        
+
         self.context = context
         self.allow_anon = allow_anon
         self._init_parser(mnacpts, allow_anon=allow_anon)
@@ -67,7 +67,7 @@ class NetlistMixin(object):
 
         if name in self.namespaces:
             return self.namespaces[name]
-        
+
         raise AttributeError('Unknown element or node name %s' % name)
 
     def __getattr__(self, attr):
@@ -81,22 +81,22 @@ class NetlistMixin(object):
         return self.__getitem__(attr)
 
     def __repr__(self):
-        
+
         return self.netlist()
 
     def pdb(self):
         """Enter the python debugger."""
-        
+
         import pdb; pdb.set_trace()
         return self
 
     @property
     def cpts(self):
         """Return list of component names."""
-        
+
         # Perhaps should prune wires, open-circuits, etc. ?
         return list(self._elements.keys())
-    
+
     @property
     def params(self):
         """Return list of symbols used as arguments in the circuit."""
@@ -108,11 +108,11 @@ class NetlistMixin(object):
                 if arg in symbols and arg not in params:
                     params.append(arg)
         return params
-    
+
     @property
     def symbols(self):
         """Return dictionary of symbols defined in the circuit."""
-        
+
         return self.context.symbols
 
     @property
@@ -123,7 +123,7 @@ class NetlistMixin(object):
         symbols = self.symbols
         symbols.update(state.global_context.symbols)
         return symbols
-    
+
     @property
     def elements(self):
 
@@ -142,7 +142,7 @@ class NetlistMixin(object):
         """Return True if cpt in elements."""
 
         return cpt in self.elements
-    
+
     @property
     def is_connected(self):
         """Return True if all components are connected."""
@@ -191,7 +191,7 @@ class NetlistMixin(object):
                 namespaces[part] = NetlistNamespace(namespace, self)
                 namespace += '.'
                 namespaces = namespaces[part].namespaces
-            
+
     def copy(self):
         """Create a copy of the netlist"""
 
@@ -199,13 +199,13 @@ class NetlistMixin(object):
 
         for cpt in self._elements.values():
             new._add(cpt._copy())
-        return new        
+        return new
 
     def _new(self):
 
         from .circuit import Circuit
         from .netlist import Netlist
-        
+
         # TODO.  Copy or share?
         context = self.context
         if self.__class__ == Circuit:
@@ -261,7 +261,7 @@ class NetlistMixin(object):
                 enodes.add_wire(*elt.nodenames)
             elif elt.type.startswith('TP'):
                 enodes.add_wire(elt.nodenames[1], elt.nodenames[3])
-                warn("Assuming V2' = V1' for %s" % elt.name)                
+                warn("Assuming V2' = V1' for %s" % elt.name)
             else:
                 for connections in elt.equipotential_nodes:
                     enodes.add_wires([elt.name + '.' + n for n in connections])
@@ -276,7 +276,7 @@ class NetlistMixin(object):
             else:
                 newkey = nodes[0]
             enodes2[newkey] = nodes
-                
+
         return enodes2
 
     @property
@@ -291,7 +291,7 @@ class NetlistMixin(object):
 
         # Create inverted dictionary that maps the node names
         # to the equipotential node names.
-        node_map = {}        
+        node_map = {}
         for key, nodes in enodes.items():
             for node in nodes:
                 node_map[node] = key
@@ -324,17 +324,17 @@ class NetlistMixin(object):
 
         if cpts is None:
             cpts = []
-            for elt in self._elements.values():            
+            for elt in self._elements.values():
                 if (elt.is_resistor or elt.is_capacitor or
                     elt.is_inductor or elt.is_voltage_source):
                     cpts.append(elt.name)
-        
+
         label = ('f' if flow else 'i') + pos
 
         if domainvar is None:
             domainvar = t
 
-        new = self._new()        
+        new = self._new()
         for cpt in self._elements.values():
             net = cpt._copy()
             if cpt.name in cpts:
@@ -377,18 +377,18 @@ class NetlistMixin(object):
 
         if domainvar is None:
             domainvar = t
-        
-        new = self._new()                
+
+        new = self._new()
         for cpt in self._elements.values():
             net = cpt._copy()
             if cpt.name in cpts:
                 V = cpt.V(domainvar)
                 if evalf:
-                    V = V.evalf(num_digits)                    
-                net += ', ' if ';' in net else '; '                    
+                    V = V.evalf(num_digits)
+                net += ', ' if ';' in net else '; '
                 net += 'v%s={$%s$}' % (pos, V.latex_with_units(eng_format=eng_format, evalf=evalf, num_digits=num_digits, show_units=show_units))
             new.add(net)
-        return new                
+        return new
 
     def annotate_node_voltages(self, nodes=None, domainvar=None,
                                label_voltages=False, eng_format=True,
@@ -424,12 +424,12 @@ class NetlistMixin(object):
         voltage label
 
         """
-        
+
         if nodes is None:
             nodes = self.node_list
         elif not isiterable(nodes):
             nodes = (nodes, )
-            
+
         if domainvar is None:
             domainvar = t
 
@@ -442,10 +442,10 @@ class NetlistMixin(object):
             vstr = '%s' % v.latex_with_units(eng_format=eng_format, evalf=evalf,
                                              num_digits=num_digits,
                                              show_units=show_units)
-            
+
             if label_voltages:
                 vstr = 'V_{%s}=' % node + vstr
-                
+
             new.add('A%s %s; l={%s}, anchor=%s' % (node, node, vstr, anchor))
         return new
 
@@ -468,27 +468,27 @@ class NetlistMixin(object):
         ).warn()
         return self.annotate_currents(cpts, domainvar=domainvar, flow=flow,
                                       pos=pos, evalf=True, num_digits=3)
-    
+
     def augment_node_map(self, node_map=None):
         """Create a mapping dict for all nodes."""
 
         if node_map is None:
             node_map = {}
-        
+
         # It would be desirable to renumber the nodes say from left to
         # right and top to bottom.  The schematic drawing algorithms
         # could help with this since they figure out the node
-        # placement. 
-        
+        # placement.
+
         enodes = self.equipotential_nodes
 
         if '0' in self.nodes and '0' not in node_map:
             node_map['0'] = '0'
-        
+
         numbers = []
         for m in range(len(enodes)):
             numbers.append('%s' % (m + 1))
-        
+
         for old, new in node_map.items():
             if old not in self.nodes:
                 raise ValueError('Unknown node %s' % old)
@@ -513,25 +513,25 @@ class NetlistMixin(object):
         for key, foo in enodes2.items():
 
             newkey, nodes = foo
-            
+
             snodes = sorted(nodes.copy())
 
             root = newkey
             snodes.remove(key)
             node_map[key] = root
-                
+
             for m, enode in enumerate(snodes):
                 node_map[enode] = root + '_%d' % (m + 1)
 
         return node_map
-    
+
     def renumber(self, node_map=None):
         """Renumber nodes using specified node_map.  If node_map not specified
         then a mapping is created."""
 
         if node_map is None:
             node_map = {}
-        
+
         if len(node_map) != len(self.nodes):
             node_map = self.augment_node_map(node_map)
 
@@ -539,7 +539,7 @@ class NetlistMixin(object):
 
         for cpt in self._elements.values():
             new._add(cpt._rename_nodes(node_map))
-        return new                
+        return new
 
     @property
     def node_list(self):
@@ -570,7 +570,7 @@ class NetlistMixin(object):
         self._branch_list = []
         for key, elt in self.elements.items():
             if elt.type not in ('W', 'O', 'P', 'K'):
-                self._branch_list.append(elt.name)                
+                self._branch_list.append(elt.name)
         return self._branch_list
 
     def _check_nodes(self, *nodes):
@@ -583,9 +583,9 @@ class NetlistMixin(object):
                 raise ValueError('Unknown node %s' % node)
             str_nodes.append(node)
         return str_nodes
-    
+
     def _parse_node_args(self, Np, Nm=None):
-        
+
         if Nm is None:
             cpt = self[Np]
             if isinstance(cpt, Node):
@@ -593,7 +593,7 @@ class NetlistMixin(object):
             else:
                 Np, Nm = cpt.nodenames[0:2]
         return Np, Nm
-    
+
     def Voc(self, Np, Nm=None):
         """Return open-circuit transform-domain voltage between nodes Np and
         Nm."""
@@ -611,17 +611,17 @@ class NetlistMixin(object):
 
         Np, Nm = self._parse_node_args(Np, Nm)
         Np, Nm = self._check_nodes(Np, Nm)
-        
+
         new = self.copy()
         if new.is_causal:
             new.add('Vshort_ %s %s step 0' % (Np, Nm))
         else:
-            new.add('Vshort_ %s %s 0' % (Np, Nm))            
+            new.add('Vshort_ %s %s 0' % (Np, Nm))
 
         # Negate current since Vshort is a considered a source.
         Isc = -new.Vshort_.I
         new.remove('Vshort_')
-        
+
         return Isc
 
     def isc(self, Np, Nm=None):
@@ -639,7 +639,7 @@ class NetlistMixin(object):
             return self.norton(Np, Nm)
         except:
             return self.thevenin(Np, Nm)
-    
+
     def thevenin(self, Np, Nm=None):
         """Return s-domain Thevenin oneport model between nodes Np and Nm.
 
@@ -648,7 +648,7 @@ class NetlistMixin(object):
         from .oneport import V, Z
 
         Np, Nm = self._parse_node_args(Np, Nm)
-        Np, Nm = self._check_nodes(Np, Nm)        
+        Np, Nm = self._check_nodes(Np, Nm)
         Voc = self.Voc(Np, Nm)
         Zoc = self.impedance(Np, Nm)
 
@@ -665,17 +665,17 @@ class NetlistMixin(object):
         from .oneport import I, Y
 
         Np, Nm = self._parse_node_args(Np, Nm)
-        Np, Nm = self._check_nodes(Np, Nm)                        
+        Np, Nm = self._check_nodes(Np, Nm)
         Isc = self.Isc(Np, Nm)
         Ysc = self.admittance(Np, Nm)
 
         # Convert to time-domain to handle arbitrary sources.  Either
         # this or define a way to represent a superposition in a
-        # netlist.        
+        # netlist.
         return (I(Isc.time()) | Y(Ysc)).simplify()
 
     def match(self, pattern):
-        """Return list of components names matching regular 
+        """Return list of components names matching regular
         expression pattern."""
 
         from re import match
@@ -686,20 +686,20 @@ class NetlistMixin(object):
                 elts.append(cpt.name)
         return elts
 
-    
+
     def admittance(self, Np, Nm=None):
         """Return driving-point admittance between nodes
         Np and Nm with independent sources killed and initial
         conditions ignored.  Since the result is causal, the frequency
         domain admittance can be found by substituting j * omega for
-        s."""        
+        s."""
 
         Np, Nm = self._parse_node_args(Np, Nm)
         Np, Nm = self._check_nodes(Np, Nm)
-        
+
         new = self.kill()
         if '0' not in new.nodes:
-            new.add('W %s 0' % Nm)        
+            new.add('W %s 0' % Nm)
 
         # Connect 1 V s-domain voltage source between nodes and
         # measure current.
@@ -717,8 +717,8 @@ class NetlistMixin(object):
         s."""
 
         Np, Nm = self._parse_node_args(Np, Nm)
-        Np, Nm = self._check_nodes(Np, Nm)        
-        
+        Np, Nm = self._check_nodes(Np, Nm)
+
         new = self.kill()
         if '0' not in new.nodes:
             new.add('W %s 0' % Nm)
@@ -754,7 +754,7 @@ class NetlistMixin(object):
         independent sources killed.  The result is in the AC (omega)
         domain.   See also conductance, reactance, resistance."""
         return self.impedance(Np, Nm).B
-        
+
     def transfer(self, N1p, N1m, N2p=None, N2m=None):
         """Create s-domain voltage transfer function V2(s) / V1(s) where:
         V1 is V[N1p] - V[N1m]
@@ -773,12 +773,12 @@ class NetlistMixin(object):
         if N2p is None and N2m is None:
 
             arg1, arg2 = N1p, N1m
-            
+
             if isinstance(arg1, tuple):
                 N1p, N1m = arg1
                 # TODO: check if there is voltage source across these nodes
                 # that will short out the applied source.
-            else:                
+            else:
                 try:
                     arg1 = self.elements[arg1]
                 except:
@@ -791,26 +791,26 @@ class NetlistMixin(object):
                 N1p, N1m = [n.name for n in arg1.nodes[0:2]]
 
             if isinstance(arg2, tuple):
-                N2p, N2m = arg2                
-            else:     
+                N2p, N2m = arg2
+            else:
                 try:
                     arg2 = self.elements[arg2]
                 except:
-                    pass            
-            
+                    pass
+
                 if arg2 not in self.elements.values():
                     raise ValueError('Unknown component %s' % arg2.name)
                 N2p, N2m = [n.name for n in arg2.nodes[0:2]]
-            
+
         elif N2p is None or N2m is None:
             raise ValueError('Expecting transfer(cpt1, cpt2), transfer(cpt1, (N2p, N2m), transfer((N1p, N1m), cpt2), or transfer(N1p, N1m, N2p, N2m)')
 
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
-        
+
         new = self.kill()
         if '0' not in new.nodes:
             new.add('W %s 0' % N1m)
-        
+
         new._add('V1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
 
         V2 = new.Voc(N2p, N2m)
@@ -832,10 +832,10 @@ class NetlistMixin(object):
 
         from .twoport import AMatrix
 
-        N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)        
-        net = self.kill()        
+        N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
+        net = self.kill()
         if '0' not in net.nodes:
-            net.add('W %s 0' % N1m)                           
+            net.add('W %s 0' % N1m)
 
         try:
             net.add('V1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
@@ -857,11 +857,11 @@ class NetlistMixin(object):
             try:
                 A21 = current(0 * s + 1) / net.Voc(N2p, N2m)(s)
             except ValueError:
-                # It is likely there is an open-circuit.                
+                # It is likely there is an open-circuit.
                 net2 = net.copy()
                 net2.add('W %s %s' % (N2p, N2m))
                 A21 = -net2.I1_.I(s) / net2.Voc(N2p, N2m)(s)
-                A21 = 0                
+                A21 = 0
 
             # A22 = I1 / I2 with V2 = 0
             # Apply I1 and measure -I2 with port 2 short-circuit
@@ -938,7 +938,7 @@ class NetlistMixin(object):
 
         See also  Aparams, Bparams, Gparams, Hparams, Sparams, Tparams, and Zparams.
         """
-        return self.Zparams(N1p, N1m, N2p, N2m).Yparams            
+        return self.Zparams(N1p, N1m, N2p, N2m).Yparams
 
     def Zparams(self, N1p, N1m, N2p, N2m):
         """Create Z-parameters for two-port defined by nodes N1p, N1m, N2p, and N2m, where:
@@ -952,8 +952,8 @@ class NetlistMixin(object):
         from .twoport import ZMatrix
 
         # TODO, generalise to multiports.
-        
-        N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)        
+
+        N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
         net = self.kill()
         if '0' not in net.nodes:
             net.add('W %s 0' % N1m)
@@ -967,7 +967,7 @@ class NetlistMixin(object):
 
             # Z21 = V2 / I1 with I2 = 0
             # Apply I1 and measure V2 with port 2 open-circuit
-            Z21 = impedance(net.Voc(N2p, N2m)(s))          
+            Z21 = impedance(net.Voc(N2p, N2m)(s))
 
             net.remove('I1_')
 
@@ -979,9 +979,9 @@ class NetlistMixin(object):
 
             # Z22 = V2 / I2 with I1 = 0
             # Apply I2 and measure V2 with port 1 open-circuit
-            Z22 = impedance(net.Voc(N2p, N2m)(s))          
+            Z22 = impedance(net.Voc(N2p, N2m)(s))
 
-            net.remove('I2_')            
+            net.remove('I2_')
 
             Z = ZMatrix(((Z11, Z12), (Z21, Z22)))
             return Z
@@ -1002,7 +1002,7 @@ class NetlistMixin(object):
         ports = []
         for m in range(len(nodes) // 2):
             ports.append((nodes[m * 2], nodes[m * 2 + 1]))
-        
+
         net = self.kill()
         if '0' not in net.nodes:
             net.add('W %s 0' % nodes[1])
@@ -1010,19 +1010,19 @@ class NetlistMixin(object):
         try:
 
             Y = Matrix.zeros(len(ports))
-            
+
             for col in range(len(ports)):
 
                 for row in range(len(ports)):
                     if row == col:
                         net.add('V%d_ %s %s {DiracDelta(t)}' % (row, ports[row][0], ports[row][1]))
                     else:
-                        net.add('V%d_ %s %s 0' % (row, ports[row][0], ports[row][1]))                        
+                        net.add('V%d_ %s %s 0' % (row, ports[row][0], ports[row][1]))
 
                 for row in range(len(ports)):
                     Y[row, col] = admittance(net.elements['V%d_' % row].I(s))
 
-                for row in range(len(ports)):                        
+                for row in range(len(ports)):
                     net.remove('V%d_' % row)
             return Y
 
@@ -1044,7 +1044,7 @@ class NetlistMixin(object):
 
         """
 
-        return self.Yparamsn(N1p, N1m, N2p, N2m, N3p, N3m)        
+        return self.Yparamsn(N1p, N1m, N2p, N2m, N3p, N3m)
 
     def Zparamsn(self, *nodes):
         """Create Z-parameters for N-port defined by list of node-pairs.
@@ -1059,7 +1059,7 @@ class NetlistMixin(object):
         ports = []
         for m in range(len(nodes) // 2):
             ports.append((nodes[m * 2], nodes[m * 2 + 1]))
-        
+
         net = self.kill()
         if '0' not in net.nodes:
             net.add('W %s 0' % nodes[1])
@@ -1067,18 +1067,18 @@ class NetlistMixin(object):
         try:
 
             Z = Matrix.zeros(len(ports))
-            
+
             for col in range(len(ports)):
                 net.add('I_ %s %s {DiracDelta(t)}' % (ports[col][0], ports[col][1]))
 
-                for row in range(len(ports)):                
+                for row in range(len(ports)):
                     Z[row, col] = impedance(net.Voc(ports[row][0], ports[row][1])(s))
 
                 net.remove('I_')
             return Z
 
         except ValueError:
-            raise ValueError('Cannot create Z matrix')        
+            raise ValueError('Cannot create Z matrix')
 
     def Zparams3(self, N1p, N1m, N2p, N2m, N3p, N3m):
         """Create Z-parameters for three-port defined by nodes N1p, N1m, N2p,
@@ -1103,10 +1103,10 @@ class NetlistMixin(object):
         f = open(filename, 'w')
         f.writelines(str(self))
         f.close()
-        
+
     def select(self, kind):
         """Return new netlist with transform domain kind selected for
-        specified sources in sourcenames. 
+        specified sources in sourcenames.
 
         """
 
@@ -1114,11 +1114,11 @@ class NetlistMixin(object):
 
         for cpt in self._elements.values():
             if cpt.independent_source:
-                net = cpt._select(kind)                
+                net = cpt._select(kind)
             else:
                 net = cpt._copy()
             new._add(net)
-        return new        
+        return new
 
     def _kill(self, sourcenames):
 
@@ -1127,13 +1127,13 @@ class NetlistMixin(object):
         for cpt in self._elements.values():
             if cpt.name in sourcenames:
                 if cpt.name in self.control_sources:
-                    net = cpt._zero()                
+                    net = cpt._zero()
                 else:
                     net = cpt._kill()
             else:
-                net = cpt._copy()                
+                net = cpt._copy()
             new._add(net)
-        return new        
+        return new
 
     def kill_except(self, *args):
         """Return a new circuit with all but the specified sources killed;
@@ -1151,8 +1151,8 @@ class NetlistMixin(object):
             if source not in args:
                 sources.append(source)
         if 'ICs' not in args:
-            sources.append('ICs')            
-            
+            sources.append('ICs')
+
         return self._kill(sources)
 
     def kill(self, *args):
@@ -1185,14 +1185,14 @@ class NetlistMixin(object):
         new = self._new()
 
         for cpt in self._elements.values():
-            if (cpt.independent_source and 
+            if (cpt.independent_source and
                 (cpt.is_voltage_source and cpt.Voc == 0) or
                 (cpt.is_current_source and cpt.Isc == 0)):
                 net = cpt._kill()
             else:
                 net = cpt._copy()
             new._add(net)
-        return new            
+        return new
 
     def _noisy(self, resistornames, T='T'):
 
@@ -1204,7 +1204,7 @@ class NetlistMixin(object):
             else:
                 net = cpt._copy()
             new._add(net)
-        return new        
+        return new
 
     def noisy_except(self, *args, T='T'):
         """Return a new circuit with all but the specified resistors in series
@@ -1236,43 +1236,43 @@ class NetlistMixin(object):
 
     @property
     def cg(self):
-        """Generate circuit graph for this netlist.   This is cached."""        
+        """Generate circuit graph for this netlist.   This is cached."""
 
         return self.circuit_graph()
 
     def circuit_graph(self):
-        """Generate circuit graph for this netlist.   This is cached."""        
+        """Generate circuit graph for this netlist.   This is cached."""
 
         from .circuitgraph import CircuitGraph
-        
+
         if hasattr(self, '_cg'):
             return self._cg
 
         self._cg = CircuitGraph.from_circuit(self)
         return self._cg
-    
+
     def loop_analysis(self):
-        """Perform loop analysis for this netlist.   This is cached."""        
+        """Perform loop analysis for this netlist.   This is cached."""
 
         from .loopanalysis import LoopAnalysis
-        
+
         if hasattr(self, '_la'):
-            return self._na
+            return self._la
 
         self._la = LoopAnalysis.from_circuit(self)
         return self._la
 
     def nodal_analysis(self):
-        """Perform nodal analysis for this netlist.   This is cached."""        
+        """Perform nodal analysis for this netlist.   This is cached."""
 
         from .nodalanalysis import NodalAnalysis
-        
+
         if hasattr(self, '_na'):
             return self._na
 
         self._na = NodalAnalysis.from_circuit(self)
-        return self._na    
-    
+        return self._na
+
     def _potential_combine_names(self):
 
         names = []
@@ -1292,10 +1292,10 @@ class NetlistMixin(object):
             name = aset.pop()
             cpt = self._elements[name]
             aset.add(name)
-            
+
             subset = set()
             for name1 in aset:
-                cpt1 = self._elements[name1]                
+                cpt1 = self._elements[name1]
                 if cpt.type == cpt1.type:
                     subset.add(name1)
             aset -= subset
@@ -1326,14 +1326,14 @@ class NetlistMixin(object):
         while names != []:
             name = names[0]
             series = self._in_series_names(name)
-            if len(series) > 1:            
+            if len(series) > 1:
                 lists.append(series)
             for name in series:
                 try:
                     names.remove(name)
                 except:
-                    pass                
-        return lists    
+                    pass
+        return lists
 
     def _in_parallel_names(self, cpt=None):
 
@@ -1348,19 +1348,19 @@ class NetlistMixin(object):
             cpt = cpt.name
 
         return self.cg.in_series(cpt)
-        
+
     def in_parallel(self, cpt=None):
         """Return set of cpts in parallel with specified cpt.  If no cpt
         specified, return list of sets of parallel cpts."""
 
         if cpt is None:
             return self._in_parallel_all()
-        
+
         names = self._in_parallel_names(cpt)
         if len(names) < 2:
             return set()
         return names
-    
+
     def in_series(self, cpt=None):
         """Return set of cpts in series with specified cpt.  If no cpt
         specified, return list of sets of series cpts."""
@@ -1380,7 +1380,7 @@ class NetlistMixin(object):
             print(string % subset)
 
         subset_list = list(subset)
-            
+
         if add:
             total = expr(0)
             for name in subset_list:
@@ -1403,15 +1403,15 @@ class NetlistMixin(object):
                 ic += expr(self.elements[name1].cpt.args[1])
 
             if explain:
-                print('%s combined IC = %s' % (subset, ic))                
+                print('%s combined IC = %s' % (subset, ic))
 
-        newname = self.namer(name[0], 't')                
+        newname = self.namer(name[0], 't')
         net1 = elt._new_value(total, ic)
         parts = net1.split(' ', 1)
         net1 = newname + ' ' + parts[1]
-        
+
         elt = self._parse(net1)
-        
+
         # Overwrite component with one having total value.  _fixup will
         # fix element keys later on once all simplifications are performed.
         net.elements[name] = elt
@@ -1425,7 +1425,7 @@ class NetlistMixin(object):
             # Remove component
             elt = self._parse(net1)
             net.elements[name1] = elt
-                
+
         return True
 
     def _check_ic(self, subset):
@@ -1451,12 +1451,12 @@ class NetlistMixin(object):
 
     def _fixup(self):
         """Rename keys to fix things up for removed components."""
-        
+
         newelements = OrderedDict()
         for k, v in self.elements.items():
             newelements[v.name] = v
         self._elements = newelements
-    
+
     def _simplify_combine_series(self, cptnames=None, explain=False):
 
         net = self.copy()
@@ -1480,13 +1480,13 @@ class NetlistMixin(object):
 
         if changed:
             net._fixup()
-                
+
         return net, changed
 
     def _simplify_combine_parallel(self, cptnames=None, explain=False):
 
         net = self.copy()
-        changed = False        
+        changed = False
 
         for aset in net.in_parallel():
             subsets = net._find_combine_subsets(aset)
@@ -1498,16 +1498,16 @@ class NetlistMixin(object):
                                                          subset, net, explain, False, False)
                 elif k in ('C', 'Y', 'I'):
                     if k == 'C' and  not self._check_ic(subset):
-                        continue                    
+                        continue
                     changed |= self._do_simplify_combine('Can add in parallel: %s',
                                                          subset, net, explain, True, False)
                 else:
                     raise RuntimeError('Internal error')
-                
+
         if changed:
             # TODO, remove dangling wires connected to the removed components.
             net._fixup()
-                
+
         return net, changed
 
     def _simplify_redundant_series(self, cptnames=None, explain=False):
@@ -1515,20 +1515,20 @@ class NetlistMixin(object):
         net = self.copy()
         changed = False
 
-        for aset in net.in_series():        
+        for aset in net.in_series():
             Iname = None
             for name in aset:
-                cpt = self._elements[name]                
+                cpt = self._elements[name]
                 if cpt.type == 'I':
                     Iname = name
                     break
             if Iname is not None:
                 for name in aset:
-                    cpt = self._elements[name]                    
+                    cpt = self._elements[name]
                     if cpt.type != 'I':
                         warn('Have redundant %s in series with %s' % (name, Iname))
-                
-        return net, False        
+
+        return net, False
 
     def _simplify_redundant_parallel(self, cptnames=None, explain=False):
 
@@ -1552,7 +1552,7 @@ class NetlistMixin(object):
 
     def _simplify_series(self, cptnames=None, explain=False):
 
-        net, changed = self._simplify_redundant_series(cptnames, explain)        
+        net, changed = self._simplify_redundant_series(cptnames, explain)
         net, changed2 = net._simplify_combine_series(cptnames, explain)
         return net, changed or changed2
 
@@ -1560,7 +1560,7 @@ class NetlistMixin(object):
 
         net, changed = self._simplify_redundant_parallel(cptnames, explain)
         net, changed2 = net._simplify_combine_parallel(cptnames, explain)
-        return net, changed or changed2    
+        return net, changed or changed2
 
     def simplify_series(self, cptnames=None, explain=False, modify=True):
 
@@ -1573,15 +1573,15 @@ class NetlistMixin(object):
 
         net, changed = self._simplify_parallel(cptnames, explain)
         if not modify:
-            return self        
-        return net                
+            return self
+        return net
 
     def simplify(self, cptnames=None, passes=0, series=True,
                  parallel=True, explain=False, modify=True):
 
         # Perhaps use num cpts?
         if passes == 0:
-            passes = 10                
+            passes = 10
 
         net = self
         for m in range(passes):
@@ -1592,14 +1592,14 @@ class NetlistMixin(object):
                 break
         if not modify:
             return self
-            
+
         return net
 
     def check(self):
         """Check if network contains a loop of voltage sources or a cut set of current sources."""
 
         return self.simplify(explain=True, modify=False)
-    
+
     def twoport(self, N1p, N1m, N2p, N2m, model='B'):
         """Create s-domain twoport model for two-port defined by nodes N1p, N1m, N2p, and N2m, where:
         I1 is the current flowing into N1p and out of N1m
@@ -1617,7 +1617,7 @@ class NetlistMixin(object):
 
         net = self.copy()
         if '0' not in net.nodes:
-            net.add('W %s 0' % N1m)        
+            net.add('W %s 0' % N1m)
 
         if model == 'A':
             V1a = net.Voc(N1p, N1m)(s)
@@ -1628,33 +1628,33 @@ class NetlistMixin(object):
             V2b = net.Voc(N2p, N2m)(s)
             I2b = net.Isc(N2p, N2m)(s)
             A = net.Aparams(N1p, N1m, N2p, N2m)
-            return TwoPortBModel(A.Bparams, V2b=V2b, I2b=I2b)        
+            return TwoPortBModel(A.Bparams, V2b=V2b, I2b=I2b)
         elif model == 'Z':
             V1 = net.Voc(N1p, N1m)(s)
             V2 = net.Voc(N2p, N2m)(s)
-            Z = net.Zparams(N1p, N1m, N2p, N2m)            
+            Z = net.Zparams(N1p, N1m, N2p, N2m)
             return TwoPortZModel(Z, V1z=V1, V2z=V2)
         elif model == 'Y':
             I1 = net.Isc(N1p, N1m)(s)
             I2 = net.Isc(N2p, N2m)(s)
-            Z = net.Zparams(N1p, N1m, N2p, N2m)            
-            return TwoPortYModel(Z.Y, I1y=I1, I2y=I2)        
+            Z = net.Zparams(N1p, N1m, N2p, N2m)
+            return TwoPortYModel(Z.Y, I1y=I1, I2y=I2)
         elif model == 'G':
             I1 = net.Isc(N1p, N1m)(s)
             V2 = net.Voc(N2p, N2m)(s)
-            Z = net.Zparams(N1p, N1m, N2p, N2m)            
+            Z = net.Zparams(N1p, N1m, N2p, N2m)
             return TwoPortGModel(Z.G, I1g=I1, V2g=V2)
         elif model == 'H':
             V1 = net.Voc(N1p, N1m)(s)
             I2 = net.Isc(N2p, N2m)(s)
-            Z = net.Zparams(N1p, N1m, N2p, N2m)            
+            Z = net.Zparams(N1p, N1m, N2p, N2m)
             return TwoPortHModel(Z.H, V1h=V1, I2h=I2)
         else:
             raise ValueError('Model %s unknown, must be B, H, Y, or Z' % model)
 
     @property
     def sch(self):
-        """Generate schematic of subnetlist."""                
+        """Generate schematic of subnetlist."""
 
         if hasattr(self, '_sch'):
             return self._sch
@@ -1670,20 +1670,20 @@ class NetlistMixin(object):
 
     @property
     def sim(self):
-        """Generate simulation object."""        
+        """Generate simulation object."""
 
         if hasattr(self, '_sim'):
             return self._sim
 
         self._sim = Simulator(self)
         return self._sim
-    
+
     def state_space(self, node_voltages=None, branch_currents=None):
         """Generate state-space representation.
 
         `node_voltages` is a list of node names to use as voltage outputs.
         If `None` use all the unique node names.
-        
+
         `branch_currents` is a list of component names to use as
         current outputs.  If `None` use all the components.
 
@@ -1699,21 +1699,21 @@ class NetlistMixin(object):
     def ss(self):
         """Generate state-space representation.  See also `state_space()`"""
         return self.state_space()
-    
+
     def replace(self, oldname, newname):
         """Replace component.
-        
+
         For example,
         b = a.replace('C', 'W')
         c = a.replace('C1', 'C1 1 2')
-        """        
+        """
 
         new = self._new()
 
         newparts = newname.split(' ')
 
         for cpt in self._elements.values():
-            net = cpt._copy()            
+            net = cpt._copy()
             if cpt.name == oldname:
                 if len(newparts) == 1:
                     # Just replace name of component
@@ -1728,7 +1728,7 @@ class NetlistMixin(object):
 
     def subs(self, subs_dict):
         """Substitute values using dictionary of substitutions.
-        
+
         For example, b = a.subs({'R1': 1e3, 'R2': 9e3})"""
 
         new = self._new()
@@ -1736,11 +1736,11 @@ class NetlistMixin(object):
         for cpt in self._elements.values():
             net = cpt._subs(subs_dict)
             new._add(net)
-        return new                        
-    
+        return new
+
     def initialize(self, cct, time):
         """Set the initial values for this netlist based on the values
-        computed for netlist cct at specified time."""        
+        computed for netlist cct at specified time."""
 
         new = self._new()
 
@@ -1750,12 +1750,12 @@ class NetlistMixin(object):
                 if cpt.type == 'C':
                     ic = cct[cpt.name].v.remove_condition()(time)
                 else:
-                    ic = cct[cpt.name].i.remove_condition()(time) 
-                    
+                    ic = cct[cpt.name].i.remove_condition()(time)
+
             net = cpt._initialize(ic)
             new._add(net)
-        return new                
-    
+        return new
+
     def pre_initial_model(self):
         """Generate circuit model for determining the pre-initial
         conditions."""
@@ -1765,7 +1765,7 @@ class NetlistMixin(object):
         for cpt in self._elements.values():
             net = cpt._pre_initial_model()
             new._add(net)
-        return new        
+        return new
 
     def r_model(self):
         """"Create resistive equivalent model using companion circuits.
@@ -1777,7 +1777,7 @@ class NetlistMixin(object):
             net = cpt._r_model()
             new._add(net)
         return new
-    
+
     def s_model(self, var=s):
         """"Create s-domain model."""
 
@@ -1802,22 +1802,22 @@ class NetlistMixin(object):
     def state_space_model(self):
         """"Create state-space model by replacing inductors
         with current sources and capacitors with voltage sources."""
-        
+
         return self.ss_model()
 
     def ac_model(self, var=omega):
         """"Create AC model for specified angular frequency (default
         omega)."""
-        
+
         return self.s_model(j * var)
 
     def noise_model(self, T='T'):
         """"Create noise model where resistors are converted into a series
         combination of an ideal resistor and a noise voltage
         source."""
-        
+
         return self.noisy(T=T)
-    
+
     def draw(self, filename=None, **kwargs):
         """Draw schematic of netlist.
 
@@ -1829,11 +1829,11 @@ class NetlistMixin(object):
         kwargs include:
            label_ids: True to show component ids
            label_values: True to display component values
-           draw_nodes: True to show all nodes, False to show no nodes, 
+           draw_nodes: True to show all nodes, False to show no nodes,
              'primary' to show primary nodes,
              'connections' to show nodes that connect more than two components,
              'all' to show all nodes
-           label_nodes: True to label all nodes, False to label no nodes, 
+           label_nodes: True to label all nodes, False to label no nodes,
              'primary' to label primary nodes,
              'alpha' to label nodes starting with a letter,
              'pins' to label nodes that are pins on a chip,
@@ -1857,7 +1857,7 @@ class NetlistMixin(object):
     def is_causal(self):
         """Return True if all independent sources are causal and not an
         initial value problem (unless all the initial values are zero)."""
-        return self.analysis['causal']        
+        return self.analysis['causal']
 
     @property
     def is_dc(self):
@@ -1876,7 +1876,7 @@ class NetlistMixin(object):
     def is_superposition(self):
         """Return True if netlist needs to be solved using multiple approaches,
         e.g., ac and dc"""
-        
+
         return ((self.has_ac and self.has_dc) or
                 (self.has_ac and self.has_transient) or
                 (self.has_dc and self.has_transient))
@@ -1894,13 +1894,13 @@ class NetlistMixin(object):
     @property
     def has_s_transient(self):
         """Return True if any independent source has a transient component defined in s-domain."""
-        return self.analysis['has_s']    
+        return self.analysis['has_s']
 
-    @property    
+    @property
     def has_transient(self):
         """Return True if any independent source has a transient component."""
-        return self.analysis['has_transient']    
-    
+        return self.analysis['has_transient']
+
     @property
     def zeroic(self):
         """Return True if the initial conditions for all components are zero."""
@@ -1968,14 +1968,14 @@ class NetlistMixin(object):
     def current_sources(self):
         """Return dictionary of current_sources."""
 
-        return self.analysis['current_sources']                    
+        return self.analysis['current_sources']
 
     @property
     def ics(self):
         """Return dictionary of components with initial conditions."""
 
-        return self.analysis['ics']    
-    
+        return self.analysis['ics']
+
     @property
     def independent_sources(self):
         """Return dictionary of independent sources (this does not include
@@ -1987,7 +1987,7 @@ class NetlistMixin(object):
     def dependent_sources(self):
         """Return dictionary of dependent sources."""
 
-        return self.analysis['dependent_sources']            
+        return self.analysis['dependent_sources']
 
     def independent_source_groups(self, transform=False):
         """Return dictionary of source groups.  Each group is a list of
@@ -1997,7 +1997,7 @@ class NetlistMixin(object):
         superposition decomposition keys: 'dc', 's', 't', 'n*', and omega,
         where omega is an expression for the angular frequency of a phasor,
         and `n*` is a noise identifier.
-        
+
         If transform is False, the returned keys are 'dc', 't', 's', and 'n*'.
 
         If transform is True, the returned keys are 'dc', 's', omega,
@@ -2021,21 +2021,21 @@ class NetlistMixin(object):
             else:
                 Isc = cpt.Isc
                 if transform:
-                    Isc = Isc.decompose()                
+                    Isc = Isc.decompose()
                 cpt_kinds = Isc.keys()
-                
+
             for cpt_kind in cpt_kinds:
                 if cpt_kind not in groups:
                     groups[cpt_kind] = []
                 groups[cpt_kind].append(eltname)
 
-        return groups    
+        return groups
 
     @property
     def control_sources(self):
         """Return list of voltage sources required to specify control
         current for CCVS and CCCS components."""
-        return self.analysis['control_sources']        
+        return self.analysis['control_sources']
 
     @property
     def analysis(self):
@@ -2050,13 +2050,13 @@ class NetlistMixin(object):
         has_ic = False
         zeroic = True
         has_s = False
-        has_transient = False        
+        has_transient = False
         ac_count = 0
         dc_count = 0
         causal = True
         reactive = False
         independent_sources = []
-        dependent_sources = []        
+        dependent_sources = []
         control_sources = []
         reactances = []
         transformers = []
@@ -2065,7 +2065,7 @@ class NetlistMixin(object):
         voltage_sources = []
         current_sources = []
         ics = []
-        
+
         for eltname, elt in self.elements.items():
             if elt.need_control_current:
                 control_sources.append(elt.args[0])
@@ -2080,7 +2080,7 @@ class NetlistMixin(object):
                 if elt.has_s_transient:
                     has_s = True
                 if elt.has_transient:
-                    has_transient = True                    
+                    has_transient = True
                 if elt.is_ac:
                     ac_count += 1
                 if elt.is_dc:
@@ -2101,16 +2101,16 @@ class NetlistMixin(object):
             elif elt.is_voltage_source:
                 voltage_sources.append(eltname)
             elif elt.is_current_source:
-                current_sources.append(eltname)                                
+                current_sources.append(eltname)
 
         num_sources = len(independent_sources)
-                    
-        analysis = {} 
+
+        analysis = {}
         analysis['zeroic'] = zeroic
-        analysis['has_ic'] = has_ic        
+        analysis['has_ic'] = has_ic
         analysis['ivp'] = has_ic
         analysis['has_dc'] = dc_count > 0
-        analysis['has_ac'] = ac_count > 0        
+        analysis['has_ac'] = ac_count > 0
         analysis['has_s'] = has_s
         analysis['has_transient'] = has_transient
         analysis['reactances'] = reactances
@@ -2119,10 +2119,10 @@ class NetlistMixin(object):
         analysis['inductors'] = inductors
         analysis['voltage_sources'] = voltage_sources
         analysis['current_sources'] = current_sources
-        analysis['ics'] = ics         
-        analysis['dependent_sources'] = dependent_sources        
+        analysis['ics'] = ics
+        analysis['dependent_sources'] = dependent_sources
         analysis['independent_sources'] = independent_sources
-        analysis['control_sources'] = control_sources        
+        analysis['control_sources'] = control_sources
         analysis['ac'] = ac_count > 0 and (num_sources == ac_count) and not has_ic
         analysis['dc'] = dc_count > 0 and (num_sources == dc_count) and not has_ic
         analysis['causal'] = causal and zeroic
@@ -2176,4 +2176,4 @@ class NetlistMixin(object):
         return Vname(name, self.kind)
 
     def Iname(self, name):
-        return Iname(name, self.kind)    
+        return Iname(name, self.kind)
