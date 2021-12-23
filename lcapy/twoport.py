@@ -146,7 +146,7 @@ class TwoPortMixin(object):
         """Return true if two-port is reciprocal. """
         # This also applies to Y12 == Y21, S12 == S21, or Aparams.det() == 1.
         return self._Z12 == self._Z21
-    
+
     @property
     def is_symmetrical(self):
         """Return true if two-port is symmetrical. """
@@ -274,7 +274,7 @@ class TwoPortMixin(object):
 
     @property
     def _T22(self):
-        return self.Tparams[1, 1]        
+        return self.Tparams[1, 1]
 
     @property
     def _Y11(self):
@@ -403,32 +403,32 @@ class TwoPortMixin(object):
 
     @property
     def S12(self):
-        """S12"""        
+        """S12"""
         return expr(self._S12)
 
     @property
     def S21(self):
-        """S21"""        
+        """S21"""
         return expr(self._S21)
 
     @property
     def S22(self):
-        """S22"""        
+        """S22"""
         return expr(self._S22)
 
     @property
     def T11(self):
-        """T11"""        
+        """T11"""
         return expr(self._T11)
 
     @property
     def T12(self):
-        """T12"""        
+        """T12"""
         return expr(self._T12)
 
     @property
     def T21(self):
-        """T21"""        
+        """T21"""
         return expr(self._T21)
 
     @property
@@ -475,7 +475,7 @@ class TwoPortMixin(object):
     def Z22(self):
         """Open-cicuit output impedance"""
         return expr(self._Z22)
-        
+
 
 class TwoPortMatrix(Matrix, TwoPortMixin):
 
@@ -519,8 +519,8 @@ class TwoPortMatrix(Matrix, TwoPortMixin):
     def pdb(self):
         import pdb; pdb.set_trace()
         return self
-    
-    
+
+
 class AMatrix(TwoPortMatrix):
     """A-parameters (ABCD parameters, chain matrix)
     ::
@@ -541,12 +541,12 @@ class AMatrix(TwoPortMatrix):
 
     @classmethod
     def generic(cls):
-        return cls((('A_11', 'A_12'), ('A_21', 'A_22')))        
+        return cls((('A_11', 'A_12'), ('A_21', 'A_22')))
 
     def equation(self):
         return Eq(Matrix(('V1', 'I1')), MatMul(self, Matrix(('V2', '-I2'))),
                   evaluate=False)
-    
+
     @property
     def Aparams(self):
         # Perhaps we should make a copy?
@@ -561,14 +561,14 @@ class AMatrix(TwoPortMatrix):
                 warn('Producing dodgy B matrix')
             self._Bparams = BMatrix(self.inv()).simplify()
         return self._Bparams
-            
+
 
     @property
     def Hparams(self):
 
         if self._A22 == 0:
             warn('Producing dodgy H matrix')
-        det = self.det().expr            
+        det = self.det().expr
         return HMatrix(((self._A12 / self._A22, det / self._A22),
                         (-1 / self._A22, self._A21 / self._A22))).simplify()
 
@@ -589,7 +589,7 @@ class AMatrix(TwoPortMatrix):
         # shunt element).   Note, it doesn't use A21.
         if self._A12 == 0:
             warn('Producing dodgy Y matrix')
-        det = self.det().expr            
+        det = self.det().expr
         return YMatrix(((self._A22 / self._A12, -det / self._A12),
                         (-1 / self._A12, self._A11 / self._A12))).simplify()
 
@@ -600,7 +600,7 @@ class AMatrix(TwoPortMatrix):
         # series element).   Note, it doesn't use A12.
         if self._A21 == 0:
             warn('Producing dodgy Z matrix')
-        det = self.det().expr            
+        det = self.det().expr
         return ZMatrix(((self._A11 / self._A21, det / self._A21),
                         (1 / self._A21, self._A22 / self._A21))).simplify()
 
@@ -710,10 +710,10 @@ class BMatrix(TwoPortMatrix):
     def equation(self):
         return Eq(Matrix(('V2', '-I2')), MatMul(self, Matrix(('V1', 'I1'))),
                   evaluate=False)
-        
+
     @property
     def Aparams(self):
-        return AMatrix(self.inv()).simplify()        
+        return AMatrix(self.inv()).simplify()
 
     @property
     def Bparams(self):
@@ -723,7 +723,7 @@ class BMatrix(TwoPortMatrix):
     @property
     def Gparams(self):
 
-        det = self.det().expr        
+        det = self.det().expr
         return GMatrix(((-self._B21 / self._B22, -1 / self._B22),
                         (det / self._B22, -self._B12 / self._B22))).simplify()
 
@@ -744,7 +744,7 @@ class BMatrix(TwoPortMatrix):
     @property
     def Zparams(self):
 
-        det = self.det().expr        
+        det = self.det().expr
         return ZMatrix(((-self._B22 / self._B21, -1 / self._B21),
                         (-det / self._B21, -self._B11 / self._B21))).simplify()
 
@@ -831,7 +831,7 @@ class BMatrix(TwoPortMatrix):
 
         return cls(((1 / Ar, -1 / (Ar * Yin)),
                     (-1 / (Ar * Zout), -1 / (Ar * Yin * Zout * (Af * Ar - 1)))))
-    
+
     @classmethod
     def current_amplifier(cls, Af, Ar=1e-9, Zin=1e-9, Yout=1e-9):
         """Current amplifier
@@ -963,18 +963,18 @@ class GMatrix(TwoPortMatrix):
     def equation(self):
         return Eq(Matrix(('I1', 'V2')), MatMul(self, Matrix(('V1', 'I2'))),
                   evaluate=False)
-        
+
     @property
     def Aparams(self):
         # return self.Hparams.Aparams
-        det = self.det().expr        
+        det = self.det().expr
         return AMatrix(((1 / self._G21, self._G22 / self._G21),
                         (self._G11 / self._G21, det / self._G21))).simplify()
 
     @property
     def Bparams(self):
         if not hasattr(self, '_Bparams'):
-            det = self.det().expr        
+            det = self.det().expr
             self._Bparams = BMatrix(((-det / self._G12, (self._G22 / self._G12)),
                                      (self._G11 / self._G12, -1 / self._G12))).simplify()
         return self._Bparams
@@ -1015,12 +1015,12 @@ class HMatrix(TwoPortMatrix):
 
     @classmethod
     def generic(cls):
-        return cls((('H_11', 'H_12'), ('H_21', 'H_22')))    
+        return cls((('H_11', 'H_12'), ('H_21', 'H_22')))
 
     def equation(self):
         return Eq(Matrix(('V1', 'I2')), MatMul(self, Matrix(('I1', 'V2'))),
                   evaluate=False)
-        
+
     @property
     def Aparams(self):
         det = self.det().expr
@@ -1029,11 +1029,11 @@ class HMatrix(TwoPortMatrix):
 
     @property
     def Bparams(self):
-        if not hasattr(self, '_Bparams'):        
+        if not hasattr(self, '_Bparams'):
             self._Bparams = BMatrix(((1 / self._H12, -self._H11 / self._H12),
                                      (-self._H22 / self._H12,
                                      self._H22 * self._H11 / self._H12 - self._H21))).simplify()
-                                      
+
         return self._Bparams
 
     @property
@@ -1043,13 +1043,13 @@ class HMatrix(TwoPortMatrix):
 
     @property
     def Yparams(self):
-        det = self.det().expr        
+        det = self.det().expr
         return YMatrix(((1 / self._H11, -self._H12 / self._H11),
                         (self._H21 / self._H11, det / self._H11))).simplify()
 
     @property
     def Zparams(self):
-        det = self.det().expr        
+        det = self.det().expr
         return ZMatrix(((det / self._H22, self._H12 / self._H22),
                         (-self._H21 / self._H22, 1 / self._H22))).simplify()
 
@@ -1060,10 +1060,10 @@ class SMatrix(TwoPortMatrix):
        +-  -+     +-       -+   +-  -+
        | b1 |  =  | S11  S12|   | a1 |
        | b2 |     | S21  S22|   | a2 |
-       +-  -+     +-       -+   +-  -+    
+       +-  -+     +-       -+   +-  -+
 
     Each element in the s-matrix has units of impedance.
-    """    
+    """
 
     @classmethod
     def generic(cls):
@@ -1093,28 +1093,28 @@ class SMatrix(TwoPortMatrix):
 
     @property
     def Tparams(self):
-        det = self.det().expr        
+        det = self.det().expr
         return TMatrix(((-det / self._S21, self._S11 / self._S21),
                         (-self._S22 / self._S21, 1 / self._S21))).simplify()
 
     @property
     def Zparams(self):
         return self.Aparams.Zparams
-        
-    
+
+
 class TMatrix(TwoPortMatrix):
     """T-parameters (scattering transfer parameters)
     ::
        +-  -+     +-       -+   +-  -+
        | b1 |  =  | T11  T12|   | a2 |
        | a2 |     | T21  T22|   | b2 |
-       +-  -+     +-       -+   +-  -+    
+       +-  -+     +-       -+   +-  -+
     """
 
     @classmethod
     def generic(cls):
         return cls((('T_11', 'T_12'), ('T_21', 'T_22')))
-    
+
     # Note, another convention uses a1, b1 in terms of b2, a2.
     def equation(self):
         return Eq(Matrix(('b1', 'a1')), MatMul(self, Matrix(('a2', 'b2'))),
@@ -1123,20 +1123,20 @@ class TMatrix(TwoPortMatrix):
     @property
     def Aparams(self):
         return self.Sparams.Aparams
-    
+
     @property
     def Hparams(self):
         return self.Aparams.Hparams
 
     @property
     def Sparams(self):
-        det = self.det().expr        
+        det = self.det().expr
         return SMatrix(((self._T12 / self._T22, det / self._T22),
                         (1 / self._T22, -self._T21 / self._T22))).simplify()
-    
+
     @property
     def Tparams(self):
-        return self    
+        return self
 
     @property
     def Zparams(self):
@@ -1166,21 +1166,21 @@ class YMatrix(TwoPortMatrix):
     def equation(self):
         return Eq(Matrix(('I1', 'I2')), MatMul(self, Matrix(('V1', 'V2'))),
                   evaluate=False)
-        
+
     @property
     def Ysc(self):
         return LaplaceDomainAdmittanceMatrix((self._Y11, self._Y22))
 
     @property
     def Aparams(self):
-        det = self.det().expr        
+        det = self.det().expr
         return AMatrix(((-self._Y22 / self._Y21, -1 / self._Y21),
                         (-det / self._Y21, -self._Y11 / self._Y21))).simplify()
 
     @property
     def Bparams(self):
-        if not hasattr(self, '_Bparams'):                
-            det = self.det().expr        
+        if not hasattr(self, '_Bparams'):
+            det = self.det().expr
             self._Bparams = BMatrix(((-self._Y11 / self._Y12, 1 / self._Y12),
                                      (det / self._Y12, -self._Y22 / self._Y12))).simplify()
         return self._Bparams
@@ -1227,7 +1227,7 @@ class ZMatrix(TwoPortMatrix):
     def equation(self):
         return Eq(Matrix(('V1', 'V2')), MatMul(self, Matrix(('I1', 'I2'))),
                   evaluate=False)
-        
+
     @property
     def Zoc(self):
         return LaplaceDomainImpedanceMatrix((self._Z11, self._Z22))
@@ -1240,7 +1240,7 @@ class ZMatrix(TwoPortMatrix):
 
     @property
     def Bparams(self):
-        if not hasattr(self, '_Bparams'):                
+        if not hasattr(self, '_Bparams'):
             det = self.det().expr
             self._Bparams = BMatrix(((self._Z22 / self._Z12, -det / self._Z12),
                                      (-1 / self._Z12, self._Z11 / self._Z12))).simplify()
@@ -1283,7 +1283,7 @@ class ZMatrix(TwoPortMatrix):
         return cls.Tsection(Za, Zb, Zc)
 
 
-# Probably should only inherit a subset of Network    
+# Probably should only inherit a subset of Network
 class TwoPort(Network, TwoPortMixin):
     """
     General class for two-port networks.  Two-port networks are
@@ -1311,7 +1311,7 @@ class TwoPort(Network, TwoPortMixin):
                                                       self._opts_str(l=''))
 
     def _TP_make(self, netlist, n1, n2, n3, n4, kind, *args):
-        
+
         n2, n1, n4, n3 = netlist._make_nodes(n2, n1, n4, n3)
 
         args =  ' '.join([netlist._netarg(arg) for arg in args])
@@ -1321,7 +1321,7 @@ class TwoPort(Network, TwoPortMixin):
                                                   self._opts_str(l=''))
 
         return s
-    
+
     def _add_elements(self):
         raise ValueError('Cannot generate netlist for two-port objects')
 
@@ -1334,7 +1334,7 @@ class TwoPort(Network, TwoPortMixin):
         decimal places used to evaluate floats.
         """
 
-        from .netlistmaker import NetlistMaker        
+        from .netlistmaker import NetlistMaker
         return NetlistMaker(self, layout=layout, evalf=evalf)()
 
     def _check_twoport_args(self, args):
@@ -1354,7 +1354,7 @@ class TwoPort(Network, TwoPortMixin):
     @property
     def sources(self):
         return self._sources
-    
+
     @property
     def Aparams(self):
         """Return chain parameters"""
@@ -1385,7 +1385,7 @@ class TwoPort(Network, TwoPortMixin):
     @property
     def Tparams(self):
         """Return scattering transfer parameters"""
-        return self._params.Tparams    
+        return self._params.Tparams
 
     @property
     def Yparams(self):
@@ -1677,7 +1677,7 @@ class TwoPort(Network, TwoPortMixin):
     @property
     def Amodel(self):
 
-        return TwoPortAModel(self.Aparams, V1a=self.V1a, I1a=self.I1a)    
+        return TwoPortAModel(self.Aparams, V1a=self.V1a, I1a=self.I1a)
 
     @property
     def Bmodel(self):
@@ -1692,7 +1692,7 @@ class TwoPort(Network, TwoPortMixin):
     @property
     def Hmodel(self):
 
-        return TwoPortHModel(self.Hparams, V1h=self.V1h, I2h=self.I2h)    
+        return TwoPortHModel(self.Hparams, V1h=self.V1h, I2h=self.I2h)
 
     @property
     def Ymodel(self):
@@ -1803,7 +1803,7 @@ class TwoPort(Network, TwoPortMixin):
             raise TypeError('Argument not ', OnePort)
 
         foo = self.chain(Shunt(TP))
-        return (V(foo.V1oc) + Z(foo.Z1oc)).simplify()
+        return V(foo.V1oc) + Z(foo.Z1oc)
 
     def source(self, TP):
         """Apply a one-port source and return a Thevenin (one-port) object"""
@@ -1812,7 +1812,7 @@ class TwoPort(Network, TwoPortMixin):
             raise TypeError('Argument not ', OnePort)
 
         foo = Shunt(TP).chain(self)
-        return (V(foo.V2oc) + Z(foo.Z2oc)).simplify()
+        return V(foo.V2oc) + Z(foo.Z2oc)
 
     def short_circuit(self, port=2):
         """Apply a short-circuit to specified port and return a
@@ -1856,7 +1856,7 @@ class TwoPort(Network, TwoPortMixin):
     def __mul__(self, OP):
         """Chained combination"""
 
-        return self.chain(OP)    
+        return self.chain(OP)
 
     def __eq__(self, x):
 
@@ -1864,7 +1864,7 @@ class TwoPort(Network, TwoPortMixin):
             return False
 
         return self.params == x.params and self.sources == x.sources
-    
+
     def equation(self):
         """Return equation describing model."""
 
@@ -1876,11 +1876,11 @@ class TwoPort(Network, TwoPortMixin):
         if sources[0] == 0 and sources[1] == 0:
             return expr(sym.Eq(output, sym.MatMul(params, input),
                                evaluate=False))
-        
+
         return expr(sym.Eq(output,
                            sym.MatAdd(sym.MatMul(params, input),
                                       sources), evaluate=False))
-    
+
 
 class TwoPortBModel(TwoPort):
     """
@@ -1937,7 +1937,7 @@ class TwoPortBModel(TwoPort):
     input = ('V1', '-I1')
     output = ('V2', 'I2')
     offset = ('V2b', 'I2b')
-    
+
     def __init__(self, B11=None, B12=None, B21=None, B22=None,
                   V2b=None, I2b=None, **kwargs):
 
@@ -1947,13 +1947,13 @@ class TwoPortBModel(TwoPort):
             B11 = 'B11' if B11 is None else B11
             B12 = 'B12' if B12 is None else B12
             B21 = 'B21' if B21 is None else B21
-            B22 = 'B22' if B22 is None else B22            
+            B22 = 'B22' if B22 is None else B22
             B = BMatrix(((B11, B12), (B21, B22)))
-        
+
         if V2b is None:
             V2b = LaplaceDomainVoltage(0)
         if I2b is None:
-            I2b = LaplaceDomainCurrent(0)            
+            I2b = LaplaceDomainCurrent(0)
 
         if issubclass(B.__class__, TwoPortBModel):
             B, V2b, I2b = B._params, B._V2b, B._I2b
@@ -2022,8 +2022,8 @@ class TwoPortAModel(TwoPort):
     model = 'A'
     input = ('V2', '-I2')
     output = ('V1', 'I1')
-    offset = ('V1a', 'I1a')    
-    
+    offset = ('V1a', 'I1a')
+
     def __init__(self, A11=None, A12=None, A21=None, A22=None,
                  V1a=None, I1a=None, **kwargs):
 
@@ -2033,13 +2033,13 @@ class TwoPortAModel(TwoPort):
             A11 = 'A11' if A11 is None else A11
             A12 = 'A12' if A12 is None else A12
             A21 = 'A21' if A21 is None else A21
-            A22 = 'A22' if A22 is None else A22            
+            A22 = 'A22' if A22 is None else A22
             A = AMatrix(((A11, A12), (A21, A22)))
-            
+
         if V1a is None:
             V1a = LaplaceDomainVoltage(0)
         if I1a is None:
-            I1a = LaplaceDomainCurrent(0)            
+            I1a = LaplaceDomainCurrent(0)
 
         if issubclass(A.__class__, TwoPortAModel):
             A, V1a, I1a = A._params, A._V1a, A._I1a
@@ -2048,13 +2048,13 @@ class TwoPortAModel(TwoPort):
             raise ValueError('A not AMatrix')
 
         V1a = LaplaceDomainVoltage(V1a)
-        I1a = LaplaceDomainCurrent(I1a)        
+        I1a = LaplaceDomainCurrent(I1a)
 
         super(TwoPortAModel, self).__init__(A[0, 0], A[0, 1], A[1, 0], A[1, 1], V1a, I1a, **kwargs)
         self._params = A
         self._V1a = V1a
         self._I1a = I1a
-        self._sources = Vector(V1a, I1a)        
+        self._sources = Vector(V1a, I1a)
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
@@ -2062,7 +2062,7 @@ class TwoPortAModel(TwoPort):
         return self._TP_make(netlist, n1, n2, n3, n4, 'A',
                              self.A11, self.A12, self.A21, self.A22,
                              self.V1a, self.I1a)
-    
+
     @property
     def Aparams(self):
         """Return chain matrix"""
@@ -2081,7 +2081,7 @@ class TwoPortAModel(TwoPort):
         # Avoid matrix inverse calculating Bparams
         if self.V1a == 0 and self.I1a == 0:
             return self.I1a
-        
+
         return -LaplaceDomainCurrent(self.B21 * self.V1a) - self.B22 * self.I1a
 
     @property
@@ -2089,7 +2089,7 @@ class TwoPortAModel(TwoPort):
         # Avoid matrix inverse calculating Bparams
         if self.V1a == 0 and self.I1a == 0:
             return self.V1a
-        
+
         return -self.B11 * self.V1a - LaplaceDomainVoltage(self.B12 * self.I1a)
 
 
@@ -2100,7 +2100,7 @@ class TwoPortGModel(TwoPort):
     model = 'G'
     input = ('V1', 'I2')
     output = ('I1', 'V2')
-    offset = ('I1g', 'V2g')    
+    offset = ('I1g', 'V2g')
 
     def __init__(self, G11=None, G12=None, G21=None, G22=None,
                  I1g=None, V2g=None, **kwargs):
@@ -2111,28 +2111,28 @@ class TwoPortGModel(TwoPort):
             G11 = 'G11' if G11 is None else G11
             G12 = 'G12' if G12 is None else G12
             G21 = 'G21' if G21 is None else G21
-            G22 = 'G22' if G22 is None else G22            
+            G22 = 'G22' if G22 is None else G22
             G = GMatrix(((G11, G12), (G21, G22)))
-    
+
         if I1g is None:
             I1g = LaplaceDomainCurrent(0)
         if V2g is None:
-            V2g = LaplaceDomainVoltage(0)            
-        
+            V2g = LaplaceDomainVoltage(0)
+
         if issubclass(G.__class__, TwoPortGModel):
             G, I1g, V2g = G._params, G._I1g, G._V2g
 
         if not isinstance(G, GMatrix):
             raise ValueError('G not GMatrix')
 
-        I1g = LaplaceDomainCurrent(I1g)                
+        I1g = LaplaceDomainCurrent(I1g)
         V2g = LaplaceDomainVoltage(V2g)
 
         super(TwoPortGModel, self).__init__(G[0, 0], G[0, 1], G[1, 0], G[1, 1], I1g, V2g, **kwargs)
         self._params = G
         self._I1g = I1g
         self._V2g = V2g
-        self._sources = Vector(I1g, V2g)        
+        self._sources = Vector(I1g, V2g)
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
@@ -2140,7 +2140,7 @@ class TwoPortGModel(TwoPort):
         return self._TP_make(netlist, n1, n2, n3, n4, 'G',
                              self.G11, self.G12, self.G21, self.G22,
                              self.I1g, self.V2g)
-        
+
     @property
     def Gparams(self):
         """Return hybrid matrix"""
@@ -2151,7 +2151,7 @@ class TwoPortGModel(TwoPort):
         """Return V2b"""
 
         #return self._V2g - LaplaceDomainVoltage(self._I1g / self.Gparams._G12)
-        return self._V2g - LaplaceDomainVoltage(self._I1g * self.B21)    
+        return self._V2g - LaplaceDomainVoltage(self._I1g * self.B21)
 
     @property
     def I2b(self):
@@ -2196,8 +2196,8 @@ class TwoPortHModel(TwoPort):
     model = 'H'
     input = ('I1', 'V2')
     output = ('V1', 'I2')
-    offset = ('V1h', 'I2h')    
-    
+    offset = ('V1h', 'I2h')
+
     def __init__(self, H11=None, H12=None, H21=None, H22=None,
                  V1h=None, I2h=None, **kwargs):
 
@@ -2207,14 +2207,14 @@ class TwoPortHModel(TwoPort):
             H11 = 'H11' if H11 is None else H11
             H12 = 'H12' if H12 is None else H12
             H21 = 'H21' if H21 is None else H21
-            H22 = 'H22' if H22 is None else H22            
+            H22 = 'H22' if H22 is None else H22
             H = HMatrix(((H11, H12), (H21, H22)))
 
         if V1h is None:
             V1h = LaplaceDomainVoltage(0)
         if I2h is None:
-            I2h = LaplaceDomainCurrent(0)            
-        
+            I2h = LaplaceDomainCurrent(0)
+
         if issubclass(H.__class__, TwoPortHModel):
             H, V1h, I2h = H._params, H._V1h, H._I2h
 
@@ -2222,13 +2222,13 @@ class TwoPortHModel(TwoPort):
             raise ValueError('H not HMatrix')
 
         V1h = LaplaceDomainVoltage(V1h)
-        I2h = LaplaceDomainCurrent(I2h)        
+        I2h = LaplaceDomainCurrent(I2h)
 
         super(TwoPortHModel, self).__init__(H[0, 0], H[0, 1], H[1, 0], H[1, 1], V1h, I2h, **kwargs)
         self._params = H
         self._V1h = V1h
         self._I2h = I2h
-        self._sources = Vector(V1h, I2h)        
+        self._sources = Vector(V1h, I2h)
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
@@ -2292,25 +2292,25 @@ class TwoPortYModel(TwoPort):
     model = 'Y'
     input = ('V1', 'V2')
     output = ('I1', 'I2')
-    offset = ('I1y', 'I2y')    
+    offset = ('I1y', 'I2y')
 
     def __init__(self, Y11=None, Y12=None, Y21=None, Y22=None,
                  I1y=None, I2y=None, **kwargs):
-    
+
         if Y11 is not None and Y12 is None and Y21 is None and Y22 is None:
             Y = Y11
         else:
             Y11 = 'Y11' if Y11 is None else Y11
             Y12 = 'Y12' if Y12 is None else Y12
             Y21 = 'Y21' if Y21 is None else Y21
-            Y22 = 'Y22' if Y22 is None else Y22            
+            Y22 = 'Y22' if Y22 is None else Y22
             Y = YMatrix(((Y11, Y12), (Y21, Y22)))
 
         if I1y is None:
             I1y = LaplaceDomainCurrent(0)
         if I2y is None:
-            I2y = LaplaceDomainCurrent(0)            
-        
+            I2y = LaplaceDomainCurrent(0)
+
         if issubclass(Y.__class__, TwoPortYModel):
             Y, I1y, I2y = Y._params, Y._I1y, Y._I2y
 
@@ -2318,13 +2318,13 @@ class TwoPortYModel(TwoPort):
             raise ValueError('Y not YMatrix')
 
         I1y = LaplaceDomainCurrent(I1y)
-        I2y = LaplaceDomainCurrent(I2y)        
+        I2y = LaplaceDomainCurrent(I2y)
 
         super(TwoPortYModel, self).__init__(Y[0, 0], Y[0, 1], Y[1, 0], Y[1, 1], I1y, I2y, **kwargs)
         self._params = Y
         self._I1y = I1y
         self._I2y = I2y
-        self._sources = Vector(I1y, I2y)        
+        self._sources = Vector(I1y, I2y)
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
@@ -2332,7 +2332,7 @@ class TwoPortYModel(TwoPort):
         return self._TP_make(netlist, n1, n2, n3, n4, 'Y',
                              self.Y11, self.Y12, self.Y21, self.Y22,
                              self.I1y, self.I2y)
-        
+
     @property
     def Yparams(self):
         """Return admittance matrix"""
@@ -2383,7 +2383,7 @@ class TwoPortZModel(TwoPort):
     model = 'Z'
     input = ('I1', 'I2')
     output = ('V1', 'V2')
-    offset = ('V1z', 'V2z')    
+    offset = ('V1z', 'V2z')
 
     def __init__(self, Z11=None, Z12=None, Z21=None, Z22=None,
                  V1z=None, V2z=None, **kwargs):
@@ -2394,14 +2394,14 @@ class TwoPortZModel(TwoPort):
             Z11 = 'Z11' if Z11 is None else Z11
             Z12 = 'Z12' if Z12 is None else Z12
             Z21 = 'Z21' if Z21 is None else Z21
-            Z22 = 'Z22' if Z22 is None else Z22            
+            Z22 = 'Z22' if Z22 is None else Z22
             Z = ZMatrix(((Z11, Z12), (Z21, Z22)))
 
         if V1z is None:
             V1z = LaplaceDomainVoltage(0)
         if V2z is None:
-            V2z = LaplaceDomainVoltage(0)            
-        
+            V2z = LaplaceDomainVoltage(0)
+
         if issubclass(Z.__class__, TwoPortZModel):
             Z, V1z, V2z = Z._params, Z._V1z, Z._V2z
 
@@ -2409,13 +2409,13 @@ class TwoPortZModel(TwoPort):
             raise ValueError('Z not ZMatrix')
 
         V1z = LaplaceDomainVoltage(V1z)
-        V2z = LaplaceDomainVoltage(V2z)        
+        V2z = LaplaceDomainVoltage(V2z)
 
         super(TwoPortZModel, self).__init__(Z[0, 0], Z[0, 1], Z[1, 0], Z[1, 1], V1z, V2z, **kwargs)
         self._params = Z
         self._V1z = V1z
         self._V2z = V2z
-        self._sources = Vector(V1z, V2z)        
+        self._sources = Vector(V1z, V2z)
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
@@ -2463,7 +2463,7 @@ class TPA(TwoPortAModel):
 
     pass
 
-        
+
 class TPB(TwoPortBModel):
     """B-parameter two-port network."""
 
@@ -2487,19 +2487,19 @@ class TPY(TwoPortYModel):
 
     pass
 
-        
+
 class TPZ(TwoPortZModel):
     """Z-parameter two-port network."""
 
     pass
 
-    
+
 class TP(TPB):
     """A generic two-port network."""
 
     pass
 
-    
+
 class Chain(TwoPortBModel):
     """Connect two-port networks in a chain (aka cascade)"""
 
@@ -2508,7 +2508,7 @@ class Chain(TwoPortBModel):
         self._check_twoport_args(args)
 
         # FIXME for non-invertible Aparams.
-        
+
         arg1 = args[-1]
         B = arg1.Bparams
 
@@ -2530,7 +2530,7 @@ class Chain(TwoPortBModel):
 
         nets = []
         nets.append(self.args[0]._net_make(netlist, n1, n2, n5, n6))
-        nets.append(self.args[1]._net_make(netlist, n5, n6, n3, n4))        
+        nets.append(self.args[1]._net_make(netlist, n5, n6, n3, n4))
         return '\n'.join(nets)
 
     def simplify(self):
@@ -2585,7 +2585,7 @@ class Par2(TwoPortYModel):
         nets.append('W %s %s; right=0.75' % (n1, n13))
         nets.append('W %s %s; right=0.25' % (n13, n5))
         nets.append('W %s %s; right=0.75' % (n7, n14))
-        nets.append('W %s %s; right=0.25' % (n14, n3))                        
+        nets.append('W %s %s; right=0.25' % (n14, n3))
         nets.append('W %s %s; right=0.75' % (n15, n6))
         nets.append('W %s %s; right=0.25' % (n8, n16))
         nets.append('W %s %s; right=0.25' % (n17, n9))
@@ -2599,9 +2599,9 @@ class Par2(TwoPortYModel):
         nets.append('W %s %s; down=1.75' % (n16, n20))
         nets.append('W %s %s; down=1.75' % (n14, n18))
         nets.append('O %s %s; down' % (n1, n2))
-        nets.append('O %s %s; down' % (n3, n4))                
-        return '\n'.join(nets)        
-            
+        nets.append('O %s %s; down' % (n3, n4))
+        return '\n'.join(nets)
+
     def simplify(self):
 
         if isinstance(self.args[0], Shunt) and isinstance(self.args[1], Shunt):
@@ -2653,13 +2653,13 @@ class Ser2(TwoPortZModel):
         nets.append('W %s %s; right=0.75' % (n1, n5))
         nets.append('W %s %s; right=0.75' % (n7, n3))
         nets.append('W %s %s; right=0.75' % (n2, n10))
-        nets.append('W %s %s; right=0.75' % (n12, n4))        
+        nets.append('W %s %s; right=0.75' % (n12, n4))
         nets.append('W %s %s; down=0.75' % (n6, n9))
         nets.append('W %s %s; down=0.75' % (n8, n11))
         nets.append('O %s %s; down' % (n1, n2))
-        nets.append('O %s %s; down' % (n3, n4))        
-        return '\n'.join(nets)        
-        
+        nets.append('O %s %s; down' % (n3, n4))
+        return '\n'.join(nets)
+
     def simplify(self):
 
         if isinstance(self.args[0], Shunt) and isinstance(self.args[1], Shunt):
@@ -2708,15 +2708,15 @@ class Hybrid2(TwoPortHModel):
         nets.append('W %s %s; right=0.75' % (n11, n17))
         nets.append('W %s %s; right=0.75' % (n2, n10))
         nets.append('W %s %s; right=0.25' % (n12, n18))
-        nets.append('W %s %s; right=0.75' % (n18, n4))                
+        nets.append('W %s %s; right=0.75' % (n18, n4))
         nets.append('W %s %s; down=0.75' % (n14, n16))
         nets.append('W %s %s; down=1' % (n15, n18))
         nets.append('W %s %s; down=1' % (n13, n17))
         nets.append('O %s %s; down' % (n1, n2))
-        nets.append('O %s %s; down' % (n3, n4))        
-        return '\n'.join(nets)        
-        
-        
+        nets.append('O %s %s; down' % (n3, n4))
+        return '\n'.join(nets)
+
+
 class InverseHybrid2(TwoPortGModel):
     """Connect two-port networks in inverse hybrid configuration (outputs in
     series, inputs in parallel)"""
@@ -2749,20 +2749,20 @@ class InverseHybrid2(TwoPortGModel):
         nets.append(self.args[1]._net_make(netlist, n9, n10, n11, n12))
         nets.append('W %s %s; right=0.75' % (n1, n13))
         nets.append('W %s %s; right=0.75' % (n7, n3))
-        nets.append('W %s %s; right=0.25' % (n13, n5))        
+        nets.append('W %s %s; right=0.25' % (n13, n5))
         nets.append('W %s %s; right=0.75' % (n14, n6))
         nets.append('W %s %s; right=0.25' % (n8, n15))
         nets.append('W %s %s; right=0.25' % (n16, n9))
         nets.append('W %s %s; right=0.25' % (n11, n17))
         nets.append('W %s %s; right=0.25' % (n2, n18))
         nets.append('W %s %s; right=0.75' % (n18, n10))
-        nets.append('W %s %s; right=0.75' % (n12, n4))                
+        nets.append('W %s %s; right=0.75' % (n12, n4))
         nets.append('W %s %s; down=1' % (n13, n16))
         nets.append('W %s %s; down=1' % (n14, n18))
         nets.append('W %s %s; down=0.75' % (n15, n17))
         nets.append('O %s %s; down' % (n1, n2))
-        nets.append('O %s %s; down' % (n3, n4))                        
-        return '\n'.join(nets)                
+        nets.append('O %s %s; down' % (n3, n4))
+        return '\n'.join(nets)
 
 
 class Series(TwoPortBModel):
@@ -2782,7 +2782,7 @@ class Series(TwoPortBModel):
     def __init__(self, OP):
 
         _check_oneport_args((OP, ))
-        
+
         super(Series, self).__init__(BMatrix.Zseries(OP.Z.laplace()),
                                      V2b=LaplaceDomainVoltage(OP.Voc.laplace()),
                                      I2b=LaplaceDomainCurrent(0))
@@ -2798,9 +2798,9 @@ class Series(TwoPortBModel):
         nets.append(self.args[0]._net_make(netlist, n1, n3, dir='right'))
         nets.append('W %s %s; right' % (n2, n4))
         nets.append('O %s %s; down' % (n1, n2))
-        nets.append('O %s %s; down' % (n3, n4))        
+        nets.append('O %s %s; down' % (n3, n4))
         return '\n'.join(nets)
-        
+
 
 class Shunt(TwoPortBModel):
     """
@@ -2822,7 +2822,7 @@ class Shunt(TwoPortBModel):
 
     def __init__(self, OP):
 
-        _check_oneport_args((OP, ))        
+        _check_oneport_args((OP, ))
         super(Shunt, self).__init__(BMatrix.Yshunt(OP.Y.laplace()),
                                     V2b=LaplaceDomainVoltage(0),
                                     I2b=LaplaceDomainCurrent(OP.Isc.laplace()))
@@ -2833,15 +2833,15 @@ class Shunt(TwoPortBModel):
                   dir='right'):
 
         n2, n1, n4, n3, n6, n5 = netlist._make_nodes(n2, n1, n4, n3, None, None)
-            
-        nets = []        
+
+        nets = []
         nets.append(self.args[0]._net_make(netlist, n5, n6, dir='down'))
         nets.append('W %s %s; right=0.5' % (n1, n5))
         nets.append('W %s %s; right=0.5' % (n5, n3))
         nets.append('W %s %s; right=0.5' % (n2, n6))
-        nets.append('W %s %s; right=0.5' % (n6, n4))                
+        nets.append('W %s %s; right=0.5' % (n6, n4))
         return '\n'.join(nets)
-        
+
 
 class IdealTransformer(TwoPortBModel):
     """Ideal transformer voltage gain alpha, current gain 1 / alpha.
@@ -2854,7 +2854,7 @@ class IdealTransformer(TwoPortBModel):
         self.alpha = ConstantDomainExpression(alpha)
         self.args = (alpha, )
 
-        
+
 class TF(IdealTransformer):
     pass
 
@@ -2871,7 +2871,7 @@ class IdealGyrator(TwoPortBModel):
         self.R = ConstantDomainExpression(R)
         self.args = (R, )
 
-        
+
 class VoltageFollower(TwoPortBModel):
     """Voltage follower"""
 
@@ -3046,10 +3046,10 @@ class TSection(TwoPortBModel):
 
         _check_oneport_args((OP1, OP2, OP3))
         self.tp = Series(OP1).chain(Shunt(OP2)).chain(Series(OP3))
-        
+
         super(TSection, self).__init__(self.tp)
         self.args = (OP1, OP2, OP3)
-        
+
 
     def Pisection(self):
 
@@ -3249,7 +3249,7 @@ class GeneralTxLine(TwoPortBModel):
         B22 = sym.S.Half * (H + 1 / H)
 
         B = BMatrix(((B11, B12), (B21, B22))).simplify()
-        
+
         super(GeneralTxLine, self).__init__(B)
         self.args = (Z0, gamma, l)
 
@@ -3266,7 +3266,7 @@ class LosslessTxLine(GeneralTxLine):
         gamma = s / c
 
         super(LosslessTxLine, self).__init__(Z0, gamma, l)
-        self.args = (Z0, c, l)        
+        self.args = (Z0, c, l)
 
 
 class TxLine(GeneralTxLine):
@@ -3288,4 +3288,3 @@ class TxLine(GeneralTxLine):
 
         super(TxLine, self).__init__(Z0, gamma, l)
         self.args = (R, L, G, C, l)
-        
