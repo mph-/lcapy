@@ -111,6 +111,15 @@ class PhasorExpression(Expr):
 
         return abs(self) * sqrt(2) / 2
 
+    def subs(self, *args, **kwargs):
+        """Substitute variables in expression, see sympy.subs for usage."""
+
+        result = super(PhasorExpression, self).subs(*args, **kwargs)
+        if len(args) == 1:
+            # HACK, try to handle .subs(2 * pi * f)
+            result.assumptions['omega'] = args[0].expr
+        return result
+
     def plot(self, wvector=None, **kwargs):
         """Plot polar diagram for a time-domain phasor or frequency response
         for a frequency-domain phasor.  For the latter, wvector
@@ -122,7 +131,7 @@ class PhasorExpression(Expr):
         if self.is_phasor_time_domain:
             return plot_phasor(self, **kwargs)
 
-        if self.omega != omegasym:
+        if self.omega.is_constant():
             raise ValueError('Cannot plot at single frequency')
 
         return plot_angular_frequency(self, wvector, **kwargs)
