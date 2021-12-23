@@ -19,8 +19,8 @@ def msympify(expr):
         # Bye bye Lcapy type information...
         return expr.sympy
     return sym.sympify(expr)
-        
-        
+
+
 class Matrix(sym.Matrix):
 
     # Unlike numpy.ndarray, the sympy.Matrix runs all the elements
@@ -48,7 +48,7 @@ class Matrix(sym.Matrix):
     # operations need to be reimplemented or wrapped.  Wrapping is
     # easier but the units may be wrong, say with a matrix inverse
     # operation.
-    
+
     # _sympify is called for each matrix element when a matrix is created.
     _sympify = staticmethod(msympify)
 
@@ -92,12 +92,12 @@ class Matrix(sym.Matrix):
 
     def pdb(self):
         """Enter the python debugger."""
-        
+
         import pdb; pdb.set_trace()
         return self
 
     def canonical(self):
-        
+
         return self
 
     # TODO. There is probably a cunning way to automatically handle
@@ -105,12 +105,12 @@ class Matrix(sym.Matrix):
 
     def inv(self, method='default'):
         Minv = matrix_inverse(sym.Matrix(self), method=method)
-        
+
         return self.__class__(Minv)
 
     def det(self):
 
-        return expr(super(Matrix, self).det())        
+        return expr(super(Matrix, self).det())
 
     def norm(self):
 
@@ -129,13 +129,18 @@ class Matrix(sym.Matrix):
         try:
             value = value.sympy
         except:
-            pass        
+            pass
 
         ret = super(Matrix, self).replace(query, value, map, simultaneous, exact)
         return self.__class__(ret)
 
+    def rewrite(self, *args, **hints):
+
+        f = lambda x: expr(x).rewrite(*args, **hints).sympy
+        return self.applyfunc(f)
+
     def simplify(self):
-        
+
         return self.applyfunc(simplify)
 
     def subs(self, *args, **kwargs):
@@ -144,11 +149,11 @@ class Matrix(sym.Matrix):
         f = lambda x: expr(x).subs(*args, **kwargs).sympy
         return self.applyfunc(f)
 
-    @property    
+    @property
     def conj(self):
         """Complex conjugate; for compatilibility with Expr conj is an attribute."""
         return self._new(self.rows, self.cols, [x.conj for x in self])
-    
+
     @property
     def symbols(self):
 
@@ -173,7 +178,7 @@ class Matrix(sym.Matrix):
             if x.is_complex:
                 return True
         return False
-    
+
     def evaluate(self, arg=None):
         """Evaluate matrix at arg.  `arg` may be a scalar.
         The result is a NumPy float or complex array.
@@ -181,7 +186,7 @@ class Matrix(sym.Matrix):
         There can be only one or fewer undefined variables in the expression.
         This is replaced by `arg` and then evaluated to obtain a result.
         """
-                
+
         from numpy import empty
 
         dtype = float
@@ -198,7 +203,7 @@ class Matrix(sym.Matrix):
     def numpy(self):
         """Return NumPy array; not a NumPy matrix."""
         return self.evaluate()
-    
+
 
 def matrix(mat):
     """Create Lcapy Matrix from a SymPy Matrix.
@@ -211,17 +216,17 @@ def matrix(mat):
     from .sym import tsym, ssym
     from .smatrix import LaplaceDomainMatrix
     from .tmatrix import TimeDomainMatrix
-    
+
     elt = mat[0]
     try:
         elt = elt[0]
     except:
-        pass    
-    
+        pass
+
     if elt.has(tsym):
         return TimeDomainMatrix(mat)
     elif elt.has(ssym):
-        return LaplaceDomainMatrix(mat)        
+        return LaplaceDomainMatrix(mat)
     else:
         return mat
 
@@ -229,21 +234,21 @@ def matrix(mat):
 def matrix_inverse(M, method='default'):
 
     from .config import matrix_inverse_method, matrix_inverse_fallback_method
-    
+
     if method == 'default':
         method = matrix_inverse_method
 
     if method == 'GE':
         try:
-            from sympy.matrices import dotprodsimp 
-            
+            from sympy.matrices import dotprodsimp
+
             # GE loses it without this assumption.  Well with
             # sympy-1.6.2 and the master version, GE still loses it
             # with a poor pivot.
             with dotprodsimp(False):
                 return M.inv(method='GE')
         except:
-            return M.inv(method='GE')            
+            return M.inv(method='GE')
 
     elif method.startswith('DM-'):
         try:
@@ -253,8 +258,8 @@ def matrix_inverse(M, method='default'):
             # by converting it to a field, however, we just fall back
             # on a standard method.
             from sympy.polys.domainmatrix import DomainMatrix
-            dM = DomainMatrix.from_list_sympy(*M.shape, rows=M.tolist())        
-            return dM.inv(method=method[3:]).to_Matrix()            
+            dM = DomainMatrix.from_list_sympy(*M.shape, rows=M.tolist())
+            return dM.inv(method=method[3:]).to_Matrix()
         except:
             method = matrix_inverse_fallback_method
 
@@ -278,11 +283,11 @@ def matrix_inverse(M, method='default'):
 
     def timeconst(self):
 
-        return self.applyfunc(self._typewrap.timeconst)   
+        return self.applyfunc(self._typewrap.timeconst)
 
     def ZPK(self):
 
-        return self.applyfunc(self._typewrap.ZPK)    
+        return self.applyfunc(self._typewrap.ZPK)
 
-    
+
 from .expr import Expr, expr
