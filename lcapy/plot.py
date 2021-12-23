@@ -234,6 +234,8 @@ def plotit(ax, obj, f, V, plot_type=None, deltas=None, log_magnitude=False,
     elif plot_type == 'dB':
         Vabs = abs(V)
         Vmin = 10**(dbmin / 20)
+        if np.all(Vabs < Vmin):
+            warn('All values below dbmin')
         Vabs[Vabs < Vmin] = Vmin
         V = 20 * np.log10(Vabs)
         part = 'magnitude'
@@ -441,6 +443,8 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
     if plot1_type == 'dB':
         Vabs = abs(V)
         Vmin = 10**(dbmin / 20)
+        if np.all(Vabs < Vmin):
+            warn('All values below dbmin')
         Vabs[Vabs < Vmin] = Vmin
 
         m = np.isinf(Vabs)
