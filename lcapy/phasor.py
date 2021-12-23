@@ -159,14 +159,17 @@ class PhasorExpression(Expr):
 
         from .sym import fsym, pi
 
+        # Handle omega -> 2 * pi * f conversions to Fourier domain.
         if len(args) == 1 and args[0] == 2 * pi * fsym:
             from .fexpr import FourierDomainExpression
 
-            warn("""
-Sneakily converting to Fourier domain via back door.  This may not work properly and may be disallowed.""")
-
             if self.var != omegasym:
                 raise ValueError('Expecting omega for self.var')
+
+            # Could check for expressions that are known to fail,
+            # such as 1 / (j * omega).
+            warn("""
+Converting to Fourier domain via phasor domain may not give correct answer.   It is safer to convert to time domain then to Fourier domain.""")
 
             return FourierDomainExpression(self.sympy.subs(omegasym, args[0].sympy)).as_quantity(self.quantity)
 
