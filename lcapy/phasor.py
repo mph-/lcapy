@@ -154,6 +154,24 @@ class PhasorExpression(Expr):
         raise ValueError('Incompatible phasor angular frequencies %s and %s' %
                          (self.omega, x.omega))
 
+    def subs(self, *args, **kwargs):
+        """Substitute variables in expression, see sympy.subs for usage."""
+
+        from .sym import fsym, pi
+
+        if len(args) == 1 and args[0] == 2 * pi * fsym:
+            from .fexpr import FourierDomainExpression
+
+            warn("""
+Sneakily converting to Fourier domain via back door.  This may not work properly and may be disallowed.""")
+
+            if self.var != omegasym:
+                raise ValueError('Expecting omega for self.var')
+
+            return FourierDomainExpression(self.sympy.subs(omegasym, args[0].sympy)).as_quantity(self.quantity)
+
+        return super(PhasorExpression, self).subs(*args, **kwargs)
+
 
 class PhasorTimeDomainExpression(PhasorTimeDomain, PhasorExpression):
     """This is a phasor domain base class for voltages and currents."""
@@ -316,24 +334,6 @@ class PhasorFrequencyDomainExpression(PhasorFrequencyDomain, PhasorExpression):
 
     def as_expr(self):
         return PhasorFrequencyDomainExpression(self)
-
-    def subs(self, *args, **kwargs):
-        """Substitute variables in expression, see sympy.subs for usage."""
-
-        from .sym import fsym, pi
-
-        if len(args) == 1 and args[0] == 2 * pi * fsym:
-            from .fexpr import FourierDomainExpression
-
-            warn("""
-Sneakily converting to Fourier domain via back door.  This may not work properly and may be disallowed.""")
-
-            if self.var != omegasym:
-                raise ValueError('Expecting omega for self.var')
-            # TODO, fix quantity
-            return FourierDomainExpression(self.sympy.subs(omegasym, args[0].sympy))
-
-        return super(PhasorExpression, self).subs(*args, **kwargs)
 
 
 def phasor(arg, omega=None, **assumptions):
