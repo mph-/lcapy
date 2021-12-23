@@ -94,7 +94,7 @@ class PhasorExpression(Expr):
         """Angular Fourier transform."""
 
         if self.has(omega):
-            warn('Expression contains omega, should substitute with a different symbol')
+            warn('Expression contains omega, should substitute with a different symbol.')
 
         return self.time().angular_fourier()
 
@@ -111,15 +111,6 @@ class PhasorExpression(Expr):
 
         return abs(self) * sqrt(2) / 2
 
-    def subs(self, *args, **kwargs):
-        """Substitute variables in expression, see sympy.subs for usage."""
-
-        result = super(PhasorExpression, self).subs(*args, **kwargs)
-        if len(args) == 1:
-            # HACK, try to handle .subs(2 * pi * f)
-            result.assumptions['omega'] = args[0].expr
-        return result
-
     def plot(self, wvector=None, **kwargs):
         """Plot polar diagram for a time-domain phasor or frequency response
         for a frequency-domain phasor.  For the latter, wvector
@@ -127,6 +118,7 @@ class PhasorExpression(Expr):
         the angular frequency limits."""
 
         from .plot import plot_phasor, plot_angular_frequency
+        from .sym import pi, fsym
 
         if self.is_phasor_time_domain:
             return plot_phasor(self, **kwargs)
@@ -198,7 +190,7 @@ class PhasorTimeDomainExpression(PhasorTimeDomain, PhasorExpression):
         from .symbols import t
 
         if expr.is_admittance or expr.is_impedance or expr.is_transfer:
-            warn('Should convert %s expression to Laplace-domain first' % expr.quantity)
+            warn('Should convert %s expression to Laplace-domain first.' % expr.quantity)
 
         assumptions['ac'] = True
 
@@ -289,7 +281,7 @@ class PhasorFrequencyDomainExpression(PhasorFrequencyDomain, PhasorExpression):
             omega = omega.expr
 
         if expr.is_voltage or expr.is_current:
-            warn('Should convert %s expression to time-domain first' % expr.quantity)
+            warn('Should convert %s expression to time-domain first.' % expr.quantity)
 
         # Substitute jw for s
         result = expr.laplace(**ass)
@@ -324,6 +316,24 @@ class PhasorFrequencyDomainExpression(PhasorFrequencyDomain, PhasorExpression):
 
     def as_expr(self):
         return PhasorFrequencyDomainExpression(self)
+
+    def subs(self, *args, **kwargs):
+        """Substitute variables in expression, see sympy.subs for usage."""
+
+        from .sym import fsym, pi
+
+        if len(args) == 1 and args[0] == 2 * pi * fsym:
+            from .fexpr import FourierDomainExpression
+
+            warn("""
+Sneakily converting to Fourier domain via back door.  This may not work properly and may be disallowed.""")
+
+            if self.var != omegasym:
+                raise ValueError('Expecting omega for self.var')
+            # TODO, fix quantity
+            return FourierDomainExpression(self.sympy.subs(omegasym, args[0].sympy))
+
+        return super(PhasorExpression, self).subs(*args, **kwargs)
 
 
 def phasor(arg, omega=None, **assumptions):
