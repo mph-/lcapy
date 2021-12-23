@@ -147,6 +147,18 @@ class OnePort(Network, ImmittanceMixin):
     def has_parallel_V(self):
         return self.is_voltage_source
 
+    def chain(self, TP):
+        """Chain to a two-port.  This is experimental."""
+
+        if isinstance(TP, OnePort):
+            raise ValueError('Cannot chain oneport with a oneport')
+
+        from .twoport import TwoPort
+        if not isinstance(TP, TwoPort):
+            raise ValueError('%s not a twoport' % TP)
+
+        return TP.source(self)
+
     def series(self, OP):
         """Series combination"""
 
@@ -707,6 +719,14 @@ class Par(ParSer):
     def impedance(self):
         return 1 / self.admittance
 
+    @property
+    def Isc(self):
+        I = 0
+        for arg in self.args:
+            I += arg.Isc
+        return I
+
+
 class Ser(ParSer):
     """Series class"""
 
@@ -784,6 +804,13 @@ class Ser(ParSer):
         for arg in self.args:
             Z += arg.impedance
         return Z
+
+    @property
+    def Voc(self):
+        V = 0
+        for arg in self.args:
+            V += arg.Voc
+        return V
 
 
 class R(OnePort):
