@@ -8,6 +8,7 @@ import numpy as np
 from .symbols import pi
 from .utils import separate_dirac_delta, factor_const
 from sympy import DiracDelta, solve
+from warnings import warn
 
 
 # Perhaps add Formatter classes that will produce the plot data?
@@ -16,7 +17,7 @@ from sympy import DiracDelta, solve
 def make_axes(figsize=None, axes=None, **kwargs):
 
     from matplotlib.pyplot import subplots
-    
+
     if axes is not None:
         if isinstance(axes, tuple):
             # FIXME
@@ -38,7 +39,7 @@ def parse_range(frange, zero=0.1, positive=False):
 
     if fmax < fmin:
         raise ValueError('Max value smaller than min value')
-    
+
     if positive and fmin < 0:
         raise ValueError('Min value not positive.')
 
@@ -53,7 +54,7 @@ def plot_deltas(ax, t, deltas, var, plot_type='real', color='k'):
     vals = []
     for delta in deltas:
         delta = delta.expand(diracdelta=True, wrt=var)
-        const, expr = factor_const(delta, var)        
+        const, expr = factor_const(delta, var)
         if not (expr.is_Function and expr.func is DiracDelta):
             raise ValueError('Cannot handle %s' % expr)
         t0 = solve(expr.args[0], var)[0]
@@ -81,34 +82,34 @@ def plot_deltas(ax, t, deltas, var, plot_type='real', color='k'):
 
     vals = np.array(vals)
 
-    tmin, tmax = ax.get_xlim()        
+    tmin, tmax = ax.get_xlim()
     T = tmax - tmin
     ymin, ymax = ax.get_ylim()
     yvalsmax = vals[:, 1].max()
-    
+
     for t0, y in vals:
-        
+
         # TODO: determine best scaling
         y1 = y / yvalsmax * ymax / 2
-        
+
         st = T / 10
         sy = ymax
-        
+
         ax.arrow(t0, 0, 0, y1, fc=color, ec=color,
                  width = 0.025 * st, head_width=0.1 * st,
                  head_length=0.1 * sy, overhang=0,
                  length_includes_head=True, clip_on=False)
-        
+
         # TODO: nicely format the scale factor
         ax.text(t0 + T / 100, y1 + ymax / 100, '%.*g' % (3, y))
 
-            
+
 def plot_pole_zero(obj, **kwargs):
 
     from matplotlib.pyplot import Circle, rcParams
 
     obj = obj.doit()
-    
+
     poles = obj.poles()
     zeros = obj.zeros()
     try:
@@ -120,16 +121,16 @@ def plot_pole_zero(obj, **kwargs):
     ax = make_axes(figsize=kwargs.pop('figsize', None),
                    axes=kwargs.pop('axes', None))
 
-    unitcircle = kwargs.pop('unitcircle', False)    
-    
+    unitcircle = kwargs.pop('unitcircle', False)
+
     ax.axvline(0, color='0.7')
     ax.axhline(0, color='0.7')
 
     a = np.hstack((p, z))
-    
+
     if unitcircle:
         ax.add_artist(Circle((0, 0), 1, color='blue', linestyle='--', fill=False))
-    
+
     x_min = a.real.min()
     x_max = a.real.max()
     y_min = a.imag.min()
@@ -143,8 +144,8 @@ def plot_pole_zero(obj, **kwargs):
         if y_min > -1:
             y_min = -1
         if y_max < 1:
-            y_max = 1                        
-    
+            y_max = 1
+
     x_extra, y_extra = 0.0, 0.0
 
     # This needs tweaking for better bounds.
@@ -160,10 +161,10 @@ def plot_pole_zero(obj, **kwargs):
     if unitcircle:
         bbox = ax.get_window_extent()
         aspect = bbox.width / bbox.height
-        
+
         x_min *= aspect
-        x_max *= aspect       
-        
+        x_max *= aspect
+
     ax.axis('equal')
     ax.set_xlim(x_min, x_max)
     # overconstrained so ignored
@@ -173,7 +174,7 @@ def plot_pole_zero(obj, **kwargs):
         if offset is None:
             xmin, xmax = axes.get_xlim()
             offset = (xmax - xmin) / 40
-        
+
         for pole, num in poles.items():
             if num > 1:
                 p = pole.cval
@@ -188,22 +189,22 @@ def plot_pole_zero(obj, **kwargs):
     xlabel = kwargs.pop('xlabel', 'Re(%s)' % obj.var)
     ylabel = kwargs.pop('ylabel', 'Im(%s)' % obj.var)
     title = kwargs.pop('title', None)
-    
+
     lines = ax.plot(z.real, z.imag, 'o', fillstyle=fillstyle, **kwargs)
     annotate(ax, zeros)
-    color = kwargs.pop('color', lines[0].get_color())    
+    color = kwargs.pop('color', lines[0].get_color())
     ax.plot(p.real, p.imag, 'x', fillstyle=fillstyle, color=color, **kwargs)
     annotate(ax, poles)
 
     if xlabel is not None:
         ax.set_xlabel(xlabel)
-    if ylabel is not None:        
+    if ylabel is not None:
         ax.set_ylabel(ylabel)
     if title is not None:
-        ax.set_title(title)        
+        ax.set_title(title)
 
     ax.grid(True)
-    
+
     return ax
 
 
@@ -216,36 +217,36 @@ def plotit(ax, obj, f, V, plot_type=None, deltas=None, log_magnitude=False,
              (False, False) : ax.plot}
 
     label = ''
-    if hasattr(obj, 'quantity_label'):    
+    if hasattr(obj, 'quantity_label'):
         label = obj.quantity_label
-    part = obj.part    
+    part = obj.part
     units = str(obj.units)
-        
+
     if plot_type == 'real':
         V = V.real
         part = 'real part'
     elif plot_type == 'imag':
         V = V.imag
-        part = 'imag part'        
+        part = 'imag part'
     elif plot_type == 'magnitude':
         V = abs(V)
-        part = 'magnitude'        
+        part = 'magnitude'
     elif plot_type == 'dB':
         Vabs = abs(V)
         Vmin = 10**(dbmin / 20)
         Vabs[Vabs < Vmin] = Vmin
         V = 20 * np.log10(Vabs)
-        part = 'magnitude'        
+        part = 'magnitude'
         units = 'dB'
     elif plot_type == 'radians':
         V = np.angle(V)
-        part = 'phase'                
-        units = 'radians'        
+        part = 'phase'
+        units = 'radians'
     elif plot_type == 'degrees':
         V = np.degrees(np.angle(V))
-        part = 'phase'        
-        units = 'degrees'        
-        
+        part = 'phase'
+        units = 'degrees'
+
     if obj.is_magnitude or np.all(V > 0):
         plot = plots[(log_magnitude, log_frequency)]
     else:
@@ -262,7 +263,7 @@ def plotit(ax, obj, f, V, plot_type=None, deltas=None, log_magnitude=False,
         default_ylabel = label + ' ' + part
     if units != '' and units != '1':
         default_ylabel += ' (' + units + ')'
-        
+
     xlabel = kwargs.pop('xlabel', default_xlabel)
     ylabel = kwargs.pop('ylabel', default_ylabel)
     ylabel2 = kwargs.pop('ylabel2', default_ylabel)
@@ -276,7 +277,7 @@ def plotit(ax, obj, f, V, plot_type=None, deltas=None, log_magnitude=False,
 
     if deltas is not None:
         plot_deltas(ax, f * xscale, deltas, obj.var, plot_type, color)
-    
+
     if xlabel is not None:
         ax.set_xlabel(xlabel)
     ylabel = ylabel2 if second else ylabel
@@ -284,7 +285,7 @@ def plotit(ax, obj, f, V, plot_type=None, deltas=None, log_magnitude=False,
         ax.set_ylabel(ylabel)
     if title is not None:
         ax.set_title(title)
-        
+
     ax.grid(True)
     return lines
 
@@ -292,24 +293,24 @@ def plotit(ax, obj, f, V, plot_type=None, deltas=None, log_magnitude=False,
 def plot_frequency(obj, f, plot_type=None, **kwargs):
 
     obj = obj.doit()
-    
+
     # Much of the hoop jumping is to speed up plotting since
     # obj.real can be slow.  Instead we evaluate complex
     # objects and then convert to phase, magnitude, etc.
 
     norm = kwargs.pop('norm', False)
-    npoints = kwargs.pop('npoints', 400)    
+    npoints = kwargs.pop('npoints', 400)
     log_magnitude = kwargs.pop('log_magnitude', False)
     log_frequency = kwargs.pop('log_frequency', False) or kwargs.pop('log_scale', False)
     if kwargs.pop('loglog', False):
-        log_magnitude = True 
+        log_magnitude = True
         log_frequency = True
 
-    dbmin = kwargs.pop('dbmin', -120)        
-    label = kwargs.pop('label', None)        
+    dbmin = kwargs.pop('dbmin', -120)
+    label = kwargs.pop('label', None)
     nyticks = kwargs.pop('nyticks', None)
     color2 = kwargs.pop('color2', None)
-    linestyle2 = kwargs.pop('linestyle2', '--')        
+    linestyle2 = kwargs.pop('linestyle2', '--')
 
     # FIXME, determine useful frequency range...
     if f is None:
@@ -324,8 +325,8 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
             fmin, fmax = parse_range(f, 1e-1, positive=True)
             f = np.geomspace(fmin, fmax, npoints)
         else:
-            fmin, fmax = parse_range(f, 1e-1, positive=False)            
-            f = np.linspace(fmin, fmax, npoints)            
+            fmin, fmax = parse_range(f, 1e-1, positive=False)
+            f = np.linspace(fmin, fmax, npoints)
 
     # Objects can have a `part` attribute that is set by methods such
     # as real, imag, phase, magnitude.  If this is defined,
@@ -334,8 +335,8 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
     plot1_type = 'default'
     plot2_type = None
 
-    V = obj.evaluate(f)        
-    
+    V = obj.evaluate(f)
+
     if not V.dtype == complex:
         if (plot_type in ('dB-phase', 'dB-phase-degrees',
                           'mag-phase','mag-phase-degrees',
@@ -349,7 +350,7 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
         elif plot_type in ('real', ):
             plot1_type = 'real'
         elif plot_type in ('abs', ):
-            plot1_type = 'abs'                        
+            plot1_type = 'abs'
 
     elif obj.part == '':
 
@@ -362,15 +363,15 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
         elif plot_type in ('dB_phase_degrees', 'dB-phase-degrees',
                            'dB-degrees'):
             plot1_type = 'dB'
-            plot2_type = 'degrees'            
+            plot2_type = 'degrees'
         elif plot_type in ('mag_phase', 'magnitude_phase',
                            'mag-phase','magnitude-phase'):
-            plot1_type = 'magnitude'            
+            plot1_type = 'magnitude'
             plot2_type = 'radians'
         elif plot_type in ('mag_phase_degrees', 'magnitude_phase_degrees',
                            'mag-phase-degrees','magnitude-phase-degrees'):
-            plot1_type = 'magnitude'            
-            plot2_type = 'degrees'            
+            plot1_type = 'magnitude'
+            plot2_type = 'degrees'
         elif plot_type in ('real_imag', 'real-imag'):
             plot1_type = 'real'
             plot2_type = 'imag'
@@ -381,7 +382,7 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
         elif plot_type in ('phase-degrees', 'degrees'):
             plot1_type = 'degrees'
         elif plot_type == 'abs':
-            plot1_type = 'abs'            
+            plot1_type = 'abs'
         elif plot_type == 'real':
             plot1_type = 'real'
         elif plot_type == 'imag':
@@ -393,7 +394,7 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
                      'mag-phase', 'magnitude-phase', 'mag-phase-degrees','magnitude-phase-degrees',
                      'real-imag', 'mag', 'magnitude', 'phase', 'radians', 'phase-degrees',
                      'degrees', 'real', 'imag', 'dB', 'abs']
-            
+
             raise ValueError('Unknown plot type: %s. Use: %s ' % (plot_type, ', '.join(types)))
 
     deltas = None
@@ -401,17 +402,17 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
         cls = obj.__class__
         rest, deltas = separate_dirac_delta(obj.expr)
         obj = cls(rest, **obj.assumptions)
-        V = obj.evaluate(f)        
+        V = obj.evaluate(f)
 
     ax = make_axes(figsize=kwargs.pop('figsize', None),
                    axes=kwargs.pop('axes', None))
 
     if label is None:
         label = plot1_type
-    
+
     lines = plotit(ax, obj, f, V, plot1_type, deltas, log_frequency=log_frequency,
                    log_magnitude=log_magnitude, norm=norm, label=label, dbmin=dbmin, **kwargs)
-    
+
     if plot2_type is None:
         return ax
 
@@ -421,10 +422,10 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
     kwargs2 = kwargs.copy()
     for key in ('color', 'linestyle', 'xlabel', 'xlabel2', 'ylabel', 'title', 'xscale', 'yscale'):
         kwargs2.pop(key, None)
-    
+
     # Dummy plot to add label to legend.
     ax.plot([], [], label=plot2_type, color=color2, linestyle=linestyle2, **kwargs2)
-    
+
     ax2 = ax.twinx()
     kwargs['axes'] = ax2
 
@@ -439,8 +440,14 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
 
     if plot1_type == 'dB':
         Vabs = abs(V)
-        Vmin = 10**(dbmin / 20)        
+        Vmin = 10**(dbmin / 20)
         Vabs[Vabs < Vmin] = Vmin
+
+        m = np.isinf(Vabs)
+        if any(m):
+            warn('Approximating infinite value!')
+            Vabs[m] = 1e30
+
         dB = 20 * np.log10(Vabs)
         dBmin = min(dB)
         dBmax = max(dB)
@@ -460,7 +467,7 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
 
     if nyticks is None:
         nyticks = 5
-    
+
     ax.yaxis.set_major_locator(ticker.LinearLocator(nyticks))
     ax2.yaxis.set_major_locator(ticker.LinearLocator(nyticks))
 
@@ -487,7 +494,7 @@ def plot_angular_bode(obj, f, **kwargs):
 def plot_angular_frequency(obj, omega, plot_type=None, **kwargs):
 
     npoints = kwargs.pop('npoints', 400)
-    norm = kwargs.pop('norm', False)            
+    norm = kwargs.pop('norm', False)
 
     # FIXME, determine useful frequency range...
     if omega is None:
@@ -498,28 +505,28 @@ def plot_angular_frequency(obj, omega, plot_type=None, **kwargs):
     if isinstance(omega, (int, float)):
         omega = (0, omega)
     if isinstance(omega, tuple):
-        wmin, wmax = parse_range(omega, 1e-1, positive=False)        
+        wmin, wmax = parse_range(omega, 1e-1, positive=False)
         omega = np.linspace(wmin, wmax, npoints)
 
     if norm and 'xlabel' not in kwargs:
         kwargs['xlabel'] = 'Normalized angular frequency'
-        
+
     return plot_frequency(obj, omega, plot_type=plot_type,
                           norm=norm, **kwargs)
 
 
 def plot_time(obj, t, plot_type=None, **kwargs):
 
-    obj = obj.doit()    
-    npoints = kwargs.pop('npoints', 400)        
-    
+    obj = obj.doit()
+    npoints = kwargs.pop('npoints', 400)
+
     # FIXME, determine useful time range...
     if t is None:
         t = (-0.2, 2)
     if isinstance(t, (int, float)):
         t = (0, t)
     if isinstance(t, tuple):
-        tmin, tmax = parse_range(t, 1e-1, positive=False)                
+        tmin, tmax = parse_range(t, 1e-1, positive=False)
         t = np.linspace(tmin, tmax, npoints)
 
     deltas = None
@@ -529,7 +536,7 @@ def plot_time(obj, t, plot_type=None, **kwargs):
         obj = cls(rest, **obj.assumptions)
 
     v = obj.evaluate(t)
-        
+
     if plot_type == None:
         plot_type = 'real'
     if plot_type == 'real':
@@ -540,22 +547,22 @@ def plot_time(obj, t, plot_type=None, **kwargs):
         v = abs(v)
     else:
         raise ValueError('Invalid plot_type: must be real, imag, real-imag, abs')
-        
+
     ax = make_axes(figsize=kwargs.pop('figsize', None),
-                   axes=kwargs.pop('axes', None))    
+                   axes=kwargs.pop('axes', None))
 
     xlabel = kwargs.pop('xlabel', obj.domain_label_with_units)
     ylabel = kwargs.pop('ylabel', obj.label_with_units)
     xscale = kwargs.pop('xscale', 1)
     yscale = kwargs.pop('yscale', 1)
     title = kwargs.pop('title', None)
-    
+
     lines = ax.plot(t * xscale, v * yscale, **kwargs)
     color = kwargs.pop('color', lines[0].get_color())
-    
+
     if xlabel is not None:
         ax.set_xlabel(xlabel)
-    if ylabel is not None:        
+    if ylabel is not None:
         ax.set_ylabel(ylabel)
     if title is not None:
         ax.set_title(title)
@@ -563,7 +570,7 @@ def plot_time(obj, t, plot_type=None, **kwargs):
     if deltas is not None:
         # TODO, fix yscale
         plot_deltas(ax, t * xscale, deltas, obj.var, plot_type, color=color)
-        
+
     ax.grid(True)
     return ax
 
@@ -572,8 +579,8 @@ def plot_time(obj, t, plot_type=None, **kwargs):
 def plot_sequence_polar(obj, ni=(-10, 10), **kwargs):
 
     obj = obj.doit()
-    npoints = kwargs.pop('npoints', 400)        
-    
+    npoints = kwargs.pop('npoints', 400)
+
     # FIXME, determine useful range...
     if ni is None:
         ni = (-20, 20)
@@ -583,24 +590,24 @@ def plot_sequence_polar(obj, ni=(-10, 10), **kwargs):
         ni = np.arange(ni[0], ni[1] + 1, dtype=float)
 
     v = obj.evaluate(ni)
-    
+
     ax = make_axes(figsize=kwargs.pop('figsize', None),
                    axes=kwargs.pop('axes', None),
                    subplot_kw=dict(polar=True))
 
     phi = np.angle(v)
     mag = abs(v)
-    
+
     # Plot symbols
     lines = ax.plot(phi, mag, 'o', **kwargs)
 
     color = kwargs.pop('color', lines[0].get_color())
-    
+
     # Plot lines from origin
     Nv = len(v)
-    ax.plot((phi, phi), (np.zeros(Nv), mag), color=color, **kwargs)    
+    ax.plot((phi, phi), (np.zeros(Nv), mag), color=color, **kwargs)
     ax.grid(True)
-    return ax    
+    return ax
 
 
 def plot_sequence(obj, ni, plot_type=None, polar=False, **kwargs):
@@ -608,12 +615,12 @@ def plot_sequence(obj, ni, plot_type=None, polar=False, **kwargs):
     from matplotlib.ticker import MaxNLocator
 
     obj = obj.doit()
-    
+
     if polar:
         return plot_sequence_polar(obj, ni, **kwargs)
-    
-    npoints = kwargs.pop('npoints', 400)        
-    
+
+    npoints = kwargs.pop('npoints', 400)
+
     # FIXME, determine useful range...
     if ni is None:
         ni = (-20, 20)
@@ -634,12 +641,12 @@ def plot_sequence(obj, ni, plot_type=None, polar=False, **kwargs):
         v = abs(v)
     else:
         raise ValueError('Invalid plot_type: must be real, imag, real-imag, abs')
-    
+
     deltas = None
     if obj.has(DiracDelta):
         cls = obj.__class__
         rest, deltas = separate_dirac_delta(obj.expr)
-        obj = cls(rest, **obj.assumptions)    
+        obj = cls(rest, **obj.assumptions)
 
     ax = make_axes(figsize=kwargs.pop('figsize', None),
                    axes=kwargs.pop('axes', None))
@@ -651,22 +658,22 @@ def plot_sequence(obj, ni, plot_type=None, polar=False, **kwargs):
     title = kwargs.pop('title', None)
 
     stems = ax.stem(ni * xscale, v * yscale, use_line_collection=True, **kwargs)
-    color = kwargs.pop('color', stems[0].get_color())    
-    
+    color = kwargs.pop('color', stems[0].get_color())
+
     # Ensure integer ticks.
     ax.xaxis.set_major_locator(MaxNLocator(integer=True))
 
     if deltas is not None:
         # TODO, fix yscale
         plot_deltas(ax, ni * xscale, deltas, obj.var, plot_type, color=color)
-    
+
     if xlabel is not None:
         ax.set_xlabel(xlabel)
-    if ylabel is not None:        
+    if ylabel is not None:
         ax.set_ylabel(ylabel)
     if title is not None:
         ax.set_title(title)
-        
+
     ax.grid(True)
     return ax
 
@@ -674,14 +681,14 @@ def plot_sequence(obj, ni, plot_type=None, polar=False, **kwargs):
 def plot_phasor(obj, **kwargs):
 
     obj = obj.doit()
-    
+
     ax = make_axes(figsize=kwargs.pop('figsize', None),
                    axes=kwargs.pop('axes', None),
                    subplot_kw=dict(polar=True))
 
     phi = obj.phase.fval
     mag = obj.magnitude.fval
-    
+
     ax.plot((phi, phi), (0, mag), **kwargs)
     return ax
 
@@ -703,7 +710,7 @@ def plot_nyquist(obj, f, norm=False, **kwargs):
     if isinstance(f, (int, float)):
         f = (0, f)
     if isinstance(f, tuple):
-        fmin, fmax = parse_range(f, 1e-1, positive=False)        
+        fmin, fmax = parse_range(f, 1e-1, positive=False)
         if log_frequency:
             if fmin < 0:
                 frange = fmax - fmin
@@ -713,17 +720,17 @@ def plot_nyquist(obj, f, norm=False, **kwargs):
                 fn = np.hstack((0, fn))
             elif fmin == 0:
                 f = np.geomspace(fmax / 1e4, fmax, npoints // 2)
-                f = np.hstack((0, f))                
+                f = np.hstack((0, f))
             else:
                 f = np.geomspace(fmin, fmax, npoints)
         else:
-            fmin, fmax = parse_range(f, 1e-1, positive=False)            
-            f = np.linspace(fmin, fmax, npoints)                    
+            fmin, fmax = parse_range(f, 1e-1, positive=False)
+            f = np.linspace(fmin, fmax, npoints)
 
     V = obj.evaluate(f)
     if not V.dtype == complex:
         raise ValueError('Data not complex')
-    
+
     obj = obj.doit()
 
     ax = make_axes(figsize=kwargs.pop('figsize', None),
@@ -737,7 +744,7 @@ def plot_nyquist(obj, f, norm=False, **kwargs):
     if fn is not None:
         V = obj.evaluate(fn)
         color = lines[0].get_color()
-        ax.plot(V.real, V.imag, color=color)    
+        ax.plot(V.real, V.imag, color=color)
 
     x_min = V.real.min()
     x_max = V.real.max()
@@ -752,36 +759,36 @@ def plot_nyquist(obj, f, norm=False, **kwargs):
         if y_min > -1:
             y_min = -1
         if y_max < 1:
-            y_max = 1                        
-    
+            y_max = 1
+
     x_extra, y_extra = 1.0, 1.0
     x_min -= 0.5 * x_extra
     x_max += 0.5 * x_extra
     if unitcircle:
         bbox = ax.get_window_extent()
         aspect = bbox.width / bbox.height
-        
+
         x_min *= aspect
-        x_max *= aspect       
-        
+        x_max *= aspect
+
     ax.axis('equal')
-    #ax.set_xlim(x_min, x_max)    
-    
+    #ax.set_xlim(x_min, x_max)
+
     xlabel = kwargs.pop('xlabel', 'Re')
     ylabel = kwargs.pop('ylabel', 'Im')
     title = kwargs.pop('title', None)
 
     if xlabel is not None:
         ax.set_xlabel(xlabel)
-    if ylabel is not None:        
+    if ylabel is not None:
         ax.set_ylabel(ylabel)
     if title is not None:
-        ax.set_title(title)        
+        ax.set_title(title)
 
     ax.grid(True)
-    
+
     return ax
-    
+
 
 def plot_nichols(obj, f, norm=False, **kwargs):
 
@@ -800,7 +807,7 @@ def plot_nichols(obj, f, norm=False, **kwargs):
     if isinstance(f, (int, float)):
         f = (0, f)
     if isinstance(f, tuple):
-        fmin, fmax = parse_range(f, 1e-1, positive=False)        
+        fmin, fmax = parse_range(f, 1e-1, positive=False)
         if log_frequency:
             if fmin < 0:
                 frange = fmax - fmin
@@ -810,17 +817,17 @@ def plot_nichols(obj, f, norm=False, **kwargs):
                 fn = np.hstack((0, fn))
             elif fmin == 0:
                 f = np.geomspace(fmax / 1e4, fmax, npoints // 2)
-                f = np.hstack((0, f))                
+                f = np.hstack((0, f))
             else:
                 f = np.geomspace(fmin, fmax, npoints)
         else:
-            fmin, fmax = parse_range(f, 1e-1, positive=False)            
-            f = np.linspace(fmin, fmax, npoints)                    
+            fmin, fmax = parse_range(f, 1e-1, positive=False)
+            f = np.linspace(fmin, fmax, npoints)
 
     V = obj.evaluate(f)
     if not V.dtype == complex:
         raise ValueError('Data not complex')
-    
+
     obj = obj.doit()
 
     ax = make_axes(figsize=kwargs.pop('figsize', None),
@@ -839,11 +846,11 @@ def plot_nichols(obj, f, norm=False, **kwargs):
 
     if xlabel is not None:
         ax.set_xlabel(xlabel)
-    if ylabel is not None:        
+    if ylabel is not None:
         ax.set_ylabel(ylabel)
     if title is not None:
-        ax.set_title(title)        
+        ax.set_title(title)
 
     ax.grid(True)
-    
+
     return ax
