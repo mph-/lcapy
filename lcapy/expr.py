@@ -47,31 +47,31 @@ class ExprPrint(object):
         """Return expression for printing."""
 
         if not hasattr(self, 'expr'):
-            return self            
+            return self
 
         if state.show_units:
             if state.canonical_units:
                 return self.expr_with_canonical_units
             else:
-                return self.expr_with_units        
+                return self.expr_with_units
         else:
-            return self.expr                
-    
+            return self.expr
+
     def __repr__(self):
         """This is called by repr(expr).  It is used, e.g., when printing
         in the debugger."""
-        
+
         return '%s(%s)' % (self.__class__.__name__, print_str(self._pexpr))
 
     def _repr_pretty_(self, p, cycle):
         """This is used by jupyter notebooks to display an expression using
         unicode.  It is also called by IPython when displaying an
-        expression.""" 
+        expression."""
 
         p.text(pretty(self._pexpr))
 
     # Note, _repr_latex_ is handled at the end of this file.
-        
+
     def pretty(self, **kwargs):
         """Make pretty string."""
         return pretty(self._pexpr, **kwargs)
@@ -97,9 +97,9 @@ class ExprPrint(object):
         """Make latex string with optional units."""
 
         from .engformatter import EngFormatter
-        
+
         expr = self
-        
+
         if evalf:
             expr = expr.evalf(num_digits)
 
@@ -111,7 +111,7 @@ class ExprPrint(object):
             units = ''
 
         value = expr.sympy
-            
+
         if evalf and value.is_number and eng_format:
             return EngFormatter(num_digits=num_digits).latex(value, units)
 
@@ -132,50 +132,50 @@ class ExprPrint(object):
         return sym.repr(self)
 
 
-class ExprContainer(object):    
+class ExprContainer(object):
 
     @property
     def sympy(self):
         """Return SymPy expression."""
-        
+
         return self.expr
 
     def evaluate(self):
         """Evaluate each element to convert to floating point.
         This may change..."""
-        
+
         return self.__class__([v.evalf() for v in self])
 
     def evalf(self, n=15):
         """Evaluate each element to convert to floating point values.
         `n` is the number of decimal places."""
 
-        return self.__class__([v.evalf(n) for v in self])        
-    
+        return self.__class__([v.evalf(n) for v in self])
+
     def simplify(self, **kwargs):
         """Simplify each element."""
-        
+
         return self.__class__([simplify(v, **kwargs) for v in self])
 
-    @property    
+    @property
     def symbols(self):
         """Return dictionary of symbols in the expression keyed by name."""
-        
+
         symbols = {}
         for expr in list(self):
             symbols.update(expr.symbols)
         return symbols
 
-    
+
 class ExprMisc(object):
 
     def pdb(self):
         """Enter the python debugger."""
-        
+
         import pdb; pdb.set_trace()
         return self
 
-        
+
 class ExprDict(ExprPrint, ExprContainer, ExprMisc, OrderedDict):
 
     """Facade class for dictionary created by sympy."""
@@ -188,8 +188,8 @@ class ExprDict(ExprPrint, ExprContainer, ExprMisc, OrderedDict):
         try:
             return super(ExprDict, self).__getitem__(key2)
         except:
-            return super(ExprDict, self).__getitem__(key)            
-    
+            return super(ExprDict, self).__getitem__(key)
+
     def __call__(self, *args, **kwargs):
         """Perform substitution/transformation on each element."""
 
@@ -212,8 +212,8 @@ class ExprDict(ExprPrint, ExprContainer, ExprMisc, OrderedDict):
             try:
                 v = v.evalf()
             except:
-                pass            
-                
+                pass
+
             new[k] = v
         return new
 
@@ -250,10 +250,10 @@ class ExprDict(ExprPrint, ExprContainer, ExprMisc, OrderedDict):
             try:
                 v = v.evalf(n)
             except:
-                pass            
+                pass
             new[k] = v
         return new
-    
+
     def subs(self, *args, **kwargs):
         """Substitute variables in expression, see sympy.subs for usage."""
 
@@ -266,8 +266,8 @@ class ExprDict(ExprPrint, ExprContainer, ExprMisc, OrderedDict):
             try:
                 v = v.subs(*args, **kwargs)
             except:
-                pass            
-                
+                pass
+
             new[k] = v
         return new
 
@@ -281,23 +281,23 @@ class ExprDict(ExprPrint, ExprContainer, ExprMisc, OrderedDict):
             if isinstance(k, Expr):
                 k = k.expr
             if isinstance(v, Expr):
-                v = v.expr                
+                v = v.expr
             new[k] = v
         return new
 
-    
+
 class ExprList(ExprPrint, list, ExprContainer, ExprMisc):
     """Facade class for list created by sympy."""
 
     # Have ExprPrint first so that its _repr__pretty_ is called
     # in preference to list's one.  Alternatively, add explicit
     # _repr_pretty_ method here.
-    
+
     def __init__(self, iterable=None, evalf=False, **assumptions):
 
         if iterable is None:
             iterable = []
-        
+
         eiterable = []
         for item in iterable:
             if evalf:
@@ -308,7 +308,7 @@ class ExprList(ExprPrint, list, ExprContainer, ExprMisc):
             else:
                 item = expr(item, **assumptions)
             eiterable.append(item)
-        
+
         super (ExprList, self).__init__(eiterable)
 
     def __call__(self, *args, **kwargs):
@@ -316,10 +316,10 @@ class ExprList(ExprPrint, list, ExprContainer, ExprMisc):
 
         ret = [elt(*args, **kwargs) for elt in self]
         return self.__class__(ret)
-        
+
     def subs(self, *args, **kwargs):
         """Substitute variables in expression, see sympy.subs for usage."""
-        
+
         return expr([e.subs(*args, **kwargs) for e in self])
 
     def solve(self, *symbols, **kwargs):
@@ -333,7 +333,7 @@ class ExprList(ExprPrint, list, ExprContainer, ExprMisc):
         for key, val in solutions.items():
             new[key] = expr(val)
         return ExprDict(new)
-        
+
     @property
     def expr(self):
         return [e.expr for e in self]
@@ -348,9 +348,9 @@ class ExprList(ExprPrint, list, ExprContainer, ExprMisc):
     def cval(self):
         """Evaluate expression and return as a list of python complex values."""
 
-        return [complex(a.cval) for a in self]        
+        return [complex(a.cval) for a in self]
 
-    
+
 class ExprTuple(ExprPrint, tuple, ExprContainer, ExprMisc):
     """Facade class for tuple created by sympy."""
 
@@ -368,7 +368,7 @@ class ExprTuple(ExprPrint, tuple, ExprContainer, ExprMisc):
 
     def subs(self, *args, **kwargs):
         """Substitute variables in expression, see sympy.subs for usage."""
-        
+
         return expr(tuple([e.subs(*args, **kwargs) for e in self]))
 
     def solve(self, *symbols, **kwargs):
@@ -381,8 +381,8 @@ class ExprTuple(ExprPrint, tuple, ExprContainer, ExprMisc):
         new = {}
         for key, val in solutions.items():
             new[key] = expr(val)
-        return ExprDict(new)        
-    
+        return ExprDict(new)
+
     @property
     def expr(self):
         return tuple([e.expr for e in self])
@@ -403,7 +403,7 @@ class ExprTuple(ExprPrint, tuple, ExprContainer, ExprMisc):
 class ExprDomain(object):
 
     is_sequence = False
-    
+
     def _class_by_quantity(self, quantity, domain=None):
 
         if domain is None:
@@ -412,8 +412,8 @@ class ExprDomain(object):
 
     def _class_by_domain(self, domain):
 
-        return expressionclasses.get_quantity(domain, self.quantity)    
-        
+        return expressionclasses.get_quantity(domain, self.quantity)
+
     def as_quantity(self, quantity):
 
         if quantity == 'voltage':
@@ -429,7 +429,7 @@ class ExprDomain(object):
         elif quantity == 'power':
             return self.as_power()
         elif quantity == 'undefined':
-            return self.as_expr()        
+            return self.as_expr()
         raise ValueError('Unknown quantity %s for %s' % (quantity, self))
 
     def as_domain(self, domain):
@@ -441,7 +441,7 @@ class ExprDomain(object):
         elif domain == 'fourier':
             return self.as_fourier()
         elif domain == 'phasor':
-            return self.as_phasor()        
+            return self.as_phasor()
         elif domain == 'angular fourier':
             return self.as_angular_fourier()
         raise ValueError('Unknown domain %s for %s' % (domain, self))
@@ -475,7 +475,7 @@ class ExprDomain(object):
     def as_superposition(self):
         from .superpositionvoltage import SuperpositionVoltage
         from .superpositioncurrent import SuperpositionCurrent
-        
+
         if self.is_voltage:
             return SuperpositionVoltage(self)
         elif self.is_current:
@@ -491,17 +491,17 @@ class ExprDomain(object):
         if domain == 'constant':
             # Allow changing of constants, e.g., V1 to 5 * t
             domain = expr(arg).domain
-            
+
         quantity = self.quantity
 
-        cls = self._class_by_quantity(quantity, domain)        
+        cls = self._class_by_quantity(quantity, domain)
         ret = cls(arg, **assumptions)
 
         if units_scale is not None:
             ret.units = self.units * units_scale
         return ret
 
-    
+
 class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
     """Facade class for sympy classes derived from sympy.Expr."""
 
@@ -520,12 +520,12 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
                     ('constant', 'constant'): 'constant',
                     ('voltage', 'voltage'): 'voltagesquared',
                     ('current', 'current'): 'currentsquared',
-                    ('admittance', 'impedance'): 'transfer',                    
+                    ('admittance', 'impedance'): 'transfer',
                     ('admittance', 'admittance'): 'admittancesquared',
                     ('impedance', 'impedance'): 'impedancesquared',
                     ('voltage', 'current'): 'power',
                     ('voltagesquared', 'admittance'): 'power',
-                    ('currentsquared', 'impedance'): 'power',                    
+                    ('currentsquared', 'impedance'): 'power',
                     ('impedancesquared', 'admittance'): 'impedance',
                     ('admittancesquared', 'impedance'): 'admittance',
                     ('power', 'impedance'): 'voltagesquared',
@@ -535,14 +535,14 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
                     ('voltagesquared', 'constant'): 'voltagesquared',
                     ('currentsquared', 'constant'): 'currentsquared',
                     ('power', 'constant'): 'power'}
-    
+
     _div_mapping = {('voltage', 'impedance'): 'current',
                     ('current', 'admittance'): 'voltage',
                     ('voltage', 'transfer'): 'voltage',
                     ('current', 'transfer'): 'current',
                     ('transfer', 'transfer'): 'transfer',
                     ('voltage', 'current'): 'impedance',
-                    ('current', 'voltage'): 'admittance',                    
+                    ('current', 'voltage'): 'admittance',
                     ('current', 'current'): 'transfer',
                     ('voltage', 'voltage'): 'transfer',
                     ('voltage', 'constant'): 'voltage',
@@ -555,17 +555,17 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
                     ('constant', 'transfer'): 'transfer',
                     ('constant', 'constant'): 'constant',
                     ('impedance', 'impedance'): 'transfer',
-                    ('admittance', 'admittance'): 'transfer',                                        
+                    ('admittance', 'admittance'): 'transfer',
                     ('voltagesquared', 'voltage'): 'voltage',
                     ('currentsquared', 'current'): 'current',
                     ('admittancesquared', 'admittance'): 'admittance',
                     ('impedancesquared', 'impedance'): 'impedance',
                     ('power', 'current'): 'voltage',
-                    ('power', 'voltage'): 'current',                    
+                    ('power', 'voltage'): 'current',
                     ('power', 'admittance'): 'voltagesquared',
-                    ('power', 'voltagesquared'): 'admittance',                    
+                    ('power', 'voltagesquared'): 'admittance',
                     ('power', 'impedance'): 'currentsquared',
-                    ('power', 'currentsquared'): 'impedance',            
+                    ('power', 'currentsquared'): 'impedance',
                     ('impedance', 'admittance'): 'impedancesquared',
                     ('admittance', 'impedance'): 'admittancesquared',
                     ('voltagesquared', 'impedance'): 'power',
@@ -582,12 +582,12 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
                     ('currentsquared', 'currentsquared'): 'transfer',
                     ('power', 'power'): 'transfer',
                     ('power', 'constant'): 'power'}
-    
+
     # This needs to be larger than what sympy defines so
     # that the __rmul__, __radd__ methods get called.
     # Otherwise pi * t becomes a Mul rather than a TimeDomainExpression object.
     _op_priority = 1000
-    
+
 
     @property
     def _pexpr(self):
@@ -595,14 +595,14 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
 
         if not hasattr(self, 'expr'):
             return self
-        
+
         if state.show_units:
             if state.canonical_units:
                 return self.expr_with_canonical_units
             else:
-                return self.expr_with_units                    
+                return self.expr_with_units
         else:
-            return self.expr                
+            return self.expr
 
     def __init__(self, arg, rational=True, **assumptions):
         """
@@ -621,7 +621,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
             ass = arg.assumptions.copy()
             if self.is_always_causal:
                 ass.set('causal', True)
-            
+
             self.assumptions = ass.merge(**assumptions)
             self.expr = arg.expr
             try:
@@ -631,12 +631,12 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
             return
 
         assumptions = Assumptions(assumptions)
-        
+
         # Perhaps could set dc?
         #if arg == 0:
         #    assumptions.set('causal', True)
         if self.is_always_causal:
-            assumptions.set('causal', True)        
+            assumptions.set('causal', True)
 
         self.assumptions = assumptions
         # Remove Lcapy assumptions from SymPy expr.
@@ -644,7 +644,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
         try:
             self._units = self._default_units
         except:
-            self._units = sym.S.One        
+            self._units = sym.S.One
 
     def as_time(self):
         return self.time()
@@ -653,14 +653,14 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
         return self.laplace()
 
     def as_phasor(self):
-        return self.phasor()        
+        return self.phasor()
 
     def as_fourier(self):
         return self.fourier()
 
     def as_angular_fourier(self):
         return self.angular_fourier()
-    
+
     def __str__(self, printer=None):
         """String representation of expression."""
         return print_str(self._pexpr)
@@ -668,13 +668,13 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
     def __repr__(self):
         """This is called by repr(expr).  It is used, e.g., when printing
         in the debugger."""
-        
+
         return '%s(%s)' % (self.__class__.__name__, print_str(self._pexpr))
 
     def _repr_pretty_(self, p, cycle):
         """This is used by jupyter notebooks to display an expression using
         unicode.  It is also called by IPython when displaying an
-        expression.""" 
+        expression."""
 
         p.text(pretty(self._pexpr))
 
@@ -685,7 +685,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
         outputs unicode."""
 
         # This is called for Expr but not ExprList
-        return '$$' + latex(self._pexpr) + '$$'        
+        return '$$' + latex(self._pexpr) + '$$'
 
     def _latex(self, *args, **kwargs):
         """Make latex string.  This is called by sympy.latex when it
@@ -717,8 +717,8 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
 
         """
 
-        return units.simplify_units(self._units)        
-    
+        return units.simplify_units(self._units)
+
     @property
     def units(self):
         """Return the units of the expression."""
@@ -727,7 +727,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
 
     @units.setter
     def units(self, unit):
-        """Set the units of the expression; these are simplified into canonical form."""        
+        """Set the units of the expression; these are simplified into canonical form."""
 
         self._units = unit
 
@@ -736,7 +736,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
         """Return True if zero for t < 0."""
 
         if self.assumptions.has_unspecified:
-            self.assumptions.infer_from_expr(self)        
+            self.assumptions.infer_from_expr(self)
         return self.assumptions.is_causal
 
     @is_causal.setter
@@ -748,19 +748,19 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
     def is_dc(self):
 
         if self.assumptions.has_unspecified:
-            self.assumptions.infer_from_expr(self)                
+            self.assumptions.infer_from_expr(self)
         return self.assumptions.is_dc
 
     @is_dc.setter
     def is_dc(self, value):
 
-        self.assumptions.set('dc', value)        
+        self.assumptions.set('dc', value)
 
     @property
     def is_ac(self):
 
         if self.assumptions.has_unspecified:
-            self.assumptions.infer_from_expr(self)                
+            self.assumptions.infer_from_expr(self)
         return self.assumptions.is_ac
 
     @is_ac.setter
@@ -773,18 +773,18 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
         """Return True if behaviour is unknown for t < 0."""
 
         if self.assumptions.has_unspecified:
-            self.assumptions.infer_from_expr(self)                
+            self.assumptions.infer_from_expr(self)
         return self.assumptions.is_unknown
 
     @is_unknown.setter
     def is_unknown(self, value):
 
-        self.assumptions.set('unknown', value)        
+        self.assumptions.set('unknown', value)
 
     @property
     def is_complex_signal(self):
         """Return True if time-domain signal is complex."""
-        
+
         if 'complex_signal' not in self.assumptions:
             return False
         return self.assumptions['complex_signal'] == True
@@ -801,13 +801,13 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
         # even though we know the result is real.
         if self.part != '':
             return False
-        
+
         return self.has(j)
 
     @property
     def is_conditional(self):
         """Return True if expression has a condition, such as t >= 0."""
-        
+
         expr = self.expr
         # Could be more specific, such as self.var >= 0, but might
         # have self.var >= t1.
@@ -818,7 +818,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
         """Return True if expression is a rational function."""
 
         return self.expr.is_rational_function(self.var)
-    
+
     @property
     def is_strictly_proper(self):
         """Return True if the degree of the dominator is greater
@@ -828,7 +828,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
 
         if self._ratfun is None:
             return False
-        
+
         return self._ratfun.is_strictly_proper
 
     @property
@@ -869,14 +869,14 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
     def dc(self):
         """Return the DC component."""
 
-        return self.as_superposition().dc        
+        return self.as_superposition().dc
 
     @property
     def transient(self):
         """Return the transient component."""
-        
+
         return self.as_superposition().transient
-    
+
     @property
     def fval(self):
         """Evaluate expression and return as a python float value."""
@@ -888,7 +888,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
         """Evaluate expression and return as a python complex value."""
 
         return complex(self.val.expr)
-    
+
     @property
     def val(self):
         """Return floating point value of expression if it can be evaluated,
@@ -931,7 +931,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
         elif isinstance(expr, dict):
             return ExprDict(expr)
         return cls(expr)
-    
+
 # This will allow sym.sympify to magically extract the sympy expression
 # but it will also bypass our __rmul__, __radd__, etc. methods that get called
 # when sympy punts.  Thus pi * t becomes a Mul rather than TimeDomainExpression.
@@ -945,7 +945,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
         if False:
             print(self.__class__.__name__, attr)
 
-        expr1 = self.expr            
+        expr1 = self.expr
         try:
             a = getattr(expr1, attr)
         except:
@@ -978,14 +978,14 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
             """This is quantity for a SymPy function.
             For help, see the SymPy documentation."""
 
-            # Extract SymPy expressions from Lcapy expressions            
+            # Extract SymPy expressions from Lcapy expressions
             newargs = []
             for arg in args:
                 try:
                     newargs.append(arg.expr)
                 except AttributeError:
                     newargs.append(arg)
-            
+
             # Extract SymPy expressions from Lcapy expressions
             newkwargs = {}
             for key, arg in kwargs.items():
@@ -993,19 +993,19 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
                     newkwargs[key] = kwargs[key].expr
                 except AttributeError:
                     newkwargs[key] = kwargs[key]
-            
+
             ret = a(*newargs, **newkwargs)
-            
+
             if not isinstance(ret, sym.Expr):
                 # Wrap list, tuple, etc.
                 return expr(ret)
-            
+
             # Wrap the return value
             cls = self.__class__
             if hasattr(self, 'assumptions'):
                 return cls(ret, **self.assumptions)
-            return self._to_class(self.__class__, ret)            
-        
+            return self._to_class(self.__class__, ret)
+
         return wrap
 
     def debug(self):
@@ -1026,14 +1026,14 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
         """Return SymPy expression."""
 
         return self.expr
-        
+
     @property
     def expr_with_units(self):
         """Return SymPy expression with units."""
 
         if self.units == 1:
             return expr
-        
+
         # Don't evaluate otherwise 1 A gets printed as A.
         return sym.Mul(self.expr, self.units, evaluate=False)
 
@@ -1041,8 +1041,8 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
     def expr_with_canonical_units(self):
         """Return SymPy expression with canonical units."""
 
-        return self.expr * self.canonical_units    
-        
+        return self.expr * self.canonical_units
+
     @property
     def func(self):
         """Return the top-level function in the Sympy Expression.
@@ -1051,7 +1051,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
         See also .args(), to return the args, in this case `(3, s)`"""
 
         return self.expr.func
-    
+
     def __abs__(self):
         """Absolute value."""
 
@@ -1066,8 +1066,8 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
 
         raise ValueError("Cannot determine %s(%s) %s %s(%s)%s" %
                          (self.__class__.__name__, self, op,
-                          x.__class__.__name__, x, reason))        
-                
+                          x.__class__.__name__, x, reason))
+
     def _incompatible_domains(self, x, op):
 
         self._incompatible(x, op, ' since the domains are incompatible')
@@ -1079,17 +1079,17 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
     def _dubious_quantities(self, x, op):
 
-        self._incompatible(x, op, '; you probably should be using convolution')        
-        
+        self._incompatible(x, op, '; you probably should be using convolution')
+
     def _add_compatible_domains(self, x):
 
         return self.domain == x.domain
-    
+
     def _mul_compatible_domains(self, x):
 
         if self.domain == x.domain:
             return True
-        
+
         if (self.is_constant_domain or x.is_constant_domain):
             return True
 
@@ -1097,14 +1097,14 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if (self.is_phasor_domain and x.is_angular_fourier_domain and
             self.omega == x.var):
             return True
-        
+
         return False
 
     def _div_compatible_domains(self, x):
 
         if self.domain == x.domain:
             return True
-        
+
         if (self.is_constant_domain or x.is_constant_domain):
             return True
 
@@ -1120,34 +1120,34 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if state.check_units:
             sunits = self.canonical_units
             xunits = x.canonical_units
-            
+
             if (sunits != xunits and self.expr != 0 and x.expr != 0 and not
                 (state.loose_units and x.is_undefined)):
                 self._incompatible(x, op, ' since the units %s are incompatible with %s' % (self.units, x.units))
 
         cls = self.__class__
         xcls = x.__class__
-            
+
         if x.is_constant_domain and x.quantity == 'undefined':
             if state.loose_units or x.expr == 0:
                 # Allow voltage(1) + 2 etc.
                 return cls, self, x, assumptions
             if self.is_transfer:
                 # Allow transfer(1) == 1
-                return cls, self, x, assumptions                
-        
+                return cls, self, x, assumptions
+
         if (isinstance(self, (LaplaceDomainExpression, ZDomainExpression)) or
             isinstance(x, (LaplaceDomainExpression, ZDomainExpression))):
             assumptions = self.assumptions.add(x)
-        
+
         if self.is_constant_domain and self.quantity == 'undefined':
-            return xcls, self, x, assumptions            
+            return xcls, self, x, assumptions
 
         if self.quantity == x.quantity:
             if self.is_constant_domain:
                 return xcls, self, x, assumptions
-            if x.is_constant_domain:            
-                return cls, self, x, assumptions                
+            if x.is_constant_domain:
+                return cls, self, x, assumptions
             if self.domain == x.domain:
                 return cls, self, x, assumptions
 
@@ -1155,7 +1155,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if self.is_phasor_domain and x.is_angular_fourier_domain:
             return cls, self, cls(x), assumptions
         if self.is_angular_fourier_domain and x.is_phasor_domain:
-            return xcls, cls(self), x, assumptions        
+            return xcls, cls(self), x, assumptions
 
         if not self._add_compatible_domains(x):
             self._incompatible_domains(x, op)
@@ -1164,13 +1164,13 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if self.quantity == 'undefined':
             if state.loose_units or x.is_transfer:
                 return xcls, self, x, assumptions
-            
+
         # voltage + expr
         if x.quantity == 'undefined':
-            if state.loose_units or self.is_transfer:            
-                return cls, self, x, assumptions        
-        
-        self._incompatible_quantities(x, op)        
+            if state.loose_units or self.is_transfer:
+                return cls, self, x, assumptions
+
+        self._incompatible_quantities(x, op)
 
     def __mul__(self, x):
         """Multiply."""
@@ -1179,7 +1179,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         if isinstance(x, Superposition):
             return x.__mul__(self)
-        
+
         if not isinstance(x, Expr):
             if isinstance(x, (tuple, list, dict)):
                 raise ValueError('Cannot multiply %s by a tuple, list, or dict %s' % (self, x))
@@ -1204,10 +1204,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         if x.is_time_domain and self.is_time_domain:
             if (self.is_signal and x.is_immittance or x.is_signal and self.is_immittance):
-                self._dubious_quantities(x, '/')                            
+                self._dubious_quantities(x, '/')
 
         if not self._mul_compatible_domains(x):
-            self._incompatible_domains(x, '*')                    
+            self._incompatible_domains(x, '*')
 
         if self.is_transform_domain:
             assumptions = self.assumptions.convolve(x)
@@ -1219,14 +1219,14 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if xquantity == 'undefined':
             xquantity = 'constant'
         if yquantity == 'undefined':
-            yquantity = 'constant'            
-        
+            yquantity = 'constant'
+
         key = (yquantity, xquantity)
         if key not in self._mul_mapping:
             key = (xquantity, yquantity)
             if key not in self._mul_mapping:
                 # TODO: What about voltage**2. etc.
-                self._incompatible_quantities(x, '*')        
+                self._incompatible_quantities(x, '*')
 
         quantity = self._mul_mapping[key]
         if quantity == 'constant':
@@ -1238,10 +1238,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             cls = self._class_by_quantity(quantity)
 
         value = self.expr * x.expr
-        result = cls(value, **assumptions)        
+        result = cls(value, **assumptions)
         result.units = self.units * x.units
         return result
-    
+
     def __rmul__(self, x):
         """Reverse multiply."""
 
@@ -1262,10 +1262,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         if x.is_time_domain and self.is_time_domain:
             if (self.is_signal and x.is_immittance or x.is_signal and self.is_immittance):
-                self._dubious_quantities(x, '/')                
-            
+                self._dubious_quantities(x, '/')
+
         if not self._div_compatible_domains(x):
-            self._incompatible_domains(x, '/')                        
+            self._incompatible_domains(x, '/')
 
         assumptions = self.assumptions.convolve(x)
 
@@ -1274,12 +1274,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if xquantity == 'undefined':
             xquantity = 'constant'
         if yquantity == 'undefined':
-            yquantity = 'constant'            
-        
+            yquantity = 'constant'
+
         key = (yquantity, xquantity)
         if key not in self._div_mapping:
             # TODO: What about voltage**2. etc.
-            self._incompatible_quantities(x, '/')        
+            self._incompatible_quantities(x, '/')
 
         quantity = self._div_mapping[key]
         if quantity == 'constant':
@@ -1293,22 +1293,22 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if floor:
             value = self.expr // x.expr
         else:
-            value = self.expr / x.expr        
-        result = cls(value, **assumptions)        
+            value = self.expr / x.expr
+        result = cls(value, **assumptions)
         result.units = self.units / x.units
 
         return result
-            
+
     def __rtruediv__(self, x, floor=False):
         """Reverse true divide."""
 
         from .matrix import Matrix
-        
+
         if isinstance(x, Matrix):
             if floor:
                 return x // self.expr
             else:
-                return x / self.expr                
+                return x / self.expr
 
         if not isinstance(x, Expr):
             x = expr(x)
@@ -1324,7 +1324,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         """Floor divide."""
 
         return self.__rtruediv__(x, floor=True)
-    
+
     def __add__(self, x):
         """Add."""
 
@@ -1350,7 +1350,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         if isinstance(x, Superposition):
             return -x + self
-        
+
         cls, self, x, assumptions = self.__compat_add__(x, '-')
         return cls(self.expr - x.expr, **assumptions)
 
@@ -1359,7 +1359,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         if not isinstance(x, Expr):
             x = expr(x)
-        return x.__sub__(self)        
+        return x.__sub__(self)
 
     def __pow__(self, x):
         """Power."""
@@ -1377,14 +1377,14 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         result = self.expr.__pow__(x.expr)
         if not self.is_constant_domain:
             return self.__class__(result)
-        return x.__class__(result)        
-    
+        return x.__class__(result)
+
     def __rpow__(self, x):
         """Reverse pow, x**self."""
 
         if not isinstance(x, Expr):
             x = expr(x)
-        
+
         return x.__pow__(self)
 
     def __or__(self, x):
@@ -1409,18 +1409,18 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         # Disallow t == 't', etc.
         if isinstance(x, str):
             return False
-        
+
         try:
             cls, self, x, assumptions = self.__compat_add__(x, '==')
         except ValueError:
             return False
-            
+
         x = cls(x)
 
         # This does not speed up the comparison.
         #if self.expr == x.expr:
         #    return True
-        
+
         # This fails if one of the operands has the is_real attribute
         # and the other doesn't...
         return sym.simplify(self.expr - x.expr) == 0
@@ -1433,14 +1433,14 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if x is None:
             return True
 
-        try:        
+        try:
             cls, self, x, assumptions = self.__compat_add__(x, '!=')
         except ValueError:
-            return True            
-            
+            return True
+
         x = cls(x)
 
-        return sym.simplify(self.expr - x.expr) != 0        
+        return sym.simplify(self.expr - x.expr) != 0
 
     def __gt__(self, x):
         """Greater than."""
@@ -1494,7 +1494,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         for term in self.expr.as_ordered_terms():
             result += sym.cancel(term)
         return self.__class__(result, **self.assumptions)
-    
+
     def convolve(self, x, commutate=False, **assumptions):
         """Convolve self with x.
 
@@ -1504,7 +1504,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         The result is an unevaluated integral.  It can be evaluated using
         the `doit()` method.
-    
+
         Note, this method not simplify the convolution integral if one
         of the functions contains a Dirac delta.  This can be done
         calling the `simplify_dirac_delta()` method followed by the
@@ -1512,7 +1512,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         """
 
-        if self.domain != x.domain:        
+        if self.domain != x.domain:
             self._incompatible_domains(x, 'convolve')
 
         x = expr(x)
@@ -1539,14 +1539,14 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         if x.is_causal and self.is_causal:
             assumptions['causal'] = True
-            
+
         result = sym.Integral(f1.subs(self.var, self.var - dummyvar) *
                               f2.subs(self.var, dummyvar),
                               (dummyvar, taumin, taumax))
         ret = self.__class__(result, **assumptions)
         ret.units = self.units * x.units * self.domain_units
         return ret
-    
+
     def parallel(self, x):
         """Parallel combination."""
 
@@ -1583,13 +1583,13 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         """
 
         assumptions = self.assumptions.copy()
-        assumptions['real'] = True        
+        assumptions['real'] = True
 
         expr = self.expr
         # This can make operations such as abs really slow.
-        # Without it, we will sometimes get Re functions.        
+        # Without it, we will sometimes get Re functions.
         # expr = expr.expand(complex=True)
-        
+
         dst = self.__class__(symsimplify(sym.re(expr)), **assumptions)
         dst.part = 'real'
         return dst
@@ -1597,7 +1597,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     @property
     def re(self):
         """Return real part, see `real`"""
-        return self.real    
+        return self.real
 
     @property
     def imag(self):
@@ -1615,14 +1615,14 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             dst = self.__class__(0, **assumptions)
             dst.part = 'imaginary'
             return dst
-        
+
         assumptions['real'] = True
 
         expr = self.expr
         # This can make operations such as abs really slow.
         # Without it, we will sometimes get Im functions.
-        # expr = expr.expand(complex=True)        
-        
+        # expr = expr.expand(complex=True)
+
         dst = self.__class__(symsimplify(sym.im(expr)), **assumptions)
         dst.part = 'imaginary'
         return dst
@@ -1651,7 +1651,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             self.__ratfun = None
         else:
             # Note, this handles expressions that are products of
-            # rational functions and arbitrary delays.  
+            # rational functions and arbitrary delays.
             self.__ratfun = Ratfun(self.expr, self.var)
         return self.__ratfun
 
@@ -1660,14 +1660,14 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         """Return lists of numerator and denominator coefficients."""
 
         a = self.D.coeffs()
-        b = self.N.coeffs()                
-    
+        b = self.N.coeffs()
+
         a0 = a[0]
         if a0 != 1:
             a = ExprList([ax / a0 for ax in a])
             b = ExprList([bx / a0 for bx in b])
         return b, a
-    
+
     @property
     def a(self):
         """Return list of denominator coefficients."""
@@ -1681,13 +1681,13 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         b, a = self.ba
         return b
-    
+
     @property
     def K(self):
         """Return gain."""
 
-        return self.N.coeffs()[0] / self.D.coeffs()[0] 
-    
+        return self.N.coeffs()[0] / self.D.coeffs()[0]
+
     @property
     def N(self):
         """Return numerator of rational function.
@@ -1753,7 +1753,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         from .utils import term_const
 
         c, r = term_const(self, self.var)
-        return ConstantDomainExpression(c), self.__class__(r, **self.assumptions)    
+        return ConstantDomainExpression(c), self.__class__(r, **self.assumptions)
 
     def multiply_top_and_bottom(self, factor):
         """Multiply numerator and denominator by common factor."""
@@ -1765,16 +1765,16 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         D = sym.Mul(D, factor, evaluate=False)
         ID = sym.Pow(D, -1, evaluate=False)
         expr = sym.Mul(N, ID, evaluate=False)
-        
+
         return self.__class__(expr)
-    
+
     @property
     def magnitude(self):
         """Return magnitude."""
 
         if self.is_real:
             dst = expr(abs(self.expr))
-            dst.part = 'magnitude'            
+            dst.part = 'magnitude'
             return dst
 
         R = self.rationalize_denominator()
@@ -1810,7 +1810,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if self.is_power or self.is_squared:
             dst = 10 * log10(self.magnitude)
         else:
-            dst = 20 * log10(self.magnitude)            
+            dst = 20 * log10(self.magnitude)
         dst.part = 'magnitude'
         dst.units = dB
         return dst
@@ -1821,7 +1821,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         if self.is_time_domain or self.is_discrete_time_domain:
             raise ValueError('Cannot determine phase of time-domain expression %s' % self)
-        
+
         R = self.rationalize_denominator()
         N = R.N
 
@@ -1866,16 +1866,16 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         """Return in Cartesian format."""
 
         return self.real + j * self.imag
-    
+
     @property
     def is_number(self):
-        """Returns True if expression is a number."""                
+        """Returns True if expression is a number."""
 
         return self.expr.is_number
 
     @property
     def is_constant(self):
-        """Returns True if expression does not have any free symbols  (compare with `is_unchanging`)."""        
+        """Returns True if expression does not have any free symbols  (compare with `is_unchanging`)."""
 
         return self.expr.free_symbols == set()
 
@@ -1885,9 +1885,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         if self.var is None:
             return True
-        
+
         return self.var not in self.expr.free_symbols
-    
+
     def evaluate(self, arg=None):
         """Evaluate expression at arg.  `arg` may be a scalar or a vector.
         The result is of type float or complex.
@@ -1900,12 +1900,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         is_time = self.is_time_domain or self.is_discrete_time_domain
         is_causal = is_time and self.is_causal
-        
+
         def evaluate_expr(expr, var, arg):
 
             # For some reason the new lambdify will convert a float
             # argument to complex
-            
+
             def exp(arg):
 
                 # Hack to handle exp(-a * t) * Heaviside(t) for t < 0
@@ -1915,12 +1915,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                     if arg.real > 500:
                         arg = 500 + 1j * arg.imag
                 elif arg > 500:
-                    arg = 500;                        
+                    arg = 500;
 
                 return np.exp(arg)
 
             def rect(arg):
-                # Define in terms of Heaviside for consistency                
+                # Define in terms of Heaviside for consistency
                 return heaviside(arg + 0.5) - heaviside(arg - 0.5)
 
             def sign(arg):
@@ -1929,12 +1929,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
             def dtsign(arg):
                 # Define in terms of unitstep for consistency
-                return 2 * unitstep(arg) - 1            
+                return 2 * unitstep(arg) - 1
 
             def dtrect(arg):
-                # Define in terms of UnitStep for consistency                
-                return unitstep(arg + 0.5) - unitstep(arg - 0.5)            
-            
+                # Define in terms of UnitStep for consistency
+                return unitstep(arg + 0.5) - unitstep(arg - 0.5)
+
             def sinc(arg):
                 """SymPy sinc."""
 
@@ -1949,7 +1949,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
                 # Undo SymPy jiggery pokery.
                 arg = arg * np.pi
-                
+
                 return 1.0 if arg == 0 else np.sin(np.pi * arg) / (np.pi * arg)
 
             def sincn(arg):
@@ -1957,7 +1957,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
                 # Note, if sincn is made to print sinc, then lambdify will
                 # call sinc.   Grrrr.
-                
+
                 return 1.0 if arg == 0 else np.sin(np.pi * arg) / (np.pi * arg)
 
             def sincu(arg):
@@ -1980,7 +1980,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                     if arg < -0.5 or arg > 0.5:
                         return 0.0
                     return 1.0
-            
+
                 if foo >= 0.5 * alpha:
                     return 0.0
                 elif foo <= -0.5 * alpha:
@@ -1996,7 +1996,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                     return 0.0
                 else:
                     return 1.0 - abs(arg)
-            
+
             def dirac(arg):
                 return np.inf if arg == 0.0 else 0.0
 
@@ -2007,13 +2007,13 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 if arg == 0:
                     if zero is None:
                         zero = unitstep_zero
-                    return zero                
+                    return zero
                 return 1.0 if arg >= 0 else 0.0
 
             def heaviside(arg, zero=None):
                 if arg == 0:
                     if zero is None:
-                        zero = heaviside_zero                
+                        zero = heaviside_zero
                     return zero
                 return 1.0 if arg > 0.0 else 0.0
 
@@ -2053,22 +2053,22 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 # even if have (-1)**n * Heaviside(n)
                 # So this function heads Lambdify off at the pass,
                 # if the function is causal.
-                
+
                 if is_causal and arg < 0:
                     return 0
                 try:
                     result = func1(arg)
                 except ZeroDivisionError:
                     result = complex(expr.limit(var, arg))
-                    
+
                 # If get NaN evaluate limit.  This helps for sin(t) / t.
                 if np.isnan(result):
                     result = complex(expr.limit(var, arg))
-                # u(t) - 
+                # u(t) -
                 if np.isinf(result):
                     result = complex(sym.simplify(expr).limit(var, arg))
                 return result
-            
+
             try:
                 # Try to flush out weirdness using first argument
                 response = func(arg0)
@@ -2091,7 +2091,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
             except TypeError as e:
                 raise RuntimeError('Cannot evaluate expression %s: %s' % (self, e))
-            
+
             if scalar:
                 if np.allclose(response.imag, 0.0):
                     response = response.real
@@ -2116,16 +2116,16 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             if arg is None:
                 if len(symbols) == 0:
                     return expr.evalf()
-                raise ValueError('Undefined symbols %s in expression %s' % (tuple(symbols), self))                                    
+                raise ValueError('Undefined symbols %s in expression %s' % (tuple(symbols), self))
             if len(symbols) == 0:
                 print('Ignoring arg %s' % arg)
                 return expr.evalf()
-            elif len(symbols) == 1:            
+            elif len(symbols) == 1:
                 return evaluate_expr(expr, symbols[0], arg)
             else:
-                raise ValueError('Undefined symbols %s in expression %s' % (tuple(symbols), self))                
-                
-            
+                raise ValueError('Undefined symbols %s in expression %s' % (tuple(symbols), self))
+
+
         var = self.var
         # Use symbol names to avoid problems with symbols of the same
         # name with different assumptions.
@@ -2151,7 +2151,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
     def has(self, *patterns):
         """Test whether any subexpressions matches any of the patterns.  For example,
-         V.has(exp(t)) 
+         V.has(exp(t))
          V.has(t)
 
         """
@@ -2163,16 +2163,21 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         """Test if have symbol contained.  For example,
         V.has_symbol('a')
         V.has_symbol(t)
-        
+
         """
-        
+
         return self.has(expr(sym))
-    
+
     def _subs1(self, old, new, **kwargs):
 
         # This will fail if a variable has different attributes,
         # such as positive or real.
+
         # Should check for bogus substitutions, such as t for s.
+        # Probably should disallow domain changing. Will need to
+        # iterate through the domain variables and check if new
+        # contains one.  Then disallow unless same as self.var.  Will
+        # also need to handle s-> jw in select() and transform().
 
         if new is old:
             return self
@@ -2193,12 +2198,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             old = old.expr
 
         if isinstance(expr, list):
-            # Get lists from solve.  These stymy sympy's subs.
+            # Get lists from solve.  These stymie sympy's subs.
             if len(expr) == 1:
                 expr = expr[0]
             else:
                 warn('Substituting a list...')
-        
+
         result = self.expr.subs(old, expr, **kwargs)
 
         # If get empty Piecewise, then result unknowable.  TODO: sympy
@@ -2218,13 +2223,13 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         Note (5 * s)(omega) will fail since 5 * s is assumed not to be
         causal and so Fourier transform is unknown.  However, Zs(5 *
         s)(omega) will work since Zs is assumed to be causal."""
-        
+
         from .transform import transform
         return transform(self, arg, **assumptions)
 
     def __call__(self, arg, **assumptions):
-        """Transform domain or substitute arg for variable. 
-        
+        """Transform domain or substitute arg for variable.
+
         Substitution is performed if arg is a tuple, list, numpy
         array, or constant.  If arg is a tuple or list return a list.
         If arg is an numpy array, return numpy array.
@@ -2247,7 +2252,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     def _select(self, kind):
 
         from .transform import select
-        return select(self, kind)        
+        return select(self, kind)
 
     def limit(self, var, value, dir='+'):
         """Determine limit of expression(var) at var = value.
@@ -2266,7 +2271,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if str(var) not in symbolnames:
             return self
         var = symbols[symbolnames.index(str(var))]
-        
+
         ret = sym.limit(self.expr, var, value, dir=dir)
         return self.__class__(ret, **self.assumptions)
 
@@ -2297,7 +2302,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         result = simplify_conjugates(self.expr)
         return self.__class__(result, **self.assumptions)
-    
+
     def simplify_factors(self, **kwargs):
         """Simplify factors in expression individually."""
 
@@ -2318,7 +2323,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         """Simplify c * cos(theta) - s * sin(theta) as A * cos(theta - phi)."""
 
         result = simplify_sin_cos(self.expr, as_cos, as_sin)
-        return self.__class__(result, **self.assumptions)        
+        return self.__class__(result, **self.assumptions)
 
     def simplify_dirac_delta(self):
         """Simplify DiracDelta(4 * t + 2) to DiracDelta(t + 0.5) / 4
@@ -2345,8 +2350,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         and rect(t)**2 to rect(t), etc."""
 
         result = simplify_rect(self.expr, self.var)
-        return self.__class__(result, **self.assumptions)            
-    
+        return self.__class__(result, **self.assumptions)
+
     def replace(self, query, value, map=False, simultaneous=True, exact=None):
 
         try:
@@ -2357,11 +2362,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         try:
             value = value.expr
         except:
-            pass        
+            pass
 
         ret = self.expr.replace(query, value, map, simultaneous, exact)
-        return self.__class__(ret, **self.assumptions)        
-        
+        return self.__class__(ret, **self.assumptions)
+
     def subs(self, *args, **kwargs):
         """Substitute variables in expression, see sympy.subs for usage."""
 
@@ -2401,7 +2406,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         label = self.label
         if hasattr(self, 'units') and self.units != '' and self.units != 1:
             label += ' (%s)' % self.units
-        return label    
+        return label
 
     @property
     def domain_label_with_units(self):
@@ -2416,11 +2421,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
     def differentiate(self, arg=None):
         """Differentiate expression."""
-        
+
         if arg is None:
             arg = self.var
         arg = self._tweak_arg(arg)
-            
+
         return self.__class__(sym.diff(self.expr, arg), **self.assumptions)
 
     def diff(self, arg=None):
@@ -2448,7 +2453,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         return arg
 
     def integrate(self, arg=None, **kwargs):
-        """Integrate expression.        
+        """Integrate expression.
 
         For example `exp(-3 * t).integrate((t, 0, oo))` gives `1 / 3`.
 
@@ -2468,7 +2473,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         cos(4⋅t)`.  Similarly, `cos(2 * t).rewrite(exp)` will expand
         the cosine as two complex exponentials."""
 
-        args = self._tweak_arg(args)        
+        args = self._tweak_arg(args)
         return self.__class__(self.sympy.rewrite(*args, **hints),
                               **self.assumptions)
 
@@ -2478,9 +2483,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if self.has(AppliedUndef):
             new, defs = self.remove_undefs(return_mappings=True)
             return new.solve(*symbols, **flags).subs(defs)
-        
+
         symbols = [symbol_map(symbol) for symbol in symbols]
-        return expr(sym.solve(self.expr, *symbols, **flags))  
+        return expr(sym.solve(self.expr, *symbols, **flags))
 
     def split_dirac_delta(self):
         """Return expression as a list of terms.  The first term has no
@@ -2490,11 +2495,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         For example, u(t) + DiractDelta(t, 1) returns
         [u(t), 0, DiracDelta(t, 1)]
 
-        """        
+        """
 
         # TODO: wrap return value as ExprList
         return split_dirac_delta(self)
-    
+
     @property
     def symbols(self):
         """Return dictionary of symbols in the expression keyed by name."""
@@ -2503,7 +2508,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         symdict = {sym.name:sym for sym in expr.free_symbols}
 
         # Look for V(s), etc.
-        funcdict = {atom.func.__name__:atom for atom in expr.atoms(AppliedUndef)}        
+        funcdict = {atom.func.__name__:atom for atom in expr.atoms(AppliedUndef)}
 
         symdict.update(funcdict)
         return symdict
@@ -2511,17 +2516,17 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     def _fmt_roots(self, roots, aslist=False, pairs=False):
 
         def _wrap_dict(roots):
-            
+
             rootsdict = {}
             for root, n in roots.items():
                 rootsdict[expr(root)] = n
             return expr(rootsdict)
 
         def _wrap_list(roots):
-            
+
             rootslist = []
             for root, n in roots.items():
-                rootslist += [expr(root)] * n        
+                rootslist += [expr(root)] * n
             return expr(rootslist)
 
         if pairs:
@@ -2536,7 +2541,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         else:
             return _wrap_dict(roots)
 
-        
+
     def roots(self, aslist=False, pairs=False):
         """Return roots of expression as a dictionary
         Note this may not find them all
@@ -2544,15 +2549,15 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         If `pairs` is True, return two dictionaries.  The first
         contains the conjugate pairs and the second contains the
         others
-        
+
         If `aslist` is True, return roots as list."""
 
         if self._ratfun is None:
             roots = {}
         else:
             roots = self._ratfun.roots()
-        return self._fmt_roots(roots, aslist, pairs)     
-            
+        return self._fmt_roots(roots, aslist, pairs)
+
     def zeros(self, aslist=False, pairs=False):
         """Return zeros of expression as a dictionary
         Note this may not find them all.
@@ -2560,14 +2565,14 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         If `pairs` is True, return two dictionaries.  The first
         contains the conjugate pairs and the second contains the
         others
-        
+
         If `aslist` is True, return zeros as list."""
 
         if self._ratfun is None:
             zeros = {}
         else:
             zeros = self._ratfun.zeros()
-        return self._fmt_roots(zeros, aslist, pairs)        
+        return self._fmt_roots(zeros, aslist, pairs)
 
     def poles(self, aslist=False, damping=None, pairs=False):
         """Return poles of expression as a dictionary
@@ -2576,12 +2581,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         If `pairs` is True, return two dictionaries.  The first
         contains the conjugate pairs and the second contains the
         others.
-        
+
         If `aslist` is True, return poles as list."""
 
         if self._ratfun is None:
-            return self._fmt_roots({}, aslist, pairs)            
-        
+            return self._fmt_roots({}, aslist, pairs)
+
         poles = self._ratfun.poles(damping=damping)
 
         polesdict = {}
@@ -2590,7 +2595,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             if key in polesdict:
                 polesdict[key] += pole.n
             else:
-                polesdict[key] = pole.n        
+                polesdict[key] = pole.n
 
         return self._fmt_roots(polesdict, aslist, pairs)
 
@@ -2598,12 +2603,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         def def1(defs, symbolname, value):
             from .cexpr import cexpr
-            
+
             sym1 = symbol(symbolname, override=False)
             defs[symbolname] = cexpr(value)
             return sym1
-        
-        zeros, poles, K, undef = self._ratfun.as_ZPK()                        
+
+        zeros, poles, K, undef = self._ratfun.as_ZPK()
 
         defs = ExprDict()
         K = def1(defs, 'K', K * undef)
@@ -2613,14 +2618,14 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         for m, zero in enumerate(zeros):
             z = def1(defs, 'z%d' % (m + 1), zero)
             N *= sym.Add(self.var, -z.sympy, evaluate=False)
-            
+
         for m, pole in enumerate(poles):
             p = def1(defs, 'p%d' % (m + 1), pole)
             D *= sym.Add(self.var, -p.sympy, evaluate=False)
-            
+
         result = sym.Mul(K.sympy, sym.Mul(N, sym.Pow(D, -1)), evaluate=False)
         return self.__class__(result, **self.assumptions), defs
-    
+
     def parameterize(self, zeta=None, ZPK=None):
         """Parameterize first and second-order expressions.
 
@@ -2645,16 +2650,16 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         representation, i.e.
 
         N(s) / (s**2 + 2 * zeta * omega_0 * s + omega_0**2)
-        
+
         otherwise parameterize as
-        
+
         N(s) / (s**2 + 2 * sigma_1 * s + omega_1**2 + sigma_1**2)
 
         """
 
         def def1(defs, symbolname, value):
             from .cexpr import cexpr
-            
+
             sym1 = symbol(symbolname, override=False)
             defs[symbolname] = cexpr(value)
             return sym1
@@ -2665,7 +2670,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         if ZPK:
             return self.parameterize_ZPK()
-        
+
         factors = self.as_ordered_factors()
 
         spowers = [s**-4, s**-3, s**-2, s**-1, s, s**2, s**3, s**4]
@@ -2673,11 +2678,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             if spower in factors:
                 result, defs = (self / spower).parameterize(zeta)
                 return result * spower, defs
-        
+
         N = self.N
         D = self.D
-        
-        ndegree = N.degree        
+
+        ndegree = N.degree
         ddegree = D.degree
         ncoeffs = N.coeffs(norm=True)
         dcoeffs = D.coeffs(norm=True)
@@ -2739,7 +2744,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         """
         if self.is_Equality:
             return equation(self.lhs.canonical(), self.rhs.canonical())
-        
+
         if not self.expr.has(self.var):
             return self
         if self._ratfun is None:
@@ -2756,7 +2761,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         if self.is_Equality:
             return equation(self.lhs.general(), self.rhs.general())
-        
+
         if self._ratfun is None:
             return self.copy()
         return self.__class__(self._ratfun.general(), **self.assumptions)
@@ -2774,10 +2779,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         if self.is_Equality:
             return equation(self.lhs.partfrac(), self.rhs.partfrac())
-        
+
         try:
             if self._ratfun is None:
-                return self.copy()        
+                return self.copy()
             return self.__class__(self._ratfun.partfrac(combine_conjugates or pairs,
                                                         damping),
                                   **self.assumptions)
@@ -2788,8 +2793,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         """Convert rational function into partial fraction form
         using reciprocal of variable.
 
-        For example, if H = 5 * (s**2 + 1) / (s**2 + 5*s + 4)     
-        then H.recippartfrac() gives 
+        For example, if H = 5 * (s**2 + 1) / (s**2 + 5*s + 4)
+        then H.recippartfrac() gives
         5/4 - 10/(3*(1 + 1/s)) + 85/(48*(1/4 + 1/s))
 
         If combine_conjugates is True then the pair of partial
@@ -2799,10 +2804,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         if self.is_Equality:
             return equation(self.lhs.recippartfrac(), self.rhs.recippartfrac())
-        
+
         if self._ratfun is None:
             return self.copy()
-        
+
         tmpsym = symsymbol('qtmp')
 
         expr = self.subs(1 / tmpsym)
@@ -2810,9 +2815,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         nexpr = ratfun.partfrac(combine_conjugates, damping)
         nexpr = nexpr.subs(tmpsym, 1 / self.var)
-        
+
         return self.__class__(nexpr, **self.assumptions)
-    
+
     def standard(self):
         """Convert rational function into mixed fraction form.  For example,
 
@@ -2827,9 +2832,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         if self.is_Equality:
             return equation(self.lhs.standard(), self.rhs.standard())
-        
+
         if self._ratfun is None:
-            return self.copy()        
+            return self.copy()
         return self.__class__(self._ratfun.standard(), **self.assumptions)
 
     def mixedfrac(self):
@@ -2847,9 +2852,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         if self.is_Equality:
             return equation(self.lhs.timeconst(), self.rhs.timeconst())
-        
+
         if self._ratfun is None:
-            return self.copy()        
+            return self.copy()
         return self.__class__(self._ratfun.timeconst(), **self.assumptions)
 
     def timeconst_terms(self):
@@ -2857,11 +2862,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         if self.is_Equality:
             return equation(self.lhs.timeconst_terms(), self.rhs.timeconst_terms())
-        
+
         result = 0
         for term in self.expr.as_ordered_terms():
             result += self.__class__(term).timeconst()
-        return self.__class__(result, **self.assumptions)            
+        return self.__class__(result, **self.assumptions)
 
     def ZPK(self, pairs=False, combine_conjugates=False):
         """Convert to zero-pole-gain (ZPK) form (factored form).  For example,
@@ -2871,7 +2876,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         If `combine_conjugates` or `pairs` is True, then conjugate pairs are combined
         to create a product of biquad sections.  For example,
 
-        5 * (s + 1)**2/(s**2 + 4) 
+        5 * (s + 1)**2/(s**2 + 4)
 
         Note, both the numerator and denominator are expressed as
         products of monic factors, i.e., (s + 1 / 3) rather than (3 * s + 1).
@@ -2881,9 +2886,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         """
         if self.is_Equality:
             return equation(self.lhs.ZPK(), self.rhs.ZPK())
-        
+
         if self._ratfun is None:
-            return self.copy()        
+            return self.copy()
         return self.__class__(self._ratfun.ZPK(combine_conjugates or pairs),
                               **self.assumptions)
 
@@ -2894,7 +2899,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         If `pairs` is True, then conjugate pairs are combined.  For example,
 
-        5 * (s + 1)**2/(s**2 + 4) 
+        5 * (s + 1)**2/(s**2 + 4)
 
         This is an alias for ZPK.  See also canonical, general,
         standard, partfrac, and timeconst.
@@ -2902,12 +2907,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         """
 
         if self.is_Equality:
-            return equation(self.lhs.factored(), self.rhs.factored())        
-        
+            return equation(self.lhs.factored(), self.rhs.factored())
+
         if self._ratfun is None:
             return self.copy()
         return self.__class__(self._ratfun.ZPK(pairs), **self.assumptions)
-    
+
     def expandcanonical(self):
         """Expand in terms for different powers with each term
         expressed in canonical form.  For example,
@@ -2920,18 +2925,18 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             return equation(self.lhs.expandcanonoical(), self.rhs.expandcanonical())
 
         if self._ratfun is None:
-            return self.copy()        
+            return self.copy()
         return self.__class__(self._ratfun.expandcanonical(), **self.assumptions)
 
     def coeffs(self, var=None, norm=False):
         """Return list of coeffs assuming the expr is a polynomial in terms of
         `var`.  If `var` is None, the default variable is used.
-        The highest powers come first.  
+        The highest powers come first.
 
         This will fail for a rational function.  Instead use
         expr.N.coeffs or expr.D.coeffs for numerator or denominator
         respectively.
-        
+
         If `norm` is True, normalize coefficients so highest power is 1.
 
         """
@@ -2941,7 +2946,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         if var is None:
             var = self.var
-        
+
         try:
             z = sym.Poly(self.expr, var)
         except:
@@ -2950,7 +2955,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         c = z.all_coeffs()
         if norm:
             return expr([sym.simplify(c1 / c[0]) for c1 in c])
-            
+
         return expr(c)
 
     def normcoeffs(self, var=None):
@@ -2971,7 +2976,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         if self._ratfun is None:
             return 1
-        
+
         return self._ratfun.degree
 
     @property
@@ -2986,7 +2991,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         if self._ratfun is None:
             return 1
-        
+
         return self._ratfun.Ndegree
 
     @property
@@ -2998,8 +3003,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         Note zero has a degree of -inf."""
 
         if self._ratfun is None:
-            return 1        
-        
+            return 1
+
         return self._ratfun.Ddegree
 
     def prune_HOT(self, degree):
@@ -3018,7 +3023,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             term = coeffs[m].expr * var ** m
             expr += term
 
-        return self.__class__(expr, **self.assumptions)            
+        return self.__class__(expr, **self.assumptions)
 
     def ratfloat(self):
         """This converts rational numbers in an expression to floats.
@@ -3045,15 +3050,15 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         expr = expr.replace(lambda expr: expr.is_Float,
                             lambda expr: sym.sympify(str(expr), rational=True))
 
-        return self.__class__(expr, **self.assumptions)            
-    
+        return self.__class__(expr, **self.assumptions)
+
     def approximate_fractional_power(self, order=2):
         """This is an experimental method to approximate
         s**a, where a is fractional, with a rational function using
         a Pade approximant."""
 
         v = self.var
-        
+
         def query(expr):
 
             if not expr.is_Pow:
@@ -3080,7 +3085,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
             n = v**2 * (a**2 + 3 * a + 2) + v * (8 - a**2) + (a**2 - 3 * a + 2)
             d = v**2 * (a**2 - 3 * a + 2) + v * (8 - a**2) + (a**2 + 3 * a + 2)
-            return n / d        
+            return n / d
 
         if order == 1:
             value = value1
@@ -3088,7 +3093,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             value = value2
         else:
             raise ValueError('Can only handle order 1 and 2 at the moment')
-        
+
         expr = self.expr
         expr = expr.replace(query, value)
 
@@ -3101,20 +3106,20 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         >>> v.as_value_unit
         (5, volts)
         """
-        
+
         from .units import units
 
         return units.as_value_unit(self.expr)
-            
+
     def as_N_D(self, monic_denominator=False):
         """Responses due to a sum of delayed transient responses
         cannot be factored into ZPK form with a constant delay.
         For example, sometimes SymPy gives:
 
             ⎛    s⋅τ     ⎞  -s⋅τ
-            ⎝V₁⋅ℯ    - V₂⎠⋅ℯ    
+            ⎝V₁⋅ℯ    - V₂⎠⋅ℯ
         I = ────────────────────
-               s⋅(L⋅s + R)     
+               s⋅(L⋅s + R)
 
         This method tries to extract the numerator and denominator
         where the denominator is a polynomial.
@@ -3122,7 +3127,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         N, D = I.as_N_D()
 
                      -s⋅τ
-        N = V₁ - V₂⋅ℯ    
+        N = V₁ - V₂⋅ℯ
         D =  s⋅(L⋅s + R)"""
 
         N, D = as_N_D(self.expr, self.var, monic_denominator)
@@ -3137,17 +3142,17 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         For example, sometimes SymPy gives:
 
             ⎛    s⋅τ     ⎞  -s⋅τ
-            ⎝V₁⋅ℯ    - V₂⎠⋅ℯ    
+            ⎝V₁⋅ℯ    - V₂⎠⋅ℯ
         I = ────────────────────
-               s⋅(L⋅s + R)     
+               s⋅(L⋅s + R)
 
         While this cannot be factored into ZPK form, it can be
         expressed as a sum of ZPK forms or as a partial fraction
         expansion.  However, SymPy does not play ball if trying to
         express as a sum of terms:
 
-        I.as_ordered_terms()  
-                                                 
+        I.as_ordered_terms()
+
         ⎡⎛    s⋅τ     ⎞  -s⋅τ⎤
         ⎢⎝V₁⋅ℯ    - V₂⎠⋅ℯ    ⎥
         ⎢────────────────────⎥
@@ -3180,13 +3185,13 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         for term in self.expr.as_ordered_terms():
             N, D = as_N_D(term, self.var, monic_denominator=False)
             result += N / D
-        return self.__class__(result, **self.assumptions)                
+        return self.__class__(result, **self.assumptions)
 
     def continued_fraction_coeffs(self):
 
         coeffs = []
-        var = self.var        
-        
+        var = self.var
+
         def foo(Npoly, Dpoly):
 
             # This seems rather complicated to extract the leading terms.
@@ -3198,7 +3203,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             Q = NLT / DLT
             coeffs.append(Q)
 
-            Npoly2 = sym.Poly(Npoly.as_expr() - Q * Dpoly.as_expr(), var)            
+            Npoly2 = sym.Poly(Npoly.as_expr() - Q * Dpoly.as_expr(), var)
             if Npoly2 != 0:
                 foo(Dpoly, Npoly2)
 
@@ -3209,11 +3214,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if Dpoly.degree() > Npoly.degree():
             coeffs.append(0)
             Npoly, Dpoly = Dpoly, Npoly
-        
+
         foo(Npoly, Dpoly)
 
         return expr(coeffs)
-    
+
     def as_continued_fraction(self):
         """Convert expression into a continued fraction."""
 
@@ -3233,7 +3238,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         coeffs = []
         var = self.var
-        
+
         def foo(Npoly, Dpoly):
 
             # This seems rather complicated to extract the last non-zero terms.
@@ -3241,7 +3246,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             DEM, DEC = Dpoly.ET()
             NET = NEM.as_expr() * NEC
             DET = DEM.as_expr() * DEC
-            
+
             if sym.Poly(NET, var).degree() > sym.Poly(DET, var).degree():
                 coeffs.append(0)
                 foo(Dpoly, Npoly)
@@ -3249,7 +3254,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
             Q = NET / DET
             coeffs.append(Q)
-            
+
             Npoly2 = sym.Poly(Npoly.as_expr() - Q * Dpoly.as_expr(), var)
             if Npoly2 != 0:
                 foo(Dpoly, Npoly2)
@@ -3296,7 +3301,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         The original expression can be obtained using:
 
         new.subs(defs)"""
-        
+
         mappings = {}
         e = self.expr
         for item in sym.preorder_traversal(e):
@@ -3310,12 +3315,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                     # named symbols but these cannot conflict
                     # with other symbols in the expression.
                     break
-                
+
                 mappings[name] = item
                 # Need to propagate complex assumption, etc.
                 e = e.subs(item, expr(name).expr)
 
-        ret = self.__class__(e, **self.assumptions)                
+        ret = self.__class__(e, **self.assumptions)
         if return_mappings:
             return ret, mappings
         else:
@@ -3323,7 +3328,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
     def remove_images(self, m1=0, m2=0):
         """Remove all spectral images resulting from a DTFT.
-        
+
         For example,
 
         >>> x = Sum(DiracDelta(f - m/Delta_t), (m, -oo, oo))
@@ -3341,7 +3346,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         from .dsym import dt
 
         var = self.var
-        
+
         if var is fsym:
             scale = dt
         elif var is Fsym:
@@ -3355,8 +3360,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         result = remove_images(self.expr, var, scale, m1, m2)
         return self.__class__(result, **self.assumptions)
-        
-        
+
+
 def exprcontainer(arg, **assumptions):
 
     if isinstance(arg, (ExprList, ExprTuple, ExprDict)):
@@ -3372,14 +3377,14 @@ def exprcontainer(arg, **assumptions):
         if arg.ndim > 1:
             raise ValueError('Multidimensional arrays unsupported; convert to Matrix')
         return Vector(arg, **assumptions)
-    
+
     raise ValueError('Unsupported exprcontainer %s' % arg.__class__.name)
 
 
 def _make_domain(expr, **assumptions):
-    
+
     symbols = expr.free_symbols
-    
+
     if tsym in symbols:
         return texpr(expr, **assumptions)
     elif ssym in symbols:
@@ -3391,17 +3396,17 @@ def _make_domain(expr, **assumptions):
     elif nsym in symbols:
         return nexpr(expr, **assumptions)
     elif ksym in symbols:
-        return kexpr(expr, **assumptions)    
+        return kexpr(expr, **assumptions)
     elif zsym in symbols:
         return zexpr(expr, **assumptions)
     elif Fsym in symbols:
         return Fexpr(expr, **assumptions)
     elif Omegasym in symbols:
-        return Omegaexpr(expr, **assumptions)                
+        return Omegaexpr(expr, **assumptions)
     else:
         return cexpr(expr, **assumptions)
-    
-    
+
+
 def expr(arg, override=False, **assumptions):
     """Create Lcapy expression from arg.
 
@@ -3425,14 +3430,14 @@ def expr(arg, override=False, **assumptions):
 
     if arg is None:
         return arg
-    
+
     if isinstance(arg, Expr):
         if assumptions == {}:
             return arg
         return arg.__class__(arg, **assumptions)
     if isinstance(arg, Sequence):
         return arg
-    
+
     if not isinstance(arg, str) and hasattr(arg, '__iter__'):
         return exprcontainer(arg, **assumptions)
 
@@ -3446,14 +3451,14 @@ def expr(arg, override=False, **assumptions):
 
     from .units import units
 
-    cls = lexpr.__class__    
+    cls = lexpr.__class__
     expr, units = units.as_value_unit(lexpr.expr)
 
     # 5 * t * u.volts -> V
     # 5 * cos(t) * u.volts -> V
     # 5 * s * u.volts -> V / Hz
     warn('This may be deprecated since the units may not be what you expect')
-    
+
     if units == uu.volts:
         return cls(expr, **assumptions).as_voltage()
     elif units == uu.amperes:
@@ -3461,13 +3466,13 @@ def expr(arg, override=False, **assumptions):
     elif units == uu.ohms:
         return cls(expr, **assumptions).as_impedance()
     elif units == uu.siemens:
-        return cls(expr, **assumptions).as_admittance()            
+        return cls(expr, **assumptions).as_admittance()
     elif units == uu.watts:
-        return cls(expr, **assumptions).as_power()            
+        return cls(expr, **assumptions).as_power()
     warn('Unhandled units: %s' % units)
     return lexpr
 
-    
+
 def expr_class(domain, arg, **assumptions):
 
     try:
@@ -3491,12 +3496,12 @@ def equation(lhs, rhs, inputsym='x', outputsym='y', **assumptions):
     This is an Lcapy expression of the form Eq(lhs, rhs).
     For example,
     e = equation('Y(s)', 'X(s) * 2 * s')
-    
+
     The left hand side (lhs) and right hand side subexpressions
     can be obtained with the `lhs` and `rhs` attributes."""
 
     from .diffeq import DifferenceEquation
-    
+
     lhs = expr(lhs)
     rhs = expr(rhs)
     # Check if lhs and rhs compatible.
@@ -3504,9 +3509,9 @@ def equation(lhs, rhs, inputsym='x', outputsym='y', **assumptions):
 
     if diff.is_discrete_time_domain:
         return DifferenceEquation(lhs, rhs, inputsym, outputsym, **assumptions)
-    
+
     cls = lhs.__class__
-    
+
     return cls(sym.Eq(lhs.expr, rhs.expr, evaluate=False), **assumptions)
 
 
@@ -3516,7 +3521,7 @@ def difference_equation(lhs, rhs, inputsym='x', outputsym='y', **assumptions):
     This is an Lcapy expression of the form Eq(lhs, rhs).
     For example,
     e = difference_equation('y(n)', 'x(n) + 2 * y(n - 1)')
-    
+
     The left hand side (lhs) and right hand side subexpressions
     can be obtained with the `lhs` and `rhs` attributes."""
 
@@ -3604,7 +3609,7 @@ def delcapify(expr):
         return ret
     elif hasattr(expr, 'expr'):
         return expr.expr
-    
+
     return expr
 
 
@@ -3639,7 +3644,7 @@ import sys
 try:
     from .printing import latex
     formatter = sys.displayhook.shell.display_formatter.formatters['text/latex']
-    
+
     for cls in (ExprList, ExprTuple, ExprDict):
         formatter.type_printers[cls] = Expr._repr_latex_
 except:
