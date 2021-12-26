@@ -3239,6 +3239,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         result = foo(coeffs)
         return self.__class__(result, **self.assumptions)
 
+    def as_ratfun_delay(self):
+
+        N, D, delay = self._ratfun.as_ratfun_delay()
+
+        return self.__class__(N / D, **self.assumptions), delay
+
     def continued_fraction_inverse_coeffs(self):
         """Convert expression into a continued fraction with inverse
         coefficients."""
