@@ -6,7 +6,7 @@ Copyright 2020--2021 Michael Hayes, UCECE
 
 from sympy import Add, Mul, DiracDelta, Heaviside, Integral, re, im
 from sympy import oo, sin, cos, sqrt, atan2, pi, Symbol, solve, Min, Max
-from sympy import cosh, sinh, tanh
+from sympy import cosh, sinh, tanh, exp
 from .extrafunctions import UnitStep, UnitImpulse, rect, dtrect
 
 
@@ -351,6 +351,13 @@ def expand_hyperbolic_trig(expr):
     def value(expr):
         arg = expr.args[0]
 
-        return sym.exp(arg) + sym.exp(-arg)
+        if expr.func == cosh:
+            return exp(arg) + exp(-arg)
+        elif expr.func == sinh:
+            return exp(arg) - exp(-arg)
+        elif expr.func == tanh:
+            return (exp(arg) - exp(-arg)) / (exp(arg) + exp(-arg))
+        else:
+            raise RuntimeError('Internal error')
 
     return expr.replace(query, value)
