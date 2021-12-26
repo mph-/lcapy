@@ -319,7 +319,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         if expr.has(exp):
             warn('Using first order Pade approximation for exp.')
-            expr = self.exp_pade_approximate()
+            expr = self.approximate_exp(method='pade', order=1)
 
         Hz = expr.bilinear_transform().subs(dt, dtval)
         fil = Hz.dlti_filter()
@@ -439,24 +439,6 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
     def evaluate(self, svector=None):
 
         return super(LaplaceDomainExpression, self).evaluate(svector)
-
-    def exp_pade_approximate(self, order=1):
-        """Replace exp(a) by a Pade approximant.
-
-        This method expands cosh, sinh, etc. into sums of exp first."""
-
-        if order != 1:
-            raise ValueError('TODO for higher orders')
-
-        def query(expr):
-            return expr.is_Function and expr.func == exp
-
-        def value(expr):
-            arg = expr.args[0]
-
-            return (2 + arg) / (2 - arg)
-
-        return self.replace(query, value)
 
     def plot(self, **kwargs):
         """Plot pole-zero map.

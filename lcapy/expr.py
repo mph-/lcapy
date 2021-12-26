@@ -2299,7 +2299,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         return ret
 
     def simplify_conjugates(self, **kwargs):
-        """Combine complex conjugate terms to make real."""
+        """Combine complex conjugate terms."""
 
         result = simplify_conjugates(self.expr)
         return self.__class__(result, **self.assumptions)
@@ -3059,10 +3059,13 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         return self.__class__(expr, **self.assumptions)
 
-    def approximate_fractional_power(self, order=2):
+    def approximate_fractional_power(self, method='pade', order=2):
         """This is an experimental method to approximate
         s**a, where a is fractional, with a rational function using
         a Pade approximant."""
+
+        if method != 'pade':
+            raise ValueError('Method %s unsupported, must be pade')
 
         v = self.var
 
@@ -3105,6 +3108,35 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         expr = expr.replace(query, value)
 
         return self.__class__(expr, **self.assumptions)
+
+    def _approximate_exp_pade(self, order=1):
+
+        if order != 1:
+            raise ValueError('TODO for higher orders')
+
+        def query(expr):
+            return expr.is_Function and expr.func == sym.exp
+
+        def value(expr):
+            arg = expr.args[0]
+
+            return (2 + arg) / (2 - arg)
+
+        return self.replace(query, value)
+
+    def approximate_exp(self, method='pade', order=1):
+        """Approximate exp(a)."""
+
+        if method != 'pade':
+            raise ValueError('Method %s unsupported, must be pade')
+
+        return self._approximate_exp_pade(order)
+
+    def approximate_hyperbolic_trig(self, method='pade', order=1):
+        """Approximate cosh(a), sinh(a), tanh(a)."""
+
+        expr = self.expand_hyperbolic_trig()
+        return expr.approximate_exp()
 
     def as_value_unit(self):
         """Return tuple of value and unit.  For example,
