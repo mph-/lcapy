@@ -3069,16 +3069,17 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         expr = approximate_fractional_power(self, method, order)
         return self.__class__(expr, **self.assumptions)
 
-    def approximate_exp(self, method='pade', order=1):
+    def approximate_exp(self, method='pade', order=1, numer_order=None):
         """Approximate exp(a)."""
 
-        expr = approximate_exp(self, method, order)
+        expr = approximate_exp(self, method, order, numer_order)
         return self.__class__(expr, **self.assumptions)
 
-    def approximate_hyperbolic_trig(self, method='pade', order=1):
+    def approximate_hyperbolic_trig(self, method='pade', order=1,
+                                    numer_order=None):
         """Approximate cosh(a), sinh(a), tanh(a)."""
 
-        expr = approximate_hyperbolic_trig(self, method, order)
+        expr = approximate_hyperbolic_trig(self, method, order, numer_order)
         return self.__class__(expr, **self.assumptions)
 
     def as_value_unit(self):

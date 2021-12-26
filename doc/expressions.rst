@@ -1691,9 +1691,25 @@ Approximation
 
 Lcapy has the following approximation methods:
 
-- `approximate_exp(method, order)` Approximate exponential function with a rational function.
+- `approximate_exp(method, order, numer_order)` Approximate exponential function with a rational function.  If `numer_order` is specified, this is used as the order for the numerator while `order` is used for the order of the denominator; otherwise `order` is used for the order of the numerator and denominator.  For example,
 
-- `approximate_hyperbolic_trig(method, order)` Approximate hyperbolic trig. functions with rational functions.
+   >>> exp(-s*'T').approximate_exp(order=2)
+    2  2
+   T ⋅s  - 6⋅T⋅s + 12
+   ──────────────────
+    2  2
+   T ⋅s  + 6⋅T⋅s + 12
+
+   >>> exp(-s*'T').approximate_exp(order=3, numer_order=2)
+          2  2
+       3⋅T ⋅s  - 24⋅T⋅s + 60
+   ─────────────────────────────
+    3  3      2  2
+   T ⋅s  + 9⋅T ⋅s  + 36⋅T⋅s + 60
+
+Note, some higher order approximations can be unstable.
+
+- `approximate_hyperbolic_trig(method, order, numer_order)` Approximate hyperbolic trig. functions with rational functions.
 
 - `approximate_fractional_power(method, order)` Approximate `s**a` where `a` is fractional with a rational function.
 
