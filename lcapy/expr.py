@@ -32,6 +32,7 @@ from sympy.utilities.lambdify import lambdify
 from .sym import simplify
 from .simplify import simplify_sin_cos, simplify_heaviside, simplify_dirac_delta
 from .simplify import simplify_rect, simplify_unit_impulse, simplify_conjugates
+from .simplify import expand_hyperbolic_trig
 from .config import heaviside_zero, unitstep_zero
 from collections import OrderedDict
 from warnings import warn
@@ -2350,6 +2351,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         and rect(t)**2 to rect(t), etc."""
 
         result = simplify_rect(self.expr, self.var)
+        return self.__class__(result, **self.assumptions)
+
+    def expand_hyperbolic_trig(self):
+        """Convert cosh(x) to exp(x) + exp(-x), etc."""
+
+        result = expand_hyperbolic_trig(self.expr)
         return self.__class__(result, **self.assumptions)
 
     def replace(self, query, value, map=False, simultaneous=True, exact=None):

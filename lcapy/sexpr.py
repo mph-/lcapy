@@ -411,7 +411,8 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         This method expands cosh, sinh, etc. into sums of exp first."""
 
         # Handle cosh, sinh, etc.
-        expr = self.rewrite(exp)
+        expr = self
+        expr = expr.expand_hyperbolic_trig()
 
         if order != 1:
             raise ValueError('TODO for higher orders')

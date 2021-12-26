@@ -6,6 +6,7 @@ Copyright 2020--2021 Michael Hayes, UCECE
 
 from sympy import Add, Mul, DiracDelta, Heaviside, Integral, re, im
 from sympy import oo, sin, cos, sqrt, atan2, pi, Symbol, solve, Min, Max
+from sympy import cosh, sinh, tanh
 from .extrafunctions import UnitStep, UnitImpulse, rect, dtrect
 
 
@@ -337,3 +338,19 @@ def simplify_conjugates(expr):
         sterms.append(term)
 
     return Add(*sterms)
+
+
+def expand_hyperbolic_trig(expr):
+
+    # Note, rewrite(exp) does this except it also converts s**2 to
+    # exp(2 * log(s)).
+
+    def query(expr):
+        return expr.is_Function and expr.func in (cosh, sinh, tanh)
+
+    def value(expr):
+        arg = expr.args[0]
+
+        return sym.exp(arg) + sym.exp(-arg)
+
+    return expr.replace(query, value)
