@@ -3111,16 +3111,26 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
     def _approximate_exp_pade(self, order=1):
 
-        if order != 1:
-            raise ValueError('TODO for higher orders')
-
         def query(expr):
             return expr.is_Function and expr.func == sym.exp
 
         def value(expr):
             arg = expr.args[0]
 
-            return (2 + arg) / (2 - arg)
+            if order == 1:
+                return (2 + arg) / (2 - arg)
+            elif order == 2:
+                return (12 + 6 * arg + arg**2) / (12 - 6 * arg + arg**2)
+
+            from math import factorial
+
+            numer = 0
+            denom = 0
+            for k in range(order + 1):
+                scale = factorial(2 * order - k) // (factorial(k) * factorial(order - k))
+                numer += scale * arg**k
+                denom += scale * (-arg)**k
+            return numer / denom
 
         return self.replace(query, value)
 
