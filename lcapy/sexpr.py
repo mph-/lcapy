@@ -27,10 +27,10 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
     def __init__(self, val, **assumptions):
 
-        check = assumptions.pop('check', True)                
+        check = assumptions.pop('check', True)
         super(LaplaceDomainExpression, self).__init__(val, **assumptions)
 
-        expr = self.expr        
+        expr = self.expr
         if check and expr.has(tsym) and not expr.has(Integral):
             raise ValueError(
                 's-domain expression %s cannot depend on t' % expr)
@@ -42,7 +42,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
     def from_poles_residues(cls, poles, residues):
         """Create a transfer function from lists of poles and residues.
 
-        See also from_zeros_poles_gain, from_numer_denom"""        
+        See also from_zeros_poles_gain, from_numer_denom"""
 
         return cls(pr2tf(poles, residues, cls.var), causal=True)
 
@@ -51,7 +51,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         """Create a transfer function from lists of zeros and poles,
         and from a constant gain.
 
-        See also from_poles_residues, from_numer_denom"""        
+        See also from_poles_residues, from_numer_denom"""
 
         return cls(zp2tf(zeros, poles, K, cls.var), causal=True)
 
@@ -60,10 +60,10 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         """Create a transfer function from lists of the coefficient
         for the numerator and denominator.
 
-        See also from_zeros_poles_gain, from_poles_residues"""        
+        See also from_zeros_poles_gain, from_poles_residues"""
 
         return cls(tf(numer, denom, cls.var), causal=True)
-        
+
     def tdifferentiate(self):
         """Differentiate in t-domain (multiply by s)."""
 
@@ -123,7 +123,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         """
 
         return self.inverse_laplace(**assumptions)
-        
+
     def time(self, **assumptions):
         """Convert to time domain.
 
@@ -137,39 +137,39 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         try:
             return self.inverse_laplace(**assumptions)
         except ValueError:
-            return self.as_sum().inverse_laplace(**assumptions)            
+            return self.as_sum().inverse_laplace(**assumptions)
 
     def laplace(self, **assumptions):
         """Convert to s-domain."""
 
         assumptions = self.assumptions.merge(**assumptions)
         return self.__class__(self, **assumptions)
-    
+
     def fourier(self, **assumptions):
         """Convert to Fourier domain."""
         from .symbols import f, jw, pi
 
         if self.is_causal or assumptions.get('causal', False):
-            # Note, this does not apply for 1 / s.            
+            # Note, this does not apply for 1 / s.
             tmp = self(jw)
             if tmp.real != 0:
                 return self.change(tmp(2 * pi * f), domain='fourier',
-                                   **assumptions)                        
-        
+                                   **assumptions)
+
         result = self.time(**assumptions).fourier(**assumptions)
         return result
 
     def angular_fourier(self, **assumptions):
         """Convert to angular Fourier domain."""
         from .symbols import jw
-        
+
         if self.is_causal:
             # Note, this does not apply for 1 / s.
             tmp = self(jw)
             if tmp.real != 0:
                 return self.change(tmp, domain='angular fourier',
-                                   **assumptions)                
-        
+                                   **assumptions)
+
         result = self.time(**assumptions).angular_fourier(**assumptions)
         return result
 
@@ -177,14 +177,14 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         """Convert to normalized angular Fourier domain."""
         from .symbols import jw, Omega
         from .dsym import dt
-        
+
         if self.is_causal:
             # Note, this does not apply for 1 / s.
             tmp = self(j * Omega / dt)
             if tmp.real != 0:
                 return self.change(tmp, domain='norm angular fourier',
-                                   **assumptions)                
-        
+                                   **assumptions)
+
         result = self.time(**assumptions).norm_angular_fourier(**assumptions)
         return result
 
@@ -192,16 +192,16 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         """Convert to normalized Fourier domain."""
         from .symbols import jw, F
         from .dsym import dt
-        
+
         if self.is_causal:
             # Note, this does not apply for 1 / s.
             tmp = self(j * F / dt)
             if tmp.real != 0:
                 return self.change(tmp, domain='norm fourier',
-                                   **assumptions)                
-        
+                                   **assumptions)
+
         result = self.time(**assumptions).norm_fourier(**assumptions)
-        return result        
+        return result
 
     def phasor(self, **assumptions):
         """Convert to phasor domain."""
@@ -233,7 +233,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         angular frequency vector specified.
 
         """
-        from .symbols import omega        
+        from .symbols import omega
 
         X = self.subs(j * omega)
 
@@ -247,7 +247,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         vector specified.
 
         """
-        from .symbols import f        
+        from .symbols import f
 
         X = self.subs(j * 2 * pi * f)
 
@@ -256,11 +256,11 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         return X.evaluate(fvector)
 
-    def _response_adhoc(self, xvector, tvector):    
+    def _response_adhoc(self, xvector, tvector):
         """Evaluate response of system with applied signal.
         This method assumes that the data is well over-sampled."""
-        
-        # Perform polynomial long division so expr1 = Q + M / D                
+
+        # Perform polynomial long division so expr1 = Q + M / D
         N, D, delay = self._decompose()
         Q, M = div(N, D)
         expr1 = M / D
@@ -268,7 +268,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         Nt = len(tvector)
 
         # Evaluate impulse response.
-        ndt = tvector[1] - tvector[0]        
+        ndt = tvector[1] - tvector[0]
         th = np.arange(Nt) * ndt
         H= LaplaceDomainExpression(expr1, **self.assumptions)
         hvector = H.transient_response(th)
@@ -298,25 +298,25 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
     def _response_bilinear(self, xvector, tvector):
 
         from .dsym import dt
-        import scipy.signal as signal        
-        
+        import scipy.signal as signal
+
         # TODO: fix time offset
         if tvector[0] != 0:
             raise ValueError('Need initial time of 0')
-        
+
         ndt = tvector[1] - tvector[0]
-        
+
         Hz = self.bilinear_transform().subs(dt, ndt)
         fil = Hz.dlti_filter()
 
-        a = [a1.fval for a1 in fil.a]        
+        a = [a1.fval for a1 in fil.a]
         b = [b1.fval for b1 in fil.b]
-        
+
         y = signal.lfilter(b, a, xvector)
         return y
 
     def response(self, xvector, tvector, method='bilinear'):
-        """Evaluate response to input signal `xvector` at times 
+        """Evaluate response to input signal `xvector` at times
         `tvector`.  This returns a NumPy array."""
 
         symbols = self.symbols
@@ -339,7 +339,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         elif method == 'bilinear':
             return self._response_bilinear(xvector, tvector)
         raise ValueError('Unknown method %s' % method)
-        
+
     def state_space(self, form='CCF'):
         """Create state-space representation from transfer function.  Note,
         state-space representations are not unique and are determined
@@ -348,7 +348,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         canonical form, or 'DCF' for the diagonal canonical form."""
 
         from .statespace import StateSpace
-        
+
         a = self.a
         b = self.b
 
@@ -363,20 +363,20 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
     def _decompose(self):
 
-        N, D, delay = self._ratfun.as_ratfun_delay()                
+        N, D, delay = self._ratfun.as_ratfun_delay()
 
         return N, D, delay
 
     def differential_equation(self, input='x', output='y'):
-        """Create differential equation from transfer function. 
+        """Create differential equation from transfer function.
 
-        For example,  
-        >>> H = (s + 3) / (s**2 + 4)  
+        For example,
+        >>> H = (s + 3) / (s**2 + 4)
         >>> H.differential_equation()
-                 d                    d       
+                 d                    d
         3.y(t) + --(y(t)) = 4.x(t) + ---(x(t))
-                 dt                    2      
-                                     dt       
+                 dt                    2
+                                     dt
         """
 
         H = self
@@ -388,7 +388,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         N = self.N
         D = self.D
-        
+
         lhs = (N * Y).ILT(causal=True)
         rhs = (D * X).ILT(causal=True)
 
@@ -400,10 +400,31 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         if method != 'bilinear':
             raise ValueError('Unsupported transform ' + method)
         return self.bilinear_transform().simplify().dlti_filter()
-    
+
     def evaluate(self, svector=None):
 
         return super(LaplaceDomainExpression, self).evaluate(svector)
+
+    def exp_pade_approximate(self, order=1):
+        """Replace exp(a) by a Pade approximant.
+
+        This method expands cosh, sinh, etc. into sums of exp first."""
+
+        # Handle cosh, sinh, etc.
+        expr = self.rewrite(exp)
+
+        if order != 1:
+            raise ValueError('TODO for higher orders')
+
+        def query(expr):
+            return expr.is_Function and expr.func == exp
+
+        def value(expr):
+            arg = expr.args[0]
+
+            return (2 + arg) / (2 - arg)
+
+        return expr.replace(query, value)
 
     def plot(self, **kwargs):
         """Plot pole-zero map.
@@ -415,7 +436,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         xscale - the x-axis scaling
         yscale - the y-axis scaling
         in addition to those supported by the matplotlib plot command.
-        
+
         The plot axes are returned."""
 
         from .plot import plot_pole_zero
@@ -435,7 +456,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         This method makes the assumption that the expression is causal.
 
-        """        
+        """
 
         return self.fourier(causal=True).bode_plot(fvector, **kwargs)
 
@@ -451,7 +472,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         This method makes the assumption that the expression is causal.
 
-        """        
+        """
 
         return self.fourier(causal=True).nyquist_plot(fvector, **kwargs)
 
@@ -464,19 +485,19 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         This method makes the assumption that the expression is causal.
 
-        """        
+        """
 
-        return self.fourier(causal=True).nichols_plot(fvector, **kwargs)        
+        return self.fourier(causal=True).nichols_plot(fvector, **kwargs)
 
     def generalized_bilinear_transform(self, alpha=0.5):
-        
+
         from .discretetime import z, dt
 
         if alpha < 0 or alpha > 1:
             raise ValueError("alpha must be between 0 and 1 inclusive")
-        
+
         return self.subs((1 / dt) * (1 - z**-1) / (alpha + (1 - alpha) * z**-1))
-        
+
     def bilinear_transform(self):
         """Approximate s = ln(z) / dt
 
@@ -518,9 +539,9 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         elif method in ('backward_diff', 'backward_euler'):
             return self.generalized_bilinear_transform(1)
         else:
-            raise ValueError('Unsupported method %s' % method)        
+            raise ValueError('Unsupported method %s' % method)
 
- 
+
 def tf(numer, denom=1, var=None):
     """Create a transfer function from lists of the coefficient
     for the numerator and denominator."""

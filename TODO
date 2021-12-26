@@ -115,6 +115,9 @@ an answer that appears valid for DC.
 
 28. Expand cosh, sinh, for inverse Laplace
 
+29. Defer two-port evaluation and use AST
+
+
 Testing
 =======
 
