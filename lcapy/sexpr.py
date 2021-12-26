@@ -15,6 +15,7 @@ from .units import u as uu
 from .functions import sqrt
 import numpy as np
 from sympy import limit, exp, Poly, Integral, div, oo, Eq, Expr as symExpr
+from warnings import warn
 
 
 __all__ = ('sexpr', 'zp2tf', 'tf', 'pr2tf')
@@ -256,7 +257,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         return X.evaluate(fvector)
 
-    def _response_adhoc(self, xvector, tvector):
+    def _response_adhoc(self, xvector, tvector, dtval):
         """Evaluate response of system with applied signal.
         This method assumes that the data is well over-sampled."""
 
@@ -268,13 +269,12 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         Nt = len(tvector)
 
         # Evaluate impulse response.
-        ndt = tvector[1] - tvector[0]
-        th = np.arange(Nt) * ndt
+        th = np.arange(Nt) * dtval
         H= LaplaceDomainExpression(expr1, **self.assumptions)
         hvector = H.transient_response(th)
 
         ty = tvector
-        y = np.convolve(xvector, hvector)[0:Nt] * ndt
+        y = np.convolve(xvector, hvector)[0:Nt] * dtval
 
         if Q:
             # Handle Dirac deltas and their derivatives.
@@ -283,7 +283,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
                 y += float(c.expr) * xvector
 
-                xvector = np.diff(xvector) / ndt
+                xvector = np.diff(xvector) / dtval
                 xvector = np.hstack((xvector, 0))
 
         from scipy.interpolate import interp1d
@@ -295,29 +295,50 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         return y
 
-    def _response_bilinear(self, xvector, tvector):
+    def _response_bilinear(self, xvector, tvector, dtval):
 
         from .dsym import dt
         import scipy.signal as signal
 
-        # TODO: fix time offset
-        if tvector[0] != 0:
-            raise ValueError('Need initial time of 0')
+        expr, delay = self.as_ratfun_delay()
+        Ndelay = 0
+        if delay != 0:
+            if delay < 0:
+                raise ValueError('Need time advance %s' % delay)
+            Ndelay = round(float(delay / dtval), 12)
+            if not Ndelay.is_integer:
+                # Require fractional delay.
+                Ndelay = 0
+                delay = 0
+                expr = self
+            else:
+                Ndelay = int(Ndelay)
+        if delay != 0:
+            xvector = xvector[:-Ndelay]
+            tvector = tvector[:-Ndelay] - delay
 
-        ndt = tvector[1] - tvector[0]
+        if expr.has(exp):
+            warn('Using first order Pade approximation for exp.')
+            expr = self.exp_pade_approximate()
 
-        Hz = self.bilinear_transform().subs(dt, ndt)
+        Hz = expr.bilinear_transform().subs(dt, dtval)
         fil = Hz.dlti_filter()
 
         a = [a1.fval for a1 in fil.a]
         b = [b1.fval for b1 in fil.b]
 
         y = signal.lfilter(b, a, xvector)
+
+        if Ndelay != 0:
+            y = np.hstack((np.zeros(Ndelay), y))
         return y
 
     def response(self, xvector, tvector, method='bilinear'):
         """Evaluate response to input signal `xvector` at times
         `tvector`.  This returns a NumPy array."""
+
+        xvector = np.array(xvector)
+        tvector = np.array(tvector)
 
         symbols = self.symbols
         symbols.pop('s', None)
@@ -327,18 +348,29 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         if len(xvector) != len(tvector):
             raise ValueError('x must have same length as t')
 
-        dt = tvector[1] - tvector[0]
-        if not np.allclose(np.diff(tvector), np.ones(len(tvector) - 1) * dt):
-            raise (ValueError, 't values not equally spaced')
+        td = np.diff(tvector)
+        if not np.allclose(np.diff(td), 0):
+            raise ValueError('Time samples not uniformly spaced')
+
+        dtval = td[0]
+        if dtval < 0:
+            raise ValueError('Time samples not increasing')
 
         if self.is_constant:
             return float(self.expr) * xvector
 
+        # Expand cosh, sinh into sum of exps.
+        expr = self.expand_hyperbolic_trig()
+
         if method == 'adhoc':
-            return self._response_adhoc(xvector, tvector)
+            result = expr._response_adhoc(xvector, tvector, dtval)
         elif method == 'bilinear':
-            return self._response_bilinear(xvector, tvector)
-        raise ValueError('Unknown method %s' % method)
+            result = expr._response_bilinear(xvector, tvector, dtval)
+        else:
+            raise ValueError('Unknown method %s' % method)
+
+        return result
+
 
     def state_space(self, form='CCF'):
         """Create state-space representation from transfer function.  Note,
@@ -410,10 +442,6 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         This method expands cosh, sinh, etc. into sums of exp first."""
 
-        # Handle cosh, sinh, etc.
-        expr = self
-        expr = expr.expand_hyperbolic_trig()
-
         if order != 1:
             raise ValueError('TODO for higher orders')
 
@@ -425,7 +453,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
             return (2 + arg) / (2 - arg)
 
-        return expr.replace(query, value)
+        return self.replace(query, value)
 
     def plot(self, **kwargs):
         """Plot pole-zero map.
