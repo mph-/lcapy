@@ -335,7 +335,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
     def response(self, xvector, tvector, method='bilinear'):
         """Evaluate response to input signal `xvector` at times
-        `tvector`.  This returns a NumPy array."""
+        specified by `tvector`.  This returns a NumPy array."""
 
         xvector = np.array(xvector)
         tvector = np.array(tvector)
@@ -346,7 +346,10 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
             raise ValueError('Have undefined symbols: %s' % symbols)
 
         if len(xvector) != len(tvector):
-            raise ValueError('x must have same length as t')
+            raise ValueError('xvector, tvector must have at least 2 samples')
+
+        if len(xvector) < 2:
+            raise ValueError('xvector must have same length as tvector')
 
         td = np.diff(tvector)
         if not np.allclose(np.diff(td), 0):
