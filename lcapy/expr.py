@@ -33,6 +33,8 @@ from .sym import simplify
 from .simplify import simplify_sin_cos, simplify_heaviside, simplify_dirac_delta
 from .simplify import simplify_rect, simplify_unit_impulse, simplify_conjugates
 from .simplify import expand_hyperbolic_trig
+from .approximate import approximate_fractional_power, approximate_exp
+from .approximate import approximate_hyperbolic_trig
 from .config import heaviside_zero, unitstep_zero
 from collections import OrderedDict
 from warnings import warn
@@ -3064,89 +3066,20 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         s**a, where a is fractional, with a rational function using
         a Pade approximant."""
 
-        if method != 'pade':
-            raise ValueError('Method %s unsupported, must be pade')
-
-        v = self.var
-
-        def query(expr):
-
-            if not expr.is_Pow:
-                return False
-            if expr.args[0] != v:
-                return False
-            if expr.args[1].is_Number and not expr.args[1].is_Integer:
-                return True
-            if expr.args[1].is_Symbol and not expr.args[1].is_Integer:
-                return True
-            return False
-
-        def value1(expr):
-
-            a = expr.args[1]
-
-            n = v * (a + 1) + (1 - a)
-            d = v * (a - 1) + (1 + a)
-            return n / d
-
-        def value2(expr):
-
-            a = expr.args[1]
-
-            n = v**2 * (a**2 + 3 * a + 2) + v * (8 - a**2) + (a**2 - 3 * a + 2)
-            d = v**2 * (a**2 - 3 * a + 2) + v * (8 - a**2) + (a**2 + 3 * a + 2)
-            return n / d
-
-        if order == 1:
-            value = value1
-        elif order == 2:
-            value = value2
-        else:
-            raise ValueError('Can only handle order 1 and 2 at the moment')
-
-        expr = self.expr
-        expr = expr.replace(query, value)
-
+        expr = approximate_fractional_power(self, method, order)
         return self.__class__(expr, **self.assumptions)
-
-    def _approximate_exp_pade(self, order=1):
-
-        def query(expr):
-            return expr.is_Function and expr.func == sym.exp
-
-        def value(expr):
-            arg = expr.args[0]
-
-            if order == 1:
-                return (2 + arg) / (2 - arg)
-            elif order == 2:
-                return (12 + 6 * arg + arg**2) / (12 - 6 * arg + arg**2)
-
-            from math import factorial
-
-            numer = 0
-            denom = 0
-            for k in range(order + 1):
-                scale = factorial(2 * order - k) // (factorial(k) * factorial(order - k))
-                numer += scale * arg**k
-                denom += scale * (-arg)**k
-            return numer / denom
-
-        return self.replace(query, value)
 
     def approximate_exp(self, method='pade', order=1):
         """Approximate exp(a)."""
 
-        if method != 'pade':
-            raise ValueError('Method %s unsupported, must be pade')
-
-        return self._approximate_exp_pade(order)
+        expr = approximate_exp(self, method, order)
+        return self.__class__(expr, **self.assumptions)
 
     def approximate_hyperbolic_trig(self, method='pade', order=1):
         """Approximate cosh(a), sinh(a), tanh(a)."""
 
-        expr = self.expand_hyperbolic_trig()
-        return expr.approximate_exp()
+        expr = approximate_hyperbolic_trig(self, method, order)
+        return self.__class__(expr, **self.assumptions)
 
     def as_value_unit(self):
         """Return tuple of value and unit.  For example,
