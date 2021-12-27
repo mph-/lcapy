@@ -25,11 +25,11 @@ class TimeDomainExpression(TimeDomain, Expr):
 
     def __init__(self, val, **assumptions):
 
-        check = assumptions.pop('check', True)        
+        check = assumptions.pop('check', True)
         assumptions['real'] = True
         super(TimeDomainExpression, self).__init__(val, **assumptions)
 
-        expr = self.expr        
+        expr = self.expr
         if check and expr.has(ssym) and not expr.has(Integral):
             raise ValueError(
                 't-domain expression %s cannot depend on s' % expr)
@@ -40,7 +40,7 @@ class TimeDomainExpression(TimeDomain, Expr):
     def _mul_compatible_domains(self, x):
 
         if self.domain == x.domain:
-            return True        
+            return True
 
         return x.is_constant_domain
 
@@ -48,7 +48,7 @@ class TimeDomainExpression(TimeDomain, Expr):
 
         if self.domain == x.domain:
             return True
-        
+
         return x.is_constant_domain
 
     @property
@@ -56,7 +56,7 @@ class TimeDomainExpression(TimeDomain, Expr):
         """Return absolute value."""
 
         return self.__class__(abs(self.expr), **self.assumptions)
-        
+
     def as_expr(self):
         return TimeDomainExpression(self)
 
@@ -70,7 +70,7 @@ class TimeDomainExpression(TimeDomain, Expr):
         This is an alias for laplace."""
 
         return self.laplace(evaluate, **assumptions)
-            
+
     def laplace(self, evaluate=True, **assumptions):
         """Determine one-sided Laplace transform with 0- as the lower limit."""
 
@@ -82,7 +82,7 @@ class TimeDomainExpression(TimeDomain, Expr):
         """Convert to phasor domain."""
 
         from .phasor import PhasorTimeDomainExpression
-        
+
         return PhasorTimeDomainExpression.from_time(self, **assumptions)
 
     def FT(self, var=None, evaluate=True, **assumptions):
@@ -91,7 +91,7 @@ class TimeDomainExpression(TimeDomain, Expr):
         X(f) = \int_{-\infty}^{\infty} x(t) exp(-j 2\pi f t) dt."""
 
         from .symbols import f, omega, Omega, F
-        
+
         if var is None:
             var = f
         if id(var) not in (id(f), id(F), id(omega), id(Omega)):
@@ -104,17 +104,17 @@ class TimeDomainExpression(TimeDomain, Expr):
         result = result.expand(diracdelta=True, wrt=var)
         result = result.simplify()
         return result
-        
+
     def fourier(self, var=None, evaluate=True, **assumptions):
         """Attempt Fourier transform. This is an alias for FT."""
 
-        return self.FT(var, evaluate, **assumptions)        
+        return self.FT(var, evaluate, **assumptions)
 
     def angular_fourier(self, evaluate=True, **assumptions):
         """Attempt angular Fourier transform."""
 
         from .symbols import omega
-        
+
         return self.FT(omega, evaluate, **assumptions)
 
     def norm_angular_fourier(self, evaluate=True, **assumptions):
@@ -122,8 +122,8 @@ class TimeDomainExpression(TimeDomain, Expr):
 
         from .symbols import Omega
 
-        return self.FT(Omega, evaluate, **assumptions)        
-    
+        return self.FT(Omega, evaluate, **assumptions)
+
     def time(self, **assumptions):
         return self
 
@@ -140,30 +140,27 @@ class TimeDomainExpression(TimeDomain, Expr):
         xscale - the x-axis scaling, say for plotting as ms
         yscale - the y-axis scaling, say for plotting mV
         in addition to those supported by the matplotlib plot command.
-        
+
         The plot axes are returned."""
 
         from .plot import plot_time
         return plot_time(self, t, **kwargs)
 
     def response(self, xvector, tvector, method='bilinear'):
-        """Evaluate response to input signal `xvector` at times 
+        """Evaluate response to input signal `xvector` at times
         `tvector`.  This returns a NumPy array."""
 
         from .sexpr import s
         return self(s).response(xvector, tvector, method=method)
 
     def sample(self, tvector):
-
         """Return a discrete-time signal evaluated at time values
-        specified by tvector.
-
-        """
+        specified by `tvector`.  This returns a NumPy array."""
 
         return self.evaluate(tvector)
 
     def initial_value(self):
-        """Determine value at t = 0. 
+        """Determine value at t = 0.
         See also pre_initial_value and post_initial_value"""
 
         return self.subs(0)
@@ -178,7 +175,7 @@ class TimeDomainExpression(TimeDomain, Expr):
         """Determine value at t = 0+.
         See also pre_initial_value and initial_value"""
 
-        return self.limit(self.var, 0, dir='+')    
+        return self.limit(self.var, 0, dir='+')
 
     def final_value(self):
         """Determine value at t = oo."""
@@ -201,14 +198,14 @@ class TimeDomainExpression(TimeDomain, Expr):
 
         if self.is_causal:
             return self
-        
+
         expr = self.expr
         if self.is_conditional:
-            expr = expr.args[0].args[0]            
+            expr = expr.args[0].args[0]
         expr = expr * Heaviside(t)
-        return self.__class__(expr)        
+        return self.__class__(expr)
 
-    
+
 class TimeDomainImpulseResponse(TimeDomainExpression):
     """Time-domain impulse response."""
 
