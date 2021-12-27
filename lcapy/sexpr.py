@@ -318,8 +318,8 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
             tvector = tvector[:-Ndelay] - delay
 
         if expr.has(exp):
-            warn('Using first order Pade approximation for exp.')
-            expr = self.approximate_exp(method='pade', order=1)
+            warn('Using second order Pade approximation for exp.')
+            expr = self.approximate_exp(method='pade', order=2, numer_order=1)
 
         Hz = expr.bilinear_transform().subs(dt, dtval)
         fil = Hz.dlti_filter()
