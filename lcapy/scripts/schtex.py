@@ -176,6 +176,9 @@ def main (argv=None):
                         dest='show', default=None,
                         help="show image")
 
+    parser.add_argument('--style', type=str, default=None,
+                        help="set schematic style: 'american', 'british', or 'euoropean'")
+
     args = parser.parse_args()
 
     infilename = args.filename
@@ -238,6 +241,8 @@ def main (argv=None):
            kwargs['preamble'] = args.preamble
         if args.postamble != None:
             kwargs['postamble'] = args.postamble
+        if args.style != None:
+            kwargs['style'] = args.style
         if args.font != None:
             kwargs['font'] = args.font
 
