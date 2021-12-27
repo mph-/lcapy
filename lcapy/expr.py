@@ -955,7 +955,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
             # Hack for ubuntu-20.04, python 3.7 and 3.8
             if attr == 'abbrev':
                 return ''
-            raise
+            raise AttributeError("'%s' object has no attribute '%s'" % (self.__class__.__name__, attr))
 
         # This gets called if there is no explicit attribute attr for
         # this instance.  We call the method of the wrapped sympy
