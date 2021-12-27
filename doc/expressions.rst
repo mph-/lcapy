@@ -55,16 +55,16 @@ The floating-point approximation can be found using `fval` attribute for a Pytho
 
 Rational numbers in Lcapy expressions can be converted to SymPy floating-point numbers using the `evalf()` method, with a specified number of decimal places.   For example::
 
-  >>>expr('1 / 3 + a').evalf(5)
+  >>> expr('1 / 3 + a').evalf(5)
   a + 0.33333
 
 If you prefer floating-point numbers use the `ratfloat()` method.  For example::
 
-  >>>expr('0.1 * a')
+  >>> expr('0.1 * a')
   a
   ──
   10
-  >>>expr('0.1 * a').ratfloat()
+  >>> expr('0.1 * a').ratfloat()
   0.1⋅a
 
 The companion method `floatrat()` converts floating-point numbers to
@@ -480,9 +480,9 @@ An `ExprList` can be converted to a list suitable for sympy using the
 
  `ExprList` objects have many similar printing methods to `Expr` objects such as `pprint()` and `latex()`.  Other methods include:
 
- - `subs()` to substitute symbols
+ - `subs()` substitutes symbols
 
- - `solve()` to solve a system of equations, for example,
+ - `solve()` solves a system of equations, for example,
 
    >>> v = expr('v(t)')
    >>> vR = expr('vR(t)')
@@ -499,9 +499,9 @@ An `ExprList` can be converted to a list suitable for sympy using the
    ⎨I(s): ───────, V_L(s): ────────, V_R(s): ───────⎬
    ⎩      L⋅s + R          L⋅s + R           L⋅s + R⎭
 
- - `fval()` evaluate each expression in the list and return a list of Python float values
+ - `fval()` evaluates each expression in the list and return a list of Python float values
 
- - `cval()` evaluate each expression in the list and return a list of Python complex values
+ - `cval()` evaluates each expression in the list and return a list of Python complex values
 
 
 Tuples
@@ -607,7 +607,6 @@ where :math:`\tau_i` are time delays.   This representation is returned by the `
 
 .. math::
    N(s) = \sum_{i} N_i(s) \exp(-s \tau_i).
-
 
 .. _expressionsattributes:
 
@@ -731,7 +730,7 @@ Transforms
 Miscellaneous
 -------------
 
-- `as_sum()` rewrite expression as a sum of terms where the denominator of each term has a common polynomial expression (see :ref:`expressionsresponses`).
+- `as_sum()` rewrites expression as a sum of terms where the denominator of each term has a common polynomial expression (see :ref:`expressionsresponses`).
 
 - `convolve(x)` convolves expressions (see :ref:`convolution`).
 
@@ -748,31 +747,89 @@ Miscellaneous
 
 - `evalf(n)` returns floating-point number to `n` decimal places (as Lcapy expression) if expression can be evaluated (see also `val`, `fval`, and `cval` attributes)
 
-- `evaluate(arg)` returns floating-point number (Python float or complex type) if expression can be evaluated.  If passed an NumPy array, an array of NumPy float or complex types is returned.
+- `evaluate(arg)` returns floating-point number (Python float or complex type) if expression can be evaluated.  If passed a tuple, list, or NumPy array, an array of NumPy float or complex types is returned.  For example::
+
+   >>> (t**2 + 4).evaluate(1)
+   5
+   >>> (t**2 + 4).evaluate((1, 2))
+   array([5., 8.])
 
 - `initial_value()` returns result at :math:`t = 0`.
 
-- `integrate(arg, **kwargs)` integrates expression.  For example `exp(-3 * t).integrate((t, 0, oo))` gives `1 / 3`.
+- `integrate(arg, **kwargs)` integrates expression.  For example::
 
-- `factor_const()` factor into constant part and the rest.
+   >>> exp(-3 * t).integrate((t, 0, oo))
+   1 / 3
 
-- `factor_term()` split into constant part and the rest.
+- `factor_const()` factors expression into constant part and the rest.
 
 - `final_value()` returns result at :math:`t = \infty`.
 
+- `force_causal()` removes the piecewise condition and multiplies expression by Heaviside unit step (only for time-domain expression), for example::
+
+   >>> (1/s)(t)
+   1  for t ≥ 0
+   >>> (1/s)(t).force_causal()
+   u(t)
+
+- `limit()` computes a limit.
+
 - `multiply_top_and_bottom(expr)` multiplies numerator and denominator by `expr`.
 
-- `parameterize` parameterizes first, second, and third order rational functions into common forms.
+- `parameterize()` parameterizes first, second, and third order rational functions into common forms.   For example::
 
-- `parameterize_ZPK` parameterizes rational functions into zero-pole-gain (ZPK) form.
+   >>> H, defs = (1 / (5 * s**2 + 10 * s + 20)).parameterize()
+   >>> H
+            K
+   ───────────────────
+     2               2
+   ω₀  + 2⋅ω₀⋅s⋅ζ + s
+   >>> defs
+   {K: 1/5, omega_0: 2, zeta: 1/2}
+   H, defs = (1 / (5 * s**2 + 10 * s + 20)).parameterize(zeta=False)
+   >>> H
+              K
+   ───────────────────────
+     2    2              2
+   ω₁  + s  + 2⋅s⋅σ₁ + σ₁
+   >>> defs
+   {K: 1/5, omega_1: √3, sigma_1: 1}
 
-- `rationalize_denominator()` multiplies numerator and denominator by complex conjugate of denominator.
+- `parameterize_ZPK()` parameterizes rational functions into zero-pole-gain (ZPK) form.  For example::
 
-- `replace(query, value)` replace `query` with `value`.
+   >>> H, defs = (1 / (5 * s**2 + 10 * s + 20)).parameterize_ZPK()
+   >>> H
+              1
+   K⋅───────────────────
+     (-p₁ + s)⋅(-p₂ + s)
+   >>> defs
+   {K: 1/5, p1: -1 - √3⋅ⅉ, p2: -1 + √3⋅ⅉ}
 
-- `rewrite(args, hints)` rewrite expression in terms of the `args`.  For example, `exp(j*a*t).rewrite(cos)` gives  `ⅉ⋅sin(4⋅t) + cos(4⋅t)`.  Similarly, `cos(2 * t).rewrite(exp)` will expand the cosine as two complex exponentials.
+- `post_initial_value()` returns result at :math:`t = 0^{+}` (only for time-domain and Laplace-domain expression).
 
-- `solve(symbols, flags)` returns list of solutions.
+- `pre_initial_value()` returns result at :math:`t = 0^{-}` (only for time-domain expression).
+
+- `rationalize_denominator()` multiplies numerator and denominator by complex conjugate of denominator to ensure the new denominator is purely real.
+
+- `remove_condition()` removes the piecewise condition (only for time-domain expression), for example::
+
+   >>> (1/s)(t)
+   1  for t ≥ 0
+   >>> (1/s)(t).remove_condition()
+   1
+
+- `replace(query, value)` replaces `query` with `value`.
+
+- `response(xvector, tvector, method='bilinear')` determines the discrete time-domain response given an input vector `xvector` at the instants specified by `tvector`.
+
+- `rewrite(args, hints)` rewrites expression in terms of the `args`.  For example, `exp(j*a*t).rewrite(cos)` gives  `ⅉ⋅sin(4⋅t) + cos(4⋅t)`.  Similarly, `cos(2 * t).rewrite(exp)` will expand the cosine as two complex exponentials.
+
+- `solve(symbols, flags)` returns list of solutions.  For example::
+
+   >>> (s**2 - 4).solve()
+   [-2, 2]
+
+- `term_const()` splits expression into constant part and the rest.
 
 
 .. _convolution:
@@ -1006,27 +1063,11 @@ expression does, the SymPy method is used.  For example:
 Utility functions
 =================
 
-- `symbol()` create a symbol
+- `symbol()` creates a symbol
 
-- `expr()` create an expression.  This can also create lists, tuples, and dictionaries of expressions.
+- `expr()` creates an expression.  This can also create lists, tuples, and dictionaries of expressions.
 
 Note, SymPy does not allow symbol names that are Python keywords.  For example, `expr('is(t)')` fails.  A workaround is to use an underscore in the name, for example, `expr('i_s(t)')`.
-
-- `simplify()` throw kitchen sink at problem to try and simplify expression.  Often it is better to use specific simplifications such as `expand`, `cancel`, `trigsimp`, etc.
-
-- `simplify_dirac_delta()` apply simplifications to expressions with Dirac deltas.
-
-- `simplify_factor()` factor expression and simplify each factor separately.
-
-- `simplify_heaviside()` apply simplifications to expressions with Heaviside steps.
-
-- `simplify_sin_cos()` convert `c * cos(theta) - s * sin(theta)`  to `A * cos(theta - phi)`.
-
-- `simplify_terms()` expand expression into terms and simplify each term separately.
-
-- `simplify_units()` simplify the units, e.g., `volts / ohms` gives `amps`.
-
-- `limit()` compute a limit.
 
 
 Domain transformation and substitution
@@ -1663,27 +1704,43 @@ Simplification
 
 Lcapy has the following simplification methods:
 
-- `simplify()`  This augments the SymPy simplification function by also simplifying expressions containing Dirac deltas and Heaviside steps.
+- `simplify()`  augments the SymPy simplification function by also simplifying expressions containing Dirac deltas and Heaviside steps.
 
-- `simplify_conjugates()` Combine complex conjugate terms.
+- `simplify_conjugates()` combines complex conjugate terms, for example::
 
-- `simplify_dirac_delta()` Simplify expressions with Dirac deltas.
+   >>> (exp(j * 3) + exp(-j * 3) + 1).simplify_conjugates()
+   2⋅cos(3) + 1
 
-- `simplify_heaviside()` Simpllify expressions with Heavside unit steps.
+- `simplify_dirac_delta()` simplifies Dirac deltas.
 
-- `simplify_factors()`  Each factor is simplified individually.
+- `simplify_heaviside()` simplifies Heavside unit steps, for example::
 
-- `simplify_rect()` Simplify expressions with rectangle functions.
+   >>> (u(t) * u(t)).simplify_heaviside()
+  u(t)
 
-- `simplify_sin_cos()`  This rewrites sums of sines and cosines in terms of a single phase-shifted-sine or cosine.
+- `simplify_factors()`  simplifies each factor separately.
 
-- `simplify_terms()`  Each term is simplified individually.
+- `simplify_rect()` simplifies expressions with rectangle functions, for example::
 
-- `simplify_units()` The units are simplified.
+   >>> (rect(t) * rect(t)).simplify_rect()
+   rect(t)
 
-- `simplify_unit_impulse()` Simpllify expressions with unit impulses.
+- `simplify_sin_cos()`  rewrites sums of sines and cosines in terms of a single phase-shifted-sine or cosine, for example::
 
-- `expand_hyperbolic_trig` Converts sinh, cosh, tanh into sum of exponentials.
+   >>> (3 * sin(omega0 * t) + 4 * cos(omega0 * t)).simplify_sin_cos()
+   5⋅cos(ω₀⋅t - atan(3/4))
+
+- `simplify_terms()`  simplifies each term separately.
+
+- `simplify_units()` simplifies the units of an expression, for example, `V/A` becomes `ohms`.
+
+- `simplify_unit_impulse()` simplifies unit impulses.
+
+- `expand_hyperbolic_trig` converts sinh, cosh, tanh into sum of exponentials.   For example::
+
+   >>> (sinh(s) + cosh(s)).expand_hyperbolic_trig()
+      s
+   2⋅ℯ
 
 
 Approximation
@@ -1691,7 +1748,7 @@ Approximation
 
 Lcapy has the following approximation methods:
 
-- `approximate_exp(method, order, numer_order)` Approximate exponential function with a rational function.  If `numer_order` is specified, this is used as the order for the numerator while `order` is used for the order of the denominator; otherwise `order` is used for the order of the numerator and denominator.  For example,
+- `approximate_exp(method, order, numer_order)` approximates exponential function with a rational function.  If `numer_order` is specified, this is used as the order for the numerator while `order` is used for the order of the denominator; otherwise `order` is used for the order of the numerator and denominator.  For example,
 
    >>> exp(-s*'T').approximate_exp(order=2)
     2  2
@@ -1707,13 +1764,21 @@ Lcapy has the following approximation methods:
     3  3      2  2
    T ⋅s  + 9⋅T ⋅s  + 36⋅T⋅s + 60
 
-Note, some higher order approximations can be unstable.
+Note, some higher order approximations can be unstable.  For example, the step-response of `exp(-s)` using a bilinear transformation is unstable for order 3 Pade approximation as in the following figure.
 
-- `approximate_hyperbolic_trig(method, order, numer_order)` Approximate hyperbolic trig. functions with rational functions.
+.. image:: pade-step-delay.png
+   :width: 12cm
 
-- `approximate_fractional_power(method, order)` Approximate `s**a` where `a` is fractional with a rational function.
+- `approximate_hyperbolic_trig(method, order, numer_order)` approximates hyperbolic trig. functions with rational functions.  This expands hyperbolic trig. functions using `expand_hyperbolic_trig` and then uses `approximate_exp`.  For example::
 
-- `prune_HOT(degree)` Prune higher order terms if expression is a polynomial so that resultant approximate expression has the desired degree.
+   >>> cosh(s).approximate_hyperbolic_trig(order=1)
+   2 - s   s + 2
+   ───── + ─────
+   s + 2   2 - s
+
+- `approximate_fractional_power(method, order)` approximates `s**a` where `a` is fractional with a rational function.
+
+- `prune_HOT(degree)` prunes higher order terms if expression is a polynomial so that resultant approximate expression has the desired degree.
 
 The default approximation method, and the only supported method at
 present, is a Pade approximant.
