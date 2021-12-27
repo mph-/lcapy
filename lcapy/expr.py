@@ -3070,7 +3070,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         return self.__class__(expr, **self.assumptions)
 
     def approximate_exp(self, method='pade', order=1, numer_order=None):
-        """Approximate exp(a)."""
+        """Approximate exp(a).  The best time-domain response (without a jump)
+        is achieved with 'numer_order == order - 1'.  The best
+        frequency-domain response is achieved with numer_order ==
+        order."""
 
         expr = approximate_exp(self, method, order, numer_order)
         return self.__class__(expr, **self.assumptions)

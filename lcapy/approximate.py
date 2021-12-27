@@ -95,7 +95,10 @@ def _approximate_exp_pade(expr, order=1, numer_order=None):
 
 
 def approximate_exp(expr, method='pade', order=1, numer_order=None):
-    """Approximate exp(a)."""
+    """Approximate exp(a).  The best time-domain response (without a jump)
+    is achieved with 'numer_order == order - 1'.  The best
+    frequency-domain response is achieved with numer_order ==
+    order."""
 
     if method != 'pade':
         raise ValueError('Method %s unsupported, must be pade')
@@ -107,4 +110,5 @@ def approximate_hyperbolic_trig(expr, method='pade', order=1, numer_order=None):
     """Approximate cosh(a), sinh(a), tanh(a)."""
 
     expr = expand_hyperbolic_trig(expr)
-    return approximate_exp(expr, numer_order)
+    return approximate_exp(expr, method=method, order=order,
+                           numer_order=numer_order)
