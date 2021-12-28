@@ -30,8 +30,41 @@ class LcapyCoreTester(unittest.TestCase):
         self.assertEqual(a.simplify_sin_cos().simplify(), b, "default")
 
     def test_simplify_heaviside(self):
-        """Test simplify Heaviside"""
+        """Test simplify_heaviside"""
 
         a = Heaviside(4 * t - 2)
         b = a.simplify_heaviside()
-        self.assertEqual(b, Heaviside(t - 0.5), "simplify_heaviside_scale")
+        self.assertEqual(b, Heaviside(t - 0.5), "simplify_heaviside scale")
+
+        a = Heaviside(t) * Heaviside(t)
+        self.assertEqual(a.simplify_heaviside(), Heaviside(t), "simplify_heaviside product")
+
+    def test_simplify_rect(self):
+        """Test simplify_rect"""
+
+        a = rect(t) * rect(t)
+        self.assertEqual(a.simplify_rect(), rect(t), "simplify_rect product")
+
+    def test_simplify_dirac_delta(self):
+        """Test simplify_dirac_delta"""
+
+        a = DiracDelta(t) * 'g(t)'
+        self.assertEqual(a.simplify_dirac_delta(), DiracDelta(t) * 'g(0)', "simplify_dirac_delta product")
+
+        a = DiracDelta(3 * t)
+        self.assertEqual(a.simplify_dirac_delta(), DiracDelta(t) / 3, "simplify_dirac_delta scale")
+
+    def test_simplify_conjugates(self):
+        """Test simplify_conjugates"""
+
+        a = exp(j * 2) + exp(-j * 2) + exp(j * 3)
+        self.assertEqual(a.simplify_conjugates(), 2 * cos(2) + exp(j * 3), "")
+
+    def test_expand_hyperbolic_trig(self):
+        """Test expand_hyperbolic_trig"""
+
+        a = cosh(2) + sinh(2)
+        self.assertEqual(a.expand_hyperbolic_trig(), 2 * exp(2), "")
+
+        a = cosh(2) - sinh(2)
+        self.assertEqual(a.expand_hyperbolic_trig(), 2 * exp(-2), "")
