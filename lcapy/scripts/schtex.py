@@ -152,8 +152,10 @@ def main (argv=None):
     parser.add_argument('--font', type=str, default=None,
                         help=r'specify default font, e.g., \small, \sffamily\tiny')
 
-    parser.add_argument('--include', type=str, default=None,
+    parser.add_argument('--includefile', type=str, default=None,
                         help='include contents of file before \\begin{document}')
+    parser.add_argument('--include', type=str, default=None,
+                        help='add string before \\begin{document}')
 
     parser.add_argument('--options', type=str, default=None,
                         help='specify circuitikz options')

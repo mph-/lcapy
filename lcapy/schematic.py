@@ -33,6 +33,7 @@ from .netfile import NetfileMixin
 from .system import LatexRunner, PDFConverter, tmpfilename
 from os import path, remove
 from collections import OrderedDict
+from warnings import warn
 import math
 
 
@@ -406,7 +407,7 @@ class Schematic(NetfileMixin):
             self.hints = True
 
         if cpt.name in self.elements:
-            print('Overriding component %s' % cpt.name)
+            warn('Overriding component %s' % cpt.name)
             # Need to search lists and update component.
 
         self.elements[cpt.name] = cpt
@@ -531,8 +532,10 @@ class Schematic(NetfileMixin):
 
         include = ''
         if 'include' in kwargs:
-            file = open(kwargs.pop('include'))
-            include = file.read()
+            include += kwargs.pop('include')
+        if 'includefile' in kwargs:
+            file = open(kwargs.pop('includefile'))
+            include += file.read()
             file.close()
 
         if style == 'american':
@@ -570,6 +573,8 @@ class Schematic(NetfileMixin):
                 node.debug()
 
         if ext in ('.pytex', '.schtex', '.pgf'):
+            if include != '':
+                warn('Include option ignored for non-standalone file')
             open(filename, 'w').write(content)
             return
 
