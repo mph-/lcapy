@@ -111,9 +111,9 @@ node.
 
 Here's an example of how to draw a diode bridge:
 
-.. literalinclude:: examples/schematics/Dbridge.sch
+.. literalinclude:: examples/schematics/circuit.sch
 
-.. image:: examples/schematics/Dbridge.png
+.. image:: examples/schematics/circuit.png
    :width: 4cm
 
 
@@ -1498,28 +1498,56 @@ schtex
 `schtex` is a Python script that will generate a schematic from a
 netlist file.  For example, here's how a png file can be generated:
 
-   >>> schtex Dbridge.sch Dbridge.png
+   >>> schtex circuit.sch circuit.png
 
-The generated stand-alone LaTeX file can be obtained using:
+Similarly, a pdf file is created using:
 
-   >>> schtex Dbridge.sch Dbridge.tex
+   >>> schtex circuit.sch circuit.pdf
+
+A stand-alone LaTeX file can be obtained using:
+
+   >>> schtex circuit.sch circuit.tex
+
+This can be converted to a pdf file using pdflatex.
 
 If you wish to include the schematic into a LaTeX file use:
 
-   >>> schtex Dbridge.sch Dbridge.pgf
+   >>> schtex circuit.sch circuit.pgf
 
-and then include the file with `\\input{Dbridge.pgf}`.
+and then include the file with `\\input{circuit.pgf}`.  The pgf format is a vector graphics format using LaTeX macros.  Its advantage is that the schematic fonts match the rest of the document.  To match the fonts for a pdf or png format requires some customisation.
 
 `schtex` has many command line options to configure the drawing.  These override the options specified in the netlist file.  For example:
 
-   >>> schtex --draw_nodes=connections --label_nodes=false --cpt-size=1 --help_lines=1 Dbridge.sch Dbridge.pdf
-
-The drawing can be customised using the `style` option (this can be 'american', 'british', or 'european'), the `preamble` option to insert a command at the start of the drawing commands, the `postamble` option to insert a command at the end of the drawing commands, the `include` option to insert the contents of a file at the start of the document, and the `font` option to specify fonts(e.g., '\small', '\sffamily\tiny').
+   >>> schtex --draw_nodes=connections --label_nodes=false --cpt-size=1 --help_lines=1 circuit.sch circuit.pdf
 
 
-One useful option is to renumber the nodes in a netlist.  For example,
+Customisation
+-------------
+
+The drawing can be customised using the following options:
+
+- `style` this can be 'american', 'british', or 'european'
+- `preamble` inserts a command at the start of the drawing commands
+- `postamble` inserts a command at the end of the drawing commands
+- `include` inserts a string at the start of the document (this is useful to switch to different fonts)
+- `includefile` insert the contents of a file at the start of the document  (this is useful to switch to different fonts)
+- `font` specify fonts(e.g., '\\small', '\\sffamily\\tiny')
+
+The `include` and `includefile` option are only used for creating a stand-alone file.  They are useful for customising the fonts to match the document they are to be embedded in.
+
+
+Node renumbering
+----------------
+
+One useful schtex option is to renumber the nodes in a netlist.  For example,
 
    >>> schtex --renumber='10:1, 11:2' infile.sch outfile.sch
+
+In this case node 10 is converted to node 1 and node 11 is converted to node 2.
+
+All the nodes can be automatically renumbered using:
+
+   >>> schtex --renumber='all' infile.sch outfile.sch
 
 This will choose small integers for the node numbers, honoring the provided mapping.  Equipotential nodes will be distinguished using enumerated subscripts, e.g., 1_1, 1_2, 1_3 etc.
 
