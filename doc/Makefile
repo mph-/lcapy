@@ -41,7 +41,7 @@ help:
 clean:
 	-rm -rf $(BUILDDIR)/*
 
-html: extra figs 
+html: extra figs
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
@@ -168,7 +168,10 @@ figs:
 	cd examples/tutorials/shield-guard; make
 	cd examples/tutorials/annotations; make
 
-extra: fourier_transforms.rst laplace_transforms.rst ztransforms.rst DTFTs.rst DFTs.rst ODTFTs.rst
+extra: fourier_transforms.rst laplace_transforms.rst ztransforms.rst DTFTs.rst DFTs.rst ODTFTs.rst pade-step-delay.png
 
 %.rst: %.py
 	python3 $< > $@
+
+%.png: %.py
+	python3 $<
