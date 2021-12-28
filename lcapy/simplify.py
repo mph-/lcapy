@@ -218,66 +218,80 @@ def simplify_sin_cos(expr, as_cos=False, as_sin=False):
     terms = expr.expand().as_ordered_terms()
 
     rest = 0
-    cos_part = None
-    sin_part = None
+    cos_parts = []
+    sin_parts = []
 
     for term in terms:
-        if term.has(sin) and sin_part is None:
-            sin_part = term
-        elif term.has(cos) and cos_part is None:
-            cos_part = term
+        if term.has(sin):
+            sin_parts.append(term)
+        elif term.has(cos):
+            cos_parts.append(term)
         else:
             rest += term
 
-    if cos_part is None or sin_part is None:
+    if cos_parts == [] or sin_parts == []:
         return expr
 
-    cfactors = cos_part.expand().as_ordered_factors()
-    sfactors = sin_part.expand().as_ordered_factors()
+    result = 0
 
-    commonfactors = []
-    for factor in cfactors:
-        if factor in sfactors:
-            commonfactors.append(factor)
+    # Use list to make copy for iterator.
+    for cos_part in list(cos_parts):
+        cfactors = cos_part.expand().as_ordered_factors()
 
-    for factor in commonfactors:
-        sfactors.remove(factor)
-        cfactors.remove(factor)
+        for sin_part in list(sin_parts):
+            sfactors = sin_part.expand().as_ordered_factors()
 
-    cosfactor = None
-    sinfactor = None
-    for cfactor in cfactors:
-        if cfactor.has(cos):
-            cosfactor = cfactor
+            commonfactors = []
+            for factor in cfactors:
+                if factor in sfactors:
+                    commonfactors.append(factor)
+
+            for factor in commonfactors:
+                sfactors.remove(factor)
+                cfactors.remove(factor)
+
+            cos_factor = None
+            sin_factor = None
+            for cfactor in cfactors:
+                if cfactor.has(cos):
+                    cos_factor = cfactor
+                    break
+
+            for sfactor in sfactors:
+                if sfactor.has(sin):
+                    sin_factor = sfactor
+                    break
+
+            if cos_factor is None or sin_factor is None:
+                continue
+
+            if cos_factor.args[0] != sin_factor.args[0]:
+                continue
+
+            cfactors.remove(cos_factor)
+            sfactors.remove(sin_factor)
+
+            c = Mul(*cfactors)
+            s = Mul(*sfactors)
+            A = sqrt(c * c + s * s) * Mul(*commonfactors)
+            phi = atan2(s, c)
+
+            if as_sin:
+                result += A * sin(cos_factor.args[0] - phi + pi / 2, evaluate=False)
+
+            if as_cos:
+                result += A * cos(cos_factor.args[0] - phi, evaluate=False)
+
+            # SymPy will choose sin or cos as convenient.
+            if not as_sin and not as_cos:
+                result += A * cos(cos_factor.args[0] - phi)
+
+            cos_parts.remove(cos_part)
+            sin_parts.remove(sin_part)
             break
 
-    for sfactor in sfactors:
-        if sfactor.has(sin):
-            sinfactor = sfactor
-            break
-
-    if cosfactor is None or sinfactor is None:
-        return expr
-
-    if cosfactor.args[0] != sinfactor.args[0]:
-        return expr
-
-    cfactors.remove(cosfactor)
-    sfactors.remove(sinfactor)
-
-    c = Mul(*cfactors)
-    s = Mul(*sfactors)
-    A = sqrt(c * c + s * s) * Mul(*commonfactors)
-    phi = atan2(s, c)
-
-    if as_sin:
-        return rest + A * sin(cosfactor.args[0] - phi + pi / 2, evaluate=False)
-
-    if as_cos:
-        return rest + A * cos(cosfactor.args[0] - phi, evaluate=False)
-
-    # SymPy will choose sin or cos as convenient.
-    return rest + A * cos(cosfactor.args[0] - phi)
+    result = Add(result, rest, *cos_parts, *sin_parts)
+    return result
 
 
 def simplify_unit_impulse(expr, var=None):
