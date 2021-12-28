@@ -65,8 +65,8 @@ Schematics are described using the same netlist syntax as used for circuit analy
     R1 1 2; right=2, color=blue
 
 This defines a resistor between nodes 1 and 2 drawn in blue to the right with length 2.
-    
-           
+
+
 Component orientation
 ---------------------
 
@@ -132,7 +132,7 @@ Here's an example of using `invert` to mirror a D flip-flop in the y-axis, compa
 
 .. image:: examples/schematics/fliplr1.png
    :width: 12cm
-   
+
 
 Component size
 --------------
@@ -268,10 +268,10 @@ Node names can also refer to pins of shape and chip components.  For example::
   U1 regulator; right
   W  1 U1.in; right
   W  U1.gnd 0; down
-  
+
 
 .. _schematic-components:
-  
+
 Components
 ==========
 
@@ -302,7 +302,7 @@ Constant phase elements (CPE)
 .. literalinclude:: examples/schematics/CPE1.sch
 
 .. image:: examples/schematics/CPE1.png
-   :width: 2cm        
+   :width: 2cm
 
 
 Diodes
@@ -313,13 +313,13 @@ Diodes can be drawn but not simulated.   A standard diode is described using:
      Dname Np Nm
 
 Different kinds of diodes can be specified by the `kind` option, for example,
-           
+
 .. literalinclude:: examples/schematics/diodes.sch
 
 .. image:: examples/schematics/diodes.png
    :width: 10cm
 
-The drawn style is controlled by the style option, for example, 
+The drawn style is controlled by the style option, for example,
 
 .. literalinclude:: examples/schematics/diodes2.sch
 
@@ -336,7 +336,7 @@ Ferrite beads
    :width: 2cm
 
 
-           
+
 Gyrators
 --------
 
@@ -346,7 +346,7 @@ Gyrators
    :width: 2cm
 
 
-.. _chips:           
+.. _chips:
 
 Integrated circuits
 -------------------
@@ -367,10 +367,10 @@ chip, for example, `U1.out1`.
 
 The supported chips are:
  - `chip1313`
- - `chip2121`  
+ - `chip2121`
  - `chip2222`
  - `chip3131`
- - `chip3333`  
+ - `chip3333`
  - `chip4141`
  - `buffer`
  - `inverter`
@@ -382,13 +382,13 @@ The supported chips are:
  - `rslatch`
  - `fdopamp`
  - `inamp`
- - `isoamp`  
- - `opamp`  
+ - `isoamp`
+ - `opamp`
  - `mux21`
- - `mux41`  
+ - `mux41`
  - `mux42`
  - `diffdriver`
- - `diffamp`   
+ - `diffamp`
 
 
 .. image:: examples/schematics/Uchip1313.png
@@ -399,7 +399,7 @@ The supported chips are:
 
 .. image:: examples/schematics/Uchip2222.png
    :width: 5cm
-        
+
 .. image:: examples/schematics/Uchip3131.png
    :width: 5cm
 
@@ -413,7 +413,7 @@ The supported chips are:
    :width: 5cm
 
 .. image:: examples/schematics/Uadc.png
-   :width: 5cm                                        
+   :width: 5cm
 
 .. image:: examples/schematics/Udac.png
    :width: 5cm
@@ -422,10 +422,10 @@ The supported chips are:
    :width: 5cm
 
 .. image:: examples/schematics/Uinamp.png
-   :width: 5cm        
+   :width: 5cm
 
 .. image:: examples/schematics/Ufdopamp.png
-   :width: 5cm        
+   :width: 5cm
 
 .. image:: examples/schematics/Uisoamp.png
    :width: 5cm
@@ -446,15 +446,15 @@ The supported chips are:
    :width: 5cm
 
 .. image:: examples/schematics/Urslatch.png
-   :width: 5cm                                                   
+   :width: 5cm
 
 .. image:: examples/schematics/Uinverter.png
    :width: 5cm
 
 .. image:: examples/schematics/Ubuffer.png
     :width: 5cm
-       
-           
+
+
 Chips are subclassed from the shape class and thus the pins can be
 labelled, renamed, etc.  For example:
 
@@ -487,7 +487,7 @@ component.  For example,
    :width: 5cm
 
 See the `Circuitikz manual <https://texdoc.org/serve/circuitikz/0>`_ for bipole components that can be drawn.
-           
+
 
 Opamps
 ------
@@ -530,12 +530,12 @@ fdopamp argument to a VCCS.  For example:
 
 
 Opamps and fully differential opamps have additional pins that can be connected:
-           
+
 .. image:: examples/schematics/opamps.png
     :width: 10cm
 
 .. image:: examples/schematics/fdopamps.png
-   :width: 10cm                   
+   :width: 10cm
 
 Opamps and fully differential opamps can also be drawn without the
 wires using the integrated circuit syntax.  However, these cannot be
@@ -548,14 +548,14 @@ analysed electrically.  For example:
    :width: 7.5cm
 
 Here are the named connections:
-           
+
 .. image:: examples/schematics/Uopamps.png
     :width: 10cm
 
 .. image:: examples/schematics/Ufdopamps.png
-   :width: 10cm                   
+   :width: 10cm
 
-           
+
 Potentiometers
 --------------
 
@@ -596,7 +596,7 @@ Switches can be mirrored and inverted, for example:
 .. image:: examples/schematics/switches2.png
    :width: 8cm
 
-           
+
 Transformers
 ------------
 
@@ -627,7 +627,7 @@ Transistors
 Transistors (BJT, JFET, and MOSFET) can be drawn but not analyzed.  Both
 are added to the netlist using a syntax similar to that of SPICE.  A BJT
 is described using:
-    
+
      Qname NC NB NE npn|pnp
 
 where NC, NB, and NE denote the collector, base, and emitter nodes.
@@ -651,13 +651,13 @@ Here's an example:
 .. image:: examples/schematics/transistors.png
    :width: 16cm
 
-The transistors can be flipped up-down with the `mirror` attribute and left-right with the `invert` attribute, for example:           
+The transistors can be flipped up-down with the `mirror` attribute and left-right with the `invert` attribute, for example:
 
 .. literalinclude:: examples/schematics/transistors2.sch
 
 
 .. image:: examples/schematics/transistors2.png
-   :width: 6cm           
+   :width: 6cm
 
 
 Transmission lines
@@ -671,14 +671,14 @@ A transmission line is a two-port device.  Here's an example:
     :width: 8cm
 
 The ground wires can be removed using the `nowires` attribute:
-        
+
 .. literalinclude:: examples/schematics/tline5.sch
 
 .. image:: examples/schematics/tline5.png
-   :width: 8cm        
+   :width: 8cm
 
 For more generic transmission lines see :ref:`cables`.
-           
+
 
 Mechanical components
 ---------------------
@@ -688,10 +688,10 @@ Springs, dampers (dashpots), and masses are oneport components for modelling mec
 .. literalinclude:: examples/schematics/massspringdamper1.sch
 
 .. image:: examples/schematics/massspringdamper1.png
-   :width: 8cm        
+   :width: 8cm
 
 
-           
+
 Wires
 =====
 
@@ -715,7 +715,7 @@ example to draw two parallel resistors:
 
 Stepped wires
 -------------
-           
+
 Stepped wires can be drawn using the `steps` attribute.  For example:
 
 .. literalinclude:: examples/schematics/steppedwire1.sch
@@ -727,7 +727,7 @@ Stepped wires can be drawn using the `steps` attribute.  For example:
 .. literalinclude:: examples/schematics/steppedwire2.sch
 
 .. image:: examples/schematics/steppedwire2.png
-   :width: 3cm        
+   :width: 3cm
 
 In these examples, the `free` attribute is used so that the wire places no constraints on the node positions.   Thus the `size` and `rotate` attributes are ignored.   The open-circuit component is used to fix the node locations.
 
@@ -738,9 +738,9 @@ If the step pattern is not specified, a default step pattern `-|` is chosen if t
 .. literalinclude:: examples/schematics/steppedwire0.sch
 
 .. image:: examples/schematics/steppedwire0.png
-   :width: 3cm        
+   :width: 3cm
 
-           
+
 Arrows
 ------
 
@@ -752,7 +752,7 @@ There are many arrow styles, see the `Tikz manual <https://pgf-tikz.github.io/pg
 .. image:: examples/schematics/arrows.png
    :width: 10cm
 
-           
+
 Implicit wires
 --------------
 
@@ -760,7 +760,7 @@ Implicit wires are commonly employed for power supply and ground
 connections.  They have one of the following attributes:
 
 - `implicit` equivalent to signal ground
-- `sground`  signal ground      
+- `sground`  signal ground
 - `ground`  earth ground
 - `cground`  chassis ground
 - `nground`  noiseless ground
@@ -769,10 +769,10 @@ connections.  They have one of the following attributes:
 - `vcc`      positive power supply (voltage to collectors)
 - `vdd`      positive power supply (voltage to drains ;-)
 - `vee`      negative power supply (voltage to emitters)
-- `vss`      negative power supply (voltage to sources)    
+- `vss`      negative power supply (voltage to sources)
 
 Here are some ground examples:
-   
+
 .. literalinclude:: examples/schematics/grounds.sch
 
 .. image:: examples/schematics/grounds.png
@@ -780,12 +780,12 @@ Here are some ground examples:
 
 
 Here are some power supply examples:
-   
+
 .. literalinclude:: examples/schematics/supplies.sch
 
 .. image:: examples/schematics/supplies.png
     :width: 3cm
-        
+
 
 Connections
 -----------
@@ -799,25 +799,25 @@ These are similar to implicit wires but are useful for denoting an off-sheet con
 
 
 For example:
-   
+
 .. literalinclude:: examples/schematics/connections1.sch
 
 .. image:: examples/schematics/connections1.png
-   :width: 10cm  
-    
+   :width: 10cm
+
 The sizes of the pads can be controlled with the `width` and `aspect`
 attributes.
 
 For example:
-   
+
 .. literalinclude:: examples/schematics/connections2.sch
 
 .. image:: examples/schematics/connections2.png
-   :width: 15cm  
+   :width: 15cm
 
 
 .. _cables:
-           
+
 Cables
 ======
 
@@ -827,7 +827,7 @@ The kind of cable is specified with the `kind` attribute.  This can be
 experimental and the syntax may change.
 
 .. image:: examples/schematics/cable.png
-   :width: 7.5cm  
+   :width: 7.5cm
 
 Here are some examples:
 
@@ -861,7 +861,7 @@ Here are some examples:
 .. literalinclude:: examples/schematics/guard1.sch
 
 .. image:: examples/schematics/guard1.png
-   :width: 12cm                             
+   :width: 12cm
 
 
 Block diagrams
@@ -887,9 +887,9 @@ Here's a more complicated example for a causal system:
 .. literalinclude:: examples/schematics/LTFT.sch
 
 .. image:: examples/schematics/LTFT.png
-   :width: 12cm        
+   :width: 12cm
 
-           
+
 Summing points
 --------------
 
@@ -934,7 +934,7 @@ nodes based on the centre (`c`) and sixteen directions of the compass:
    :width: 5cm
 
 .. image:: examples/schematics/Striangle2.png
-   :width: 5cm                
+   :width: 5cm
 
 
 The aspect ratio of `box`, `circle`, and `triangle` can be controlled
@@ -949,13 +949,13 @@ Here's an example of their use:
 
 
 `triangle` is an equilateral triangle.  Its shape can be changed with the `aspect` attribute.   It has anchors `n`, `e`, `s`, `w`, `c`, `c1`, `c2`, `c3`,
-           
+
 
 The label of a shape can be replaced by an image, using the `image` keyword.  For example,
 
 .. literalinclude:: examples/schematics/image1.sch
 
-The image file can be of any format supported by the LaTeX `\\includegraphics` macro (such as .pdf, .png, .jpg, etc) or a file that can be processed by LaTeX with the `\\input` macro (such as .pgf, .tex, .schtex).                    
+The image file can be of any format supported by the LaTeX `\\includegraphics` macro (such as .pdf, .png, .jpg, etc) or a file that can be processed by LaTeX with the `\\input` macro (such as .pgf, .tex, .schtex).
 
 
 Each shape has a number of predefined connection pins.  Associated
@@ -964,26 +964,26 @@ with each pin is an optional label.
 
 The `pinlabels` option can be specified as:
  - `all` : the default labels for all the pins are shown
- - `connected` : the default labels for all the connected pins are shown  
+ - `connected` : the default labels for all the connected pins are shown
  - `none` : none of the default labels are shown
  - `{pin1:label1, pin2:label2, ...}` : the labels are specified for the named pins.
 
 The names of the pins can be drawn using the `pinnames` option.  This has a syntax:
  - `all` : the pin names for all the pins are shown
- - `connected` : the pin names for all the connected pins are shown  
+ - `connected` : the pin names for all the connected pins are shown
  - `none` : none of the pin names are shown
  - `{pin1, pin2, ...}` : the specified pin names are shown.
 
 The nodes of the pins can be drawn using the `pinnodes` option.  This has a syntax:
  - `all` : the pin nodes for all the pins are shown
- - `connected` : the pin nodes for all the connected pins are shown  
+ - `connected` : the pin nodes for all the connected pins are shown
  - `none` : none of the pin nodes are shown
- - `{pin1, pin2, ...}` : the specified pin nodes are shown.     
+ - `{pin1, pin2, ...}` : the specified pin nodes are shown.
 
 The pin names can be redefined by the `pindefs` option.  This has a syntax:
   - `pindefs={new1=old1, new2=old2, ...}`
 
-                    
+
 Node annotation
 ===============
 
@@ -1018,7 +1018,7 @@ With this example, the netlist must be stored in a file or as a raw string to av
     >>> a = Circuit(r"""
     ;;\node[blue,draw,dashed,inner sep=5mm, fit=(R2) (C2), label=CMOS input model]{};
     """)
-    
+
 When referring to an anchor of a component it is necessary to use `@` instead of `.`, for example, `U1@tl` instead of `U1.tl`.  Here's an example:
 
 
@@ -1026,8 +1026,8 @@ When referring to an anchor of a component it is necessary to use `@` instead of
 
 .. image:: examples/schematics/fit3.png
    :width: 10cm
-    
-           
+
+
 Styles
 ======
 
@@ -1035,14 +1035,14 @@ Three component styles are supported: `american` (default), `british`, and
 `european`.  The style is set by a style argument to the `draw` method.  For example::
 
   >>> cct.draw(style='european')
-  
+
 Alternatively the style can specified by a schematic option.  For example:
 
 .. literalinclude:: examples/schematics/lpf1-buffer-loaded3.sch
 
 .. image:: examples/schematics/lpf1-buffer-loaded3.png
    :width: 10.5cm
- 
+
 
 Colors
 ------
@@ -1061,7 +1061,7 @@ Here are some examples using the `fill` attribute:
 
 Shading can be performed using the `top color` and `bottom color`
 attributes, see the `Tikz manual <https://pgf-tikz.github.io/pgf/pgfmanual.pdf>`_.
-           
+
 
 .. _linestyles:
 
@@ -1089,7 +1089,7 @@ These can be augmented by explicit voltage, current, and flow labels.  One-port 
 - t=label -- inner label
 
 - i=label -- current label
- 
+
 - v=label -- voltage label
 
 - f=label -- flow label
@@ -1121,7 +1121,7 @@ Annotations are similar to a component label but use the `a` attribute instead o
 .. image:: examples/schematics/Rlabels.png
    :width: 8cm
 
-           
+
 Voltage labels
 --------------
 
@@ -1129,7 +1129,7 @@ Voltage label positions are controlled with the `^` and `_`
 modifiers.  The `^` modifier positions the label above the component
 and the `_` modifier positions the label below the component.  For
 example,
-           
+
 .. literalinclude:: examples/schematics/voltage_labels1.sch
 
 .. image:: examples/schematics/voltage_labels1.png
@@ -1137,7 +1137,7 @@ example,
 
 Current and flow labels
 -----------------------
-           
+
 The current and flow labels have additional `<` and `>` modifiers to
 specify the flow direction.  If these come before the `^` and `_`
 modifiers, the label is positioned at the start of the component
@@ -1153,12 +1153,12 @@ Here are some examples of current and flow label positioning:
 .. literalinclude:: examples/schematics/current_labels2.sch
 
 .. image:: examples/schematics/current_labels2.png
-   :width: 20cm           
+   :width: 20cm
 
 .. literalinclude:: examples/schematics/flow_labels1.sch
 
 .. image:: examples/schematics/flow_labels1.png
-   :width: 20cm                        
+   :width: 20cm
 
 By default, if a component has a value label it is displayed,
 otherwise the component identifier is displayed.  Both can be
@@ -1183,7 +1183,7 @@ open-circuit component.   For example,
 
     >>> O1 1 0; down, v=V_1
 
- 
+
 .. _attributes:
 
 Component attributes
@@ -1196,36 +1196,36 @@ Component attributes
 - `aspect`: aspect ratio for boxes
 
 - `color`: component color
-  
+
 - `f`: flow label  (also `f`, `f_`, `f^`, `f_>`,  `f_<`, `f^>`, `f^<`, `f>_`, `f<_`, `f>^`, `f<^`, `f>`, `f<`)
 
-- `fill`: component fill color  
+- `fill`: component fill color
 
 - `fliplr`: flip left/right (horizontally)
-  
+
 - `flipud`: flip up/down (vertically)
-  
+
 - `free`: place no constraints on the node positions; this is useful for stepped wires.  With this attribute the `size` and `rotate` attributes are ignored.
-  
+
 - `i`: current label (also `i`, `i_`, `i^`, `i_>`, `i_<`, `i^>`, `i^<`, `i>_`, `i<_`, `i>^`, `i<^`, `i>`, `i<`, `ir`)
 
 - `ignore`: do not connect to the other components and do not draw (this is useful for simulating multiple mutual inductances but where it it is too hard to show them on a schematic)
 
-- `invert`: invert component vertically  
-  
+- `invert`: invert component vertically
+
 - `invisible`: connect to the other components but do not draw
 
 - `fixed`: do not stretch
 
 - `kind`: `electrolytic`, `polar`, or `variable` for capacitors; `variable` for inductors
-  
+
 - `l`: label
-  
+
 - `mirror`: mirror component in x-axis (opamps, transistors)
 
 - `mirrorinputs`: mirror inputs for opamps
 
-- `offset`: distance to orthogonally offset component (useful for parallel components)  
+- `offset`: distance to orthogonally offset component (useful for parallel components)
 - `pins`: define pin labels for ICs
 
 - `rotate`: angle in degrees to rotate component anti-clockwise
@@ -1259,7 +1259,7 @@ Here's an example using the kind attribute to specify the type of capacitor.
    :width: 7cm
 
 See also the `Circuitikz manual <https://texdoc.org/serve/circuitikz/0>`_ for other component attributes.
-           
+
 
 Schematic attributes
 ====================
@@ -1283,13 +1283,13 @@ Schematic attributes
 - `style`: specifies the component style.  This is either `american`,  `british`, or `european` (default `american`).
 
 - `dpi`: dots per inch (default 150) when converting to a PNG file (as used for displaying Jupyter notebooks).  This will change the displayed size of the schematic on the screen.
-  
+
 Schematic attributes apply to the whole schematic.  They can be specified by starting a netlist with a semicolon, for example,
 
     ;help_lines=1, draw_nodes=connections
 
 The schematic attributes can be overridden using arguments to the `draw` method.  For example,
- 
+
     >>> sch.draw(draw_nodes='alpha')
 
 The schematic attributes are also overridden by the component attributes.  For example::
@@ -1309,7 +1309,7 @@ Includes
 ========
 
 Large schematics can be composed by including smaller schematics using the `.include` directive, for example::
-   
+
    .include part1.sch
    .include part2.sch
 
@@ -1328,7 +1328,7 @@ LaTeX macro definitions can be embedded in the netlist using the `;;` prefix.   
 
   ;; \newcommand{\ud}{\mathrm{d}}
   S1 box; right=1, l=$\int f(\tau) h(t-\tau) \ud \tau$
-   
+
 
 Namespaces
 ==========
@@ -1362,7 +1362,7 @@ Inverting opamp amplifier
 .. image:: examples/schematics/opamp-inverting-amplifier.png
    :width: 5cm
 
-           
+
 Non-inverting opamp amplifier
 -----------------------------
 
@@ -1371,7 +1371,7 @@ Non-inverting opamp amplifier
 .. image:: examples/schematics/opamp-noninverting-amplifier.png
    :width: 5cm
 
-           
+
 Inverting opamp integrator
 --------------------------
 
@@ -1400,7 +1400,7 @@ Diode bridge
 
 
 Labelled circuit
-----------------           
+----------------
 
 .. literalinclude:: examples/schematics/VRL2.sch
 
@@ -1409,7 +1409,7 @@ Labelled circuit
 
 
 Loaded opamp model
-------------------           
+------------------
 
 .. literalinclude:: examples/schematics/lpf1-buffer-loaded2.sch
 
@@ -1417,7 +1417,7 @@ Loaded opamp model
    :width: 10.5cm
 
 
-Sallen Key filter           
+Sallen Key filter
 -----------------
 
 .. literalinclude:: examples/schematics/sallen-key-lpf1.sch
@@ -1427,8 +1427,8 @@ Sallen Key filter
 
 
 CMOS back-drive
----------------           
-           
+---------------
+
 .. literalinclude:: examples/schematics/cmos-backdrive2.sch
 
 .. image:: examples/schematics/cmos-backdrive2.png
@@ -1437,22 +1437,22 @@ CMOS back-drive
 
 Pierce oscillator
 -----------------
-           
+
 .. literalinclude:: examples/schematics/pierce-oscillator.sch
 
 .. image:: examples/schematics/pierce-oscillator.png
     :width: 4cm
 
-            
+
 Accelerometer
 -------------
 
 In this example, a dashed wire connects the electrical and mechanical grounds for simulation.
-            
+
 .. literalinclude:: examples/schematics/accelerometer1.sch
 
 .. image:: examples/schematics/accelerometer1.png
-   :width: 10cm        
+   :width: 10cm
 
 
 Customisation
@@ -1465,7 +1465,7 @@ Circuitikz commands (indeed any TikZ/PGF macros) can be embedded in a netlist.  
 .. image:: examples/schematics/L1.png
    :width: 5cm
 
-           
+
 File formats
 ============
 
@@ -1510,17 +1510,18 @@ If you wish to include the schematic into a LaTeX file use:
 
 and then include the file with `\\input{Dbridge.pgf}`.
 
-`schtex` has many command line options to configure the drawing.
-These override the options specified in the netlist file.  For example:
+`schtex` has many command line options to configure the drawing.  These override the options specified in the netlist file.  For example:
 
    >>> schtex --draw_nodes=connections --label_nodes=false --cpt-size=1 --help_lines=1 Dbridge.sch Dbridge.pdf
+
+The drawing can be customised using the `style` option (this can be 'american', 'british', or 'european'), the `preamble` option to insert a command at the start of the drawing commands, the `postamble` option to insert a command at the end of the drawing commands, the `include` option to insert the contents of a file at the start of the document, and the `font` option to specify fonts(e.g., '\small', '\sffamily\tiny').
 
 
 One useful option is to renumber the nodes in a netlist.  For example,
 
    >>> schtex --renumber='10:1, 11:2' infile.sch outfile.sch
 
-This will choose small integers for the node numbers, honoring the provided mapping.  Equipotential nodes will be distinguished using enumerated subscripts, e.g., 1_1, 1_2, 1_3 etc.   
+This will choose small integers for the node numbers, honoring the provided mapping.  Equipotential nodes will be distinguished using enumerated subscripts, e.g., 1_1, 1_2, 1_3 etc.
 
 
 Schematics in LaTeX
@@ -1531,14 +1532,14 @@ Here's an example of how to include an Lcapy schematic in a LaTeX document.
 .. literalinclude:: examples/schematics/pic4-demo.tex
 
 A PDF file can be produced using:
-                    
+
 .. code:: bash
-          
+
           $ schtex pic4.sch pic4.pgf
           $ pdflatex pic4-demo
 
 
-   
+
 Drawing tips
 ============
 
@@ -1573,8 +1574,8 @@ align components.
 Grid lines can be added to a schematic using some Tikz markup.  For
 example::
 
-   ;;\draw[help lines] (0,0) grid [xstep=0.1, ystep=0.1] (10,5);  
-  
+   ;;\draw[help lines] (0,0) grid [xstep=0.1, ystep=0.1] (10,5);
+
 
 By default, for circuit analysis, the primary circuit nodes are shown
 and labelled.  However, for a schematic it is best to only show the
@@ -1585,8 +1586,7 @@ nodes where components are connected; this can be achieved with::
 The node labels can be removed with::
 
   ;;label_nodes=none
-  
+
 
 The drawing quality depends on the installed version of Circuitikz due
 to slight tweakings of component sizes.
-  

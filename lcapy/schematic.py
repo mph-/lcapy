@@ -465,13 +465,7 @@ class Schematic(NetfileMixin):
             voltage_dir = kwargs.pop('voltage dir')
             opts.append('voltage dir=' + voltage_dir)
 
-        s = ''
-        if 'include' in kwargs:
-            file = open(kwargs['include'])
-            s += file.read()
-            file.close()
-
-        s += r'\begin{tikzpicture}[%s]''\n' % ', '.join(opts)
+        s = r'\begin{tikzpicture}[%s]''\n' % ', '.join(opts)
 
         # Add preamble
         if 'preamble' in kwargs:
@@ -535,6 +529,12 @@ class Schematic(NetfileMixin):
         self.node_spacing = float(kwargs.pop('node_spacing', 2.0))
         self.scale = float(kwargs.pop('scale', 1.0))
 
+        include = ''
+        if 'include' in kwargs:
+            file = open(kwargs.pop('include'))
+            include = file.read()
+            file.close()
+
         if style == 'american':
             style_args = 'american currents, american voltages'
         elif style == 'british':
@@ -578,8 +578,9 @@ class Schematic(NetfileMixin):
                     '\\usepackage{amsmath}\n'
                     '\\usepackage{circuitikz}\n'
                     '\\usetikzlibrary{fit, shapes, arrows, patterns, decorations.text, decorations.markings}\n'
+                    '%s\n'
                     '\\begin{document}\n%s\\end{document}')
-        content = template % content
+        content = template % (include, content)
         tex_filename = filename.replace(ext, '.tex')
         open(tex_filename, 'w').write(content)
 
@@ -637,7 +638,7 @@ class Schematic(NetfileMixin):
              'pins' to label nodes that are pins on a chip,
              'all' to label all nodes,
              'none' to label no nodes
-           'include': name of file to include after \\begin{document}
+           'include': name of file to include before \\begin{document}
            'style': 'american', 'british', or 'european'
            'scale': schematic scale factor, default 1.0
            'node_spacing': spacing between component nodes, default 2.0
