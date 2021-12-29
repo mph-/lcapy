@@ -22,10 +22,10 @@ class Pole(object):
     def _decompose_bar(self, expr):
 
         # Look for scale * sqrt(dexpr) where dexpr = aexpr - bexpr
-    
+
         dexpr = None
         scale = sym.S.One
-    
+
         for factor in expr.as_ordered_factors():
             if (factor.is_Pow and factor.args[1] == sym.S.One / 2 and
                 factor.args[0].is_Add and factor.args[0].args[1].is_Mul and
@@ -42,7 +42,7 @@ class Pole(object):
     def _decompose_foo(self, expr):
 
         # Look for offset + scale * sqrt(dexpr) where dexpr = aexpr - bexpr
-    
+
         offset = sym.S.Zero
         scale = sym.S.One
         found = False
@@ -62,10 +62,10 @@ class Pole(object):
     def _decompose(self, expr):
 
         scale = sym.S.One
-        scale2 = sym.S.One    
+        scale2 = sym.S.One
         offset = sym.S.One
         dexpr = None
-    
+
         for factor in expr.as_ordered_factors():
             if factor.is_Add:
                 p = self._decompose_foo(factor)
@@ -87,8 +87,8 @@ class Pole(object):
         return self.conjugate()
 
     def conjugate(self):
-        return self._rewrite(conjugate=True)            
-        
+        return self._rewrite(conjugate=True)
+
     def _rewrite(self, conjugate=False):
 
         if self.damping in (None, 'over') or self.d is None:
@@ -112,7 +112,7 @@ class Pole(object):
 def as_numer_denom_poly(expr, var):
 
     N = sym.S.One
-    D = sym.S.One    
+    D = sym.S.One
     for f in expr.as_ordered_factors():
         if f.is_Pow and f.args[1] == -1:
             D *= f.args[0]
@@ -121,12 +121,12 @@ def as_numer_denom_poly(expr, var):
 
     try:
         Dpoly = sym.Poly(D, var)
-        Npoly = sym.Poly(N, var)        
+        Npoly = sym.Poly(N, var)
     except:
         N, D = expr.as_numer_denom()
         Dpoly = sym.Poly(D, var)
-        Npoly = sym.Poly(N, var)                
-        
+        Npoly = sym.Poly(N, var)
+
     return Npoly, Dpoly
 
 
@@ -134,9 +134,9 @@ def as_numer_denom(expr, var):
 
     if expr.has(1 / var):
         expr = expr.cancel()
-    
+
     N = sym.S.One
-    D = sym.S.One    
+    D = sym.S.One
     for f in expr.as_ordered_factors():
         if f.is_Pow and f.args[1] == -1:
             D *= f.args[0]
@@ -170,7 +170,7 @@ def _zp2tf(zeros, poles, K=1, var=None):
         pp = [1 / (var - p) for p in poles]
     else:
         pp = [1 / (var - p) ** poles[p] for p in poles]
-        
+
     return sym.Mul(K, *(zz + pp), evaluate=False)
 
 
@@ -186,7 +186,7 @@ def _tc2tf(zeros, poles, K=1, var=None):
 
     zz = []
     pp = []
-    
+
     if isinstance(zeros, (tuple, list)):
         for z in zeros:
             if z == 0:
@@ -200,7 +200,7 @@ def _tc2tf(zeros, poles, K=1, var=None):
                 zz.append(var ** o)
             else:
                 zz.append((var / -z + 1) ** zeros[z])
-                K *= z ** o       
+                K *= z ** o
 
     if isinstance(zeros, (tuple, list)):
         for p in poles:
@@ -215,7 +215,7 @@ def _tc2tf(zeros, poles, K=1, var=None):
                 pp.append(var ** o)
             else:
                 pp.append(1 / (var / -p + 1) ** o)
-                K /= p ** o        
+                K /= p ** o
 
     K = K.simplify()
     return sym.Mul(K, *(zz + pp), evaluate=False)
@@ -265,7 +265,7 @@ def as_ratfun_delay(expr, var):
 def as_ratfun_delay_undef(expr, var):
     delay = sym.S.Zero
     undef = sym.S.One
-    
+
     if expr.is_rational_function(var):
         N, D = as_numer_denom(expr, var)
         return N, D, delay, undef
@@ -286,13 +286,13 @@ def as_ratfun_delay_undef(expr, var):
         if isinstance(f, AppliedUndef):
             undef *= f
             continue
-                
+
         rf *= f
 
     if not rf.is_rational_function(var):
         raise ValueError('Expression not a product of rational function,'
                          ' exponential, and undefined functions')
-    
+
     N, D = rf.as_numer_denom()
     return N, D, delay, undef
 
@@ -307,7 +307,7 @@ class Ratfun(object):
     def as_ratfun_delay(self):
         """Split expr as (N, D, delay)
         where expr = (N / D) * exp(var * delay)
-        
+
         Note, delay only represents a delay when var is s."""
 
         return as_ratfun_delay(self.expr, self.var)
@@ -318,10 +318,10 @@ class Ratfun(object):
         and where N is a polynomial in var,
         D is a polynomial in var, and undef is the product
         of undefined functions, e.g., V(s).
-        
+
         Note, delay only represents a delay when var is s."""
 
-        return as_ratfun_delay_undef(self.expr, self.var)        
+        return as_ratfun_delay_undef(self.expr, self.var)
 
     def as_const_undef_rest(self):
         """Split expr as (const, undef, rest)
@@ -329,11 +329,11 @@ class Ratfun(object):
 
         expr = self.expr
         var = self.var
-        
+
         const = sym.S.One
         undef = sym.S.One
-        rest = sym.S.One        
-    
+        rest = sym.S.One
+
         F = sym.factor(expr).as_ordered_factors()
 
         for f in F:
@@ -344,22 +344,22 @@ class Ratfun(object):
                 const *= f
                 continue
             rest *= f
-    
+
         return const, undef, rest
 
-    @lru_cache()    
+    @lru_cache()
     def roots(self):
         """Return roots of expression as a dictionary
         Note this may not find them all."""
 
         return sym.roots(sym.Poly(self.expr, self.var))
 
-    @lru_cache()    
+    @lru_cache()
     def zeros(self):
         """Return zeroes of expression as a dictionary
         Note this may not find them all."""
 
-        return Ratfun(self.numerator, self.var).roots()    
+        return Ratfun(self.numerator, self.var).roots()
 
     @lru_cache()
     def poles(self, damping=None):
@@ -377,7 +377,7 @@ class Ratfun(object):
                     break
             if pole.n != 0:
                 poles.append(pole)
-        
+
         return poles
 
     def residue(self, pole, poles):
@@ -391,24 +391,24 @@ class Ratfun(object):
         occurrences = []
         for p in poles:
             occurrences += [p.n - 1 if p.expr == pole else p.n]
-        
+
         numer, denom = expr.as_numer_denom()
         Dpoly = sym.Poly(denom, var)
         K = Dpoly.LC()
-        
+
         D = [(var - p.expr) ** o for p, o in zip(poles, occurrences)]
         denom = sym.Mul(K, *D)
 
         # Could calculate all residues simultaneously using
         # system of linear equations.
-        
+
         def method1(numer, denom, var, pole):
-        
+
             d = sym.limit(denom, var, pole)
-            
+
             if d != 0:
                 tmp = (numer / denom).simplify()
-                
+
                 # Sometimes this takes ages...
                 return sym.limit(tmp, var, pole)
 
@@ -420,22 +420,22 @@ class Ratfun(object):
 
         def method2(numer, denom, var, pole):
 
-            d = denom.subs(var, pole)            
+            d = denom.subs(var, pole)
             n = numer.subs(var, pole)
-            
+
             if d != 0:
                 return n / d
 
             ddenom = sym.diff(denom, var)
             return n / ddenom.subs(pole)
 
-        m2 = method2(numer, denom, var, pole)        
+        m2 = method2(numer, denom, var, pole)
         return m2.cancel()
 
     @property
     def numerator_denominator(self):
         """Return numerator and denominator of rational function"""
-        
+
         return as_numer_denom(self.expr, self.var)
 
     @property
@@ -445,7 +445,7 @@ class Ratfun(object):
     @property
     def D(self):
         return self.denominator
-    
+
     @property
     def numerator(self):
         """Return numerator of rational function"""
@@ -473,7 +473,7 @@ class Ratfun(object):
 
         See also general, partfrac, standard, timeconst, and ZPK
 
-        """        
+        """
 
         try:
             N, D, delay, undef = self.as_ratfun_delay_undef()
@@ -481,7 +481,7 @@ class Ratfun(object):
             # TODO: copy?
             return self.expr
 
-        var = self.var        
+        var = self.var
         Dpoly = sym.Poly(D, var)
         Npoly = sym.Poly(N, var)
 
@@ -497,7 +497,7 @@ class Ratfun(object):
             if D == 1:
                 expr = N
             else:
-                expr = sym.Mul(N, 1 / D, evaluate=False)                
+                expr = sym.Mul(N, 1 / D, evaluate=False)
 
             if K != 1:
                 expr = sym.Mul(K, expr, evaluate=False)
@@ -516,7 +516,7 @@ class Ratfun(object):
             if delay != 0:
                 expr *= sym.exp(self.var * delay)
             expr *= undef
-            
+
         return expr
 
     def general(self):
@@ -534,12 +534,12 @@ class Ratfun(object):
 
     def expandcanonical(self):
         """Expand in terms for different powers with each term
-        expressed in canonical form."""        
+        expressed in canonical form."""
 
         N, D, delay, undef = self.as_ratfun_delay_undef()
 
         Npoly = sym.Poly(N, self.var)
-        
+
         expr = sym.S.Zero
 
         for m, c in enumerate(reversed(Npoly.all_coeffs())):
@@ -560,19 +560,19 @@ class Ratfun(object):
         See also canonical, standard, general, timeconst, and ZPK
 
         """
-        
+
         try:
             Q, R, D, delay, undef = self.as_QRD(combine_conjugates, damping)
         except ValueError:
             if not split:
                 raise
-            
+
             # Try splitting into terms
             result = 0
             for term in self.expr.as_ordered_terms():
                 result += Ratfun(term, self.var).partfrac(combine_conjugates,
                                                           split=False)
-            return result           
+            return result
 
         result = Q
         for R, D in zip(R, D):
@@ -597,13 +597,13 @@ class Ratfun(object):
         except ValueError:
             if not split:
                 raise
-            
+
             # Try splitting into terms
             result = 0
             for term in self.expr.as_ordered_terms():
                 result += Ratfun(term, self.var).standard(False)
-            return result                       
-        
+            return result
+
         expr = Q + sym.cancel(M / D, self.var)
 
         if delay != 0:
@@ -619,10 +619,10 @@ class Ratfun(object):
 
         N, D, delay, undef = self.as_ratfun_delay_undef()
 
-        var = self.var        
+        var = self.var
         Npoly = sym.Poly(N, var)
         Dpoly = sym.Poly(D, var)
-        
+
         K = Dpoly.EC()
 
         D = D / K
@@ -637,7 +637,7 @@ class Ratfun(object):
         zeros, poles, K, undef = self.as_ZPK()
 
         var = self.var
-        
+
         if not combine_conjugates:
             return _zp2tf(zeros, poles, K, var) * undef
 
@@ -659,9 +659,9 @@ class Ratfun(object):
 
         result2 = _zp2tf(zero_singles, pole_singles, 1, var) * undef
         result = K * result1 * result2
-        
+
         return result
-        
+
     def residues(self, combine_conjugates=False, damping=None):
         """Return residues of partial fraction expansion.
 
@@ -675,7 +675,7 @@ class Ratfun(object):
 
         N, D, delay, undef = self.as_ratfun_delay_undef()
 
-        var = self.var        
+        var = self.var
         Npoly = sym.Poly(N, var)
         Dpoly = sym.Poly(D, var)
 
@@ -687,7 +687,7 @@ class Ratfun(object):
 
         This the maximum of the numerator and denominator degrees.
         Note zero has a degree of -inf."""
-        
+
         Npoly, Dpoly = as_numer_denom_poly(self.expr, self.var)
         return max(Npoly.degree(), Dpoly.degree())
 
@@ -695,7 +695,7 @@ class Ratfun(object):
     def Ndegree(self):
         """Return the degree (order) of the numerator of a rational function.
         Note zero has a degree of -inf."""
-        
+
         Npoly, Dpoly = as_numer_denom_poly(self.expr, self.var)
         return Npoly.degree()
 
@@ -703,10 +703,10 @@ class Ratfun(object):
     def Ddegree(self):
         """Return the degree (order) of the denominator of a rational function.
         Note zero has a degree of -inf."""
-        
+
         Npoly, Dpoly = as_numer_denom_poly(self.expr, self.var)
-        return Dpoly.degree()    
-    
+        return Dpoly.degree()
+
     @property
     def is_strictly_proper(self):
         """Return True if the degree of the dominator is greater
@@ -719,13 +719,13 @@ class Ratfun(object):
 
         expression = K * (prod_n (var - z_n) / (prod_n (var - p_n)) * undef
         """
-                
+
         N, D, delay, undef = self.as_ratfun_delay_undef()
 
-        var = self.var        
+        var = self.var
         Npoly = sym.Poly(N, var)
         Dpoly = sym.Poly(D, var)
-        
+
         K = sym.cancel(Npoly.LC() / Dpoly.LC())
         if delay != 0:
             K *= sym.exp(self.var * delay)
@@ -734,7 +734,7 @@ class Ratfun(object):
         poles = sym.roots(Dpoly)
 
         return zeros, poles, K, undef
-    
+
     def as_QMD(self):
         """Decompose expression into Q, M, D, delay, undef where
 
@@ -746,7 +746,7 @@ class Ratfun(object):
         Q, M = sym.div(N, D, self.var)
 
         return Q, M, D, delay, undef
-        
+
     def as_QRD(self, combine_conjugates=False, damping=None):
         """Decompose expression into Q, R, D, delay, undef where
 
@@ -756,7 +756,7 @@ class Ratfun(object):
 
         expr = M / D
         var = self.var
-        
+
         sexpr = Ratfun(expr, var)
         poles = sexpr.poles(damping=damping)
 
@@ -765,7 +765,7 @@ class Ratfun(object):
             # these variables do not occur in numerator of expr
             # perhaps the following code will work.
             raise ValueError('Critical damping not supported')
-        
+
         polesdict = {}
         for pole in poles:
             polesdict[pole.expr] = pole.n
@@ -774,7 +774,7 @@ class Ratfun(object):
         D = []
 
         for pole in poles:
-        
+
             # Number of occurrences of the pole.
             o = polesdict[pole.expr]
             if o == 0:
@@ -786,9 +786,9 @@ class Ratfun(object):
                 polesdict[pc] -= 1
 
                 D2 = sym.simplify(var**2 - (p + pc) * var + p * pc)
-                    
+
                 if o == 1:
-                    r = sexpr.residue(p, poles)                    
+                    r = sexpr.residue(p, poles)
                     rc = sexpr.residue(pc, poles)
 
                     r = sym.simplify(r * (var - pc) + rc * (var - p))
@@ -796,13 +796,13 @@ class Ratfun(object):
                     D.append(D2)
                 else:
                     # Handle repeated complex pole pairs.
-                    expr2 = expr * (var - p) ** o                
+                    expr2 = expr * (var - p) ** o
                     for n in range(1, o + 1):
                         m = o - n
 
                         dexpr = sym.diff(expr2, var, m)
                         r = sym.limit(dexpr, var, p) / sym.factorial(m)
-                        
+
                         rc = r.conjugate()
                         r = sym.simplify(r * (var - pc) ** n + rc * (var - p) ** n)
                         R.append(r)
@@ -829,7 +829,6 @@ class Ratfun(object):
                         r = sym.limit(dexpr, var, p) / sym.factorial(m)
 
                         R.append(r)
-                        D.append(D2 ** n)                        
-                                   
+                        D.append(D2 ** n)
+
         return Q, R, D, delay, undef
-            

@@ -257,7 +257,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         return X.evaluate(fvector)
 
-    def _response_adhoc(self, xvector, tvector, dtval):
+    def _response_impulse_invariance(self, xvector, tvector, dtval):
         """Evaluate response of system with applied signal.
         This method assumes that the data is well over-sampled."""
 
@@ -295,7 +295,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         return y
 
-    def _response_bilinear(self, xvector, tvector, dtval):
+    def _response_bilinear(self, xvector, tvector, dtval, alpha=0.5):
 
         from .dsym import dt
         import scipy.signal as signal
@@ -321,7 +321,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
             warn('Using second order Pade approximation for exp.')
             expr = self.approximate_exp(method='pade', order=2, numer_order=1)
 
-        Hz = expr.bilinear_transform().subs(dt, dtval)
+        Hz = expr.generalized_bilinear_transform(alpha).subs(dt, dtval)
         fil = Hz.dlti_filter()
 
         a = [a1.fval for a1 in fil.a]
@@ -333,9 +333,17 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
             y = np.hstack((np.zeros(Ndelay), y))
         return y
 
-    def response(self, xvector, tvector, method='bilinear'):
+    def response(self, xvector, tvector, method='bilinear', alpha=0.5):
         """Evaluate response to input signal `xvector` at times
-        specified by `tvector`.  This returns a NumPy array."""
+        specified by `tvector`.  This returns a NumPy array.
+
+        The default method is 'bilinear'.  Other methods are:
+        'impulse-invariance'
+        'bilinear', 'tustin', 'trapezoidal'
+        'generalized-bilinear', 'gbf' controlled by the parameter `alpha`
+        'euler', 'forward-diff', 'forward-euler'
+        'backward-diff', 'backward-euler'
+        """
 
         xvector = np.array(xvector)
         tvector = np.array(tvector)
@@ -365,10 +373,16 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         # Expand cosh, sinh into sum of exps.
         expr = self.expand_hyperbolic_trig()
 
-        if method == 'adhoc':
-            result = expr._response_adhoc(xvector, tvector, dtval)
-        elif method == 'bilinear':
-            result = expr._response_bilinear(xvector, tvector, dtval)
+        if method in ('impulse-invariance', 'adhoc'):
+            result = expr._response_impulse_invariance(xvector, tvector, dtval)
+        elif method in ('bilinear', 'tustin', 'trapezoidal'):
+            result = expr._response_bilinear(xvector, tvector, dtval, alpha=0.5)
+        elif method in ('gbf', 'generalized-bilinear'):
+            result = expr._response_bilinear(xvector, tvector, dtval, alpha=alpha)
+        elif method in ('euler', 'forward-diff', 'forward-euler'):
+            result = expr._response_bilinear(xvector, tvector, dtval, alpha=0)
+        elif method in ('backward-diff', 'backward-euler'):
+             result = expr._response_bilinear(xvector, tvector, dtval, alpha=1)
         else:
             raise ValueError('Unknown method %s' % method)
 
@@ -526,32 +540,82 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
     def forward_euler_transform(self):
         """Approximate s = ln(z)
 
-        by s = (1 / dt) * (1 - z**-1) / z**-1"""
+        by s = (1 / dt) * (1 - z**-1) / z**-1.   This is also known
+        as the forward difference method."""
 
         return self.generalized_bilinear_transform(0)
 
     def backward_euler_transform(self):
         """Approximate s = ln(z)
 
-        by s = (1 / dt) * (1 - z**-1)"""
+        by s = (1 / dt) * (1 - z**-1).  This is also known
+        as the backward difference method."""
 
         return self.generalized_bilinear_transform(1)
+
+    def simpson_transform(self):
+        """Approximate s = ln(z)
+
+        by s = (3 / dt) * (z**2 - 1) / (z**2 + 4 * z + 1).  This
+        doubles the system order and can produce unstable poles."""
+
+        return self.subs((3 / dt) * (z**2 - 1) / (z**2 + 4 * z + 1))
+
+    def matched_ztransform(self):
+        """Match poles and zeros of H(s) to approximate H(z)."""
+
+        zeros, poles, K, undef = self._ratfun.as_ZPK()
+        result = K
+        for zero in zeros:
+            result *= (1 - exp(-zero * dt) / z)
+        for pole in poles:
+            result /= (1 - exp(-pole * dt) / z)
+        result *= undef
+        return result
+
+    def impulse_invariance_transform(self):
+        """This samples the impulse response and then calculates the
+        Z-transform.  It does not work if the impulse response
+        has Dirac deltas, say for a transfer function that is
+        a pure delay or is not-strictly proper.
+
+        The data needs to be sampled many times the bandwidth to avoid
+        aliasing."""
+
+        h = self.ILT()
+        if h.has(DiracDelta):
+            raise ValueError('Impulse response has Dirac-deltas')
+
+        hn = h.subs(n * dt)
+        H = hn.ZT()
+        return H
 
     def discretize(self, method='bilinear', alpha=0.5):
         """Convert to a discrete-time approximation.
 
-        The default method is 'bilinear'.  Other methods are
-        'forward_euler', 'backward_euler', and 'gbf'.
-        The latter has a parameter `alpha`."""
+        The default method is 'bilinear'.  Other methods are:
+        'impulse-invariance'
+        'bilinear', 'tustin', 'trapezoidal'
+        'generalized-bilinear', 'gbf' controlled by the parameter `alpha`
+        'euler', 'forward-diff', 'forward-euler'
+        'backward-diff', 'backward-euler'
+        'simpson',
+        'matched-Z', 'zero-pole-matching'"""
 
-        if method == 'gbf':
+        if method in ('gbf', 'generalized-bilinear'):
             return self.generalized_bilinear_transform(alpha)
-        elif method in ('bilinear', 'tustin'):
+        elif method in ('bilinear', 'tustin', 'trapezoidal'):
             return self.generalized_bilinear_transform(0.5)
-        elif method in ('euler', 'forward_diff', 'forward_euler'):
+        elif method in ('euler', 'forward-diff', 'forward-euler'):
             return self.generalized_bilinear_transform(0)
-        elif method in ('backward_diff', 'backward_euler'):
+        elif method in ('backward-diff', 'backward-euler'):
             return self.generalized_bilinear_transform(1)
+        elif method in ('simpson', ):
+            return self.simpson_transform()
+        elif method in ('impulse-invariance', ):
+            return self.impulse_invariance_transform()
+        elif method in ('matched-Z', 'zero-pole-matching'):
+            return self.matched_ztransform()
         else:
             raise ValueError('Unsupported method %s' % method)
 

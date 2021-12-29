@@ -168,7 +168,7 @@ figs:
 	cd examples/tutorials/shield-guard; make
 	cd examples/tutorials/annotations; make
 
-extra: fourier_transforms.rst laplace_transforms.rst ztransforms.rst DTFTs.rst DFTs.rst ODTFTs.rst pade-step-delay.png
+extra: fourier_transforms.rst laplace_transforms.rst ztransforms.rst DTFTs.rst DFTs.rst ODTFTs.rst pade-step-delay.png pade-step-delay2.png
 
 %.rst: %.py
 	python3 $< > $@

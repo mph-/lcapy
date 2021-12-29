@@ -111,9 +111,9 @@ node.
 
 Here's an example of how to draw a diode bridge:
 
-.. literalinclude:: examples/schematics/circuit.sch
+.. literalinclude:: examples/schematics/Dbridge.sch
 
-.. image:: examples/schematics/circuit.png
+.. image:: examples/schematics/Dbridge.png
    :width: 4cm
 
 

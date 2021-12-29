@@ -715,6 +715,7 @@ Poles and zeros
 
 - `zeros()` returns zeros of expression as a dictionary or a list if the `aslist` argument is True.  Note, this does not always find all the zeros.
 
+
 Transforms
 ----------
 
@@ -742,6 +743,8 @@ Miscellaneous
     `simplify_dirac_delta()` method.
 
 - `differentiate()` differentiates expression.
+
+- `discretize(method='bilinear')` converts the expression to a discrete-time approximation, see :ref:`discrete-time-approximation`.
 
 - `divide_top_and_bottom(expr)` divides numerator and denominator by `expr`.
 
@@ -1769,6 +1772,9 @@ Note, some higher order approximations can be unstable.  For example, the step-r
 .. image:: pade-step-delay.png
    :width: 12cm
 
+.. image:: pade-step-delay2.png
+   :width: 12cm
+
 - `approximate_hyperbolic_trig(method, order, numer_order)` approximates hyperbolic trig. functions with rational functions.  This expands hyperbolic trig. functions using `expand_hyperbolic_trig` and then uses `approximate_exp`.  For example::
 
    >>> cosh(s).approximate_hyperbolic_trig(order=1)
@@ -1915,6 +1921,43 @@ Laplace domain entities there are the following classes:
 
 These classes should not be explicitly used.  Instead use the factory functions
 `expr`, `voltage`, `current`, `transfer`, `admittance`, and `impedance`.
+
+
+.. _discrete-time-approximation:
+
+
+Discrete-time approximation
+===========================
+
+A continuous time transfer function in the Laplace domain can be
+converted to a discrete-time transfer function in the Z-domain using
+the `discretize()` method.  There are many methods to perform this;
+there is no universally best method.
+
+The default method is 'bilinear'.  Other methods are:
+
+- 'impulse-invariance' samples the impulse response and then converts
+  to the Z-domain.  It does not work with transfer functions that are
+  not strictly proper (high-pass, band-pass) since these have impulse
+  responses with Dirac deltas that cannot be be sampled.  It requires
+  the sampling frequency to be many times the system bandwidth to
+  avoid aliasing.
+
+- 'bilinear', 'tustin', 'trapezoidal' uses :math:`s = \frac{2}{\Delta t}  (1 - z^{-1}) / (1 + z^{-1})`.  This is equivalent to trapzoidal integration.
+
+- 'generalized-bilinear', 'gbf' uses :math:`s = \frac{1}{\Delta t}
+  \frac{1 - z^{-1}}{\alpha + (1 - \alpha) z^{-1})}` (alpha = 0
+  corresponds to forward Euler, alpha = 0.5 corresponds to bilinear,
+  and alpha = 1 corresponds to backward Euler).
+
+- 'euler', 'forward-diff', 'forward-euler' uses :math:`s = \frac{1}{\Delta t}  (1 - z^{-1}) / z^{-1}`.
+
+- 'backward-diff', 'backward-euler' uses :math:`s = \frac{1}{\Delta t}  (1 - z^{-1})`.
+
+- 'simpson' uses :math:`s = \frac{3}{\Delta t} (z^2 - 1) / (z^2 + 4
+  z + 1)`.  This is equivalent to integration with Simpsons's rule.
+
+- 'matched-Z', 'zero-pole-matching' matches poles and zeros where :math:`s + \alpha = (1 - \exp(-\alpha  \Delta t) / z)`.
 
 
 .. _noisesignals:

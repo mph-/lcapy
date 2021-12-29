@@ -2882,10 +2882,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         5 * (s + 1)**2 / ((s - 2 * j) * (s + 2 * j))
 
-        If `combine_conjugates` or `pairs` is True, then conjugate pairs are combined
-        to create a product of biquad sections.  For example,
+        If `combine_conjugates` or `pairs` is True, then conjugate pairs are
+        combined to create a product of biquad sections.  For example,
 
-        5 * (s + 1)**2/(s**2 + 4)
+        5 * (s + 1)**2 / (s**2 + 4)
 
         Note, both the numerator and denominator are expressed as
         products of monic factors, i.e., (s + 1 / 3) rather than (3 * s + 1).
@@ -2908,7 +2908,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         If `pairs` is True, then conjugate pairs are combined.  For example,
 
-        5 * (s + 1)**2/(s**2 + 4)
+        5 * (s + 1)**2 / (s**2 + 4)
 
         This is an alias for ZPK.  See also canonical, general,
         standard, partfrac, and timeconst.
