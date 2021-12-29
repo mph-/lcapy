@@ -263,7 +263,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         # Perform polynomial long division so expr1 = Q + M / D
         N, D, delay = self._decompose()
-        Q, M = div(N, D)
+        Q, M = div(N, D, self.var)
         expr1 = M / D
 
         Nt = len(tvector)
@@ -291,7 +291,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         if delay != 0.0:
             # Try linear interpolation; should oversample first...
             y = interp1d(ty, y, bounds_error=False, fill_value=0)
-            y = y(tvector - delay)
+            y = y(tvector - float(delay))
 
         return y
 
