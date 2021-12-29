@@ -12,7 +12,8 @@ from .sym import ssym, tsym, j, pi, sympify
 from .ratfun import _zp2tf, _pr2tf, Ratfun
 from .expr import Expr, symbol, expr, ExprDict, exprcontainer, expr_make
 from .units import u as uu
-from .functions import sqrt
+from .functions import sqrt, DiracDelta
+from .dsym import dt
 import numpy as np
 from sympy import limit, exp, Poly, Integral, div, oo, Eq, Expr as symExpr
 from warnings import warn
@@ -177,7 +178,6 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
     def norm_angular_fourier(self, **assumptions):
         """Convert to normalized angular Fourier domain."""
         from .symbols import jw, Omega
-        from .dsym import dt
 
         if self.is_causal:
             # Note, this does not apply for 1 / s.
@@ -192,7 +192,6 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
     def norm_fourier(self, **assumptions):
         """Convert to normalized Fourier domain."""
         from .symbols import jw, F
-        from .dsym import dt
 
         if self.is_causal:
             # Note, this does not apply for 1 / s.
@@ -279,7 +278,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         if Q:
             # Handle Dirac deltas and their derivatives.
             C = expr(Q).coeffs()
-            for n, c in enumerate(reversed(C)):
+            for c in reversed(C):
 
                 y += float(c.expr) * xvector
 
@@ -297,7 +296,6 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
     def _response_bilinear(self, xvector, tvector, dtval, alpha=0.5):
 
-        from .dsym import dt
         import scipy.signal as signal
 
         expr, delay = self.as_ratfun_delay()
@@ -559,10 +557,14 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         by s = (3 / dt) * (z**2 - 1) / (z**2 + 4 * z + 1).  This
         doubles the system order and can produce unstable poles."""
 
+        from .discretetime import z
+
         return self.subs((3 / dt) * (z**2 - 1) / (z**2 + 4 * z + 1))
 
     def matched_ztransform(self):
         """Match poles and zeros of H(s) to approximate H(z)."""
+
+        from .discretetime import z
 
         zeros, poles, K, undef = self._ratfun.as_ZPK()
         result = K
@@ -581,6 +583,8 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         The data needs to be sampled many times the bandwidth to avoid
         aliasing."""
+
+        from .discretetime import n, z, dt
 
         h = self.ILT()
         if h.has(DiracDelta):
