@@ -153,10 +153,10 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         if self.is_causal or assumptions.get('causal', False):
             # Note, this does not apply for 1 / s.
-            tmp = self(jw)
+            tmp = self.subs(jw)
             if tmp.real != 0:
-                return self.change(tmp(2 * pi * f), domain='fourier',
-                                   **assumptions)
+                return self.change(tmp.subs(2 * pi * f, safe=True),
+                                   domain='fourier', **assumptions)
 
         result = self.time(**assumptions).fourier(**assumptions)
         return result

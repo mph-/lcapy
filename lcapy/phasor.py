@@ -154,7 +154,7 @@ class PhasorExpression(Expr):
         raise ValueError('Incompatible phasor angular frequencies %s and %s' %
                          (self.omega, x.omega))
 
-    def subs(self, *args, **kwargs):
+    def subs(self, *args, safe=False, **kwargs):
         """Substitute variables in expression, see sympy.subs for usage."""
 
         from .sym import fsym, pi
@@ -168,7 +168,8 @@ class PhasorExpression(Expr):
 
             # Could check for expressions that are known to fail,
             # such as 1 / (j * omega).
-            warn("""
+            if not safe:
+                warn("""
 Converting to Fourier domain via phasor domain may not give correct answer.   It is safer to convert to time domain then to Fourier domain.""")
 
             return FourierDomainExpression(self.sympy.subs(omegasym, args[0].sympy)).as_quantity(self.quantity)
