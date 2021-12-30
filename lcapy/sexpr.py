@@ -623,6 +623,15 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         else:
             raise ValueError('Unsupported method %s' % method)
 
+    def zdomain(self, **assumptions):
+        return self.discretize(**assumptions)
+
+    def discrete_frequency(self, method='bilinear'):
+        return self.zdomain(method=method).discrete_frequency(**assumptions)
+
+    def discrete_time(self, method='bilinear', **assumptions):
+        return self.zdomain(method=method).discrete_time(**assumptions)
+
 
 def tf(numer, denom=1, var=None):
     """Create a transfer function from lists of the coefficient
