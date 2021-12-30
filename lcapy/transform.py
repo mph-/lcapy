@@ -64,7 +64,7 @@ def transform(expr, arg, **assumptions):
         elif arg is z:
             return expr.zdomain(**assumptions)
     except AttributeError:
-        raise AttributeError('Cannot transform expression to %s domain' % arg.domain)
+        raise AttributeError('Cannot transform %s domain expression to %s domain' % (expr.domain, arg.domain))
 
     # Handle expr(texpr), expr(sexpr), expr(fexpr), expr(omegaexpr).
     # For example, expr(2 * f).

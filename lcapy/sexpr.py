@@ -626,7 +626,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
     def zdomain(self, **assumptions):
         return self.discretize(**assumptions)
 
-    def discrete_frequency(self, method='bilinear'):
+    def discrete_frequency(self, method='bilinear', **assumptions):
         return self.zdomain(method=method).discrete_frequency(**assumptions)
 
     def discrete_time(self, method='bilinear', **assumptions):
