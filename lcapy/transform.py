@@ -64,7 +64,7 @@ def transform(expr, arg, **assumptions):
         elif arg is z:
             return expr.zdomain(**assumptions)
     except AttributeError:
-        raise AttributeError('Cannot transform %s domain expression to %s domain' % (expr.domain, arg.domain))
+        raise AttributeError('Transform of %s domain to %s domain not implemented' % (expr.domain, arg.domain))
 
     # Handle expr(texpr), expr(sexpr), expr(fexpr), expr(omegaexpr).
     # For example, expr(2 * f).
@@ -83,6 +83,12 @@ def transform(expr, arg, **assumptions):
         result = expr.norm_angular_fourier(**assumptions)
     elif arg.has(j):
         result = expr.phasor(omega=arg / j, **assumptions)
+    elif isinstance(arg, DiscreteTimeDomainExpression):
+        result = expr.discrete_time(**assumptions)
+    elif isinstance(arg, DiscreteFourierDomainExpression):
+        result = expr.discrete_frequency(**assumptions)
+    elif isinstance(arg, ZDomainExpression):
+        result = expr.zdomain(**assumptions)
     elif arg.is_constant:
         if not isinstance(expr, Superposition):
             result = expr.time(**assumptions)
@@ -102,20 +108,11 @@ def call(expr, arg, **assumptions):
     elif isinstance(arg, ndarray):
         return array([expr._subs1(expr.var, arg1) for arg1 in arg])
 
-    elif id(arg) in domain_var_ids:
-        return expr.transform(arg, **assumptions)
+    arg = expr1(arg)
+    if arg.is_constant:
+        return expr.subs(arg)
 
-    elif arg in domain_vars:
-        return expr.transform(arg, **assumptions)
-
-    try:
-        # arg might be an int, float, complex, etc.
-        if arg.has(j):
-            return expr.transform(arg, **assumptions)
-    except:
-        pass
-
-    return expr.subs(arg)
+    return expr.transform(arg, **assumptions)
 
 
 def select(expr, kind):
@@ -151,6 +148,9 @@ from .texpr import TimeDomainExpression
 from .omegaexpr import AngularFourierDomainExpression
 from .normfexpr import NormFourierDomainExpression
 from .normomegaexpr import NormAngularFourierDomainExpression
+from .nexpr import DiscreteTimeDomainExpression
+from .kexpr import DiscreteFourierDomainExpression
+from .zexpr import ZDomainExpression
 from .super import Superposition
 from .current import current
 from .voltage import voltage

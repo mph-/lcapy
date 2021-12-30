@@ -205,6 +205,18 @@ class TimeDomainExpression(TimeDomain, Expr):
         expr = expr * Heaviside(t)
         return self.__class__(expr)
 
+    def zdomain(self, **assumptions):
+        # Going via the Laplace domain will restrict result for n >= 0.
+        # Perhaps just sample with t = n * dt and warn if expression
+        # contains Dirac deltas?
+        return self.laplace().discretize(**assumptions)
+
+    def discrete_frequency(self, method='bilinear', **assumptions):
+        return self.zdomain(method=method).discrete_frequency(**assumptions)
+
+    def discrete_time(self, method='bilinear', **assumptions):
+        return self.zdomain(method=method).discrete_time(**assumptions)
+
 
 class TimeDomainImpulseResponse(TimeDomainExpression):
     """Time-domain impulse response."""
