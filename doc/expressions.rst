@@ -1784,6 +1784,8 @@ Note, some higher order approximations can be unstable.  For example, the step-r
 
 - `approximate_fractional_power(method, order)` approximates `s**a` where `a` is fractional with a rational function.
 
+- `approximate(method, order, numer_order)` applies all the approximations.
+
 - `prune_HOT(degree)` prunes higher order terms if expression is a polynomial so that resultant approximate expression has the desired degree.
 
 The default approximation method, and the only supported method at
