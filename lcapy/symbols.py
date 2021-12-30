@@ -34,3 +34,5 @@ w0 = omega0
 
 W = Omega
 
+domain_vars = [t, f, s, omega, omega0, Omega, F, n, k, z, jw, jw0]
+domain_var_ids = [id(var) for var in domain_vars]

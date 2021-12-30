@@ -30,8 +30,8 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
 
         check = assumptions.pop('check', True)
         if 'integer' not in assumptions:
-            assumptions['real'] = True   
-        
+            assumptions['real'] = True
+
         super(DiscreteTimeDomainExpression, self).__init__(val, **assumptions)
 
         expr = self.expr
@@ -40,12 +40,12 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
                 'n-domain expression %s cannot depend on z' % expr)
         if check and expr.has(ksym) and not expr.has(Sum):
             raise ValueError(
-                'n-domain expression %s cannot depend on k' % expr)            
+                'n-domain expression %s cannot depend on k' % expr)
 
     def _mul_compatible_domains(self, x):
 
         if self.domain == x.domain:
-            return True        
+            return True
 
         return x.is_constant_domain
 
@@ -53,7 +53,7 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
 
         if self.domain == x.domain:
             return True
-        
+
         return x.is_constant_domain
 
     def as_expr(self):
@@ -71,17 +71,17 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
         from .sym import symsymbol
         from .utils import factor_const
         from .extrafunctions import UnitImpulse
-        from .functions import u        
+        from .functions import u
 
         # TODO, get SymPy to optimize this case.
         expr = self.expr
         const, expr = factor_const(expr, nsym)
         if expr.is_Function and expr.func == UnitImpulse:
             return dt * u(expr.args[0]) * const
-        
+
         msym = symsymbol('m', integer=True)
         result = dt * summation(self.subs(msym).expr, (msym, -oo, nsym))
-        
+
         return self.__class__(result, **self.assumptions)
 
     def ztransform(self, evaluate=True, **assumptions):
@@ -107,14 +107,14 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
         xscale - the x-axis scaling, say for plotting as ms
         yscale - the y-axis scaling, say for plotting mV
         in addition to those supported by the matplotlib plot command.
-        
+
         The plot axes are returned.
 
         """
 
         if ni is None:
             ni = (-20, 20)
-        
+
         from .plot import plot_sequence
         return plot_sequence(self, ni, **kwargs)
 
@@ -129,24 +129,24 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
         return self.__class__(limit(self.expr, self.var, oo))
 
     def DFT(self, N=None, evaluate=True, piecewise=False):
-        """Determine DFT.  
-        
+        """Determine DFT.
+
         `N` needs to be a positive integer symbol or a str specifying
         the extent of the DFT.  By default `N` is defined as 'N'."""
-        
+
         from .sym import symsymbol
 
         if N is None:
             N = symsymbol('N', integer=True, positive=True)
         elif isinstance(N, str):
-            N = symsymbol(N, integer=True, positive=True)            
+            N = symsymbol(N, integer=True, positive=True)
 
         result = DFT(self.expr, nsym, ksym, N, evaluate=evaluate,
                      piecewise=piecewise)
-        result = self.change(result, domain='discrete fourier')        
+        result = self.change(result, domain='discrete fourier')
         result = result.simplify_unit_impulse()
         return result
-    
+
     def delay(self,m):
         """Delay signal by m samples."""
 
@@ -184,11 +184,11 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
 
         """
 
-        from .extrafunctions import UnitStep        
+        from .extrafunctions import UnitStep
         from .symbols import f, omega, Omega, F
         from .fexpr import fexpr
         from .dtft import DTFT
-        
+
         if var is None:
             var = f
         if id(var) not in (id(f), id(F), id(omega), id(Omega)):
@@ -199,8 +199,8 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
         result = fexpr(dtft)(var)
         result = result.simplify_dirac_delta()
         result = result.simplify_heaviside()
-        result = result.simplify_rect()        
-        
+        result = result.simplify_rect()
+
         # There is a bug in SymPy when simplifying Sum('X(n - m)', (m, -oo, oo))
         # result = result.simplify()
         result = result.cancel_terms()
@@ -211,7 +211,7 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
 
         from .normomegaexpr import Omega
         return self.DTFT()(Omega)
-    
+
     def difference_equation(self, inputsym='x', outputsym='y', form='iir'):
         """Create difference equation from impulse response.
 
@@ -229,14 +229,41 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
         expr = self.expr
         expr = expr.args[0].args[0]
         return self.__class__(expr)
-    
-    
+
+    def zdomain(self, **assumptions):
+        return self.ZT(**assumptions)
+
+    def discrete_frequency(self, **assumptions):
+        return self.DFT(**assumptions)
+
+    def discrete_time(self, **assumptions):
+        return self
+
+    def fourier(self, **assumptions):
+        return self.DTFT(**assumptions)
+
+    def angular_fourier(self, **assumptions):
+        from .symbols import omega
+
+        return self.DTFT(omega, **assumptions)
+
+    def norm_fourier(self, **assumptions):
+        from .symbols import F
+
+        return self.DTFT(F, **assumptions)
+
+    def norm_angular_fourier(self, **assumptions):
+        from .symbols_time import Omega
+
+        return self.DTFT(Omega, **assumptions)
+
+
 def nexpr(arg, **assumptions):
     """Create nExpr object.  If `arg` is nsym return n"""
 
     from .expr import Expr
     from .seq import seq
-    
+
     if arg is nsym:
         return n
 
@@ -244,12 +271,12 @@ def nexpr(arg, **assumptions):
         if assumptions == {}:
             return arg
         return arg.__class__(arg, **assumptions)
-    
+
     if isinstance(arg, str) and arg.startswith('{'):
         return nseq(arg)
-    
+
     from numpy import ndarray
-    
+
     if isinstance(arg, (list, ndarray)):
         return DiscreteTimeDomainSequence(arg, var=n).as_impulses()
 
