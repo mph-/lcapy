@@ -384,7 +384,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         else:
             raise ValueError('Unknown method %s' % method)
 
-        return result
+        return result * dtval
 
 
     def state_space(self, form='CCF'):
@@ -612,16 +612,30 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         return H
 
     def discretize(self, method='bilinear', alpha=0.5):
-        """Convert to a discrete-time approximation.
+        """Convert to a discrete-time approximation in the z-domain:
+
+        :math:`H(z) \approx H_c(s)`
+
+        If :math:`H(s)` is a transfer function then for the
+        impulse-invariance method, the discrete-time impulse response
+        is related to the continuous-time impulse response by
+
+        :math:`h[n] = h_c(n \Delta t)`
+
+        Note, when designing digital filters, it is often common to to
+        scale the discrete-time impulse response by the sampling
+        interval:
+
+        :math:`h[n] = \Delta t h_c(n \Delta t)`
 
         The default method is 'bilinear'.  Other methods are:
-        'impulse-invariance'
-        'bilinear', 'tustin', 'trapezoidal'
-        'generalized-bilinear', 'gbf' controlled by the parameter `alpha`
-        'euler', 'forward-diff', 'forward-euler'
-        'backward-diff', 'backward-euler'
-        'simpson',
-        'matched-Z', 'zero-pole-matching'"""
+        'impulse-invariance' 'bilinear', 'tustin', 'trapezoidal'
+        'generalized-bilinear', 'gbf' controlled by the parameter
+        `alpha` 'euler', 'forward-diff', 'forward-euler'
+        'backward-diff', 'backward-euler' 'simpson', 'matched-Z',
+        'zero-pole-matching'
+
+        """
 
         if method in ('gbf', 'generalized-bilinear'):
             return self.generalized_bilinear_transform(alpha)

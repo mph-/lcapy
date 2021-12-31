@@ -1735,7 +1735,7 @@ Lcapy has the following simplification methods:
 - `simplify_heaviside()` simplifies Heavside unit steps, for example::
 
    >>> (u(t) * u(t)).simplify_heaviside()
-  u(t)
+   u(t)
 
 - `simplify_factors()`  simplifies each factor separately.
 
@@ -1785,10 +1785,10 @@ Lcapy has the following approximation methods:
 
 Note, some higher order approximations can be unstable.  For example, the step-response of `exp(-s)` using a bilinear transformation is unstable for order 3 Pade approximation as in the following figure.
 
-.. image:: examples/discrete-time/pade-step-delay.png
+.. image:: examples/discretetime/pade-step-delay.png
    :width: 12cm
 
-.. image:: examples/discrete-time/pade-step-delay2.png
+.. image:: examples/discretetime/pade-step-delay2.png
    :width: 12cm
 
 - `approximate_hyperbolic_trig(method, order, numer_order)` approximates hyperbolic trig. functions with rational functions.  This expands hyperbolic trig. functions using `expand_hyperbolic_trig` and then uses `approximate_exp`.  For example::
@@ -1949,8 +1949,23 @@ Discrete-time approximation
 
 A continuous time transfer function in the Laplace domain can be
 converted to a discrete-time transfer function in the Z-domain using
-the `discretize()` method.  There are many methods to perform this;
-there is no universally best method.
+the `discretize()` method:
+
+:math:`H(z) \approx H_c(s)` .
+
+If :math:`H(s)` is a transfer function then for the impulse-invariance
+method, the discrete-time impulse response is related to the
+continuous-time impulse response by
+
+:math:`h[n] = h_c(n \Delta t)` .
+
+Note, when designing digital filters, it is often common to to scale
+the discrete-time impulse response by the sampling interval:
+
+:math:`h[n] = \Delta t \; h_c(n \Delta t)` .
+
+There are many methods to approximate a Laplace transform with a
+Z-transform; there is no universally best method.
 
 The default method is 'bilinear'.  Other methods are:
 
@@ -1975,8 +1990,14 @@ The default method is 'bilinear'.  Other methods are:
 - 'simpson' uses :math:`s = \frac{3}{\Delta t} (z^2 - 1) / (z^2 + 4
   z + 1)`.  This is equivalent to integration with Simpsons's rule.
 
-- 'matched-Z', 'zero-pole-matching' matches poles and zeros where :math:`s + \alpha = (1 - \exp(-\alpha  \Delta t) / z)`.
+- 'matched-Z', 'zero-pole-matching' matches poles and zeros where :math:`s + \alpha = (1 - \exp(-\alpha  \Delta t) / z)`.  When the expression has no zeros, the matched-Z and impulse invariance methods are equivalent.
 
+The following figure compares the impulse responses computed using
+some of these methods for a continuous-time impulse reponse
+:math:`\exp(-t) u(t)`.
+
+.. image:: examples/discretetime/discretize1.png
+   :width: 12cm
 
 .. _noisesignals:
 
