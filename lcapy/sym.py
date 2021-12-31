@@ -421,7 +421,7 @@ def symbol_map(name):
     return new
 
 
-# The following are all SymPy symbols.
+# The following domain symbols are all SymPy symbols.
 ssym = domainsymbol('s', complex=True)
 tsym = domainsymbol('t', real=True)
 fsym = domainsymbol('f', real=True)
@@ -431,7 +431,6 @@ tausym = symsymbol('tau', real=True)
 nusym = symsymbol('nu', real=True)
 Omegasym = domainsymbol('Omega', real=True)
 Fsym = domainsymbol('F', real=True)
-
 nsym = domainsymbol('n', integer=True)
 ksym = domainsymbol('k', integer=True)
 zsym = domainsymbol('z', real=False)

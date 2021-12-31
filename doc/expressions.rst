@@ -1994,7 +1994,9 @@ The default method is 'bilinear'.  Other methods are:
 
 The following figure compares the impulse responses computed using
 some of these methods for a continuous-time impulse response
-:math:`\exp(-t) u(t)`.
+:math:`\exp(-t) u(t)`.  The matched-Z method gives the same answer as
+the impulse-invariance method since the Laplace transform of the
+impulse response has no zeros.  For this example, the bilinear and impulse-invariance methods give the same response for :math:`n > 0`.
 
 .. image:: examples/discretetime/discretize1.png
    :width: 12cm
