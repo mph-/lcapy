@@ -3369,6 +3369,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         return self._ratfun.as_QRD()
 
+    def as_QRPO(self):
+
+        return self._ratfun.as_QRPO()
+
 
 def exprcontainer(arg, **assumptions):
 

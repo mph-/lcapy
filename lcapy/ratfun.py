@@ -836,10 +836,11 @@ class Ratfun(object):
 
         return Q, R, D, delay, undef
 
-    def as_QRD(self, combine_conjugates=False, damping=None):
-        """Decompose expression into Q, R, D, delay, undef where
+    def as_QRPO(self, combine_conjugates=False, damping=None):
+        """Decompose expression into Q, R, P, O, delay, undef where
 
-        expression = (Q + sum_n R_n / D_n) * exp(-delay * var) * undef"""
+        expression = (Q + sum_n R_n / (var - P_n)**O_n) * exp(-delay * var) * undef
+        """
 
         from .matrix import matrix_inverse
 
@@ -865,14 +866,19 @@ class Ratfun(object):
 
         syms = []
         D = []
+        O = []
+        P = []
         i = 1
         denom_factored = One
         for pole in poles:
             for m in range(pole.n):
                 A = sym.Symbol('A_%d' % i)
-                d = (var - pole.expr) ** (m + 1)
+                p = pole.expr
+                d = (var - p) ** (m + 1)
                 syms.append(A)
                 D.append(d)
+                P.append(p)
+                O.append(m + 1)
                 i += 1
             denom_factored *= (var - pole.expr) ** pole.n
 
@@ -896,10 +902,23 @@ class Ratfun(object):
 
         # Remove elements where the residue is zero.
         Rprune = []
-        Dprune = []
-        for r, d in zip(R, D):
+        Pprune = []
+        Oprune = []
+        for r, p, o in zip(R, P, O):
             if r != 0:
                 Rprune.append(r)
-                Dprune.append(d)
+                Pprune.append(p)
+                Oprune.append(o)
 
-        return Q, Rprune, Dprune, delay, undef
+        return Q, Rprune, Pprune, Oprune, delay, undef
+
+    def as_QRD(self, combine_conjugates=False, damping=None):
+        """Decompose expression into Q, R, D, delay, undef where
+
+        expression = (Q + sum_n R_n / D_n) * exp(-delay * var) * undef"""
+
+        Q, R, P, O, delay, undef = self.as_QRPO(combine_conjugates, damping)
+
+        D = [(self.var - p)**o for p, o in zip(P, O)]
+
+        return Q, R, D, delay, undef
