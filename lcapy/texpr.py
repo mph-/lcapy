@@ -205,6 +205,41 @@ class TimeDomainExpression(TimeDomain, Expr):
         expr = expr * Heaviside(t)
         return self.__class__(expr)
 
+    def discretize(self, method='bilinear', alpha=0.5):
+        """Convert to a discrete-time approximation:
+
+        :math:`h[n] \approx h(t)`
+
+        With the impulse-invariance method, the discrete-time impulse response
+        is related to the continuous-time impulse response by
+
+        :math:`h[n] = h_c(n \Delta t)`
+
+        Note, when designing digital filters, it is often common to to
+        scale the discrete-time impulse response by the sampling
+        interval:
+
+        :math:`h[n] = \Delta t h_c(n \Delta t)`
+
+        The default method is 'bilinear'.  Other methods are:
+        'impulse-invariance' 'bilinear', 'tustin', 'trapezoidal'
+        'generalized-bilinear', 'gbf' controlled by the parameter
+        `alpha` 'euler', 'forward-diff', 'forward-euler'
+        'backward-diff', 'backward-euler' 'simpson', 'matched-Z',
+        'zero-pole-matching'
+
+        """
+
+        from .dsym import dt
+        from .symbols import n
+
+        if method in ('impulse-invariance', ):
+            return self.subs(t, n * dt)
+
+        Hc = self.LT()
+        H = Hc.discretize(method=method, alpha=alpha)
+        return H.IZT()
+
     def zdomain(self, **assumptions):
 
         # Going via the Laplace domain will restrict result for n >= 0.
@@ -212,25 +247,13 @@ class TimeDomainExpression(TimeDomain, Expr):
         # contains Dirac deltas?
         return self.laplace().discretize(**assumptions)
 
-    def discrete_frequency(self, method='bilinear', **assumptions):
+    def discrete_frequency(self, **assumptions):
 
-        from .dsym import dt
-        from .symbols import n
+        return self.discrete_time(**assumptions).discrete_frequency()
 
-        if method == 'impulse-invariance':
-            return self.subs(n * dt).discrete_frequency(**assumptions)
+    def discrete_time(self, **assumptions):
 
-        return self.zdomain(method=method).discrete_frequency(**assumptions)
-
-    def discrete_time(self, method='bilinear', **assumptions):
-
-        from .dsym import dt
-        from .symbols import n
-
-        if method == 'impulse-invariance':
-            return self.subs(n * dt)
-
-        return self.zdomain(method=method).discrete_time(**assumptions)
+        return self.discretize(**assumptions)
 
 
 class TimeDomainImpulseResponse(TimeDomainExpression):
