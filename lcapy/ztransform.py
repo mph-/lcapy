@@ -252,6 +252,7 @@ class ZTransformer(UnilateralForwardTransformer):
         return F1 * F2
 
     def term(self, expr, n, z):
+        from .dsym import dt
 
         # Unilateral ZT ignores expr for n < 0 so remove Piecewise.
         if expr.is_Piecewise:
@@ -262,6 +263,8 @@ class ZTransformer(UnilateralForwardTransformer):
                     expr = expr.args[0].args[0]
 
         const, expr = factor_const(expr, n)
+
+        expr = expr.replace(UnitStep(n * dt), 1)
 
         if expr.has(sym.Sum):
             try:
