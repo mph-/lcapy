@@ -34,7 +34,7 @@ class Assumptions(dict):
 
         for assumption, value in kwargs.items():
             self.set(assumption, value)
-    
+
     def set(self, assumption, value):
 
         if assumption in ('dc', 'ac', 'causal', 'unknown'):
@@ -42,7 +42,7 @@ class Assumptions(dict):
                 self.pop('dc', None)
                 self.pop('ac', None)
                 self.pop('causal', None)
-                self.pop('unknown', None)                
+                self.pop('unknown', None)
                 self[assumption] = value
             else:
                 self.pop(assumption, None)
@@ -50,7 +50,7 @@ class Assumptions(dict):
             self[assumption] = value
 
     def get(self, assumption, default=False):
-        
+
         return super(Assumptions, self).get(assumption, default)
 
     def merge(self, **assumptions):
@@ -65,7 +65,7 @@ class Assumptions(dict):
     def copy(self):
 
         return copy(self)
-    
+
     def sympy_assumptions(self):
         """Return dict of the SymPy assumptions such as complex, positive, etc."""
 
@@ -80,21 +80,21 @@ class Assumptions(dict):
         if expr.is_transform_domain:
             self.set('unknown', True)
             return
-        
+
         var = expr.var
         if is_dc(expr, var):
             self.set('dc', True)
             return
 
         if is_ac(expr, var):
-            self.set('ac', True)            
+            self.set('ac', True)
             return
 
         if is_causal(expr, var):
-            self.set('causal', True)            
+            self.set('causal', True)
             return
 
-        self.set('unknown', True)                    
+        self.set('unknown', True)
 
     @property
     def has_unspecified(self):
@@ -106,14 +106,14 @@ class Assumptions(dict):
         if 'causal' in self:
             return False
         if 'unknown' in self:
-            return False        
+            return False
         return True
 
     def merge_and_infer(self, expr, **assumptions):
         """Override assumptions with specified assumptions.
         If none specified, infer them."""
 
-        assumptions = self.merge(**assumptions)        
+        assumptions = self.merge(**assumptions)
         if assumptions.has_unspecified:
             assumptions.infer_from_expr(expr)
         return assumptions
@@ -136,7 +136,7 @@ class Assumptions(dict):
     @property
     def is_unknown(self):
 
-        return self.get('unknown')    
+        return self.get('unknown')
 
     def convolve(self, x):
 
@@ -146,30 +146,34 @@ class Assumptions(dict):
         # assumptions are only required for s-domain expressions.  For
         # other signals they can be determined from the time-domain
         # response.
-        
+
         assumptions = self.copy()
+
+        # If x is constant then copy assumptions.
+        if x.var is None:
+            return assumptions
+
         assumptions.set('unknown', True)
-        
+
         if self.is_unknown or x.is_unknown:
             assumptions.set('unknown', True)
         elif self.is_ac or x.is_ac:
-            assumptions.set('ac', True)            
+            assumptions.set('ac', True)
         elif self.is_dc or x.is_dc:
-            assumptions.set('dc', True)                        
+            assumptions.set('dc', True)
         elif self.is_causal or x.is_causal:
-            assumptions.set('causal', True)                        
+            assumptions.set('causal', True)
         return assumptions
 
     def add(self, x):
 
         assumptions = self.copy()
         assumptions.set('unknown', True)
-        
+
         if self.is_causal and x.is_causal:
-            assumptions.set('causal', True)                                    
+            assumptions.set('causal', True)
         elif self.is_dc and x.is_dc:
             assumptions.set('dc', True)
         elif self.is_ac and x.is_ac:
-            assumptions.set('ac', True)            
-        return assumptions    
-    
+            assumptions.set('ac', True)
+        return assumptions
