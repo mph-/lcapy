@@ -1964,33 +1964,30 @@ the discrete-time impulse response by the sampling interval:
 
 :math:`h[n] = \Delta t \; h_c(n \Delta t)` .
 
-There are many methods to approximate a Laplace transform with a
-Z-transform; there is no universally best method.
+There are many methods to approximate a Laplace transform with a Z-transform; there is no universally best method since there is a trade-off between accuracy and stability.
 
 The default method is 'bilinear'.  Other methods are:
 
-- 'impulse-invariance' samples the impulse response and then converts
-  to the Z-domain.  It does not work with transfer functions that are
-  not strictly proper (high-pass, band-pass) since these have impulse
-  responses with Dirac deltas that cannot be be sampled.  It requires
-  the sampling frequency to be many times the system bandwidth to
-  avoid aliasing.
+- 'impulse-invariance' samples the impulse response (using :math:`t = n \Delta t`) and then converts to the Z-domain.  It does not work with transfer functions that are not strictly proper (high-pass, band-pass) since these have impulse responses with Dirac deltas that cannot be be sampled.  It requires the sampling frequency to be many times the system bandwidth to avoid aliasing.
 
-- 'bilinear', 'tustin', 'trapezoidal' uses :math:`s = \frac{2}{\Delta t}  (1 - z^{-1}) / (1 + z^{-1})`.  This is equivalent to trapezoidal integration.
+- 'bilinear', 'tustin', 'trapezoidal' uses :math:`s = \frac{2}{\Delta t}  (1 - z^{-1}) / (1 + z^{-1})`.  This is equivalent to trapezoidal integration.   The overall result is divided by :math:`Delta t`.
 
 - 'generalized-bilinear', 'gbf' uses :math:`s = \frac{1}{\Delta t}
   \frac{1 - z^{-1}}{\alpha + (1 - \alpha) z^{-1})}` (alpha = 0
   corresponds to forward Euler, alpha = 0.5 corresponds to bilinear,
-  and alpha = 1 corresponds to backward Euler).
+  and alpha = 1 corresponds to backward Euler).  The overall result is divided by :math:`Delta t`.
 
-- 'euler', 'forward-diff', 'forward-euler' uses :math:`s = \frac{1}{\Delta t}  (1 - z^{-1}) / z^{-1}`.
+- 'euler', 'forward-diff', 'forward-euler' uses :math:`s = \frac{1}{\Delta t}  (1 - z^{-1}) / z^{-1}`.  The overall result is divided by :math:`Delta t`.
 
-- 'backward-diff', 'backward-euler' uses :math:`s = \frac{1}{\Delta t}  (1 - z^{-1})`.
+- 'backward-diff', 'backward-euler' uses :math:`s = \frac{1}{\Delta t}  (1 - z^{-1}).`  The overall result is divided by :math:`Delta t`.
 
 - 'simpson' uses :math:`s = \frac{3}{\Delta t} (z^2 - 1) / (z^2 + 4
-  z + 1)`.  This is equivalent to integration with Simpsons's rule.  Note, this can be more accurate but doubles the order and can lead to instability.
+  z + 1)`.  This is equivalent to integration with Simpsons's rule.
+  The overall result is divided by :math:`Delta t`.  Note, this method
+  can be more accurate but doubles the order and can lead to
+  instability.
 
-- 'matched-Z', 'zero-pole-matching' matches poles and zeros where :math:`s + \alpha = (1 - \exp(-\alpha  \Delta t) / z)`.  When the expression has no zeros, the matched-Z and impulse invariance methods are equivalent.
+- 'matched-Z', 'zero-pole-matching' matches poles and zeros where :math:`s + \alpha = (1 - \exp(-\alpha  \Delta t) / z)`.  The overall result is divided by :math:`Delta t`.  When the expression has no zeros, the matched-Z and impulse invariance methods are equivalent.
 
 The following figure compares the impulse responses computed using
 some of these methods for a continuous-time impulse response

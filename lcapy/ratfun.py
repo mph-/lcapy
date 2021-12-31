@@ -836,7 +836,19 @@ class Ratfun(object):
 
         return Q, R, D, delay, undef
 
-    def as_QRPO(self, combine_conjugates=False, damping=None):
+    def _prune_zero_residues(self, R, P, O):
+
+        Rnew = []
+        Pnew = []
+        Onew = []
+        for r, p, o in zip(R, P, O):
+            if r != 0:
+                Rnew.append(r)
+                Pnew.append(p)
+                Onew.append(o)
+        return Rnew, Pnew, Onew
+
+    def as_QRPO(self, damping=None):
         """Decompose expression into Q, R, P, O, delay, undef where
 
         expression = (Q + sum_n R_n / (var - P_n)**O_n) * exp(-delay * var) * undef
@@ -901,24 +913,54 @@ class Ratfun(object):
         R = list(matrix_inverse(A) * sym.Matrix(lc))
 
         # Remove elements where the residue is zero.
-        Rprune = []
-        Pprune = []
-        Oprune = []
-        for r, p, o in zip(R, P, O):
-            if r != 0:
-                Rprune.append(r)
-                Pprune.append(p)
-                Oprune.append(o)
+        R, P, O = self._prune_zero_residues(R, P, O)
 
-        return Q, Rprune, Pprune, Oprune, delay, undef
+        return Q, R, P, O, delay, undef
+
+    def _combine_conjugates(self, R, D, P, O):
+
+        Rnew = []
+        Dnew = []
+
+        for m in range(len(R)):
+
+            r = R[m]
+            if r == 0:
+                continue
+            p = P[m]
+            o = O[m]
+            rc = r.conjugate()
+            pc = p.conjugate()
+
+            found = False
+            for n in range(1, len(R)):
+                if o != O[n] or pc != P[n] or rc != R[n]:
+                    continue
+                if o > 1:
+                    continue
+                R[n] = 0
+                found = True
+                break
+
+            if found:
+                Rnew.append(((self.var - pc) * r + (self.var - p) * rc).expand())
+                Dnew.append(((self.var - p) * (self.var - pc)).expand())
+            else:
+                Rnew.append(r)
+                Dnew.append(D[m])
+        return Rnew, Dnew
+
 
     def as_QRD(self, combine_conjugates=False, damping=None):
         """Decompose expression into Q, R, D, delay, undef where
 
         expression = (Q + sum_n R_n / D_n) * exp(-delay * var) * undef"""
 
-        Q, R, P, O, delay, undef = self.as_QRPO(combine_conjugates, damping)
+        Q, R, P, O, delay, undef = self.as_QRPO(damping)
 
         D = [(self.var - p)**o for p, o in zip(P, O)]
+
+        if combine_conjugates:
+            R, D = self._combine_conjugates(R, D, P, O)
 
         return Q, R, D, delay, undef
