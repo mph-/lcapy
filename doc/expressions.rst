@@ -1732,7 +1732,7 @@ Lcapy has the following simplification methods:
 
 - `simplify_dirac_delta()` simplifies Dirac deltas.
 
-- `simplify_heaviside()` simplifies Heavside unit steps, for example::
+- `simplify_heaviside()` simplifies Heaviside unit steps, for example::
 
    >>> (u(t) * u(t)).simplify_heaviside()
    u(t)
@@ -1976,7 +1976,7 @@ The default method is 'bilinear'.  Other methods are:
   the sampling frequency to be many times the system bandwidth to
   avoid aliasing.
 
-- 'bilinear', 'tustin', 'trapezoidal' uses :math:`s = \frac{2}{\Delta t}  (1 - z^{-1}) / (1 + z^{-1})`.  This is equivalent to trapzoidal integration.
+- 'bilinear', 'tustin', 'trapezoidal' uses :math:`s = \frac{2}{\Delta t}  (1 - z^{-1}) / (1 + z^{-1})`.  This is equivalent to trapezoidal integration.
 
 - 'generalized-bilinear', 'gbf' uses :math:`s = \frac{1}{\Delta t}
   \frac{1 - z^{-1}}{\alpha + (1 - \alpha) z^{-1})}` (alpha = 0
@@ -1988,12 +1988,12 @@ The default method is 'bilinear'.  Other methods are:
 - 'backward-diff', 'backward-euler' uses :math:`s = \frac{1}{\Delta t}  (1 - z^{-1})`.
 
 - 'simpson' uses :math:`s = \frac{3}{\Delta t} (z^2 - 1) / (z^2 + 4
-  z + 1)`.  This is equivalent to integration with Simpsons's rule.
+  z + 1)`.  This is equivalent to integration with Simpsons's rule.  Note, this can be more accurate but doubles the order and can lead to instability.
 
 - 'matched-Z', 'zero-pole-matching' matches poles and zeros where :math:`s + \alpha = (1 - \exp(-\alpha  \Delta t) / z)`.  When the expression has no zeros, the matched-Z and impulse invariance methods are equivalent.
 
 The following figure compares the impulse responses computed using
-some of these methods for a continuous-time impulse reponse
+some of these methods for a continuous-time impulse response
 :math:`\exp(-t) u(t)`.
 
 .. image:: examples/discretetime/discretize1.png
@@ -2772,6 +2772,6 @@ numbers.  However, it is not a complex value::
 Parameterization
 ----------------
 
-Symbolic expressions can get unweildy.  One approach is to
+Symbolic expressions can get unwieldy.  One approach is to
 parameterize an expression using the `parameterize()` method, perform
 manipulations, and then substitute for the parameter definitions.
