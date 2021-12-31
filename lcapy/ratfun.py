@@ -10,6 +10,9 @@ from .sym import sympify, AppliedUndef
 from .cache import lru_cache
 from .utils import pair_conjugates
 
+Zero = sym.S.Zero
+One = sym.S.One
+
 class Pole(object):
 
     def __init__(self, expr, n, damping=None):
@@ -24,10 +27,10 @@ class Pole(object):
         # Look for scale * sqrt(dexpr) where dexpr = aexpr - bexpr
 
         dexpr = None
-        scale = sym.S.One
+        scale = One
 
         for factor in expr.as_ordered_factors():
-            if (factor.is_Pow and factor.args[1] == sym.S.One / 2 and
+            if (factor.is_Pow and factor.args[1] == One / 2 and
                 factor.args[0].is_Add and factor.args[0].args[1].is_Mul and
                 factor.args[0].args[1].args[0] < 0):
                 if dexpr is not None:
@@ -43,8 +46,8 @@ class Pole(object):
 
         # Look for offset + scale * sqrt(dexpr) where dexpr = aexpr - bexpr
 
-        offset = sym.S.Zero
-        scale = sym.S.One
+        offset = Zero
+        scale = One
         found = False
         dexpr = None
 
@@ -61,9 +64,9 @@ class Pole(object):
 
     def _decompose(self, expr):
 
-        scale = sym.S.One
-        scale2 = sym.S.One
-        offset = sym.S.One
+        scale = One
+        scale2 = One
+        offset = One
         dexpr = None
 
         for factor in expr.as_ordered_factors():
@@ -79,7 +82,7 @@ class Pole(object):
                 scale *= factor
 
         if dexpr is None:
-            dexpr = sym.S.Zero
+            dexpr = Zero
         return scale, offset, scale2, dexpr
 
     @property
@@ -111,8 +114,8 @@ class Pole(object):
 
 def as_numer_denom_poly(expr, var):
 
-    N = sym.S.One
-    D = sym.S.One
+    N = One
+    D = One
     for f in expr.as_ordered_factors():
         if f.is_Pow and f.args[1] == -1:
             D *= f.args[0]
@@ -135,8 +138,8 @@ def as_numer_denom(expr, var):
     if expr.has(1 / var):
         expr = expr.cancel()
 
-    N = sym.S.One
-    D = sym.S.One
+    N = One
+    D = One
     for f in expr.as_ordered_factors():
         if f.is_Pow and f.args[1] == -1:
             D *= f.args[0]
@@ -232,7 +235,7 @@ def _pr2tf(poles, residues, var=None):
 
 
 def as_ratfun_delay(expr, var):
-    delay = sym.S.Zero
+    delay = Zero
 
     if expr.is_rational_function(var):
         N, D = expr.as_numer_denom()
@@ -240,7 +243,7 @@ def as_ratfun_delay(expr, var):
 
     F = sym.factor(expr).as_ordered_factors()
 
-    rf = sym.S.One
+    rf = One
     for f in F:
         b, e = f.as_base_exp()
         if b == sym.E and e.is_polynomial(var):
@@ -263,8 +266,8 @@ def as_ratfun_delay(expr, var):
 
 
 def as_ratfun_delay_undef(expr, var):
-    delay = sym.S.Zero
-    undef = sym.S.One
+    delay = Zero
+    undef = One
 
     if expr.is_rational_function(var):
         N, D = as_numer_denom(expr, var)
@@ -272,7 +275,7 @@ def as_ratfun_delay_undef(expr, var):
 
     F = sym.factor(expr).as_ordered_factors()
 
-    rf = sym.S.One
+    rf = One
     for f in F:
         b, e = f.as_base_exp()
         if b == sym.E and e.is_polynomial(var):
@@ -330,9 +333,9 @@ class Ratfun(object):
         expr = self.expr
         var = self.var
 
-        const = sym.S.One
-        undef = sym.S.One
-        rest = sym.S.One
+        const = One
+        undef = One
+        rest = One
 
         F = sym.factor(expr).as_ordered_factors()
 
@@ -540,7 +543,7 @@ class Ratfun(object):
 
         Npoly = sym.Poly(N, self.var)
 
-        expr = sym.S.Zero
+        expr = Zero
 
         for m, c in enumerate(reversed(Npoly.all_coeffs())):
             term = sym.Mul(c.simplify() * self.var ** m, 1 / D)
@@ -747,7 +750,7 @@ class Ratfun(object):
 
         return Q, M, D, delay, undef
 
-    def as_QRD(self, combine_conjugates=False, damping=None):
+    def as_QRD_old(self, combine_conjugates=False, damping=None):
         """Decompose expression into Q, R, D, delay, undef where
 
         expression = (Q + sum_n R_n / D_n) * exp(-delay * var) * undef"""
@@ -832,3 +835,71 @@ class Ratfun(object):
                         D.append(D2 ** n)
 
         return Q, R, D, delay, undef
+
+    def as_QRD(self, combine_conjugates=False, damping=None):
+        """Decompose expression into Q, R, D, delay, undef where
+
+        expression = (Q + sum_n R_n / D_n) * exp(-delay * var) * undef"""
+
+        from .matrix import matrix_inverse
+
+        Q, M, D, delay, undef = self.as_QMD()
+
+        expr = M / D
+        var = self.var
+
+        sexpr = Ratfun(expr, var)
+        poles = sexpr.poles(damping=damping)
+
+        if damping == 'critical':
+            # Critical damping puts constraints on variables.  If
+            # these variables do not occur in numerator of expr
+            # perhaps the following code will work.
+            raise ValueError('Critical damping not supported')
+
+        if len(poles) == 1 and poles[0].n == 1:
+            p = poles[0].expr
+            d = var - p
+            r = (expr * d).cancel()
+            return Q, [r], [d], delay, undef
+
+        syms = []
+        D = []
+        i = 1
+        denom_factored = One
+        for pole in poles:
+            for m in range(pole.n):
+                A = sym.Symbol('A_%d' % i)
+                d = (var - pole.expr) ** (m + 1)
+                syms.append(A)
+                D.append(d)
+                i += 1
+            denom_factored *= (var - pole.expr) ** pole.n
+
+        rhs = Zero
+        for denom, residue in zip(D, syms):
+            # Could be more cunning to avoid using cancel
+            rhs += residue * (denom_factored / denom).cancel()
+
+        rhspoly = sym.poly(rhs, var)
+        lhspoly = sym.poly((expr * denom_factored).cancel(), var)
+
+        rc = rhspoly.all_coeffs()
+        lc = lhspoly.all_coeffs()
+        if len(lc) < len(rc):
+            lc = [0] * (len(rc) - len(lc)) + lc
+
+        A, _ = sym.linear_eq_to_matrix(rc, syms)
+
+        # Solve system of equations to find residues A_n.
+        R = list(matrix_inverse(A) * sym.Matrix(lc))
+
+        # Remove elements where the residue is zero.
+        Rprune = []
+        Dprune = []
+        for r, d in zip(R, D):
+            if r != 0:
+                Rprune.append(r)
+                Dprune.append(d)
+
+        return Q, Rprune, Dprune, delay, undef

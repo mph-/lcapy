@@ -3365,6 +3365,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         result = remove_images(self.expr, var, scale, m1, m2)
         return self.__class__(result, **self.assumptions)
 
+    def as_QRD(self):
+
+        return self._ratfun.as_QRD()
+
 
 def exprcontainer(arg, **assumptions):
 
