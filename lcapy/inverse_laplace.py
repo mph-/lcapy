@@ -143,9 +143,9 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         poles = sexpr.poles(damping=kwargs.get('damping', None))
 
         if len(poles) == 1 and poles[0].n == 1:
-            # CHECKME for more general case
             p = poles[0].expr
-            uresult = M * sym.exp(p * t)
+            r = (expr * (s - p)).cancel()
+            uresult = r * sym.exp(p * t)
             return cresult, uresult
 
         uresult = Zero
