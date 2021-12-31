@@ -1077,7 +1077,8 @@ Domain transformation and substitution
 ======================================
 
 Substitution and transformation use a similar syntax `V(arg)`.  If
-`arg` is a domain variable `t`, `f`, `s`, `omega`, `w`, `jomega` or `jw`,
+`arg` is a domain variable `t`, `f`, `s`, `omega`, `w`, `jomega`,
+`jw`, `n`, `k`, or `z` or is an expression of a domain variable,
 transformation is performed, otherwise substitution is performed.
 This behaviour can be explicitly controlled using the `subs()` and
 `transform()` methods, for example::
@@ -1127,7 +1128,13 @@ Alternatively, the call notation can be used to choose the new domain::
 
 - `V(Omega)` returns the normalized angular Fourier domain transformation
 
-- `V(jomega)` returns the phasor domain transformation
+- `V(jomega)` or `V(jw)` returns the phasor domain transformation
+
+- `V(n)` returns the discrete-time domain transformation (by default the bilinear-transform is used)
+
+- `V(k)` returns the discrete-frequency domain transformation (by default the bilinear-transform is used)
+
+- `V(z)` returns the Z-domain transformation (by default the bilinear-transform is used)
 
 For example::
 
@@ -1141,8 +1148,17 @@ For example::
    ─────
    s + 2
 
-In many cases `V(omega)` produces the same result as `V(jomega)` but not always.  Here's an example where
-the two domains produce the same result::
+
+
+
+Phasor and angular Fourier domains
+----------------------------------
+
+The transformation `V(omega)` produces a result in the angular Fourier
+domain, however, the transformation `V(jomega)` produces a result in
+the Phasor domain.  In most cases, `V(omega)` produces the same result
+as `V(jomega)` but not always.  Here's an example where the two
+domains produce the same expression::
 
     >>> Y = admittance(s)
     >>> Y(omega)
