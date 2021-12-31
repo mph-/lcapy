@@ -10,7 +10,7 @@ from .domains import DiscreteFourierDomain
 from .inverse_fourier import inverse_fourier_transform
 from .functions import exp
 from .sym import j, oo, pi
-from .dsym import nsym, ksym, zsym
+from .sym import nsym, ksym, zsym
 from .seqexpr import SequenceExpression
 from .kseq import DiscreteFourierDomainSequence
 from .inverse_dft import IDFT

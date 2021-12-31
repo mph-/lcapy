@@ -414,7 +414,7 @@ class Sequence(ExprList, ExprDomain):
         For example, seq((1, 2, 3))(n)"""
 
         from .symbols import n, k, z
-        from .dsym import nsym, ksym, zsym
+        from .sym import nsym, ksym, zsym
 
         if id(arg) == id(n) or arg == n:
             if self.var == nsym:

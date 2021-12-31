@@ -8,7 +8,7 @@ from __future__ import division
 from .domains import ZDomain
 from .inverse_ztransform import inverse_ztransform
 from .sym import j, pi, fsym, omegasym
-from .dsym import nsym, ksym, zsym, dt
+from .sym import nsym, ksym, zsym, dt
 from .vector import Vector
 from .ratfun import _zp2tf, Ratfun
 from .expr import symbol, expr, ExprDict, ExprList

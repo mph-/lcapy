@@ -13,7 +13,7 @@ from sympy import oo, DiracDelta
 from sympy.core import S
 from .transformer import BilateralForwardTransformer
 from .sym import sympify, AppliedUndef, j, pi, symsymbol
-from .dsym import dt
+from .sym import dt
 from .utils import factor_const, scale_shift
 from .ztransform import is_multiplied_with
 from .extrafunctions import UnitImpulse, UnitStep, sincu, sincn, dtrect, dtsign, tri

@@ -5,7 +5,7 @@ Copyright 2018--2021 Michael Hayes, UCECE
 """
 
 from .sym import sympify, pi
-from .dsym import dt
+from .sym import dt
 from .symbols import f, s, t, omega, j, jw, jw0, Omega, F, k, n, z
 from .symbols import domain_vars, domain_var_ids
 from .nexpr import n

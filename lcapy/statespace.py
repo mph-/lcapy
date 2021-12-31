@@ -230,7 +230,7 @@ class StateSpace(StateSpaceBase):
 
     def generalized_bilinear_transform(self, alpha=0.5):
 
-        from .dsym import dt
+        from .sym import dt
         from .dtstatespace import DTStateSpace
 
         if alpha < 0 or alpha > 1:

@@ -10,7 +10,7 @@ from .domains import DiscreteTimeDomain
 from .sequence import Sequence
 from .functions import exp
 from .sym import j, oo, pi, fsym, oo
-from .dsym import nsym, ksym, zsym, dt
+from .sym import nsym, ksym, zsym, dt
 from .ztransform import ztransform
 from .dft import DFT
 from .seqexpr import SequenceExpression

@@ -13,7 +13,7 @@ from .inverse_dtft import IDTFT
 from .expr import Expr, expr, expr_make
 from .fexpr import f
 from .sym import ssym, tsym, fsym, pi, Omegasym
-from .dsym import nsym, dt
+from .sym import nsym, dt
 from .units import u as uu
 from .utils import factor_const, remove_images
 from sympy import Integral, Expr as symExpr
@@ -84,7 +84,7 @@ class NormAngularFourierDomainExpression(NormAngularFourierDomain, Expr):
     def norm_fourier(self, **assumptions):
         """Convert to normalized Fourier domain."""
         from .symbols import F
-        from .dsym import dt
+        from .sym import dt
         
         result = self.subs(2 * pi * F / dt)
         return result

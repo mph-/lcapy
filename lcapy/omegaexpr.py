@@ -63,7 +63,7 @@ class AngularFourierDomainExpression(AngularFourierDomain, Expr):
     def norm_fourier(self, **assumptions):
         """Convert to normalized Fourier domain."""
         from .symbols import F
-        from .dsym import dt
+        from .sym import dt
         
         result = self.subs(2 * pi * F / dt)
         return result
@@ -71,7 +71,7 @@ class AngularFourierDomainExpression(AngularFourierDomain, Expr):
     def norm_angular_fourier(self, **assumptions):
         """Convert to normalized angular Fourier domain."""
         from .symbols import Omega
-        from .dsym import dt
+        from .sym import dt
         
         result = self.subs(Omega / dt)
         return result        

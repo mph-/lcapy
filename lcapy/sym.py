@@ -9,10 +9,10 @@ Copyright 2014--2020 Michael Hayes, UCECE
 from .config import excludes, aliases
 from sympy.parsing.sympy_parser import parse_expr, auto_number, rationalize
 try:
-    from sympy.parsing.sympy_parser import NUMBER, NAME, OP        
+    from sympy.parsing.sympy_parser import NUMBER, NAME, OP
 except:
     from sympy.parsing.sympy_tokenize import NUMBER, NAME, OP
-    
+
 from sympy import Basic, Symbol, Expr, Atom
 from sympy.core.function import AppliedUndef
 import sympy as sym
@@ -39,12 +39,12 @@ for _symbol in excludes:
     except:
         pass
 
-    
+
 symbol_dict = {}
 for name in ['Symbol', 'Function', 'Integer']:
     symbol_dict[name] = global_dict[name]
-    
-    
+
+
 def capitalize_name(name):
 
     return name[0].upper() + name[1:]
@@ -61,7 +61,7 @@ def symbols_find(arg):
     symbols = []
 
     def find_symbol(tokens, local_dict, global_dict):
-        
+
         for tok in tokens:
             tokNum, tokVal = tok
             if tokNum == NAME:
@@ -71,21 +71,21 @@ def symbols_find(arg):
                 # of symbol aliases?
                 if name == 'omega0':
                     name = 'omega_0'
-                
+
                 if name not in local_dict and name not in global_dict:
                     symbols.append(name)
         return ([(NUMBER, '0')])
 
     if isinstance(arg, str):
-        parse_expr(arg, transformations=(find_symbol, ), 
+        parse_expr(arg, transformations=(find_symbol, ),
                    global_dict=global_dict, local_dict={}, evaluate=False)
-        
+
         return symbols
 
     from .expr import Expr as LExpr
     if isinstance(arg, LExpr):
         arg = arg.expr
-    
+
     if not isinstance(arg, (Symbol, Expr, AppliedUndef)):
         return []
     return [symbol_name(symbol) for symbol in arg.atoms(Symbol, AppliedUndef)]
@@ -97,12 +97,12 @@ def parse(string, symbols=None, evaluate=True, local_dict=None,
 
     if symbols is None:
         symbols = {}
-    
+
     if local_dict is None:
         local_dict = {}
     if global_dict is None:
         global_dict = {}
-    
+
     cache = assumptions.pop('cache', True)
 
     def auto_symbol(tokens, local_dict, global_dict):
@@ -129,7 +129,7 @@ def parse(string, symbols=None, evaluate=True, local_dict=None,
                 # of symbol aliases?
                 if name == 'omega0':
                     name = 'omega_0'
-                
+
                 if name in global_dict:
 
                     obj = global_dict[name]
@@ -151,7 +151,7 @@ def parse(string, symbols=None, evaluate=True, local_dict=None,
                 result.extend([(NAME, 'Symbol'),
                                (OP, '('), (NAME, repr(name))])
                 for assumption, val in assumptions.items():
-                    result.extend([(OP, ','), 
+                    result.extend([(OP, ','),
                                    (NAME, '%s=%s' % (assumption, val))])
                 result.extend([(OP, ')')])
 
@@ -161,7 +161,7 @@ def parse(string, symbols=None, evaluate=True, local_dict=None,
         return result
 
     s = parse_expr(string, transformations=(auto_symbol, auto_number,
-                                            rationalize), 
+                                            rationalize),
                    global_dict=global_dict, local_dict=local_dict,
                    evaluate=evaluate)
     if not cache:
@@ -173,7 +173,7 @@ def parse(string, symbols=None, evaluate=True, local_dict=None,
         if name not in symbols:
             if False:
                 print("Adding symbol '%s'" % name)
-                
+
             symbols[name] = symbol
 
     return s
@@ -198,11 +198,11 @@ def sympify1(arg, symbols=None, evaluate=True, override=False, rational=True,
     if isinstance(arg, Expr):
         if not arg.has(sym.Float):
             return arg
-        # This is needed to catch 0.1 + sym.I        
+        # This is needed to catch 0.1 + sym.I
         arg = arg.replace(lambda expr: expr.is_Float,
                           lambda expr: sym.sympify(str(expr), rational=rational))
         return arg
-        
+
     if isinstance(arg, Symbol):
         return arg
 
@@ -220,12 +220,12 @@ def sympify1(arg, symbols=None, evaluate=True, override=False, rational=True,
         # Note, need to convert to string to achieve a rational
         # representation.
         return sym.sympify(str(arg), rational=rational, evaluate=evaluate)
-        
+
     if isinstance(arg, str):
-        # Quickly handle the simple case.  
+        # Quickly handle the simple case.
         if arg in symbols:
             return symbols[arg]
-        
+
         # Handle arbitrary strings that may refer to multiple symbols.
         if override:
             # Use restricted global symbol dictionary so that can
@@ -236,7 +236,7 @@ def sympify1(arg, symbols=None, evaluate=True, override=False, rational=True,
         return parse(arg, symbols, evaluate=evaluate,
                      local_dict=symbols, global_dict=gdict, **assumptions)
 
-    return sym.sympify(arg, rational=rational, locals=symbols, 
+    return sym.sympify(arg, rational=rational, locals=symbols,
                        evaluate=evaluate)
 
 
@@ -254,7 +254,7 @@ def sympify(expr, evaluate=True, override=False, rational=True, **assumptions):
     If `override` is True, then create new symbol(s) even if
     previously defined by SymPy.
     """
-    
+
     if assumptions == {}:
         assumptions['positive'] = True
         # Note this implies that imag is False.   Also note that all
@@ -263,7 +263,7 @@ def sympify(expr, evaluate=True, override=False, rational=True, **assumptions):
     elif 'positive' in assumptions:
         if not assumptions['positive']:
             assumptions.pop('positive')
-        
+
     return sympify1(expr, state.context.symbols, evaluate, override,
                     rational, **assumptions)
 
@@ -278,7 +278,7 @@ def symsymbol1(name, override=True, force=False, **assumptions):
 
         elif name in state.context.user_symbols:
             symbol_delete(name)
-    
+
     return sympify(name, override=override, **assumptions)
 
 
@@ -301,10 +301,10 @@ def symsymbol(name, force=False, **assumptions):
 def domainsymbol(name, **assumptions):
     """Create a SymPy symbol and register as a domain symbol
     that should not be overwritten."""
-    
-    dsym = symsymbol1(name, **assumptions)
-    state.global_context.domain_symbols[name] = dsym
-    return dsym
+
+    sym = symsymbol1(name, **assumptions)
+    state.global_context.domain_symbols[name] = sym
+    return sym
 
 
 def symsimplify(expr, var=None, **kwargs):
@@ -318,11 +318,11 @@ def symsimplify(expr, var=None, **kwargs):
     if expr.has(sym.DiracDelta):
         expr = simplify_dirac_delta(expr)
     if expr.has(UnitImpulse):
-        expr = simplify_unit_impulse(expr)                
+        expr = simplify_unit_impulse(expr)
     if expr.has(sym.Heaviside, UnitStep):
         expr = simplify_heaviside(expr, var)
     if expr.has(rect, dtrect):
-        expr = simplify_rect(expr, var)        
+        expr = simplify_rect(expr, var)
 
     # This+ gets expanded into piecewise...
     if expr.has(sym.sign):
@@ -331,7 +331,7 @@ def symsimplify(expr, var=None, **kwargs):
         # on the definition of sign(t).  SymPy and NumPy define sign(0) = 0.
         # This implies Heaviside(0) = 0.5.
         return expr
-    
+
     try:
         if expr.is_Function and expr.func in (sym.Heaviside, sym.DiracDelta):
             return expr
@@ -379,11 +379,11 @@ def symdebug(expr, s='', indent=0):
     if isinstance(expr, Symbol):
         s += str(expr) + ': %s' % expr.assumptions0
 
-    elif isinstance(expr, Atom):                
+    elif isinstance(expr, Atom):
         s += str(expr)
 
     elif isinstance(expr, Expr):
-        
+
         name = expr.__class__.__name__
         s += '%s(' % name
         s = _debug_args(expr.args, s, indent + len(name) + 1)
@@ -399,16 +399,16 @@ def symdebug(expr, s='', indent=0):
 def symbol_delete(sym):
     """Delete symbol.  This is useful if a symbol needs to be redefined
     with different assumptions."""
-    
+
     state.context.symbols.pop(sym)
-    
+
 
 def symbol_map(name):
 
     new = name
     if not isinstance(name, str):
         name = str(name)
-    
+
     # Replace symbol names with symbol definitions to
     # avoid problems with real or positive attributes.
     if name in state.context.symbols:
@@ -432,6 +432,13 @@ nusym = symsymbol('nu', real=True)
 Omegasym = domainsymbol('Omega', real=True)
 Fsym = domainsymbol('F', real=True)
 
+nsym = domainsymbol('n', integer=True)
+ksym = domainsymbol('k', integer=True)
+zsym = domainsymbol('z', real=False)
+
+dt = symsymbol('Delta_t', real=True, positive=True)
+df = symsymbol('Delta_f', real=True, positive=True)
+
 pi = sym.pi
 j = sym.I
 oo = sym.oo
@@ -444,4 +451,4 @@ state.context.symbols['I'] = sym.I
 try:
     from sympy.core.function import AppliedUndef
 except:
-    from sympy.function import AppliedUndef    
+    from sympy.function import AppliedUndef

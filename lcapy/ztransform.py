@@ -252,7 +252,7 @@ class ZTransformer(UnilateralForwardTransformer):
         return F1 * F2
 
     def term(self, expr, n, z):
-        from .dsym import dt
+        from .sym import dt
 
         # Unilateral ZT ignores expr for n < 0 so remove Piecewise.
         if expr.is_Piecewise:

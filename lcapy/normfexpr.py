@@ -13,7 +13,7 @@ from .inverse_dtft import IDTFT
 from .expr import Expr, expr, expr_make
 from .fexpr import f
 from .sym import ssym, tsym, fsym, pi, Fsym
-from .dsym import nsym, dt
+from .sym import nsym, dt
 from .units import u as uu
 from .utils import factor_const
 from sympy import Integral, Expr as symExpr

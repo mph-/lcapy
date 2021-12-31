@@ -20,7 +20,7 @@ from .ratfun import Ratfun
 from .sym import sympify, symsimplify, j, omegasym, symdebug, AppliedUndef
 from .sym import capitalize_name, tsym, symsymbol, symbol_map, tausym, nusym, oo
 from .sym import fsym, ssym, Fsym, Omegasym, symbol_delete, pi
-from .dsym import nsym, ksym, zsym
+from .sym import nsym, ksym, zsym
 from .state import state
 from .printing import pprint, pretty, print_str, latex
 from .functions import sqrt, log10, atan2, gcd, exp, Function, Eq
@@ -795,7 +795,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
     @property
     def is_complex(self):
         from .sym import ssym
-        from .dsym import zsym
+        from .sym import zsym
 
         if self.has(ssym) or self.has(zsym):
             return True
@@ -3347,7 +3347,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         Sum(DiracDelta(f - m/Delta_t), (f, -1, 1))
 
         """
-        from .dsym import dt
+        from .sym import dt
 
         var = self.var
 

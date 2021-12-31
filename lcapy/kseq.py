@@ -7,7 +7,7 @@ Copyright 2021 Michael Hayes, UCECE
 
 from .domains import DiscreteFourierDomain
 from .sequence import Sequence
-from .dsym import ksym
+from .sym import ksym
 
 __all__ = ('kseq', )
 

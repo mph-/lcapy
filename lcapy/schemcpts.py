@@ -885,8 +885,8 @@ class Cpt(object):
 
         if bold:
             if label.startswith('$') and label.endswith('$'):
-                # boldsymbol but requires amssym or amsmath.
-                label = r'$\Large \boldsymbol{%s}$' % label[1:-1]
+                # bolsymbol but requires amssym or amsmath.
+                label = r'$\Large \bolsymbol{%s}$' % label[1:-1]
             else:
                 label = r'\textbf{%s}' % label
         

@@ -230,7 +230,7 @@ class TimeDomainExpression(TimeDomain, Expr):
 
         """
 
-        from .dsym import dt
+        from .sym import dt
         from .symbols import n
 
         if method in ('impulse-invariance', ):

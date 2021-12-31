@@ -16,7 +16,7 @@ import sympy as sym
 from sympy import oo, DiracDelta
 from .transformer import BilateralInverseTransformer
 from .sym import sympify, AppliedUndef, j, pi
-from .dsym import dt
+from .sym import dt
 from .extrafunctions import UnitImpulse, UnitStep
 from .utils import factor_const, scale_shift, remove_images
 from .matrix import Matrix

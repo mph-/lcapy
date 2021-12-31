@@ -13,7 +13,7 @@ from .ratfun import _zp2tf, _pr2tf, Ratfun
 from .expr import Expr, symbol, expr, ExprDict, exprcontainer, expr_make
 from .units import u as uu
 from .functions import sqrt, DiracDelta
-from .dsym import dt
+from .sym import dt
 import numpy as np
 from sympy import limit, exp, Poly, Integral, div, oo, Eq, Expr as symExpr
 from warnings import warn
