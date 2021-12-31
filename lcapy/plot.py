@@ -660,9 +660,14 @@ def plot_sequence(obj, ni, plot_type=None, polar=False, **kwargs):
     xscale = kwargs.pop('xscale', 1)
     yscale = kwargs.pop('yscale', 1)
     title = kwargs.pop('title', None)
+    color = kwargs.pop('color', None)
 
-    stems = ax.stem(ni * xscale, v * yscale, use_line_collection=True, **kwargs)
-    color = kwargs.pop('color', stems[0].get_color())
+    markerline, stemlines, baseline = ax.stem(ni * xscale, v * yscale, use_line_collection=True, **kwargs)
+    if color is not None:
+        stemlines.set_color(color)
+        markerline.set_color(color)
+    else:
+        color = stemlines.get_color()
 
     # Ensure integer ticks.
     ax.xaxis.set_major_locator(MaxNLocator(integer=True))
