@@ -1785,10 +1785,10 @@ Lcapy has the following approximation methods:
 
 Note, some higher order approximations can be unstable.  For example, the step-response of `exp(-s)` using a bilinear transformation is unstable for order 3 Pade approximation as in the following figure.
 
-.. image:: pade-step-delay.png
+.. image:: examples/discrete-time/pade-step-delay.png
    :width: 12cm
 
-.. image:: pade-step-delay2.png
+.. image:: examples/discrete-time/pade-step-delay2.png
    :width: 12cm
 
 - `approximate_hyperbolic_trig(method, order, numer_order)` approximates hyperbolic trig. functions with rational functions.  This expands hyperbolic trig. functions using `expand_hyperbolic_trig` and then uses `approximate_exp`.  For example::
