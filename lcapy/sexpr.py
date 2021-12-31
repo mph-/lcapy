@@ -522,7 +522,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         if alpha < 0 or alpha > 1:
             raise ValueError("alpha must be between 0 and 1 inclusive")
 
-        return self.subs((1 / dt) * (1 - z**-1) / (alpha + (1 - alpha) * z**-1))
+        return self.subs((1 / dt) * (1 - z**-1) / (alpha + (1 - alpha) * z**-1)) / dt
 
     def bilinear_transform(self):
         """Approximate s = ln(z) / dt
@@ -562,17 +562,23 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         return self.subs((3 / dt) * (z**2 - 1) / (z**2 + 4 * z + 1))
 
     def matched_ztransform(self):
-        """Match poles and zeros of H(s) to approximate H(z)."""
+        """Match poles and zeros of H(s) to approximate H(z).
+
+        If there are no zeros, this is equivalent to impulse_invariance.
+
+        See also bilinear_transform and impulse_invariance_transform."""
 
         from .discretetime import z
 
         zeros, poles, K, undef = self._ratfun.as_ZPK()
         result = K
         for zero in zeros:
-            result *= (1 - exp(-zero * dt) / z)
+            result *= (1 - exp(zero * dt) / z)
         for pole in poles:
-            result /= (1 - exp(-pole * dt) / z)
+            result /= (1 - exp(pole * dt) / z)
         result *= undef
+
+        result.is_causal = self.is_causal
         return result
 
     def impulse_invariance_transform(self):
@@ -581,10 +587,21 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         has Dirac deltas, say for a transfer function that is
         a pure delay or is not-strictly proper.
 
+        The discrete-time and continuous-time impulse responses
+        are identical at the sampling instants n * dt.
+
         The data needs to be sampled many times the bandwidth to avoid
-        aliasing."""
+        aliasing.
+
+        See also bilinear_transform and matched_ztransform."""
 
         from .discretetime import n, z, dt
+
+        # An alternative approach is to expand as partial fractions
+        # and then replace (s + alpha) with (1 - exp(-alpha * dt) *
+        # z**-1) in the denominator of each partial fraction (the
+        # residues are unchanged).  This maps the pole at -alpha to
+        # exp(-alpha * dt).
 
         h = self.ILT()
         if h.has(DiracDelta):

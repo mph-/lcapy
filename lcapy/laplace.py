@@ -15,7 +15,7 @@ that it gives DiracDelta(t) for the inverse Laplace transform of 1.
 Another difference with this implementation is that it will transform
 undefined functions such as v(t) to V(s).
 
-These functions are for internal use by Lcapy.  
+These functions are for internal use by Lcapy.
 
 Copyright 2016--2021 Michael Hayes, UCECE
 
@@ -32,7 +32,7 @@ __all__ = ('LT', 'laplace_transform')
 class LaplaceTransformer(UnilateralForwardTransformer):
 
     name = 'Laplace transform'
-    
+
     def noevaluate(self, expr, t, s):
 
         t0 = sympify('t0')
@@ -80,7 +80,7 @@ class LaplaceTransformer(UnilateralForwardTransformer):
         if not isinstance(expr, AppliedUndef):
             self.error('Expecting function')
 
-        scale, shift = scale_shift(expr.args[0], t)    
+        scale, shift = scale_shift(expr.args[0], t)
 
         ssym = sympify(str(s))
 
@@ -91,7 +91,7 @@ class LaplaceTransformer(UnilateralForwardTransformer):
         result = sympify(func).subs(ssym, s / scale) / abs(scale)
 
         if shift != 0:
-            result = result * sym.exp(s * shift / scale)    
+            result = result * sym.exp(s * shift / scale)
         return result
 
     def integral(self, expr, t, s):
@@ -122,7 +122,7 @@ class LaplaceTransformer(UnilateralForwardTransformer):
             if isinstance(expr2, AppliedUndef):
                 if expr2.args[0] == expr.args[1][0]:
                     return const2 * self.func(expr2, expr2.args[0], s) / s
-        
+
         # Look for convolution integral
         if limits[0].is_positive:
             self.error('Cannot handle lower limit %s' % limits[0])
@@ -135,7 +135,7 @@ class LaplaceTransformer(UnilateralForwardTransformer):
             self.error('Need integral of product of two functions')
 
         f1 = expr2.args[0]
-        f2 = expr2.args[1]    
+        f2 = expr2.args[1]
         # TODO: apply similarity theorem if have f(a * tau) etc.
 
         if (f1.args[0] == var and f2.args[0] == t - var):
@@ -144,7 +144,7 @@ class LaplaceTransformer(UnilateralForwardTransformer):
         elif (f2.args[0] == var and f1.args[0] == t - var):
             F1 = self.term(f1.subs(t - var, t), t, s)
             F2 = self.term(f2, var, s)
-        else:            
+        else:
             self.error('Cannot recognise convolution')
 
         return const2 * F1 * F2
@@ -158,29 +158,29 @@ class LaplaceTransformer(UnilateralForwardTransformer):
             expr.args[1][0] != t):
             self.error('Expecting function of t')
 
-        ssym = sympify(str(s))    
-        name = expr.args[0].func.__name__    
-        func1 = name[0].upper() + name[1:] + '(%s)' % str(ssym)    
+        ssym = sympify(str(s))
+        name = expr.args[0].func.__name__
+        func1 = name[0].upper() + name[1:] + '(%s)' % str(ssym)
         return sympify(func1).subs(ssym, s) * s ** expr.args[1][1]
 
     def sin_cos(self, expr, t, s):
 
         # Handle exp(-alpha * t) * sin(omega * t + phi) * u(t - tau)
         # The exp(-alpha * t) and u(t - tau) parts are optional.
-        
+
         # Sympy sometimes has problems with this...
 
-        factors = expr.as_ordered_factors()    
-        
+        factors = expr.as_ordered_factors()
+
         if len(factors) > 3:
             raise ValueError('Not expsin, too many factors')
 
         alpha = 0
         beta = 0
         m = 0
-        if (factors[m].is_Function and factors[m].func is sym.exp):        
+        if (factors[m].is_Function and factors[m].func is sym.exp):
             exparg = factors[m].args[0]
-            alpha, beta = scale_shift(exparg, t)            
+            alpha, beta = scale_shift(exparg, t)
             m += 1
 
         if not (factors[m].is_Function and factors[m].func in (sym.sin, sym.cos)):
@@ -191,10 +191,10 @@ class LaplaceTransformer(UnilateralForwardTransformer):
 
         if factors[m].func is sym.cos:
             phi += sym.pi / 2
-        
+
         m += 1
 
-        if len(factors) == m + 1 and not (factors[m].is_Function and factors[m].func is sym.Heaviside):        
+        if len(factors) == m + 1 and not (factors[m].is_Function and factors[m].func is sym.Heaviside):
             raise ValueError('Not expsin, no Heaviside')
 
         tau = 0
@@ -215,17 +215,17 @@ class LaplaceTransformer(UnilateralForwardTransformer):
 
         if tau != 0:
             phi += omega * tau
-            
+
         E = (omega * sym.cos(phi) + (s - alpha) * sym.sin(phi)) / (omega**2 + (s - alpha)**2)
 
-        if tau != 0:            
+        if tau != 0:
             E *= sym.exp(-tau * s)
             if alpha != 0:
                 E *= sym.exp(alpha * tau)
 
         if beta != 0:
             E = sym.exp(beta) * E
-                
+
         return E
 
     def term(self, expr, t, s):
@@ -258,7 +258,7 @@ class LaplaceTransformer(UnilateralForwardTransformer):
         if expr.has(AppliedUndef):
 
             if expr.has(sym.Derivative):
-                return self.derivative_undef(expr, t, s) * const    
+                return self.derivative_undef(expr, t, s) * const
 
             factors = expr.as_ordered_factors()
             if len(factors) == 1:
@@ -269,7 +269,7 @@ class LaplaceTransformer(UnilateralForwardTransformer):
             foo = factors[1]
             if foo.is_Function and foo.func == sym.exp and foo.args[0].has(t):
                 scale, shift = scale_shift(foo.args[0], t)
-                if shift == 0: 
+                if shift == 0:
                     result = self.func(factors[0], t, s)
                     return const * result.subs(s, s - scale)
             self.error('Cannot handle product')
@@ -290,19 +290,18 @@ laplace_transformer = LaplaceTransformer()
 
 
 def laplace_transform(expr, t, s, evaluate=True, **kwargs):
-    """Compute unilateral Laplace transform of expr with lower limit 0-.    
+    """Compute unilateral Laplace transform of expr with lower limit 0-.
     """
-    
+
     return laplace_transformer.transform(expr, t, s,
                                          evaluate=evaluate,
                                          **kwargs)
 
 
 def LT(expr, t, s, evaluate=True, **kwargs):
-    """Compute unilateral Laplace transform of expr with lower limit 0-.    
-    """    
+    """Compute unilateral Laplace transform of expr with lower limit 0-.
+    """
 
     return laplace_transformer.transform(expr, t, s,
                                          evaluate=evaluate,
                                          **kwargs)
-
