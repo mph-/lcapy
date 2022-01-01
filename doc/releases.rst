@@ -2,6 +2,48 @@
 Release notes
 =============
 
+V1.2
+====
+
+- Speeds up partial fraction analysis
+
+- Add `discretize()` method for `TimeDomainExpression`
+
+- Ignores `UnitStep` and conditional for Z-transform
+
+- Scales `bilinear_transform()` by `1  / dt`
+
+- Allows transformations from continuous-time to discrete-time
+
+- Supports color arg for lollipop plots
+
+- Fixes assumptions when scaling by a constant
+
+- Adds Simpson, Euler, impulse-invariance, and matched-Z methods for discretization
+
+- Generalizes `simplify_sin_cos`
+
+- Adds include and includefile options for schtex
+
+- Specifies voltage dir for Circuitikz
+
+- Adds approximations for `exp`, `sinh`, `cosh`, `tanh`
+
+- Fixes loop and nodal analysis in Laplace domain
+
+- Improves simplification with complex conjugates
+
+- Supports A and G two-ports for netlists
+
+- Converts Greek names to symbols for schematics
+
+- Adds `re` and `im` functions
+
+- Speeds up inverse Laplace transform by computing residues by equating coefficients
+
+
+
+
 V1.1
 ====
 
@@ -14,13 +56,13 @@ V1.1
 - Adds `Min` and `Max` functions
 
 - Adds `solve()` method to `Expr` to solve expression
-  
+
 - Adds `solve()` methods to `ExprDict`, `ExprTuple`, and `ExprList` to solve system of equations
 
 - Supports `AppliedUndef` for `Function`
 
 - Uses `warn()` function throughout.
-  
+
 
 V1.00
 =====
@@ -72,7 +114,7 @@ V0.99
 - Adds matrix classes for discrete-time domains
 
 - Adds Nichols plots
-  
+
 - Fixes printing of Piecewise
 
 - Makes `conjugate` a method and adds `conj` as an attribute
@@ -81,7 +123,7 @@ V0.99
 
 - Adds `a` and `b` attributes for denominator and numerator coefficients
 
-  
+
 V0.98
 =====
 
@@ -103,8 +145,8 @@ V0.98
 
 - Clarifies reasons why MNA fails
 
-- Adds misc. bug fixes  
-  
+- Adds misc. bug fixes
+
 
 V0.97
 =====
@@ -119,8 +161,8 @@ V0.97
 
 - Adds assumptions attribute to sequences
 
-- Uses better naming for dummy variables  
-  
+- Uses better naming for dummy variables
+
 
 
 V0.96
@@ -131,8 +173,8 @@ V0.96
 - Improves conversion of floats to rationals for `expr()`
 
 - Ensures `evalf()` uses floats
-  
-  
+
+
 V0.95
 =====
 
@@ -142,7 +184,7 @@ V0.95
 
 - Adds domain argument to `seq`
 
-- Fixes DFT caching  
+- Fixes DFT caching
 
 - Fixes plotting of discrete frequency expressions
 
@@ -158,7 +200,7 @@ V0.94
 
 - Fixes DTFTs
 
-- Makes Heaviside and rect functions consistent with sign function    
+- Makes Heaviside and rect functions consistent with sign function
 
 - Adds simplifications for Heaviside and rect functions
 
@@ -168,10 +210,10 @@ V0.94
 
 - Allows symbol redefinition
 
-- Improves Nyquist plots  
+- Improves Nyquist plots
 
 
-  
+
 
 V0.93
 =====
@@ -179,8 +221,8 @@ V0.93
 - Improves plotting dB-phase
 
 - Plots Dirac deltas
-  
-- Speeds up plotting of frequency domain responses  
+
+- Speeds up plotting of frequency domain responses
 
 - Adds Nyquist plots
 
@@ -204,12 +246,12 @@ V0.93
 
 - Ensures `N` positive in DFT
 
-- Adds generalized transformer infrastructure  
+- Adds generalized transformer infrastructure
 
 - Fixes `dB`
 
 - Warns about truncated sequences
-  
+
 
 V0.92
 =====
@@ -230,7 +272,7 @@ V0.92
 
 - Adds tutorial on expression manipulation
 
-- Improves pole-zero plots  
+- Improves pole-zero plots
 
 
 V0.91
@@ -260,7 +302,7 @@ V0.91
 
 - Improves pretty printing of sequences
 
-- Adds `zeroextend()` method for sequences  
+- Adds `zeroextend()` method for sequences
 
 - Adds `>>` and `<<` operators for sequences
 
@@ -276,18 +318,18 @@ V0.90
 
 - Adds `as_array()` method for `Sequence`
 
-- Modifies `evaluate()` method for `Sequence`  
+- Modifies `evaluate()` method for `Sequence`
 
 - Adds `DTFilter`
 
 - Adds `evalf` method for container classes
- 
+
 - Fixes access of element in a sequence
 
 - Adds override argument to expr
 
 - User defined symbols override SymPy symbols
-  
+
 - Does not print user defined symbols in canonical form
 
 - Reworks equation function
@@ -306,13 +348,13 @@ V0.89
 - Fixes label args for pole zero plots
 
 - Adds periodic sinc function
-  
+
 - Adds normalized and unnormalized versions of sinc
 
 - Fixes evaluation of sinc
 
-- Fixes phasors with no var  
-  
+- Fixes phasors with no var
+
 
 V0.88
 =====
@@ -327,7 +369,7 @@ V0.88
 
 - Adds `tri(t)` and `trap(t, alpha)` functions
 
-- Adds new Fourier transforms  
+- Adds new Fourier transforms
 
 - Fixes `(rect(t) * cos(2 * pi * t))(f)`
 
@@ -335,7 +377,7 @@ V0.88
 
 - Functions return `Expr` objects
 
-  
+
 V0.87
 =====
 
@@ -343,9 +385,9 @@ V0.87
 
 - Adds `bode_plot()` method to phasors and s-domain expressions
 
-- Adds `pole_zero_plot()` method to s-domain expressions  
+- Adds `pole_zero_plot()` method to s-domain expressions
 
-- Allows complex signals to be considered as ac signals  
+- Allows complex signals to be considered as ac signals
 
 - Adds `is_complex_signal` attribute
 
@@ -365,10 +407,10 @@ V0.86
 
 - Adds subs() method for networks
 
-- Adds noisy() method for networks  
+- Adds noisy() method for networks
 
 - Adds T arg to noisy() methods
-  
+
 
 V0.85
 =====
@@ -379,7 +421,7 @@ V0.85
   applies for I1 1 2.  This is consistent with other component
   definitions and allows netlist substitutions.
 
-- Allows substitutions for constant expressions  
+- Allows substitutions for constant expressions
 
 - Fixes is_unchanging for phasors
 
@@ -389,7 +431,7 @@ V0.85
 
 - Reworks `CircuitGraph` to suport trees
 
-- Changes `CircuitGraph` `nodes()` method to be an attribute 
+- Changes `CircuitGraph` `nodes()` method to be an attribute
 
 - Fixes state-space analysis with current source
 
@@ -404,12 +446,12 @@ V0.84
 =====
 
 - Adds debugging support when generating schematics
-  
+
 - Reverts to using temporary dictionary for temporary files during schematic generation
 
 - Ensures log file closed before deleting
 
-- Fixes units for 1/s  
+- Fixes units for 1/s
 
 
 V0.83
@@ -423,7 +465,7 @@ V0.83
 
 - Adds support for PGF files to be included into schematics with the image keyword
 
-- Improves some Laplace transforms  
+- Improves some Laplace transforms
 
 - Fixes state-space model for current sources
 
@@ -438,7 +480,7 @@ This release primarily improves the component placement algorithm for schematics
 - Improve component placement graphs for debugging
 
 - Require pdflatex for schematic tests
-  
+
 
 V0.81
 =====
@@ -447,7 +489,7 @@ This is mostly bug fixes
 
 - Add tests for loop and nodal analysis
 
-- Add tests for schematics  
+- Add tests for schematics
 
 - Improve twoport printing
 
@@ -459,15 +501,15 @@ This is mostly bug fixes
 
 - Require sympy > 1.7.1
 
-- Install ghostscript for tests  
+- Install ghostscript for tests
 
 - Fix IDFT X(k)
 
 - Add tests for CircuitGraph
 
-- Simplify products of u(t)  
+- Simplify products of u(t)
 
-- Add tests for sinc, rect 
+- Add tests for sinc, rect
 
 - Fix convolution units
 
@@ -489,7 +531,7 @@ V0.79
 
 - Fix expression printing with units if expression is 1
 
-- Improved Laplace transforms for convolutions  
+- Improved Laplace transforms for convolutions
 
 
 V0.78
@@ -518,12 +560,12 @@ V0.78
    ValueError: Cannot determine ConstantTimeDomainVoltage(4*V) + ConstantDomainExpression(1) since the units V are incompatible with 1
 
 Units are not correctly tracked for function calls, for example, `log(voltage(10)` or `delta(t)`.
-   
+
 
 Older versions
 ==============
 
-- V0.77 reverts phase as a quantity and fixes plots.  Component attributes are renamed for consistency (is_resistor etc.).  omega0 is now positive.  Allow Z / Z and Y / Y.  Fix matrices.  Lazily create expression classes.  More unit tests! 
+- V0.77 reverts phase as a quantity and fixes plots.  Component attributes are renamed for consistency (is_resistor etc.).  omega0 is now positive.  Allow Z / Z and Y / Y.  Fix matrices.  Lazily create expression classes.  More unit tests!
 
 - V0.76 fixes the units and adds many more tests.  Adds phase quantity.  Fixes phasors.
 
@@ -590,7 +632,7 @@ Older versions
   impedance).  It also has better distinction between the impedance of
   a component and the driving point impedance.
 
-- V0.36 has improved handling of complex conjugate poles.        
+- V0.36 has improved handling of complex conjugate poles.
 
 - V0.34 switched to using setuptools and pushed to https::pypi.org
 
@@ -621,7 +663,3 @@ Future plans
 - Add more unit tests
 
 - Add more Laplace and Fourier transforms
-  
-
-
-  
