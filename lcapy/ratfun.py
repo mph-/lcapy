@@ -879,6 +879,8 @@ class Ratfun(object):
             r = (expr * d).cancel()
             return Q, [r], [p], [1], delay, undef
 
+        # Find residues by solving system of equations.
+
         syms = []
         D = []
         O = []
@@ -935,17 +937,17 @@ class Ratfun(object):
             rc = r.conjugate()
             pc = p.conjugate()
 
-            found = False
-            for n in range(1, len(R)):
+            has_conjugate = False
+            for n in range(m + 1, len(R)):
                 if o != O[n] or pc != P[n] or rc != R[n]:
                     continue
                 if o > 1:
                     continue
                 R[n] = 0
-                found = True
+                has_conjugate = True
                 break
 
-            if found:
+            if has_conjugate:
                 Rnew.append(((self.var - pc) * r + (self.var - p) * rc).expand())
                 Dnew.append(((self.var - p) * (self.var - pc)).expand())
             else:
