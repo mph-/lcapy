@@ -870,11 +870,14 @@ class Ratfun(object):
             # perhaps the following code will work.
             raise ValueError('Critical damping not supported')
 
-        if len(poles) == 1 and poles[0].n == 1:
+        if len(poles) == 0:
+            return Q, [], [], [], delay, undef
+
+        elif len(poles) == 1 and poles[0].n == 1:
             p = poles[0].expr
             d = var - p
             r = (expr * d).cancel()
-            return Q, [r], [d], delay, undef
+            return Q, [r], [p], [1], delay, undef
 
         syms = []
         D = []

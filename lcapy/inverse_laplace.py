@@ -116,8 +116,11 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             #if False and sexpr.degree == 3 and Ratfun(expr * s).degree == 2:
             #    return self.do_damped_sin3(sexpr, s, t)
 
-        self.debug('Finding QMD representation')
-        Q, M, D, delay, undef = sexpr.as_QMD()
+        self.debug('Finding QRPO representation')
+
+        damping = kwargs.get('damping', None)
+        Q, R, P, O, delay, undef = sexpr.as_QRPO(damping)
+
         if delay != 0:
             # This will be caught and trigger expansion of the expression.
             raise ValueError('Unhandled delay %s' % delay)
@@ -130,66 +133,14 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             for n, c in enumerate(C):
                 cresult += c * sym.diff(sym.DiracDelta(t), t, len(C) - n - 1)
 
-        if M == 0:
+        if R == []:
             return cresult, 0
 
-        expr = M / D
-        for factor in expr.as_ordered_factors():
-            if factor == sym.oo:
-                return Zero, factor
-
-        sexpr = Ratfun(expr, s)
-        self.debug('Finding poles')
-        poles = sexpr.poles(damping=kwargs.get('damping', None))
-
-        if len(poles) == 1 and poles[0].n == 1:
-            p = poles[0].expr
-            r = (expr * (s - p)).cancel()
-            uresult = r * sym.exp(p * t)
-            return cresult, uresult
-
-        uresult = Zero
-        syms = []
-        allpoles = []
-        powers = []
-        denoms = []
-        i = 1
-        D_factored = One
-        for pole in poles:
-            for m in range(pole.n):
-                allpoles.append(pole.expr)
-                powers.append(m)
-                A = sym.Symbol('A_%d' % i)
-                d = (s - pole.expr) ** (m + 1)
-                syms.append(A)
-                denoms.append(d)
-                i += 1
-            D_factored *= (s - pole.expr) ** pole.n
-
-        rhs = Zero
-        for denom, residue in zip(denoms, syms):
-            # Could be more cunning to avoid using cancel
-            rhs += residue * (D_factored / denom).cancel()
-
-        R = sym.poly(rhs, s)
-        L = sym.poly((expr * D_factored).cancel(), s)
-
-        rc = R.all_coeffs()
-        lc = L.all_coeffs()
-        if len(lc) < len(rc):
-            lc = [0] * (len(rc) - len(lc)) + lc
-
-        A, _ = sym.linear_eq_to_matrix(rc, syms)
-
-        # Solve system of equations to find residues A_n.
-        self.debug('Solving system of equations')
-        x = matrix_inverse(A) * sym.Matrix(lc)
-
         uresult = 0
-        for m, (p, n, A) in enumerate(zip(allpoles, powers, x)):
+        for m, (p, n, A) in enumerate(zip(P, O, R)):
 
             # This is zero for the conjugate pole.
-            if x[m] == 0:
+            if R[m] == 0:
                 continue
 
             # Search and remove conjugate pair.
@@ -197,10 +148,10 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             if p.is_complex and kwargs.get('pairs', True):
                 pc = p.conjugate()
                 Ac = A.conjugate()
-                for m2, p2 in enumerate(allpoles[m + 1:]):
+                for m2, p2 in enumerate(P[m + 1:]):
                     m2 += m + 1
-                    if n == powers[m2] and p2 == pc and x[m2] == Ac:
-                        x[m2] = 0
+                    if n == O[m2] and p2 == pc and R[m2] == Ac:
+                        R[m2] = 0
                         has_conjpair = True
                         break
 
@@ -218,8 +169,8 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             else:
                 result = A * sym.exp(p * t)
 
-            if n != 0:
-                result *= t ** n / sym.factorial(n)
+            if n > 1:
+                result *= t ** (n - 1) / sym.factorial(n - 1)
             uresult += result
 
         # cresult is a sum of Dirac deltas and its derivatives so is known
