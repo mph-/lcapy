@@ -1796,22 +1796,22 @@ class TwoPort(Network, TwoPortMixin):
         # FIXME
         return self.parallel(Series(OP))
 
-    def load(self, TP):
+    def load(self, OP):
         """Apply a one-port load and return a Thevenin (one-port) object"""
 
-        if not issubclass(TP.__class__, OnePort):
+        if not issubclass(OP.__class__, OnePort):
             raise TypeError('Argument not ', OnePort)
 
-        foo = self.chain(Shunt(TP))
+        foo = self.chain(Shunt(OP))
         return V(foo.V1oc) + Z(foo.Z1oc)
 
-    def source(self, TP):
+    def source(self, OP):
         """Apply a one-port source and return a Thevenin (one-port) object"""
 
-        if not issubclass(TP.__class__, OnePort):
+        if not issubclass(OP.__class__, OnePort):
             raise TypeError('Argument not ', OnePort)
 
-        foo = Shunt(TP).chain(self)
+        foo = Shunt(OP).chain(self)
         return V(foo.V2oc) + Z(foo.Z2oc)
 
     def short_circuit(self, port=2):
