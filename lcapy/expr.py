@@ -14,6 +14,7 @@ Copyright 2014--2022 Michael Hayes, UCECE
 
 from __future__ import division
 from .assumptions import Assumptions
+from .cache import cached_property
 from .domains import UndefinedDomain
 from .quantity import UndefinedQuantity
 from .ratfun import Ratfun
@@ -1653,9 +1654,13 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             self.has(sym.Integral)):
             self.__ratfun = None
         else:
-            # Note, this handles expressions that are products of
-            # rational functions and arbitrary delays.
-            self.__ratfun = Ratfun(self.expr, self.var)
+
+            try:
+                # Note, this handles expressions that are products of
+                # rational functions and arbitrary delays.
+                self.__ratfun = Ratfun(self.expr, self.var)
+            except:
+                self.__ratfun = None
         return self.__ratfun
 
     @property
@@ -2617,6 +2622,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             defs[symbolname] = cexpr(value)
             return sym1
 
+        if self._ratfun is None:
+            return self, {}
+
         zeros, poles, K, undef = self._ratfun.as_ZPK()
 
         defs = ExprDict()
@@ -3232,15 +3240,15 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
     def as_ratfun_delay(self):
 
-        N, D, delay, undef = self._ratfun.as_N_D_delay_undef()
+        B, A, delay, undef = self._ratfun.as_B_A_delay_undef()
         if undef != 1:
             raise ValueError('Have undefined expression %s' % undef)
 
-        return self.__class__(N / D, **self.assumptions), delay
+        return self.__class__(B / A, **self.assumptions), delay
 
-    def _as_N_D_delay_undef(self):
+    def _as_B_A_delay_undef(self):
 
-        return self._ratfun.as_N_D_delay_undef()
+        return self._ratfun.as_B_A_delay_undef()
 
     def continued_fraction_inverse_coeffs(self):
         """Convert expression into a continued fraction with inverse

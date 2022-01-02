@@ -260,12 +260,12 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         """Evaluate response of system with applied signal.
         This method assumes that the data is well over-sampled."""
 
-        # Perform polynomial long division so expr1 = Q + M / D
-        N, D, delay, undef = self._as_N_D_delay_undef()
+        # Perform polynomial long division so expr1 = Q + M / A
+        B, A, delay, undef = self._as_B_A_delay_undef()
         if undef != 1:
             raise ValueError('Have undefined expression %s' % undef)
-        Q, M = div(N, D, self.var)
-        expr1 = M / D
+        Q, M = div(B, A, self.var)
+        expr1 = M / A
 
         Nt = len(tvector)
 

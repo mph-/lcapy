@@ -1,7 +1,7 @@
 """This module provides support for the inverse z-transform.  It
 calculates the unilateral inverse z-transform.
 
-Copyright 2021 Michael Hayes, UCECE
+Copyright 2021-2022 Michael Hayes, UCECE
 
 """
 
@@ -119,7 +119,7 @@ class InverseZTransformer(UnilateralInverseTransformer):
 
         zexpr = Ratfun(expr, z)
 
-        Q, M, D, delay, undef = zexpr.as_QMD()
+        Q, M, D, delay, undef = zexpr.as_QMA()
 
         cresult = sym.S.Zero
         uresult = sym.S.Zero
