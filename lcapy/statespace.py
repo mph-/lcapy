@@ -20,7 +20,7 @@ import sympy as sym
 
 
 class StateSpace(StateSpaceBase):
-    """Continuous-time linear time-invariant state space model."""    
+    """Continuous-time linear time-invariant state space model."""
 
     @property
     def u(self):
@@ -29,7 +29,7 @@ class StateSpace(StateSpaceBase):
             self._u = TimeDomainMatrix([texpr('u_%d(t)' % i) for i in
                                         range(self.Nu)])
         return self._u
-    
+
     @property
     def x(self):
         """State variable vector."""
@@ -42,14 +42,14 @@ class StateSpace(StateSpaceBase):
     def dotx(self):
         """Time derivative of state variable vector."""
         return TimeDomainMatrix([sym.Derivative(x1, t) for x1 in self.x])
-    
+
     @property
     def x0(self):
         """State variable initial value vector."""
         if self._x0 is None:
             self._x0 = TimeDomainMatrix([texpr('x_0_%d(t)' % i) for i in
                                          range(self.Nx)])
-        return self._x0        
+        return self._x0
 
     @property
     def y(self):
@@ -57,8 +57,8 @@ class StateSpace(StateSpaceBase):
         if self._y is None:
             self._y = TimeDomainMatrix([texpr('y_%d(t)' % i) for i in
                                         range(self.Ny)])
-        return self._y    
-    
+        return self._y
+
     @property
     def U(self):
         """Laplace transform of input vector."""
@@ -66,12 +66,12 @@ class StateSpace(StateSpaceBase):
 
     @property
     def X(self):
-        """Laplace transform of state-variable vector."""        
+        """Laplace transform of state-variable vector."""
         return LaplaceDomainMatrix(self.x.laplace())
 
     @property
     def Y(self):
-        """Laplace transform of output vector."""        
+        """Laplace transform of output vector."""
         return LaplaceDomainMatrix(self.y.laplace())
 
     @cached_property
@@ -81,7 +81,7 @@ class StateSpace(StateSpaceBase):
 
     @property
     def h(self):
-        """ILT{X(s) / U(s)}"""        
+        """ILT{X(s) / U(s)}"""
         return TimeDomainMatrix(self.H.ILT(causal=True))
 
     @cached_property
@@ -98,7 +98,7 @@ class StateSpace(StateSpaceBase):
 
         where x is the state vector and u is the input vector.
         """
-        
+
         return expr(sym.Eq(self.dotx, sym.MatAdd(sym.MatMul(self._A, self.x),
                                                  sym.MatMul(self._B, self.u)),
                            evaluate=False))
@@ -112,16 +112,16 @@ class StateSpace(StateSpaceBase):
         the input vector.
 
         """
-        
+
         return expr(sym.Eq(self.y, sym.MatAdd(sym.MatMul(self._C, self.x),
                                               sym.MatMul(self._D, self.u)),
                            evaluate=False))
 
     @property
     def g(self):
-        """System impulse responses."""        
+        """System impulse responses."""
         return TimeDomainMatrix(self.G.ILT(causal=True))
-    
+
     @cached_property
     def Phi(self):
         """s-domain state transition matrix."""
@@ -131,7 +131,7 @@ class StateSpace(StateSpaceBase):
 
     @cached_property
     def phi(self):
-        """State transition matrix."""        
+        """State transition matrix."""
         return TimeDomainMatrix(self.Phi.ILT(causal=True))
 
     def characteristic_polynomial(self):
@@ -139,37 +139,37 @@ class StateSpace(StateSpaceBase):
 
         `lambda(s) = |s * I - A|`"""
 
-        M = LaplaceDomainMatrix(sym.eye(self.Nx) * ssym - self._A.sympy)        
+        M = LaplaceDomainMatrix(sym.eye(self.Nx) * ssym - self._A.sympy)
         return LaplaceDomainExpression(M.det()).simplify()
 
     @cached_property
     def P(self):
         """Characteristic polynomial (aka system polynomial).
 
-        `lambda(s) = |s * I - A|`"""        
+        `lambda(s) = |s * I - A|`"""
 
         return self.characteristic_polynomial()
 
-    @cached_property    
+    @cached_property
     def Lambda(self):
         """Diagonal matrix of eigenvalues."""
 
         # Perhaps faster to use diagonalize
         # E, L = self.A.diagonalize()
         # return L
-        
+
         e = self.eigenvalues
         return LaplaceDomainMatrix(sym.diag(*e))
 
-    @cached_property    
+    @cached_property
     def M(self):
         """Modal matrix (eigenvectors of A)."""
 
         E, L = self._A.diagonalize()
-        
+
         return LaplaceDomainMatrix(E)
-    
-    @cached_property            
+
+    @cached_property
     def controllability_gramian(self):
         """Controllability gramian matrix."""
 
@@ -178,21 +178,21 @@ class StateSpace(StateSpaceBase):
         B = self.B.evaluate()
         Q = -B @ B.T
 
-        # Find Wc given A @ Wc + Wc @ A.T = Q        
+        # Find Wc given A @ Wc + Wc @ A.T = Q
         # Wc > o if (A, B) controllable
         Wc = linalg.solve_continuous_lyapunov(self.A.evaluate(), Q)
 
         # Wc should be symmetric positive semi-definite
-        Wc = (Wc + Wc.T) / 2        
-        
+        Wc = (Wc + Wc.T) / 2
+
         return Matrix(Wc)
 
-    @property            
+    @property
     def Wc(self):
         """Controllability gramian matrix."""
         return self.controllability_gramian
-    
-    @property            
+
+    @property
     def reachability_gramian(self):
         """Reachability gramian matrix.  This is equivalent to the
         controllability gramian matrix for a linear time independent
@@ -200,12 +200,12 @@ class StateSpace(StateSpaceBase):
 
         return self.controllability_gramian
 
-    @property            
+    @property
     def Wr(self):
         """Reachability gramian matrix."""
         return self.reachability_gramian
-    
-    @cached_property            
+
+    @cached_property
     def observability_gramian(self):
         """Observability gramian matrix."""
 
@@ -220,10 +220,10 @@ class StateSpace(StateSpaceBase):
 
         # Wo should be symmetric positive semi-definite
         Wo = (Wo + Wo.T) / 2
-        
+
         return Matrix(Wo)
 
-    @property            
+    @property
     def Wo(self):
         """Observability gramian matrix."""
         return self.observability_gramian
@@ -235,7 +235,7 @@ class StateSpace(StateSpaceBase):
 
         if alpha < 0 or alpha > 1:
             raise ValueError("alpha must be between 0 and 1 inclusive")
-        
+
         I = sym.eye(self.Nx)
         M = I - alpha * dt * self.A
         Minv = M.inv()
@@ -248,7 +248,7 @@ class StateSpace(StateSpaceBase):
         # FIXME for u, y, x, x0.
         return DTStateSpace(Ad, Bd, Cd, Dd,
                             self._u, self._y, self._x, self._x0)
-        
+
     def discretize(self, method='bilinear', alpha=0.5):
         """Convert to a discrete-time state space approximation.
 
@@ -274,5 +274,5 @@ class StateSpace(StateSpaceBase):
 
         return StateSpaceMaker.from_circuit(cct, node_voltages, branch_currents)
 
-        
+
 from .sexpr import LaplaceDomainExpression

@@ -3232,9 +3232,15 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
     def as_ratfun_delay(self):
 
-        N, D, delay = self._ratfun.as_ratfun_delay()
+        N, D, delay, undef = self._ratfun.as_N_D_delay_undef()
+        if undef != 1:
+            raise ValueError('Have undefined expression %s' % undef)
 
         return self.__class__(N / D, **self.assumptions), delay
+
+    def _as_N_D_delay_undef(self):
+
+        return self._ratfun.as_N_D_delay_undef()
 
     def continued_fraction_inverse_coeffs(self):
         """Convert expression into a continued fraction with inverse

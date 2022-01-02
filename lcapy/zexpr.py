@@ -1,6 +1,6 @@
 """This module provides the ZDomainExpression class to represent z-domain expressions.
 
-Copyright 2020--2021 Michael Hayes, UCECE
+Copyright 2020--2022 Michael Hayes, UCECE
 
 """
 
@@ -129,7 +129,9 @@ class ZDomainExpression(ZDomain, SequenceExpression):
             raise (ValueError, 't values not equally spaced')
 
         # Perform polynomial long division so expr = Q + M / D
-        N, D, delay = self._decompose()
+        N, D, delay, undef = self._as_N_D_delay_undef()
+        if undef != 1:
+            raise ValueError('Have undefined expression %s' % undef)
         Q, M = div(N, D)
         expr = M / D
 
@@ -183,11 +185,6 @@ class ZDomainExpression(ZDomain, SequenceExpression):
         For other forms, use `state_space()`."""
 
         return self.state_space()
-    def _decompose(self):
-
-        N, D, delay = Ratfun(self, z).as_ratfun_delay()
-
-        return N, D, delay
 
     def evaluate(self, svector=None):
 

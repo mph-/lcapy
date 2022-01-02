@@ -1,7 +1,7 @@
 """This module provides the LaplaceDomainExpression class to represent
 s-domain (Laplace domain) expressions.
 
-Copyright 2014--2021 Michael Hayes, UCECE
+Copyright 2014--2022 Michael Hayes, UCECE
 
 """
 
@@ -261,7 +261,9 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         This method assumes that the data is well over-sampled."""
 
         # Perform polynomial long division so expr1 = Q + M / D
-        N, D, delay = self._decompose()
+        N, D, delay, undef = self._as_N_D_delay_undef()
+        if undef != 1:
+            raise ValueError('Have undefined expression %s' % undef)
         Q, M = div(N, D, self.var)
         expr1 = M / D
 
@@ -407,12 +409,6 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         For other forms, use `state_space()`."""
 
         return self.state_space()
-
-    def _decompose(self):
-
-        N, D, delay = self._ratfun.as_ratfun_delay()
-
-        return N, D, delay
 
     def differential_equation(self, input='x', output='y'):
         """Create differential equation from transfer function.

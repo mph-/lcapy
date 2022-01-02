@@ -6,6 +6,7 @@ Copyright 2016--2022 Michael Hayes, UCECE
 
 from __future__ import division
 import sympy as sym
+from .cache import cached_property
 from .sym import sympify, AppliedUndef
 from .cache import lru_cache
 from .utils import pair_conjugates, factor_const
@@ -234,7 +235,7 @@ def _pr2tf(poles, residues, var=None):
     return sym.Add(*[r / (var - p) for r, p in zip(residues, poles)], evaluate=False)
 
 
-def as_ratfun_delay(expr, var):
+def as_N_D_delay(expr, var):
     delay = Zero
 
     if expr.is_rational_function(var):
@@ -265,7 +266,7 @@ def as_ratfun_delay(expr, var):
     return N, D, delay
 
 
-def as_ratfun_delay_undef(expr, var):
+def as_N_D_delay_undef(expr, var):
     delay = Zero
     undef = One
 
@@ -307,15 +308,15 @@ class Ratfun(object):
         self.expr = expr
         self.var = var
 
-    def as_ratfun_delay(self):
+    def as_N_D_delay(self):
         """Split expr as (N, D, delay)
         where expr = (N / D) * exp(var * delay)
 
         Note, delay only represents a delay when var is s."""
 
-        return as_ratfun_delay(self.expr, self.var)
+        return as_N_D_delay(self.expr, self.var)
 
-    def as_ratfun_delay_undef(self):
+    def as_N_D_delay_undef(self):
         """Split expr as (N, D, delay, undef)
         where expr = (N / D) * exp(var * delay) * undef
         and where N is a polynomial in var,
@@ -324,7 +325,7 @@ class Ratfun(object):
 
         Note, delay only represents a delay when var is s."""
 
-        return as_ratfun_delay_undef(self.expr, self.var)
+        return as_N_D_delay_undef(self.expr, self.var)
 
     def as_const_undef_rest(self):
         """Split expr as (const, undef, rest)
@@ -435,7 +436,7 @@ class Ratfun(object):
         m2 = method2(numer, denom, var, pole)
         return m2.cancel()
 
-    @property
+    @cached_property
     def numerator_denominator(self):
         """Return numerator and denominator of rational function"""
 
@@ -463,6 +464,14 @@ class Ratfun(object):
         numer, denom = self.numerator_denominator
         return denom
 
+    @cached_property
+    def Npoly(self):
+        return sym.Poly(self.N, self.var)
+
+    @cached_property
+    def Dpoly(self):
+        return sym.Poly(self.D, self.var)
+
     def canonical(self, factor_const=True):
         """Convert rational function to canonical form; this is like general
         form but with a unity highest power of denominator.  For
@@ -479,7 +488,7 @@ class Ratfun(object):
         """
 
         try:
-            N, D, delay, undef = self.as_ratfun_delay_undef()
+            N, D, delay, undef = self.as_N_D_delay_undef()
         except ValueError:
             # TODO: copy?
             return self.expr
@@ -527,7 +536,7 @@ class Ratfun(object):
 
         See also canonical, partfrac, standard, timeconst, and ZPK"""
 
-        N, D, delay, undef = self.as_ratfun_delay_undef()
+        N, D, delay, undef = self.as_N_D_delay_undef()
 
         expr = sym.cancel(N / D, self.var)
         if delay != 0:
@@ -539,7 +548,7 @@ class Ratfun(object):
         """Expand in terms for different powers with each term
         expressed in canonical form."""
 
-        N, D, delay, undef = self.as_ratfun_delay_undef()
+        N, D, delay, undef = self.as_N_D_delay_undef()
 
         Npoly = sym.Poly(N, self.var)
 
@@ -620,7 +629,7 @@ class Ratfun(object):
 
         See also canonical, general, partfrac, standard, and ZPK"""
 
-        N, D, delay, undef = self.as_ratfun_delay_undef()
+        N, D, delay, undef = self.as_N_D_delay_undef()
 
         var = self.var
         Npoly = sym.Poly(N, var)
@@ -676,7 +685,7 @@ class Ratfun(object):
 
     def coeffs(self):
 
-        N, D, delay, undef = self.as_ratfun_delay_undef()
+        N, D, delay, undef = self.as_N_D_delay_undef()
 
         var = self.var
         Npoly = sym.Poly(N, var)
@@ -723,7 +732,7 @@ class Ratfun(object):
         expression = K * (prod_n (var - z_n) / (prod_n (var - p_n)) * undef
         """
 
-        N, D, delay, undef = self.as_ratfun_delay_undef()
+        N, D, delay, undef = self.as_N_D_delay_undef()
 
         var = self.var
         Npoly = sym.Poly(N, var)
@@ -743,7 +752,7 @@ class Ratfun(object):
 
         `expression = (Q + M / D) * exp(-delay * var) * undef`"""
 
-        N, D, delay, undef = self.as_ratfun_delay_undef()
+        N, D, delay, undef = self.as_N_D_delay_undef()
 
         # Perform polynomial long division so expr = Q + M / D
         Q, M = sym.div(N, D, self.var)
@@ -881,16 +890,16 @@ class Ratfun(object):
 
         # Find residues by solving system of equations (equating coefficients
         # method).  For example,  consider an expression with repeated poles:
-        # E(s) = N(S) / ((s - p1)**2 * (s - p2))
+        # E(s) = N(S) / (2 * (s - p1)**2 * (s - p2))
         #
         # This can be expressed as partial fractions:
         # E(s) = R_1 / (s - p1)**2 + R_2 / (s - p1) + R_3 / (s - p2)
         # where R_n are the residues we would like to find.
         #
         # The factored denominator expression is
-        # D(s) = ((s - p1)**2 * (s - p2))
+        # Df(s) = ((s - p1)**2 * (s - p2)) = D(s) / C where C is a constant
         # and so the numerator expression is
-        # N(s) = E(s) * D(s)
+        # N(s) = E(s) * D(s) = E(s) * Df(s) * C
         #
         # Expanding the partial fractions to have a common denominator gives:
         # N(s) = R_1 * (s - p2) + R_2 * (s - p1) * (s - p2) + R * (s - p1)**2
