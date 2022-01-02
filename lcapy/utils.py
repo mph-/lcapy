@@ -18,9 +18,11 @@ def factor_const(expr, var):
 
     # Perhaps use expr.as_coeff_Mul() ?
 
-    if expr.is_polynomial:
+    if expr.is_polynomial():
         poly = sym.Poly(expr, var)
         const = poly.LC()
+        if const == 0 or const == 1:
+            return 1, expr
         return const, expr / const
 
     rest = sym.S.One
