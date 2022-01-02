@@ -1748,14 +1748,14 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         from .utils import factor_const
 
-        c, r = factor_const(self, self.var)
+        c, r = factor_const(self.sympy, self.var)
         return ConstantDomainExpression(c), self.__class__(r, **self.assumptions)
 
     def term_const(self):
 
         from .utils import term_const
 
-        c, r = term_const(self, self.var)
+        c, r = term_const(self.sympy, self.var)
         return ConstantDomainExpression(c), self.__class__(r, **self.assumptions)
 
     def multiply_top_and_bottom(self, factor):
