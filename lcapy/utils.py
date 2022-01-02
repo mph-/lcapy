@@ -1,6 +1,6 @@
 """This module provides common utility functions.
 
-Copyright 2021 Michael Hayes, UCECE
+Copyright 2021--2022 Michael Hayes, UCECE
 """
 
 import sympy as sym

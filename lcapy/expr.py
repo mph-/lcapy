@@ -3,7 +3,7 @@
 """This module provides the Expr class.  This attempts to create a
 consistent interface to SymPy's expressions.
 
-Copyright 2014--2021 Michael Hayes, UCECE
+Copyright 2014--2022 Michael Hayes, UCECE
 
 """
 
