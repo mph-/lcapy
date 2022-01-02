@@ -235,37 +235,6 @@ def _pr2tf(poles, residues, var=None):
     return sym.Add(*[r / (var - p) for r, p in zip(residues, poles)], evaluate=False)
 
 
-def as_N_D_delay(expr, var):
-    delay = Zero
-
-    if expr.is_rational_function(var):
-        N, D = expr.as_numer_denom()
-        return N, D, delay
-
-    F = sym.factor(expr).as_ordered_factors()
-
-    rf = One
-    for f in F:
-        b, e = f.as_base_exp()
-        if b == sym.E and e.is_polynomial(var):
-            p = sym.Poly(e, var)
-            c = p.all_coeffs()
-            if p.degree() == 1:
-                delay -= c[0]
-                if c[1] != 0:
-                    rf *= sym.exp(c[1])
-                continue
-
-        rf *= f
-
-    if not rf.is_rational_function(var):
-        raise ValueError('Expression not a product of rational function'
-                         ' and exponential')
-
-    N, D = rf.as_numer_denom()
-    return N, D, delay
-
-
 def as_N_D_delay_undef(expr, var):
     delay = Zero
     undef = One
@@ -307,14 +276,6 @@ class Ratfun(object):
         # Don't use cancel, it can cause a mess when have exp(s * T).
         self.expr = expr
         self.var = var
-
-    def as_N_D_delay(self):
-        """Split expr as (N, D, delay)
-        where expr = (N / D) * exp(var * delay)
-
-        Note, delay only represents a delay when var is s."""
-
-        return as_N_D_delay(self.expr, self.var)
 
     def as_N_D_delay_undef(self):
         """Split expr as (N, D, delay, undef)
