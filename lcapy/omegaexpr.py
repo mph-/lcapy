@@ -1,7 +1,7 @@
 """This module provides the AngularFourierDomainExpression class to
 represent omega-domain (angular frequency Fourier domain) expressions.
 
-Copyright 2014--2021 Michael Hayes, UCECE
+Copyright 2014--2022 Michael Hayes, UCECE
 
 """
 
@@ -33,12 +33,12 @@ class AngularFourierDomainExpression(AngularFourierDomain, Expr):
 
     def as_expr(self):
         return AngularFourierDomainExpression(self)
-    
+
     def inverse_fourier(self, **assumptions):
         """Attempt inverse Fourier transform."""
 
         expr = self.subs(2 * pi * fsym)
-        result = inverse_fourier_transform(expr, fsym, tsym)
+        result = inverse_fourier_transform(expr.sympy, fsym, tsym)
 
         return self.change(result, 'time', units_scale=uu.Hz, **assumptions)
 
@@ -51,12 +51,12 @@ class AngularFourierDomainExpression(AngularFourierDomain, Expr):
         """Convert to angular Fourier domain."""
 
         return self
-    
+
     def fourier(self, **assumptions):
         """Convert to Fourier domain."""
-        
+
         from .symbols import f
-        
+
         result = self.subs(2 * pi * f)
         return result
 
@@ -64,7 +64,7 @@ class AngularFourierDomainExpression(AngularFourierDomain, Expr):
         """Convert to normalized Fourier domain."""
         from .symbols import F
         from .sym import dt
-        
+
         result = self.subs(2 * pi * F / dt)
         return result
 
@@ -72,9 +72,9 @@ class AngularFourierDomainExpression(AngularFourierDomain, Expr):
         """Convert to normalized angular Fourier domain."""
         from .symbols import Omega
         from .sym import dt
-        
+
         result = self.subs(Omega / dt)
-        return result        
+        return result
 
     def laplace(self, **assumptions):
         """Convert to Laplace domain."""
@@ -127,7 +127,7 @@ class AngularFourierDomainExpression(AngularFourierDomain, Expr):
 
         For more info, see `plot`.
         """
-        
+
         from .plot import plot_angular_bode
         return plot_angular_bode(self, wvector, **kwargs)
 
@@ -139,7 +139,7 @@ class AngularFourierDomainExpression(AngularFourierDomain, Expr):
         `npoints` set the number of plotted points.
 
         The unit circle is shown by default.  This can be disabled with `unitcircle=False`.
-        """        
+        """
 
         from .plot import plot_nyquist
         return plot_nyquist(self, wvector, log_frequency=log_frequency, **kwargs)
@@ -151,12 +151,12 @@ class AngularFourierDomainExpression(AngularFourierDomain, Expr):
 
         `npoints` set the number of plotted points.
 
-        """        
+        """
 
         from .plot import plot_nichols
-        return plot_nichols(self, wvector, log_frequency=log_frequency, **kwargs)                    
-    
-        
+        return plot_nichols(self, wvector, log_frequency=log_frequency, **kwargs)
+
+
 def omegaexpr(arg, **assumptions):
     """Create AngularFourierDomainExpression object.  If `arg` is omegasym return omega"""
 
@@ -170,7 +170,7 @@ def omegaexpr(arg, **assumptions):
 from .expressionclasses import expressionclasses
 
 classes = expressionclasses.register('angular fourier', AngularFourierDomainExpression)
-        
+
 omega = AngularFourierDomainExpression('omega')
 omega.units = uu.rad / uu.s
 

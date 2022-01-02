@@ -94,12 +94,12 @@ class BilateralForwardTransformer(Transformer):
     is_bilateral = True
     is_inverse = False
 
-    def doit(self, expr, var, conjvar, evaluate=True, **kwargs):
+    def doit(self, expr, var, conjvar, evaluate=True, cache=True, **kwargs):
 
         const, expr = factor_const(expr, var)
 
         key = self.key(expr, var, conjvar, **kwargs)
-        if key in self.cache:
+        if cache and key in self.cache:
             return const * self.cache[key]
 
         expr = self.rewrite(expr, var)

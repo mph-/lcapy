@@ -2,7 +2,7 @@
 to represent F-domain (normalized  Fourier domain)
 expressions.
 
-Copyright 2021 Michael Hayes, UCECE
+Copyright 2021--2022 Michael Hayes, UCECE
 
 """
 
@@ -26,11 +26,11 @@ class NormFourierDomainExpression(NormFourierDomain, Expr):
 
     def __init__(self, val, **assumptions):
 
-        check = assumptions.pop('check', True)        
+        check = assumptions.pop('check', True)
         assumptions['real'] = True
         super(NormFourierDomainExpression, self).__init__(val, **assumptions)
 
-        expr = self.expr        
+        expr = self.expr
         if check and expr.has(ssym) and not expr.has(Integral):
 
             raise ValueError(
@@ -45,8 +45,8 @@ class NormFourierDomainExpression(NormFourierDomain, Expr):
     def inverse_fourier(self, evaluate=True, **assumptions):
         """Attempt inverse Fourier transform."""
 
-        expr = self.subs(2 * pi * fsym * dt)        
-        result = inverse_fourier_transform(expr, fsym, tsym, evaluate=evaluate)
+        expr = self.subs(2 * pi * fsym * dt)
+        result = inverse_fourier_transform(expr.sympy, fsym, tsym, evaluate=evaluate)
 
         return self.change(result, 'time', units_scale=uu.Hz, **assumptions)
 
@@ -71,21 +71,21 @@ class NormFourierDomainExpression(NormFourierDomain, Expr):
     def fourier(self, **assumptions):
         """Convert to Fourier domain."""
         from .symbols import f
-        
+
         result = self.subs(f * dt)
         return result
 
     def angular_fourier(self, **assumptions):
         """Convert to angular Fourier domain."""
         from .symbols import omega
-        
+
         result = self.subs(omega / dt)
         return result
 
     def norm_fourier(self, **assumptions):
         """Convert to normalized Fourier domain."""
         from .symbols import F
-        
+
         result = self.subs(F / dt)
         return result
 
@@ -93,17 +93,17 @@ class NormFourierDomainExpression(NormFourierDomain, Expr):
         """Convert to normalized angular Fourier domain."""
 
         return self
-    
+
     def laplace(self, **assumptions):
         """Determine one-side Laplace transform with 0- as the lower limit."""
 
         result = self.time(**assumptions).laplace()
         return result
-    
+
     def phasor(self, **assumptions):
         """Convert to phasor domain."""
 
-        return self.time(**assumptions).phasor(**assumptions)        
+        return self.time(**assumptions).phasor(**assumptions)
 
     def plot(self, Fvector=None, plot_type=None, **kwargs):
         """Plot frequency response at values specified by `Fvector`.
@@ -126,7 +126,7 @@ class NormFourierDomainExpression(NormFourierDomain, Expr):
         `norm` - use normalized frequency
         `dbmin` - the smallest value to plot in dB (default -120)
         in addition to those supported by the matplotlib plot command.
-        
+
         The plot axes are returned.  This is a tuple for magnitude/phase or
         real/imaginary plots.
 
@@ -156,7 +156,7 @@ class NormFourierDomainExpression(NormFourierDomain, Expr):
 
         For more info, see `plot`.
         """
-        
+
         from .plot import plot_bode
         return plot_bode(self, fvector, norm=True, **kwargs)
 
@@ -170,7 +170,7 @@ class NormFourierDomainExpression(NormFourierDomain, Expr):
 
         The unit circle is shown by default.  This can be disabled with `unitcircle=False`.
 
-        """        
+        """
 
         from .plot import plot_nyquist
 
@@ -185,17 +185,17 @@ class NormFourierDomainExpression(NormFourierDomain, Expr):
 
         `npoints` set the number of plotted points.
 
-        """        
+        """
 
         from .plot import plot_nichols
 
         if fvector is None:
             fvector = (-0.5, 0.5)
-        return plot_nichols(self, fvector, log_frequency=log_frequency, **kwargs)    
-    
-    
+        return plot_nichols(self, fvector, log_frequency=log_frequency, **kwargs)
+
+
 def Fexpr(arg, **assumptions):
-    """Create NormFourierDomainExpression object. 
+    """Create NormFourierDomainExpression object.
     If `arg` is Fsym return F"""
 
     if arg is Fsym:
@@ -209,4 +209,3 @@ classes = expressionclasses.register('norm fourier',
 
 F = NormFourierDomainExpression('F')
 F.units = uu.rad / uu.rad
-

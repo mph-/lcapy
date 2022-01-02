@@ -2,7 +2,7 @@
 to represent Omega-domain (normalized angular Fourier domain)
 expressions.
 
-Copyright 2021 Michael Hayes, UCECE
+Copyright 2021--2022 Michael Hayes, UCECE
 
 """
 
@@ -26,11 +26,11 @@ class NormAngularFourierDomainExpression(NormAngularFourierDomain, Expr):
 
     def __init__(self, val, **assumptions):
 
-        check = assumptions.pop('check', True)        
+        check = assumptions.pop('check', True)
         assumptions['real'] = True
         super(NormAngularFourierDomainExpression, self).__init__(val, **assumptions)
 
-        expr = self.expr        
+        expr = self.expr
         if check and expr.has(ssym) and not expr.has(Integral):
             raise ValueError(
                 'Omega-domain expression %s cannot depend on s' % expr)
@@ -44,8 +44,8 @@ class NormAngularFourierDomainExpression(NormAngularFourierDomain, Expr):
     def inverse_fourier(self, evaluate=True, **assumptions):
         """Attempt inverse Fourier transform."""
 
-        expr = self.subs(2 * pi * fsym * dt)        
-        result = inverse_fourier_transform(expr, fsym, tsym, evaluate=evaluate)
+        expr = self.subs(2 * pi * fsym * dt)
+        result = inverse_fourier_transform(expr.sympy, fsym, tsym, evaluate=evaluate)
 
         return self.change(result, 'time', units_scale=uu.Hz, **assumptions)
 
@@ -70,22 +70,22 @@ class NormAngularFourierDomainExpression(NormAngularFourierDomain, Expr):
     def fourier(self, **assumptions):
         """Convert to Fourier domain."""
         from .symbols import f
-        
+
         result = self.subs(f / dt)
         return result
-    
+
     def angular_fourier(self, **assumptions):
         """Convert to angular Fourier domain."""
         from .symbols import omega
-        
+
         result = self.subs(omega / dt)
         return result
-    
+
     def norm_fourier(self, **assumptions):
         """Convert to normalized Fourier domain."""
         from .symbols import F
         from .sym import dt
-        
+
         result = self.subs(2 * pi * F / dt)
         return result
 
@@ -99,11 +99,11 @@ class NormAngularFourierDomainExpression(NormAngularFourierDomain, Expr):
 
         result = self.time(**assumptions).laplace()
         return result
-    
+
     def phasor(self, **assumptions):
         """Convert to phasor domain."""
 
-        return self.time(**assumptions).phasor(**assumptions)        
+        return self.time(**assumptions).phasor(**assumptions)
 
     def plot(self, Wvector=None, plot_type=None, **kwargs):
         """Plot frequency response at values specified by `Wvector`.
@@ -126,7 +126,7 @@ class NormAngularFourierDomainExpression(NormAngularFourierDomain, Expr):
         `norm` - use normalized frequency
         `dbmin` - the smallest value to plot in dB (default -120)
         in addition to those supported by the matplotlib plot command.
-        
+
         The plot axes are returned.  This is a tuple for magnitude/phase or
         real/imaginary plots.
 
@@ -156,7 +156,7 @@ class NormAngularFourierDomainExpression(NormAngularFourierDomain, Expr):
 
         For more info, see `plot`.
         """
-        
+
         from .plot import plot_angular_bode
         return plot_angular_bode(self, Wvector, norm=True, **kwargs)
 
@@ -170,12 +170,12 @@ class NormAngularFourierDomainExpression(NormAngularFourierDomain, Expr):
 
         The unit circle is shown by default.  This can be disabled with `unitcircle=False`.
 
-        """        
+        """
 
         from .plot import plot_nyquist
 
         if Wvector is None:
-            Wvector = (-pi, pi)        
+            Wvector = (-pi, pi)
         return plot_nyquist(self, Wvector, log_frequency=log_frequency, **kwargs)
 
     def nichols_plot(self, Wvector=None, log_frequency=False, **kwargs):
@@ -185,17 +185,17 @@ class NormAngularFourierDomainExpression(NormAngularFourierDomain, Expr):
 
         `npoints` set the number of plotted points.
 
-        """        
+        """
 
         from .plot import plot_nichols
 
         if Wvector is None:
-            Wvector = (-pi, pi)        
-        return plot_nichols(self, Wvector, log_frequency=log_frequency, **kwargs)    
-    
-    
+            Wvector = (-pi, pi)
+        return plot_nichols(self, Wvector, log_frequency=log_frequency, **kwargs)
+
+
 def Omegaexpr(arg, **assumptions):
-    """Create NormAngularFourierDomainExpression object. 
+    """Create NormAngularFourierDomainExpression object.
     If `arg` is Omegasym return Omega"""
 
     if arg is Omegasym:

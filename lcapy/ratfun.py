@@ -1,14 +1,14 @@
 """
 This module provides support for rational functions.
 
-Copyright 2016--2020 Michael Hayes, UCECE
+Copyright 2016--2022 Michael Hayes, UCECE
 """
 
 from __future__ import division
 import sympy as sym
 from .sym import sympify, AppliedUndef
 from .cache import lru_cache
-from .utils import pair_conjugates
+from .utils import pair_conjugates, factor_const
 
 Zero = sym.S.Zero
 One = sym.S.One
@@ -741,7 +741,7 @@ class Ratfun(object):
     def as_QMD(self):
         """Decompose expression into Q, M, D, delay, undef where
 
-        expression = (Q + M / D) * exp(-delay * var) * undef"""
+        `expression = (Q + M / D) * exp(-delay * var) * undef`"""
 
         N, D, delay, undef = self.as_ratfun_delay_undef()
 
@@ -851,7 +851,7 @@ class Ratfun(object):
     def as_QRPO(self, damping=None):
         """Decompose expression into Q, R, P, O, delay, undef where
 
-        expression = (Q + sum_n R_n / (var - P_n)**O_n) * exp(-delay * var) * undef
+        `expression = (Q + sum_n R_n / (var - P_n)**O_n) * exp(-delay * var) * undef`
         """
 
         from .matrix import matrix_inverse
@@ -879,7 +879,24 @@ class Ratfun(object):
             r = (expr * d).cancel()
             return Q, [r], [p], [1], delay, undef
 
-        # Find residues by solving system of equations.
+        # Find residues by solving system of equations (equating coefficients
+        # method).  For example,  consider an expression with repeated poles:
+        # E(s) = N(S) / ((s - p1)**2 * (s - p2))
+        #
+        # This can be expressed as partial fractions:
+        # E(s) = R_1 / (s - p1)**2 + R_2 / (s - p1) + R_3 / (s - p2)
+        # where R_n are the residues we would like to find.
+        #
+        # The factored denominator expression is
+        # D(s) = ((s - p1)**2 * (s - p2))
+        # and so the numerator expression is
+        # N(s) = E(s) * D(s)
+        #
+        # Expanding the partial fractions to have a common denominator gives:
+        # N(s) = R_1 * (s - p2) + R_2 * (s - p1) * (s - p2) + R * (s - p1)**2
+        #
+        # Equating N(s) with E(s) * D(s) and equating powers of s gives
+        # system of equation to find the residues.
 
         syms = []
         D = []
@@ -904,8 +921,13 @@ class Ratfun(object):
             # Could be more cunning to avoid using cancel
             rhs += residue * (denom_factored / denom).cancel()
 
+        # Note, the following can differ from self.numerator by
+        # a scale factor.  TODO, find a better way to determine
+        # the scale factor.
+        lhs = (expr * denom_factored).cancel()
+
         rhspoly = sym.poly(rhs, var)
-        lhspoly = sym.poly((expr * denom_factored).cancel(), var)
+        lhspoly = sym.poly(lhs, var)
 
         rc = rhspoly.all_coeffs()
         lc = lhspoly.all_coeffs()
@@ -914,7 +936,7 @@ class Ratfun(object):
 
         A, _ = sym.linear_eq_to_matrix(rc, syms)
 
-        # Solve system of equations to find residues A_n.
+        # Solve system of equations to find residues.
         R = list(matrix_inverse(A) * sym.Matrix(lc))
 
         # Remove elements where the residue is zero.
