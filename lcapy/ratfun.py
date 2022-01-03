@@ -770,28 +770,40 @@ class Ratfun(object):
 
         C = sexpr.Apoly().LC()
 
-        syms = []
+        U = []
         F = []
         O = []
         P = []
         i = 1
         A_factored = One
         for pole in poles:
+            p = pole.expr
+            f = var - p
+
             for m in range(pole.n):
                 r = sym.Symbol('r_%d' % i)
-                p = pole.expr
-                f = (var - p) ** (m + 1)
-                syms.append(r)
+                o = m + 1
+                U.append(r)
                 F.append(f)
                 P.append(p)
-                O.append(m + 1)
+                O.append(o)
                 i += 1
-            A_factored *= (var - pole.expr) ** pole.n
+                A_factored *= f
+
+        # This is slow due to use of cancel
+        # rhs = Zero
+        # for f, o, u in zip(F, O, U):
+             # rhs += u * (A_factored / f**o).cancel()
 
         rhs = Zero
-        for denom, residue in zip(F, syms):
-            # Could be more cunning to avoid using cancel
-            rhs += residue * (A_factored / denom).cancel()
+        for i in range(len(U)):
+            x = U[i]
+            for j in range(len(U)):
+                if i == j:
+                    continue
+                if F[i] is not F[j] or O[j] > O[i]:
+                    x *= F[j]
+            rhs += x
 
         lhs = sexpr.B / C
 
@@ -803,7 +815,7 @@ class Ratfun(object):
         if len(lc) < len(rc):
             lc = [0] * (len(rc) - len(lc)) + lc
 
-        A, _ = sym.linear_eq_to_matrix(rc, syms)
+        A, _ = sym.linear_eq_to_matrix(rc, U)
 
         # Solve system of equations to find residues.
         R = list(matrix_inverse(A) * sym.Matrix(lc))
