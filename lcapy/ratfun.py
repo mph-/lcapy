@@ -455,7 +455,7 @@ class Ratfun(object):
 
         return expr * undef
 
-    def partfrac(self, combine_conjugates=False, damping=None):
+    def partfrac(self, combine_conjugates=False, damping=None, method=None):
         """Convert rational function into partial fraction form.
 
         If combine_conjugates is True then the pair of partial
@@ -465,7 +465,7 @@ class Ratfun(object):
 
         """
 
-        Q, R, F, delay, undef = self.as_QRF(combine_conjugates, damping)
+        Q, R, F, delay, undef = self.as_QRF(combine_conjugates, damping, method)
 
         result = Q
         for R, F in zip(R, F):
@@ -718,36 +718,9 @@ class Ratfun(object):
                 Onew.append(o)
         return Rnew, Pnew, Onew
 
-    def as_QRPO(self, damping=None):
-        """Decompose expression into Q, R, P, O, delay, undef where
-
-        `expression = (Q + sum_n r_n / (var - p_n)**o_n) * exp(-delay * var) * undef`
-        """
+    def _find_residues_eq(self, poles, B):
 
         from .matrix import matrix_inverse
-
-        Q, M, A, delay, undef = self.as_QMA()
-
-        expr = M / A
-        var = self.var
-
-        sexpr = Ratfun(expr, var)
-        poles = sexpr.poles(damping=damping)
-
-        if damping == 'critical':
-            # Critical damping puts constraints on variables.  If
-            # these variables do not occur in numerator of expr
-            # perhaps the following code will work.
-            raise ValueError('Critical damping not supported')
-
-        if len(poles) == 0:
-            return Q, [], [], [], delay, undef
-
-        elif len(poles) == 1 and poles[0].n == 1:
-            p = poles[0].expr
-            d = var - p
-            r = (expr * d).cancel()
-            return Q, [r], [p], [1], delay, undef
 
         # Find residues by solving system of equations (equating coefficients
         # method).  For example,  consider an expression with repeated poles:
@@ -768,7 +741,7 @@ class Ratfun(object):
         # Equating B(s) with E(s) * A(s) and equating powers of s gives
         # system of equation to find the residues.
 
-        C = sexpr.Apoly().LC()
+        var = self.var
 
         U = []
         F = []
@@ -805,7 +778,7 @@ class Ratfun(object):
                     x *= F[j]
             rhs += x
 
-        lhs = sexpr.B / C
+        lhs = B
 
         rhspoly = sym.poly(rhs, var)
         lhspoly = sym.poly(lhs, var)
@@ -819,6 +792,89 @@ class Ratfun(object):
 
         # Solve system of equations to find residues.
         R = list(matrix_inverse(A) * sym.Matrix(lc))
+
+        return R, P, O
+
+    def _find_residues_sub(self, poles, B):
+
+        var = self.var
+
+        F = []
+        O = []
+        R = []
+        P = []
+        M = []
+
+        for pole in poles:
+            p = pole.expr
+            f = var - p
+
+            for m in range(pole.n):
+                o = pole.n - m
+                F.append(f)
+                P.append(p)
+                O.append(o)
+                M.append(pole.n)
+
+        for i in range(len(P)):
+
+            if M[i] == O[i]:
+                denom = One
+                for j in range(len(P)):
+
+                    if i == j:
+                        continue
+                    if F[i] is not F[j] or O[j] > O[i]:
+                        denom *= F[j]
+                expr = B / denom
+
+                r = (expr * B).subs(var, P[i])
+                R.append(r)
+            else:
+                expr = expr.diff(var)
+                r = (expr * B).subs(var, P[i]) / sym.factorial(M[i] - O[i])
+                R.append(r)
+
+        return R, P, O
+
+    def as_QRPO(self, damping=None, method='sub'):
+        """Decompose expression into Q, R, P, O, delay, undef where
+
+        `expression = (Q + sum_n r_n / (var - p_n)**o_n) * exp(-delay * var) * undef`
+        """
+
+        Q, M, A, delay, undef = self.as_QMA()
+
+        expr = M / A
+        var = self.var
+
+        sexpr = Ratfun(expr, var)
+        poles = sexpr.poles(damping=damping)
+
+        if damping == 'critical':
+            # Critical damping puts constraints on variables.  If
+            # these variables do not occur in numerator of expr
+            # perhaps the following code will work.
+            raise ValueError('Critical damping not supported')
+
+        if len(poles) == 0:
+            return Q, [], [], [], delay, undef
+
+        elif len(poles) == 1 and poles[0].n == 1:
+            p = poles[0].expr
+            d = var - p
+            r = (expr * d).cancel()
+            return Q, [r], [p], [1], delay, undef
+
+        B = sexpr.B
+        C = sexpr.Apoly().LC()
+
+        if method in ('eq', None):
+            R, P, O = self._find_residues_eq(poles, B / C)
+        elif method == 'sub':
+            R, P, O = self._find_residues_sub(poles, B / C)
+        else:
+            raise ValueError('Unknown method ' + method)
 
         # Remove elements where the residue is zero.
         R, P, O = self._prune_zero_residues(R, P, O)
@@ -859,12 +915,12 @@ class Ratfun(object):
         return Rnew, Fnew
 
 
-    def as_QRF(self, combine_conjugates=False, damping=None):
+    def as_QRF(self, combine_conjugates=False, damping=None, method=None):
         """Decompose expression into Q, R, F, delay, undef where
 
         expression = (Q + sum_n r_n / f_n) * exp(-delay * var) * undef"""
 
-        Q, R, P, O, delay, undef = self.as_QRPO(damping)
+        Q, R, P, O, delay, undef = self.as_QRPO(damping, method)
 
         F = [(self.var - p)**o for p, o in zip(P, O)]
 

@@ -216,7 +216,7 @@ class InverseZTransformer(UnilateralInverseTransformer):
                 if p == 0:
                     cresult += r * UnitImpulse(n - i + 1)
                 else:
-                    sum_p += r * bino * p**(1- i) / sym.factorial(i - 1)
+                    sum_p += r * bino * p**(1 - i) / sym.factorial(i - 1)
                     bino *= n - i + 1
 
             uresult += sym.simplify(sum_p * p**n)

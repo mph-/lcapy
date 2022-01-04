@@ -2783,7 +2783,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             return self.copy()
         return self.__class__(self._ratfun.general(), **self.assumptions)
 
-    def partfrac(self, combine_conjugates=False, pairs=False, damping=None):
+    def partfrac(self, combine_conjugates=False, pairs=False, damping=None,
+                 method=None):
         """Convert rational function into partial fraction form.   For example,
 
         5 + (5 - 15 * j / 4) / (s + 2 * j) + (5 + 15 * j / 4) / (s - 2 * j)
@@ -2794,19 +2795,21 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         See also canonical, standard, general, timeconst, and ZPK."""
 
+        pairs = pairs or combine_conjugates
+
         if self.is_Equality:
-            return equation(self.lhs.partfrac(), self.rhs.partfrac())
+            return equation(self.lhs.partfrac(pairs, damping, method),
+                            self.rhs.partfrac(pairs, damping, method))
 
         try:
             if self._ratfun is None:
                 return self.copy()
-            return self.__class__(self._ratfun.partfrac(combine_conjugates or pairs,
-                                                        damping),
+            return self.__class__(self._ratfun.partfrac(pairs, damping, method),
                                   **self.assumptions)
         except ValueError:
-            return self.as_sum().partfrac(combine_conjugates, damping)
+            return self.as_sum().partfrac(pairs, damping, method)
 
-    def recippartfrac(self, combine_conjugates=False, damping=None):
+    def recippartfrac(self, combine_conjugates=False, damping=None, method=None):
         """Convert rational function into partial fraction form
         using reciprocal of variable.
 
@@ -2820,7 +2823,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         See also canonical, standard, general, partfrac, timeconst, and ZPK."""
 
         if self.is_Equality:
-            return equation(self.lhs.recippartfrac(), self.rhs.recippartfrac())
+            return equation(self.lhs.recippartfrac(pairs, damping, method),
+                            self.rhs.recippartfrac(pairs, damping, method))
 
         if self._ratfun is None:
             return self.copy()
@@ -2830,7 +2834,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         expr = self.subs(1 / tmpsym)
         ratfun = Ratfun(expr.expr, tmpsym)
 
-        nexpr = ratfun.partfrac(combine_conjugates, damping)
+        nexpr = ratfun.partfrac(combine_conjugates, damping, method)
         nexpr = nexpr.subs(tmpsym, 1 / self.var)
 
         return self.__class__(nexpr, **self.assumptions)
