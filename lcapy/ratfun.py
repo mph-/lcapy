@@ -866,12 +866,12 @@ class Ratfun(object):
             return Q, [r], [p], [1], delay, undef
 
         B = sexpr.B
-        C = sexpr.Apoly().LC()
+        B /= sexpr.Apoly().LC()
 
-        if method in ('eq', None):
-            R, P, O = self._find_residues_eq(poles, B / C)
-        elif method == 'sub':
-            R, P, O = self._find_residues_sub(poles, B / C)
+        if method in ('sub', None):
+            R, P, O = self._find_residues_sub(poles, B)
+        elif method == 'eq':
+            R, P, O = self._find_residues_eq(poles, B)
         else:
             raise ValueError('Unknown method ' + method)
 
