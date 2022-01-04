@@ -781,9 +781,9 @@ class Ratfun(object):
             f = var - p
 
             for m in range(pole.n):
-                r = sym.Symbol('r_%d' % i)
-                o = m + 1
-                U.append(r)
+                u = sym.Symbol('r_%d' % i)
+                o = pole.n - m
+                U.append(u)
                 F.append(f)
                 P.append(p)
                 O.append(o)
