@@ -1,3 +1,5 @@
+.. _tutorials:
+
 =========
 Tutorials
 =========
@@ -15,14 +17,14 @@ Consider a time signal of the form :math:`A \exp\left(-\alpha t\right) \cos\left
   >>> x = expr('A * exp(-alpha * t) * cos(omega_0 * t + theta)')
 
 This creates three four symbols in addition to the pre-defined time-domain variable `t`:
-  
+
   >>> list(x.symbols)
   ['theta', 't', 'omega_0', 'alpha', 'A']
 
 The expression assigned to `x` can be printed as::
 
    >>> x
-      -α⋅t              
+      -α⋅t
    A⋅ℯ    ⋅cos(ω₀⋅t + θ)
 
 For inclusion in a LaTeX document, the expression can be printed with the `latex()` method::
@@ -36,32 +38,32 @@ The Laplace transform of the expression is obtained using the notation::
    >>> X
    A⋅(-ω₀⋅sin(θ) + (α + s)⋅cos(θ))
    ───────────────────────────────
-              2          2        
-            ω₀  + (α + s)         
+              2          2
+            ω₀  + (α + s)
 
 This can be converted into many different forms.  For example, the partial fraction expansion is found with the `partfrac()` method::
 
    >>> X.partfrac()
       ⅉ⋅A⋅sin(θ)   A⋅cos(θ)   ⅉ⋅A⋅sin(θ)   A⋅cos(θ)
    - ────────── + ────────   ────────── + ────────
-          2           2           2           2    
+          2           2           2           2
    ─────────────────────── + ─────────────────────
           s + α + ⅉ⋅ω₀             s + α - ⅉ⋅ω₀
- 
-  
+
+
 In principle, this can be simplified by the `simplify()` method.  However, this is too agressive and collapses the partial fraction expansion!  For example::
 
    >>> X.partfrac().simplify()
      A⋅(α⋅cos(θ) - ω₀⋅sin(θ) + s⋅cos(θ))
      ───────────────────────────────────
-             2     2    2               
-       s  + ω₀  + α  + 2⋅s⋅α  
+             2     2    2
+       s  + ω₀  + α  + 2⋅s⋅α
 
 Instead, the `simplify_terms()` method simplifies each term separately::
 
    >>> X.partfrac().simplify_terms()
-          -ⅉ⋅θ                ⅉ⋅θ     
-       A⋅ℯ                 A⋅ℯ        
+          -ⅉ⋅θ                ⅉ⋅θ
+       A⋅ℯ                 A⋅ℯ
    ──────────────── + ────────────────
    2⋅(s + α + ⅉ⋅ω₀)   2⋅(s + α - ⅉ⋅ω₀)
 
@@ -77,12 +79,12 @@ Alternatively, the expression can be parameterized into ZPK form::
 
    >>> X1, defs = X.parameterize_ZPK()
    >>> X1
-            s - z₁      
+            s - z₁
    K⋅─────────────────
      (s - p₁)⋅(s - p₂)
    >>> defs
    {K: A⋅cos(θ), p1: -α - ⅉ⋅ω₀, p2: -α + ⅉ⋅ω₀, z1: -α + ω₀⋅tan(θ)}
-   
+
 
 Basic circuit theory
 ====================
@@ -98,9 +100,9 @@ When learning circuit theory, the key initial concepts are:
 
 DC voltage divider
 ------------------
-   
+
 Consider the DC voltage divider circuit defined by::
-  
+
     >>> from lcapy import Circuit
     >>> a = Circuit("""
     ... V 1 0 6; down=1.5
@@ -108,9 +110,9 @@ Consider the DC voltage divider circuit defined by::
     ... R2 2 0_2 4; down
     ... W 0 0_2; right""")
     >>> a.draw()
-                    
+
 .. image:: examples/tutorials/basic/VRR1.png
-   :width: 6cm   
+   :width: 6cm
 
 The voltage at node 1 (with respect to the ground node 0) is defined by the voltage source::
 
@@ -129,7 +131,7 @@ and thus using Ohm's law the current through R1 and R2 is::
    1
 
 Thus again using Ohm's law, the voltage across R2 is::
-  
+
    >>> I * a1.R2.R
    4
 
@@ -140,9 +142,9 @@ the voltage at node 2 (with respect to the ground node 0) is::
    4
 
 This is equivalent to the voltage across R2::
-           
+
    >>> a.R2.V
-   4   
+   4
 
 The current through R1 is::
 
@@ -155,8 +157,8 @@ From Kirchhoff's current law, this is equivalent to the current though R2 and V:
    1
 
    >>> a.V.I
-   1     
-   
+   1
+
 The general result can be obtained by evaluating this circuit symbolically::
 
     >>> from lcapy import Circuit
@@ -166,19 +168,19 @@ The general result can be obtained by evaluating this circuit symbolically::
     ... R2 2 0_2
     ... W 0 0_2""")
     >>> a.R2.V
-     R₂⋅V   
+     R₂⋅V
     ───────
-    R₁ + R₂  
+    R₁ + R₂
 
 Note, the keyword dc is required here for the voltage source otherwise an arbitrary voltage
 source is assumed.
-     
+
 
 AC (phasor) analysis of RC circuit
 ----------------------------------
-   
+
 Consider the circuit defined by::
-  
+
     >>> from lcapy import Circuit
     >>> a = Circuit("""
     ... V 1 0 ac 6; down=1.5
@@ -186,9 +188,9 @@ Consider the circuit defined by::
     ... C 2 0_2 4; down
     ... W 0 0_2; right""")
     >>> a.draw()
-                    
+
 .. image:: examples/tutorials/basic/VRC1.png
-   :width: 6cm   
+   :width: 6cm
 
 Here the ac keyword specifies that the voltage source is a phasor of angular frequency :math:`\omega_0`.
 
@@ -199,7 +201,7 @@ The voltage across the voltage source is given using::
 
 This indicates a phasor of angular frequency :math:`\omega_0` with an amplitude 6 V.  The time domain representation is::
 
-    >>> a.V.V(t)  
+    >>> a.V.V(t)
     6⋅cos(ω₀⋅t)
 
 The voltage across the capacitor is::
@@ -212,7 +214,7 @@ The voltage across the capacitor is::
    ⎪          ⅉ⎪
    ⎪     ω₀ - ─⎪
    ⎩          8⎭
- 
+
 
 This can be simplified::
 
@@ -226,23 +228,23 @@ The magnitude of the phasor voltage is::
 
     >>> a.C.V.magnitude
        ___________________
-      ╱          2        
-    ╲╱  589824⋅ω₀  + 9216 
+      ╱          2
+    ╲╱  589824⋅ω₀  + 9216
     ──────────────────────
-               2          
-        1024⋅ω₀  + 16     
+               2
+        1024⋅ω₀  + 16
 
 and the phase is::
 
     >>> a.C.V.phase
     -atan(8⋅ω₀)
-  
+
 Finally, the time-domain voltage across the capacitor is::
 
     >>> a.C.V(t)
     48⋅ω₀⋅sin(ω₀⋅t)   6⋅cos(ω₀⋅t)
     ─────────────── + ───────────
-           2               2    
+           2               2
        64⋅ω₀  + 1      64⋅ω₀  + 1
 
 
@@ -262,7 +264,7 @@ The following netlist describes a first-order RC low-pass filter (the
     ... W 0_2 0_3; right
     ... P2 3 0_3; down, v^=v_o(t)"""
     >>> a.draw()
-                    
+
 .. image:: examples/tutorials/basic/VRC2.png
    :width: 6cm
 
@@ -277,7 +279,7 @@ or components:
 In both cases, the transfer function is::
 
    >>> H
-      s     
+      s
    ───────
    (s + 2)
 
@@ -291,24 +293,24 @@ However, let's use Laplace transforms to find the result.  For this signal, its 
 
    >>> V_i = v_i(s)
    >>> V_i
-      3   
+      3
     ──────
-     2    
+     2
     s  + 9
 
 The Laplace transform of the output voltage is found by multiplying this with the transfer function::
 
    >>> V_o = V_i * H
    >>> V_o
-             6          
+             6
    ────────────────────
-    3      2           
+    3      2
    s  + 2⋅s  + 9⋅s + 18
 
 This has three poles: two from the input signal and one from the transfer function of the filter.  This can be seen from the zero-pole-gain form of the response:
 
    >>> V_o.ZPK()
-                   6             
+                   6
    ───────────────────────────
    (s + 2)⋅(s - 3⋅ⅉ)⋅(s + 3⋅ⅉ)
 
@@ -317,18 +319,18 @@ Using an inverse Laplace transform, the output voltage signal in the time-domain
 
    >>> v_o = V_o(t)
    >>> v_o
-     ⎛                                               -2⋅t⎞     
-     ⎜2⋅sin(3⋅t)   cos(3⋅t)   (-2 - 3⋅ⅉ)⋅(-2 + 3⋅ⅉ)⋅ℯ    ⎟     
+     ⎛                                               -2⋅t⎞
+     ⎜2⋅sin(3⋅t)   cos(3⋅t)   (-2 - 3⋅ⅉ)⋅(-2 + 3⋅ⅉ)⋅ℯ    ⎟
    6⋅⎜────────── - ──────── + ─────────────────────────── ⎟⋅u(t)
-     ⎝    39          13                  169            ⎠     
+     ⎝    39          13                  169            ⎠
 
 This can be simplified, however, SymPy has trouble with this as a whole.  Instead it is better to simplify the expression term by term::
 
   >>> v_o.simplify_terms()
-                                          -2⋅t     
+                                          -2⋅t
    4⋅sin(3⋅t)⋅u(t)   6⋅cos(3⋅t)⋅u(t)   6⋅ℯ    ⋅u(t)
    ─────────────── - ─────────────── + ────────────
-          13                13              13     
+          13                13              13
 
 The first two terms represent the steady-state reponse and the third
 term represents the transient response due to the sinewave switching
@@ -339,11 +341,11 @@ method::
 
    >>> v_o.simplify_sin_cos(as_sin=True)
 
-            ⎛      π            ⎞                    
-   2⋅√13⋅sin⎜3⋅t - ─ + atan(2/3)⎟⋅u(t)      -2⋅t     
+            ⎛      π            ⎞
+   2⋅√13⋅sin⎜3⋅t - ─ + atan(2/3)⎟⋅u(t)      -2⋅t
             ⎝      2            ⎠        6⋅ℯ    ⋅u(t)
    ─────────────────────────────────── + ────────────
-                    13                        13     
+                    13                        13
 
 Here the phase delay is `-pi/2 + atan(2/3)` or about -56 degrees::
 
@@ -368,7 +370,7 @@ The phase response of the filter can be plotted as follows::
 .. image:: examples/tutorials/basic/VRC2Hphaseplot.png
    :width: 12cm
 
-Notice that the phase shift is -56 degrees at an angular frequency of 3 rad/s.   
+Notice that the phase shift is -56 degrees at an angular frequency of 3 rad/s.
 
 The amplitude response of the filter can be plotted as follows::
 
@@ -383,7 +385,7 @@ scale and the amplitude response is plotted in dB::
   >>> H(jw).dB.plot((0, 10), log_frequency=True)
 
 .. image:: examples/tutorials/basic/VRC2HdBplot.png
-   :width: 12cm                        
+   :width: 12cm
 
 
 Superposition of AC and DC
@@ -398,9 +400,9 @@ Here's an example circuit comprised of two AC sources and a DC source:
     ... R 3 0_3; down
     ... W 0 0_3; right""")
     >>> a.draw()
-                    
+
 .. image:: examples/tutorials/basic/Vsup3.png
-   :width: 9cm   
+   :width: 9cm
 
 The voltage across the resistor is the sum of the three voltage
 sources.  This is shown as a superposition::
@@ -416,7 +418,7 @@ There are a number of ways in which the signal components can be extracted.
 For example, the phase of the 3 rad/s phasor can be found using::
 
     >>> a.R.V[3].phase
-    -π 
+    -π
     ───
      2
 
@@ -428,19 +430,19 @@ Similarly, the magnitude of of the 4 rad/s phasor can be found using::
 The DC component can be extracted using::
 
     >>> a.R.V.dc
-    4    
-  
+    4
+
 Alternatively, since DC is a phasor of angular frequency 0 rad/s::
 
    >>> a.R.V[0]
-   4  
-  
+   4
+
 The overall time varying voltage can be found using::
 
    >>> a.R.V(t)
    2⋅sin(3⋅t) - 3⋅cos(4⋅t) + 4
-    
-       
+
+
 Initial value problem
 =====================
 
@@ -450,19 +452,19 @@ Consider the series R-L-C circuit described by the netlist:
 
 Note, to specify the initial conditions, the capacitance and
 inductance values must be explicitly defined.
-                    
+
 This can be loaded by Lcapy and drawn using:
 
     >>> from lcapy import Circuit, s, t
     >>> a = Circuit("circuit-RLC-ivp1.sch")
     >>> a.draw()
- 
+
 
 This circuit has a specified initial voltage for the capacitor and a
 specified initial current for the inductor.  Thus, it is solved as an
 initial value problem.  This will give the transient response for
 :math:`t \ge 0`.  Note, the initial values usually arise for switching
-problems where the circuit topology changes. 
+problems where the circuit topology changes.
 
 The s-domain voltage across the resistor can be found using::
 
@@ -471,14 +473,14 @@ The s-domain voltage across the resistor can be found using::
    ⎜───────────────⎟
    ⎝       L       ⎠
    ─────────────────
-      2   R⋅s    1  
-     s  + ─── + ─── 
-           L    C⋅L 
+      2   R⋅s    1
+     s  + ─── + ───
+           L    C⋅L
 
 This can be split into terms, one for each initial value, using::
 
-   >>> a.R.V(s).expandcanonical() 
-        R⋅i₀⋅s              R⋅v₀       
+   >>> a.R.V(s).expandcanonical()
+        R⋅i₀⋅s              R⋅v₀
    ────────────── - ──────────────────
     2   R⋅s    1      ⎛ 2   R⋅s    1 ⎞
    s  + ─── + ───   L⋅⎜s  + ─── + ───⎟
@@ -506,7 +508,7 @@ resistor::
 
    >>> VR, defs = a.R.V(s).parameterize()
    >>> VR
-         K⋅(L⋅i₀⋅s - v₀)      
+         K⋅(L⋅i₀⋅s - v₀)
    ──────────────────────────
         ⎛  2               2⎞
    L⋅i₀⋅⎝ω₀  + 2⋅ω₀⋅s⋅ζ + s ⎠
@@ -521,7 +523,7 @@ better to use an alternative parameterization::
 
    >>> VR, defs = a.R.V(s).parameterize(zeta=False)
    >>> VR
-          K⋅(L⋅i₀⋅s - v₀)        
+          K⋅(L⋅i₀⋅s - v₀)
    ──────────────────────────────
         ⎛  2    2              2⎞
    L⋅i₀⋅⎝ω₁  + s  + 2⋅s⋅σ₁ + σ₁ ⎠
@@ -537,19 +539,19 @@ better to use an alternative parameterization::
 The time-domain response can now be found::
 
    >>> VR(t)
-     ⎛     ⎛                       -σ₁⋅t          ⎞       -σ₁⋅t          ⎞           
-     ⎜     ⎜ -σ₁⋅t             σ₁⋅ℯ     ⋅sin(ω₁⋅t)⎟   v₀⋅ℯ     ⋅sin(ω₁⋅t)⎟           
-   K⋅⎜L⋅i₀⋅⎜ℯ     ⋅cos(ω₁⋅t) - ───────────────────⎟ - ───────────────────⎟           
-     ⎝     ⎝                            ω₁        ⎠            ω₁        ⎠           
+     ⎛     ⎛                       -σ₁⋅t          ⎞       -σ₁⋅t          ⎞
+     ⎜     ⎜ -σ₁⋅t             σ₁⋅ℯ     ⋅sin(ω₁⋅t)⎟   v₀⋅ℯ     ⋅sin(ω₁⋅t)⎟
+   K⋅⎜L⋅i₀⋅⎜ℯ     ⋅cos(ω₁⋅t) - ───────────────────⎟ - ───────────────────⎟
+     ⎝     ⎝                            ω₁        ⎠            ω₁        ⎠
    ───────────────────────────────────────────────────────────────────────  for t ≥ 0
-                                     L⋅i₀                                            
+                                     L⋅i₀
 
 Finally, the result in terms of R, L, and C can be found by substituting the parameter definitions::
 
    >>> VR(t).subs(defs)
-   
-However, the result is too long to show.   
-   
+
+However, the result is too long to show.
+
 
 Opamps
 ======
@@ -559,7 +561,7 @@ An ideal opamp is represented by a voltage controlled voltage source,  The netli
    >>> E out+ gnd opamp in+ in-  Ad  Ac
 
 Here `Ad` is the open-loop differential gain and `Ac` is the open-loop common-mode gain (zero default).
-   
+
 
 Non-inverting amplifier
 -----------------------
@@ -586,7 +588,7 @@ Non-inverting amplifier
 .. image:: examples/tutorials/opamps/opamp-noninverting-amplifier1.png
    :width: 12cm
 
-The output voltage (at node 1) is found using::           
+The output voltage (at node 1) is found using::
 
    >>> Vo = a[1].V(t)
    >>> Vo.pprint()
@@ -594,19 +596,19 @@ The output voltage (at node 1) is found using::
    ────────────────────
       A_d⋅R₁ + R₁ + R₂
 
-When the open-loop differential gain is infinite, the gain just depends on the resistor values::      
-           
+When the open-loop differential gain is infinite, the gain just depends on the resistor values::
+
    >>> Vo.limit('Ad', oo).pprint()
    Vₛ⋅(R₁ + R₂)
    ────────────
-        R₁     
+        R₁
 
 Let's now add some common-mode gain to the opamp by overriding the `E` component::
 
    >>> b = a.copy()
    >>> b.add('E 1 0 opamp 3 2 Ad Ac; right')
-           
-The output voltage (at node 1) is now::           
+
+The output voltage (at node 1) is now::
 
    >>> Vo = b[1].V(t)
    >>> Vo.pprint()
@@ -615,7 +617,7 @@ The output voltage (at node 1) is now::
         -A_c⋅R₁ + 2⋅A_d⋅R₁ + 2⋅R₁ + 2⋅R₂
 
 Setting the open-loop common-mode gain to zero gives the same result as before::
-        
+
    >>> Vo.limit('Ac', 0).pprint()
    A_d⋅R₁⋅Vₛ + A_d⋅R₂⋅Vₛ
    ─────────────────────
@@ -624,11 +626,11 @@ Setting the open-loop common-mode gain to zero gives the same result as before::
 When the open-loop differential gain is infinite, the common-mode gain
 of the opamp is insignificant and the gain of the amplifier just
 depends on the resistor values::
-           
+
    >>> Vo.limit('Ad', oo).pprint()
    Vₛ⋅(R₁ + R₂)
    ────────────
-        R₁     
+        R₁
 
 Let's now consider the input impedance of the amplifier::
 
@@ -639,7 +641,7 @@ This is not the desired answer since node 3 is shorted to node 0 by the voltage 
 
    >>> c = a.copy()
    >>> c.remove('Vs')
-   >>> c.impedance(3, 0).pprint()  
+   >>> c.impedance(3, 0).pprint()
    ValueError: The MNA A matrix is not invertible for time analysis because:
    1. there may be capacitors in series;
    2. a voltage source might be short-circuited;
@@ -654,7 +656,7 @@ In this case it is reason 3.  This is because Lcapy connects a 1 A current sourc
 
 Now, not surprisingly,
 
-   >>> c.impedance(3, 0).pprint()  
+   >>> c.impedance(3, 0).pprint()
    Rᵢₙ
 
 
@@ -662,7 +664,7 @@ Inverting amplifier
 -------------------
 
    >>> from lcapy import Circuit, t, oo
-   >>> a = Circuit("""   
+   >>> a = Circuit("""
    ... E 1 0 opamp 3 2 Ad; right, flipud
    ... R1 4 2; right
    ... R2 2_2 1_1; right
@@ -686,17 +688,17 @@ The output voltage (at node 1) is found using::
 
   >>> Vo = a[1].V(t)
   >>> Vo.pprint()
-    -A_d⋅R₂⋅vₛ(t)  
+    -A_d⋅R₂⋅vₛ(t)
    ────────────────
    A_d⋅R₁ + R₁ + R₂
 
 In the limit when the open-loop differential gain is infinite, the gain of
 the amplifier just depends on the resistor values::
-           
+
    >>> Vo.limit('Ad', oo).pprint()
-   -R₂⋅vₛ(t) 
+   -R₂⋅vₛ(t)
    ──────────
-       R₁    
+       R₁
 
 Note, the output voltage is inverted compared to the source voltage.
 
@@ -706,7 +708,7 @@ The input impedance can be found by removing `Vs` (since it has zero resistance)
    >>> a.impedance(4, 0)
    A_d⋅R₁ + R₁ + R₂
    ────────────────
-       A_d + 1     
+       A_d + 1
 
 In the limit with infinite open-loop differential gain::
 
@@ -717,13 +719,13 @@ However, in practice, the open-loop gain decreases with frequency and so at high
 
    >>> a.impedance(4,0).limit('Ad', 0)
    R₁ + R₂
-   
+
 
 Transimpedance amplifier
 ------------------------
 
    >>> from lcapy import Circuit, t, oo
-   >>> a = Circuit("""   
+   >>> a = Circuit("""
    ...E 1 0 opamp 3 2 Ad; right, flipud
    ...W 4 2; right
    ...R 2_2 1_1; right
@@ -747,22 +749,22 @@ The output voltage (at node 1) is found using::
 
   >>> Vo = a[1].V(t)
   >>> Vo.pprint()
-  -A_d⋅R⋅iₛ(t) 
+  -A_d⋅R⋅iₛ(t)
   ─────────────
-     A_d + 1   
+     A_d + 1
 
 In the limit when the open-loop differential gain is infinite gain, the gain of
 the amplifier just depends on the resistor value::
-           
+
    >>> Vo.limit('Ad', oo).pprint()
-   -R⋅iₛ(t) 
+   -R⋅iₛ(t)
 
 Note, the output voltage is inverted compared to the source current.
 
 The input impedance can be found using (the ideal current source has infinite resistance and does not need removing)::
 
    >>> a.impedance(4, 0)
-      R   
+      R
    ───────
    A_d + 1
 
@@ -782,7 +784,7 @@ Consider the opamp noise model for a piezo transducer amplifier (note,
 the thermal noise of the resistors is ignored):
 
    >>> from lcapy import Circuit, t, oo
-   >>> a = Circuit("""   
+   >>> a = Circuit("""
    ... Cs 1 0; down=4
    ... W 1 1_1; right
    ... Rs 1_1 0_1; down=4
@@ -820,16 +822,16 @@ This circuit is a non-inverting amplifier where Cs represents the piezo transduc
    >>> H
    C⋅s⋅(R₁ + R₂) + 1
    ─────────────────
-       C⋅R₁⋅s + 1   
+       C⋅R₁⋅s + 1
    >>> H.ZPK()
              ⎛         1     ⎞
    (R₁ + R₂)⋅⎜s + ───────────⎟
              ⎝    C⋅(R₁ + R₂)⎠
    ───────────────────────────
-             ⎛     1  ⎞       
-          R₁⋅⎜s + ────⎟       
-             ⎝    C⋅R₁⎠       
-           
+             ⎛     1  ⎞
+          R₁⋅⎜s + ────⎟
+             ⎝    C⋅R₁⎠
+
 The output noise voltage amplitude spectral density (ASD) can be found using::
 
   >>> Von = a.Po.V.n(f)
@@ -842,17 +844,17 @@ This expression is still too complicated to print.  This amplifier circuit has z
 
    >>> Von.limit(f, 0)
       ___________________________
-     ╱    2   2      2   2     2 
+     ╱    2   2      2   2     2
    ╲╱  Iₙₙ ⋅R₂  + Iₙₚ ⋅Rₛ  + Vₙ
 
 In comparison, the noise ASD at high frequencies is::
 
    >>> Von.limit(f, oo)
       ________________________________________________
-     ╱    2   2   2     2   2             2     2   2 
-   ╲╱  Iₙₙ ⋅R₁ ⋅R₂  + R₁ ⋅Vₙ  + 2⋅R₁⋅R₂⋅Vₙ  + R₂ ⋅Vₙ  
+     ╱    2   2   2     2   2             2     2   2
+   ╲╱  Iₙₙ ⋅R₁ ⋅R₂  + R₁ ⋅Vₙ  + 2⋅R₁⋅R₂⋅Vₙ  + R₂ ⋅Vₙ
    ───────────────────────────────────────────────────
-                            R₁                        
+                            R₁
 
 Note that this expression does not depend on Rs due to the capacitance, Cs, of the piezo transducer.
 
@@ -868,8 +870,8 @@ The high frequency noise ASD is::
 This is the opamp noise voltage scaled by the gain of the amplifier (10).  The noise at DC is larger::
 
   >>> b.Po.V.n(f).limit('A', oo).limit(f, 0).evalf(3)
-  5.00e-7  
-  
+  5.00e-7
+
 This is due to the current noise of the opamp flowing through Rs.   The noise ASD would be larger if not for C limiting the low-frequency gain of the amplifier.  For example::
 
    >>> c = b.replace('C', 'W 4 0_2')
@@ -883,7 +885,7 @@ The amplifier output voltage noise ASD and gain can be plotted using::
   >>> from numpy import logspace
   >>> vf = logspace(0, 5, 201)
   >>> Vo = b.Po.V.n(f).limit('A', oo)
-  >>> Vo.plot(vf, log_frequency=True, yscale=1e9, ylabel='Voltage noise ASD (nV/rtHz)')  
+  >>> Vo.plot(vf, log_frequency=True, yscale=1e9, ylabel='Voltage noise ASD (nV/rtHz)')
   >>> H = b.transfer('Cs', 'Po')(f).limit('A', oo)
   >>> H.plot(vf, log_frequency=True, ylabel='Gain (dB)')
   >>> from matplotlib.pyplot import show
@@ -932,7 +934,7 @@ Multiple feedback low-pass filter
    ... P1 1 0_1; down
    ... P2 7 0_7; down
    ... ; draw_nodes=connections, label_ids=none, label_nodes=primary""")
-   >>> a.draw()   
+   >>> a.draw()
 
 .. image:: examples/tutorials/opamps/multiple-feedback-lpf.png
    :width: 12cm
@@ -940,33 +942,33 @@ Multiple feedback low-pass filter
 The transfer function of the filter (assuming an ideal opamp with infinite differential open loop gain) can be found using::
 
   >>> H = a.transfer(1, 0, 7, 0).limit('A', oo)
-                                   -R₄                             
+                                   -R₄
    ─────────────────────────────────────────────────────────────
-                2                                            
+                2
    C₂⋅C₃⋅R₂⋅R₃⋅R₄⋅s  + C₃⋅R₂⋅R₃⋅s + C₃⋅R₂⋅R₄⋅s + C₃⋅R₃⋅R₄⋅s + R₂
 
 The angular frequency response of the filter is::
 
   >>> Hf = H(jw)
-                                    -R₄                                 
+                                    -R₄
    ─────────────────────────────────────────────────────────────────────
-                     2                                                  
+                     2
    - C₂⋅C₃⋅R₂⋅R₃⋅R₄⋅ω  + ⅉ⋅C₃⋅R₂⋅R₃⋅ω + ⅉ⋅C₃⋅R₂⋅R₄⋅ω + ⅉ⋅C₃⋅R₃⋅R₄⋅ω + R₂
 
-   
+
 The DC gain of the filter is::
 
   >>> Hf(0)
-    -R₄ 
+    -R₄
    ────
-    R₂ 
+    R₂
 
 The second-order response of the transfer function of the filter can
 be parameterized::
 
   >>> Hp, defs = H.parameterize()
   >>> Hp
-              K         
+              K
    ───────────────────
      2               2
    ω₀  + 2⋅ω₀⋅s⋅ζ + s
@@ -974,33 +976,33 @@ be parameterized::
 where::
 
    >>> defs['K']
-       -1     
+       -1
    ───────────
    C₂⋅C₃⋅R₂⋅R₃
    >>> defs['omega_0']
-                1             
+                1
    ───────────────────────────
      ____   ____   ____   ____
-   ╲╱ C₂ ⋅╲╱ C₃ ⋅╲╱ R₃ ⋅╲╱ R₄ 
+   ╲╱ C₂ ⋅╲╱ C₃ ⋅╲╱ R₃ ⋅╲╱ R₄
 
    >>> defs['zeta']
      ____   ____   ____   ____ ⎛  1       1       1  ⎞
    ╲╱ C₂ ⋅╲╱ C₃ ⋅╲╱ R₃ ⋅╲╱ R₄ ⋅⎜───── + ───── + ─────⎟
                                ⎝C₂⋅R₄   C₂⋅R₃   C₂⋅R₂⎠
    ───────────────────────────────────────────────────
-                            2                         
+                            2
 
 The Q of the filter is found using::
 
   >>> Q = 1 / (defs['zeta'] * 2)
   >>> Q.simplify()
-        ____      ____   ____    
-      ╲╱ C₂ ⋅R₂⋅╲╱ R₃ ⋅╲╱ R₄     
+        ____      ____   ____
+      ╲╱ C₂ ⋅R₂⋅╲╱ R₃ ⋅╲╱ R₄
    ──────────────────────────────
-     ____                        
+     ____
    ╲╱ C₃ ⋅(R₂⋅R₃ + R₂⋅R₄ + R₃⋅R₄)
 
-   
+
 Shield guard
 ------------
 
@@ -1038,15 +1040,15 @@ source, for example,
 
 The impedance seen across `Rin` can be then found using:
 
-    >>> Z = a.impedance('Rin')           
-        1        
+    >>> Z = a.impedance('Rin')
+        1
     ─────────────────
         ⎛       1   ⎞
     C_c⋅⎜s + ───────⎟
         ⎝    C_c⋅Rᵢₙ⎠
 
 This impedance is the parallel combination of the input resistance Rin and the impedance of the cable capacitance.   Thus at high frequencies the impedance drops.
-        
+
 
 Shield guard circuits are used to mitigate the capacitance between a cable signal and the cable shield.  For example:
 
@@ -1091,9 +1093,9 @@ The impedance seen across `Rin` can be then found using:
     ⎜──────────────────────⎟
     ⎝    C_c⋅(R + Rᵢₙ)     ⎠
     ────────────────────────
-               A₂ + 1       
-      s + ───────────────   
-          C_c⋅R + C_c⋅Rᵢₙ   
+               A₂ + 1
+      s + ───────────────
+          C_c⋅R + C_c⋅Rᵢₙ
 
 However, when the open-loop gain, A2, of the shield-guard amplifier is large then
 
@@ -1102,7 +1104,7 @@ However, when the open-loop gain, A2, of the shield-guard amplifier is large the
 
 Thus the input impedance does not depend on Cc.  In practice, the open-loop gain is not infinite and reduces with frequency and so the guarding does not help at very high frequencies.
 
-   
+
 
 Noise analysis
 ==============
@@ -1136,61 +1138,61 @@ A noisy circuit model can be created with the `noisy()` method of the circuit ob
 
 .. image:: examples/tutorials/RCnoise/RCparallel1noisy.png
    :width: 4cm
-        
+
 The noise voltage across the capacitor can be found using:
 
    >>> Vn = b.C.V.n
    >>> Vn
-    2⋅√R⋅√T⋅╲╱ k_B  
+    2⋅√R⋅√T⋅╲╱ k_B
    ─────────────────
       ______________
-     ╱  2  2  2     
-   ╲╱  C ⋅R ⋅ω  + 1 
+     ╱  2  2  2
+   ╲╱  C ⋅R ⋅ω  + 1
 
 Note, this is the (one-sided) amplitude spectral density with units of volts per root hertz.  Here `T` is the absolute temperature in degrees kelvin, `k_B` is Boltzmann's constant, and :math:`\omega` is the angular frequency.  The expression can be made a function of linear frequency using:
 
    >>> Vn(f)
-   2⋅√R⋅√T⋅╲╱ k_B     
+   2⋅√R⋅√T⋅╲╱ k_B
    ──────────────────────
       ___________________
-     ╱    2  2  2  2     
-   ╲╱  4⋅π ⋅C ⋅R ⋅f  + 1 
+     ╱    2  2  2  2
+   ╲╱  4⋅π ⋅C ⋅R ⋅f  + 1
 
 This expression can be plotted if we substitute the symbols with numbers.  Let's choose :math:`T = 293` K, :math:`R = 10` kohm, and :math:`C = 100` nF.
 
    >>> Vns = Vn.subs({'R':10e3, 'C':100e-9, 'T':293, 'k_B':1.38e-23})
    >>> Vns(f)
-              √101085           
+              √101085
    ─────────────────────────────
                     ____________
-                   ╱  2  2      
-                  ╱  π ⋅f       
-   25000000000⋅  ╱   ────── + 1 
-               ╲╱    250000     
+                   ╱  2  2
+                  ╱  π ⋅f
+   25000000000⋅  ╱   ────── + 1
+               ╲╱    250000
 
 Note, Lcapy tries to approximate real numbers with rationals.  A floating-point representation can be found with the `evalf()` method:
 
-   >>> Vns(f).evalf()               
+   >>> Vns(f).evalf()
                                                      -0.5
-                       ⎛                     2      ⎞    
-   1.27175469332729e-8⋅⎝3.94784176043574e-5⋅f  + 1.0⎠    
+                       ⎛                     2      ⎞
+   1.27175469332729e-8⋅⎝3.94784176043574e-5⋅f  + 1.0⎠
 
 The amplitude spectral density of the noise can be plotted by defining a vector of frequency samples:
 
    >>> from numpy import linspace
    >>> vf = linspace(0, 10e3, 200)
    >>> (Vns(f) * 1e9).plot(vf, plot_type='mag', ylabel='ASD (nV/rootHz'))
- 
+
 
 .. image:: examples/tutorials/RCnoise/RCparallel1noiseplot1.png
-   :width: 10cm   
+   :width: 10cm
 
 Finally, the rms noise voltage can be found using the `rms()` method.  This integrates the square of the ASD (the power spectral density) over all frequencies and takes the square root.  For this example, the rms value does not depend on R.
 
    >>> Vn.rms()
    √T⋅√k_B
    ───────
-     √C 
+     √C
 
 Opamp noise
 -----------
@@ -1225,10 +1227,10 @@ The opamp noise current ASD also has flicker noise.  For example::
    >>> ax.set_ylim(0.1, 10)
 
 .. image:: examples/tutorials/opamps/inoise1.png
-   :width: 10cm  
+   :width: 10cm
 
 
-     
+
 Opamp non-inverting amplifier
 -----------------------------
 
@@ -1264,31 +1266,31 @@ current noise.
    :width: 10cm
 
 The noise ASD at the input of the opamp is
-           
+
    >>> a[3].V.n
       ____________________________
-     ╱    ⎛   2             ⎞    2 
-   ╲╱  Rₛ⋅⎝Iₙ₁ ⋅Rₛ + 4⋅T⋅k_B⎠ + Vₙ  
+     ╱    ⎛   2             ⎞    2
+   ╲╱  Rₛ⋅⎝Iₙ₁ ⋅Rₛ + 4⋅T⋅k_B⎠ + Vₙ
 
 This is independent of frequency and thus is white.  In practice, the voltage and current noise of an opamp has a 1/f component that dominates at low frequencies.
 
 The noise at the output of the amplifier is
 
-   >>> a[8].V.n   
+   >>> a[8].V.n
         _____________________________________________________
-       ╱    2   2          2      2   2   2     2          2 
-   A⋅╲╱  Iₙ₁ ⋅Rₛ ⋅(R₁ + R₂)  + Iₙ₂ ⋅R₁ ⋅R₂  + Vₙ ⋅(R₁ + R₂)  
+       ╱    2   2          2      2   2   2     2          2
+   A⋅╲╱  Iₙ₁ ⋅Rₛ ⋅(R₁ + R₂)  + Iₙ₂ ⋅R₁ ⋅R₂  + Vₙ ⋅(R₁ + R₂)
    ──────────────────────────────────────────────────────────
-                         A⋅R₁ + R₁ + R₂                      
+                         A⋅R₁ + R₁ + R₂
 
 Assuming an infinite open-loop gain this simplifies to
 
    >>> a[8].V.n.limit('A', oo)
       _____________________________________________________
-     ╱    2   2          2      2   2   2     2          2 
-   ╲╱  Iₙ₁ ⋅Rₛ ⋅(R₁ + R₂)  + Iₙ₂ ⋅R₁ ⋅R₂  + Vₙ ⋅(R₁ + R₂)  
+     ╱    2   2          2      2   2   2     2          2
+   ╲╱  Iₙ₁ ⋅Rₛ ⋅(R₁ + R₂)  + Iₙ₂ ⋅R₁ ⋅R₂  + Vₙ ⋅(R₁ + R₂)
    ────────────────────────────────────────────────────────
-                              R₁                           
+                              R₁
 
 This is simply the input noise scaled by the amplifier gain :math:`1 + R_2/R_1`.
 
@@ -1311,19 +1313,19 @@ Unfortunately, this becomes unmanageable since SymPy has to assume that :math:`G
    >>> c = b.subs({'R2':'(10 - 1) * R1'})
    >>> c[8].V.n.limit('A', oo)
       __________________________________________________________________
-     ╱        2   2         2   2                                   2 
-   ╲╱  100⋅Iₙ₁ ⋅Rₛ  + 81⋅Iₙ₂ ⋅R₁  + 360⋅R₁⋅T⋅k_B + 400⋅Rₛ⋅T⋅k_B + 100⋅Vₙ  
+     ╱        2   2         2   2                                   2
+   ╲╱  100⋅Iₙ₁ ⋅Rₛ  + 81⋅Iₙ₂ ⋅R₁  + 360⋅R₁⋅T⋅k_B + 400⋅Rₛ⋅T⋅k_B + 100⋅Vₙ
 
 In practice, both noise current sources have the same ASD.  Thus
 
    >>> c = b.subs({'R2':'(10 - 1) * R1', 'In2':'In1'})
    >>> c[8].V.n.limit('A', oo)
       _________________________________________________________________
-     ╱        2   2        ⎛     2              ⎞                     2 
-   ╲╱  100⋅Iₙ₁ ⋅Rₛ  + 9⋅R₁⋅⎝9⋅Iₙ₁ ⋅R₁ + 40⋅T⋅k_B⎠ + 400⋅Rₛ⋅T⋅k + 100⋅Vₙ  
+     ╱        2   2        ⎛     2              ⎞                     2
+   ╲╱  100⋅Iₙ₁ ⋅Rₛ  + 9⋅R₁⋅⎝9⋅Iₙ₁ ⋅R₁ + 40⋅T⋅k_B⎠ + 400⋅Rₛ⋅T⋅k + 100⋅Vₙ
 
 The noise is minimised by keeping `R1` as small as possible.  However, for high gains, the noise is dominated by the opamp noise.  Ideally, `Rs` needs to be minimised.  However, if it is large, it is imperative to choose a CMOS opamp with a low noise current.   Unfortunately, these amplifiers have a higher noise voltage than bipolar opamps.
-   
+
 Here's an script that shows the noise contributions due to the opamp
 voltage and current noise as well as the thermal noise from the source
 and amplifier resistances at 20 degrees C.
@@ -1382,7 +1384,7 @@ component voltages, and component currents.
 The following examples use this schematic
 
 .. image:: examples/tutorials/annotations/circuit1.png
-   :width: 9cm   
+   :width: 9cm
 
 described by the netlist
 
@@ -1396,18 +1398,18 @@ The circuit can be drawn using:
 
 
 .. _annotated_node_voltages:
-   
+
 Annotated node voltages
 -----------------------
-           
+
 The node voltages can be annotated using the `annotate_node_voltages()` method:
 
    >>> cct.annotate_node_voltages().draw(draw_nodes='primary')
-   
-which produces:   
-   
+
+which produces:
+
 .. image:: examples/tutorials/annotations/circuit1_node_voltages1.png
-   :width: 9cm   
+   :width: 9cm
 
 
 The `annotate_node_voltages()` method has a number of arguments for
@@ -1415,65 +1417,64 @@ selecting the nodes, the number representation, the number of digits,
 units, SI prefixes, and labelling of the node voltages.  For example:
 
    >>> cct.annotate_node_voltages(label_voltages=True, show_units=False).draw(draw_nodes='primary')
-   
-which produces:   
-   
+
+which produces:
+
 .. image:: examples/tutorials/annotations/circuit1_node_voltages2.png
-   :width: 9cm   
+   :width: 9cm
 
 The clutter can be reduced by increasing the schematic node spacing:
 
    >>> cct.annotate_node_voltages(label_voltages=True, show_units=False).draw(draw_nodes='primary', node_spacing=2.5)
-   
-which produces:   
-   
+
+which produces:
+
 .. image:: examples/tutorials/annotations/circuit1_node_voltages3.png
-   :width: 12cm   
+   :width: 12cm
 
 
 .. _annotated_voltages:
-           
+
 Annotated component voltages
 ----------------------------
 
 The component voltages can be annotated using the `annotate_voltages()` method:
 
    >>> cct.annotate_voltages(('R1', 'R2', 'R3', 'R4')).draw(draw_nodes='connections')
-   
-which produces:   
-   
+
+which produces:
+
 .. image:: examples/tutorials/annotations/circuit1_component_voltages1.png
-   :width: 9cm   
+   :width: 9cm
 
 .. _annotated_currents:
-           
+
 Annotated component currents
 ----------------------------
 
 The component currents can be annotated using the `annotate_currents()` method:
 
    >>> cct.annotate_currents(('R1', 'R2', 'R3', 'R4')).draw(draw_nodes='connections')
-   
-which produces:   
-   
+
+which produces:
+
 .. image:: examples/tutorials/annotations/circuit1_component_currents1.png
-   :width: 9cm   
+   :width: 9cm
 
 The currents can also be specified as flows using `flow=True`:
 
    >>> cct.annotate_currents(('R1', 'R2', 'R3', 'R4'), flow=True).draw(draw_nodes='connections')
-   
-which produces:   
-   
+
+which produces:
+
 .. image:: examples/tutorials/annotations/circuit1_component_currents2.png
-   :width: 9cm   
+   :width: 9cm
 
 The currents can shown as rational numbers by setting `evalf=False`.
 
    >>> cct.annotate_currents(('R1', 'R2', 'R3', 'R4'), evalf=False, flow=True).draw(draw_nodes='connections')
 
-which produces:   
-   
+which produces:
+
 .. image:: examples/tutorials/annotations/circuit1_component_currents3.png
    :width: 9cm
-         

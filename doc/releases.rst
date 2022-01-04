@@ -2,10 +2,16 @@
 Release notes
 =============
 
+V1.2.1
+======
+
+- Reverts to substitution method for partial fraction analysis
+
+- Fixes factor_const and term_const
+
+
 V1.2
 ====
-
-- Speeds up partial fraction analysis
 
 - Add `discretize()` method for `TimeDomainExpression`
 
