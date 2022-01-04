@@ -2809,7 +2809,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         except ValueError:
             return self.as_sum().partfrac(pairs, damping, method)
 
-    def recippartfrac(self, combine_conjugates=False, damping=None, method=None):
+    def recippartfrac(self, combine_conjugates=False, pairs=False,
+                      damping=None, method=None):
         """Convert rational function into partial fraction form
         using reciprocal of variable.
 
@@ -2821,6 +2822,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         fractions for complex conjugate poles are combined.
 
         See also canonical, standard, general, partfrac, timeconst, and ZPK."""
+
+        pairs = pairs or combine_conjugates
 
         if self.is_Equality:
             return equation(self.lhs.recippartfrac(pairs, damping, method),
