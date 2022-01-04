@@ -827,12 +827,11 @@ class Ratfun(object):
                     if F[i] is not F[j] or O[j] > O[i]:
                         denom *= F[j]
                 expr = B / denom
-
-                r = (expr * B).subs(var, P[i])
+                r = expr.subs(var, P[i])
                 R.append(r)
             else:
                 expr = expr.diff(var)
-                r = (expr * B).subs(var, P[i]) / sym.factorial(M[i] - O[i])
+                r = expr.subs(var, P[i]) / sym.factorial(M[i] - O[i])
                 R.append(r)
 
         return R, P, O
