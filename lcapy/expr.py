@@ -2793,6 +2793,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         fractions for complex conjugate poles are combined.   This creates
         a sum of biquad sections.
 
+        `method` can be 'sub' (substitution method, the default) or
+        'ec' (equating cofficients method).
+
         See also canonical, standard, general, timeconst, and ZPK."""
 
         pairs = pairs or combine_conjugates
@@ -2820,6 +2823,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         If combine_conjugates is True then the pair of partial
         fractions for complex conjugate poles are combined.
+
+        `method` can be 'sub' (substitution method, the default) or
+        'ec' (equating cofficients method).
 
         See also canonical, standard, general, partfrac, timeconst, and ZPK."""
 

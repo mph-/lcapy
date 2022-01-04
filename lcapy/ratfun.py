@@ -718,7 +718,7 @@ class Ratfun(object):
                 Onew.append(o)
         return Rnew, Pnew, Onew
 
-    def _find_residues_eq(self, poles, B):
+    def _find_residues_ec(self, poles, B):
 
         from .matrix import matrix_inverse
 
@@ -836,10 +836,14 @@ class Ratfun(object):
 
         return R, P, O
 
-    def as_QRPO(self, damping=None, method='sub'):
+    def as_QRPO(self, damping=None, method=None):
         """Decompose expression into Q, R, P, O, delay, undef where
 
         `expression = (Q + sum_n r_n / (var - p_n)**o_n) * exp(-delay * var) * undef`
+
+        `method` can be 'sub' (substitution method, the default) or
+        'ec' (equating cofficients method).a
+
         """
 
         Q, M, A, delay, undef = self.as_QMA()
@@ -870,8 +874,8 @@ class Ratfun(object):
 
         if method in ('sub', None):
             R, P, O = self._find_residues_sub(poles, B)
-        elif method == 'eq':
-            R, P, O = self._find_residues_eq(poles, B)
+        elif method == 'ec':
+            R, P, O = self._find_residues_ec(poles, B)
         else:
             raise ValueError('Unknown method ' + method)
 
