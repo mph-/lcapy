@@ -1,11 +1,22 @@
 import time
 from lcapy import *
 
-funcs = [1 / s, 1 / s**2, 1 / (s + 3), 1 / (s + 3)**2, (s + 3) / (s + 4),
-         1 / (s + 3)**2 / (s + 4), 1 / (s + 3)**3 / (s + 4),
-         1 / (s + 3) / (s + 4) / (s + 5), (s + 6) / (s + 3) / (s + 4) / (s + 5),
-         1 / (s + 3)**2 / (s + 4)**2,  1 / (s + 3)**3 / (s + 4)**2,
-         s / (s + 3)**2 / (s + 4), s / (s + 3)**3 / (s + 4)]
+funcs = [1 / s,
+         1 / s**2,
+         1 / (s + 3),
+         1 / (s + 3)**2,
+         (s + 3) / (s + 4),
+         1 / (s + 3)**2 / (s + 4),
+         1 / (s + 3)**3 / (s + 4),
+         1 / (s + 3) / (s + 4) / (s + 5),
+         (s + 6) / (s + 3) / (s + 4) / (s + 5),
+         1 / (s + 3)**2 / (s + 4)**2,
+         1 / (s + 3)**3 / (s + 4)**2,
+         s / (s + 3)**2 / (s + 4),
+         s / (s + 3)**3 / (s + 4),
+         1 / (s**2 + 4),
+         s / (s**2 + 4),
+         1 / (s**2 + 4) / (s + 3)]
 
 Ntrials = 10
 methods = ('ec', 'sub')
@@ -37,7 +48,7 @@ index = np.arange(len(funcs))
 
 fig, axes = subplots(1)
 axes.bar(index, times['ec'], 0.35, label='ec')
-axes.bar(index+0.35, times['sub'], 0.35, label='subs')
+axes.bar(index+0.35, times['sub'], 0.35, label='sub')
 axes.legend()
 axes.set_ylabel('Time (s)')
 
