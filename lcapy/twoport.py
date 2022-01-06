@@ -560,6 +560,18 @@ class TwoPortMatrix(Matrix, TwoPortMixin):
         """reverse current gain"""
         return self.Aparams.Igain21
 
+    @property
+    def ForwardTransconductance(self):
+        """Return I2 / V1 for V2 = 0 with internal sources zero"""
+
+        return LaplaceDomainAdmittance(self._Y21)
+
+    @property
+    def ReverseTransconductance(self):
+        """Return I1 / V2 for V1 = 0 with internal sources zero"""
+
+        return LaplaceDomainAdmittance(self._Y12)
+
 
 class AMatrix(TwoPortMatrix):
     """A-parameters (ABCD parameters, chain matrix)
@@ -685,6 +697,18 @@ class AMatrix(TwoPortMatrix):
         """reverse current gain"""
         return LaplaceDomainTransferFunction(-(self._A11 * self._A22 - self._A12 * self._A21) / self.A11)
 
+
+    @property
+    def ForwardTransconductance(self):
+        """Return I2 / V1 for V2 = 0 with internal sources zero"""
+
+        return LaplaceDomainAdmittance(-1 / self._A12)
+
+    @property
+    def ReverseTransconductance(self):
+        """Return I1 / V2 for V1 = 0 with internal sources zero"""
+
+        return LaplaceDomainAdmittance(self._A21 - self._A11 * self._A22 / self._A12)
 
     @classmethod
     def Zseries(cls, Zval):
@@ -864,6 +888,18 @@ class BMatrix(TwoPortMatrix):
     def Igain21(self):
         """reverse current gain"""
         return LaplaceDomainTransferFunction(-1 / self._B22)
+
+    @property
+    def ForwardTransconductance(self):
+        """Return I2 / V1 for V2 = 0 with internal sources zero"""
+
+        return LaplaceDomainAdmittance(self._B11 * self._B22 / self._B12 - self._B21)
+
+    @property
+    def ReverseTransconductance(self):
+        """Return I1 / V2 for V1 = 0 with internal sources zero"""
+
+        return LaplaceDomainAdmittance(-1 / self._B12)
 
     @classmethod
     def Zseries(cls, Zval):
@@ -1749,6 +1785,18 @@ class TwoPort(Network, TwoPortMixin):
         internal sources zero  (sett Igain12)"""
 
         return self.params.Igain12
+
+    @property
+    def ForwardTransconductance(self):
+        """Return I2 / V1 for V2 = 0 with internal sources zero"""
+
+        return self.params.ForwardTransconductance
+
+    @property
+    def ReverseTransconductance(self):
+        """Return I1 / V2 for V1 = 0 with internal sources zero"""
+
+        return self.params.ReverseTransconductance
 
     def Vresponse(self, V, inport=1, outport=2):
         """Return voltage response for specified applied voltage and
