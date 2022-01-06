@@ -94,7 +94,7 @@ from .functions import exp, sqrt, Eq, MatMul, MatAdd
 # Z matrix for specific cases.
 
 __all__ = ('Chain', 'Par2', 'Ser2', 'Hybrid2', 'InverseHybrid2',
-           'Series', 'Shunt', 'IdealTransformer', 'IdealGyrator',
+           'Series', 'Shunt', 'Transformer', 'IdealTransformer', 'IdealGyrator',
            'VoltageFollower', 'VoltageAmplifier',
            'IdealVoltageAmplifier', 'IdealDelay',
            'IdealVoltageDifferentiator', 'IdealVoltageIntegrator',
@@ -610,6 +610,11 @@ class AMatrix(TwoPortMatrix):
         # Z11
         return LaplaceDomainImpedance(self._A11 / self._A21)
 
+    @property
+    def Z1sc(self):
+        """short-circuit input impedance"""
+        return LaplaceDomainImpedance(self._A12 / self._A22)
+
     @classmethod
     def Zseries(cls, Zval):
 
@@ -754,6 +759,12 @@ class BMatrix(TwoPortMatrix):
         # Z11
         return LaplaceDomainImpedance(-self._B22 / self._B21)
 
+    @property
+    def Z1sc(self):
+        """short-circuit input impedance"""
+        # Z22
+        return LaplaceDomainImpedance(-self._B12 / self._B11)
+
     @classmethod
     def Zseries(cls, Zval):
 
@@ -895,7 +906,7 @@ class BMatrix(TwoPortMatrix):
     def transformer(cls, alpha):
         """The voltage gain alpha = 1 / a, where a is the turns ratio."""
 
-        alpha = ConstantDomainExpression(alpha)
+        alpha = expr(alpha)
 
         return cls(((alpha, 0),
                     (0, 1 / alpha)))
@@ -1461,12 +1472,14 @@ class TwoPort(Network, TwoPortMixin):
     @property
     def Y1sc(self):
         """Return input admittance with output port short circuit"""
-        return LaplaceDomainAdmittance(self.Ysc[0])
+        # Y11, A22 / A12
+        return LaplaceDomainAdmittance(self._Y11)
 
     @property
     def Y2sc(self):
         """Return output admittance with output port short circuit"""
-        return LaplaceDomainAdmittance(self.Ysc[1])
+        # Y22, A11 / A12
+        return LaplaceDomainAdmittance(self._Y22)
 
     @property
     def Zoc(self):
@@ -1476,12 +1489,12 @@ class TwoPort(Network, TwoPortMixin):
     @property
     def Z1oc(self):
         """Return input impedance with the output port open circuit"""
-        return LaplaceDomainImpedance(self.Zoc[0])
+        return self.params.Z1oc
 
     @property
     def Z2oc(self):
         """Return output impedance with the input port open circuit"""
-        return LaplaceDomainImpedance(self.Zoc[1])
+        return self.params.Z2oc
 
     @property
     def Zsc(self):
@@ -1492,12 +1505,12 @@ class TwoPort(Network, TwoPortMixin):
     @property
     def Z1sc(self):
         """Return input impedance with the output port short circuit"""
-        return LaplaceDomainImpedance(1 / self.Y1sc)
+        return self.params.Z1sc
 
     @property
     def Z2sc(self):
         """Return output impedance with the input port short circuit"""
-        return LaplaceDomainImpedance(1 / self.Y2sc)
+        return self.params.Z2sc
 
     def Vgain(self, inport=1, outport=2):
         """Return voltage gain for specified ports with internal
@@ -2843,10 +2856,29 @@ class Shunt(TwoPortBModel):
         return '\n'.join(nets)
 
 
+class Transformer(TwoPortBModel):
+    """Transformer voltage gain alpha, current gain 1 / alpha.
+    Note, alpha = 1 / a where a is the turns ratio defined as the
+    number of primary turns to the number of secondary turns, a = N_2 / N_1.
+
+    Unlike with IdealTransformer, the parameter alpha can be a function of s.
+    """
+
+    def __init__(self, alpha=1):
+
+        super(Transformer, self).__init__(BMatrix.transformer(alpha))
+        self.alpha = alpha
+        self.args = (alpha, )
+
+
 class IdealTransformer(TwoPortBModel):
     """Ideal transformer voltage gain alpha, current gain 1 / alpha.
     Note, alpha = 1 / a where a is the turns ratio defined as the
-    number of primary turns to the number of secondary turns, a = N_2 / N_1."""
+    number of primary turns to the number of secondary turns, a = N_2 / N_1.
+
+    alpha must be a constant, otherwise use Transformer if the
+    parameter alpha can be a function of s.
+    """
 
     def __init__(self, alpha=1):
 
