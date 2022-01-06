@@ -520,6 +520,46 @@ class TwoPortMatrix(Matrix, TwoPortMixin):
         import pdb; pdb.set_trace()
         return self
 
+    @property
+    def Z1oc(self):
+        """open-circuit input impedance"""
+        return self.Aparams.Z1oc
+
+    @property
+    def Z1sc(self):
+        """short-circuit input impedance"""
+        return self.Aparams.Z1sc
+
+    @property
+    def Z2oc(self):
+        """open-circuit output impedance"""
+        return self.Aparams.Z2oc
+
+    @property
+    def Z2sc(self):
+        """short-circuit output impedance"""
+        return self.Aparams.Z2sc
+
+    @property
+    def Vgain12(self):
+        """forward voltage gain"""
+        return self.Aparams.Vgain12
+
+    @property
+    def Vgain21(self):
+        """reverse voltage gain"""
+        return self.Aparams.Vgain21
+
+    @property
+    def Igain12(self):
+        """forward current gain"""
+        return self.Aparams.Igain12
+
+    @property
+    def Igain21(self):
+        """reverse current gain"""
+        return self.Aparams.Igain21
+
 
 class AMatrix(TwoPortMatrix):
     """A-parameters (ABCD parameters, chain matrix)
@@ -607,13 +647,44 @@ class AMatrix(TwoPortMatrix):
     @property
     def Z1oc(self):
         """open-circuit input impedance"""
-        # Z11
         return LaplaceDomainImpedance(self._A11 / self._A21)
 
     @property
     def Z1sc(self):
         """short-circuit input impedance"""
         return LaplaceDomainImpedance(self._A12 / self._A22)
+
+    @property
+    def Z2oc(self):
+        """open-circuit output impedance"""
+        return LaplaceDomainImpedance(self._A22 / self._A21)
+
+    @property
+    def Z2sc(self):
+        """short-circuit output impedance"""
+        return LaplaceDomainImpedance(self._A12 / self._A11)
+
+    @property
+    def Vgain12(self):
+        """forward voltage gain"""
+        return LaplaceDomainTransferFunction(1 / self._A11)
+
+    @property
+    def Vgain21(self):
+        """reverse voltage gain"""
+        return LaplaceDomainTransferFunction((self._A11 * self._A22 - self._A12 * self._A21) / self.A22)
+
+
+    @property
+    def Igain12(self):
+        """forward current gain"""
+        return LaplaceDomainTransferFunction(-1 / self._A22)
+
+    @property
+    def Igain21(self):
+        """reverse current gain"""
+        return LaplaceDomainTransferFunction(-(self._A11 * self._A22 - self._A12 * self._A21) / self.A11)
+
 
     @classmethod
     def Zseries(cls, Zval):
@@ -756,14 +827,43 @@ class BMatrix(TwoPortMatrix):
     @property
     def Z1oc(self):
         """open-circuit input impedance"""
-        # Z11
         return LaplaceDomainImpedance(-self._B22 / self._B21)
 
     @property
     def Z1sc(self):
         """short-circuit input impedance"""
-        # Z22
         return LaplaceDomainImpedance(-self._B12 / self._B11)
+
+    @property
+    def Z2oc(self):
+        """open-circuit output impedance"""
+        return LaplaceDomainImpedance(-self._B11 / self._B21)
+
+    @property
+    def Z2sc(self):
+        """short-circuit output impedance"""
+        return LaplaceDomainImpedance(-self._B12 / self._B22)
+
+    @property
+    def Vgain12(self):
+        """forward voltage gain"""
+        return LaplaceDomainTransferFunction((self._B11 * self._B22 - self._B12 * self._B21) / self.B22)
+
+    @property
+    def Vgain21(self):
+        """reverse voltage gain"""
+        return LaplaceDomainTransferFunction(1 / self._B11)
+
+
+    @property
+    def Igain12(self):
+        """forward current gain"""
+        return LaplaceDomainTransferFunction(-(self._B11 * self._B22 - self._B12 * self._B21) / self.B11)
+
+    @property
+    def Igain21(self):
+        """reverse current gain"""
+        return LaplaceDomainTransferFunction(-1 / self._B22)
 
     @classmethod
     def Zseries(cls, Zval):
@@ -1214,6 +1314,37 @@ class YMatrix(TwoPortMatrix):
         return ZMatrix(((self._Y22 / det, -self._Y12 / det),
                         (-self._Y21 / det, self._Y11 / det))).simplify()
 
+    @property
+    def Z1sc(self):
+        """short-circuit input impedance"""
+        return LaplaceDomainImpedance(1 / self._Y11)
+
+    @property
+    def Z2sc(self):
+        """short-circuit input impedance"""
+        return LaplaceDomainImpedance(1 / self._Y22)
+
+    @property
+    def Vgain12(self):
+        """forward voltage gain"""
+        return LaplaceDomainTransferFunction(-self._Y21 / self._Y22)
+
+    @property
+    def Vgain21(self):
+        """reverse voltage gain"""
+        return LaplaceDomainTransferFunction(-self._Y12 / self._Y11)
+
+    @property
+    def Igain12(self):
+        """forward current gain"""
+        return LaplaceDomainTransferFunction(self._Y21 / self._Y11)
+
+    @property
+    def Igain21(self):
+        """reverse current gain"""
+        return LaplaceDomainTransferFunction(self._Y12 / self._Y22)
+
+
 
 class ZMatrix(TwoPortMatrix):
     """Z-parameters (impedance parameters)
@@ -1238,10 +1369,6 @@ class ZMatrix(TwoPortMatrix):
     def equation(self):
         return Eq(Matrix(('V1', 'V2')), MatMul(self, Matrix(('I1', 'I2'))),
                   evaluate=False)
-
-    @property
-    def Zoc(self):
-        return LaplaceDomainImpedanceMatrix((self._Z11, self._Z22))
 
     @property
     def Aparams(self):
@@ -1274,6 +1401,36 @@ class ZMatrix(TwoPortMatrix):
     def Zparams(self):
         # Perhaps we should make a copy?
         return self
+
+    @property
+    def Z1oc(self):
+        """open-circuit input impedance"""
+        return LaplaceDomainImpedance(self._Z11)
+
+    @property
+    def Z2oc(self):
+        """open-circuit input impedance"""
+        return LaplaceDomainImpedance(self._Z22)
+
+    @property
+    def Vgain12(self):
+        """forward voltage gain"""
+        return LaplaceDomainTransferFunction(self._Z21 / self._Z11)
+
+    @property
+    def Vgain21(self):
+        """reverse voltage gain"""
+        return LaplaceDomainTransferFunction(self._Z12 / self._Z22)
+
+    @property
+    def Igain12(self):
+        """forward current gain"""
+        return LaplaceDomainTransferFunction(-self._Z21 / self._Z22)
+
+    @property
+    def Igain21(self):
+        """reverse current gain"""
+        return LaplaceDomainTransferFunction(-self._Z21 / self._Z11)
 
     @classmethod
     def Lsection(cls, Z1, Z2):
@@ -1456,12 +1613,12 @@ class TwoPort(Network, TwoPortMixin):
 
     @property
     def Y1oc(self):
-        """Return input impedance with the output port open circuit"""
-        return LaplaceDomainImpedance(1 / self.Z1oc)
+        """Return input admittance with the output port open circuit"""
+        return LaplaceDomainAdmittance(1 / self.Z1oc)
 
     @property
     def Y2oc(self):
-        """Return output impedance with the input port open circuit"""
+        """Return output admittance with the input port open circuit"""
         return LaplaceDomainAdmittance(1 / self.Z2oc)
 
     @property
@@ -1484,7 +1641,7 @@ class TwoPort(Network, TwoPortMixin):
     @property
     def Zoc(self):
         """Return impedance vector with ports open circuit"""
-        return self.Zparams.Zoc
+        return LaplaceDomainImpedanceMatrix((self.Z1oc, self.Z2oc))
 
     @property
     def Z1oc(self):
@@ -1499,8 +1656,7 @@ class TwoPort(Network, TwoPortMixin):
     @property
     def Zsc(self):
         """Return impedance vector with ports short circuit"""
-        return LaplaceDomainImpedanceMatrix((LaplaceDomainImpedance(1 / self.Y1sc),
-                                             LaplaceDomainImpedance(1 / self.Y2sc)))
+        return LaplaceDomainImpedanceMatrix((self.Z1sc, self.Z2sc))
 
     @property
     def Z1sc(self):
@@ -1522,9 +1678,9 @@ class TwoPort(Network, TwoPortMixin):
         if inport == outport:
             return LaplaceDomainTransferFunction(1)
         if inport == 1 and outport == 2:
-            return LaplaceDomainTransferFunction(1 / self._A11)
+            return self.Vgain12
         if inport == 2 and outport == 1:
-            return LaplaceDomainTransferFunction(1 / self._B11)
+            return self.Vgain21
         raise ValueError('bad port values')
 
     def Igain(self, inport=1, outport=2):
@@ -1537,9 +1693,9 @@ class TwoPort(Network, TwoPortMixin):
         if inport == outport:
             return LaplaceDomainTransferFunction(1)
         if inport == 1 and outport == 2:
-            return LaplaceDomainTransferFunction(-1 / self._A22)
+            return self.Igain12
         if inport == 2 and outport == 1:
-            return LaplaceDomainTransferFunction(-1 / self._B22)
+            return self.Igain21
         raise ValueError('bad port values')
 
     @property
@@ -1550,14 +1706,23 @@ class TwoPort(Network, TwoPortMixin):
         Av = G21 = 1 / A11 = -det(B) / B22 = Z21 / Z11 =  Y21 / Y22
         """
 
-        return self.Vgain(1, 2)
+        return self.params.Vgain12
+
+    @property
+    def Vgain21(self):
+        """Return V1 / V2 for I1 = 0 (reverse voltage gain) with
+        internal sources zero
+
+        """
+
+        return self.params.Vgain21
 
     @property
     def Vtransfer(self):
         """Return V2 / V1 for I2 = 0 (forward voltage gain) with
         internal sources zero  (see Vgain12)"""
 
-        return self.Vgain12
+        return self.params.Vgain12
 
     @property
     def Igain12(self):
@@ -1567,14 +1732,23 @@ class TwoPort(Network, TwoPortMixin):
         Ai = H21 = -1 / A22 = -det(B) / B11 = -Z21 / Z22 = Y21 / Y11
         """
 
-        return self.Igain(1, 2)
+        return self.params.Igain12
+
+    @property
+    def Igain21(self):
+        """Return I1 / I2 for V1 = 0 (reverse current gain) with
+        internal sources zero
+
+        """
+
+        return self.params.Igain21
 
     @property
     def Itransfer(self):
         """Return I2 / I1 for V2 = 0 (forward current gain) with
         internal sources zero  (sett Igain12)"""
 
-        return self.Igain12
+        return self.params.Igain12
 
     def Vresponse(self, V, inport=1, outport=2):
         """Return voltage response for specified applied voltage and
