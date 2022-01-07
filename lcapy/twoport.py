@@ -783,13 +783,13 @@ class AMatrix(TwoPortMatrix):
 
         return cls.Zshunt(Z1).chain(cls.Lsection(Z2, Z3))
 
-    def chain(self, OP):
+    def chain(self, TP):
 
-        return self * OP
+        return self * TP
 
-    def cascade(self, OP):
+    def cascade(self, TP):
 
-        return self.chain(OP)
+        return self.chain(TP)
 
 
 class BMatrix(TwoPortMatrix):
