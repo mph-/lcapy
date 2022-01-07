@@ -148,6 +148,11 @@ class TwoPortMixin(object):
         return self._Z12 == self._Z21
 
     @property
+    def is_reversible(self):
+        """Return true if two-port is reversible. """
+        return self.params.det() != 0
+
+    @property
     def is_symmetrical(self):
         """Return true if two-port is symmetrical. """
         return self._B11 == self._B22
