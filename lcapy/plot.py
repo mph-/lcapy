@@ -430,6 +430,7 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
 
     ax2 = ax.twinx()
     kwargs['axes'] = ax2
+    kwargs.pop('color', None)
 
     plotit(ax2, obj, f, V, plot2_type, deltas, log_frequency=log_frequency,
            log_magnitude=log_magnitude, norm=norm, second=True, color=color2,
