@@ -567,13 +567,17 @@ class TwoPortMatrix(Matrix, TwoPortMixin):
 
     @property
     def ForwardTransconductance(self):
-        """Return I2 / V1 for V2 = 0 with internal sources zero"""
+        """Return I2 / V1 for V2 = 0 with internal sources zero.
+
+        This should be called ForwardTransadmittance."""
 
         return LaplaceDomainAdmittance(self._Y21)
 
     @property
     def ReverseTransconductance(self):
-        """Return I1 / V2 for V1 = 0 with internal sources zero"""
+        """Return I1 / V2 for V1 = 0 with internal sources zero.
+
+        This should be called ForwardTransadmittance."""
 
         return LaplaceDomainAdmittance(self._Y12)
 
@@ -705,13 +709,17 @@ class AMatrix(TwoPortMatrix):
 
     @property
     def ForwardTransconductance(self):
-        """Return I2 / V1 for V2 = 0 with internal sources zero"""
+        """Return I2 / V1 for V2 = 0 with internal sources zero.
+
+        This should be called ForwardTransadmittance."""
 
         return LaplaceDomainAdmittance(-1 / self._A12)
 
     @property
     def ReverseTransconductance(self):
-        """Return I1 / V2 for V1 = 0 with internal sources zero"""
+        """Return I1 / V2 for V1 = 0 with internal sources zero.
+
+        This should be called ForwardTransadmittance."""
 
         return LaplaceDomainAdmittance(self._A21 - self._A11 * self._A22 / self._A12)
 
@@ -896,13 +904,17 @@ class BMatrix(TwoPortMatrix):
 
     @property
     def ForwardTransconductance(self):
-        """Return I2 / V1 for V2 = 0 with internal sources zero"""
+        """Return I2 / V1 for V2 = 0 with internal sources zero.
+
+        This should be called ForwardTransadmittance."""
 
         return LaplaceDomainAdmittance(self._B11 * self._B22 / self._B12 - self._B21)
 
     @property
     def ReverseTransconductance(self):
-        """Return I1 / V2 for V1 = 0 with internal sources zero"""
+        """Return I1 / V2 for V1 = 0 with internal sources zero.
+
+        This should be called ForwardTransadmittance."""
 
         return LaplaceDomainAdmittance(-1 / self._B12)
 
@@ -1793,13 +1805,17 @@ class TwoPort(Network, TwoPortMixin):
 
     @property
     def ForwardTransconductance(self):
-        """Return I2 / V1 for V2 = 0 with internal sources zero"""
+        """Return I2 / V1 for V2 = 0 with internal sources zero.
+
+        This should be called ForwardTransadmittance."""
 
         return self.params.ForwardTransconductance
 
     @property
     def ReverseTransconductance(self):
-        """Return I1 / V2 for V1 = 0 with internal sources zero"""
+        """Return I1 / V2 for V1 = 0 with internal sources zero.
+
+        This should be called ForwardTransadmittance."""
 
         return self.params.ReverseTransconductance
 
