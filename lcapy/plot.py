@@ -339,65 +339,55 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
 
     V = obj.evaluate(f)
 
+    types = ['dB-phase', 'dB-radians', 'dB-phase-degrees', 'dB-degrees',
+             'mag-phase', 'magnitude-phase', 'mag-phase-degrees','magnitude-phase-degrees',
+             'real-imag', 'mag', 'magnitude', 'phase', 'radians', 'phase-degrees',
+             'degrees', 'real', 'imag', 'dB', 'abs']
+    if plot_type is not None and plot_type not in types:
+        raise ValueError('Unknown plot type %s, expecting: %s ' % (plot_type, ', '.join(types)))
+
     if not V.dtype == complex:
-        if (plot_type in ('dB-phase', 'dB-phase-degrees',
-                          'mag-phase','mag-phase-degrees',
-                          'real-imag', 'phase',
-                          'phase-degrees', 'real', 'imag')):
-            raise ValueError('Data not complex for %s plot type' % plot_type)
-        if plot_type in ('mag', 'magnitude'):
-            plot1_type = 'magnitude'
-        elif plot_type in ('dB', ):
-            plot1_type = 'dB'
-        elif plot_type in ('real', ):
-            plot1_type = 'real'
-        elif plot_type in ('abs', ):
-            plot1_type = 'abs'
+        if plot_type is None:
+            plot_type = 'real'
 
     elif obj.part == '':
-
         if plot_type is None:
             plot_type = 'dB-phase'
 
-        if plot_type in ('dB_phase', 'dB-phase', 'dB-radians'):
-            plot1_type = 'dB'
-            plot2_type = 'radians'
-        elif plot_type in ('dB_phase_degrees', 'dB-phase-degrees',
-                           'dB-degrees'):
-            plot1_type = 'dB'
-            plot2_type = 'degrees'
-        elif plot_type in ('mag_phase', 'magnitude_phase',
-                           'mag-phase','magnitude-phase'):
-            plot1_type = 'magnitude'
-            plot2_type = 'radians'
-        elif plot_type in ('mag_phase_degrees', 'magnitude_phase_degrees',
-                           'mag-phase-degrees','magnitude-phase-degrees'):
-            plot1_type = 'magnitude'
-            plot2_type = 'degrees'
-        elif plot_type in ('real_imag', 'real-imag'):
-            plot1_type = 'real'
-            plot2_type = 'imag'
-        elif plot_type in ('mag', 'magnitude'):
-            plot1_type = 'magnitude'
-        elif plot_type in ('phase', 'radians'):
-            plot1_type = 'radians'
-        elif plot_type in ('phase-degrees', 'degrees'):
-            plot1_type = 'degrees'
-        elif plot_type == 'abs':
-            plot1_type = 'abs'
-        elif plot_type == 'real':
-            plot1_type = 'real'
-        elif plot_type == 'imag':
-            plot1_type = 'imag'
-        elif plot_type == 'dB':
-            plot1_type = 'dB'
-        else:
-            types = ['dB-phase', 'dB-radians', 'dB-phase-degrees', 'dB-degrees',
-                     'mag-phase', 'magnitude-phase', 'mag-phase-degrees','magnitude-phase-degrees',
-                     'real-imag', 'mag', 'magnitude', 'phase', 'radians', 'phase-degrees',
-                     'degrees', 'real', 'imag', 'dB', 'abs']
-
-            raise ValueError('Unknown plot type: %s. Use: %s ' % (plot_type, ', '.join(types)))
+    if plot_type in ('dB_phase', 'dB-phase', 'dB-radians'):
+        plot1_type = 'dB'
+        plot2_type = 'radians'
+    elif plot_type in ('dB_phase_degrees', 'dB-phase-degrees',
+                       'dB-degrees'):
+        plot1_type = 'dB'
+        plot2_type = 'degrees'
+    elif plot_type in ('mag_phase', 'magnitude_phase',
+                       'mag-phase','magnitude-phase'):
+        plot1_type = 'magnitude'
+        plot2_type = 'radians'
+    elif plot_type in ('mag_phase_degrees', 'magnitude_phase_degrees',
+                       'mag-phase-degrees','magnitude-phase-degrees'):
+        plot1_type = 'magnitude'
+        plot2_type = 'degrees'
+    elif plot_type in ('real_imag', 'real-imag'):
+        plot1_type = 'real'
+        plot2_type = 'imag'
+    elif plot_type in ('mag', 'magnitude'):
+        plot1_type = 'magnitude'
+    elif plot_type in ('phase', 'radians'):
+        plot1_type = 'radians'
+    elif plot_type in ('phase-degrees', 'degrees'):
+        plot1_type = 'degrees'
+    elif plot_type == 'abs':
+        plot1_type = 'abs'
+    elif plot_type == 'real':
+        plot1_type = 'real'
+    elif plot_type == 'imag':
+        plot1_type = 'imag'
+    elif plot_type == 'dB':
+        plot1_type = 'dB'
+    else:
+        raise RuntimeError('Internal error')
 
     deltas = None
     if obj.has(DiracDelta):
@@ -459,6 +449,7 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
 
         ymin = np.floor(dBmin / 10) * 10
         ymax = np.ceil(dBmax / 10) * 10
+        # This will clobber previous plot values
         ax.set_ylim(ymin, ymax)
 
         yrange = ymax - ymin
