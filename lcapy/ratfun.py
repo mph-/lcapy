@@ -279,13 +279,32 @@ class Ratfun(object):
     def _roots(self, poly):
 
         roots = sym.roots(poly)
-        nroots = 0
+        num_roots = 0
         for root, n in roots.items():
-            nroots += n
-        if nroots != poly.degree():
+            num_roots += n
+        if num_roots != poly.degree():
             # When the degree is five or above, the roots
             # cannot be found, see Abel-Ruffini theorem.
-            warn('Only %d of %d roots found' % (nroots, poly.degree()))
+            # If the coefficients of the polynomial are numerical,
+            # the SymPy nroots function can be used to find
+            # numerical approximations to the roots.
+            a = set()
+            a.add(self.var)
+            if poly.free_symbols == a:
+                warn('Only %d of %d roots found, using numerical approximation' % (num_roots, poly.degree()))
+
+                nroots = poly.nroots()
+
+                roots = {}
+                for root in nroots:
+                    if root in roots:
+                        roots[root] += 1
+                    else:
+                        roots[root] = 1
+
+                return roots
+            warn('Only %d of %d roots found' % (num_roots, poly.degree()))
+
         return roots
 
     @lru_cache()
