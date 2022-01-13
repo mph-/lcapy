@@ -2557,14 +2557,17 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
 
     def roots(self, aslist=False, pairs=False):
-        """Return roots of expression as a dictionary
-        Note this may not find them all
+        """Return roots of expression as a dictionary.  Note this may not find
+        them all.  In particular, if the rational function has a
+        degree of five or higher.
 
         If `pairs` is True, return two dictionaries.  The first
         contains the conjugate pairs and the second contains the
         others
 
-        If `aslist` is True, return roots as list."""
+        If `aslist` is True, return roots as list.
+
+        """
 
         if self._ratfun is None:
             roots = {}
@@ -2573,14 +2576,17 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         return self._fmt_roots(roots, aslist, pairs)
 
     def zeros(self, aslist=False, pairs=False):
-        """Return zeros of expression as a dictionary
-        Note this may not find them all.
+        """Return zeros of expression as a dictionary Note this may not find
+        them all.  In particular, if the denominator of the rational
+        function has a degree of five or higher.
 
         If `pairs` is True, return two dictionaries.  The first
         contains the conjugate pairs and the second contains the
         others
 
-        If `aslist` is True, return zeros as list."""
+        If `aslist` is True, return zeros as list.
+
+        """
 
         if self._ratfun is None:
             zeros = {}
@@ -2589,14 +2595,17 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         return self._fmt_roots(zeros, aslist, pairs)
 
     def poles(self, aslist=False, damping=None, pairs=False):
-        """Return poles of expression as a dictionary
-        Note this may not find them all.
+        """Return poles of expression as a dictionary.  Note this may not find
+        them all.  In particular, if the denominator of the rational
+        function has a degree of five or higher.
 
         If `pairs` is True, return two dictionaries.  The first
         contains the conjugate pairs and the second contains the
         others.
 
-        If `aslist` is True, return poles as list."""
+        If `aslist` is True, return poles as list.
+
+        """
 
         if self._ratfun is None:
             return self._fmt_roots({}, aslist, pairs)

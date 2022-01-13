@@ -9,6 +9,7 @@ import sympy as sym
 from .sym import sympify, AppliedUndef
 from .cache import lru_cache, cached_property
 from .utils import pair_conjugates, factor_const
+from warnings import warn
 
 Zero = sym.S.Zero
 One = sym.S.One
@@ -275,28 +276,42 @@ class Ratfun(object):
 
         return self.B, self.A, self.delay, self.undef
 
+    def _roots(self, poly):
+
+        roots = sym.roots(poly)
+        nroots = 0
+        for root, n in roots.items():
+            nroots += n
+        if nroots != poly.degree():
+            # When the degree is five or above, the roots
+            # cannot be found, see Abel-Ruffini theorem.
+            warn('Only %d of %d roots found' % (nroots, poly.degree()))
+        return roots
+
     @lru_cache()
     def roots(self):
         """Return roots of expression as a dictionary
         Note this may not find them all."""
 
-        return sym.roots(sym.Poly(self.expr, self.var))
+        return self._roots(sym.Poly(self.expr, self.var))
 
     @lru_cache()
     def zeros(self):
         """Return zeroes of expression as a dictionary
         Note this may not find them all."""
 
-        return sym.roots(self.Bpoly)
+        return self._roots(self.Bpoly)
 
     @lru_cache()
     def poles(self, damping=None):
-        """Return poles of expression as a dictionary of Pole objects.
+        """Return poles of expression as a list of Pole objects.
         Note this may not find all the poles."""
+
+        roots = self._roots(self.Apoly)
 
         poles = []
 
-        for p, n in sym.roots(self.Apoly).items():
+        for p, n in roots.items():
 
             pole = Pole(p, n=n, damping=damping)
             for q in poles:
