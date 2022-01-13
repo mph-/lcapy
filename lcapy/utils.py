@@ -284,3 +284,44 @@ def pair_conjugates(poles_dict):
                 pole_single_dict[pole_c] = o2 - o1
 
     return pole_pair_dict, pole_single_dict
+
+
+def similarity(expr, var):
+    """Rewrite foo(a * t + b) as foo(t) and return a, b."""
+
+    scale = None
+    shift = None
+    fail = False
+
+    for expr1 in sym.preorder_traversal(expr):
+
+        if not expr1.is_Function:
+            continue
+
+        arg = expr1.args[0]
+        if not arg.has(var):
+            continue
+
+        poly = arg.as_poly(var)
+        if poly is None or not poly.is_linear:
+            fail = True
+            break
+
+        scale1 = arg.coeff(var, 1)
+        shift1 = arg.coeff(var, 0)
+
+        if scale is None:
+            scale = scale1
+        if shift is None:
+            shift = shift1
+
+        if scale != scale1 or shift != shift1:
+            fail = True
+            break
+
+    if fail:
+        return expr, 1, 0
+
+    expr2 = expr.replace(var * scale + shift, var)
+
+    return expr2, scale, shift

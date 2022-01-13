@@ -95,7 +95,7 @@ def is_multiplied_with(expr, n, cmp, ret):
 
    # Check for multiplication with sin
     elif (cmp == 'sin(n)' and len(expr.args) == 1 and expr.is_Function and # sin() only
-          ((expr.args[0]).as_poly(n)).is_linear and  expr.func == sym.sin):
+          ((expr.args[0]).as_poly(n)).is_linear and expr.func == sym.sin):
         ret += [expr]
         ret_flag = True
     elif cmp == 'sin(n)' and expr.is_Pow and expr.args[0].func==sym.sin  and (expr.args[0].args[0]).as_poly(n).is_linear:
