@@ -705,15 +705,15 @@ Methods
 Poles and zeros
 ---------------
 
-- `coeffs()` returns list of coefficients if expression is a polynomial; the highest powers come first.  If the expression is a rational function use `.N.coeffs` or `.D.coeffs` for the numerator or denominator coefficients.
+- `coeffs()` returns list of coefficients if the expression is a polynomial; the highest powers come first.  If the expression is a rational function use `.N.coeffs` or `.D.coeffs` for the numerator or denominator coefficients.
 
-- `normcoeffs()` returns list of coefficients if expression is a polynomial; the highest powers come first.  The coefficients are normalized so the highest order coefficient is 1.  If the expression is a rational function use `.N.coeffs` or `.D.coeffs` for the numerator or denominator coefficients.
+- `normcoeffs()` returns list of coefficients if the expression is a polynomial; the highest powers come first.  The coefficients are normalized so the highest order coefficient is 1.  If the expression is a rational function use `.N.coeffs` or `.D.coeffs` for the numerator or denominator coefficients.
 
-- `poles()` returns poles of expression as a dictionary or a list if the `aslist` argument is True.  Note, this does not always find all the poles.
+- `poles(aslist)` returns poles of expression as a dictionary or a list if the `aslist` argument is True.  Note, this does not always find all the poles (see `roots()`).
 
-- `roots(s)` returns roots of expression as a dictionary or a list if the `aslist` argument is True.  Note, this does not always find all the roots.
+- `roots(aslist)` returns roots of expression as a dictionary or a list if the `aslist` argument is True.  Note, this does not always find all the roots, for example, if the degree is five or more (https://en.wikipedia.org/wiki/Abel%E2%80%93Ruffini_theorem).  In this case, if the polynomial coefficients are constants, the roots are calculated numerically.
 
-- `zeros()` returns zeros of expression as a dictionary or a list if the `aslist` argument is True.  Note, this does not always find all the zeros.
+- `zeros(aslist)` returns zeros of expression as a dictionary or a list if the `aslist` argument is True.  Note, this does not always find all the zeros (see `roots()`).
 
 
 Transforms
