@@ -286,7 +286,7 @@ def pair_conjugates(poles_dict):
     return pole_pair_dict, pole_single_dict
 
 
-def similarity(expr, var):
+def similarity_shift(expr, var):
     """Rewrite foo(a * t + b) as foo(t) and return a, b."""
 
     scale = None

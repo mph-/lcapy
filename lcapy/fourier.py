@@ -23,7 +23,7 @@ from sympy import DiracDelta, Heaviside, FourierTransform, Integral
 from sympy import fourier_transform as sympy_fourier_transform
 from .sym import symsimplify, j
 from .transformer import BilateralForwardTransformer
-from .utils import factor_const, scale_shift, similarity
+from .utils import factor_const, similarity_shift
 from .extrafunctions import rect, sincn, sincu, trap, tri
 
 __all__ = ('FT', 'IFT')
@@ -56,8 +56,6 @@ class FourierTransformer(BilateralForwardTransformer):
         if not isinstance(expr, AppliedUndef):
             self.error('Expecting function')
 
-        scale, shift = scale_shift(expr.args[0], t)
-
         fsym = sympify(str(f))
 
         # Convert v(t) to V(f), etc.
@@ -67,15 +65,8 @@ class FourierTransformer(BilateralForwardTransformer):
         else:
             func = name[0].upper() + name[1:] + '(%s)' % f
 
-        result = sympify(func).subs(fsym, f / scale) / abs(scale)
-
-        if shift != 0:
-            if self.is_inverse:
-                shift = -shift
-            result = result * exp(2 * I * pi * f * shift / scale)
-
+        result = sympify(func).subs(fsym, f)
         return result
-
 
     def integral(self, expr, t, f):
 
@@ -134,7 +125,7 @@ class FourierTransformer(BilateralForwardTransformer):
 
         const, expr = factor_const(expr, t)
 
-        if isinstance(expr, AppliedUndef):
+        if isinstance(expr, AppliedUndef) and expr.args[0] == t:
             return self.func(expr, t, f) * const
 
         tsym = sympify(str(t))
@@ -180,12 +171,12 @@ class FourierTransformer(BilateralForwardTransformer):
         if expr.has(Integral):
             return self.integral(expr, t, f) * const
 
-        if isinstance(expr, AppliedUndef):
+        if isinstance(expr, AppliedUndef) and expr.args[0] == t:
             return self.func(expr, t, f) * const
 
         # TODO add u(t) <-->  delta(f) / 2 - j / (2 * pi * f)
 
-        if expr.has(AppliedUndef):
+        if expr.has(AppliedUndef) and expr.args[0] == t:
             # Handle v(t), v(t) * y(t),  3 * v(t) / t etc.
             return self.function(expr, t, f) * const
 
@@ -225,44 +216,36 @@ class FourierTransformer(BilateralForwardTransformer):
                 return -const1 * I * pi * sign(sf)
             elif other == 1 / t**2:
                 return -const1 * 2 * pi**2 * sf * sign(sf)
-            elif other.is_Function and other.func == Heaviside and other.args[0].has(t):
-                # TODO, generalise use of similarity and shift theorems for other functions and expressions
-                scale, shift = scale_shift(other.args[0], t)
-                return (const1 / (I * 2 * pi * sf / scale) / abs(scale) + const1 * DiracDelta(sf) / 2) * exp(I * 2 * pi * sf / scale * shift)
+            elif other.is_Function and other.func == Heaviside and other.args[0] == t:
+                return (const1 / (I * 2 * pi * sf) + const1 * DiracDelta(sf) / 2)
             elif other == Heaviside(t) * t:
                 return -const1 / (2 * pi * f)**2 + const1 * I * DiracDelta(sf, 1) / (4 * pi)
             # t * u(t - tau)
-            elif (other.is_Mul and len(other.args) == 2 and other.args[0] == t and other.args[1].is_Function and
-                  other.args[1].func == Heaviside and other.args[1].args[0].has(t)):
-                scale, shift = scale_shift(other.args[1].args[0], t)
-                e = exp(I * 2 * pi * sf / scale * shift) / abs(scale)
-                return I * DiracDelta(sf, 1) / (4 * pi) * e - 1 / (4 * pi**2 * f**2) * e + shift * DiracDelta(sf) / 2 - I * shift / (2 * pi * sf)
-            elif other.is_Function and other.func == sincn and other.args[0].has(t):
-                scale, shift = scale_shift(other.args[0], t)
-                return const1 * rect(f / scale) * exp(I * 2 * pi * sf /scale * shift) / abs(scale)
-            elif other.is_Function and other.func == sincu and other.args[0].has(t):
-                scale, shift = scale_shift(other.args[0], t)
-                return const1 * pi * rect(f / scale * pi) * exp(I * 2 * pi * sf /scale * shift) / abs(scale)
+            elif (other.is_Mul and len(other.args) == 2 and
+                  other.args[0] == t and other.args[1].is_Function and
+                  other.args[1].func == Heaviside and other.args[1].args[0] == t):
+                e = exp(I * 2 * pi * sf)
+                return I * DiracDelta(sf, 1) / (4 * pi) * e - 1 / (4 * pi**2 * f**2) * e
+            elif other.is_Function and other.func == sincn and other.args[0] == t:
+                return const1 * rect(f)
+            elif other.is_Function and other.func == sincu and other.args[0] == t:
+                return const1 * pi * rect(f * pi)
             elif (other.is_Pow and other.args[1] == 2 and
                   other.args[0].is_Function and other.args[0].func == sincn and
-                  other.args[0].args[0].has(t)):
+                  other.args[0].args[0] == t):
                 other = other.args[0]
-                scale, shift = scale_shift(other.args[0], t)
-                return const1 * tri(f / scale) * exp(I * 2 * pi * sf /scale * shift) / abs(scale)
-            elif other.is_Function and other.func == rect and other.args[0].has(t):
-                scale, shift = scale_shift(other.args[0], t)
-                return const1 * sincn(f / scale) * exp(I * 2 * pi * sf /scale * shift) / abs(scale)
-            elif other.is_Function and other.func == tri and other.args[0].has(t):
-                scale, shift = scale_shift(other.args[0], t)
-                return const1 * sincn(f / scale)**2 * exp(I * 2 * pi * sf /scale * shift) / abs(scale)
-            elif other.is_Function and other.func == trap and other.args[0].has(t):
-                scale, shift = scale_shift(other.args[0], t)
+                return const1 * tri(f)
+            elif other.is_Function and other.func == rect and other.args[0] == t:
+                return const1 * sincn(f)
+            elif other.is_Function and other.func == tri and other.args[0] == t:
+                return const1 * sincn(f)**2
+            elif other.is_Function and other.func == trap and other.args[0] == t:
                 alpha = other.args[1]
+
                 # Check for rect
                 if alpha == 0:
-                    return const1 * sincn(f / scale) * exp(I * 2 * pi * sf /scale * shift) / abs(scale)
-
-                return alpha * const1 * sincn(f / scale) * sincn(alpha * f / scale) * exp(I * 2 * pi * sf /scale * shift) / abs(scale)
+                    return const1 * sincn(f)
+                return alpha * const1 * sincn(f) * sincn(alpha * f)
 
             #
             # factor = other.factor()
@@ -293,12 +276,12 @@ class FourierTransformer(BilateralForwardTransformer):
             if expr == t * DiracDelta(t, 1):
                 return const * sf / (-I * 2 * pi)
 
-            # Apply similarity and shift theorems
-            expr2, scale, shift = similarity(expr, t)
+            # Apply similarity and shift theorems.
+            expr2, scale, shift = similarity_shift(expr, t)
             if scale != 1 or shift != 0:
                 result = self.term(expr2, t, f / scale) / abs(scale)
                 if shift != 0:
-                    result *= exp(-I * 2 * pi * f * shift)
+                    result *= exp(-I * 2 * pi * f / scale * shift)
                 return const * result
 
             # Punt and use SymPy.  Should check for t**n, t**n * exp(-a * t), etc.
