@@ -297,7 +297,7 @@ class FourierTransformer(BilateralForwardTransformer):
             if other == 1:
                 return const1 * DiracDelta(sf - foo / (I * 2 * pi))
             Q = self.term(other, t, f)
-            return const1 * Q.subs(sf, (sf - foo / (I * 2 * pi)))
+            return const1 * Q.subs(f, (f - foo / (I * 2 * pi)))
 
         return const * self.sympy(expr, t, sf)
 
