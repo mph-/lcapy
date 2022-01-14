@@ -48,12 +48,15 @@ class LaplaceTransformer(UnilateralForwardTransformer):
     def key(self, expr, t, s, **kwargs):
         return expr, t, s,
 
-    def limits(self, expr, t, s, tmin, tmax):
+    def integrate(self, expr, t, s, tmin, tmax):
 
         F = sym.integrate(expr * sym.exp(-s * t), (t, tmin, tmax))
 
         if not F.has(sym.Integral):
             return F
+
+        if isinstance(F, sym.Integral):
+            self.error('Integration failed')
 
         if not F.is_Piecewise:
             self.error('Expecting piecewise')
@@ -64,16 +67,16 @@ class LaplaceTransformer(UnilateralForwardTransformer):
 
         return F
 
-    def do_0minus(self, expr, t, s):
+    def integrate_0minus(self, expr, t, s):
 
         t0 = sym.symbols('t0', negative=True, real=True)
 
-        F = self.limits(expr, t, s, t0, sym.oo)
+        F = self.integrate(expr, t, s, t0, sym.oo)
         return sym.limit(F, t0, 0)
 
-    def do_0(self, expr, t, s):
+    def integrate_0(self, expr, t, s):
 
-        return self.limits(expr, t, s, 0, sym.oo)
+        return self.integrate(expr, t, s, 0, sym.oo)
 
     def func(self, expr, t, s, inverse=False):
 
@@ -234,6 +237,9 @@ class LaplaceTransformer(UnilateralForwardTransformer):
         if expr.is_Piecewise and expr.args[0].args[1].has(t >= 0):
             expr = expr.args[0].args[0]
 
+        if expr.has(sym.sinh, sym.cosh, sym.tanh):
+            expr = expr.rewrite(sym.exp)
+
         const, expr = factor_const(expr, t)
 
         terms = expr.expand(deep=False).as_ordered_terms()
@@ -275,15 +281,15 @@ class LaplaceTransformer(UnilateralForwardTransformer):
             self.error('Cannot handle product')
 
         if expr.has(sym.Heaviside(t)):
-            return self.do_0(expr.replace(sym.Heaviside(t), 1), t, s) * const
+            return self.integrate_0(expr.replace(sym.Heaviside(t), 1), t, s) * const
 
         if expr.has(sym.DiracDelta) or expr.has(sym.Heaviside):
             try:
-                return self.do_0minus(expr, t, s) * const
+                return self.integrate_0minus(expr, t, s) * const
             except ValueError:
                 pass
 
-        return self.do_0(expr, t, s) * const
+        return self.integrate_0(expr, t, s) * const
 
 
 laplace_transformer = LaplaceTransformer()
