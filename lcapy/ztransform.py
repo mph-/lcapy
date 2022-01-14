@@ -165,7 +165,7 @@ class ZTransformer(UnilateralForwardTransformer):
     def func(self, expr, n, z):
 
         if not isinstance(expr, AppliedUndef):
-            raise ValueError('Expecting function for %s' % expr)
+            self.error('Expecting function')
 
         scale, shift = scale_shift(expr.args[0], n)
 
@@ -176,7 +176,7 @@ class ZTransformer(UnilateralForwardTransformer):
         func = name[0].upper() + name[1:] + '(%s)' % z
 
         if not scale.is_constant():
-            raise ValueError('Cannot determine if time-expansion or decimation')
+            self.error('Cannot determine if time-expansion or decimation')
 
         if scale == 1:
             result = sympify(func).subs(zsym, z)
@@ -186,13 +186,15 @@ class ZTransformer(UnilateralForwardTransformer):
             return result
 
         if scale.is_integer:
-            raise ValueError('Cannot do decimation yet')
+            # Have aliasing
+            # Sum(X(z**(1 / M) * exp(-j * 2 * pi * k / M)), (0, M - 1)) / M
+            self.error('Cannot do decimation')
 
         if not scale.is_rational:
-            raise ValueError('Cannot handle arbitrary scaling')
+            self.error('Cannot handle arbitrary scaling')
 
         if scale.p != 1:
-            raise ValueError('Cannot handle non-integer time-expansion')
+            self.error('Cannot handle non-integer time-expansion')
 
         result = sympify(func).subs(zsym, z ** scale.q)
 
@@ -206,10 +208,10 @@ class ZTransformer(UnilateralForwardTransformer):
         const, expr = factor_const(expr, n)
 
         if len(expr.args) != 2:
-            raise ValueError('Cannot compute z-transform of %s' % expr)
+            self.error('Cannot compute z-transform')
 
         if not isinstance(expr, sym.Sum):
-            raise ValueError('Cannot compute z-transform of %s' % expr)
+            self.error('Cannot compute z-transform')
 
         # Look for integration of function
         if (isinstance(expr.args[0], AppliedUndef)
@@ -221,13 +223,13 @@ class ZTransformer(UnilateralForwardTransformer):
         # Look for convolution sum
         var = expr.args[1][0]
         if (expr.args[1][1] != -sym.oo) or (expr.args[1][2] != sym.oo):
-            raise ValueError('Need indefinite limits for %s' % expr)
+            self.error('Need indefinite limits')
 
         const2, expr = factor_const(expr.args[0], n)
         if ((len(expr.args) != 2)
             or (not isinstance(expr.args[0], AppliedUndef))
             or (not isinstance(expr.args[1], AppliedUndef))):
-            raise ValueError('Need sum of two functions: %s' % expr)
+            self.error('Need sum of two functions')
 
         f1 = expr.args[0]
         f2 = expr.args[1]
@@ -236,7 +238,7 @@ class ZTransformer(UnilateralForwardTransformer):
 
         if ((f1.args[0] != var or f2.args[0] != n - var)
             and (f2.args[0] != var or f1.args[0] != n - var)):
-            raise ValueError('Cannot recognise convolution: %s' % expr)
+            self.error('Cannot recognise convolution')
 
         zsym = sympify(str(z))
 
@@ -289,8 +291,8 @@ class ZTransformer(UnilateralForwardTransformer):
                     result = self.func(factor, n, z)
                 else:
                     if factor.has(n):
-                        raise ValueError('TODO: need derivative of undefined'
-                                         ' function for %s' % factor)
+                        self.error('TODO: need derivative of undefined'
+                                   ' function for %s' % factor)
                     rest *= factor
             return result * rest * const
 
