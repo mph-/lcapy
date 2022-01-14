@@ -186,9 +186,12 @@ class ZTransformer(UnilateralForwardTransformer):
             return result
 
         if scale.is_integer:
-            # Have aliasing
-            # Sum(X(z**(1 / M) * exp(-j * 2 * pi * k / M)), (0, M - 1)) / M
-            self.error('Cannot do decimation')
+            # Down-sampling produces aliasing
+            # Sum(X(z**(1 / M) * exp(-j * 2 * pi * m / M), (m, 0, M - 1)) / M)
+            expr = sympify(func)
+            m = self.dummy_var(expr, 'm', level=0, real=True)
+            result = expr.subs(zsym, z**scale * sym.exp(-sym.I * 2 * sym.pi * m / scale))
+            return sym.Sum(result, (m, 0, scale - 1)) / scale
 
         if not scale.is_rational:
             self.error('Cannot handle arbitrary scaling')
