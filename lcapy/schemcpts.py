@@ -1429,16 +1429,19 @@ class Cable(Shape):
 
     default_aspect = 4
     a = 0.3
-    pins = {'in+' : ('l', -0.5, a),
-            'in' : ('l', -0.5, 0),
-            'in-' : ('l', -0.5, -a),
-            'ignd' : ('l', -0.5, -0.45),
-            'out+' : ('r', 0.5, a),
-            'out' : ('r', 0.5, 0),
-            'out-' : ('r', 0.5, -a),
+    pins = {'ignd' : ('l', -0.5, -0.45),
             'ognd' : ('r', 0.475, -0.45),
             't' : ('c', 0, 0.5),
             'b' : ('c', 0, -0.5)}
+
+    auxiliary = {'in+' : ('l', -0.5, a),
+                 'in' : ('l', -0.5, 0),
+                 'in-' : ('l', -0.5, -a),
+                 'out+' : ('r', 0.5, a),
+                 'out' : ('r', 0.5, 0),
+                 'out-' : ('r', 0.5, -a)}
+
+    auxiliary.update(Shape.auxiliary)
 
     def draw(self, **kwargs):
 
