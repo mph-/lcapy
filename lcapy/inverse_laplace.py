@@ -1,7 +1,7 @@
 """This module provides support for the unilateral inverse Laplace
 transform.
 
-Copyright 2021 Michael Hayes, UCECE
+Copyright 2021--2022 Michael Hayes, UCECE
 
 """
 
@@ -123,7 +123,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
 
         if delay != 0:
             # This will be caught and trigger expansion of the expression.
-            raise ValueError('Unhandled delay %s' % delay)
+            self.error('Unhandled delay %s' % delay)
 
         cresult = Zero
 
@@ -298,7 +298,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         result = inverse_laplace_transform(expr, s, t)
 
         if result.has(sym.InverseLaplaceTransform):
-            raise ValueError('SymPy cannot find inverse Laplace transform of %s' % expr)
+            self.error('SymPy does not know either')
         return result
 
     def term1(self, expr, s, t, **kwargs):
@@ -321,10 +321,30 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         except:
             pass
 
+        if expr.is_Pow and expr.args[1] == -1 and expr.args[0].is_Function:
+            arg = expr.args[0].args[0]
+
+            m = self.dummy_var(expr, 'm', level=0, real=True)
+            if expr.args[0].func == sym.cosh:
+                scale, shift = scale_shift(arg, s)
+                if shift == 0:
+                    return const * 2 * sym.Sum((-1)**m * sym.DiracDelta(t - scale * (2 * m + 1)), (m, 0, sym.oo)), Zero
+            elif expr.args[0].func == sym.sinh:
+                scale, shift = scale_shift(arg, s)
+                if shift == 0:
+                    return const * 2 * sym.Sum(sym.DiracDelta(t - scale * (2 * m + 1)), (m, 0, sym.oo)), Zero
+            elif expr.args[0].func == sym.tanh:
+                scale, shift = scale_shift(arg, s)
+                if shift == 0:
+                    return const * 2 * sym.Sum((-1)**m * sym.DiracDelta(t - scale * (2 * m + 1)), (m, 1, sym.oo)) + const * sym.DiracDelta(t), Zero
+
+        if expr.has(sym.cosh, sym.sinh, sym.tanh):
+            return const * self.hyperbolic_trig(expr, s, t), Zero
+
         if expr.is_Pow and expr.args[0] == s:
             return Zero, const * self.power(expr, s, t)
 
-        raise ValueError('Cannot determine inverse Laplace transform')
+        self.error('Cannot determine inverse Laplace transform')
 
     def term(self, expr, s, t, **kwargs):
 
@@ -399,7 +419,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
                 cresult += uresult * sym.Heaviside(t - delay)
                 uresult = Zero
             else:
-                raise ValueError('Causality violated with time advance %s.' % delay)
+                self.error('Causality violated with time advance %s.' % delay)
 
         else:
             if kwargs.get('causal', False):
