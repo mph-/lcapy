@@ -1,7 +1,7 @@
 """
 This module implements modified nodal analysis (MNA).
 
-Copyright 2014--2019 Michael Hayes, UCECE
+Copyright 2014--2022 Michael Hayes, UCECE
 """
 
 from __future__ import division
@@ -34,12 +34,12 @@ class Nodedict(ExprDict):
 
 class Branchdict(ExprDict):
     pass
-    
+
 
 class MNA(object):
     """This class performs modified nodal analysis (MNA) on a netlist of
     components.  There are several variants:
-    
+
     1. DC analysis if all the independent sources are DC.  The .V and .I
     methods return DC expressions with the dc assumption set.
 
@@ -78,7 +78,7 @@ class MNA(object):
         # into a Thevenin model and renamed.
         if hasattr(self, '_s_model'):
             raise RuntimeError('Cannot analyse s-domain model')
-            
+
         # Determine which branch currents are needed.
         self.unknown_branch_currents = []
 
@@ -110,7 +110,7 @@ class MNA(object):
         # to form Z vector.
         self._Z = self._Is.col_join(self._Es)
 
-    
+
     def _invalidate(self):
         for attr in ('_A', '_Vdict', '_Idict'):
             if hasattr(self, attr):
@@ -141,35 +141,37 @@ class MNA(object):
         message = 'The MNA A matrix is not invertible for %s analysis:\n' % self.kind
 
         reasons = []
-        
-        if self.kind == 'dc':
+
+        cct = self.cct
+
+        if cct.kind == 'dc':
             reasons.append('Check there is a DC path between all nodes.')
-        if self.transformers != []:
+        if cct.transformers != []:
             reasons.append('Check secondary of transformer is referenced to ground.')
-        if len(self.capacitors) > 1:
+        if len(cct.capacitors) > 1:
             reasons.append('Check capacitors are not in series.')
-        if self.voltage_sources != []:
+        if cct.voltage_sources != []:
             reasons.append('Check voltage source is not short-circuited.')
-        if self.current_sources != []:
+        if cct.current_sources != []:
             reasons.append('Check current source is not open-circuited.')
 
         return message + '    ' + '\n    '.join(reasons)
-        
+
     def _solve(self):
         """Solve network."""
-        
+
         if hasattr(self, '_Vdict'):
             return
 
         if '0' not in self.cct.node_map:
             raise RuntimeError('Cannot solve: nothing connected to ground node 0')
-        
+
         # Solve for the nodal voltages
         try:
             # The default method, Gaussian elimination, is the fastest
             # but hangs on some matrices with sympy-1.6.1
             # Comparative times for the testsuites are:
-            # GE 66, ADJ 73, LU 76. 
+            # GE 66, ADJ 73, LU 76.
             Ainv = matrix_inverse(self._A)
         except ValueError:
             message = self._failure_reasons()
@@ -194,10 +196,10 @@ class MNA(object):
         elif self.kind in ('s', 'ivp'):
             assumptions.set('ac', self.cct.is_ac)
             assumptions.set('dc', self.cct.is_dc)
-            assumptions.set('causal', self.cct.is_causal)            
+            assumptions.set('causal', self.cct.is_causal)
         elif isinstance(self.kind, str) and self.kind[0] == 'n':
             assumptions.set('nid', self.kind)
-       
+
         # Create dictionary of node voltages
         self._Vdict = Nodedict()
         self._Vdict['0'] = vtype(0, **assumptions)
@@ -223,7 +225,7 @@ class MNA(object):
         for elt in self.cct.elements.values():
             if elt.type in ('R', 'NR', 'C'):
                 n1 = self.cct.node_map[elt.nodenames[0]]
-                n2 = self.cct.node_map[elt.nodenames[1]]                
+                n2 = self.cct.node_map[elt.nodenames[1]]
                 V1, V2 = self._Vdict[n1], self._Vdict[n2]
                 I = (V1.expr - V2.expr - elt.V0.expr) / elt.Z.expr
                 self._Idict[elt.name] = itype(I, **assumptions).simplify()
@@ -258,7 +260,7 @@ class MNA(object):
     def G(self):
         """Return G matrix for MNA"""
 
-        return Matrix(self._G)    
+        return Matrix(self._G)
 
     @property
     def Z(self):
@@ -276,12 +278,12 @@ class MNA(object):
     def I(self):
         """Return I vector for MNA"""
 
-        return Vector(self._Is)        
+        return Vector(self._Is)
 
     @property
     def X(self):
         """Return X vector (of unknowns) for MNA"""
-        
+
         V = [self.cct.Vname('Vn%s' % node) for node in self.cct.node_list[1:]]
         I = [self.cct.Iname('I%s' % branch) for branch in self.unknown_branch_currents]
         return Vector(V + I)
@@ -313,16 +315,15 @@ class MNA(object):
 
         If `invert` is True, evaluate the matrix inverse."""
 
-        sys = SystemEquations(self._A, self._Z, self.X)        
-        return sys.format(form, invert)        
+        sys = SystemEquations(self._A, self._Z, self.X)
+        return sys.format(form, invert)
 
     def equations(self, inverse=False):
         """System of equations used to find the unknowns.
 
         If inverse is True, evaluate the matrix inverse.
 
-        This is for compatibility and is deprecated.  Use 
+        This is for compatibility and is deprecated.  Use
         matrix_equations instead."""
 
         return self.matrix_equations(invert=inverse)
-    
