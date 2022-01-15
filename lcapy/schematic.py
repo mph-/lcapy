@@ -12,7 +12,7 @@ This module performs schematic drawing using circuitikz from a netlist.
 >>> sch.add('W 0.2 0.2; right')
 >>> sch.draw()
 
-Copyright 2014--2021 Michael Hayes, UCECE
+Copyright 2014--2022 Michael Hayes, UCECE
 """
 
 # Strings starting with ;; are schematic options.  They are parsed in
@@ -412,12 +412,14 @@ class Schematic(NetfileMixin):
 
         self.elements[cpt.name] = cpt
 
-        for node in cpt.auxiliary_node_names:
-            self._node_add(node, cpt, auxiliary=True)
+        if not cpt.ignore:
 
-        # Note, an auxiliary node can be trumped...
-        for node in cpt.required_node_names:
-            self._node_add(node, cpt, auxiliary=False)
+            for node in cpt.auxiliary_node_names:
+                self._node_add(node, cpt, auxiliary=True)
+
+            # Note, an auxiliary node can be trumped...
+            for node in cpt.required_node_names:
+                self._node_add(node, cpt, auxiliary=False)
 
     def _setup(self):
         # This is called before node positions are assigned.
