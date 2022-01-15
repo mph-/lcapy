@@ -3502,7 +3502,7 @@ class Ladder(TwoPortBModel):
         # voltage and total current.
 
 
-class GeneralTxLine(TwoPortBModel):
+class GeneralTransmissionLine(TwoPortBModel):
     """General transmission line
 
     Z0    (real) characteristic impedance (ohms)
@@ -3529,7 +3529,11 @@ class GeneralTxLine(TwoPortBModel):
         self.args = (Z0, gamma, l)
 
 
-class LosslessTxLine(GeneralTxLine):
+class GeneralTxLine(GeneralTransmissionLine):
+    pass
+
+
+class LosslessTransmissionLine(GeneralTransmissionLine):
     """Losslees transmission line
         Z0 (real) characteristic impedance (ohms)
         c  propagation speed (m/s)
@@ -3544,7 +3548,11 @@ class LosslessTxLine(GeneralTxLine):
         self.args = (Z0, c, l)
 
 
-class TxLine(GeneralTxLine):
+class LosslessTxLine(LosslessTransmissionLine):
+    pass
+
+
+class TransmissionLine(GeneralTxLine):
     """Transmission line
 
     R series resistance/unit length
@@ -3563,3 +3571,7 @@ class TxLine(GeneralTxLine):
 
         super(TxLine, self).__init__(Z0, gamma, l)
         self.args = (R, L, G, C, l)
+
+
+class TxLine(TransmissionLine):
+    pass

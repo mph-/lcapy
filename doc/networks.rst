@@ -4,7 +4,7 @@
 Networks
 ========
 
-Lcapy supports one-port and two-port networks. 
+Lcapy supports one-port and two-port networks.
 
 
 
@@ -25,7 +25,7 @@ series
 Here `R(10)` creates a 10 ohm resistor and this is assigned to the
 variable `R1`.  Similarly, `R(5)` creates a 5 ohm resistor and this is
 assigned to the variable `R2`.  `Rtot` is the name of the network
-formed by connecting `R1` and `R2` in series.  
+formed by connecting `R1` and `R2` in series.
 
    >>> Rtot.draw()
 
@@ -34,31 +34,31 @@ formed by connecting `R1` and `R2` in series.
 
 
 Network components
-------------------           
+------------------
 
 - `C` capacitor
 
 - `CPE` constant phase element
-  
+
 - `Damper` mechanical damper
 
 - `FeriteBead` ferrite bead (lossy inductor)
 
-- `G` conductance  
+- `G` conductance
 
 - `I` arbitrary current source
 
-- `i` arbitrary time-domain current source        
+- `i` arbitrary time-domain current source
 
 - `Iac` ac current source (default angular frequency :math:`\omega_0`)
-  
+
 - `Idc` dc current source
 
-- `Inoise` noise current source            
-  
+- `Inoise` noise current source
+
 - `Istep` step current source
 
-- `L` inductor  
+- `L` inductor
 
 - `Mass` mass
 
@@ -76,27 +76,27 @@ Network components
 
 - `V` arbitrary voltage source
 
-- `v` arbitrary time-domain voltage source    
+- `v` arbitrary time-domain voltage source
 
 - `Vac` ac voltage source (default angular frequency :math:`\omega_0`)
-  
+
 - `Vdc` dc voltage source
 
-- `Vnoise` noise voltage source        
-  
-- `Vstep` step voltage source    
+- `Vnoise` noise voltage source
+
+- `Vstep` step voltage source
 
 - `Xtal` crystal
-  
+
 - `W` wire
 
 - `Y` generalized admittance
 
-- `Z` generalized impedance      
+- `Z` generalized impedance
 
-  
+
 .. _network_attributes:
-           
+
 Network attributes
 ------------------
 
@@ -116,17 +116,17 @@ Each network oneport has a number of attributes, including:
 
 - `B` susceptance
 
-- `G` conductance    
-  
+- `G` conductance
+
 - `R` resistance
 
 - `X` reactance
-  
+
 - `Y` admittance
 
 - `Z` impedance
 
-- `Ys` s-domain generalized admittance    
+- `Ys` s-domain generalized admittance
 
 - `Zs` s-domain generalized impedance
 
@@ -144,7 +144,7 @@ Each network oneport has a number of attributes, including:
 
 - `is_series` series network
 
-- `is_parallel` parallel network    
+- `is_parallel` parallel network
 
 
 Here's an example:
@@ -154,7 +154,7 @@ Here's an example:
    >>> n.Voc
    20
    ──
-    s 
+    s
    >>> n.voc
    20
    >>> n.Isc
@@ -173,7 +173,7 @@ Here's an example:
 
 
 .. _network_methods:
-           
+
 Network methods
 ---------------
 
@@ -204,8 +204,8 @@ Network functions
 
    >>> ladder(None, C(2), R(3), C(3))
    C(2) | (R(3) + C(3))
-  
-  
+
+
 
 Network simplification
 ----------------------
@@ -299,7 +299,7 @@ Here's an example of a network drawn with ladder layout,
 
 .. image:: examples/networks/ladderRC3.png
    :width: 6cm
-           
+
 
 The s-domain model can be drawn using:
 
@@ -346,8 +346,8 @@ The network components have optional keyword arguments (kwargs) that specify sch
    >>> (R(2, color='blue') + C(3, color='green')).draw()
 
 .. image:: examples/networks/colors.png
-   :width: 5cm   
-           
+   :width: 5cm
+
 
 Network synthesis
 =================
@@ -358,12 +358,12 @@ Networks can be created using network synthesis techniques given an impedance or
     >>> Z.network()
     ((C(1) + R(2)) | C(3)) + R(4)
     >>> Z.network().Z(s).canonical()
-    
+
     :math:`\frac{4 s^{2} + 3 s + \frac{1}{6}}{s^{2} + \frac{2 s}{3}}`
 
 For more details, see :ref:`network-synthesis`.
 
-           
+
 Random networks
 ===============
 
@@ -374,7 +374,7 @@ Networks can be randomly generated with the `random_network` function.  This is 
 
 This example generates a DC network with four resistors, two-voltage sources, and no capacitors or inductors.   The `kind` argument can be `ac`, `dc`, or `transient`.   The number of parallel connections can be specified with the `num_parallel` argument.
 
-           
+
 
 Network analysis examples
 =========================
@@ -460,7 +460,7 @@ A two-port is an electrical black-box with two pairs of terminals.  A pair of te
 .. image:: examples/schematics/twoport1.png
    :width: 12cm
 
-Two-port networks are usually considered to be free of independent sources, however, 
+Two-port networks are usually considered to be free of independent sources, however,
 Lcapy uses a generalized form that has two optional independent sources.  For lack of a better term, these are currently called two-port models.   They consist of a 2x2 matrix describing the network parameters and a 2x1 vector describing the independent sources (see :ref:`two-port-models`).  For example, consider the network::
 
    >>> tp = Shunt(R('R1')).chain(Series(R('R2') + V('V1')))
@@ -468,9 +468,9 @@ Lcapy uses a generalized form that has two optional independent sources.  For la
 This can be drawn using::
 
    >>> tp.draw()
-   
+
 .. image:: examples/networks/twoport-chain2.png
-   :width: 8cm           
+   :width: 8cm
 
 This network is represented by B-parameters but can be converted to a Z-parameter model using the `Zmodel` attribute::
 
@@ -479,18 +479,18 @@ This network is represented by B-parameters but can be converted to a Z-paramete
 The Z-parameters are obtained with the `params` attribute::
 
    >>> ztp.params
-    
+
    ⎡R₁       R₁      ⎤
    ⎢                 ⎥
    ⎢        ⎛     R₂⎞⎥
    ⎢R₁  -R₁⋅⎜-1 - ──⎟⎥
    ⎣        ⎝     R₁⎠⎦
 
-   
+
 The sources are obtained with the `sources` attribute::
 
    >>> ztp.sources
-   
+
    ⎡0 ⎤
    ⎢  ⎥
    ⎢V₁⎥
@@ -501,7 +501,7 @@ The sources are obtained with the `sources` attribute::
 The system of equations can be obtained using the `equation()` method, for example::
 
    >>> ztp.equation()
-  
+
           ⎡R₁       R₁      ⎤        ⎡0 ⎤
    ⎡V₁⎤   ⎢                 ⎥ ⎡I₁⎤   ⎢  ⎥
    ⎢  ⎥ = ⎢        ⎛     R₂⎞⎥⋅⎢  ⎥ + ⎢V₁⎥
@@ -515,13 +515,13 @@ Basic two-port networks
 
 
 A-parameter two-port
---------------------   
+--------------------
 
 An A-parameter two-port model is created with:
 
    >>> n = TPA(A11, A12, A21, A22, V1a, I1a)
 
-By default `V1a=0` and `I1a=0`. 
+By default `V1a=0` and `I1a=0`.
 
 There are optional keyword arguments (kwargs) to specify schematic attributes,
 for example,
@@ -576,17 +576,17 @@ A Z-parameter two-port model is created with:
 
    >>> n = TPZ(Z11, Z12, Z21, Z22, V1z, V2z)
 
-By default `V1z=0` and `V2z=0`. 
+By default `V1z=0` and `V2z=0`.
 
-           
+
 Shunt two-port
 --------------
 
 .. image:: examples/schematics/shunt.png
-   :width: 5cm           
+   :width: 5cm
 
 A shunt two-port has a single one-port argument, `Shunt(OP)`, for example,
-           
+
    >>> n = Shunt(R('R1'))
 
 The A-parameters can be found using::
@@ -599,8 +599,8 @@ The A-parameters can be found using::
    ⎣R₁   ⎦
 
 The Y-parameters do not exist for a `Shunt` two-port.
-   
-   
+
+
 Series two-port
 ---------------
 
@@ -609,8 +609,8 @@ Series two-port
 
 A series two-port has a single one-port argument, `Series(OP)`, for
 example
-           
-   >>> n = Series(L('L1'))           
+
+   >>> n = Series(L('L1'))
 
 The A-parameters can be found using::
 
@@ -621,30 +621,30 @@ The A-parameters can be found using::
 
 The Z-parameters do not exist for a `Series` two-port.
 
-           
+
 L-section two-port
 ------------------
 
 .. image:: examples/schematics/lsection.png
-   :width: 5.5cm             
+   :width: 5.5cm
 
 An L-section two-port has two one-port arguments, `LSection(OP1, OP2)`, for example,
-           
+
    >>> n = LSection(L('L1'), R('R1'))
 
 This is equivalent to chaining a shunt two-port to a series two-port:
 
    >>> n = Series(L('L1').chain(Shunt(R('R1')))
-   
+
 
 T-section two-port
 ------------------
 
 .. image:: examples/schematics/tsection.png
-   :width: 8cm             
+   :width: 8cm
 
 A T-section (also known as a Y-section) two-port has three one-port arguments, `TSection(OP1, OP2, OP3)`, for example
-           
+
    >>> n = TSection(L('L1'), R('R1'), C('C1'))
 
 
@@ -652,41 +652,41 @@ Pi-section two-port
 -------------------
 
 .. image:: examples/schematics/pisection.png
-   :width: 7cm             
+   :width: 7cm
 
 A pi-section two-port has three one-port arguments, `PiSection(OP1, OP2, OP3)`, for example
-           
-   >>> n = PiSection(L('L1'), R('R1'), C('C1'))   
 
-   
+   >>> n = PiSection(L('L1'), R('R1'), C('C1'))
+
+
 Transmission lines
 ------------------
 
-There are three transmission line two-port classes: `TxLine`,
-`LosslessTxLine` and `GeneralTxLine`.  Here's an example of use::
+There are three transmission line two-port classes: `TransmissionLine`,
+`LosslessTransmissionLine` and `GeneralTransmissionLine`.  Here's an example of use::
 
-   >>> a = GeneralTxLine()
+   >>> a = GeneralTransmissionLine()
    >>> a.equation()
-          ⎡ cosh(l⋅γ(s))   -Z₀(s)⋅sinh(l⋅γ(s))⎤      
+          ⎡ cosh(l⋅γ(s))   -Z₀(s)⋅sinh(l⋅γ(s))⎤
    ⎡V₂⎤   ⎢                                   ⎥ ⎡V₁ ⎤
    ⎢  ⎥ = ⎢-sinh(l⋅γ(s))                      ⎥⋅⎢   ⎥
    ⎣I₂⎦   ⎢──────────────     cosh(l⋅γ(s))    ⎥ ⎣-I₁⎦
-          ⎣    Z₀(s)                          ⎦      
+          ⎣    Z₀(s)                          ⎦
 
 
 Here :math:`Z_0` is the characteristic impedance, :math:`\gamma` is
 the propagation constant, and :math:`l` is the transmission line
-length.  These can be specified when `GeneralTxLine` is constructed.
+length.  These can be specified when `GeneralTransmissionLine` is constructed.
 
 The input impedance to the transmission line can be found from the
 `Z11` parameter::
-  
+
    >>> a.Z11
-       Z₀   
+       Z₀
    ─────────
    tanh(γ⋅l)
 
-   
+
 List of two-ports
 -----------------
 
@@ -695,7 +695,7 @@ List of two-ports
 - `LSection`
 - `TSection`
 - `PiSection`
-- `GenericTwoPort`  
+- `GenericTwoPort`
 - `IdealTransformer`
 - `IdealGyrator`
 - `VoltageFollower`
@@ -714,17 +714,17 @@ List of two-ports
 - `TwinTSection`
 - `BridgedTSection`
 - `Ladder`
-- `GeneralTxLine`
-- `LosslessTxLine`
-- `TxLine`
+- `GeneralTransmissionLine`
+- `LosslessTransmissionLine`
+- `TransmissionLine`
 - `TPA`
 - `TPB`
 - `TPG`
 - `TPH`
 - `TPY`
-- `TPZ`    
+- `TPZ`
 
-           
+
 Two-port network attributes
 ---------------------------
 
@@ -758,14 +758,14 @@ Here are some of the two-port network attributes:
 
 - `Z1oc`: input impedance with output port open-circuit
 
-- `Z2oc`: output impedance with input port open-circuit  
+- `Z2oc`: output impedance with input port open-circuit
 
-- `Ysc`: admittance vector with both ports short-circuit    
+- `Ysc`: admittance vector with both ports short-circuit
 
 - `Y1sc`: input admittance with output port short-circuit
 
-- `Y2sc`: output admittance with input port short-circuit  
-  
+- `Y2sc`: output admittance with input port short-circuit
+
 - `Amodel`: the equivalent A-parameters model (ABCD)
 
 - `Bmodel`: the equivalent B-parameters model (inverse ABCD)
@@ -792,12 +792,12 @@ Here are some of the two-port network attributes:
 
 - `Yparams`: the Y-parameters (admittance)
 
-- `Zparams`: the Z-parameters (impedance)    
+- `Zparams`: the Z-parameters (impedance)
 
 - `params`: the 2x2 matrix of parameters
 
 - `sources`: the 2x1 vector of sources
-  
+
 The individual elements of a parameter matrix for a two-port `n` can be accessed using `n.A11`, `n.S21`, `n.Z22` etc.
 
 
@@ -814,19 +814,19 @@ Here are some of the two-port network methods:
 
 - `hybrid(TP)`: combine two two-port networks in series-parallel
 
-- `inverse_hybrid(TP)`: combine two two-port networks in parallel-series    
-  
+- `inverse_hybrid(TP)`: combine two two-port networks in parallel-series
+
 - `bridge(OP)`: bridge a two-port network with a one-port network
 
 - `load(OP)`: apply a one-port network load and return a one-port network
 
-- `source(OP)`: apply a one-port network source and return a one-port network  
+- `source(OP)`: apply a one-port network source and return a one-port network
 
 - `draw()`: draw a two-port network
 
 - `circuit()`: convert a two-port network to a `Circuit` object
 
-- `equation()`: return the system of equations in matrix form  
+- `equation()`: return the system of equations in matrix form
 
 
 Two-port combinations
@@ -853,11 +853,11 @@ Chain
    >>> from lcapy import TP
    >>> tp1 = TP(l='Two-port 1', fill='blue')
    >>> tp2 = TP(l='Two-port 2', fill='blue')
-   >>> tp = tp1.chain(tp2)   
+   >>> tp = tp1.chain(tp2)
 
 .. image:: examples/networks/twoport-chain1.png
-   :width: 8cm             
-   
+   :width: 8cm
+
 
 Parallel
 --------
@@ -865,10 +865,10 @@ Parallel
    >>> from lcapy import TP
    >>> tp1 = TP(l='Two-port 1', fill='blue')
    >>> tp2 = TP(l='Two-port 2', fill='blue')
-   >>> tp = tp1.parallel(tp2)   
+   >>> tp = tp1.parallel(tp2)
 
 .. image:: examples/networks/twoport-parallel1.png
-   :width: 8cm             
+   :width: 8cm
 
 
 Series
@@ -879,7 +879,7 @@ Warning, a series combination of two-ports can break the port condition.
    >>> from lcapy import TP
    >>> tp1 = TP(l='Two-port 1', fill='blue')
    >>> tp2 = TP(l='Two-port 2', fill='blue')
-   >>> tp = tp1.series(tp2)   
+   >>> tp = tp1.series(tp2)
 
 .. image:: examples/networks/twoport-series1.png
    :width: 8cm
@@ -891,7 +891,7 @@ Hybrid (series-parallel)
    >>> from lcapy import TP
    >>> tp1 = TP(l='Two-port 1', fill='blue')
    >>> tp2 = TP(l='Two-port 2', fill='blue')
-   >>> tp = tp1.hybrid(tp2)   
+   >>> tp = tp1.hybrid(tp2)
 
 .. image:: examples/networks/twoport-hybrid1.png
    :width: 8cm
@@ -903,15 +903,15 @@ Inverse hybrid (parallel-series)
    >>> from lcapy import TP
    >>> tp1 = TP(l='Two-port 1', fill='blue')
    >>> tp2 = TP(l='Two-port 2', fill='blue')
-   >>> tp = tp1.hybrid(tp2)   
+   >>> tp = tp1.hybrid(tp2)
 
 .. image:: examples/networks/twoport-inverse-hybrid1.png
-   :width: 8cm                                   
+   :width: 8cm
 
 
-.. _two-port-models:           
+.. _two-port-models:
 
-           
+
 Two-port network models
 =======================
 
@@ -927,10 +927,10 @@ Each model can be converted to the other parameterisations, for example,
 
     \left[\begin{matrix}A_{11} & A_{12}\\A_{21} & A_{22}\end{matrix}\right]
 
->>> A.Zmodel.params    
+>>> A.Zmodel.params
 
 .. math::
-   
+
     \left[\begin{matrix}\frac{A_{11}}{A_{21}} & \frac{A_{11} A_{22} - A_{12} A_{21}}{A_{21}}\\\frac{1}{A_{21}} & \frac{A_{22}}{A_{21}}\end{matrix}\right]
 
 The elements of the parameter matrix can be accessed by name, for example:
@@ -954,7 +954,7 @@ A-parameters (ABCD)
 
     \left[\begin{matrix}V_{1}\\I_{1}\end{matrix}\right] = \left[\begin{matrix}A_{11} & A_{12}\\A_{21} & A_{22}\end{matrix}\right] \left[\begin{matrix}V_{2}\\- I_{2}\end{matrix}\right] + \left[\begin{matrix}V_{1a}\\I_{1a}\end{matrix}\right]
 
-The A matrix is the inverse of the B matrix.            
+The A matrix is the inverse of the B matrix.
 
 .. image:: examples/schematics/TPA.png
    :width: 12cm
@@ -968,7 +968,7 @@ B-parameters (inverse ABCD)
 
     \left[\begin{matrix}V_{2}\\-I_{2}\end{matrix}\right] = \left[\begin{matrix}B_{11} & B_{12}\\B_{21} & B_{22}\end{matrix}\right] \left[\begin{matrix}V_{1}\\I_{1}\end{matrix}\right]  + \left[\begin{matrix}V_{2b}\\I_{2b}\end{matrix}\right]
 
-The B matrix is the inverse of the A matrix.    
+The B matrix is the inverse of the A matrix.
 
 
 .. image:: examples/schematics/TPB.png
@@ -984,7 +984,7 @@ G-parameters (inverse hybrid)
 
     \left[\begin{matrix}I_{1}\\V_{2}\end{matrix}\right] = \left[\begin{matrix}G_{11} & G_{12}\\G_{21} & G_{22}\end{matrix}\right] \left[\begin{matrix}V_{1}\\I_{2}\end{matrix}\right]  + \left[\begin{matrix}I_{1g}\\V_{2g}\end{matrix}\right]
 
-The G matrix is the inverse of the H matrix.        
+The G matrix is the inverse of the H matrix.
 
 .. image:: examples/schematics/TPG.png
    :width: 12cm
@@ -998,8 +998,8 @@ H-parameters (hybrid)
 .. math::
 
     \left[\begin{matrix}V_{1}\\I_{2}\end{matrix}\right] = \left[\begin{matrix}H_{11} & H_{12}\\H_{21} & H_{22}\end{matrix}\right] \left[\begin{matrix}I_{1}\\V_{2}\end{matrix}\right]  + \left[\begin{matrix}V_{1h}\\I_{2h}\end{matrix}\right]
-   
-The H matrix is the inverse of the G matrix.    
+
+The H matrix is the inverse of the G matrix.
 
 .. image:: examples/schematics/TPH.png
    :width: 12cm
@@ -1010,7 +1010,7 @@ S-parameters (scattering)
 -------------------------
 
 .. math::
-   
+
     \left[\begin{matrix}b_{1}\\b_{2}\end{matrix}\right] = \left[\begin{matrix}S_{11} & S_{12}\\S_{21} & S_{22}\end{matrix}\right] \left[\begin{matrix}a_{1}\\a_{2}\end{matrix}\right]
 
 
@@ -1020,7 +1020,7 @@ T-parameters (scattering transfer)
 ----------------------------------
 
 .. math::
-   
+
     \left[\begin{matrix}b_{1}\\a_{1}\end{matrix}\right] = \left[\begin{matrix}T_{11} & T_{12}\\T_{21} & T_{22}\end{matrix}\right] \left[\begin{matrix}a_{2}\\b_{2}\end{matrix}\right]
 
 
@@ -1029,11 +1029,11 @@ T-parameters (scattering transfer)
 Y-parameters (admittance)
 -------------------------
 
-.. math::    
+.. math::
 
     \left[\begin{matrix}I_{1}\\I_{2}\end{matrix}\right] = \left[\begin{matrix}Y_{11} & Y_{12}\\Y_{21} & Y_{22}\end{matrix}\right] \left[\begin{matrix}V_{1}\\V_{2}\end{matrix}\right]  + \left[\begin{matrix}I_{1y}\\I_{2y}\end{matrix}\right]
 
-The Y matrix is the inverse of the Z matrix.           
+The Y matrix is the inverse of the Z matrix.
 
 
 .. image:: examples/schematics/TPY.png
@@ -1049,8 +1049,7 @@ Z-parameters (impedance)
 
    \left[\begin{matrix}V_{1}\\V_{2}\end{matrix}\right] = \left[\begin{matrix}Z_{11} & Z_{12}\\Z_{21} & Z_{22}\end{matrix}\right] \left[\begin{matrix}I_{1}\\I_{2}\end{matrix}\right] + \left[\begin{matrix}V_{1z}\\V_{2z}\end{matrix}\right]
 
-The Z matrix is the inverse of the Y matrix.       
+The Z matrix is the inverse of the Y matrix.
 
 .. image:: examples/schematics/TPZ.png
    :width: 12cm
-
