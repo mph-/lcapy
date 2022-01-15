@@ -42,7 +42,7 @@ class Transformdomains(dict):
             key = key.expr
         return super(Transformdomains, self).__getitem__(key)
 
-    
+
 class Netlist(NetlistMixin, NetfileMixin):
     """This class handles a generic netlist with multiple sources.
     During analysis, subnetlists are created for each source kind (dc,
@@ -83,9 +83,9 @@ class Netlist(NetlistMixin, NetfileMixin):
         3 + u(t) will appear in both the 'dc' and 's' groups.
 
         """
-            
+
         if self.is_ivp:
-            
+
             def namelist(elements):
                 return ', '.join([elt for elt in elements])
 
@@ -93,7 +93,7 @@ class Netlist(NetlistMixin, NetfileMixin):
                 warn('Missing initial conditions for %s' %
                       namelist(self.missing_ic))
 
-            groups = self.independent_source_groups()                       
+            groups = self.independent_source_groups()
             newgroups = {'ivp' : []}
             for key, sources in groups.items():
                 if isinstance(key, str) and key[0] == 'n':
@@ -103,8 +103,8 @@ class Netlist(NetlistMixin, NetfileMixin):
             return newgroups
 
         elif self.is_time_domain:
-            
-            groups = self.independent_source_groups()            
+
+            groups = self.independent_source_groups()
             newgroups = {'time' : []}
             for key, sources in groups.items():
                 if isinstance(key, str) and key[0] == 'n':
@@ -114,9 +114,9 @@ class Netlist(NetlistMixin, NetfileMixin):
             return newgroups
 
         else:
-            return self.independent_source_groups(transform=True)        
+            return self.independent_source_groups(transform=True)
 
-        
+
     def _sub_make(self):
 
         groups = self._groups()
@@ -126,7 +126,7 @@ class Netlist(NetlistMixin, NetfileMixin):
             self._sub[kind] = SubNetlist(self, kind)
 
         return self._sub
-        
+
     @property
     def sub(self):
         """Return dictionary of subnetlists keyed by transform domain kind.
@@ -149,20 +149,20 @@ class Netlist(NetlistMixin, NetfileMixin):
         's' for transient analysis using Laplace methods,
         'dc' for DC analysis,
         'time' for time-domain analysis when there are no reactive
-        components, 
+        components,
         'n*' for noise-analysis (there is a subcircuit for
-        each independent noise source), and 
+        each independent noise source), and
         omega (where omega is a number of expression specifying the angular
         frequency) for phasor analysis.
 
-        """        
+        """
         return self.sub
 
     @property
     def kinds(self):
         """Return list of transform domain kinds required to analyse the netlist."""
         return list(self.sub.keys())
-    
+
     @property
     def Vdict(self):
         """Return dictionary of node voltages for each transform domain"""
@@ -170,7 +170,7 @@ class Netlist(NetlistMixin, NetfileMixin):
         try:
             return self._Vdict
         except AttributeError:
-            pass        
+            pass
 
         result = Nodedict()
         for sub in self.sub.values():
@@ -188,7 +188,7 @@ class Netlist(NetlistMixin, NetfileMixin):
 
         try:
             return self._Idict
-        except AttributeError:        
+        except AttributeError:
             pass
 
         result = Branchdict()
@@ -197,8 +197,8 @@ class Netlist(NetlistMixin, NetfileMixin):
                 if node not in result:
                     result[node] = SuperpositionCurrent()
                 result[node].add(value)
-        self._Idict = result                    
-        return result    
+        self._Idict = result
+        return result
 
     def get_I(self, name):
         """Current through component (time-domain)"""
@@ -207,7 +207,7 @@ class Netlist(NetlistMixin, NetfileMixin):
         for sub in self.sub.values():
             I = sub.get_I(name)
             result.add(I)
-        result = result            
+        result = result
         return result
 
     def get_i(self, name):
@@ -217,7 +217,7 @@ class Netlist(NetlistMixin, NetfileMixin):
 
     def _get_Vd(self, Np, Nm=None):
         """This does not check nodes."""
-        
+
         result = SuperpositionVoltage()
         for sub in self.sub.values():
             Vd = sub.get_Vd(Np, Nm)
@@ -252,16 +252,16 @@ class Netlist(NetlistMixin, NetfileMixin):
         # Could look at all the ac frequencies and if there is only
         # one use that?  If have multiple ac frequencies should issue
         # warning.
-        return SubNetlist(self, omega)    
+        return SubNetlist(self, omega)
 
     def transient(self):
         """Return subnetlist for transient components of independent
-        sources.  Note, unlike the similar laplace method, dc and ac 
+        sources.  Note, unlike the similar laplace method, dc and ac
         components are ignored.
 
         See also, dc, ac, laplace.
 
-        """        
+        """
         return SubNetlist(self, 's')
 
     def laplace(self):
@@ -269,6 +269,6 @@ class Netlist(NetlistMixin, NetfileMixin):
         source values.
 
         See also, dc, ac, transient.
-        
-        """        
-        return SubNetlist(self, 'laplace')    
+
+        """
+        return SubNetlist(self, 'laplace')

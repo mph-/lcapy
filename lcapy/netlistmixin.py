@@ -259,6 +259,8 @@ class NetlistMixin(object):
         for m, elt in enumerate(self.elements.values()):
             if elt.type == 'W':
                 enodes.add_wire(*elt.nodenames)
+            elif elt.type.startswith('TL'):
+                enodes.add_wire(elt.nodenames[1], elt.nodenames[3])
             elif elt.type.startswith('TP'):
                 enodes.add_wire(elt.nodenames[1], elt.nodenames[3])
                 warn("Assuming V2' = V1' for %s" % elt.name)

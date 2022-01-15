@@ -102,7 +102,7 @@ __all__ = ('Chain', 'Par2', 'Ser2', 'Hybrid2', 'InverseHybrid2',
            'IdealCurrentDifferentiator', 'IdealCurrentIntegrator',
            'OpampInverter', 'OpampIntegrator', 'OpampDifferentiator',
            'TSection', 'TwinTSection', 'BridgedTSection', 'PiSection',
-           'LSection', 'Ladder', 'GeneralTxLine', 'LosslessTxLine',
+           'LSection', 'Ladder', 'GeneralTxLine', 'LosslessTxLine', 'TL',
            'TxLine', 'GeneralTransmissionLine', 'LosslessTransmissionLine',
            'TransmissionLine', 'AMatrix', 'BMatrix', 'GMatrix', 'HMatrix',
            'SMatrix', 'TMatrix', 'YMatrix', 'ZMatrix',
@@ -3511,6 +3511,8 @@ class GeneralTransmissionLine(TwoPortBModel):
     l     transmission line length (m)
     """
 
+    reactive = True
+
     def __init__(self, Z0='Z0(s)', gamma='gamma(s)', l='l'):
 
         Z0 = LaplaceDomainExpression(Z0)
@@ -3527,10 +3529,20 @@ class GeneralTransmissionLine(TwoPortBModel):
         B = BMatrix(((B11, B12), (B21, B22))).simplify()
 
         super(GeneralTransmissionLine, self).__init__(B)
+        self.Z0 = Z0
+        self.gamma = gamma
+        self.l = l
         self.args = (Z0, gamma, l)
 
 
 class GeneralTxLine(GeneralTransmissionLine):
+    pass
+
+
+class TL(GeneralTransmissionLine):
+    """General transmission line"""
+
+    # This class is used for netlists.
     pass
 
 
