@@ -444,7 +444,8 @@ oo = sym.oo
 inf = sym.oo
 one = sym.S.One
 
-# This is required for expr('I') to work
+# This is required for expr('I') to work as j but it prevents having
+# a current called I.
 state.context.symbols['I'] = sym.I
 
 try:

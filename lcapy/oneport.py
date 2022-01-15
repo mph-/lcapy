@@ -1069,13 +1069,13 @@ class Vdc(VoltageSourceBase):
 
     netkeyword = 'dc'
 
-    def __init__(self, v, **kwargs):
+    def __init__(self, Vval, **kwargs):
 
         self.kwargs = kwargs
-        self.args = (v, )
-        v = cexpr(v)
-        self._Voc = SuperpositionVoltage(cexpr(v, dc=True))
-        self.v0 = v
+        self.args = (Vval, )
+        Vval = cexpr(Vval)
+        self._Voc = SuperpositionVoltage(cexpr(Vval, dc=True))
+        self.v0 = Vval
 
     @property
     def voc(self):
@@ -1171,6 +1171,9 @@ class sI(CurrentSourceBase):
 
     def __init__(self, Ival, **kwargs):
 
+        if isinstance(Ival, str) and Ival == 'I':
+            warn('Current I is being considered as the imaginary number')
+
         self.kwargs = kwargs
         self.args = (Ival, )
         Ival = LaplaceDomainExpression(Ival)
@@ -1180,7 +1183,10 @@ class sI(CurrentSourceBase):
 class I(CurrentSourceBase):
     """Arbitrary current source"""
 
-    def __init__(self, Ival='I', **kwargs):
+    def __init__(self, Ival='Is', **kwargs):
+
+        if isinstance(Ival, str) and Ival == 'I':
+            warn('Current I is being considered as the imaginary number')
 
         self.kwargs = kwargs
         self.args = (Ival, )
@@ -1192,13 +1198,16 @@ class Istep(CurrentSourceBase):
 
     netkeyword = 'step'
 
-    def __init__(self, i, **kwargs):
+    def __init__(self, Ival, **kwargs):
+
+        if isinstance(Ival, str) and Ival == 'I':
+            warn('Current I is being considered as the imaginary number')
 
         self.kwargs = kwargs
-        self.args = (i, )
-        i = cexpr(i)
-        self._Isc = SuperpositionCurrent(TimeDomainExpression(i) * Heaviside(t))
-        self.i0 = i
+        self.args = (Ival, )
+        Ival = cexpr(Ival)
+        self._Isc = SuperpositionCurrent(TimeDomainExpression(Ival) * Heaviside(t))
+        self.i0 = Ival
 
 
 class Idc(CurrentSourceBase):
@@ -1207,13 +1216,16 @@ class Idc(CurrentSourceBase):
 
     netkeyword = 'dc'
 
-    def __init__(self, i, **kwargs):
+    def __init__(self, Ival, **kwargs):
+
+        if isinstance(Ival, str) and Ival == 'I':
+            warn('Current I is being considered as the imaginary number')
 
         self.kwargs = kwargs
-        self.args = (i, )
-        i = cexpr(i)
-        self._Isc = SuperpositionCurrent(cexpr(i, dc=True))
-        self.i0 = i
+        self.args = (Ival, )
+        Ival = cexpr(Ival)
+        self._Isc = SuperpositionCurrent(cexpr(Ival, dc=True))
+        self.i0 = Ival
 
     @property
     def isc(self):
@@ -1275,11 +1287,11 @@ class Inoise(CurrentSourceBase):
 class i(CurrentSourceBase):
     """Arbitrary t-domain current source"""
 
-    def __init__(self, ival, **kwargs):
+    def __init__(self, Ival, **kwargs):
 
         self.kwargs = kwargs
-        self.args = (ival, )
-        Ival = TimeDomainExpression(ival)
+        self.args = (Ival, )
+        Ival = TimeDomainExpression(Ival)
         self._Isc = SuperpositionCurrent(Ival)
 
 
