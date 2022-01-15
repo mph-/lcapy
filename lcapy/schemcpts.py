@@ -465,7 +465,7 @@ class Cpt(object):
 
     @property
     def required_pins(self):
-
+        import pdb; pdb.set_trace()
         rpins = []
         for node in self.nodes:
             node_name = node.name
