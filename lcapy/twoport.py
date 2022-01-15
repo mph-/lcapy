@@ -103,7 +103,8 @@ __all__ = ('Chain', 'Par2', 'Ser2', 'Hybrid2', 'InverseHybrid2',
            'OpampInverter', 'OpampIntegrator', 'OpampDifferentiator',
            'TSection', 'TwinTSection', 'BridgedTSection', 'PiSection',
            'LSection', 'Ladder', 'GeneralTxLine', 'LosslessTxLine',
-           'TxLine', 'AMatrix', 'BMatrix', 'GMatrix', 'HMatrix',
+           'TxLine', 'GeneralTransmissionLine', 'LosslessTransmissionLine',
+           'TransmissionLine', 'AMatrix', 'BMatrix', 'GMatrix', 'HMatrix',
            'SMatrix', 'TMatrix', 'YMatrix', 'ZMatrix',
            'TwoPortAModel', 'TwoPortBModel', 'TwoPortYModel', 'TwoPortZModel',
            'TwoPortGModel', 'TwoPortHModel', 'TP',
@@ -3505,7 +3506,7 @@ class Ladder(TwoPortBModel):
 class GeneralTransmissionLine(TwoPortBModel):
     """General transmission line
 
-    Z0    (real) characteristic impedance (ohms)
+    Z0    characteristic impedance (ohms)
     gamma propagation constant (1/m)
     l     transmission line length (m)
     """
@@ -3525,7 +3526,7 @@ class GeneralTransmissionLine(TwoPortBModel):
 
         B = BMatrix(((B11, B12), (B21, B22))).simplify()
 
-        super(GeneralTxLine, self).__init__(B)
+        super(GeneralTransmissionLine, self).__init__(B)
         self.args = (Z0, gamma, l)
 
 
@@ -3544,7 +3545,7 @@ class LosslessTransmissionLine(GeneralTransmissionLine):
 
         gamma = s / c
 
-        super(LosslessTxLine, self).__init__(Z0, gamma, l)
+        super(LosslessTransmissionLine, self).__init__(Z0, gamma, l)
         self.args = (Z0, c, l)
 
 
@@ -3552,7 +3553,7 @@ class LosslessTxLine(LosslessTransmissionLine):
     pass
 
 
-class TransmissionLine(GeneralTxLine):
+class TransmissionLine(GeneralTransmissionLine):
     """Transmission line
 
     R series resistance/unit length
@@ -3569,7 +3570,7 @@ class TransmissionLine(GeneralTxLine):
         gamma = sqrt(Z * Y).expr
         Z0 = sqrt(Z / Y).expr
 
-        super(TxLine, self).__init__(Z0, gamma, l)
+        super(TransmissionLine, self).__init__(Z0, gamma, l)
         self.args = (R, L, G, C, l)
 
 
