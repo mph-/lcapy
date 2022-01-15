@@ -1209,11 +1209,11 @@ Component attributes
 
 - `i`: current label (also `i`, `i_`, `i^`, `i_>`, `i_<`, `i^>`, `i^<`, `i>_`, `i<_`, `i>^`, `i<^`, `i>`, `i<`, `ir`)
 
-- `ignore`: do not connect to the other components and do not draw (this is useful for simulating multiple mutual inductances but where it it is too hard to show them on a schematic)
+- `ignore`: do not connect to the other components and do not draw (this is useful for simulating multiple mutual inductances but where it is too hard to show them on a schematic, see also `nodraw` and `invisible`)
 
 - `invert`: invert component vertically
 
-- `invisible`: connect to the other components but do not draw
+- `invisible`: connect to the other components but do not draw (see also `nodraw` and `ignore`)
 
 - `fixed`: do not stretch
 
@@ -1224,6 +1224,10 @@ Component attributes
 - `mirror`: mirror component in x-axis (opamps, transistors)
 
 - `mirrorinputs`: mirror inputs for opamps
+
+- `nodraw`: connect to the other components, generate the CircuiTikz macros, but do not include the draw argument (see also `invisible` and `ignore`)
+
+- `nosim`: this is ignored for schematics (it is used to ignore electrical simulation of the component)
 
 - `offset`: distance to orthogonally offset component (useful for parallel components)
 - `pins`: define pin labels for ICs

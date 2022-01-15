@@ -81,6 +81,8 @@ class Cpt(ImmittanceMixin):
         self.keyword = keyword
         self.opts = Opts(opts_string)
 
+        self.nosim = 'nosim' in self.opts
+
         # No defined cpt
         if self.type in ('XX', 'Cable'):
             self._cpt = lcapy.oneport.Dummy()

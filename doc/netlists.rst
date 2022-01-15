@@ -57,12 +57,14 @@ Component specification
 Each line in a netlist describes a single component, with the
 general form::
 
-    `component-name positive-node negative-node arg1 [arg2 etc.] [; schematic attributes]
+    `component-name positive-node negative-node arg1 [arg2 etc.] [; attributes]
 
 If no args are specified then the component value is assigned a
 symbolic name specified by `component-name`.
 
 Lines starting with `#` are treated as comments.
+
+The attributes are primarily for controlling the appearance of the schematic.  The attribute `nosim` is used to ignore the component for electrical analysis.
 
 Arguments containing delimiters (space, tab, comma, left bracket,
 right bracket) can be escaped with brackets or double quotes.  For
@@ -273,6 +275,13 @@ two-port devices, Nip denotes the positive input node and Nim denotes
 the negative input node.  Note, positive current flows from
 `positive-node` to `negative-node`.  Node names can be numeric or
 symbolic.  The ground node is designated `0`.
+
+
+- Transmission-line:
+
+   `TPname Np Nm Nip Nim Z0 gamma length`
+
+Here `Z0` is the characteristic impedance, `gamma` is the propagation constant (`s / c` for a lossless line of speed `c`), and `length` is the length.
 
 If the value is not explicitly specified, the component name is used.
 For example,
@@ -604,6 +613,8 @@ Here is the complete list of component attributes.
 - `nodes` list of nodes
 
 - `nodenames` list of node names
+
+- `nosim` component is ignored for analysis
 
 
 Component methods

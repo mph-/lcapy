@@ -1,7 +1,7 @@
 """This module provides the NetlistMixin class.  This is used for
 Netlist and SubNetlist.
 
-Copyright 2020-2021 Michael Hayes, UCECE
+Copyright 2020--2022 Michael Hayes, UCECE
 
 """
 
@@ -257,6 +257,8 @@ class NetlistMixin(object):
 
         # Then augment with nodes connected by wires.
         for m, elt in enumerate(self.elements.values()):
+            if elt.nosim:
+                continue
             if elt.type == 'W':
                 enodes.add_wire(*elt.nodenames)
             elif elt.type.startswith('TL'):

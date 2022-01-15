@@ -1026,7 +1026,7 @@ Electrostatic shields are important to avoid capacitive coupling of interference
    ... W 18 0; down=0.2, sground
    ... Rin 11 17; down
    ... ; label_nodes=none, draw_nodes=connections
-   ... ; draw_nodes=connections, label_ids=none, label_nodes=primary
+   ... ; draw_nodes=connections, label_ids=none, label_nodes=primary""")
    >>> a.draw()
 
 .. image:: examples/tutorials/shield-guard/shield-ground.png

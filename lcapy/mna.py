@@ -102,7 +102,8 @@ class MNA(object):
 
         # Iterate over circuit elements and fill in matrices.
         for elt in self.cct.elements.values():
-            elt._stamp(self)
+            if not elt.nosim:
+                elt._stamp(self)
 
         # Augment the admittance matrix to form A matrix.
         self._A = self._G.row_join(self._B).col_join(self._C.row_join(self._D))
