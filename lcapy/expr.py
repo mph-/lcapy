@@ -2492,7 +2492,20 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                               **self.assumptions)
 
     def solve(self, *symbols, **flags):
-        """Solve expression.  This returns a list of solutions."""
+        """Solve expression.  This returns a list of solutions.  An empty list
+        is returned if no solutions are found.  Note, by default,
+        Lcapy assumes symbols are positive so an innocuous expression may fail
+        to give a result if the solution is negative.
+
+        For example:
+        `>>> x = symbols('x')
+         >>> y = x + 3
+         >>> y.solve(x)
+         []
+         >>> x = symbols('x', positive=False)
+         >>> y = x + 3
+         >>> y.solve(x)
+         [-3]`"""
 
         if self.has(AppliedUndef):
             new, defs = self.remove_undefs(return_mappings=True)
@@ -2502,6 +2515,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         return expr(sym.solve(self.expr, *symbols, **flags))
 
     def split_dirac_delta(self):
+
         """Return expression as a list of terms.  The first term has no
         DiracDeltas, the second term collates the DiracDeltas, the
         third term collates derivatives of DiracDeltas, etc.
