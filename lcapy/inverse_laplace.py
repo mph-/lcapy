@@ -305,14 +305,16 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         """Attempt to find response at end of unterminated lossless
         transmission line."""
 
+        # Look for expression of form 1 / (a * cosh(s * T) + b * sinh(s * T))
+
         if not expr.is_Pow or expr.args[1] != -1:
             self.error('Not 1 / X')
 
         denom = expr.args[0]
 
         arg = None
-        sinh_scale = Zero
-        cosh_scale = Zero
+        b = Zero
+        a = Zero
 
         for term in denom.as_ordered_terms():
 
@@ -322,13 +324,13 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
                     arg = e.args[0]
                 elif arg != e.args[0]:
                     self.error('Mismatch cosh arg')
-                cosh_scale += c
+                a += c
             elif e.is_Function and e.func == sym.sinh:
                 if arg is None:
                     arg = e.args[0]
                 elif arg != e.args[0]:
                     self.error('Mismatch sinh arg')
-                sinh_scale += c
+                b += c
             else:
                 self.error('Factor does not include cosh or sinh')
 
@@ -337,11 +339,11 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             self.error('Frequency dependent delay')
 
         m = self.dummy_var(expr, 'm', level=0, real=True)
-        g = (sinh_scale - cosh_scale) / (sinh_scale + cosh_scale)
+        g = (b - a) / (b + a)
         if g == 0:
-            h = 1 / (sinh_scale + cosh_scale) * sym.DiracDelta(t - T)
+            h = 1 / (b + a) * sym.DiracDelta(t - T)
         else:
-            h = 1 / (sinh_scale + cosh_scale) * sym.Sum(g**m * sym.DiracDelta(t - (2 * m + 1) * T), (m, 0, sym.oo))
+            h = 1 / (b + a) * sym.Sum(g**m * sym.DiracDelta(t - (2 * m + 1) * T), (m, 0, sym.oo))
         return h
 
     def term1(self, expr, s, t, **kwargs):
