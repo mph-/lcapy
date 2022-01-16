@@ -1760,9 +1760,9 @@ class TL(StretchyCpt):
 
     # Scaling is dubious.  Perhaps should stretch this
     # component in proportion to size?  Applying an xscale without a
-    # corresponding scale changes the ellipse.  This should be fixed
+    # corresponding yscale changes the ellipse.  This should be fixed
     # in circuitikz.
-    can_scale = False
+    can_scale = True
 
     node_pinnames = ('out1', 'out2', 'in1', 'in2')
 
