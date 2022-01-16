@@ -465,7 +465,7 @@ class Cpt(object):
 
     @property
     def required_pins(self):
-        import pdb; pdb.set_trace()
+
         rpins = []
         for node in self.nodes:
             node_name = node.name
@@ -1440,7 +1440,6 @@ class Cable(Shape):
                  'out+' : ('r', 0.5, a),
                  'out' : ('r', 0.5, 0),
                  'out-' : ('r', 0.5, -a)}
-
     auxiliary.update(Shape.auxiliary)
 
     def draw(self, **kwargs):
@@ -1759,11 +1758,11 @@ class SPppm(SP):
 class TL(StretchyCpt):
     """Transmission line"""
 
-    # This is dubious.  Perhaps should stretch this
+    # Scaling is dubious.  Perhaps should stretch this
     # component in proportion to size?  Applying an xscale without a
     # corresponding scale changes the ellipse.  This should be fixed
     # in circuitikz.
-    can_scale = True
+    can_scale = False
 
     node_pinnames = ('out1', 'out2', 'in1', 'in2')
 
