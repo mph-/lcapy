@@ -301,6 +301,49 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             self.error('SymPy does not know either')
         return result
 
+    def tline_end(self, expr, s, t):
+        """Attempt to find response at end of unterminated lossless
+        transmission line."""
+
+        if not expr.is_Pow or expr.args[1] != -1:
+            self.error('Not 1 / X')
+
+        denom = expr.args[0]
+
+        arg = None
+        sinh_scale = Zero
+        cosh_scale = Zero
+
+        for term in denom.as_ordered_terms():
+
+            c, e = factor_const(term, s)
+            if e.is_Function and e.func == sym.cosh:
+                if arg is None:
+                    arg = e.args[0]
+                elif arg != e.args[0]:
+                    self.error('Mismatch cosh arg')
+                cosh_scale += c
+            elif e.is_Function and e.func == sym.sinh:
+                if arg is None:
+                    arg = e.args[0]
+                elif arg != e.args[0]:
+                    self.error('Mismatch sinh arg')
+                sinh_scale += c
+            else:
+                self.error('Factor does not include cosh or sinh')
+
+        T = arg / s
+        if T.has(s):
+            self.error('Frequency dependent delay')
+
+        m = self.dummy_var(expr, 'm', level=0, real=True)
+        g = (sinh_scale - cosh_scale) / (sinh_scale + cosh_scale)
+        if g == 0:
+            h = 1 / (sinh_scale + cosh_scale) * sym.DiracDelta(t - T)
+        else:
+            h = 1 / (sinh_scale + cosh_scale) * sym.Sum(g**m * sym.DiracDelta(t - (2 * m + 1) * T), (m, 0, sym.oo))
+        return h
+
     def term1(self, expr, s, t, **kwargs):
 
         const, expr = factor_const(expr, s)
@@ -338,8 +381,11 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
                 if shift == 0:
                     return const * 2 * sym.Sum((-1)**m * sym.DiracDelta(t - scale * (2 * m + 1)), (m, 1, sym.oo)) + const * sym.DiracDelta(t), Zero
 
-        if expr.has(sym.cosh, sym.sinh, sym.tanh):
-            return const * self.hyperbolic_trig(expr, s, t), Zero
+        if expr.has(sym.cosh) and expr.has(sym.sinh):
+            try:
+                return const * self.tline_end(expr, s, t), Zero
+            except:
+                pass
 
         if expr.is_Pow and expr.args[0] == s:
             return Zero, const * self.power(expr, s, t)
