@@ -1,6 +1,6 @@
 """This module provides base transformer classes.
 
-Copyright 2020--2021 Michael Hayes, UCECE
+Copyright 2020--2022 Michael Hayes, UCECE
 
 """
 
@@ -190,8 +190,9 @@ class UnilateralInverseTransformer(Transformer):
 
         elif not kwargs.get('causal', False):
 
-            # Cannot determine result for var < 0
-            result = Piecewise((result, var >= 0))
+            if uresult != 0:
+                # Cannot determine result for var < 0
+                result = Piecewise((result, var >= 0))
 
         return result
 
