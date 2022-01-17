@@ -1094,23 +1094,17 @@ class Bipole(StretchyCpt):
 
         label_pos = '_'
         voltage_pos = '^'
-        if ((self.type in ('V', 'I', 'E', 'F', 'G', 'H', 'BAT')
-             and self.sch.circuitikz_date < '2016/01/01')
-            or (self.type in ('I', 'F', 'G')
-                and self.sch.circuitikz_date >= '2017/05/28')):
 
-            # Old versions of circuitikz expect the positive node
-            # first, except for voltage and current sources!  So
-            # swap the nodes otherwise they are drawn the wrong
-            # way around.
+        if self.type in ('V', 'I', 'E', 'F', 'G', 'H', 'BAT'):
+            # The node order has changed with different versions of
+            # Circuitikz.  First there was the `old` order for
+            # versions before 0.5.  Versions from 0.5 up to 0.9 use
+            # what is called the `noold` order.  Versions from 0.9
+            # introduce `RP` and `EP` orders.  These make more sense
+            # but switch the node order for sources compared to the
+            # `noold` order back to the `old` order.
+
             n1, n2 = n2, n1
-
-            if self.right or self.up:
-                # Draw label on LHS for vertical cpt and below
-                # for horizontal cpt.
-                label_pos = '^'
-                voltage_pos = '_'
-        else:
             if self.left or self.down:
                 # Draw label on LHS for vertical cpt and below
                 # for horizontal cpt.
