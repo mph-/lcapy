@@ -313,26 +313,26 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         denom = expr.args[0]
 
         arg = None
-        b = Zero
         a = Zero
+        b = Zero
 
-        for term in denom.as_ordered_terms():
+        for term in denom.expand().as_ordered_terms():
 
-            c, e = factor_const(term, s)
+            const, e = factor_const(term, s)
             if e.is_Function and e.func == sym.cosh:
                 if arg is None:
                     arg = e.args[0]
                 elif arg != e.args[0]:
                     self.error('Mismatch cosh arg')
-                a += c
+                a += const
             elif e.is_Function and e.func == sym.sinh:
                 if arg is None:
                     arg = e.args[0]
                 elif arg != e.args[0]:
                     self.error('Mismatch sinh arg')
-                b += c
+                b += const
             else:
-                self.error('Factor does not include cosh or sinh')
+                self.error('Term does not include cosh or sinh')
 
         T = arg / s
         if T.has(s):
@@ -345,6 +345,74 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         else:
             h = 1 / (b + a) * sym.Sum(g**m * sym.DiracDelta(t - (2 * m + 1) * T), (m, 0, sym.oo))
         return h
+
+    def tline_start(self, expr, s, t):
+        """Attempt to find response at start of unterminated lossless
+        transmission line."""
+
+        # Look for expression of form
+        # c * cosh(s * T) + d * sinh(s * T) / (a * cosh(s * T) + b * sinh(s * T))
+
+        numer, denom = expr.as_numer_denom()
+
+        arg = None
+        a = Zero
+        b = Zero
+        c = Zero
+        d = Zero
+
+        for term in denom.expand().as_ordered_terms():
+
+            const, e = factor_const(term, s)
+            if e.is_Function and e.func == sym.cosh:
+                if arg is None:
+                    arg = e.args[0]
+                elif arg != e.args[0]:
+                    self.error('Mismatch cosh arg')
+                a += const
+            elif e.is_Function and e.func == sym.sinh:
+                if arg is None:
+                    arg = e.args[0]
+                elif arg != e.args[0]:
+                    self.error('Mismatch sinh arg')
+                b += const
+            else:
+                self.error('Term does not include cosh or sinh')
+
+        for term in numer.expand().as_ordered_terms():
+
+            const, e = factor_const(term, s)
+            if e.is_Function and e.func == sym.cosh:
+                if arg is None:
+                    arg = e.args[0]
+                elif arg != e.args[0]:
+                    self.error('Mismatch cosh arg')
+                c += const
+            elif e.is_Function and e.func == sym.sinh:
+                if arg is None:
+                    arg = e.args[0]
+                elif arg != e.args[0]:
+                    self.error('Mismatch sinh arg')
+                d += const
+            else:
+                self.error('Term does not include cosh or sinh')
+
+        T = arg / s
+        if T.has(s):
+            self.error('Frequency dependent delay')
+
+        Z0 = sym.sqrt((b * d - a * c) * d / (d**2 - c**2))
+        Zl = Z0 * c / d
+        Zs = (a - Z0 * Zl) / Z0
+        K = d / Z0**2
+        # The simplify can be slow
+        Gammas = ((Zs - Z0) / (Zs + Z0)).simplify()
+        Gammal = ((Zl - Z0) / (Zl + Z0)).simplify()
+
+        m = self.dummy_var(expr, 'm', level=0, real=True)
+        h1 = (1 - Gammas) / 2 * sym.DiracDelta(t)
+        h2 = (1 - Gammas) * (1 + Gammas) / (2 * Gammas) * sym.Sum((Gammas * Gammal)**m * sym.DiracDelta(t - 2 * m * T), (m, 1, sym.oo))
+        return K * (h1 + h2)
 
     def term1(self, expr, s, t, **kwargs):
 
@@ -386,6 +454,10 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         if expr.has(sym.cosh) and expr.has(sym.sinh):
             try:
                 return const * self.tline_end(expr, s, t), Zero
+            except:
+                pass
+            try:
+                return const * self.tline_start(expr, s, t), Zero
             except:
                 pass
 
