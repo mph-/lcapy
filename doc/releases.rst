@@ -2,6 +2,44 @@
 Release notes
 =============
 
+V1.2.3
+======
+
+- Fixes voltage and current source drawing for new CircuiTikz
+
+- Adds inverse Laplace transforms for lossless transmission line responses
+
+- Adds `nosim` attribute to ignore component in analysis
+
+- Warns if current name is I
+
+
+V1.2.2
+======
+
+- Adds inverse Laplace transforms for reciprocals of hyperbolic functions
+
+- Fixes printing of reasons for MNA failure
+
+- Fixes `ignore` attribute for schematics
+
+- Renames `TxLine` to `TransmissionLine`
+
+- Adds Z-transform for down-sampling
+
+- Applies similarity and shift theorems for Fourier transforms
+
+- Determines roots numerically if cannot be found symbolically
+
+- Fixes default plot type for frequency plots
+
+- Adds `MatMul` and `MatAdd` functions
+
+- Adds `Z1sc`, `Z2sc`, `Z1oc`, `Z2sc`, etc. for each two-port model
+
+- Adds `Transformer` two-port model
+
+
 V1.2.1
 ======
 

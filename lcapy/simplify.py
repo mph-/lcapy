@@ -375,3 +375,7 @@ def expand_hyperbolic_trig(expr):
             raise RuntimeError('Internal error')
 
     return expr.replace(query, value)
+
+
+# Could have simplify_sum for things like Sum(0**m * x(m), (m, 0, oo))
+# that simplifies to x(0).
