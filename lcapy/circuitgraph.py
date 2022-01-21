@@ -2,11 +2,10 @@
 This module provides a class to represent circuits as graphs.
 This is primarily for loop analysis but is also used for nodal analysis.
 
-Copyright 2019--2021 Michael Hayes, UCECE
+Copyright 2019--2022 Michael Hayes, UCECE
 
 """
 
-from matplotlib.pyplot import subplots, savefig
 import networkx as nx
 
 
@@ -23,7 +22,7 @@ def canonical_loop(cycle):
 
     def rotate(l, n):
         return l[n:] + l[:n]
-        
+
     # Preserve node order.
     sorted_cycle = sorted(cycle)
     index = cycle.index(sorted_cycle[0])
@@ -40,7 +39,7 @@ class CircuitGraph(object):
     def from_circuit(cls, cct):
 
         G = nx.Graph()
-        
+
         dummy = 0
         # Dummy nodes are used to avoid parallel edges.
         dummy_nodes = {}
@@ -56,11 +55,11 @@ class CircuitGraph(object):
 
             nodename1 = node_map[elt.nodenames[0]]
             nodename2 = node_map[elt.nodenames[1]]
-            
+
             if G.has_edge(nodename1, nodename2):
                 # Add dummy node in graph to avoid parallel edges.
                 dummynode = '*%d' % dummy
-                dummycpt = 'W%d' % dummy                
+                dummycpt = 'W%d' % dummy
                 G.add_edge(nodename1, dummynode, name=name)
                 G.add_edge(dummynode, nodename2, name=dummycpt)
                 dummy_nodes[dummynode] = nodename2
@@ -69,7 +68,7 @@ class CircuitGraph(object):
                 G.add_edge(nodename1, nodename2, name=name)
 
         return cls(cct, G)
-    
+
     def __init__(self, cct, G=None):
 
         # For backwards compatibility
@@ -88,7 +87,7 @@ class CircuitGraph(object):
                 for elt in self.connected_cpts(node1):
                     yield elt
                 continue
-            
+
             for key, edge in edges.items():
                 if not edge.startswith('W'):
                     elt = self.cct.elements[edge]
@@ -98,7 +97,7 @@ class CircuitGraph(object):
         """Set of component names connected to specified node."""
 
         return set([cpt.name for cpt in self.connected_cpts(node)])
-            
+
     def all_loops(self):
 
         # This adds forward and backward edges.
@@ -120,7 +119,7 @@ class CircuitGraph(object):
         sets = [set(loop) for loop in loops]
 
         DG = nx.DiGraph(self.G)
-        
+
         rejects = []
         for i in range(len(sets)):
 
@@ -128,7 +127,7 @@ class CircuitGraph(object):
             loop = loops[i]
             if len(loop) == 2:
                 continue
-            
+
             for j in range(i + 1, len(sets)):
                 if sets[i].issubset(sets[j]):
                     rejects.append(j)
@@ -149,7 +148,7 @@ class CircuitGraph(object):
         components."""
 
         # It may be better to return a list of sets of edges.
-        
+
         if hasattr(self, '_cutsets'):
             return self._cutsets
         self._cutsets = list(nx.all_node_cuts(self.G))
@@ -162,14 +161,14 @@ class CircuitGraph(object):
         return list(nx.articulation_points(self.G))
 
     def cut_edges(self):
-        """Return list of cut edges.  Each cut edge is an edge that 
+        """Return list of cut edges.  Each cut edge is an edge that
         disconnects the graph if removed."""
 
-        return list(nx.minimum_edge_cut(self.G))    
+        return list(nx.minimum_edge_cut(self.G))
 
     def loops(self):
         """Return list of loops:  Each loop is a list of nodes."""
-        
+
         if hasattr(self, '_loops'):
             return self._loops
         self._loops = self.chordless_loops()
@@ -185,7 +184,7 @@ class CircuitGraph(object):
                 cpt = self.component(loop[m + 1], loop[m])
                 if cpt is None:
                     continue
-                
+
                 foo.append(cpt.name)
             foo.append(self.component(loop[-1], loop[0]).name)
             ret.append(foo)
@@ -194,14 +193,16 @@ class CircuitGraph(object):
     def draw(self, filename=None):
         """Use matplotlib to draw circuit graph."""
 
+        from matplotlib.pyplot import subplots, savefig
+
         fig, ax = subplots(1)
 
         G = self.G
         pos = nx.spring_layout(G)
-        
+
         labels = dict(zip(G.nodes(), G.nodes()))
         nx.draw_networkx(G, pos, ax, labels=labels)
-        
+
         edge_labels = dict([((u, v), d['name'])
                             for u, v, d in G.edges(data=True)])
         nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels)
@@ -212,22 +213,22 @@ class CircuitGraph(object):
     @property
     def is_planar(self):
         """Return True for a planar network."""
-        
+
         return nx.check_planarity(self.G)[0]
 
-    @property    
+    @property
     def nodes(self):
         """Return nodes comprising network."""
-        
+
         return self.G.nodes()
-    
+
     def node_edges(self, node):
-        """Return edges connected to specified node."""        
+        """Return edges connected to specified node."""
 
         return self.G[node]
 
     def component(self, node1, node2):
-        """Return component connected between specified nodes."""                
+        """Return component connected between specified nodes."""
 
         name = self.G.get_edge_data(node1, node2)['name']
         if name.startswith('W'):
@@ -239,13 +240,13 @@ class CircuitGraph(object):
         tuple is the loop the cpt belongs to or an empty list; the
         second element indicates the cpt direction compared to the
         loop direction."""
-        
+
         loops = self.loops()
         cloops = []
 
         # Map node names to equipotential node names.
         nodenames = [self.cct.node_map[nodename] for nodename in elt.nodenames]
-        
+
         for n, loop in enumerate(loops):
 
             loop1 = loop.copy()
@@ -265,7 +266,7 @@ class CircuitGraph(object):
                 cloops.append(([], None))
 
         return cloops
-    
+
     @property
     def components(self):
         """Return list of component names."""
@@ -280,7 +281,7 @@ class CircuitGraph(object):
         nodenames = [cct.node_map[nodename] for nodename in elt.nodenames]
 
         series = []
-        series.append(cpt_name)        
+        series.append(cpt_name)
 
         def follow(node):
             neighbours = self.G[node]
@@ -292,7 +293,7 @@ class CircuitGraph(object):
                     follow(n)
 
         follow(nodenames[0])
-        follow(nodenames[1])        
+        follow(nodenames[1])
 
         # If only have two components in parallel, they will be
         # detected as a series connection.  However, if there is a
@@ -328,9 +329,9 @@ class CircuitGraph(object):
             parallel.append(name)
         except:
             pass
-            
+
         # If find a dummy node name then there is a parallel component.
-        
+
         for n, e in neighbours1.items():
             if n.startswith('*'):
                 for n3, e3 in self.G[n].items():
@@ -349,11 +350,11 @@ class CircuitGraph(object):
         if n2.startswith('*'):
             for n3, e3 in self.G[n2].items():
                 if n3 == n1 and not e['name'].startswith('W'):
-                    parallel.append(e['name'])                                            
-        
+                    parallel.append(e['name'])
+
         return set(parallel)
 
-    @property    
+    @property
     def node_connectivity(self):
         """Return node connectivity for graph.  If the connectivity is 0,
         then there are disconnected components.  If there is a component
@@ -373,12 +374,12 @@ class CircuitGraph(object):
         T = nx.minimum_spanning_tree(self.G)
         return CircuitGraph(self.cct, T)
 
-    def links(self):    
+    def links(self):
         """Return links; the graph of the edges that are not in the minimum
         spanning tree."""
         G = self.G
         T = self.tree().G
-        
+
         G_edges = set(G.edges())
         T_edges = set(T.edges())
 
@@ -388,8 +389,8 @@ class CircuitGraph(object):
         for edge in L_edges:
             data = G.get_edge_data(*edge)
             L.add_edge(*edge, name=data['name'])
-        return CircuitGraph(self.cct, L)        
-    
+        return CircuitGraph(self.cct, L)
+
     @property
     def num_parts(self):
 
@@ -399,7 +400,7 @@ class CircuitGraph(object):
 
     @property
     def num_nodes(self):
-        """The number of nodes in the graph."""        
+        """The number of nodes in the graph."""
 
         return len(self.G.nodes)
 
@@ -407,7 +408,7 @@ class CircuitGraph(object):
     def num_branches(self):
         """The number of branches (edges) in the graph."""
 
-        return len(self.G.edges)    
+        return len(self.G.edges)
 
     @property
     def rank(self):
@@ -419,5 +420,4 @@ class CircuitGraph(object):
     def nullity(self):
         """For a planar circuit, this is equal to the number of meshes in the graph."""
 
-        return self.num_branches - self.num_nodes + self.num_parts    
-    
+        return self.num_branches - self.num_nodes + self.num_parts
