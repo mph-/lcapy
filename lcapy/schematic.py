@@ -442,7 +442,11 @@ class Schematic(NetfileMixin):
 
     def _positions_calculate(self, method='graph', debug=False):
 
+        if self.debug & 4:
+            print('Creating graphs')
         placer = schemplacer(self.elements, self.nodes, method, debug)
+        if self.debug & 4:
+            print('Solving graphs')
         self.width, self.height = placer.solve(self.node_spacing)
 
     def _tikz_draw(self, style_args='', **kwargs):
@@ -556,16 +560,16 @@ class Schematic(NetfileMixin):
 
         latexrunner = LatexRunner(self.debug & 2)
 
-        self.circuitikz_date, self.circuitikz_version = latexrunner.circuitikz_version()
-        if self.circuitikz_date is None:
-            raise RuntimeError('circuitikz is not installed')
-
         content = self._tikz_draw(style_args=style_args, **kwargs)
 
         if nosave:
             return
 
         if self.debug & 1:
+            self.circuitikz_date, self.circuitikz_version = latexrunner.circuitikz_version()
+            if self.circuitikz_date is None:
+                raise RuntimeError('circuitikz is not installed')
+
             print('circuitikz version %s (%s)' % (self.circuitikz_version,
                                                   self.circuitikz_date))
             print('width=%d, height=%d, dpi=%d, cpt_size=%.2f, node_spacing=%.2f, scale=%.2f'

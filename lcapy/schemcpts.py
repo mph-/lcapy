@@ -1781,18 +1781,10 @@ class TL(StretchyCpt):
         n1, n2, n3, n4 = self.nodes
         centre = (n1.pos + n3.pos) * 0.5 + Pos(1 - self.w, 0)
 
-        if self.sch.circuitikz_version >= '1.0':
-            q = self.xtf(centre, ((0.23, 0),
-                                  (0.20, -0.1),
-                                  (-0.35, 0),
-                                  (-0.27, -0.11)))
-        else:
-            # TODO, fix for old versions...
-            q = self.xtf(centre, ((0.32, 0),
-                                  (0.27, -0.145),
-                                  (-0.35, 0),
-                                  (-0.35, -0.145)))
-
+        q = self.xtf(centre, ((0.23, 0),
+                              (0.20, -0.1),
+                              (-0.35, 0),
+                              (-0.27, -0.11)))
         pos = n3.pos
 
         # Newer versions of circuitikz have a tline component with
