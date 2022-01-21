@@ -412,6 +412,7 @@ class Schematic(NetfileMixin):
 
         self.elements[cpt.name] = cpt
 
+        # Perhaps don't show nodes if cpt invisible?
         if not cpt.ignore:
 
             for node in cpt.auxiliary_node_names:

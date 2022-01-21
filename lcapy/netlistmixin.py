@@ -588,7 +588,7 @@ class NetlistMixin(object):
             str_nodes.append(node)
         return str_nodes
 
-    def _parse_node_args(self, Np, Nm=None):
+    def _parse_node_args2(self, Np, Nm=None):
 
         if Nm is None:
             cpt = self[Np]
@@ -597,6 +597,45 @@ class NetlistMixin(object):
             else:
                 Np, Nm = cpt.nodenames[0:2]
         return Np, Nm
+
+    def _parse_node_args4(self, N1p, N1m, N2p, N2m, name):
+
+        if N2p is None and N2m is None:
+
+            arg1, arg2 = N1p, N1m
+
+            if isinstance(arg1, tuple):
+                N1p, N1m = arg1
+                # TODO: check if there is a voltage source across these nodes
+                # that will short out the applied source.
+            else:
+                try:
+                    arg1 = self.elements[arg1]
+                except:
+                    pass
+                if arg1 not in self.elements.values():
+                    raise ValueError('Unknown component %s' % arg1.name)
+                if arg1.is_voltage_source:
+                    # The killed voltage source will short the applied signal.
+                    raise ValueError("Cannot determine transfer function across voltage source %s; you will need to remove it, e.g., new = cct.remove('%s')" % (arg1.name, arg1.name))
+                N1p, N1m = [n.name for n in arg1.nodes[0:2]]
+
+            if isinstance(arg2, tuple):
+                N2p, N2m = arg2
+            else:
+                try:
+                    arg2 = self.elements[arg2]
+                except:
+                    pass
+
+                if arg2 not in self.elements.values():
+                    raise ValueError('Unknown component %s' % arg2.name)
+                N2p, N2m = [n.name for n in arg2.nodes[0:2]]
+
+        elif N2p is None or N2m is None:
+            raise ValueError('Expecting %s(cpt1, cpt2), %s(cpt1, (N2p, N2m), %s((N1p, N1m), cpt2), or %s(N1p, N1m, N2p, N2m)' % (name, name, name, name))
+
+        return N1p, N1m, N2p, N2m
 
     def Voc(self, Np, Nm=None):
         """Return open-circuit transform-domain voltage between nodes Np and
@@ -613,7 +652,7 @@ class NetlistMixin(object):
         """Return short-circuit transform-domain current between nodes Np and
         Nm."""
 
-        Np, Nm = self._parse_node_args(Np, Nm)
+        Np, Nm = self._parse_node_args2(Np, Nm)
         Np, Nm = self._check_nodes(Np, Nm)
 
         new = self.copy()
@@ -651,7 +690,7 @@ class NetlistMixin(object):
 
         from .oneport import V, Z
 
-        Np, Nm = self._parse_node_args(Np, Nm)
+        Np, Nm = self._parse_node_args2(Np, Nm)
         Np, Nm = self._check_nodes(Np, Nm)
         Voc = self.Voc(Np, Nm)
         Zoc = self.impedance(Np, Nm)
@@ -668,7 +707,7 @@ class NetlistMixin(object):
 
         from .oneport import I, Y
 
-        Np, Nm = self._parse_node_args(Np, Nm)
+        Np, Nm = self._parse_node_args2(Np, Nm)
         Np, Nm = self._check_nodes(Np, Nm)
         Isc = self.Isc(Np, Nm)
         Ysc = self.admittance(Np, Nm)
@@ -698,7 +737,7 @@ class NetlistMixin(object):
         domain admittance can be found by substituting j * omega for
         s."""
 
-        Np, Nm = self._parse_node_args(Np, Nm)
+        Np, Nm = self._parse_node_args2(Np, Nm)
         Np, Nm = self._check_nodes(Np, Nm)
 
         new = self.kill()
@@ -720,7 +759,7 @@ class NetlistMixin(object):
         domain impedance can be found by substituting j * omega for
         s."""
 
-        Np, Nm = self._parse_node_args(Np, Nm)
+        Np, Nm = self._parse_node_args2(Np, Nm)
         Np, Nm = self._check_nodes(Np, Nm)
 
         new = self.kill()
@@ -769,46 +808,13 @@ class NetlistMixin(object):
         can be found by substituting j * omega for s.
 
         Alternative forms are:
+            transfer(N1p, N1m, N2p, N2m)
             transfer(cpt1, cpt2)
             transfer((N1p, N1m), cpt2)
             transfer(cpt1, (N2p, N2m))
         """
 
-        if N2p is None and N2m is None:
-
-            arg1, arg2 = N1p, N1m
-
-            if isinstance(arg1, tuple):
-                N1p, N1m = arg1
-                # TODO: check if there is voltage source across these nodes
-                # that will short out the applied source.
-            else:
-                try:
-                    arg1 = self.elements[arg1]
-                except:
-                    pass
-                if arg1 not in self.elements.values():
-                    raise ValueError('Unknown component %s' % arg1.name)
-                if arg1.is_voltage_source:
-                    # The killed voltage source will short the applied signal.
-                    raise ValueError("Cannot determine transfer function across voltage source %s; you will need to remove it, e.g., new = cct.remove('%s')" % (arg1.name, arg1.name))
-                N1p, N1m = [n.name for n in arg1.nodes[0:2]]
-
-            if isinstance(arg2, tuple):
-                N2p, N2m = arg2
-            else:
-                try:
-                    arg2 = self.elements[arg2]
-                except:
-                    pass
-
-                if arg2 not in self.elements.values():
-                    raise ValueError('Unknown component %s' % arg2.name)
-                N2p, N2m = [n.name for n in arg2.nodes[0:2]]
-
-        elif N2p is None or N2m is None:
-            raise ValueError('Expecting transfer(cpt1, cpt2), transfer(cpt1, (N2p, N2m), transfer((N1p, N1m), cpt2), or transfer(N1p, N1m, N2p, N2m)')
-
+        N1p, N1m, N2p, N2m = self._parse_node_args4(N1p, N1m, N2p, N2m, 'transfer')
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
 
         new = self.kill()
@@ -824,7 +830,7 @@ class NetlistMixin(object):
         H.causal = True
         return H
 
-    def Aparams(self, N1p, N1m, N2p, N2m):
+    def Aparams(self, N1p, N1m, N2p=None, N2m=None):
         """Create A-parameters for two-port defined by nodes N1p, N1m, N2p, and N2m, where:
         I1 is the current flowing into N1p and out of N1m
         I2 is the current flowing into N2p and out of N2m
@@ -836,6 +842,7 @@ class NetlistMixin(object):
 
         from .twoport import AMatrix
 
+        N1p, N1m, N2p, N2m = self._parse_node_args4(N1p, N1m, N2p, N2m, 'Aparams')
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
         net = self.kill()
         if '0' not in net.nodes:
@@ -878,7 +885,7 @@ class NetlistMixin(object):
         except ValueError:
             raise ValueError('Cannot create A matrix')
 
-    def Bparams(self, N1p, N1m, N2p, N2m):
+    def Bparams(self, N1p, N1m, N2p=None, N2m=None):
         """Create B-parameters for two-port defined by nodes N1p, N1m, N2p, and N2m, where:
         I1 is the current flowing into N1p and out of N1m
         I2 is the current flowing into N2p and out of N2m
@@ -889,7 +896,7 @@ class NetlistMixin(object):
         """
         return self.Aparams(N1p, N1m, N2p, N2m).Bparams
 
-    def Gparams(self, N1p, N1m, N2p, N2m):
+    def Gparams(self, N1p, N1m, N2p=None, N2m=None):
         """Create G-parameters for two-port defined by nodes N1p, N1m, N2p, and N2m, where:
         I1 is the current flowing into N1p and out of N1m
         I2 is the current flowing into N2p and out of N2m
@@ -900,7 +907,7 @@ class NetlistMixin(object):
         """
         return self.Aparams(N1p, N1m, N2p, N2m).Gparams
 
-    def Hparams(self, N1p, N1m, N2p, N2m):
+    def Hparams(self, N1p, N1m, N2p=None, N2m=None):
         """Create H-parameters for two-port defined by nodes N1p, N1m, N2p, and N2m, where:
         I1 is the current flowing into N1p and out of N1m
         I2 is the current flowing into N2p and out of N2m
@@ -911,7 +918,7 @@ class NetlistMixin(object):
         """
         return self.Aparams(N1p, N1m, N2p, N2m).Hparams
 
-    def Sparams(self, N1p, N1m, N2p, N2m):
+    def Sparams(self, N1p, N1m, N2p=None, N2m=None):
         """Create S-parameters for two-port defined by nodes N1p, N1m, N2p, and N2m, where:
         I1 is the current flowing into N1p and out of N1m
         I2 is the current flowing into N2p and out of N2m
@@ -922,7 +929,7 @@ class NetlistMixin(object):
         """
         return self.Aparams(N1p, N1m, N2p, N2m).Sparams
 
-    def Tparams(self, N1p, N1m, N2p, N2m):
+    def Tparams(self, N1p, N1m, N2p=None, N2m=None):
         """Create T-parameters for two-port defined by nodes N1p, N1m, N2p, and N2m, where:
         I1 is the current flowing into N1p and out of N1m
         I2 is the current flowing into N2p and out of N2m
@@ -933,7 +940,7 @@ class NetlistMixin(object):
         """
         return self.Tparams(N1p, N1m, N2p, N2m).Hparams
 
-    def Yparams(self, N1p, N1m, N2p, N2m):
+    def Yparams(self, N1p, N1m, N2p=None, N2m=None):
         """Create Y-parameters for two-port defined by nodes N1p, N1m, N2p, and N2m, where:
         I1 is the current flowing into N1p and out of N1m
         I2 is the current flowing into N2p and out of N2m
@@ -944,7 +951,7 @@ class NetlistMixin(object):
         """
         return self.Zparams(N1p, N1m, N2p, N2m).Yparams
 
-    def Zparams(self, N1p, N1m, N2p, N2m):
+    def Zparams(self, N1p, N1m, N2p=None, N2m=None):
         """Create Z-parameters for two-port defined by nodes N1p, N1m, N2p, and N2m, where:
         I1 is the current flowing into N1p and out of N1m
         I2 is the current flowing into N2p and out of N2m
@@ -957,6 +964,7 @@ class NetlistMixin(object):
 
         # TODO, generalise to multiports.
 
+        N1p, N1m, N2p, N2m = self._parse_node_args4(N1p, N1m, N2p, N2m, 'Zparams')
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
         net = self.kill()
         if '0' not in net.nodes:
@@ -1604,7 +1612,7 @@ class NetlistMixin(object):
 
         return self.simplify(explain=True, modify=False)
 
-    def twoport(self, N1p, N1m, N2p, N2m, model='B'):
+    def twoport(self, N1p, N1m, N2p=None, N2m=None, model='B'):
         """Create s-domain twoport model for two-port defined by nodes N1p, N1m, N2p, and N2m, where:
         I1 is the current flowing into N1p and out of N1m
         I2 is the current flowing into N2p and out of N2m
@@ -1616,6 +1624,9 @@ class NetlistMixin(object):
 
         from .twoport import TwoPortAModel, TwoPortBModel, TwoPortGModel
         from .twoport import TwoPortHModel, TwoPortYModel, TwoPortZModel
+
+        N1p, N1m, N2p, N2m = self._parse_node_args4(N1p, N1m, N2p, N2m, 'twoport')
+        N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
 
         # TODO, generalise for not just s-domain.
 
