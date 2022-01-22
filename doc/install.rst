@@ -78,14 +78,14 @@ Installation for Windows
 
 
 Installation of latest version
-============================== 
-   
+==============================
+
 If you wish to install the latest version from the git repository use:
 
    $ pip install git+https://github.com/mph-/lcapy.git#egg=lcapy
 
 However, it is better to clone the git repository if you wish to make fixes.
-   
+
 
 Installation for development
 ============================
@@ -101,7 +101,7 @@ Installation for development
 3.  Install Lcapy using:
 
 .. code-block:: console
-                
+
    $ cd lcapy
    $ pip3 install --editable .[test,release]
 
@@ -123,10 +123,9 @@ Installation for development
 .. code-block:: console
 
    $ pip3 install flake8 flake8-bugbear flake8-requirements flake8-comprehensions
-   
+
 7. For coverage analysis
 
 .. code-block:: console
 
    $ pip3 install coverage
-   
