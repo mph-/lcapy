@@ -120,7 +120,7 @@ class ZDomainExpression(ZDomain, SequenceExpression):
     def response(self, x, t):
         """Evaluate response to input signal x at times t."""
 
-        from numpy import allcose, diff, ones, zeros, arange, convolve, hstack
+        from numpy import allclose, diff, ones, zeros, arange, convolve, hstack
 
         if len(x) != len(t):
             raise ValueError('x must have same length as t')
