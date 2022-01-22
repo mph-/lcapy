@@ -27,7 +27,6 @@ from .printing import pprint, pretty, print_str, latex
 from .functions import sqrt, log10, atan2, gcd, exp, Function, Eq
 from .units import units, u as uu, dB
 from .utils import as_N_D, as_sum, remove_images, pair_conjugates, split_dirac_delta
-import numpy as np
 import sympy as sym
 from sympy.utilities.lambdify import lambdify
 from .sym import simplify
@@ -1906,6 +1905,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         This is replaced by `arg` and then evaluated to obtain a result.
         """
 
+        import numpy as np
+
         is_time = self.is_time_domain or self.is_discrete_time_domain
         is_causal = is_time and self.is_causal
 
@@ -2248,11 +2249,13 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         See also evaluate.
 
         """
+        from numpy import ndarray, array
+
         if isinstance(arg, (tuple, list)):
             return [self._subs1(self.var, arg1) for arg1 in arg]
 
-        if isinstance(arg, np.ndarray):
-            return np.array([self._subs1(self.var, arg1) for arg1 in arg])
+        if isinstance(arg, ndarray):
+            return array([self._subs1(self.var, arg1) for arg1 in arg])
 
         from .transform import call
         return call(self, arg, **assumptions)
@@ -3426,6 +3429,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
 def exprcontainer(arg, **assumptions):
 
+    from numpy import ndarray
+
     if isinstance(arg, (ExprList, ExprTuple, ExprDict)):
         return arg
     elif isinstance(arg, list):
@@ -3434,7 +3439,7 @@ def exprcontainer(arg, **assumptions):
         return ExprTuple(arg, **assumptions)
     elif isinstance(arg, dict):
         return ExprDict(arg)
-    elif isinstance(arg, np.ndarray):
+    elif isinstance(arg, ndarray):
         from .vector import Vector
         if arg.ndim > 1:
             raise ValueError('Multidimensional arrays unsupported; convert to Matrix')

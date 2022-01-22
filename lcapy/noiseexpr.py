@@ -1,3 +1,9 @@
+"""This module provides the NoiseExpression class to represent noise expressions.
+
+Copyright 2020--2022 Michael Hayes, UCECE
+
+"""
+
 from __future__ import division
 from .sym import symsimplify
 from .functions import sqrt
@@ -5,7 +11,6 @@ from .sym import pi, omegasym, fsym
 from .state import state
 from .expr import Expr
 import sympy as sym
-import numpy as np
 from warnings import warn
 
 
@@ -34,8 +39,8 @@ class NoiseExpression(Expr):
     Caution: The sum of two noise expressions generates a noise
     expression with a new nid.  This can lead to unexpected results
     since noise expressions with different nids are assumed to be
-    uncorrelated.  For example, consider: 
-    a = NoiseExpression(3); 
+    uncorrelated.  For example, consider:
+    a = NoiseExpression(3);
     b = NoiseExpression(4)
     a + b - b gives sqrt(41) and a + b - a gives sqrt(34).
 
@@ -80,51 +85,51 @@ class NoiseExpression(Expr):
         if self.var == x.var:
             return x
         return x(self.var)
-    
+
     def __add__(self, x):
         """Add noise spectra (on power basis if uncorrelated)."""
 
         # Perhaps allow constant?
-        
+
         if not isinstance(x, NoiseExpression):
             raise ValueError('Cannot add %s and %s' % (self, x))
-        
+
         if x == 0:
             return self.__class__(self, nid=self.nid)
 
         x = self.__compat__(x)
-        
+
         if self.nid == x.nid:
             return self.__class__(self.expr + x.expr, nid=self.nid)
-        
+
         value1 = self.expr
         value2 = x.expr
         value1sq = symsimplify(value1 * sym.conjugate(value1))
-        value2sq = symsimplify(value2 * sym.conjugate(value2))                  
+        value2sq = symsimplify(value2 * sym.conjugate(value2))
         result = symsimplify(sym.sqrt((value1sq + value2sq)))
         return self.__class__(result)
 
     def __radd__(self, x):
-        raise ValueError('Cannot add %s and %s' % (self, x))        
+        raise ValueError('Cannot add %s and %s' % (self, x))
 
     def __sub__(self, x):
 
         # Perhaps allow constant?
-        
+
         if not isinstance(x, NoiseExpression):
             raise ValueError('Cannot subtract %s and %s' % (self, x))
 
         if x == 0:
             return self.__class__(self, nid=self.nid)
 
-        x = self.__compat__(x)        
+        x = self.__compat__(x)
 
         if self.nid == x.nid:
-            return self.__class__(self.expr - x.expr, nid=self.nid)        
+            return self.__class__(self.expr - x.expr, nid=self.nid)
         return self + x
 
     def __rsub__(self, x):
-        raise ValueError('Cannot subtract %s and %s' % (self, x))          
+        raise ValueError('Cannot subtract %s and %s' % (self, x))
 
     def __mul__(self, x):
         if isinstance(x, NoiseExpression) and self.nid != x.nid:
@@ -134,7 +139,7 @@ class NoiseExpression(Expr):
         return self.__class__(self.expr * x, nid=self.nid)
 
     def __rmul__(self, x):
-        return self.__class__(self.expr * x, nid=self.nid)    
+        return self.__class__(self.expr * x, nid=self.nid)
 
     def __div__(self, x):
         if isinstance(x, NoiseExpression) and self.nid != x.nid:
@@ -142,7 +147,7 @@ class NoiseExpression(Expr):
         return self.__class__(self.expr / x, nid=self.nid)
 
     def __rdiv__(self, x):
-        return self.__class__(x / self.expr, nid=self.nid)        
+        return self.__class__(x / self.expr, nid=self.nid)
 
     def __eq__(self, x):
         try:
@@ -151,7 +156,7 @@ class NoiseExpression(Expr):
         except:
             pass
 
-        x = self.__compat__(x)        
+        x = self.__compat__(x)
         try:
             if self.expr == x.expr:
                 return True
@@ -178,9 +183,11 @@ class NoiseExpression(Expr):
         evaluated at time values specified by vector t.   If t is an integer,
         this returns `t` samples."""
 
+        from numpy import arange, random, allclose, diff, fft, sqrt
+
         if isinstance(t, int):
-            t = np.arange(t)
-        
+            t = arange(t)
+
         N = len(t)
         if N < 3:
             raise ValueError('Require at least 3 samples')
@@ -188,21 +195,21 @@ class NoiseExpression(Expr):
             raise ValueError('Require even number of samples')
 
         if seed is not None:
-            np.random.seed(seed)
-        
-        td = np.diff(t)
-        if not np.allclose(np.diff(td), 0):
+            random.seed(seed)
+
+        td = diff(t)
+        if not allclose(diff(td), 0):
             raise ValueError('Require uniform sampling')
 
         fs = 1 / td[0]
-        vf = np.arange(N // 2 + 1) * fs / N
+        vf = arange(N // 2 + 1) * fs / N
         Sn = self(f).evaluate(vf)
-    
-        x = np.random.randn(N)
-        X = np.fft.rfft(x)
-        
-        Y = X * np.sqrt(Sn * fs / 2)
-        y = np.fft.irfft(Y)
+
+        x = random.randn(N)
+        X = fft.rfft(x)
+
+        Y = X * sqrt(Sn * fs / 2)
+        y = fft.irfft(Y)
         return y
 
     def time(self):
@@ -214,7 +221,7 @@ class NoiseExpression(Expr):
     def fourier(self):
         warn('No Fourier representation for noise expression, '
               'assumed zero: use asd() or psd()')
-        return 0    
+        return 0
 
     def laplace(self):
         warn('No Laplace representation for noise expression, '
@@ -254,6 +261,6 @@ class NoiseExpression(Expr):
             return plot_angular_frequency(self, fvector, **kwargs)
         raise ValueError('Invalid var for NoiseExpression')
 
-    
+
 from .fexpr import f
 from .omegaexpr import omega

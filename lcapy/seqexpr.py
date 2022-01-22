@@ -2,7 +2,7 @@
 common methods for the discrete-time and discrete-frequency
 expressions.
 
-Copyright 2020--2021 Michael Hayes, UCECE
+Copyright 2020--2022 Michael Hayes, UCECE
 
 """
 
@@ -11,7 +11,6 @@ from .sequence import Sequence
 from .functions import function_mapping
 from .extrafunctions import UnitStep, UnitImpulse, dtrect, dtsign
 from sympy import Heaviside
-from numpy import arange
 from warnings import warn
 
 
@@ -23,7 +22,7 @@ class SequenceExpression(DiscreteExpression):
         super(SequenceExpression, self).__init__(val, **assumptions)
 
         def remap_continuous_discrete(expr):
-        
+
             def query(expr):
                 return expr.is_Function and expr.func in function_mapping
 
@@ -37,13 +36,13 @@ class SequenceExpression(DiscreteExpression):
 
             # Use discrete-time function variants, see also functions.py
             return expr.replace(query, value)
-        
+
         self.expr = remap_continuous_discrete(self.expr)
-        
+
     def first_index(self, ni=None):
 
         if ni is None:
-            ni = (-10, 10)                
+            ni = (-10, 10)
         if isinstance(ni, tuple):
             ni = range(*ni)
 
@@ -53,11 +52,11 @@ class SequenceExpression(DiscreteExpression):
             if self(n) != 0:
                 n2 = n
         return n2
-        
+
     def last_index(self, ni=None):
 
         if ni is None:
-            ni = (-10, 10)        
+            ni = (-10, 10)
         if isinstance(ni, tuple):
             ni = range(*ni)
 
@@ -75,9 +74,9 @@ class SequenceExpression(DiscreteExpression):
 
         The sequence indices are specified with the optional `ni` argument.
         For example:
-        
+
         >>> a = x.seq(ni=(-1, 0, 1, 2))
-        
+
         If the `ni` argument is not specified, the sequence indices
         are enumerated from 0.
 
@@ -88,12 +87,14 @@ class SequenceExpression(DiscreteExpression):
         [-1, 0, 1, 2]
         """
 
+        from numpy import arange
+
         start_trunc = False
         end_trunc = False
-        
+
         if ni is None:
             n1 = self.first_index(ni)
-            n2 = self.last_index(ni)        
+            n2 = self.last_index(ni)
             ni = arange(n1, n2 + 1)
             # Should search to handle cases such as 1, 1, 0, 1 but
             # when to stop?
@@ -103,12 +104,11 @@ class SequenceExpression(DiscreteExpression):
             if self(n2 + 1) != 0:
                 warn('Sequence truncated at n2=%d' % n2)
                 end_trunc = True
-            
+
         elif isinstance(ni, tuple):
-            ni = arange(ni[0], ni[-1] + 1)            
-            
+            ni = arange(ni[0], ni[-1] + 1)
+
         v = self(ni)
-        
+
         return self.seqcls(v, ni, evaluate=evaluate,
                            start_trunc=start_trunc, end_trunc=end_trunc)
-       

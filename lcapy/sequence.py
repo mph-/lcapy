@@ -1,16 +1,15 @@
 """This module handles sequences.
 
-Copyright 2020-2021 Michael Hayes, UCECE
+Copyright 2020--2022 Michael Hayes, UCECE
 
 """
 
 from .expr import ExprList, ExprDomain, expr
 from .utils import isiterable
 from .assumptions import Assumptions
-from numpy import array, allclose, arange
 
 # Perhaps subclass numpy ndarray?  But then could not have symbolic
-# elements in the sequence.  
+# elements in the sequence.
 
 def parse_seq_str(s):
 
@@ -18,7 +17,7 @@ def parse_seq_str(s):
         if not s.endswith('}'):
             raise ValueError('Mismatched braces for %s' % s)
         s = s[1:-1]
-    
+
     parts = s.split(',')
     N = len(parts)
 
@@ -37,7 +36,7 @@ def parse_seq_str(s):
 
     if m0 is None:
         m0 = 0
-        
+
     ni = range(-m0, N - m0)
     return vals, ni
 
@@ -47,7 +46,7 @@ class Sequence(ExprList, ExprDomain):
     var = None
     is_sequence = True
     quantity = 'undefined'
-    
+
     def __init__(self, seq, ni=None, origin=None, evaluate=False, var=None,
                  start_trunc=False, end_trunc=False):
         """Sequences can be created from an tuple, list, or ndarray.
@@ -55,7 +54,7 @@ class Sequence(ExprList, ExprDomain):
         See `seq()` to create a Sequence from a string.
 
         >>> a = Sequence((1, 2, 3))
-        
+
         The sequence indices are specified with the optional `ni` argument.
         For example:
 
@@ -72,7 +71,7 @@ class Sequence(ExprList, ExprDomain):
 
         Sequences can be converted into discrete-time, discrete-frequency,
         z-domain sequences using call notation, for example::
-        
+
         >>> a(z)
 
         `start_trunc` indicates that the start of the sequence was truncated
@@ -88,8 +87,8 @@ class Sequence(ExprList, ExprDomain):
             seq, ni = parse_seq_str(seq)
 
         if not isiterable(seq):
-            seq = (seq, )        
-        
+            seq = (seq, )
+
         super (Sequence, self).__init__(seq, evaluate)
 
         if ni is not None and origin is not None:
@@ -97,7 +96,7 @@ class Sequence(ExprList, ExprDomain):
 
         if origin is not None:
             ni = range(-origin, len(self) - origin)
-        
+
         if ni is None:
             ni = range(len(seq))
 
@@ -110,7 +109,7 @@ class Sequence(ExprList, ExprDomain):
         self.start_trunc = start_trunc
         self.end_trunc = end_trunc
         # For symmetry with Expr
-        self.assumptions = Assumptions()        
+        self.assumptions = Assumptions()
 
     @property
     def vals(self):
@@ -124,19 +123,19 @@ class Sequence(ExprList, ExprDomain):
 
     def __eq__(self, x):
 
-        self._check_compatible(x)        
+        self._check_compatible(x)
         return self.vals == x.vals and self.n == x.n
 
     def _check_compatible(self, x):
-        
+
         if not isinstance(x, Sequence):
             raise TypeError('Can only add a sequence to a sequence')
         if x.quantity != 'undefined' and self.quantity != 'undefined' and x.quantity != self.quantity:
             raise TypeError('Sequences have different quantities: %s and %s' % (self.quantity, x.quantity))
 
         if self.domain != x.domain:
-            raise TypeError('Sequences have different domains: %s and %s' % (self.domain, x.domain))            
-        
+            raise TypeError('Sequences have different domains: %s and %s' % (self.domain, x.domain))
+
     def __abs__(self):
         """Absolute value of each element."""
 
@@ -155,40 +154,40 @@ class Sequence(ExprList, ExprDomain):
             cls = x.__class__
         else:
             cls = self.__class__
-        
+
         return cls(super(Sequence, self).__add__(x))
 
     def __mul__(self, x):
         """Replicate x times."""
 
-        return self.__class__(super(Sequence, self).__mul__(x))    
-    
+        return self.__class__(super(Sequence, self).__mul__(x))
+
     def __lshift__(self, m):
 
         return self.delay(-m)
 
     def __rshift__(self, m):
 
-        return self.delay(m)    
-    
+        return self.delay(m)
+
     def __str__(self):
 
         items = []
         if self.start_trunc:
             items.append('...')
-        
+
         for v1, n1 in zip(self, self.n):
             s = str(v1)
-            
+
             if n1 == 0:
                 s = '_' + s
             items.append(s)
 
         if self.end_trunc:
-            items.append('...')            
+            items.append('...')
 
         return r'{%s}' % ', '.join(items)
-    
+
     def __getitem__(self, n):
         """Note this returns the element with index matching n.
         This is not necessarily the nth element in the sequence."""
@@ -197,7 +196,7 @@ class Sequence(ExprList, ExprDomain):
         try:
             nindex = list(self.n).index(n)
         except ValueError:
-            return expr(0)            
+            return expr(0)
 
         return super(Sequence, self).__getitem__(nindex)
 
@@ -208,9 +207,11 @@ class Sequence(ExprList, ExprDomain):
 
         return -min(self.n)
 
-    @origin.setter    
+    @origin.setter
     def origin(self, origin):
         """Set the origin to `origin`."""
+
+        from numpy import arange
 
         self.n = list(arange(-origin, len(self) - origin))
 
@@ -220,22 +221,22 @@ class Sequence(ExprList, ExprDomain):
         {0, 0, 1, 2, 3, 0} -> {1, 2, 3}"""
 
         vals = self.vals
-        
-        m1 = 0        
+
+        m1 = 0
         while vals[m1] == 0:
             m1 += 1
 
         m2 = len(vals) - 1
         if vals[m2] != 0:
             return self.__class__(vals[m1:], self.n[m1:])
-        
+
         while vals[m2] == 0:
-            m2 -= 1        
+            m2 -= 1
         return self.__class__(vals[m1:m2 + 1], self.n[m1:m2 + 1])
 
     def zeropad(self, M):
         """Add M zeros to end of sequence:
-        
+
         For example, with M = 3
 
         {1, 2, 3} -> {1, 2, 3, 0, 0, 0}"""
@@ -248,8 +249,8 @@ class Sequence(ExprList, ExprDomain):
             vals.append(zero)
 
         ni = self.n + list(range(self.n[-1] + 1, len(vals)))
-        return self.__class__(vals, ni)        
-    
+        return self.__class__(vals, ni)
+
     def __str__(self):
 
         a = self.zeroextend()
@@ -257,30 +258,32 @@ class Sequence(ExprList, ExprDomain):
         items = []
         if self.start_trunc:
             items.append('...')
-            
+
         for v1, n1 in zip(a, a.n):
             try:
                 s = v1.latex()
             except:
                 s = str(v1)
-            
+
             if n1 == 0:
                 s = r'_%s' % v1
             items.append(s)
 
         if self.end_trunc:
-            items.append('...')            
-        return r'{%s}' % ', '.join(items)    
-    
+            items.append('...')
+        return r'{%s}' % ', '.join(items)
+
     def pretty(self, **kwargs):
 
         from .printing import pretty
-        
+
         a = self.zeroextend()
         return pretty(a)
 
     def as_array(self):
         """Numerically evaluate and store as NumPy array."""
+
+        from numpy import array, allclose
 
         # If, for some reason, a sequence can have elements that
         # depend on n...
@@ -289,7 +292,7 @@ class Sequence(ExprList, ExprDomain):
 
         if allclose(vals.imag, 0.0):
             vals = vals.real
-        
+
         return vals
 
     @property
@@ -297,10 +300,10 @@ class Sequence(ExprList, ExprDomain):
         """Convert sequence to an Lcapy expression."""
 
         if self.var is None:
-            raise ValueError('var not specified')            
-        
+            raise ValueError('var not specified')
+
         return self.as_impulses(self.var)
-        
+
     def as_impulses(self, var=None):
         """Convert to discrete-time signal in the form of
         a weighted sum of delayed impulses.  For example,
@@ -316,17 +319,17 @@ class Sequence(ExprList, ExprDomain):
 
         # This can reorder terms
         result = var * 0
-        for v1, n1 in zip(self, self.n):        
+        for v1, n1 in zip(self, self.n):
             result += v1.as_constant() * unitimpulse(var - n1)
 
         # but so does the unevaluated Add...
         # items = []
-        # for v1, n1 in zip(self, self.n):        
+        # for v1, n1 in zip(self, self.n):
         #     items.append(v1 * unitimpulse(var.var - n1))
         #
         # expr = Add(*items, evaluate=False)
         # result = var.__class__(expr)
-        
+
         return result
 
     def evaluate(self, ni=None):
@@ -338,7 +341,8 @@ class Sequence(ExprList, ExprDomain):
         If `arg` is iterable, a NumPy array is returned.
 
         """
-        
+        from numpy import array, allclose
+
         if ni is None:
             return self.as_array()
         if isiterable(ni):
@@ -346,15 +350,15 @@ class Sequence(ExprList, ExprDomain):
 
             if allclose(vals.imag, 0.0):
                 vals = vals.real
-        
+
             return vals
         else:
             val = self(ni).cval
 
             if allclose(val.imag, 0.0):
                 val = val.real
-        
-            return val            
+
+            return val
 
     @property
     def extent(self):
@@ -364,7 +368,7 @@ class Sequence(ExprList, ExprDomain):
                      Sequence([1, 0, 1]).extent = 3
                      Sequence([0, 1, 0, 1]).extent = 3
         """
-        
+
         from numpy import argwhere
 
         # Note, each element is an Expr.
@@ -377,7 +381,7 @@ class Sequence(ExprList, ExprDomain):
 
     def discrete_time_fourier_transform(self, var=None, **assumptions):
         """Convert to Fourier domain using discrete time Fourier transform."""
-        return self.DTFT(var, **assumptions)        
+        return self.DTFT(var, **assumptions)
 
     def DTFT(self, var=None, **assumptions):
         """Convert to Fourier domain using discrete time Fourier transform."""
@@ -397,7 +401,7 @@ class Sequence(ExprList, ExprDomain):
         xscale - the x-axis scaling, say for plotting as ms
         yscale - the y-axis scaling, say for plotting mV
         in addition to those supported by the matplotlib plot command.
-        
+
         The plot axes are returned.
 
         """
@@ -421,16 +425,16 @@ class Sequence(ExprList, ExprDomain):
                 return self.copy()
             elif self.var == ksym:
                 return self.IDFT()
-            return self.IZT()            
+            return self.IZT()
         if id(arg) == id(k) or arg == k:
             if self.var == ksym:
-                return self.copy()            
+                return self.copy()
             elif self.var == zsym:
                 return self.IZT().DFT()
             return self.DFT()
         if id(arg) == id(z) or arg == z:
             if self.var == zsym:
-                return self.copy()            
+                return self.copy()
             elif self.var == ksym:
                 return self.IDFT().ZT()
             return self.ZT()
@@ -441,24 +445,24 @@ class Sequence(ExprList, ExprDomain):
     def _repr_pretty_(self, p, cycle):
         """This is used by jupyter notebooks to display an expression using
         unicode.  It is also called by IPython when displaying an
-        expression.""" 
+        expression."""
 
         # Note, the method in ExprPrint is bypassed since list
         # has this methodx.
-        
+
         from .printing import pretty
         p.text(self.pretty())
 
     def copy(self):
         return self.__class__(super(Sequence, self).copy(),
                                self.n)
-        
+
     def lfilter(self, b=None, a=None):
         """Implement digital filter specified by a transfer function.  The
         transfer function is described by a vector `b` of coefficients
         for the numerator and an `a` vector of coefficients for the
-        denominator. 
-        
+        denominator.
+
         If you would like the response with initial conditions see
         `DTfilter.response()`.
 
@@ -468,7 +472,7 @@ class Sequence(ExprList, ExprDomain):
             b = []
         if a is None:
             a = [1]
-        
+
         x = self.vals
         y = []
 
@@ -476,12 +480,12 @@ class Sequence(ExprList, ExprDomain):
 
         for n, x1 in enumerate(x):
             y.append(expr(0))
-            
+
             for m, b1 in enumerate(b):
                 try:
                     y[-1] += b1 * x[n - m] / a0
                 except:
-                    pass                
+                    pass
 
             yn = y[-1]
             for m, a1 in enumerate(a[1:]):
@@ -490,39 +494,41 @@ class Sequence(ExprList, ExprDomain):
                 except:
                     pass
             y[-1] = yn
-                
+
         return self.__class__(y, self.n)
-    
+
     def convolve(self, h, mode='full'):
         """Convolve with h."""
 
         x = self
         h = Sequence(h)
-        
+
         Lx = x.extent
         Lh = h.extent
         Ly = Lx + Lh - 1
-        
+
         if mode == 'full':
             x = x.zeropad(Ly - Lx)
         elif mode == 'same':
-            x = x.zeropad(max(Lx, Ly) - Lx)            
+            x = x.zeropad(max(Lx, Ly) - Lx)
         else:
             raise ValueError('Unknown mode ' + mode)
-        
+
         return x.lfilter(h, a=[1])
-    
+
     def delay(self, m=0):
         """Return a new sequence delayed by an integer number of samples `m`.
         If `m` is negative, the sequence is advanced."""
 
+        from numpy import arange
+
         if m != int(m):
             raise ValueError('Non-integer delay %s' % m)
-        
+
         origin = self.origin - m
         ni = list(arange(-origin, len(self) - origin))
-        
-        return self.__class__(self.vals, ni)                
+
+        return self.__class__(self.vals, ni)
 
     def zeroextend(self):
         """Extend sequence by adding zeros so that the origin
@@ -535,7 +541,7 @@ class Sequence(ExprList, ExprDomain):
             ni = range(0, ni[-1] + 1)
         elif ni[-1] < 0:
             vals = vals + [0] * -ni[-1]
-            ni = range(ni[0], 1)            
+            ni = range(ni[0], 1)
 
         return self.__class__(vals, ni,
                               start_trunc=self.start_trunc,

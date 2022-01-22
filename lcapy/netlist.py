@@ -15,7 +15,6 @@ from __future__ import division
 from .superpositionvoltage import SuperpositionVoltage
 from .superpositioncurrent import SuperpositionCurrent
 from .current import Iname
-from .schematic import Schematic
 from .netlistmixin import NetlistMixin
 from .netfile import NetfileMixin
 from .expr import Expr, expr

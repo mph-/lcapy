@@ -14,7 +14,6 @@ from .expr import Expr, symbol, expr, ExprDict, exprcontainer, expr_make
 from .units import u as uu
 from .functions import sqrt, DiracDelta
 from .sym import dt
-import numpy as np
 from sympy import limit, exp, Poly, Integral, div, oo, Eq, Expr as symExpr
 from warnings import warn
 
@@ -260,6 +259,8 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         """Evaluate response of system with applied signal.
         This method assumes that the data is well over-sampled."""
 
+        from numpy import arange, convolve, diff, hstack
+
         # Perform polynomial long division so expr1 = Q + M / A
         B, A, delay, undef = self._as_B_A_delay_undef()
         if undef != 1:
@@ -270,12 +271,12 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         Nt = len(tvector)
 
         # Evaluate impulse response.
-        th = np.arange(Nt) * dtval
+        th = arange(Nt) * dtval
         H= LaplaceDomainExpression(expr1, **self.assumptions)
         hvector = H.transient_response(th)
 
         ty = tvector
-        y = np.convolve(xvector, hvector)[0:Nt] * dtval
+        y = convolve(xvector, hvector)[0:Nt] * dtval
 
         if Q:
             # Handle Dirac deltas and their derivatives.
@@ -284,8 +285,8 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
                 y += float(c.expr) * xvector
 
-                xvector = np.diff(xvector) / dtval
-                xvector = np.hstack((xvector, 0))
+                xvector = diff(xvector) / dtval
+                xvector = hstack((xvector, 0))
 
         from scipy.interpolate import interp1d
 
@@ -299,6 +300,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
     def _response_bilinear(self, xvector, tvector, dtval, alpha=0.5):
 
         import scipy.signal as signal
+        from numpy import hstack, zeros
 
         expr, delay = self.as_ratfun_delay()
         Ndelay = 0
@@ -330,7 +332,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         y = signal.lfilter(b, a, xvector)
 
         if Ndelay != 0:
-            y = np.hstack((np.zeros(Ndelay), y))
+            y = hstack((zeros(Ndelay), y))
         return y
 
     def response(self, xvector, tvector, method='bilinear', alpha=0.5):
@@ -345,8 +347,10 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         'backward-diff', 'backward-euler'
         """
 
-        xvector = np.array(xvector)
-        tvector = np.array(tvector)
+        from numpy import array, diff, allclose
+
+        xvector = array(xvector)
+        tvector = array(tvector)
 
         symbols = self.symbols
         symbols.pop('s', None)
@@ -359,8 +363,8 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         if len(xvector) < 2:
             raise ValueError('xvector must have same length as tvector')
 
-        td = np.diff(tvector)
-        if not np.allclose(np.diff(td), 0):
+        td = diff(tvector)
+        if not allclose(diff(td), 0):
             raise ValueError('Time samples not uniformly spaced')
 
         dtval = td[0]

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-"""schtex V0.4
-Copyright (c) 2014--2020 Michael P. Hayes, UC ECE, NZ
+"""schtex V0.4.1
+Copyright (c) 2014--2022 Michael P. Hayes, UC ECE, NZ
 
 Usage: schtex infile.sch [outfile.tex|pdf|png|svg|sch|pgf]
 """
@@ -189,7 +189,7 @@ def main (argv=None):
     if args.pdb:
         sys.excepthook = schtex_exception
 
-    from lcapy import Circuit, CircuitGraph
+    from lcapy import Circuit
 
     cct = Circuit(infilename, allow_anon=args.allow_anon)
     if args.k_model:
@@ -268,6 +268,8 @@ def main (argv=None):
         ygraph.dot(outfilename, stage=args.stage)
 
     if args.circuitgraph:
+       from lcapy.circuitgraph import CircuitGraph
+
        cg = CircuitGraph(cct)
        cg.draw(filename=outfilename)
 

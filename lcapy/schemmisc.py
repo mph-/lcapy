@@ -1,18 +1,18 @@
 """This module provides miscellaneous support for schematic drawing.
 
-Copyright 2014--2020 Michael Hayes, UCECE
+Copyright 2014--2022 Michael Hayes, UCECE
 
 """
-
-import numpy as np
 
 class Pos(object):
 
     def __init__(self, x, y=0):
 
+        from numpy import ndarray
+
         if isinstance(x, tuple):
             x, y = x
-        elif isinstance(x, np.ndarray):
+        elif isinstance(x, ndarray):
             x, y = x[0], x[1]
 
         self.x = x
@@ -34,7 +34,7 @@ class Pos(object):
         if not isinstance(arg, Pos):
             arg = Pos(arg)
 
-        return Pos(self.x - arg.x, self.y - arg.y)    
+        return Pos(self.x - arg.x, self.y - arg.y)
 
     def __str__(self):
 
@@ -50,7 +50,9 @@ class Pos(object):
     @property
     def xy(self):
 
-        return np.array((self.x, self.y))
+        from numpy import array
+
+        return array((self.x, self.y))
 
 
 class Steps(object):
@@ -68,13 +70,13 @@ class Steps(object):
 
         self.dx = (pos2.x - pos1.x)
         self.dy = (pos2.y - pos1.y)
-        
+
         if string == '':
             if abs(self.dx) > abs(self.dy):
                 string = '-|'
             else:
-                string = '|-'                
-                
+                string = '|-'
+
         s = string
         m = 0
         while m < len(s):
@@ -85,20 +87,20 @@ class Steps(object):
                 num = int(s[m:n])
                 m = n
             else:
-                num = 1    
+                num = 1
             if s[m] == '|':
                 self.numv += num
                 self.steps.append((s[m], num))
             elif s[m] == '-':
                 self.numh += num
-                self.steps.append((s[m], num))                
+                self.steps.append((s[m], num))
             else:
                 raise ValueError('Expecting - or | in %s' % string)
             m += 1
 
         self.dh = self.dx / self.numh
         self.dv = self.dy / self.numv
-            
+
     def __iter__(self):
         self.n = 0
         self.pos = self.pos1

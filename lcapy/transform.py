@@ -1,6 +1,6 @@
 """This module performs transformations between domains.
 
-Copyright 2018--2021 Michael Hayes, UCECE
+Copyright 2018--2022 Michael Hayes, UCECE
 
 """
 
@@ -11,7 +11,6 @@ from .symbols import domain_vars, domain_var_ids
 from .nexpr import n
 from .expr import expr as expr1
 from .expr import Expr
-from numpy import ndarray, array
 
 
 def transform(expr, arg, **assumptions):
@@ -101,6 +100,8 @@ def transform(expr, arg, **assumptions):
 
 
 def call(expr, arg, **assumptions):
+
+    from numpy import ndarray, array
 
     if isinstance(arg, (tuple, list)):
         return [expr._subs1(expr.var, arg1) for arg1 in arg]

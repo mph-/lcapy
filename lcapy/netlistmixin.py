@@ -12,7 +12,6 @@ from .admittance import admittance
 from .equipotentialnodes import EquipotentialNodes
 from .node import Node
 from .state import state
-from .schematic import Schematic
 from .symbols import j, s, omega
 from .attrdict import AttrDict
 from .netfile import NetfileMixin
@@ -1670,6 +1669,8 @@ class NetlistMixin(object):
     @property
     def sch(self):
         """Generate schematic of subnetlist."""
+
+        from .schematic import Schematic
 
         if hasattr(self, '_sch'):
             return self._sch

@@ -1,12 +1,11 @@
 """
-Copyright 2014--2021 Michael Hayes, UCECE
+Copyright 2014--2022 Michael Hayes, UCECE
 """
 
 from __future__ import division
 from .expr import expr
 from .sexpr import s
 from .printing import latex, pretty
-from .schematic import Schematic
 from .circuit import Circuit
 from .state import state
 from warnings import warn
@@ -45,17 +44,17 @@ class Network(object):
 
         for key, val in kwargs.items():
             parts.append('%s=%s' % (key, val))
-            
+
         for key, val in self.kwargs.items():
             parts.append('%s=%s' % (key, val))
         return ', '.join(parts)
-    
+
     def __repr__(self):
 
-        parts = []        
+        parts = []
         for key, val in self.kwargs.items():
             parts.append("%s='%s'" % (key, val))
-        
+
         argsrepr = ', '.join([repr(arg) for arg in self.args] + parts)
         return '%s(%s)' % (self.__class__.__name__, argsrepr)
 
@@ -80,10 +79,10 @@ class Network(object):
             except:
                 return pretty(arg, **kwargs)
 
-        parts = []        
+        parts = []
         for key, val in self.kwargs.items():
             parts.append("%s='%s'" % (key, val))
-            
+
         argsrepr = ', '.join([pretty1(arg, **kwargs) for arg in self.args] + parts)
         return '%s(%s)' % (self.__class__.__name__, argsrepr)
 
@@ -93,7 +92,7 @@ class Network(object):
             try:
                 return arg.latex(**kwargs)
             except:
-                return latex(arg, **kwargs)        
+                return latex(arg, **kwargs)
 
         argsrepr = ', '.join([latex1(arg, **kwargs) for arg in self.args])
         return '\\mathrm{%s}(%s)' % (self.__class__.__name__, argsrepr)
@@ -101,7 +100,7 @@ class Network(object):
     def pprint(self):
 
         print(self.pretty())
-    
+
     @property
     def analysis(self):
         return self.cct.analysis
@@ -109,7 +108,7 @@ class Network(object):
     def describe(self):
         """Print a message describing how network is solved."""
         return self.cct.describe()
-    
+
     def simplify(self):
 
         return self
@@ -130,34 +129,34 @@ class Network(object):
             n2 = net._node
         if n1 == None:
             n1 = net._node
-        
+
         netname = net.__class__.__name__ if net.netname == '' else net.netname
 
         opts_str = self._opts_str(dir)
         netid = netlist._make_id(netname)
         if net.netkeyword != '':
             return '%s%s %s %s %s %s; %s' % (netname, netid,
-                                             n1, n2, 
+                                             n1, n2,
                                              net.netkeyword,
                                              netlist._netargs(net), opts_str)
         else:
             return '%s%s %s %s %s; %s' % (netname, netid,
                                           n1, n2, netlist._netargs(net), opts_str)
 
-    @property 
+    @property
     def _depths(self):
         return [net._depth for net in self.args]
-        
-    @property 
+
+    @property
     def _depth(self):
         from .oneport import Ser, Par
-        
+
         if not isinstance(self, (Ser, Par)):
             return 0
-        
+
         depths = self._depths
         return 1 + max(depths)
-        
+
     def netlist(self, layout='horizontal', evalf=None):
         """Create a netlist.
 
@@ -171,17 +170,19 @@ class Network(object):
             from .laddermaker import LadderMaker
             return LadderMaker(self, layout=layout, evalf=evalf)()
 
-        from .netlistmaker import NetlistMaker        
+        from .netlistmaker import NetlistMaker
         return NetlistMaker(self, layout=layout, evalf=evalf)()
 
     def pdb(self):
         """Enter the python debugger."""
-        
+
         import pdb; pdb.set_trace()
         return self
-    
+
     def sch(self, layout='horizontal', evalf=False):
         """Convert a Network object into a Schematic object."""
+
+        from .schematic import Schematic
 
         netlist = self.netlist(layout=layout, evalf=evalf)
         sch = Schematic()
@@ -206,11 +207,11 @@ class Network(object):
         `kwargs` include:
            label_ids: True to show component ids
            label_values: True to display component values
-           draw_nodes: True to show all nodes, False to show no nodes, 
+           draw_nodes: True to show all nodes, False to show no nodes,
              'primary' to show primary nodes,
              'connections' to show nodes that connect more than two components,
              'all' to show all nodes
-           label_nodes: True to label all nodes, False to label no nodes, 
+           label_nodes: True to label all nodes, False to label no nodes,
              'primary' to label primary nodes,
              'alpha' to label nodes starting with a letter,
              'pins' to label nodes that are pins on a chip,
@@ -236,9 +237,9 @@ class Network(object):
         if form is not None:
             warn('Form is deprecated; use layout instead')
             layout = form
-            
+
         self.sch(layout=layout, evalf=evalf).draw(filename=filename, **kwargs)
-        
+
     @property
     def cct(self):
         """Convert a Network object into a Circuit object."""
@@ -258,11 +259,11 @@ class Network(object):
 
         return self.cct
 
-    @property    
+    @property
     def initial_value_problem(self):
         return self.cct.initial_value_problem
 
-    @property    
+    @property
     def is_ivp(self):
         return self.cct.is_ivp
 
@@ -270,11 +271,11 @@ class Network(object):
     def is_dc(self):
         return self.cct.is_dc
 
-    @property    
+    @property
     def is_ac(self):
         return self.cct.is_ac
 
-    @property    
+    @property
     def is_causal(self):
         return self.cct.is_causal
 
@@ -282,17 +283,17 @@ class Network(object):
     def has_dc(self):
         return self.cct.has_dc
 
-    @property    
+    @property
     def has_ac(self):
         return self.cct.has_ac
 
-    @property    
+    @property
     def has_transient(self):
         return self.cct.has_transient
 
-    @property    
+    @property
     def kinds(self):
-        """Return list of transform domain kinds."""        
+        """Return list of transform domain kinds."""
         return self.cct.kinds
 
     @property
@@ -301,11 +302,11 @@ class Network(object):
 
         # This would be faster to determine directly from AST.
         return self.cct.params
-        
+
     @property
     def symbols(self):
         """Return dictionary of symbols defined in the network."""
-        
+
         return self.cct.symbols
 
     @property
@@ -332,33 +333,31 @@ class Network(object):
 
     def subs(self, subs_dict):
         """Substitute values using dictionary of substitutions.
-        
-        For example, b = a.subs({'R1': 1e3, 'R2': 9e3})"""    
+
+        For example, b = a.subs({'R1': 1e3, 'R2': 9e3})"""
 
         if not self.is_parallel and not self.is_series:
             return self.__class__(*[str(expr(arg).subs(subs_dict)) for arg in self.args])
-        
+
         return self.__class__(*[arg.subs(subs_dict) for arg in self.args])
-    
+
     def noisy(self, T='T'):
         """Create noisy network model by replacing resistances with a series
         combination of a resistance and a noise voltage source."""
 
         if self.is_resistor and not self.is_noiseless:
             from .oneport import Vnoise, NR
-            
+
             Vn = 'sqrt(4 * k_B * %s * %s)' % (T, self.args[0])
             return NR(*self.args) + Vnoise(Vn)
 
         if self.is_conductor and not self.is_noiseless:
             from .oneport import Vnoise, NG
-            
+
             Vn = 'sqrt(4 * k_B * %s / (%s))' % (T, self.args[0])
-            return NG(*self.args) + Vnoise(Vn)        
+            return NG(*self.args) + Vnoise(Vn)
 
         if not self.is_parallel and not self.is_series:
             return self.__class__(*self.args)
 
         return self.__class__(*[arg.noisy(T=T) for arg in self.args])
-    
-    

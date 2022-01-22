@@ -16,7 +16,6 @@ from .diffeq import DifferenceEquation
 from .seqexpr import SequenceExpression
 from .zseq import ZDomainSequence
 from .functions import sqrt, exp
-import numpy as np
 from sympy import Eq, div, limit, oo, Sum
 
 
@@ -121,11 +120,13 @@ class ZDomainExpression(ZDomain, SequenceExpression):
     def response(self, x, t):
         """Evaluate response to input signal x at times t."""
 
+        from numpy import allcose, diff, ones, zeros, arange, convolve, hstack
+
         if len(x) != len(t):
             raise ValueError('x must have same length as t')
 
         dt = t[1] - t[0]
-        if not np.allclose(np.diff(t), np.ones(len(t) - 1) * dt):
+        if not allclose(diff(t), ones(len(t) - 1) * dt):
             raise (ValueError, 't values not equally spaced')
 
         # Perform polynomial long division so expr = Q + M / D
@@ -138,12 +139,12 @@ class ZDomainExpression(ZDomain, SequenceExpression):
         N = len(t)
 
         # Evaluate transient response.
-        th = np.arange(N) * dt - dt
+        th = arange(N) * dt - dt
         h = ZDomainExpression(expr).transient_response(th)
 
         print('Convolving...')
         ty = t
-        y = np.convolve(x, h)[0:N] * dt
+        y = convolve(x, h)[0:N] * dt
 
         if Q:
             # Handle Dirac deltas and their derivatives.
@@ -152,8 +153,8 @@ class ZDomainExpression(ZDomain, SequenceExpression):
 
                 y += c * x
 
-                x = np.diff(x) / dt
-                x = np.hstack((x, 0))
+                x = diff(x) / dt
+                x = hstack((x, 0))
 
         from scipy.interpolate import interp1d
 
@@ -299,13 +300,15 @@ class ZDomainExpression(ZDomain, SequenceExpression):
         when the denominator and numerator are expressed as polynomials
         in z**-1.  The lowest order coefficients are returned first."""
 
+        from numpy import array
+
         C, R = self.factor_const()
 
         zi = symbol('zi')
         H = R.replace(z, 1 / zi).cancel()
         a = H.D.coeffs(zi)
         b = H.N.coeffs(zi)
-        return a[::-1], list(np.array(b) * C)[::-1]
+        return a[::-1], list(array(b) * C)[::-1]
 
     def as_AB(self):
 
