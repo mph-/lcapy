@@ -2,6 +2,14 @@
 Release notes
 =============
 
+V1.2.4
+======
+
+- Lazily import scipy, numpy, and networkx to speed up loading
+
+-  Allows two-ports to be created from netlist using component names
+
+
 V1.2.3
 ======
 

@@ -1131,6 +1131,10 @@ class NetlistMixin(object):
             new._add(net)
         return new
 
+    def short(self):
+
+        GOO
+
     def _kill(self, sourcenames):
 
         new = self._new()
@@ -1351,14 +1355,16 @@ class NetlistMixin(object):
         if isinstance(cpt, Cpt):
             cpt = cpt.name
 
-        return self.cg.in_parallel(cpt)
+        parallel_set = self.cg.in_parallel(cpt)
+        return parallel_set
 
     def _in_series_names(self, cpt=None):
 
         if isinstance(cpt, Cpt):
             cpt = cpt.name
 
-        return self.cg.in_series(cpt)
+        series_set = self.cg.in_series(cpt)
+        return series_set
 
     def in_parallel(self, cpt=None):
         """Return set of cpts in parallel with specified cpt.  If no cpt
@@ -1367,9 +1373,13 @@ class NetlistMixin(object):
         if cpt is None:
             return self._in_parallel_all()
 
+        if isinstance(cpt, Cpt):
+            cpt = cpt.name
+
         names = self._in_parallel_names(cpt)
         if len(names) < 2:
             return set()
+        names.discard(cpt)
         return names
 
     def in_series(self, cpt=None):
@@ -1379,9 +1389,13 @@ class NetlistMixin(object):
         if cpt is None:
             return self._in_series_all()
 
+        if isinstance(cpt, Cpt):
+            cpt = cpt.name
+
         names = self._in_series_names(cpt)
         if len(names) < 2:
             return set()
+        names.discard(cpt)
         return names
 
     def _do_simplify_combine(self, string, subset, net,

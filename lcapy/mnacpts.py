@@ -335,6 +335,22 @@ class Cpt(ImmittanceMixin):
             raise ValueError('%s is not a source' % self)
 
     @property
+    def in_parallel(self):
+        """Return set of components in parallel with cpt."""
+
+        return self.cct.in_parallel(self.name)
+
+    @property
+    def in_series(self):
+        """Return set of components in series with cpt.  Note, this
+        does not find components that do not share a node, for example,
+        R1 and R3 are not considered as being in series for
+        R1 + (R2 | R3) + R3"""
+
+        return self.cct.in_series(self.name)
+
+
+    @property
     def is_causal(self):
         """Return True if causal component or if source produces
         a causal signal."""

@@ -276,6 +276,9 @@ class CircuitGraph(object):
     def in_series(self, cpt_name):
         """Return set of component names in series with cpt including itself."""
 
+        # FIXME: determine R1 in series for R3 for R1 + (R2 | L) + R3
+        # FIXME: R1 and R2 not in series for R1 | R2
+
         cct = self.cct
         elt = cct.elements[cpt_name]
         nodenames = [cct.node_map[nodename] for nodename in elt.nodenames]
@@ -313,8 +316,9 @@ class CircuitGraph(object):
 
         n1, n2 = nodenames[0:2]
 
-        # This is trivial for a multigraph but a mutigraph adds additional problems
-        # since component() will fail if have multiple edges between the same nodes.
+        # This is trivial for a multigraph but a mutigraph adds
+        # additional problems since component() will fail if have
+        # multiple edges between the same nodes.
         # edges = self.get_edge_data(n1, n2)
         # parallel = [d['name'] for k, d in edges.items()]
 
