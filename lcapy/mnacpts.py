@@ -23,6 +23,7 @@ import lcapy
 import inspect
 import sys
 import sympy as sym
+from warnings import warn
 
 __all__ = ()
 
@@ -334,13 +335,11 @@ class Cpt(ImmittanceMixin):
         else:
             raise ValueError('%s is not a source' % self)
 
-    @property
     def in_parallel(self):
         """Return set of components in parallel with cpt."""
 
         return self.cct.in_parallel(self.name)
 
-    @property
     def in_series(self):
         """Return set of components in series with cpt.  Note, this
         does not find components that do not share a node, for example,
@@ -348,7 +347,6 @@ class Cpt(ImmittanceMixin):
         R1 + (R2 | R3) + R3"""
 
         return self.cct.in_series(self.name)
-
 
     @property
     def is_causal(self):
@@ -696,6 +694,19 @@ class Cpt(ImmittanceMixin):
             return False
 
         return cpt in self.connected
+
+    def short(self):
+        """Apply short-circuit across component."""
+
+        parallel_set = self.in_parallel()
+        for cptname in parallel_set:
+            cpt = self.cct.elements[cptname]
+            if cpt.is_voltage_source:
+                warn('Shorting voltage source %s in parallel with %s' % (cptname, self.name))
+            elif cpt.is_current_source:
+                warn('Shorting current source %s in parallel with %s' % (cptname, self.name))
+
+        self.cct.add('W %s %s' % (self.nodes[0].name, self.nodes[1].name))
 
 
 class Invalid(Cpt):

@@ -1131,9 +1131,12 @@ class NetlistMixin(object):
             new._add(net)
         return new
 
-    def short(self):
+    def short(self, cpt):
+        """Apply short-circuit across specified component."""
 
-        GOO
+        if isinstance(cpt, Cpt):
+            cpt = cpt.name
+        self.elements[cpt].short()
 
     def _kill(self, sourcenames):
 
