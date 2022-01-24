@@ -298,6 +298,32 @@ class ZDomainExpression(ZDomain, SequenceExpression):
             result = self.IZT(**assumptions).DTFT(images=images)
         return result(var)
 
+    def fourier(self, var=None, evaluate=True, **assumptions):
+        """Attempt discrete-time Fourier transform. This is an alias for DTFT."""
+
+        return self.DTFT(var, evaluate, **assumptions)
+
+    def norm_fourier(self, evaluate=True, **assumptions):
+        """Attempt normalized discrete-time Fourier transform."""
+
+        from .symbols import F
+
+        return self.DTFT(F, evaluate, **assumptions)
+
+    def angular_fourier(self, evaluate=True, **assumptions):
+        """Attempt angular discrete-time Fourier transform."""
+
+        from .symbols import omega
+
+        return self.DTFT(omega, evaluate, **assumptions)
+
+    def norm_angular_fourier(self, evaluate=True, **assumptions):
+        """Attempt normalized angular discrete-time Fourier transform."""
+
+        from .symbols import Omega
+
+        return self.DTFT(Omega, evaluate, **assumptions)
+
     def as_ab(self):
         """Return lists of denominator and numerator coefficients
         when the denominator and numerator are expressed as polynomials
