@@ -289,6 +289,9 @@ class ZDomainExpression(ZDomain, SequenceExpression):
         """Convert to Fourier domain using discrete time Fourier transform."""
         from .symbols import f
 
+        if var is None:
+            var = f
+
         if assumptions.get('causal', self.is_causal):
             result = self.subs(exp(j * 2 * pi * f * dt))
         else:
