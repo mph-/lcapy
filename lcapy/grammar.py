@@ -1,7 +1,7 @@
 """
 This module defines a grammar for SPICE-like netlists.
 
-Copyright 2015--2021 Michael Hayes, UCECE
+Copyright 2015--2022 Michael Hayes, UCECE
 """
 
 # SPICE also considers = a delimiter.
@@ -91,6 +91,7 @@ TFcore: TFname Np Nm Ncp Ncm core [Value]; Transformer with core (works to DC!)
 TFtap: TFname Np Nm Ncp Ncm tap Nt Nt [Value]; Tapped transformer (works to DC!)
 TFtapcore: TFname Np Nm Ncp Ncm tapcore Nt Nt [Value]; Tapped transformer with core (works to DC!)
 TL: TLname Np Nm Ncp Ncm [Z0] [Gamma] [Length]; Transmission line
+TLlossless: TLname Np Nm Ncp Ncm lossless [Z0] [Gamma] [Length]; Lossless transmission line
 TP: TPname Np Nm Ncp Ncm; Generic two-port
 TPA: TPname Np Nm Ncp Ncm A A11 A12 A21 A22 [V1] [I1]; A-parameter two-port
 TPB: TPname Np Nm Ncp Ncm B B11 B12 B21 B22 [V2] [I2]; B-parameter two-port
@@ -168,6 +169,7 @@ nc: keyword;
 spdt: keyword;
 tap: keyword;
 tapcore: keyword;
+lossless: keyword;
 opamp: keyword;
 inamp: keyword;
 isoamp: keyword;

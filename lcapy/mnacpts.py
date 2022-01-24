@@ -702,11 +702,19 @@ class Cpt(ImmittanceMixin):
         for cptname in parallel_set:
             cpt = self.cct.elements[cptname]
             if cpt.is_voltage_source:
-                warn('Shorting voltage source %s in parallel with %s' % (cptname, self.name))
+                if cpt.value == 0:
+                    warn('Component %s already shorted by %s' % (self.name, cptname))
+                else:
+                    warn('Shorting voltage source %s in parallel with %s' % (cptname, self.name))
             elif cpt.is_current_source:
                 warn('Shorting current source %s in parallel with %s' % (cptname, self.name))
 
-        self.cct.add('W %s %s' % (self.nodes[0].name, self.nodes[1].name))
+        #self.cct.add('W %s %s' % (self.nodes[0].name, self.nodes[1].name))
+        # Could add zero ohm resistor but then could not determine current
+        # through the short.
+        self.cct.add('V? %s %s 0' % (self.nodes[0].name, self.nodes[1].name))
+
+        # Perhaps have option to delete component?
 
 
 class Invalid(Cpt):
@@ -1872,6 +1880,7 @@ defcpt('SWspdt', 'SW', 'SPDT switch')
 
 defcpt('TFcore', TF, 'Transformer with core')
 defcpt('TFtapcore', TFtap, 'Transformer with core')
+defcpt('TLlossless', TL, 'Lossless transmission line')
 
 defcpt('Ubuffer', Logic, 'Buffer')
 defcpt('Upbuffer', Logic, 'Buffer with power supplies')
