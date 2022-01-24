@@ -307,6 +307,12 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
 
         # Look for expression of form 1 / (a * cosh(s * T) + b * sinh(s * T))
 
+        func = sym.DiracDelta
+        if (expr.is_Mul and expr.args[0].is_Pow and
+            expr.args[0].args[0] == s and expr.args[0].args[1] == -1):
+            expr *= s
+            func = sym.Heaviside
+
         if not expr.is_Pow or expr.args[1] != -1:
             self.error('Not 1 / X')
 
@@ -341,9 +347,9 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         m = self.dummy_var(expr, 'm', level=0, real=True)
         g = (b - a) / (b + a)
         if g == 0:
-            h = 1 / (b + a) * sym.DiracDelta(t - T)
+            h = 1 / (b + a) * func(t - T)
         else:
-            h = 1 / (b + a) * sym.Sum(g**m * sym.DiracDelta(t - (2 * m + 1) * T), (m, 0, sym.oo))
+            h = 1 / (b + a) * sym.Sum(g**m * func(t - (2 * m + 1) * T), (m, 0, sym.oo))
         return h
 
     def tline_start(self, expr, s, t):
@@ -352,6 +358,11 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
 
         # Look for expression of form
         # c * cosh(s * T) + d * sinh(s * T) / (a * cosh(s * T) + b * sinh(s * T))
+        func = sym.DiracDelta
+        if (expr.is_Mul and expr.args[0].is_Pow and
+            expr.args[0].args[0] == s and expr.args[0].args[1] == -1):
+            expr *= s
+            func = sym.Heaviside
 
         numer, denom = expr.as_numer_denom()
 
@@ -410,8 +421,8 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         Gammal = ((Zl - Z0) / (Zl + Z0)).simplify()
 
         m = self.dummy_var(expr, 'm', level=0, real=True)
-        h1 = (1 - Gammas) / 2 * sym.DiracDelta(t)
-        h2 = (1 - Gammas) * (1 + Gammas) / (2 * Gammas) * sym.Sum((Gammas * Gammal)**m * sym.DiracDelta(t - 2 * m * T), (m, 1, sym.oo))
+        h1 = (1 - Gammas) / 2 * func(t)
+        h2 = (1 - Gammas) * (1 + Gammas) / (2 * Gammas) * sym.Sum((Gammas * Gammal)**m * func(t - 2 * m * T), (m, 1, sym.oo))
         return K * (h1 + h2)
 
     def term1(self, expr, s, t, **kwargs):
