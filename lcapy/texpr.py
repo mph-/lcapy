@@ -1,7 +1,7 @@
 """This module provides the TimeDomainExpression class to represent
 time domain expressions.
 
-Copyright 2014--2021 Michael Hayes, UCECE
+Copyright 2014--2022 Michael Hayes, UCECE
 
 """
 
@@ -109,6 +109,13 @@ class TimeDomainExpression(TimeDomain, Expr):
         """Attempt Fourier transform. This is an alias for FT."""
 
         return self.FT(var, evaluate, **assumptions)
+
+    def norm_fourier(self, evaluate=True, **assumptions):
+        """Attempt normalized Fourier transform."""
+
+        from .symbols import F
+
+        return self.FT(F, evaluate, **assumptions)
 
     def angular_fourier(self, evaluate=True, **assumptions):
         """Attempt angular Fourier transform."""
