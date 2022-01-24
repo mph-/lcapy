@@ -3565,6 +3565,13 @@ class LosslessTxLine(LosslessTransmissionLine):
     pass
 
 
+class TLlossless(LosslessTransmissionLine):
+    """Lossless transmission line"""
+
+    # This class is used for netlists.
+    pass
+
+
 class TransmissionLine(GeneralTransmissionLine):
     """Transmission line
 
