@@ -1,21 +1,21 @@
 """This module provides the DiscreteTimeDomainExpression class to
 represent discrete-time expressions.
 
-Copyright 2020--2021 Michael Hayes, UCECE
+Copyright 2020--2022 Michael Hayes, UCECE
 
 """
 
 from __future__ import division
 from .domains import DiscreteTimeDomain
 from .sequence import Sequence
-from .functions import exp
+from .functions import exp, UnitStep
 from .sym import j, oo, pi, fsym, oo
 from .sym import nsym, ksym, zsym, dt
 from .ztransform import ztransform
 from .dft import DFT
 from .seqexpr import SequenceExpression
 from .nseq import DiscreteTimeDomainSequence, nseq
-from sympy import Sum, summation, limit, DiracDelta
+from sympy import Sum, summation, limit
 
 
 __all__ = ('nexpr', )
@@ -228,6 +228,19 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
             return self
         expr = self.expr
         expr = expr.args[0].args[0]
+        return self.__class__(expr)
+
+    def force_causal(self):
+        """Remove the piecewise condition from the expression
+        and multiply by unit-step function.  See also remove_condition."""
+
+        if self.is_causal:
+            return self
+
+        expr = self.expr
+        if self.is_conditional:
+            expr = expr.args[0].args[0]
+        expr = expr * UnitStep(n)
         return self.__class__(expr)
 
     def zdomain(self, **assumptions):
