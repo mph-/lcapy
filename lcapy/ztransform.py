@@ -186,8 +186,10 @@ class ZTransformer(UnilateralForwardTransformer):
         if scale.is_integer:
             # Down-sampling produces aliasing
             # Sum(X(z**(1 / M) * exp(-j * 2 * pi * m / M), (m, 0, M - 1)) / M)
+            # Down-sampling is not shift invariant so z-transform
+            # is an approximation.
             m = self.dummy_var(expr, 'm', level=0, real=True)
-            expr = func(z**scale * sym.exp(-sym.I * 2 * sym.pi * m / scale))
+            expr = func(z**(1 / scale) * sym.exp(-sym.I * 2 * sym.pi * m / scale))
             return sym.Sum(expr, (m, 0, scale - 1)) / scale
 
         if not scale.is_rational:
