@@ -8,7 +8,7 @@ transforms.
 where dt is the sampling period.  The integral just needs to be
 performed over any interval of length 1 / dt.
 
-Copyright 2021 Michael Hayes, UCECE
+Copyright 2021--2022 Michael Hayes, UCECE
 
 """
 
@@ -27,7 +27,7 @@ __all__ = ('IDTFT', 'inverse_discrete_time_fourier_transform')
 class IDTFTTransformer(BilateralInverseTransformer):
 
     name = 'inverse DTFT'
-    
+
     def key(self, expr, f, n, **assumptions):
         return expr, f, n
 
@@ -46,12 +46,12 @@ class IDTFTTransformer(BilateralInverseTransformer):
         """Remove images."""
 
         return remove_images(expr, var, dt)
-    
+
     def sympy(self, expr, f, n):
 
         foo = expr * sym.exp(2 * j * pi * n * dt * f)
         result = dt * sym.integrate(foo, (f, -1 / (2 * dt), 1 / (2 * dt)))
-        return result        
+        return result
 
     def func(self, expr, f, n):
 
@@ -60,13 +60,11 @@ class IDTFTTransformer(BilateralInverseTransformer):
 
         scale, shift = scale_shift(expr.args[0], f)
 
-        nsym = sympify(str(n))
-
         # Convert v(n) to V(f), etc.
         name = expr.func.__name__
-        func = name[0].lower() + name[1:] + '(%s)' % n
+        func = sym.Function(name[0].lower() + name[1:])
 
-        result = sympify(func).subs(nsym, n / scale) / abs(scale)
+        result = func(n / scale) / abs(scale)
 
         if shift != 0:
             result = result * sym.exp(-2 * sym.I * sym.pi * f * shift / scale)
@@ -118,7 +116,7 @@ class IDTFTTransformer(BilateralInverseTransformer):
     def term(self, expr, f, n):
 
         const, expr = factor_const(expr, f)
-        
+
         # Check for constant.
         if not expr.has(f):
             return expr * UnitImpulse(n) * const
@@ -130,7 +128,7 @@ class IDTFTTransformer(BilateralInverseTransformer):
         # This handles DiracDelta the long way but could head off at pass...
         return const * self.sympy(expr, f, n)
 
-    
+
 idtft_transformer = IDTFTTransformer()
 
 
@@ -153,4 +151,4 @@ def IDTFT(expr, f, n, evaluate=True, **assumptions):
     """
 
     return idtft_transformer.transform(expr, f, n, evaluate=evaluate,
-                                        **assumptions)    
+                                        **assumptions)

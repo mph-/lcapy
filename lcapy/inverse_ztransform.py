@@ -46,20 +46,18 @@ class InverseZTransformer(UnilateralInverseTransformer):
 
         scale, shift = scale_shift(expr.args[0], n)
 
-        zsym = sympify(str(z))
-
         # Convert v[n] to V(z), etc.
         name = expr.func.__name__
         if inverse:
-            func = name[0].lower() + name[1:] + '(%s)' % z
+            func = sym.Function(name[0].lower() + name[1:])
         else:
-            func = name[0].upper() + name[1:] + '(%s)' % z
+            func = sym.Function(name[0].upper() + name[1:])
 
         if not scale.is_constant():
             self.error('Cannot determine if time-expansion or decimation')
 
         if scale == 1:
-            result = sympify(func).subs(zsym, z)
+            result = func(z)
 
             if shift != 0:
                 result = result * z ** shift
@@ -74,7 +72,7 @@ class InverseZTransformer(UnilateralInverseTransformer):
         if scale.p != 1:
             self.error('Cannot handle non-integer time-expansion')
 
-        result = sympify(func).subs(zsym, z ** scale.q)
+        result = func(z ** scale.q)
 
         if shift != 0:
             result = result * z ** shift

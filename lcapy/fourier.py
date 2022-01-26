@@ -8,7 +8,7 @@ by using Dirac deltas.  For example, a, cos(a * t), sin(a * t), exp(j
 * a * t).
 
 
-Copyright 2016--2021 Michael Hayes, UCECE
+Copyright 2016--2022 Michael Hayes, UCECE
 
 """
 
@@ -20,7 +20,7 @@ Copyright 2016--2021 Michael Hayes, UCECE
 from sympy.core.function import AppliedUndef
 from sympy import sympify, pi, exp, I, oo, S, sign, sin, cos, sinh, cosh, tanh
 from sympy import DiracDelta, Heaviside, FourierTransform, Integral
-from sympy import fourier_transform as sympy_fourier_transform
+from sympy import fourier_transform as sympy_fourier_transform, Function
 from .sym import symsimplify, j
 from .transformer import BilateralForwardTransformer
 from .utils import factor_const, similarity_shift
@@ -56,16 +56,14 @@ class FourierTransformer(BilateralForwardTransformer):
         if not isinstance(expr, AppliedUndef):
             self.error('Expecting function')
 
-        fsym = sympify(str(f))
-
         # Convert v(t) to V(f), etc.
         name = expr.func.__name__
         if self.is_inverse:
-            func = name[0].lower() + name[1:] + '(%s)' % f
+            func = Function(name[0].lower() + name[1:])
         else:
-            func = name[0].upper() + name[1:] + '(%s)' % f
+            func = Function(name[0].upper() + name[1:])
 
-        result = sympify(func).subs(fsym, f)
+        result = func(f)
         return result
 
     def integral(self, expr, t, f):
