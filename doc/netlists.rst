@@ -628,9 +628,15 @@ Component methods
 
 - `transfer(cpt)` Create transfer function for the voltage across `cpt` divided by the voltage across the component.
 
-- `connected()` Return list of components connected to this component.
+- `connected()` Return list of components connected to this component (i.e., components that share a node).
 
-- `is_connected(cpt)` Returns True if connected to specified `cpt`.
+- `is_connected(cpt)` Return True if connected to specified `cpt` (i.e., the components share a node).
+
+- `in_parallel()` Return set of names of components in parallel with the component.
+
+- `in_series()` Return set of names of components in series with the component.
+
+- `short()` Apply short circuit across the component.
 
 - `noisy(T='T')` Create noisy model where resistors are replaced with a noiseless resistor and a noise voltage source.
 
