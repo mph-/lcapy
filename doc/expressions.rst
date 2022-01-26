@@ -480,7 +480,9 @@ An `ExprList` can be converted to a list suitable for sympy using the
 
  `ExprList` objects have many similar printing methods to `Expr` objects such as `pprint()` and `latex()`.  Other methods include:
 
- - `subs()` substitutes symbols
+ - `subs(symbol, value)` substitutes `symbol` with `value`.
+
+ - `subs(defs)` substitutes symbols where `defs` is a dictionary of values keyed by symbol name
 
  - `solve()` solves a system of equations, for example,
 
@@ -1376,6 +1378,14 @@ The substitution method can also have a dictionary argument, keyed by symbol nam
    >>> a2
    4⋅t + 2
 
+With two arguments, `subs()` replaces a symbol with an expression.  For example,
+
+   >>> a = expr('a * t + b')
+   >>> a2 = a.subs('a', 2)
+   >>> a2
+   b + 2⋅t
+
+
 
 Evaluation
 ----------
@@ -1722,6 +1732,11 @@ Simplification
 ==============
 
 Lcapy has the following simplification methods:
+
+- `doit()` evaluates a summation or integral, for example::
+
+   >>> Sum(n, (n, 0, 4)).doit()
+   10
 
 - `simplify()`  augments the SymPy simplification function by also simplifying expressions containing Dirac deltas and Heaviside steps.
 
