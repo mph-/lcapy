@@ -17,7 +17,7 @@ undefined functions such as v(t) to V(s).
 
 These functions are for internal use by Lcapy.
 
-Copyright 2016--2021 Michael Hayes, UCECE
+Copyright 2016--2022 Michael Hayes, UCECE
 
 """
 
@@ -85,13 +85,11 @@ class LaplaceTransformer(UnilateralForwardTransformer):
 
         scale, shift = scale_shift(expr.args[0], t)
 
-        ssym = sympify(str(s))
-
         # Convert v(t) to V(s), etc.
         name = expr.func.__name__
-        func = name[0].upper() + name[1:] + '(%s)' % s
+        func = sym.Function(name[0].upper() + name[1:])
 
-        result = sympify(func).subs(ssym, s / scale) / abs(scale)
+        result = func(s / scale) / abs(scale)
 
         if shift != 0:
             result = result * sym.exp(s * shift / scale)
@@ -161,10 +159,9 @@ class LaplaceTransformer(UnilateralForwardTransformer):
             expr.args[1][0] != t):
             self.error('Expecting function of t')
 
-        ssym = sympify(str(s))
         name = expr.args[0].func.__name__
-        func1 = name[0].upper() + name[1:] + '(%s)' % str(ssym)
-        return sympify(func1).subs(ssym, s) * s ** expr.args[1][1]
+        func1 = sym.Function(name[0].upper() + name[1:])
+        return func1(s) * s ** expr.args[1][1]
 
     def sin_cos(self, expr, t, s):
 
