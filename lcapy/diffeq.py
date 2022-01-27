@@ -44,6 +44,8 @@ class DifferenceEquation(DiscreteTimeDomainExpression):
         Y = self.outputsym.upper()
 
         result = self.ZT().solve(Y)[0] / zexpr(X + '(z)')
+        result.is_causal = True
+
         return result
 
     @property
