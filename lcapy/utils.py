@@ -68,19 +68,43 @@ def scale_shift(expr, var):
     return scale, shift
 
 
-def as_N_D(expr, var, monic_denominator=False):
+def as_N_D(expr, var, monic_denominator=False, use_sympy=False):
 
-    N = 1
-    D = 1
+    if use_sympy:
+        return expr.as_numer_denom()
+
     factors = expr.as_ordered_factors()
 
+    numers = []
+    denoms = []
     for factor in factors:
-        a, b = factor.as_numer_denom()
-        N *= a
-        if b.is_polynomial(var):
-            D *= b
+        if factor.is_Function and factor.func == sym.exp:
+            # SymPy treats exp(-s * a) as 1 / exp(s * a)
+            numer = factor
+            denom = sym.S.One
         else:
-            N /= b
+            numer, denom = factor.as_numer_denom()
+        numers.append(numer)
+        denoms.append(denom)
+
+    poly_denom = False
+    for denom in denoms:
+        if denom != 1 and denom.is_polynomial(var):
+            poly_denom = True
+            break
+
+    if not poly_denom:
+        return expr.as_numer_denom()
+
+    N = sym.S.One
+    D = sym.S.One
+
+    for numer, denom in zip(numers, denoms):
+        N *= numer
+        if denom.is_polynomial(var):
+            D *= denom
+        else:
+            N /= denom
 
     N = N.simplify()
 

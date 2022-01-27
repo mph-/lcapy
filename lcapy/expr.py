@@ -1577,8 +1577,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     def real(self):
         """Return real part.
 
-        Note, SymPy does not always extract the real part.  One example is:
-        `exp(t*(-1 - sqrt(5)*j))/(20*sqrt(5) - 20*j)`
+         Note, SymPy does not always extract the real part.  For example,
+        `exp(t*(-1 - sqrt(5)*j))/(20*sqrt(5) - 20*j)` or
+        `exp(j * f) / (1 - exp(j * f))`
 
         A work-around is to use `rationalize_denominator()` or
         `expand(complex=True)` first.
@@ -1606,8 +1607,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     def imag(self):
         """Return imaginary part.
 
-        Note, SymPy does not always extract the real part.  One example is:
-        `exp(t*(-1 - sqrt(5)*j))/(20*sqrt(5) - 20*j)`
+        Note, SymPy does not always extract the imaginary part.  For example,
+        `exp(t*(-1 - sqrt(5)*j))/(20*sqrt(5) - 20*j)` or
+        `exp(j * f) / (1 - exp(j * f))`
 
         A work-around is to use `rationalize_denominator()` or
         `expand(complex=True)` first.
@@ -1724,6 +1726,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         N, D = self.as_N_D()
         return D
+
+    def as_numer_denom(self, monic_denominator=False, use_sympy=False):
+
+        return self.as_N_D(monic_denominator, use_sympy)
 
     def rationalize_denominator(self):
         """Rationalize denominator by multiplying numerator and denominator by
@@ -3156,7 +3162,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         return units.as_value_unit(self.expr)
 
-    def as_N_D(self, monic_denominator=False):
+    def as_N_D(self, monic_denominator=False, use_sympy=False):
         """Responses due to a sum of delayed transient responses
         cannot be factored into ZPK form with a constant delay.
         For example, sometimes SymPy gives:
@@ -3175,7 +3181,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         N = V₁ - V₂⋅ℯ
         D =  s⋅(L⋅s + R)"""
 
-        N, D = as_N_D(self.expr, self.var, monic_denominator)
+        N, D = as_N_D(self.expr, self.var, monic_denominator, use_sympy)
 
         # Strip quantity and assumptions
         cls = self._class_by_quantity('undefined')

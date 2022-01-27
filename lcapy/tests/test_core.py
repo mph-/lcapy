@@ -57,6 +57,13 @@ class LcapyCoreTester(unittest.TestCase):
         self.assertEqual2(a.sign, expr(j), "sign incorrect.")
         self.assertEqual2(-a.sign, expr(-j), "sign incorrect.")
 
+        n = s + 2
+        d = (s + 3) * (s + 4)
+        e = exp(-5 * s)
+        a = n * e / d
+        self.assertEqual2(a.N, n * e, "N incorrect.")
+        self.assertEqual2(a.D, d, "D incorrect.")
+
     def test_cExpr1(self):
         """Check cExpr1
 
