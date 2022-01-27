@@ -38,23 +38,28 @@ class DLTIFilter(object):
         """Return discrete-time impulse response (transfer function) in
         z-domain."""
 
-        Nl = len(self.a)
-        Nr = len(self.b)
+        from .sym import zsym
 
-        # numerator of H(z)
-        num = 0 * z
+        a = self.a.sympy
+        b = self.b.sympy
+
+        Nl = len(a)
+        Nr = len(b)
+
+        # Numerator of H(z)
+        num = sym.S.Zero
         for i in range(Nr):
-            num += self.b[i] * z**(-i)
+            num += b[i] * zsym**(-i)
 
-        # denominator for H(z)
-        denom = self.a[0] * z**0
+        # Denominator for H(z)
+        denom = a[0] * zsym**0
         for k in range(1, Nl):
-            az = self.a[k] * z**(-k)
+            az = a[k] * zsym**(-k)
             denom += az
 
-        # collect with respect to positive powers of the variable z
-        num = sym.collect(sym.expand(num * z**Nl), z)
-        denom = sym.collect(sym.expand(denom * z**Nl), z)
+        # Collect with respect to positive powers of the variable z
+        num = sym.collect(sym.expand(num * zsym**Nl), zsym)
+        denom = sym.collect(sym.expand(denom * zsym**Nl), zsym)
 
         Hz = expr(sym.simplify(num / denom))
         Hz.is_causal = True
@@ -188,10 +193,15 @@ class DLTIFilter(object):
 
         return ret_seq
 
-
     def subs(self, *args, **kwargs):
 
         a = self.a.subs(*args, **kwargs)
         b = self.b.subs(*args, **kwargs)
 
         return self.__class__(b, a)
+
+    def pdb(self):
+        """Enter the python debugger."""
+
+        import pdb; pdb.set_trace()
+        return self
