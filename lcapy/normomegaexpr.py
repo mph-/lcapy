@@ -200,7 +200,7 @@ def Omegaexpr(arg, **assumptions):
 
     if arg is Omegasym:
         return Omega
-    return expr_make('fourier', arg, **assumptions)
+    return expr_make('norm angular fourier', arg, **assumptions)
 
 from .expressionclasses import expressionclasses
 

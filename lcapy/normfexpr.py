@@ -200,7 +200,7 @@ def Fexpr(arg, **assumptions):
 
     if arg is Fsym:
         return F
-    return expr_make('fourier', arg, **assumptions)
+    return expr_make('norm fourier', arg, **assumptions)
 
 from .expressionclasses import expressionclasses
 
