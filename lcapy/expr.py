@@ -2612,9 +2612,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         """
 
         if self._ratfun is None:
-            zeros = {}
-        else:
-            zeros = self._ratfun.zeros()
+            return self.N.roots(aslist, pairs)
+
+        zeros = self._ratfun.zeros()
         return self._fmt_roots(zeros, aslist, pairs)
 
     def poles(self, aslist=False, damping=None, pairs=False):
