@@ -14,6 +14,45 @@ from warnings import warn
 Zero = sym.S.Zero
 One = sym.S.One
 
+def polyroots(poly, var):
+    """Return roots of polynomial `poly` for variable `var`."""
+
+    roots = sym.roots(poly)
+    num_roots = 0
+    for root, n in roots.items():
+        num_roots += n
+    if num_roots != poly.degree():
+        # When the degree is five or above, the roots
+        # cannot be found, see Abel-Ruffini theorem.
+        # If the coefficients of the polynomial are numerical,
+        # the SymPy nroots function can be used to find
+        # numerical approximations to the roots.
+        a = set()
+        a.add(var)
+        if poly.free_symbols == a:
+            warn('Only %d of %d roots found, using numerical approximation' % (num_roots, poly.degree()))
+
+            nroots = poly.nroots()
+
+            roots = {}
+            for root in nroots:
+                if root in roots:
+                    roots[root] += 1
+                else:
+                    roots[root] = 1
+
+            return roots
+        warn('Only %d of %d roots found' % (num_roots, poly.degree()))
+
+    return roots
+
+
+def roots(expr, var):
+    """Return roots of expression `expr` for variable `var`."""
+
+    return polyroots(sym.Poly(expr, var), var)
+
+
 class Pole(object):
 
     def __init__(self, expr, n, damping=None):
@@ -219,6 +258,9 @@ def as_B_A_delay_undef(expr, var):
     delay = Zero
     undef = One
 
+    # This does not detect expressions of the form:
+    # A(s) * (B(s) - exp(-s * T) / D(s)
+
     F = sym.factor(expr).as_ordered_factors()
 
     rf = One
@@ -250,12 +292,15 @@ class Ratfun(object):
 
     def __init__(self, expr, var):
         """This represents a generalized rational function of the form:
-        `H(var) = N(var) / D(var) = (B(var) / A(var)) * exp(-var * delay) * U(var)`
+        `N(var) / D(var) = (B(var) / A(var)) * exp(-var * delay) * U(var)`
 
         where B and D are polynomials in var and U is the product of
         undefined functions of var.
 
         Note, delay only represents a delay when var is s.
+
+        It does not detect expressions such as:
+        `B(var) * (1 - exp(-var * delay)) / A(var)
 
         """
 
@@ -278,34 +323,7 @@ class Ratfun(object):
 
     def _roots(self, poly):
 
-        roots = sym.roots(poly)
-        num_roots = 0
-        for root, n in roots.items():
-            num_roots += n
-        if num_roots != poly.degree():
-            # When the degree is five or above, the roots
-            # cannot be found, see Abel-Ruffini theorem.
-            # If the coefficients of the polynomial are numerical,
-            # the SymPy nroots function can be used to find
-            # numerical approximations to the roots.
-            a = set()
-            a.add(self.var)
-            if poly.free_symbols == a:
-                warn('Only %d of %d roots found, using numerical approximation' % (num_roots, poly.degree()))
-
-                nroots = poly.nroots()
-
-                roots = {}
-                for root in nroots:
-                    if root in roots:
-                        roots[root] += 1
-                    else:
-                        roots[root] = 1
-
-                return roots
-            warn('Only %d of %d roots found' % (num_roots, poly.degree()))
-
-        return roots
+        return polyroots(poly, var)
 
     @lru_cache()
     def roots(self):
