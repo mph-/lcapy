@@ -323,7 +323,7 @@ class Ratfun(object):
 
     def _roots(self, poly):
 
-        return polyroots(poly, var)
+        return polyroots(poly, self.var)
 
     @lru_cache()
     def roots(self):

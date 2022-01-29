@@ -2631,7 +2631,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         """
 
         if self._ratfun is None:
-            return self._fmt_roots({}, aslist, pairs)
+            # Handle expressions such as A(s) * (1 - exp(-s * T)) / B(s).
+            return self.D.roots(aslist, pairs)
 
         poles = self._ratfun.poles(damping=damping)
 
