@@ -3,7 +3,7 @@ from lcapy.texpr import TimeDomainVoltage, TimeDomainCurrent
 from lcapy.sexpr import LaplaceDomainVoltage
 import unittest
 import sympy as sym
-
+import os
 
 class LcapyTester(unittest.TestCase):
 
@@ -570,6 +570,13 @@ class LcapyTester(unittest.TestCase):
         R 2 0""")        
 
         self.assertEqual(a.impedance(1, 0), impedance('R / k**2'), "incorrect impedance")
+
+    def test_TVtriode(self):
+        """ Test thermionic valve triode"""
+        a = Circuit("""
+        TVtriode 0 1 2 100 1.6e-3 3e-12 3e-12; up
+        """).draw("triode.png")
+        self.assertTrue(os.path.exists("triode.png"))
 
     def test_params(self):
         """Test params"""

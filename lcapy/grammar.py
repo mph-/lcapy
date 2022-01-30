@@ -99,6 +99,7 @@ TPH: TPname Np Nm Ncp Ncm H H11 H12 H21 H22 [V1] [I2]; H-parameter two-port
 TPY: TPname Np Nm Ncp Ncm Y Y11 Y12 Y21 Y22 [I1] [I2]; Y-parameter two-port
 TPZ: TPname Np Nm Ncp Ncm Z Z11 Z12 Z21 Z22 [V1] [V2]; Z-parameter two-port
 TR: TRname Pi Po [Value]; Transfer function
+TVtriode: TVname Nanode Ngrid Ncathode [mu] [gm] [Cgk] [Cga]; Thermionic valve triode
 Ubuffer: Uname buffer; Buffer
 Uinverter: Uname inverter; Inverter
 Udiffamp: Uname diffamp; Differential amplifier
@@ -219,6 +220,13 @@ Z: keyword;
 P: pin; Pin
 Pi: pin; Input pin
 Po: pin; Output pin
+Nanode: node; Anode node
+Ngrid: node; Grid node
+Ncathode: node; Cathode node
+mu: value; Amplification factor
+gm: value; Transconductance
+Cgk: value; Grid to cathode capacitance
+Cga: value; Grid to anode capacitance
 Nb: node; Base node
 Nc: node; Collector node
 Ncp: node; Positive control node
