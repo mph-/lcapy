@@ -117,6 +117,8 @@ an answer that appears valid for DC.
 
 29. Defer two-port evaluation and use AST
 
+30. Handle responses such as (1 - exp(-s * T)) / A(s).
+
 
 Testing
 =======
