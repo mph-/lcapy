@@ -1,7 +1,7 @@
 """
 This module performs plotting using matplotlib.
 
-Copyright 2014--2021 Michael Hayes, UCECE
+Copyright 2014--2022 Michael Hayes, UCECE
 """
 
 import numpy as np
@@ -390,7 +390,7 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
         raise RuntimeError('Internal error')
 
     deltas = None
-    if obj.has(DiracDelta):
+    if kwargs.pop('plot_deltas', True) and obj.has(DiracDelta):
         cls = obj.__class__
         rest, deltas = separate_dirac_delta(obj.expr)
         obj = cls(rest, **obj.assumptions)
@@ -526,7 +526,7 @@ def plot_time(obj, t, plot_type=None, **kwargs):
         t = np.linspace(tmin, tmax, npoints)
 
     deltas = None
-    if obj.has(DiracDelta):
+    if kwargs.pop('plot_deltas', True) and obj.has(DiracDelta):
         cls = obj.__class__
         rest, deltas = separate_dirac_delta(obj.expr)
         obj = cls(rest, **obj.assumptions)

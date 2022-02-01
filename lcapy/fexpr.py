@@ -24,11 +24,11 @@ class FourierDomainExpression(FourierDomain, Expr):
 
     def __init__(self, val, **assumptions):
 
-        check = assumptions.pop('check', True)        
+        check = assumptions.pop('check', True)
         assumptions['real'] = True
         super(FourierDomainExpression, self).__init__(val, **assumptions)
 
-        expr = self.expr        
+        expr = self.expr
         if check and expr.has(ssym) and not expr.has(Integral):
             raise ValueError(
                 'f-domain expression %s cannot depend on s' % expr)
@@ -67,14 +67,14 @@ class FourierDomainExpression(FourierDomain, Expr):
         """Convert to normalized Fourier domain."""
         from .symbols import F
         from .sym import dt
-        
+
         result = self.subs(F / dt)
         return result
 
     def angular_fourier(self, **assumptions):
         """Convert to angular Fourier domain."""
         from .symbols import omega
-        
+
         result = self.subs(omega / (2 * pi))
         return result
 
@@ -82,20 +82,20 @@ class FourierDomainExpression(FourierDomain, Expr):
         """Convert to normalized angular Fourier domain."""
         from .symbols import Omega
         from .sym import dt
-        
+
         result = self.subs(Omega / (2 * pi * dt))
-        return result    
-    
+        return result
+
     def laplace(self, **assumptions):
         """Determine one-side Laplace transform with 0- as the lower limit."""
 
         result = self.time(**assumptions).laplace()
         return result
-    
+
     def phasor(self, **assumptions):
         """Convert to phasor domain."""
 
-        return self.time(**assumptions).phasor(**assumptions)        
+        return self.time(**assumptions).phasor(**assumptions)
 
     def plot(self, fvector=None, plot_type=None, **kwargs):
         """Plot frequency response at values specified by `fvector`.
@@ -117,8 +117,9 @@ class FourierDomainExpression(FourierDomain, Expr):
         `yscale` - the y-axis scaling, say for plotting mV
         `norm` - use normalized frequency
         `dbmin` - the smallest value to plot in dB (default -120)
+        `plot_deltas` - plot Dirac deltas as arrows
         in addition to those supported by the matplotlib plot command.
-        
+
         The plot axes are returned.  This is a tuple for magnitude/phase or
         real/imaginary plots.
 
@@ -147,7 +148,7 @@ class FourierDomainExpression(FourierDomain, Expr):
 
         For more info, see `plot`.
         """
-        
+
         from .plot import plot_bode
         return plot_bode(self, fvector, **kwargs)
 
@@ -159,7 +160,7 @@ class FourierDomainExpression(FourierDomain, Expr):
         `npoints` set the number of plotted points.
 
         The unit circle is shown by default.  This can be disabled with `unitcircle=False`.
-        """        
+        """
 
         from .plot import plot_nyquist
         return plot_nyquist(self, fvector, log_frequency=log_frequency, **kwargs)
@@ -170,12 +171,12 @@ class FourierDomainExpression(FourierDomain, Expr):
         a tuple (f1, f2), it sets the frequency limits as (f1, f2).
 
         `npoints` set the number of plotted points.
-        """        
+        """
 
         from .plot import plot_nichols
-        return plot_nichols(self, fvector, log_frequency=log_frequency, **kwargs)    
-    
-    
+        return plot_nichols(self, fvector, log_frequency=log_frequency, **kwargs)
+
+
 def fexpr(arg, **assumptions):
     """Create FourierDomainExpression object.  If `arg` is fsym return f"""
 
