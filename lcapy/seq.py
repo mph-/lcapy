@@ -1,10 +1,9 @@
 """This module creates sequences.
 
-Copyright 2020-2021 Michael Hayes, UCECE
+Copyright 2020--2022 Michael Hayes, UCECE
 
 """
 
-from numpy import ndarray
 from .expr import expr
 from .sequence import Sequence
 from .nexpr import n
@@ -17,7 +16,7 @@ def seq(arg, ni=None, origin=None, domain=None):
 
     The sequence indices are specified with the optional `ni` argument.
     For example:
-    
+
     >>> a = seq((1, 2, 3, 4), (-1, 0, 1, 2))
 
     If the `ni` argument is not specified, the sequence indices
@@ -58,4 +57,3 @@ from .nseq import nseq
 from .kseq import kseq
 from .zseq import zseq
 from .symbols import n, k, z
-

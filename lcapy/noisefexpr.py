@@ -1,7 +1,7 @@
 """This module provides the FourierNoiseDomainExpression class to represent
 f-domain (Fourier domain) noise expressions.
 
-Copyright 2014--2020 Michael Hayes, UCECE
+Copyright 2014--2022 Michael Hayes, UCECE
 
 """
 from __future__ import division
@@ -17,7 +17,6 @@ from .fexpr import FourierDomainExpression
 from .voltagemixin import VoltageMixin
 from .currentmixin import CurrentMixin
 import sympy as sym
-import numpy as np
 
 class FourierNoiseDomainExpression(FourierNoiseDomain, NoiseExpression):
     """Frequency domain (one-sided) noise spectrum expression (amplitude
@@ -82,7 +81,7 @@ class FourierNoiseDomainExpression(FourierNoiseDomain, NoiseExpression):
     def transform(self, arg, **assumptions):
         """Transform into a different domain."""
 
-        arg = expr(arg)        
+        arg = expr(arg)
         if isinstance(arg, AngularFourierDomainExpression):
             result = self.subs(omega / (2 * pi))
             cls = self._class_by_quantity(self.quantity, 'angular fourier noise')
@@ -90,18 +89,18 @@ class FourierNoiseDomainExpression(FourierNoiseDomain, NoiseExpression):
         elif isinstance(arg, FourierDomainExpression):
             result = self.subs(arg, **assumptions)
             cls = self._class_by_quantity(self.quantity, 'fourier noise')
-            return cls(result, nid=self.nid, **assumptions)            
+            return cls(result, nid=self.nid, **assumptions)
 
         return super(FourierNoiseDomainExpression, self).transform(arg, **assumptions)
-    
-    
+
+
 class FourierNoiseDomainVoltage(VoltageMixin, FourierNoiseDomainExpression):
     """Voltage noise amplitude spectral density (units V/rtHz).
     This can be a function of linear frequency, f.  For example,
     to model an opamp voltage noise:
 
     v = FourierNoiseDomainVoltage(1e-8 / sqrt(f) + 8e-9)
-    
+
     """
 
     quantity_label = 'Voltage noise spectral density'

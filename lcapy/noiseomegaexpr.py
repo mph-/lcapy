@@ -1,7 +1,7 @@
 """This module provides the AngularFourierNoiseDomainExpression class to represent
 omega-domain (angular Fourier domain) noise expressions.
 
-Copyright 2014--2020 Michael Hayes, UCECE
+Copyright 2014--2022 Michael Hayes, UCECE
 """
 
 from __future__ import division
@@ -15,7 +15,6 @@ from .noiseexpr import NoiseExpression
 from .fexpr import f, FourierDomainExpression
 from .omegaexpr import AngularFourierDomainExpression
 import sympy as sym
-import numpy as np
 
 class AngularFourierNoiseDomainExpression(AngularFourierNoiseDomain, NoiseExpression):
     """Angular frequency domain (one-sided) noise spectrum expression (amplitude
@@ -79,7 +78,7 @@ class AngularFourierNoiseDomainExpression(AngularFourierNoiseDomain, NoiseExpres
     def transform(self, arg, **assumptions):
         """Transform into a different domain."""
 
-        arg = expr(arg)        
+        arg = expr(arg)
         if isinstance(arg, FourierDomainExpression):
             result = self.subs(f * 2 * pi)
             cls = self._class_by_quantity(self.quantity, 'fourier noise')
@@ -90,7 +89,7 @@ class AngularFourierNoiseDomainExpression(AngularFourierNoiseDomain, NoiseExpres
             return cls(result, nid=self.nid, **assumptions)
 
         return super(AngularFourierNoiseDomainExpression, self).transform(arg, **assumptions)
-    
+
 
 class AngularFourierNoiseDomainVoltage(AngularFourierNoiseDomainExpression):
     """Voltage noise amplitude spectral density (units V/rtrad/s).
@@ -98,7 +97,7 @@ class AngularFourierNoiseDomainVoltage(AngularFourierNoiseDomainExpression):
     to model an opamp voltage noise:
 
     v = AngularFourierNoiseDomainVoltage(1e-8 / sqrt(omega) + 8e-9)
-    
+
     """
 
     quantity_label = 'Voltage noise spectral density'

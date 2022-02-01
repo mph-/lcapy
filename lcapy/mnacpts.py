@@ -1,9 +1,8 @@
-
 """
 This module defines the components for modified nodal analysis.  The components
 are defined at the bottom of this file.
 
-Copyright 2015--2021 Michael Hayes, UCECE
+Copyright 2015--2022 Michael Hayes, UCECE
 
 """
 
@@ -24,6 +23,9 @@ import lcapy
 import inspect
 import sys
 import sympy as sym
+from warnings import warn
+
+__all__ = ()
 
 module = sys.modules[__name__]
 
@@ -36,16 +38,16 @@ cptaliases = {'E': 'VCVS', 'F': 'CCCS',
 class Cpt(ImmittanceMixin):
 
     dependent_source = False
-    independent_source = False    
+    independent_source = False
     reactive = False
     need_branch_current = False
-    need_extra_branch_current = False    
+    need_extra_branch_current = False
     need_control_current = False
     directive = False
     flip_branch_current = False
     ignore = False
     add_series = False
-    add_parallel = False    
+    add_parallel = False
     equipotential_nodes = ()
     is_transformer = False
 
@@ -61,7 +63,7 @@ class Cpt(ImmittanceMixin):
         self.namespace = ''
         self.nodenames = nodes
         self.relnodes = nodes
-        
+
         parts = name.split('.')
         if len(parts) > 1:
             self.namespace = '.'.join(parts[0:-1]) + '.'
@@ -75,17 +77,19 @@ class Cpt(ImmittanceMixin):
         self._string = string
         #self.net = string.split(';')[0]
         self.args = args
-        self.explicit_args = args        
+        self.explicit_args = args
         self.classname = self.__class__.__name__
         self.keyword = keyword
         self.opts = Opts(opts_string)
+
+        self.nosim = 'nosim' in self.opts
 
         # No defined cpt
         if self.type in ('XX', 'Cable'):
             self._cpt = lcapy.oneport.Dummy()
             return
 
-        if ((args == () and not self.type in ('W', 'O', 'P', 'TP'))
+        if ((args == () and not self.type in ('W', 'O', 'P', 'TP', 'TL'))
             or (self.type in ('F', 'H', 'CCCS', 'CCVS') and len(args) == 1)
             or (self.type == 'K' and len(args) == 2)):
             # Default value is the component name
@@ -105,7 +109,7 @@ class Cpt(ImmittanceMixin):
             classname = cptaliases[classname]
         except:
             pass
-                
+
         try:
             newclass = getattr(lcapy.oneport, classname)
         except:
@@ -114,7 +118,7 @@ class Cpt(ImmittanceMixin):
             except:
                 self._cpt = lcapy.oneport.Dummy()
                 return
-                
+
         self._cpt = newclass(*args)
 
     def __repr__(self):
@@ -122,20 +126,20 @@ class Cpt(ImmittanceMixin):
 
     def __str__(self):
         # TODO, use self._netmake() but fix for XX
-        return self._string        
+        return self._string
 
     @property
     def cpt(self):
         return self._cpt
-    
-    def _stamp(self, cct):
+
+    def _stamp(self, mna):
         raise NotImplementedError('stamp method not implemented for %s' % self)
 
     def _copy(self):
         """Make copy of net."""
-        
+
         return str(self)
-    
+
     def _arg_format(self, value):
         """Place value string inside curly braces if it contains a delimiter."""
 
@@ -143,7 +147,7 @@ class Cpt(ImmittanceMixin):
 
         if string.startswith('{'):
             return string
-        
+
         for delimiter in delimiters:
             if delimiter in string:
                 return '{' + string + '}'
@@ -170,7 +174,7 @@ class Cpt(ImmittanceMixin):
     def _initialize(self, ic):
         """Change initial condition to ic."""
 
-        return self._copy()    
+        return self._copy()
 
     def _netsubs(self, node_map=None, zero=False, subs_dict=None):
         """Create a new net description.  If node_map is not None,
@@ -178,7 +182,7 @@ class Cpt(ImmittanceMixin):
 
         string = self.defname
         field = 0
-        
+
         for node in self.relnodes:
             if node_map is not None:
                 node = node_map[node]
@@ -192,7 +196,7 @@ class Cpt(ImmittanceMixin):
             args = self.explicit_args
         else:
             args = self.args
-                
+
         for arg in self.args:
             if zero:
                 arg = 0
@@ -200,7 +204,7 @@ class Cpt(ImmittanceMixin):
             # Perform substitutions
             if subs_dict is not None:
                 arg = str(expr(arg).subs(subs_dict))
-                
+
             string += ' ' + self._arg_format(arg)
             field += 1
             if field == self.keyword[0]:
@@ -209,7 +213,7 @@ class Cpt(ImmittanceMixin):
         if opts_str != '':
             string += '; ' + opts_str
         return string
-        
+
     def _rename_nodes(self, node_map):
         """Rename the nodes using dictionary node_map."""
 
@@ -228,7 +232,7 @@ class Cpt(ImmittanceMixin):
 
         if opts is None:
             opts = self.opts
-            
+
         fmtargs = []
         for arg in args:
             fmtargs.append(self._arg_format(arg))
@@ -241,54 +245,54 @@ class Cpt(ImmittanceMixin):
         parts.extend(fmtargs)
 
         # Insert keyword...
-        
-        
+
+
         net = ' '.join(parts)
         opts_str = str(opts).strip()
         if opts_str != '':
             net += '; ' + opts_str
         return net
-    
+
     def _netmake(self, nodes=None, args=None, opts=None):
-        """This keeps the same cpt name"""                
+        """This keeps the same cpt name"""
         return self._netmake1(self.namespace + self.relname, nodes, args, opts)
 
     def _netmake_W(self, nodes=None, opts=None):
-        """This is used for changing cpt name from L1 to W"""        
+        """This is used for changing cpt name from L1 to W"""
         return self._netmake1(self.namespace + 'W', nodes, args=(),
                               opts=opts)
 
     def _netmake_O(self, nodes=None, opts=None):
-        """This is used for changing cpt name from C1 to O"""        
+        """This is used for changing cpt name from C1 to O"""
         return self._netmake1(self.namespace + 'O', nodes, args=(),
-                              opts=opts)    
-        
+                              opts=opts)
+
     def _netmake_variant(self, newtype, nodes=None, args=None, opts=None,
                          suffix=''):
         """This is used for changing cpt name from C1 to ZC1"""
 
         name = self.namespace + newtype + self.relname + suffix
         return self._netmake1(name, nodes, args, opts)
-    
+
     def _select(self, kind=None):
         """Select domain kind for component."""
-        raise ValueError('Component not a source: %s' % self)    
+        raise ValueError('Component not a source: %s' % self)
 
     def _new_value(self, value, ic=None):
 
         args = (value, )
         if ic is not None:
             args = (value, ic)
-        
+
         return self._netmake(args=args)
-    
+
     def _zero(self):
         """Zero value of the voltage source.  This kills it but keeps it as a
         voltage source in the netlist.  This is required for dummy
         voltage sources that are required to specify the controlling
-        current for CCVS and CCCS components."""        
+        current for CCVS and CCCS components."""
 
-        raise ValueError('Component not a source: %s' % self)        
+        raise ValueError('Component not a source: %s' % self)
 
     def _r_model(self):
         """Return resistive model of component."""
@@ -296,15 +300,15 @@ class Cpt(ImmittanceMixin):
 
     def _s_model(self, var):
         """Return s-domain model of component."""
-        return self._copy()    
+        return self._copy()
 
     def _ss_model(self):
         """Return state-space model of component."""
-        return self._copy()            
+        return self._copy()
 
     def _pre_initial_model(self):
         """Return pre-initial model of component."""
-        return self._copy()        
+        return self._copy()
 
     @property
     def is_source(self):
@@ -329,7 +333,20 @@ class Cpt(ImmittanceMixin):
         elif self.cpt.is_current_source:
             return self.cpt.Isc
         else:
-            raise ValueError('%s is not a source' % self)        
+            raise ValueError('%s is not a source' % self)
+
+    def in_parallel(self):
+        """Return set of components in parallel with cpt."""
+
+        return self.cct.in_parallel(self.name)
+
+    def in_series(self):
+        """Return set of components in series with cpt.  Note, this
+        does not find components that do not share a node, for example,
+        R1 and R3 are not considered as being in series for
+        R1 + (R2 | R3) + R3"""
+
+        return self.cct.in_series(self.name)
 
     @property
     def is_causal(self):
@@ -362,14 +379,14 @@ class Cpt(ImmittanceMixin):
     def has_dc(self):
         """Return True if source has dc component."""
 
-        return self._source_IV.has_dc    
+        return self._source_IV.has_dc
 
     @property
     def has_noisy(self):
         """Return True if source has noisy component."""
 
         return self._source_IV.has_noisy
-    
+
     @property
     def has_s_transient(self):
         """Return True if source has transient component defined in s-domain."""
@@ -380,14 +397,14 @@ class Cpt(ImmittanceMixin):
     def has_t_transient(self):
         """Return True if source has transient component defined in time domain."""
 
-        return self._source_IV.has_t_transient        
+        return self._source_IV.has_t_transient
 
     @property
     def has_transient(self):
         """Return True if source has a transient component."""
 
-        return self._source_IV.has_transient        
-        
+        return self._source_IV.has_transient
+
     @property
     def is_noisy(self):
         """Return True if source is noisy."""
@@ -397,14 +414,14 @@ class Cpt(ImmittanceMixin):
         elif self.cpt.is_current_source:
             return self.cpt.is_noisy
         else:
-            raise ValueError('%s is not a source' % self)        
+            raise ValueError('%s is not a source' % self)
 
     @property
     def is_noiseless(self):
         """Return True if component is noiseless."""
 
         return self.cpt.is_noiseless
-        
+
     @property
     def is_inductor(self):
         """Return True if component is an inductor."""
@@ -428,7 +445,7 @@ class Cpt(ImmittanceMixin):
     @property
     def is_conductor(self):
         """Return True if component is a conductor."""
-        return self.cpt.is_conductor            
+        return self.cpt.is_conductor
 
     @property
     def is_voltage_source(self):
@@ -445,7 +462,7 @@ class Cpt(ImmittanceMixin):
     def is_independent_voltage_source(self):
         """Return True if component is a independent voltage source."""
         return self.cpt.is_voltage_source and self.independent_source
-    
+
     @property
     def is_current_source(self):
         """Return True if component is a current source (dependent or
@@ -461,7 +478,7 @@ class Cpt(ImmittanceMixin):
     def is_independent_current_source(self):
         """Return True if component is a independent current source."""
         return self.cpt.is_current_source and self.independent_source
-        
+
     @property
     def zeroic(self):
         """Return True if initial conditions are zero (or unspecified)."""
@@ -526,8 +543,8 @@ class Cpt(ImmittanceMixin):
     def voc(self):
         """Open-circuit time-domain voltage for component in isolation."""
 
-        return self.Voc.time()    
-    
+        return self.Voc.time()
+
     @property
     def V0(self):
         """Initial voltage (for capacitors only)."""
@@ -539,10 +556,10 @@ class Cpt(ImmittanceMixin):
         """Initial current (for inductors only)."""
 
         return current(0)
-    
+
     @property
     def admittance(self):
-        """Self admittance of component. 
+        """Self admittance of component.
 
         The admittance is expressed in jomega form for AC circuits
         and in s-domain for for transient circuits.
@@ -550,17 +567,17 @@ class Cpt(ImmittanceMixin):
         For the driving-point admittance measured across the component
         use .dpY or .oneport().Y"""
 
-        return self.cpt.admittance._select(self.cct.kind)        
+        return self.cpt.admittance._select(self.cct.kind)
 
     @property
     def impedance(self):
-        """Self impedance of component.  
+        """Self impedance of component.
 
         The impedance is expressed in jomega form for AC circuits
         and in s-domain for for transient circuits.
 
         For the driving-point impedance measured across the component
-        use .dpZ or .oneport().Z"""        
+        use .dpZ or .oneport().Z"""
 
         return self.cpt.impedance._select(self.cct.kind)
 
@@ -590,7 +607,7 @@ class Cpt(ImmittanceMixin):
         """Driving-point open-circuit time-domain voltage across component in
         circuit."""
 
-        return self.dpVoc.time()    
+        return self.dpVoc.time()
 
     @property
     def dpYs(self):
@@ -604,14 +621,14 @@ class Cpt(ImmittanceMixin):
     def dpZs(self):
         """Driving-point generalized impedance (s-domain) measured across
         component in-circuit.  For the impedance of the component in isolation
-        use .Zs"""        
+        use .Zs"""
 
         return self.oneport().Zs
-    
+
     @property
     def dpY(self):
         """Driving-point admittance measured across component in-circuit.  For
-        the admittance of the component in isolation use .Y"""        
+        the admittance of the component in isolation use .Y"""
 
         return self.oneport().Y
 
@@ -622,33 +639,23 @@ class Cpt(ImmittanceMixin):
 
         return self.oneport().Z
 
-    @property
-    def node_indexes(self):
-
-        return [self.cct._node_index(n) for n in self.nodenames]
-
-    @property
-    def branch_index(self):
-
-        return self.cct._branch_index(self.name)
-
     def dummy_node(self):
 
         return '_' + self.cct._make_anon_name('node')
 
     def oneport(self):
         """Create oneport object."""
-        
+
         return self.cct.oneport(self.nodenames[1], self.nodenames[0])
 
     def thevenin(self):
         """Create Thevenin oneport object."""
-        
+
         return self.cct.thevenin(self.nodenames[1], self.nodenames[0])
 
     def norton(self):
         """Create Norton oneport object."""
-        
+
         return self.cct.norton(self.nodenames[1], self.nodenames[0])
 
     def transfer(self, cpt):
@@ -656,8 +663,8 @@ class Cpt(ImmittanceMixin):
         specified cpt divided by the s-domain voltage across self."""
 
         if isinstance(cpt, str):
-            cpt = self.cct._elements[cpt]        
-        
+            cpt = self.cct._elements[cpt]
+
         return self.cct.transfer(self.nodenames[1], self.nodenames[0],
                                  cpt.nodenames[1], cpt.nodenames[0])
 
@@ -667,14 +674,14 @@ class Cpt(ImmittanceMixin):
         nodenames."""
 
         return [self.cct.nodes[nodename] for nodename in self.nodenames]
-    
+
     def connected(self):
         """Return list of components connected to this component."""
 
         cpts = set()
         for node in self.nodes:
             cpts = cpts.union(set(node.connected))
-        
+
         return list(cpts)
 
     def is_connected(self, cpt):
@@ -685,38 +692,59 @@ class Cpt(ImmittanceMixin):
                 if cpt1.name == cpt:
                     return True
             return False
-        
+
         return cpt in self.connected
 
-    
+    def short(self):
+        """Apply short-circuit across component."""
+
+        parallel_set = self.in_parallel()
+        for cptname in parallel_set:
+            cpt = self.cct.elements[cptname]
+            if cpt.is_voltage_source:
+                if cpt.value == 0:
+                    warn('Component %s already shorted by %s' % (self.name, cptname))
+                else:
+                    warn('Shorting voltage source %s in parallel with %s' % (cptname, self.name))
+            elif cpt.is_current_source:
+                warn('Shorting current source %s in parallel with %s' % (cptname, self.name))
+
+        #self.cct.add('W %s %s' % (self.nodes[0].name, self.nodes[1].name))
+        # Could add zero ohm resistor but then could not determine current
+        # through the short.
+        self.cct.add('V? %s %s 0' % (self.nodes[0].name, self.nodes[1].name))
+
+        # Perhaps have option to delete component?
+
+
 class Invalid(Cpt):
-    
+
     @property
     def cpt(self):
-         raise NotImplementedError('Invalid component for circuit analysis: %s' % self)       
+         raise NotImplementedError('Invalid component for circuit analysis: %s' % self)
 
 
 class NonLinear(Invalid):
 
-    def _stamp(self, cct):
+    def _stamp(self, mna):
         raise NotImplementedError('Cannot analyse non-linear component: %s' % self)
 
 
 class TimeVarying(Invalid):
 
-    def _stamp(self, cct):
+    def _stamp(self, mna):
         raise NotImplementedError('Cannot analyse time-varying component: %s' % self)
 
 
 class Logic(Invalid):
 
-    def _stamp(self, cct):
+    def _stamp(self, mna):
         raise NotImplementedError('Cannot analyse logic component: %s' % self)
 
 
 class Misc(Invalid):
 
-    def _stamp(self, cct):
+    def _stamp(self, mna):
         raise NotImplementedError('Cannot analyse misc component: %s' % self)
 
 
@@ -724,10 +752,10 @@ class Ignored(Cpt):
 
     ignore = True
 
-    def _stamp(self, cct):
+    def _stamp(self, mna):
         # Could print warning
         pass
-    
+
 
 class Dummy(Cpt):
 
@@ -742,8 +770,8 @@ class Dummy(Cpt):
 class XX(Dummy):
     directive = True
     ignore = True
-    
-    def _stamp(self, cct):
+
+    def _stamp(self, mna):
         pass
 
     def _subs(self, subs_dict):
@@ -754,10 +782,10 @@ class XX(Dummy):
 
         return self._copy()
 
-    def __str__(self):        
+    def __str__(self):
         return self._string
 
-    
+
 class A(XX):
     pass
 
@@ -765,7 +793,7 @@ class A(XX):
 class IndependentSource(Cpt):
 
     independent_source = True
-    
+
     def _zero(self):
         """Zero value of the source.  For a voltage source this makes it a
         short-circuit; for a current source this makes it
@@ -776,16 +804,16 @@ class IndependentSource(Cpt):
 
         """
         return self._netsubs(zero=True)
-    
+
 
 class DependentSource(Dummy):
 
-    dependent_source = True        
+    dependent_source = True
 
     def _zero(self):
         return self._copy()
 
-    
+
 class RLC(Cpt):
 
     def _s_model(self, var):
@@ -846,33 +874,33 @@ class RC(RLC):
         vnet = self._netmake_variant('Vn', nodes=(dummy_node, self.relnodes[1]),
                                      args=('noise', Vn), opts=opts)
         return rnet + '\n' + vnet
-    
-    def _stamp(self, cct):
+
+    def _stamp(self, mna):
 
         # L's can also be added with this stamp but if have coupling
         # it is easier to generate a stamp that requires the branch current
         # through the L.
-        n1, n2 = self.node_indexes
+        n1, n2 = mna._cpt_node_indexes(self)
 
-        if self.type == 'C' and cct.kind == 'dc':
+        if self.type == 'C' and mna.kind == 'dc':
             Y = 0
         else:
-            Y = self.Y.expr
+            Y = self.Y.sympy
 
         if n1 >= 0 and n2 >= 0:
-            cct._G[n1, n2] -= Y
-            cct._G[n2, n1] -= Y
+            mna._G[n1, n2] -= Y
+            mna._G[n2, n1] -= Y
         if n1 >= 0:
-            cct._G[n1, n1] += Y
+            mna._G[n1, n1] += Y
         if n2 >= 0:
-            cct._G[n2, n2] += Y
+            mna._G[n2, n2] += Y
 
-        if cct.kind == 'ivp' and self.cpt.has_ic:
-            I = self.Isc.expr
+        if mna.kind == 'ivp' and self.cpt.has_ic:
+            I = self.Isc.sympy
             if n1 >= 0:
-                cct._Is[n1] += I 
+                mna._Is[n1] += I
             if n2 >= 0:
-                cct._Is[n2] -= I               
+                mna._Is[n2] -= I
 
 
 class C(RC):
@@ -883,7 +911,7 @@ class C(RC):
     @property
     def C(self):
         return self.cpt.C
-    
+
     def _kill(self):
         """Kill implicit sources due to initial conditions."""
         return self.netmake(args=self.args[0])
@@ -899,34 +927,34 @@ class C(RC):
     def _r_model(self):
 
         dummy_node = self.dummy_node()
-        opts = self.opts.copy()        
+        opts = self.opts.copy()
 
         # Use Thevenin model.  This will require the current through
         # the voltage source to be explicitly computed.
-        
+
         Req = 'R%seq' % self.name
-        Veq = 'V%seq' % self.name  
+        Veq = 'V%seq' % self.name
 
         opts.strip_voltage_labels()
         rnet = self._netmake_variant('R', suffix='eq',
                                      nodes=(self.relnodes[0], dummy_node),
                                      args=Req, opts=opts)
 
-        opts.strip_current_labels()        
+        opts.strip_current_labels()
         vnet = self._netmake_variant('V', suffix='eq',
                                      nodes=(dummy_node, self.relnodes[1]),
                                      args=('dc', Veq), opts=opts)
 
         # TODO: the voltage labels should be added across an
         # open-circuit object.
-        
+
         return rnet + '\n' + vnet
 
     def _ss_model(self):
         # Perhaps mangle name to ensure it does not conflict
         # with another voltage source?
-        return self._netmake_variant('V_', args='v_%s(t)' % self.relname)        
-        
+        return self._netmake_variant('V_', args='v_%s(t)' % self.relname)
+
     @property
     def V0(self):
         """Initial voltage (for capacitors only)."""
@@ -949,30 +977,30 @@ class VCVS(DependentSource):
 
     need_branch_current = True
 
-    def _stamp(self, cct):
-        n1, n2, n3, n4 = self.node_indexes
-        m = self.branch_index
+    def _stamp(self, mna):
+        n1, n2, n3, n4 = mna._cpt_node_indexes(self)
+        m = mna._cpt_branch_index(self)
 
         if n1 >= 0:
-            cct._B[n1, m] += 1
-            cct._C[m, n1] += 1
+            mna._B[n1, m] += 1
+            mna._C[m, n1] += 1
         if n2 >= 0:
-            cct._B[n2, m] -= 1
-            cct._C[m, n2] -= 1
+            mna._B[n2, m] -= 1
+            mna._C[m, n2] -= 1
 
-        Ad = ConstantDomainExpression(self.args[0]).expr
+        Ad = ConstantDomainExpression(self.args[0]).sympy
         if len(self.args) > 1:
-            Ac = ConstantDomainExpression(self.args[1]).expr
+            Ac = ConstantDomainExpression(self.args[1]).sympy
         else:
             Ac = 0
 
         Ap = (Ac / 2 + Ad)
-        Am = (Ac / 2 - Ad)        
-            
+        Am = (Ac / 2 - Ad)
+
         if n3 >= 0:
-            cct._C[m, n3] -= Ap
+            mna._C[m, n3] -= Ap
         if n4 >= 0:
-            cct._C[m, n4] -= Am
+            mna._C[m, n4] -= Am
 
     def _kill(self):
         newopts = self.opts.copy()
@@ -981,21 +1009,21 @@ class VCVS(DependentSource):
 
         return self._netmake_W(opts=newopts)
 
-    
+
 class CCCS(DependentSource):
     """CCCS"""
 
     need_control_current = True
-    
-    def _stamp(self, cct):
-        n1, n2 = self.node_indexes
-        m = cct._branch_index(self.args[0])
-        F = ConstantDomainExpression(self.args[1]).expr
-            
+
+    def _stamp(self, mna):
+        n1, n2 = mna._cpt_node_indexes(self)
+        m = mna._branch_index(self.args[0])
+        F = ConstantDomainExpression(self.args[1]).sympy
+
         if n1 >= 0:
-            cct._B[n1, m] -= F
+            mna._B[n1, m] -= F
         if n2 >= 0:
-            cct._B[n2, m] += F
+            mna._B[n2, m] += F
 
     def _kill(self):
         newopts = self.opts.copy()
@@ -1013,38 +1041,38 @@ class FB(Misc):
 class VCCS(DependentSource):
     """VCCS"""
 
-    def _stamp(self, cct):
-        n1, n2, n3, n4 = self.node_indexes
-        G = ConstantDomainExpression(self.args[0]).expr
+    def _stamp(self, mna):
+        n1, n2, n3, n4 = mna._cpt_node_indexes(self)
+        G = ConstantDomainExpression(self.args[0]).sympy
 
         if n1 >= 0 and n3 >= 0:
-            cct._G[n1, n3] -= G
+            mna._G[n1, n3] -= G
         if n1 >= 0 and n4 >= 0:
-            cct._G[n1, n4] += G
+            mna._G[n1, n4] += G
         if n2 >= 0 and n3 >= 0:
-            cct._G[n2, n3] += G
+            mna._G[n2, n3] += G
         if n2 >= 0 and n4 >= 0:
-            cct._G[n2, n4] -= G
+            mna._G[n2, n4] -= G
 
     def _kill(self):
         newopts = self.opts.copy()
         newopts.strip_voltage_labels()
         newopts.strip_labels()
 
-        return self._netmake_O(opts=newopts)        
+        return self._netmake_O(opts=newopts)
 
-    
+
 class GY(Dummy):
-    """Gyrator"""    
+    """Gyrator"""
 
     need_branch_current = True
     need_extra_branch_current = True
 
-    def _stamp(self, cct):
-        
-        n1, n2, n3, n4 = self.node_indexes
-        m1 = self.cct._branch_index(self.defname + 'X')
-        m2 = self.branch_index
+    def _stamp(self, mna):
+
+        n1, n2, n3, n4 = mna._cpt_node_indexes(self)
+        m1 = self.mna._branch_index(self.defname + 'X')
+        m2 = mna._cpt_branch_index(self)
 
         # m1 is the input branch
         # m2 is the output branch
@@ -1056,25 +1084,25 @@ class GY(Dummy):
 
         # V2 = -I1 Z2     V1 = I2 Z1
         # where V2 = V[n1] - V[n2] and V1 = V[n3] - V[n4]
-        
-        Z1 = ConstantDomainExpression(self.args[0]).expr                    
-        Z2 = Z1
-        
-        if n1 >= 0:
-            cct._B[n1, m2] += 1
-            cct._C[m1, n1] += 1
-        if n2 >= 0:
-            cct._B[n2, m2] -= 1
-            cct._C[m1, n2] -= 1
-        if n3 >= 0:
-            cct._B[n3, m1] += 1
-            cct._C[m2, n3] += 1
-        if n4 >= 0:
-            cct._B[n4, m1] -= 1
-            cct._C[m2, n4] -= 1                        
 
-        cct._D[m1, m1] += Z2
-        cct._D[m2, m2] -= Z1
+        Z1 = ConstantDomainExpression(self.args[0]).sympy
+        Z2 = Z1
+
+        if n1 >= 0:
+            mna._B[n1, m2] += 1
+            mna._C[m1, n1] += 1
+        if n2 >= 0:
+            mna._B[n2, m2] -= 1
+            mna._C[m1, n2] -= 1
+        if n3 >= 0:
+            mna._B[n3, m1] += 1
+            mna._C[m2, n3] += 1
+        if n4 >= 0:
+            mna._B[n4, m1] -= 1
+            mna._C[m2, n4] -= 1
+
+        mna._D[m1, m1] += Z2
+        mna._D[m2, m2] -= Z1
 
 
 class TVtriode(Dummy):
@@ -1123,32 +1151,32 @@ class CCVS(DependentSource):
     need_branch_current = True
     need_control_current = True
 
-    def _stamp(self, cct):
-        n1, n2 = self.node_indexes
-        m = self.branch_index
+    def _stamp(self, mna):
+        n1, n2 = mna._cpt_node_indexes(self)
+        m = mna._cpt_branch_index(self)
 
         if n1 >= 0:
-            cct._B[n1, m] += 1
-            cct._C[m, n1] += 1
+            mna._B[n1, m] += 1
+            mna._C[m, n1] += 1
         if n2 >= 0:
-            cct._B[n2, m] -= 1
-            cct._C[m, n2] -= 1
-        
-        mc = cct._branch_index(self.args[0])
-        G = ConstantDomainExpression(self.args[1]).expr
-        cct._D[m, mc] -= G
+            mna._B[n2, m] -= 1
+            mna._C[m, n2] -= 1
+
+        mc = mna._branch_index(self.args[0])
+        G = ConstantDomainExpression(self.args[1]).sympy
+        mna._D[m, mc] -= G
 
     def _kill(self):
         newopts = self.opts.copy()
         newopts.strip_current_labels()
         newopts.strip_labels()
 
-        return self._netmake_O(opts=newopts)                
+        return self._netmake_O(opts=newopts)
 
 
 class I(IndependentSource):
 
-    add_parallel = True    
+    add_parallel = True
 
     def _select(self, kind=None):
         """Select domain kind for component."""
@@ -1159,18 +1187,18 @@ class I(IndependentSource):
         newopts.strip_voltage_labels()
         newopts.strip_labels()
 
-        return self._netmake_O(opts=newopts)                        
+        return self._netmake_O(opts=newopts)
 
-    def _stamp(self, cct):
+    def _stamp(self, mna):
 
-        n1, n2 = self.node_indexes
+        n1, n2 = mna._cpt_node_indexes(self)
 
-        I = self.Isc.expr
+        I = self.Isc.sympy
 
         if n1 >= 0:
-            cct._Is[n1] += I
+            mna._Is[n1] += I
         if n2 >= 0:
-            cct._Is[n2] -= I
+            mna._Is[n2] -= I
 
     def _ss_model(self):
         return self._netmake(args='%s(t)' % self.relname.lower())
@@ -1180,11 +1208,11 @@ class I(IndependentSource):
 
     def _pre_initial_model(self):
 
-        return self._netmake(args=self.cpt.Isc.pre_initial_value())        
+        return self._netmake(args=self.cpt.Isc.pre_initial_value())
 
 
 class K(Dummy):
-    
+
     def __init__(self, cct, namespace, defname, name, cpt_type, cpt_id, string,
                  opts_string, nodes, keyword, *args):
 
@@ -1194,13 +1222,13 @@ class K(Dummy):
                                  cpt_type, cpt_id, string,
                                  opts_string, nodes, keyword, *args)
 
-    def _stamp(self, cct):
+    def _stamp(self, mna):
         from .sym import ssym
 
-        if cct.kind == 'dc':
+        if mna.kind == 'dc':
             return
-        
-        if cct.kind in ('t', 'time'):
+
+        if mna.kind in ('t', 'time'):
             raise RuntimeError('Should not be evaluating mutual inductance in'
                                ' time domain')
 
@@ -1208,45 +1236,45 @@ class K(Dummy):
         L2 = self.Lname2
         K = self.cpt.K
 
-        ZL1 = cct.elements[L1].Z.expr
-        ZL2 = cct.elements[L2].Z.expr
+        ZL1 = mna.cct.elements[L1].Z.sympy
+        ZL2 = mna.cct.elements[L2].Z.sympy
 
-        if cct.kind in ('s', 'ivp', 'laplace'):
+        if mna.kind in ('s', 'ivp', 'laplace'):
             # FIXME, generalise for other domains...
-            ZM = K.expr * sym.sqrt(ZL1 * ZL2 / ssym**2) * ssym
+            ZM = K.sympy * sym.sqrt(ZL1 * ZL2 / ssym**2) * ssym
         else:
-            ZM = K.expr * sym.sqrt(ZL1 * ZL2)
-            
-        m1 = cct._branch_index(L1)
-        m2 = cct._branch_index(L2)
+            ZM = K.sympy * sym.sqrt(ZL1 * ZL2)
 
-        cct._D[m1, m2] += -ZM
-        cct._D[m2, m1] += -ZM
+        m1 = mna._branch_index(L1)
+        m2 = mna._branch_index(L2)
+
+        mna._D[m1, m2] += -ZM
+        mna._D[m2, m1] += -ZM
 
 
 class L(RLC):
-    
+
     need_branch_current = True
     reactive = True
-    add_series = True    
+    add_series = True
 
     def _r_model(self):
 
         dummy_node = self.dummy_node()
-        opts = self.opts.copy()        
+        opts = self.opts.copy()
 
         # Use Thevenin model.  This will require the current through
         # the voltage source to be explicitly computed.
-        
+
         Req = 'R%seq' % self.name
-        Veq = 'V%seq' % self.name        
+        Veq = 'V%seq' % self.name
 
         opts.strip_voltage_labels()
         rnet = self._netmake_variant('R', suffix='eq',
                                      nodes=(self.relnodes[0], dummy_node),
                                      args=Req, opts=opts)
 
-        opts.strip_current_labels()                
+        opts.strip_current_labels()
         vnet = self._netmake_variant('V', suffix='eq',
                                      nodes=(dummy_node, self.relnodes[1]),
                                      args=('dc', Veq), opts=opts)
@@ -1263,58 +1291,58 @@ class L(RLC):
         if self.cct.kind == 'ivp' and self.cpt.has_ic:
             return current(self.cpt.i0 / s)
         return current(0)
-    
+
     @property
     def L(self):
         return self.cpt.L
-    
+
     def _kill(self):
         """Kill implicit sources due to initial conditions."""
-        return self.netmake(args=self.args[0])        
+        return self.netmake(args=self.args[0])
 
     def _initialize(self, ic):
         """Change initial condition to ic."""
         return self._netmake(args=(self.args[0], ic))
 
-    def _stamp(self, cct):
+    def _stamp(self, mna):
 
         # This formulation adds the inductor current to the unknowns
 
-        n1, n2 = self.node_indexes
-        m = self.branch_index
+        n1, n2 = mna._cpt_node_indexes(self)
+        m = mna._cpt_branch_index(self)
 
         if n1 >= 0:
-            cct._B[n1, m] = 1
-            cct._C[m, n1] = 1
+            mna._B[n1, m] = 1
+            mna._C[m, n1] = 1
         if n2 >= 0:
-            cct._B[n2, m] = -1
-            cct._C[m, n2] = -1
+            mna._B[n2, m] = -1
+            mna._C[m, n2] = -1
 
-        if cct.kind == 'dc':
+        if mna.kind == 'dc':
             Z = 0
         else:
-            Z = self.Z.expr
+            Z = self.Z.sympy
 
-        cct._D[m, m] += -Z
+        mna._D[m, m] += -Z
 
-        if cct.kind == 'ivp' and self.cpt.has_ic:
-            V = self.Voc.expr            
-            cct._Es[m] += V
+        if mna.kind == 'ivp' and self.cpt.has_ic:
+            V = self.Voc.sympy
+            mna._Es[m] += V
 
     def _ss_model(self):
         # Perhaps mangle name to ensure it does not conflict
         # with another current source?
         return self._netmake_variant('I_', args='-i_%s(t)' % self.relname)
-    
+
     def _pre_initial_model(self):
 
         return self._netmake_variant('I', args=self.cpt.i0)
 
-    
+
 class O(Dummy):
     """Open circuit"""
 
-    def _stamp(self, cct):
+    def _stamp(self, mna):
         pass
 
     @property
@@ -1324,7 +1352,7 @@ class O(Dummy):
     @property
     def i(self):
         return SuperpositionCurrent(0)(t)
-    
+
 
 class P(O):
     """Port"""
@@ -1333,22 +1361,22 @@ class P(O):
 
 class R(RC):
 
-    add_series = True    
-    
-    def _r_model(self):    
+    add_series = True
+
+    def _r_model(self):
         return self._copy()
 
 class NR(R):
 
-    add_series = True    
-    
-    def _r_model(self):    
-        return self._copy()    
+    add_series = True
+
+    def _r_model(self):
+        return self._copy()
 
 
 class RV(RC):
 
-    # TODO.  Can simulate as series resistors (1 - alpha) R and alpha R. 
+    # TODO.  Can simulate as series resistors (1 - alpha) R and alpha R.
     pass
 
 
@@ -1356,141 +1384,191 @@ class SPpp(Dummy):
 
     need_branch_current = True
 
-    def _stamp(self, cct):
-        n1, n2, n3 = self.node_indexes
-        m = self.branch_index
+    def _stamp(self, mna):
+        n1, n2, n3 = mna._cpt_node_indexes(self)
+        m = mna._cpt_branch_index(self)
 
         if n3 >= 0:
-            cct._B[n3, m] += 1
-            cct._C[m, n3] += 1
-        
+            mna._B[n3, m] += 1
+            mna._C[m, n3] += 1
+
         if n1 >= 0:
-            cct._C[m, n1] -= 1
+            mna._C[m, n1] -= 1
         if n2 >= 0:
-            cct._C[m, n2] -= 1
+            mna._C[m, n2] -= 1
 
 
 class SPpm(Dummy):
 
     need_branch_current = True
 
-    def _stamp(self, cct):
-        n1, n2, n3 = self.node_indexes
-        m = self.branch_index
+    def _stamp(self, mna):
+        n1, n2, n3 = mna._cpt_node_indexes(self)
+        m = mna._cpt_branch_index(self)
 
         if n3 >= 0:
-            cct._B[n3, m] += 1
-            cct._C[m, n3] += 1
-        
-        if n1 >= 0:
-            cct._C[m, n1] -= 1
-        if n2 >= 0:
-            cct._C[m, n2] += 1
+            mna._B[n3, m] += 1
+            mna._C[m, n3] += 1
 
-            
+        if n1 >= 0:
+            mna._C[m, n1] -= 1
+        if n2 >= 0:
+            mna._C[m, n2] += 1
+
+
 class SPppp(Dummy):
 
     need_branch_current = True
 
-    def _stamp(self, cct):
-        n1, n2, n3, n4 = self.node_indexes
-        m = self.branch_index
+    def _stamp(self, mna):
+        n1, n2, n3, n4 = mna._cpt_node_indexes(self)
+        m = mna._cpt_branch_index(self)
 
         if n3 >= 0:
-            cct._B[n3, m] += 1
-            cct._C[m, n3] += 1
-        
-        if n1 >= 0:
-            cct._C[m, n1] -= 1
-        if n2 >= 0:
-            cct._C[m, n2] -= 1
-        if n4 >= 0:
-            cct._C[m, n4] -= 1
+            mna._B[n3, m] += 1
+            mna._C[m, n3] += 1
 
-            
+        if n1 >= 0:
+            mna._C[m, n1] -= 1
+        if n2 >= 0:
+            mna._C[m, n2] -= 1
+        if n4 >= 0:
+            mna._C[m, n4] -= 1
+
+
 class SPpmm(Dummy):
 
     need_branch_current = True
 
-    def _stamp(self, cct):
-        n1, n2, n3, n4 = self.node_indexes
-        m = self.branch_index
+    def _stamp(self, mna):
+        n1, n2, n3, n4 = mna._cpt_node_indexes(self)
+        m = mna._cpt_branch_index(self)
 
         if n3 >= 0:
-            cct._B[n3, m] += 1
-            cct._C[m, n3] += 1
-        
+            mna._B[n3, m] += 1
+            mna._C[m, n3] += 1
+
         if n1 >= 0:
-            cct._C[m, n1] -= 1
+            mna._C[m, n1] -= 1
         if n2 >= 0:
-            cct._C[m, n2] += 1
+            mna._C[m, n2] += 1
         if n4 >= 0:
-            cct._C[m, n4] += 1
+            mna._C[m, n4] += 1
 
 
 class SPppm(Dummy):
 
     need_branch_current = True
 
-    def _stamp(self, cct):
-        n1, n2, n3, n4 = self.node_indexes
-        m = self.branch_index
+    def _stamp(self, mna):
+        n1, n2, n3, n4 = mna._cpt_node_indexes(self)
+        m = mna._cpt_branch_index(self)
 
         if n3 >= 0:
-            cct._B[n3, m] += 1
-            cct._C[m, n3] += 1
-        
+            mna._B[n3, m] += 1
+            mna._C[m, n3] += 1
+
         if n1 >= 0:
-            cct._C[m, n1] -= 1
+            mna._C[m, n1] -= 1
         if n2 >= 0:
-            cct._C[m, n2] -= 1
+            mna._C[m, n2] -= 1
         if n4 >= 0:
-            cct._C[m, n4] += 1
+            mna._C[m, n4] += 1
 
 
 class TF(Cpt):
-    """Transformer"""    
+    """Transformer"""
 
     need_branch_current = True
-    is_transformer = True    
+    is_transformer = True
 
-    def _stamp(self, cct):
+    def _stamp(self, mna):
 
-        n1, n2, n3, n4 = self.node_indexes
-        m = self.branch_index
+        n1, n2, n3, n4 = mna._cpt_node_indexes(self)
+        m = mna._cpt_branch_index(self)
 
         if n1 >= 0:
-            cct._B[n1, m] += 1
-            cct._C[m, n1] += 1
+            mna._B[n1, m] += 1
+            mna._C[m, n1] += 1
         if n2 >= 0:
-            cct._B[n2, m] -= 1
-            cct._C[m, n2] -= 1
+            mna._B[n2, m] -= 1
+            mna._C[m, n2] -= 1
 
         # Voltage gain = 1 / a where a = N_1 / N_2
         # is the turns-ratio.
-        T = self.cpt.alpha.expr
+        T = self.cpt.alpha.sympy
 
         if n3 >= 0:
-            cct._B[n3, m] -= T
-            cct._C[m, n3] -= T
+            mna._B[n3, m] -= T
+            mna._C[m, n3] -= T
         if n4 >= 0:
-            cct._B[n4, m] += T
-            cct._C[m, n4] += T
+            mna._B[n4, m] += T
+            mna._C[m, n4] += T
 
 
 class TFtap(Cpt):
-    """Tapped transformer"""    
+    """Tapped transformer"""
 
-    def _stamp(self, cct):
+    def _stamp(self, mna):
         raise NotImplementedError('Cannot analyse tapped transformer %s' % self)
 
 
-class TL(Ignored):
+class TL(Cpt):
     """Transmission line"""
 
-    equipotential_nodes = (('out1', 'in1'),
-                           ('out2', 'in2'))
-    
+    reactive = True
+    need_branch_current = True
+
+    def _stamp(self, mna):
+
+        if mna.kind != 's':
+            raise ValueError('Only Laplace domain currently supported for TL')
+
+        cpt = self.cpt
+
+        m = mna._cpt_branch_index(self)
+        n4, n3, n2, n1 = mna._cpt_node_indexes(self)
+
+        # TODO, tweak values if doing phasor analysis
+        A11 = cpt.A11.sympy
+        A12 = cpt.A12.sympy
+        A21 = cpt.A21.sympy
+        A22 = cpt.A22.sympy
+
+        if n1 >= 0:
+            if n3 >= 0:
+                mna._G[n1, n3] += A21
+            if n4 >= 0:
+                mna._G[n1, n4] -= A21
+            mna._B[n1, m] += A22
+
+        if n2 >= 0:
+            if n3 >= 0:
+                mna._G[n2, n3] -= A21
+            if n4 >= 0:
+                mna._G[n2, n4] += A21
+            mna._B[n2, m] -= A22
+
+        if n3 >= 0:
+            mna._B[n3, m] -= 1
+
+        if n4 >= 0:
+            mna._B[n4, m] += 1
+
+        if n1 >= 0:
+            mna._C[m, n1] -= 1
+
+        if n2 >= 0:
+            mna._C[m, n2] += 1
+
+        if n3 >= 0:
+            mna._C[m, n3] += A11
+
+        if n4 >= 0:
+            mna._C[m, n4] -= A11
+
+        mna._D[m, m] += A12
+
 
 class Cable(Ignored):
     """Cable"""
@@ -1514,149 +1592,149 @@ class TPA(TPCpt):
     """A-parameter two port"""
 
     need_branch_current = True
-    
-    def _stamp(self, cct):
+
+    def _stamp(self, mna):
 
         cpt = self.cpt
         if cpt.V1a != 0 or cpt.I1a != 0:
             raise ValueError('Sources not supported yet for %s' % self)
-        
-        m = self.branch_index        
-        n4, n3, n2, n1 = self.node_indexes
-        A11, A12, A21, A22 = cpt.A11.expr, cpt.A12.expr, cpt.A21.expr, cpt.A22.expr
+
+        m = mna._cpt_branch_index(self)
+        n4, n3, n2, n1 = mna._cpt_node_indexes(self)
+        A11, A12, A21, A22 = cpt.A11.sympy, cpt.A12.sympy, cpt.A21.sympy, cpt.A22.sympy
 
         if n1 >= 0:
             if n3 >= 0:
-                cct._G[n1, n3] += A21
+                mna._G[n1, n3] += A21
             if n4 >= 0:
-                cct._G[n1, n4] -= A21
-            cct._B[n1, m] += A22
+                mna._G[n1, n4] -= A21
+            mna._B[n1, m] += A22
 
         if n2 >= 0:
             if n3 >= 0:
-                cct._G[n2, n3] -= A21
+                mna._G[n2, n3] -= A21
             if n4 >= 0:
-                cct._G[n2, n4] += A21
-            cct._B[n2, m] -= A22            
-            
+                mna._G[n2, n4] += A21
+            mna._B[n2, m] -= A22
+
         if n3 >= 0:
-            cct._B[n3, m] -= 1
+            mna._B[n3, m] -= 1
 
         if n4 >= 0:
-            cct._B[n4, m] += 1
+            mna._B[n4, m] += 1
 
         if n1 >= 0:
-            cct._C[m, n1] -= 1
+            mna._C[m, n1] -= 1
 
         if n2 >= 0:
-            cct._C[m, n2] += 1
+            mna._C[m, n2] += 1
 
         if n3 >= 0:
-            cct._C[m, n3] += A11
+            mna._C[m, n3] += A11
 
         if n4 >= 0:
-            cct._C[m, n4] -= A11
+            mna._C[m, n4] -= A11
 
-        cct._D[m, m] += A12
+        mna._D[m, m] += A12
 
-        
+
 class TPB(TPA):
     """B-parameter two port"""
 
-    def _stamp(self, cct):
-            
+    def _stamp(self, mna):
+
         if self.cpt.V2b != 0 or self.cpt.I2b != 0:
             raise ValueError('Sources not supported yet for %s' % self)
 
-        super (TPB, self)._stamp(cct)
+        super (TPB, self)._stamp(mna)
 
 
 class TPG(TPA):
     """G-parameter two port"""
 
     # TODO, create G stamp directly
-    
-    def _stamp(self, cct):
-            
+
+    def _stamp(self, mna):
+
         if self.cpt.I1g != 0 or self.cpt.V2g != 0:
             raise ValueError('Sources not supported yet for %s' % self)
 
-        super (TPG, self)._stamp(cct)        
+        super (TPG, self)._stamp(mna)
 
 
 class TPH(TPA):
     """H-parameter two port"""
 
     # TODO, create H stamp directly
-    
-    def _stamp(self, cct):
-            
+
+    def _stamp(self, mna):
+
         if self.cpt.V1h != 0 or self.cpt.I2h != 0:
             raise ValueError('Sources not supported yet for %s' % self)
 
-        super (TPH, self)._stamp(cct)
-        
+        super (TPH, self)._stamp(mna)
+
 
 class TPY(TPCpt):
     """Y-parameter two port"""
 
-    def _stamp(self, cct):
+    def _stamp(self, mna):
 
         cpt = self.cpt
         if cpt.I1y != 0 or cpt.I2y != 0:
             raise ValueError('Sources not supported yet for %s' % self)
-        
-        n3, n4, n1, n2 = self.node_indexes
-        Y11, Y12, Y21, Y22 = cpt.Y11.expr, cpt.Y12.expr, cpt.Y21.expr, cpt.Y22.expr
+
+        n3, n4, n1, n2 = mna._cpt_node_indexes(self)
+        Y11, Y12, Y21, Y22 = cpt.Y11.sympy, cpt.Y12.sympy, cpt.Y21.sympy, cpt.Y22.sympy
 
         if n1 >= 0:
-            cct._G[n1, n1] += Y11
-            if n2 >= 0:            
-                cct._G[n1, n2] -= Y11
-            if n3 >= 0:            
-                cct._G[n1, n3] += Y12
-            if n4 >= 0:            
-                cct._G[n1, n4] -= Y12
+            mna._G[n1, n1] += Y11
+            if n2 >= 0:
+                mna._G[n1, n2] -= Y11
+            if n3 >= 0:
+                mna._G[n1, n3] += Y12
+            if n4 >= 0:
+                mna._G[n1, n4] -= Y12
 
         if n2 >= 0:
-            if n1 >= 0:                        
-                cct._G[n2, n1] -= Y11
-            cct._G[n2, n2] += Y11
-            if n3 >= 0:            
-                cct._G[n2, n3] -= Y12
-            if n4 >= 0:            
-                cct._G[n2, n4] += Y12
+            if n1 >= 0:
+                mna._G[n2, n1] -= Y11
+            mna._G[n2, n2] += Y11
+            if n3 >= 0:
+                mna._G[n2, n3] -= Y12
+            if n4 >= 0:
+                mna._G[n2, n4] += Y12
 
         if n3 >= 0:
-            if n1 >= 0:                        
-                cct._G[n3, n1] += Y21
-            if n2 >= 0:            
-                cct._G[n3, n2] -= Y21
-            cct._G[n3, n3] += Y22
-            if n4 >= 0:            
-                cct._G[n3, n4] -= Y22
+            if n1 >= 0:
+                mna._G[n3, n1] += Y21
+            if n2 >= 0:
+                mna._G[n3, n2] -= Y21
+            mna._G[n3, n3] += Y22
+            if n4 >= 0:
+                mna._G[n3, n4] -= Y22
 
         if n4 >= 0:
-            if n1 >= 0:                        
-                cct._G[n4, n1] -= Y21
-            if n2 >= 0:            
-                cct._G[n4, n2] += Y21
-            if n3 >= 0:            
-                cct._G[n4, n3] -= Y22
-            cct._G[n4, n4] += Y22
+            if n1 >= 0:
+                mna._G[n4, n1] -= Y21
+            if n2 >= 0:
+                mna._G[n4, n2] += Y21
+            if n3 >= 0:
+                mna._G[n4, n3] -= Y22
+            mna._G[n4, n4] += Y22
 
-                
+
 class TPZ(TPY):
     """Z-parameter two port"""
 
     # TODO, create Z stamp directly
-    
-    def _stamp(self, cct):
-            
+
+    def _stamp(self, mna):
+
         if self.cpt.V1z != 0 or self.cpt.V2z != 0:
             raise ValueError('Sources not supported yet for %s' % self)
 
-        super (TPZ, self)._stamp(cct)
+        super (TPZ, self)._stamp(mna)
 
 
 class TR(Dummy):
@@ -1665,18 +1743,18 @@ class TR(Dummy):
 
     need_branch_current = True
 
-    def _stamp(self, cct):
-        n1, n2 = self.node_indexes
-        m = self.branch_index
+    def _stamp(self, mna):
+        n1, n2 = mna._cpt_node_indexes(self)
+        m = mna._cpt_branch_index(self)
 
         if n2 >= 0:
-            cct._B[n2, m] += 1
-            cct._C[m, n2] += 1
-        
-        A = ConstantDomainExpression(self.args[0]).expr
-        
+            mna._B[n2, m] += 1
+            mna._C[m, n2] += 1
+
+        A = ConstantDomainExpression(self.args[0]).sympy
+
         if n1 >= 0:
-            cct._C[m, n1] -= A
+            mna._C[m, n1] -= A
 
 
 class V(IndependentSource):
@@ -1696,20 +1774,20 @@ class V(IndependentSource):
 
         return self._netmake_W(opts=newopts)
 
-    def _stamp(self, cct):
+    def _stamp(self, mna):
 
-        n1, n2 = self.node_indexes
-        m = self.branch_index
+        n1, n2 = mna._cpt_node_indexes(self)
+        m = mna._cpt_branch_index(self)
 
         if n1 >= 0:
-            cct._B[n1, m] += 1
-            cct._C[m, n1] += 1
+            mna._B[n1, m] += 1
+            mna._C[m, n1] += 1
         if n2 >= 0:
-            cct._B[n2, m] -= 1
-            cct._C[m, n2] -= 1
+            mna._B[n2, m] -= 1
+            mna._C[m, n2] -= 1
 
-        V = self.Voc.expr
-        cct._Es[m] += V
+        V = self.Voc.sympy
+        mna._Es[m] += V
 
     def _ss_model(self):
         return self._netmake(args='%s(t)' % self.relname.lower())
@@ -1725,7 +1803,7 @@ class V(IndependentSource):
 class W(Dummy):
     """Wire"""
 
-    def _stamp(self, cct):
+    def _stamp(self, mna):
         pass
 
     @property
@@ -1734,13 +1812,13 @@ class W(Dummy):
 
     @property
     def i(self):
-        raise ValueError('Cannot determine current through wire, use a 0 V voltage source')    
-    
+        raise ValueError('Cannot determine current through wire, use a 0 V voltage source')
+
 
 class XT(Misc):
     """Crystal"""
 
-    reactive = True    
+    reactive = True
 
 
 class Y(RC):
@@ -1754,13 +1832,13 @@ class Z(RC):
     """Impedance"""
 
     reactive = True
-    add_series = True    
+    add_series = True
 
 
 classes = {}
 
 def defcpt(name, base, docstring):
-    
+
     if isinstance(base, str):
         base = classes[base]
 
@@ -1775,7 +1853,7 @@ def make(classname, parent, name, cpt_type, cpt_id,
     # Create instance of component object
     newclass = classes[classname]
 
-    cpt = newclass(parent, name, cpt_type, cpt_id, string, opts_string, 
+    cpt = newclass(parent, name, cpt_type, cpt_id, string, opts_string,
                    nodes, *args)
 
     return cpt
@@ -1842,6 +1920,7 @@ defcpt('SWspdt', 'SW', 'SPDT switch')
 
 defcpt('TFcore', TF, 'Transformer with core')
 defcpt('TFtapcore', TFtap, 'Transformer with core')
+defcpt('TLlossless', TL, 'Lossless transmission line')
 
 defcpt('Ubuffer', Logic, 'Buffer')
 defcpt('Upbuffer', Logic, 'Buffer with power supplies')
@@ -1896,4 +1975,3 @@ defcpt('r', R, 'Damper')
 clsmembers = inspect.getmembers(module, lambda member: inspect.isclass(member) and member.__module__ == __name__)
 for name, cls in clsmembers:
     classes[name] = cls
-

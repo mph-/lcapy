@@ -26,13 +26,13 @@ Constants
 
 - `zoo` complex infinity
 
-- `one` 1  
+- `one` 1
 
-.. _numbers:  
-  
+.. _numbers:
+
 Numbers
 -------
-  
+
 Lcapy approximates real numbers as rationals.  This ensures expected simplifications of expressions.   However, some floating-point numbers produce unwieldy rationals (see :ref:`floating-point`) and so it is best to avoid floating-point numbers.  For example, use::
 
    >>> expr('2 / 3')
@@ -55,22 +55,22 @@ The floating-point approximation can be found using `fval` attribute for a Pytho
 
 Rational numbers in Lcapy expressions can be converted to SymPy floating-point numbers using the `evalf()` method, with a specified number of decimal places.   For example::
 
-  >>>expr('1 / 3 + a').evalf(5)
+  >>> expr('1 / 3 + a').evalf(5)
   a + 0.33333
 
 If you prefer floating-point numbers use the `ratfloat()` method.  For example::
 
-  >>>expr('0.1 * a')
-  a 
+  >>> expr('0.1 * a')
+  a
   ──
   10
-  >>>expr('0.1 * a').ratfloat()
+  >>> expr('0.1 * a').ratfloat()
   0.1⋅a
 
 The companion method `floatrat()` converts floating-point numbers to
 rational numbers.
 
-   
+
 .. _domainvariables:
 
 Domain variables
@@ -91,31 +91,31 @@ Lcapy has seven predefined domain variables for continuous time signals:
 - `Omega` (or `W`) -- normalized angular Fourier domain (:math:`\Omega = \omega \Delta t`)
 
 - `jomega` (or `jw`) -- phasor domain
-  
+
 
 A time-domain expression is produced using the `t` variable, for example::
-  
+
    >>> e = exp(-3 * t) * u(t)
 
 Similarly, a Laplace-domain expression is produced using the `s`
 variable, for example::
-  
+
    >>> V = s / (s**2 + 2 * s + 3)
 
 
 There are an additional three domain variables for discrete-time signals (see :ref:`discrete_time`):
-   
+
 - `n` -- discrete-time domain
 
 - `k` -- discrete-frequency domain
 
-- `z` -- z-domain  
+- `z` -- z-domain
 
 
 For example::
 
     >>> V = delta(n) + 2 * delta(n - 1) + 3 * delta(n - 3)
-  
+
 
 All Lcapy expressions have a domain (Laplace, Fourier, etc.) and a quantity (voltage, current, undefined) etc.   For example::
 
@@ -137,7 +137,7 @@ by a voltage unit.  For example::
 This applies to the units: volts, amperes, ohms, siemens, and watts.
 Note, this is experimental and may be deprecated since the resultant units might be too confusing.
 
-   
+
 User defined symbols
 --------------------
 
@@ -148,13 +148,13 @@ example::
    >>> N = symbol('N', even=True)
 
 They are also implicitly created from strings.  For example::
-   
+
    >>> v = expr('exp(-t / tau) * u(t)')
 
 or
 
    >>> v = voltage('exp(-t / tau) * u(t)')
-   
+
 
 Notes:
 
@@ -183,12 +183,12 @@ maintains a table of symbols that are not to be printed in canonical form.
 5. Domain symbols (`t`, `f`, etc.) can only be redefined with
    `force=True`.  Caveat emptor!  This can cause confusion.  For
    example:
-   
+
    >>> n = symbol('n', force=True, real=True)
 
 
 .. _expressionsfunctions:
-   
+
 Mathematical functions
 ----------------------
 
@@ -198,19 +198,19 @@ Lcapy has the following built-in functions: `sin`, `cos`, `tan`,
 `log10`, `sign`, `conjugate`, `rect`, `dtrect`, `sinc`, `sincn`,
 `sincu`, `tri`, `trap`, `Heaviside`, `H`, `u`, `DiracDelta`, `delta`,
 `unitimpulse`, `unitstep`, `Piecewise`, `Derivative`, `Integral`,
-`integrate`, `diff`, `Min`, and `Max` among others.  
+`integrate`, `diff`, `Min`, and `Max` among others.
 
 Other SymPy functions can be converted to Lcapy functions using the
 `Function` class, for example:
 
    >>> import sympy as sym
-   >>> gamma = Function(sym.gamma)   
+   >>> gamma = Function(sym.gamma)
    >>> gamma(4)
    6
 
 For additional details on some of these functions see :ref:`special-functions`.
-   
-.. _domains:   
+
+.. _domains:
 
 Domains
 =======
@@ -227,14 +227,14 @@ uses the following transform domains for circuit analysis:
 - Laplace domain (s-domain) for transient signals
 
 - Fourier domain (and angular Fourier domain) for noise signals
-  
+
 
 The domain of an expression is usually determined from the pre-defined
 domain variables (see :ref:`domainvariables`).  For example::
 
    >>> Z = impedance(3 * s)
    >>> Z.domain
-   'laplace'  
+   'laplace'
 
 However, this is not possible for constants.  One approach is to use::
 
@@ -248,24 +248,24 @@ Alternatively, there are a number of functions for setting the domain:
 
 - `fexpr()` set Fourier domain
 
-- `Fexpr()` set normalized Fourier domain  
+- `Fexpr()` set normalized Fourier domain
 
-- `omegaexpr()` set angular Fourier domain  
+- `omegaexpr()` set angular Fourier domain
 
-- `Omegaexpr()` set normalized angular Fourier domain  
-  
+- `Omegaexpr()` set normalized angular Fourier domain
+
 - `sexpr()` set Laplace domain
 
 - `texpr()` set time domain
 
-- `phasor()` set phasor domain  
+- `phasor()` set phasor domain
 
 For example::
 
    >>> Z = impedance(sexpr(5))
    >>> Z.domain
    'laplace'
-  
+
 There are restrictions on how expressions can be combined.  In
 general, both expressions must be of the same domain and have
 compatible quantities.  For example, you cannot do::
@@ -276,7 +276,7 @@ compatible quantities.  For example, you cannot do::
 
 Expressions can be transformed to different domains, see :ref:`transformation`.
 
-.. _domainattributes:      
+.. _domainattributes:
 
 Domain attributes
 -----------------
@@ -288,14 +288,14 @@ Domain attributes
 - `is_fourier_domain`
 - `is_angular_fourier_domain`
 - `is_norm_fourier_domain`
-- `is_norm_angular_fourier_domain`  
+- `is_norm_angular_fourier_domain`
 - `is_phasor_domain`
 - `is_phasor_time_domain`
-- `is_phasor_frequency_domain`    
+- `is_phasor_frequency_domain`
 - `is_discrete_time_domain`
 - `is_discrete_fourier_domain`
 - `is_Z_domain`
-- `is_transform_domain`          
+- `is_transform_domain`
 
 
 .. _quantities:
@@ -327,19 +327,19 @@ There are a number of methods for changing the quantity of an expression:
 - `as_power()` converts to power
 
 There are similar functions for setting the quantity of an expression:
-  
+
 - `expr()` removes the quantity
 - `voltage()` converts to voltage
 - `current()` converts to current
 - `impedance()` converts to impedance
 - `admittance()` converts to admittance
-- `transfer()` converts to transfer function  
+- `transfer()` converts to transfer function
 
 An Lcapy quantity is not a strict quantity but a collection of related
 quantities, For example, both voltage (with units V) and voltage spectral
 density (with units V/Hz) are considered voltage quantities.  However, they have different units.
 
-.. _quantityattributes:        
+.. _quantityattributes:
 
 Quantity attributes
 -------------------
@@ -358,7 +358,7 @@ Expressions have the following attributes to identify the quantity:
 - `is_admittancesquared`
 - `is_power`
 
-  
+
 .. _units:
 
 Units
@@ -369,7 +369,7 @@ Expressions have an attribute `units` that reflect the quantity and domain.  For
    >>> voltage(7).units
    V
    >>> voltage(7 * f).units
-   V 
+   V
    ──
    Hz
    >>> voltage(7 / s).units
@@ -383,7 +383,7 @@ Expressions have an attribute `units` that reflect the quantity and domain.  For
    >>> s.units
    rad
    ───
-    s 
+    s
 
 The units are a SymPy Expression and thus can be formatted as a
 string, LaTeX, etc.  They can be automatically printed, for example::
@@ -414,10 +414,10 @@ Alternatively, the units can be simplified using the `simplify_units()` method::
    >>> state.show_units = True
    >>> V = current(7) * impedance(2)
    >>> V
-   14⋅A⋅ohm   
+   14⋅A⋅ohm
    >>> V.simplify_units()
    14⋅V
-   
+
 The units are chosen as a function of quantity and domain when an
 Lcapy expression is created and are modified by multiplications, divisions, and transformations, such as a Fourier transform.  Here are the default values::
 
@@ -435,7 +435,7 @@ Lcapy expression is created and are modified by multiplications, divisions, and 
     | Transfer function | 1   | 1/s   | 1      | 1    | 1      | 1      | 1   | 1   | 1   |           |
     +-------------------+-----+-------+--------+------+--------+--------+-----+-----+-----+-----------+
 
-Note, the transfer functions are assumed to be voltage or current ratios in the Laplace and Fourier domains.  Voltage and current ratios are represented by impedances and admittances.    
+Note, the transfer functions are assumed to be voltage or current ratios in the Laplace and Fourier domains.  Voltage and current ratios are represented by impedances and admittances.
 
 Unit determination goes awry when some mathematical functions are used.  For example::
 
@@ -443,7 +443,7 @@ Unit determination goes awry when some mathematical functions are used.  For exa
    V
 
 
-.. _unitattributes:      
+.. _unitattributes:
 
 Unit attributes
 ---------------
@@ -460,7 +460,7 @@ Expressions have the following attributes for units:
 Containers
 ==========
 
-  
+
 Lists
 -----
 
@@ -477,12 +477,14 @@ An `ExprList` can be converted to a list suitable for sympy using the
     >>> a.sympy
     ⎡    2     ⎤
     ⎣t, t , 3⋅t⎦
-   
+
  `ExprList` objects have many similar printing methods to `Expr` objects such as `pprint()` and `latex()`.  Other methods include:
 
- - `subs()` to substitute symbols
+ - `subs(symbol, value)` substitutes `symbol` with `value`.
 
- - `solve()` to solve a system of equations, for example,
+ - `subs(defs)` substitutes symbols where `defs` is a dictionary of values keyed by symbol name
+
+ - `solve()` solves a system of equations, for example,
 
    >>> v = expr('v(t)')
    >>> vR = expr('vR(t)')
@@ -499,9 +501,9 @@ An `ExprList` can be converted to a list suitable for sympy using the
    ⎨I(s): ───────, V_L(s): ────────, V_R(s): ───────⎬
    ⎩      L⋅s + R          L⋅s + R           L⋅s + R⎭
 
- - `fval()` evaluate each expression in the list and return a list of Python float values
+ - `fval()` evaluates each expression in the list and return a list of Python float values
 
- - `cval()` evaluate each expression in the list and return a list of Python complex values   
+ - `cval()` evaluates each expression in the list and return a list of Python complex values
 
 
 Tuples
@@ -547,7 +549,7 @@ Vectors
 Vector objects are created with the `Vector` class.  These are a
 subclass of the `Matrix` class.
 
-   
+
 Signals and transfer functions
 ==============================
 
@@ -569,7 +571,7 @@ I(s) / V(s)`, are a special kind of transfer function.
 The time domain representation of a transfer function, :math:`H(s)`, is called the impulse response, :math:`h(t)`.  For a causal system, :math:`h(t) = 0` for :math:`t < 0`.
 
 .. _expressionsrationalfunctions:
-   
+
 Rational functions
 ------------------
 
@@ -582,19 +584,19 @@ The numerator can be found using the `N` attribute and denominator can
 be found using the `D` attribute.   For example::
 
   >>> Z = impedance((5 * s) / (s**2 + 5 * s + 6))
-         5⋅s     
+         5⋅s
    ────────────
-    2          
+    2
    s  + 5⋅s + 6
    >>> Z.N
    5⋅s
    >>> Z.D
-    2          
+    2
    s  + 5⋅s + 6
 
 
 .. _expressionsresponses:
-   
+
 Responses
 ---------
 
@@ -608,8 +610,7 @@ where :math:`\tau_i` are time delays.   This representation is returned by the `
 .. math::
    N(s) = \sum_{i} N_i(s) \exp(-s \tau_i).
 
-
-.. _expressionsattributes:     
+.. _expressionsattributes:
 
 Attributes
 ==========
@@ -619,12 +620,12 @@ All Lcapy expressions have the following attributes (see :ref:`expressionsration
 - `abs` returns absolute value
 
 - `angle` returns phase angle (radians)
-  
+
 - `cartesian` returns expression in form `real + j * imag`
 
 - `conj` returns complex conjugate (equivalent to `conjugate()` method)
 
-- `cval` returns complex floating-point number (as Python complex) if expression can be evaluated (see also `val`, `fval`, and `evalf()`)  
+- `cval` returns complex floating-point number (as Python complex) if expression can be evaluated (see also `val`, `fval`, and `evalf()`)
 
 - `dB` returns magnitude in decibels: `20 * log10(magnitude)`
 
@@ -637,13 +638,13 @@ All Lcapy expressions have the following attributes (see :ref:`expressionsration
 - `degree` returns degree (order) of rational function (maximum of numerator and denominator degrees)
 
 - `domain` returns a string identifying the domain (laplace, fourier, etc.)
-  
+
 - `domain_label` returns string describing domain of expression
 
 - `expr` returns the underlying SymPy expression
 
 - `fval` returns floating-point number (as Python float) if expression can be evaluated (see also `val`, `cval`, and `evalf()`)
-  
+
 - `imag` returns imaginary part
 
 - `is_ac` returns True if AC signal
@@ -654,7 +655,7 @@ All Lcapy expressions have the following attributes (see :ref:`expressionsration
 
 - `is_constant` returns True if expression is constant (it must have no free symbols, compare with `is_unchanging`), e.g., 3 is constant but 3 * x is not
 
-- `is_dc` returns True if DC signal    
+- `is_dc` returns True if DC signal
 
 - `is_number` returns True if expression is a number
 
@@ -663,26 +664,26 @@ All Lcapy expressions have the following attributes (see :ref:`expressionsration
 - `is_strictly_proper` returns True if degree of denominator greater than degree of numerator
 
 - `is_unchanging` returns True if expression does not have a domain variable (compare with `is_constant`), e.g., 3 * x is unchanging but 3 * t is not
-  
+
 - `label` returns string describing expression to use as a plot label
 
-- `magnitude` returns absolute value  
+- `magnitude` returns absolute value
 
 - `N` returns numerator
 
-- `Ndegree` returns degree of numerator    
+- `Ndegree` returns degree of numerator
 
 - `numerator` returns numerator
 
 - `phase` returns phase (radians)
 
-- `phase_degrees` returns phase (degrees)    
+- `phase_degrees` returns phase (degrees)
 
 - `polar` returns expression in form `mag * exp(j * phase)`
 
-- `quantity` returns a string identifying the quantity (voltage, current, undefined, etc.)  
+- `quantity` returns a string identifying the quantity (voltage, current, undefined, etc.)
 
-- `real` returns real part  
+- `real` returns real part
 
 - `real_imag` returns expression in form `real + j * imag`
 
@@ -693,12 +694,12 @@ All Lcapy expressions have the following attributes (see :ref:`expressionsration
 - `val` returns floating-point number (as Lcapy expression) if expression can be evaluated (see also `fval`, `cval`, and `evalf()`)
 
 - `var` returns the underlying SymPy symbol representing the domain
-    
+
 
 In addition, each expression has domain, quantity, and unit attributes, see
 :ref:`domainattributes`, :ref:`quantityattributes`, and :ref:`unitattributes`.
-  
-.. _expressionsmethods:  
+
+.. _expressionsmethods:
 
 Methods
 =======
@@ -706,15 +707,16 @@ Methods
 Poles and zeros
 ---------------
 
-- `coeffs()` returns list of coefficients if expression is a polynomial; the highest powers come first.  If the expression is a rational function use `.N.coeffs` or `.D.coeffs` for the numerator or denominator coefficients.
+- `coeffs()` returns list of coefficients if the expression is a polynomial; the highest powers come first.  If the expression is a rational function use `.N.coeffs` or `.D.coeffs` for the numerator or denominator coefficients.
 
-- `normcoeffs()` returns list of coefficients if expression is a polynomial; the highest powers come first.  The coefficients are normalized so the highest order coefficient is 1.  If the expression is a rational function use `.N.coeffs` or `.D.coeffs` for the numerator or denominator coefficients.
+- `normcoeffs()` returns list of coefficients if the expression is a polynomial; the highest powers come first.  The coefficients are normalized so the highest order coefficient is 1.  If the expression is a rational function use `.N.coeffs` or `.D.coeffs` for the numerator or denominator coefficients.
 
-- `poles()` returns poles of expression as a dictionary or a list if the `aslist` argument is True.  Note, this does not always find all the poles.   
+- `poles(aslist)` returns poles of expression as a dictionary or a list if the `aslist` argument is True.  Note, this does not always find all the poles (see `roots()`).
 
-- `roots(s)` returns roots of expression as a dictionary or a list if the `aslist` argument is True.  Note, this does not always find all the roots.
+- `roots(aslist)` returns roots of expression as a dictionary or a list if the `aslist` argument is True.  Note, this does not always find all the roots, for example, if the degree is five or more (https://en.wikipedia.org/wiki/Abel%E2%80%93Ruffini_theorem).  In this case, if the polynomial coefficients are constants, the roots are calculated numerically.
 
-- `zeros()` returns zeros of expression as a dictionary or a list if the `aslist` argument is True.  Note, this does not always find all the zeros.   
+- `zeros(aslist)` returns zeros of expression as a dictionary or a list if the `aslist` argument is True.  Note, this does not always find all the zeros (see `roots()`).
+
 
 Transforms
 ----------
@@ -725,57 +727,117 @@ Transforms
 
 - `LT()` Laplace transform
 
-- `ILT()` Inverse Laplace transform    
-  
+- `ILT()` Inverse Laplace transform
+
 
 Miscellaneous
 -------------
 
-- `as_sum()` rewrite expression as a sum of terms where the denominator of each term has a common polynomial expression (see :ref:`expressionsresponses`).
+- `as_sum()` rewrites expression as a sum of terms where the denominator of each term has a common polynomial expression (see :ref:`expressionsresponses`).
 
 - `convolve(x)` convolves expressions (see :ref:`convolution`).
 
     The result is an unevaluated integral.  It can be evaluated using
     the `doit()` method.
-    
+
     Note, this method not simplify the convolution integral if one of
     the functions contains a Dirac delta.  This can be done using the
-    `simplify_dirac_delta()` method. 
+    `simplify_dirac_delta()` method.
 
 - `differentiate()` differentiates expression.
+
+- `discretize(method='bilinear')` converts the expression to a discrete-time approximation, see :ref:`discrete-time-approximation`.
 
 - `divide_top_and_bottom(expr)` divides numerator and denominator by `expr`.
 
 - `evalf(n)` returns floating-point number to `n` decimal places (as Lcapy expression) if expression can be evaluated (see also `val`, `fval`, and `cval` attributes)
 
-- `evaluate(arg)` returns floating-point number (Python float or complex type) if expression can be evaluated.  If passed an NumPy array, an array of NumPy float or complex types is returned.
+- `evaluate(arg)` returns floating-point number (Python float or complex type) if expression can be evaluated.  If passed a tuple, list, or NumPy array, an array of NumPy float or complex types is returned.  For example::
+
+   >>> (t**2 + 4).evaluate(1)
+   5
+   >>> (t**2 + 4).evaluate((1, 2))
+   array([5., 8.])
 
 - `initial_value()` returns result at :math:`t = 0`.
 
-- `integrate(arg, **kwargs)` integrates expression.  For example `exp(-3 * t).integrate((t, 0, oo))` gives `1 / 3`.
-  
-- `factor_const()` factor into constant part and the rest.
+- `integrate(arg, **kwargs)` integrates expression.  For example::
 
-- `factor_term()` split into constant part and the rest.    
-  
+   >>> exp(-3 * t).integrate((t, 0, oo))
+   1 / 3
+
+- `factor_const()` factors expression into constant part and the rest.
+
 - `final_value()` returns result at :math:`t = \infty`.
+
+- `force_causal()` removes the piecewise condition and multiplies expression by Heaviside unit step (only for time-domain expression), for example::
+
+   >>> (1/s)(t)
+   1  for t ≥ 0
+   >>> (1/s)(t).force_causal()
+   u(t)
+
+- `limit()` computes a limit.
 
 - `multiply_top_and_bottom(expr)` multiplies numerator and denominator by `expr`.
 
-- `parameterize` parameterizes first, second, and third order rational functions into common forms.
+- `parameterize()` parameterizes first, second, and third order rational functions into common forms.   For example::
 
-- `parameterize_ZPK` parameterizes rational functions into zero-pole-gain (ZPK) form.
-  
-- `rationalize_denominator()` multiplies numerator and denominator by complex conjugate of denominator.
+   >>> H, defs = (1 / (5 * s**2 + 10 * s + 20)).parameterize()
+   >>> H
+            K
+   ───────────────────
+     2               2
+   ω₀  + 2⋅ω₀⋅s⋅ζ + s
+   >>> defs
+   {K: 1/5, omega_0: 2, zeta: 1/2}
+   H, defs = (1 / (5 * s**2 + 10 * s + 20)).parameterize(zeta=False)
+   >>> H
+              K
+   ───────────────────────
+     2    2              2
+   ω₁  + s  + 2⋅s⋅σ₁ + σ₁
+   >>> defs
+   {K: 1/5, omega_1: √3, sigma_1: 1}
 
-- `replace(query, value)` replace `query` with `value`.
+- `parameterize_ZPK()` parameterizes rational functions into zero-pole-gain (ZPK) form.  For example::
 
-- `rewrite(args, hints)` rewrite expression in terms of the `args`.  For example, `exp(j*a*t).rewrite(cos)` gives  `ⅉ⋅sin(4⋅t) + cos(4⋅t)`.  Similarly, `cos(2 * t).rewrite(exp)` will expand the cosine as two complex exponentials.
-  
-- `solve(symbols, flags)` returns list of solutions.
+   >>> H, defs = (1 / (5 * s**2 + 10 * s + 20)).parameterize_ZPK()
+   >>> H
+              1
+   K⋅───────────────────
+     (-p₁ + s)⋅(-p₂ + s)
+   >>> defs
+   {K: 1/5, p1: -1 - √3⋅ⅉ, p2: -1 + √3⋅ⅉ}
+
+- `post_initial_value()` returns result at :math:`t = 0^{+}` (only for time-domain and Laplace-domain expression).
+
+- `pre_initial_value()` returns result at :math:`t = 0^{-}` (only for time-domain expression).
+
+- `rationalize_denominator()` multiplies numerator and denominator by complex conjugate of denominator to ensure the new denominator is purely real.
+
+- `remove_condition()` removes the piecewise condition (only for time-domain expression), for example::
+
+   >>> (1/s)(t)
+   1  for t ≥ 0
+   >>> (1/s)(t).remove_condition()
+   1
+
+- `replace(query, value)` replaces `query` with `value`.
+
+- `response(xvector, tvector, method='bilinear')` determines the discrete time-domain response given an input vector `xvector` at the instants specified by `tvector`.
+
+- `rewrite(args, hints)` rewrites expression in terms of the `args`.  For example, `exp(j*a*t).rewrite(cos)` gives  `ⅉ⋅sin(4⋅t) + cos(4⋅t)`.  Similarly, `cos(2 * t).rewrite(exp)` will expand the cosine as two complex exponentials.
+
+- `solve(symbols, flags)` returns list of solutions.  For example::
+
+   >>> (s**2 - 4).solve()
+   [-2, 2]
+
+- `term_const()` splits expression into constant part and the rest.
 
 
-.. _convolution:    
+.. _convolution:
 
 Convolution
 -----------
@@ -783,147 +845,147 @@ Convolution
 The `convolution()` method has two different forms::
 
     >>> expr('i(t)').convolve(expr('z(t)'))
-    ∞                  
-    ⌠                  
+    ∞
+    ⌠
     ⎮  i(t - τ)⋅z(τ) dτ
-    ⌡                  
+    ⌡
     -∞
     >>> expr('i(t)').convolve(expr('z(t)'), commutate=True)
-    ∞                  
-    ⌠                  
+    ∞
+    ⌠
     ⎮  i(τ)⋅z(t - τ) dτ
-    ⌡                  
+    ⌡
     -∞
 
 The infinite limits of the convolution integral are constrained if either of the functions is known to be causal.  For example::
 
     >>> expr('i(t)').convolve(expr('z(t)', causal=True))
-    ∞                  
-    ⌠                  
+    ∞
+    ⌠
     ⎮  i(t - τ)⋅z(τ) dτ
-    ⌡                  
+    ⌡
     0
     >>> expr('i(t)', causal=True).convolve(expr('z(t)'))
     t
-    ⌠                  
+    ⌠
     ⎮  i(t - τ)⋅z(τ) dτ
-    ⌡                  
+    ⌡
     -∞
     >>> expr('i(t)', causal=True).convolve(expr('z(t)', causal=True))
     t
-    ⌠                  
+    ⌠
     ⎮  i(t - τ)⋅z(τ) dτ
-    ⌡                  
-    0        
+    ⌡
+    0
 
 The `convolve()` method does not simplify the convolution integral, for example::
-    
-    >>> expr('i(t)').convolve(expr('u(t)'))
-    ∞                  
-    ⌠                  
-    ⎮  i(t - τ)⋅u(τ) dτ
-    ⌡                  
-    0    
-    >>> expr('i(t)').convolve(expr('u(t)')).simplify()
-    ∞                  
-    ⌠                  
-    ⎮  i(t - τ) dτ
-    ⌡                  
-    0          
 
-    
-.. _expressionsprinting:  
-  
+    >>> expr('i(t)').convolve(expr('u(t)'))
+    ∞
+    ⌠
+    ⎮  i(t - τ)⋅u(τ) dτ
+    ⌡
+    0
+    >>> expr('i(t)').convolve(expr('u(t)')).simplify()
+    ∞
+    ⌠
+    ⎮  i(t - τ) dτ
+    ⌡
+    0
+
+
+.. _expressionsprinting:
+
 Formatting methods
 ==================
 
 Lcapy expressions can be displayed in many forms.  For example, consider the s-domain rational-function::
 
-   >>> H = 5 * (s**2 + 1) / (s**2 + 5*s + 4)     
+   >>> H = 5 * (s**2 + 1) / (s**2 + 5*s + 4)
 
 Canonical form
 --------------
-   
+
 The canonical form has a unity coefficient for the highest power in the denominator.  It is sometimes called polynomial form.
-   
+
    >>> H.canonical()
-     ⎛   2    ⎞ 
-     ⎝5⋅s  + 5⎠   
+     ⎛   2    ⎞
+     ⎝5⋅s  + 5⎠
    ────────────
-    2          
+    2
    s  + 5⋅s + 4
 
 There is a variation of the canonical form which has a unity coefficient for the highest power in the denominator and with constants factored in the numerator.   It is sometimes called gain-polynomial form.
-   
+
    >>> H.canonical(factor_const=True)
-      ⎛ 2    ⎞ 
-    5⋅⎝s  + 1⎠ 
+      ⎛ 2    ⎞
+    5⋅⎝s  + 1⎠
    ────────────
-    2          
+    2
    s  + 5⋅s + 4
 
-   
+
 Expanded canonical form
 -----------------------
-       
+
 The expanded canonical form expresses the rational function into the sum of rational functions where the numerator of each term contains a unique monomial.
-       
-   >>> H.expandcanonical()  
-          2                   
-       5⋅s             5      
+
+   >>> H.expandcanonical()
+          2
+       5⋅s             5
    ──────────── + ────────────
-    2              2          
+    2              2
    s  + 5⋅s + 4   s  + 5⋅s + 4
 
 
 General form
 ------------
-   
+
 The general form of a rational function is shown as the ratio of two polynomials.   Unlike the canonical form, the coefficient for the highest power in the denominator may not be unity.
-   
+
    >>> H.general()
-        2      
-     5⋅s  + 5  
+        2
+     5⋅s  + 5
    ────────────
-    2          
+    2
    s  + 5⋅s + 4
 
-.. _ZPK:     
+.. _ZPK:
 
 Factored (ZPK) form
 -------------------
-   
+
 The factored form shows both the numerator and denominator polynomials  factored.  It is an alias for `ZPK` (zero-pole-gain) form.
-   
-   
+
+
    >>> H.factored()
    5⋅(s - ⅉ)⋅(s + ⅉ)
    ─────────────────
-    (s + 1)⋅(s + 4) 
+    (s + 1)⋅(s + 4)
 
 Complex conjugate pairs are combined when the `pairs` argument is True to create a product of biquad sections.
 
    >>> H.factored(pairs=True)
-          2       
-       5⋅s  + 5   
+          2
+       5⋅s  + 5
    ───────────────
    (s + 1)⋅(s + 4)
-    
-    
+
+
 Partial fraction form
 ---------------------
-    
+
 The partial fraction form has terms that are strictly proper.
-    
+
    >>> H.partfrac()
-           85          10   
+           85          10
    5 - ───────── + ─────────
        3⋅(s + 4)   3⋅(s + 1)
 
 The `recippartfrac()` method generates a partial fraction expansion using the reciprocal of the variable:
 
    >>> H.recipartfrac()
-   5       10          85    
+   5       10          85
    ─ - ───────── + ──────────
    4     ⎛    1⎞      ⎛1   1⎞
        3⋅⎜1 + ─⎟   48⋅⎜─ + ─⎟
@@ -941,33 +1003,33 @@ The `partfrac()` and `recippartfrac()` methods have a `pairs` argument.  If this
          5⋅s     5
       - ────── + ─
          2       s
-        s  + 1    
+        s  + 1
 
-         
+
 Standard form
 -------------
-         
-The standard form expresses the rational function as the sum of a polynomial and a strictly proper rational function.
-       
-   >>> H.standard()
-      25⋅s + 15      
-   - ──────────── + 5
-      2              
-     s  + 5⋅s + 4    
 
-     
+The standard form expresses the rational function as the sum of a polynomial and a strictly proper rational function.
+
+   >>> H.standard()
+      25⋅s + 15
+   - ──────────── + 5
+      2
+     s  + 5⋅s + 4
+
+
 Time constant form
 ------------------
-     
+
 The time constant form factors the rational function into gain-time-constant form.
-   
+
    >>> H.timeconst()
    5⋅(-ⅉ⋅s + 1)⋅(ⅉ⋅s + 1)
    ──────────────────────
-       ⎛s    ⎞           
-     4⋅⎜─ + 1⎟⋅(s + 1)   
-       ⎝4    ⎠           
-  
+       ⎛s    ⎞
+     4⋅⎜─ + 1⎟⋅(s + 1)
+       ⎝4    ⎠
+
 
 Printing methods
 ----------------
@@ -983,14 +1045,14 @@ Printing methods
 There are a number of global printing options, controlled by attributes of the `state` object.
 
 - `state.show_units` (default False) prints the units after an expression
-  
+
 - `state.canonical_units` (default True) converts units to canonical form, e.g., V / A is shown as ohms.
 
 - `state.printing.abbreviate_units` (default True) prints V rather than volts
 
 - `state.printing.order` (default None) controls the order that symbols in an expression are printed.  When `order =None`, SymPy orders the printed arguments and produces output like `-p + s`.  When `order='none'`, SymPy does not order the printed arguments.  However, when creating an expression, SymPy sorts the argument order for commutative operators (such as add) and does not honour how the expression was created.
 
-  
+
 SymPy methods
 -------------
 
@@ -999,41 +1061,26 @@ expression does, the SymPy method is used.  For example:
 
 - `diff()`
 
-- `expand()`  
-  
+- `expand()`
 
-   
+
+
 Utility functions
 =================
 
-- `symbol()` create a symbol
+- `symbol()` creates a symbol
 
-- `expr()` create an expression.  This can also create lists, tuples, and dictionaries of expressions.
+- `expr()` creates an expression.  This can also create lists, tuples, and dictionaries of expressions.
 
 Note, SymPy does not allow symbol names that are Python keywords.  For example, `expr('is(t)')` fails.  A workaround is to use an underscore in the name, for example, `expr('i_s(t)')`.
-
-- `simplify()` throw kitchen sink at problem to try and simplify expression.  Often it is better to use specific simplifications such as `expand`, `cancel`, `trigsimp`, etc.
-
-- `simplify_dirac_delta()` apply simplifications to expressions with Dirac deltas.
-
-- `simplify_factor()` factor expression and simplify each factor separately.
-
-- `simplify_heaviside()` apply simplifications to expressions with Heaviside steps.  
-
-- `simplify_sin_cos()` convert `c * cos(theta) - s * sin(theta)`  to `A * cos(theta - phi)`.
-
-- `simplify_terms()` expand expression into terms and simplify each term separately.
-
-- `simplify_units()` simplify the units, e.g., `volts / ohms` gives `amps`.
-  
-- `limit()` compute a limit.  
 
 
 Domain transformation and substitution
 ======================================
 
 Substitution and transformation use a similar syntax `V(arg)`.  If
-`arg` is a domain variable `t`, `f`, `s`, `omega`, `w`, `jomega` or `jw`,
+`arg` is a domain variable `t`, `f`, `s`, `omega`, `w`, `jomega`,
+`jw`, `n`, `k`, or `z` or is an expression of a domain variable,
 transformation is performed, otherwise substitution is performed.
 This behaviour can be explicitly controlled using the `subs()` and
 `transform()` methods, for example::
@@ -1041,21 +1088,21 @@ This behaviour can be explicitly controlled using the `subs()` and
    >>> from lcapy import *
    >>> V1 = voltage('3 * exp(-2 * t)')
    >>> V1.transform(s)
-     3  
+     3
    ─────
    s + 2
    >>> V1.transform(t)
       -2⋅t
-   3⋅e    
+   3⋅e
    >>> V1.subs(2)
       -4
    3⋅e
-   >>> V1.subs(2).evaluate()   
+   >>> V1.subs(2).evaluate()
    0.054946916666202536
 
 
 .. _transformation:
-   
+
 Domain transformation
 ---------------------
 
@@ -1064,7 +1111,7 @@ Expressions can be transformed to a different domain (see :ref:`domains` and :re
    >>> cos(4 * pi * t).FT(f)
     δ(f - 2)   δ(f + 2)
    ──────── + ────────
-      2          2    
+      2          2
 
    >>>  x.FT(omega)
    π⋅(δ(ω - 4⋅π) + δ(ω + 4⋅π))
@@ -1075,15 +1122,21 @@ Alternatively, the call notation can be used to choose the new domain::
 
 - `V(f)` returns the Fourier domain transformation
 
-- `V(F)` returns the normalized Fourier domain transformation    
+- `V(F)` returns the normalized Fourier domain transformation
 
 - `V(s)` returns the Laplace domain (s-domain) transformation
 
 - `V(omega)` returns the angular Fourier domain transformation
 
-- `V(Omega)` returns the normalized angular Fourier domain transformation  
+- `V(Omega)` returns the normalized angular Fourier domain transformation
 
-- `V(jomega)` returns the phasor domain transformation
+- `V(jomega)` or `V(jw)` returns the phasor domain transformation
+
+- `V(n)` returns the discrete-time domain transformation (by default the bilinear-transform is used)
+
+- `V(k)` returns the discrete-frequency domain transformation (by default the bilinear-transform is used)
+
+- `V(z)` returns the Z-domain transformation (by default the bilinear-transform is used)
 
 For example::
 
@@ -1091,14 +1144,23 @@ For example::
    >>> V1 = voltage('3 * exp(-2 * t)')
    >>> V1(t)
       -2⋅t
-   3⋅e    
-   >>> V1(s)    
-     3  
+   3⋅e
+   >>> V1(s)
+     3
    ─────
    s + 2
 
-In many cases `V(omega)` produces the same result as `V(jomega)` but not always.  Here's an example where
-the two domains produce the same result::
+
+
+
+Phasor and angular Fourier domains
+----------------------------------
+
+The transformation `V(omega)` produces a result in the angular Fourier
+domain, however, the transformation `V(jomega)` produces a result in
+the Phasor domain.  In most cases, `V(omega)` produces the same result
+as `V(jomega)` but not always.  Here's an example where the two
+domains produce the same expression::
 
     >>> Y = admittance(s)
     >>> Y(omega)
@@ -1107,7 +1169,7 @@ the two domains produce the same result::
     ⅉ⋅ω
 
 While they look the same, they have different domains:
-  
+
     >>> Y(omega).domain
     'angular fourier'
     >>> Y(jomega).domain
@@ -1117,15 +1179,15 @@ Here's an example, showing a subtle difference between the angular Fourier and p
 
    >>> Z = impedance(1 / s)
    >>> Z(omega)
-     ⎛ ω ⎞    
-    δ⎜───⎟    
+     ⎛ ω ⎞
+    δ⎜───⎟
      ⎝2⋅π⎠   ⅉ
     ────── - ─
       2      ω
    >>> Z(jomega)
-    -ⅉ 
+    -ⅉ
     ───
-     ω 
+     ω
 
 In this case, substitution of `s` with `j omega` is not valid.
 However, when dealing with phasors, there is no DC component and thus
@@ -1174,8 +1236,8 @@ The Fourier transform can be performed with the explicit `FT()` method::
     δ(f - f₀)   δ(f + f₀)
    ───────── + ─────────
        2           2
-    
-Alternatively:: 
+
+Alternatively::
 
   >>> f0 = symbol('f0')
   >>> cos(2 * pi * f0 * t)(f)
@@ -1204,12 +1266,12 @@ and the following definition of the inverse angular Fourier transform:
 
 .. math::
 
-    v(t) = \mathcal{F}_{\omega}^{-1}\{V(\omega)\} = \frac{1}{2\pi}\int_{-\infty}^{\infty} V(\omega) \exp(\mathrm{j} \omega t) \mathrm{d}\omega    
+    v(t) = \mathcal{F}_{\omega}^{-1}\{V(\omega)\} = \frac{1}{2\pi}\int_{-\infty}^{\infty} V(\omega) \exp(\mathrm{j} \omega t) \mathrm{d}\omega
 
 
 The angular Fourier transform can be performed with the explicit
 `FT()` method with `omega` or `w` as an argument::
-  
+
   >>> f0 = symbol('f0')
   >>> cos(2 * pi * f0 * t).FT(omega)
    π⋅(δ(2⋅π⋅f₀ - ω) + δ(2⋅π⋅f₀ + ω))
@@ -1220,7 +1282,7 @@ Alternatively::
        ⎛ ω ⎞
    sinc⎜───⎟
        ⎝2⋅π⎠
-        
+
 .. _laplace_transforms:
 
 Laplace transforms
@@ -1253,7 +1315,7 @@ distribution (and its derivatives):
 :math:`\mathcal{L}\{\delta(t)\} = 0.5` and
 :math:`\mathcal{L}_{+}\{\delta(t)\} = 0`.
 
-      
+
 The :math:`\mathcal{L}_{-}` form is advocated for circuit analysis in
 the paper *Initial conditions, generalized functions, and the Laplace
 transform: Troubles at the origin*
@@ -1273,7 +1335,7 @@ Here's an example of use::
 
   >>> f0 = symbol('f0')
   >>> cos(2 * pi * f0 * t).LT()
-         s      
+         s
    ─────────────
       2   2    2
    4⋅π ⋅f₀  + s
@@ -1282,14 +1344,14 @@ Alternatively::
 
   >>> f0 = symbol('f0')
   >>> cos(2 * pi * f0 * t)(s)
-         s      
+         s
    ─────────────
       2   2    2
-   4⋅π ⋅f₀  + s    
+   4⋅π ⋅f₀  + s
 
 
 .. _substitution:
-    
+
 Substitution
 ------------
 
@@ -1300,15 +1362,15 @@ variable with a constant, for example::
    >>> a = 3 * s
    >>> b = a.subs(2)
    >>> b
-   6   
+   6
 
 Since the replacement expression is a constant, the substitution can also be performed using the call notation::
-   
+
    >>> b = a(2)
    >>> b
    6
 
-The substitution method can also have a dictionary argument, keyed by symbol name, to replace symbols in an expression with constants.  For example::   
+The substitution method can also have a dictionary argument, keyed by symbol name, to replace symbols in an expression with constants.  For example::
 
    >>> a = expr('a * t + b')
    >>> defs = {'a': 4, 'b': 2}
@@ -1316,10 +1378,18 @@ The substitution method can also have a dictionary argument, keyed by symbol nam
    >>> a2
    4⋅t + 2
 
+With two arguments, `subs()` replaces a symbol with an expression.  For example,
+
+   >>> a = expr('a * t + b')
+   >>> a2 = a.subs('a', 2)
+   >>> a2
+   b + 2⋅t
+
+
 
 Evaluation
 ----------
-    
+
 Evaluation is similar to substitution but requires all symbols in an
 expression to be substituted with values.  The result is a numerical
 answer, for example::
@@ -1340,7 +1410,7 @@ If the argument is a scalar the returned result is a Python float or complex typ
 
 .. _phasors:
 
-   
+
 Phasors
 =======
 
@@ -1365,15 +1435,15 @@ Phasors can be created in Lcapy with the `phasor()` factory function::
 
    >>> s = phasor(-2 * j)
    >>> s.time()
-   2⋅sin(ω⋅t)   
+   2⋅sin(ω⋅t)
 
-The default angular frequency is `omega` but this can be specified::   
-   
+The default angular frequency is `omega` but this can be specified::
+
    >>> p = phasor(-j, omega=1)
    sin(t)
 
 Phasors can also be inferred from an AC signal::
-   
+
    >>> q = phasor(2 * sin(3 * t))
    >>> q
    -2⋅ⅉ
@@ -1399,17 +1469,17 @@ be found from the `magnitude` and `phase` attributes.  For example::
     >>> v.magnitude
     2
     >>> v.phase
-    -π 
+    -π
     ───
-     2 
-  
+     2
+
 The root-mean-square value of the phasor is found with the `rms()` method.  For example::
 
    >>> v = voltage(phasor(2))
    >>> v.rms()
    √2
 
-   
+
 Phasors can be plotted on a polar diagram using the `plot()` method, for example::
 
   >>> i = current(phasor(1 + j))
@@ -1417,7 +1487,7 @@ Phasors can be plotted on a polar diagram using the `plot()` method, for example
 
 
 .. _immittances:
-      
+
 Immittances
 ===========
 
@@ -1449,7 +1519,7 @@ transform of the s-domain immittance, for example::
    >>> impedance(1)(t)
    δ(t)
    >>> impedance(s)(t)
-    (1)    
+    (1)
    δ   (t)
 
 Here :math:`\delta^{(1)}(t)` denotes the time-derivative of the Dirac
@@ -1459,12 +1529,12 @@ An `Admittance` or `Impedance` object can be created with the `Y` or
 `Z` attribute of a `Oneport` component, for example::
 
    >>> C(3).Z
-   -ⅉ 
+   -ⅉ
    ───
    3⋅ω
 
    >>> C(3).Z(s)
-    1 
+    1
    ───
    3⋅s
    >>> C(3).Y(s)
@@ -1473,25 +1543,25 @@ An `Admittance` or `Impedance` object can be created with the `Y` or
 Netlist components have similar attributes.  For example::
 
    >>> from lcapy import Circuit
-   >>> a = Circuit(""" 
+   >>> a = Circuit("""
    ... C 1 2""")
    >>> a.C.Z
-    1 
+    1
    ───
    C⋅s
-   
+
 
 Immittance attributes
 ---------------------
 
 - `B` susceptance
 
-- `G` conductance    
-  
+- `G` conductance
+
 - `R` resistance
 
 - `X` reactance
-  
+
 - `Y` admittance
 
 - `Z` impedance
@@ -1499,13 +1569,13 @@ Immittance attributes
 - `is_lossy` has a non zero resistance component
 
 Impedance is related to resistance and reactance by
-  
+
 :math:`Z = R + \mathrm{j} X`
 
-Admittance is related to conductance and susceptance by      
+Admittance is related to conductance and susceptance by
 
 :math:`Y = G + \mathrm{j} B`
-        
+
 Since admittance is the reciprocal of impedance,
 
 :math:`Y = \frac{1}{Z} = \frac{R}{R^2 + X^2} - \mathrm{j} \frac{X}{R^2 + X^2}`
@@ -1516,17 +1586,17 @@ Thus
 
 and
 
-:math:`B = \frac{-X}{R^2 + X^2}`      
-      
-      
+:math:`B = \frac{-X}{R^2 + X^2}`
+
+
 Note, at DC, when :math:`X = 0`, then :math:`G = 1 / R` and is
 infinite for :math:`R= 0`.  However, if Z is purely imaginary, i.e,
 :math:`R = 0` then :math:`G = 0`, not infinity as might be expected.
-  
+
 
 Immittance methods
 ------------------
-  
+
 - `oneport()` returns a `Oneport` object corresponding to the immittance.  This may be a `R`, `C`, `L`, `G`, `Y`, or `Z` object.
 
 
@@ -1539,7 +1609,7 @@ factory functions.   For example::
   >>> v = voltage(5 * u(t))
   >>> I = current(5 * s)
 
-The domain is inferred from the domain variable in the expression (see :ref:`domains`).  
+The domain is inferred from the domain variable in the expression (see :ref:`domains`).
 
 The results from circuit analysis are represented by a superposition of different domains.
 
@@ -1563,7 +1633,7 @@ component, an AC component, and a transient component::
 This shows that there is 1 V DC component, a transient component with
 a Laplace transform :math:`3 / s`, and an AC component (phasor) with
 amplitude 2 V and angular frequency :math:`6 \pi` rad/s.
-   
+
 Pure DC components are not shown as a superposition.  For example::
 
    >>> V2 = SuperpositionVoltage(42)
@@ -1579,7 +1649,7 @@ if they depend on `s`.  For example::
    ─
    s
 
-However, consider the following::   
+However, consider the following::
 
    >>> V4 = SuperpositionVoltage(4 * DiracDelta(t))
    >>> V4
@@ -1610,7 +1680,7 @@ as an argument:
 - `V1(f)` returns the Fourier domain expression with linear frequency
 - `V1(s)` returns the Laplace domain expression
 - `V1(omega)`or `V1(w)` returns the Fourier domain expression with angular frequency
-- `V1(jomega)` or `V1(jw)` returns the Fourier domain expression with angular frequency    
+- `V1(jomega)` or `V1(jw)` returns the Fourier domain expression with angular frequency
 
 Here are some examples::
 
@@ -1623,11 +1693,11 @@ Here are some examples::
      ⎛ 2       2⎞
    s⋅⎝s  + 36⋅π ⎠
    >>> V1(jomega)
-        ⎛   2       2⎞ 
-   -6⋅ⅉ⋅⎝- ω  + 24⋅π ⎠ 
+        ⎛   2       2⎞
+   -6⋅ⅉ⋅⎝- ω  + 24⋅π ⎠
    ────────────────────
-       ⎛   2       2⎞  
-     ω⋅⎝- ω  + 36⋅π ⎠  
+       ⎛   2       2⎞
+     ω⋅⎝- ω  + 36⋅π ⎠
 
 
 
@@ -1663,17 +1733,96 @@ Simplification
 
 Lcapy has the following simplification methods:
 
-- `simplify()`  This augments the SymPy simplification function by also simplifying expressions containing Dirac deltas and Heaviside steps.
+- `doit()` evaluates a summation or integral, for example::
 
-- `simplify_sin_cos()`  This rewrites sums of sines and cosines in terms of a single phase-shifted-sine or cosine.
-  
-- `simplify_terms()`  Each term is simplified individually.
-  
-- `simplify_factors()`  Each factor is simplified individually.
-  
-- `simplify_units()` The units are simplified.
-  
-  
+   >>> Sum(n, (n, 0, 4)).doit()
+   10
+
+- `simplify()`  augments the SymPy simplification function by also simplifying expressions containing Dirac deltas and Heaviside steps.
+
+- `simplify_conjugates()` combines complex conjugate terms, for example::
+
+   >>> (exp(j * 3) + exp(-j * 3) + 1).simplify_conjugates()
+   2⋅cos(3) + 1
+
+- `simplify_dirac_delta()` simplifies Dirac deltas.
+
+- `simplify_heaviside()` simplifies Heaviside unit steps, for example::
+
+   >>> (u(t) * u(t)).simplify_heaviside()
+   u(t)
+
+- `simplify_factors()`  simplifies each factor separately.
+
+- `simplify_rect()` simplifies expressions with rectangle functions, for example::
+
+   >>> (rect(t) * rect(t)).simplify_rect()
+   rect(t)
+
+- `simplify_sin_cos()`  rewrites sums of sines and cosines in terms of a single phase-shifted-sine or cosine, for example::
+
+   >>> (3 * sin(omega0 * t) + 4 * cos(omega0 * t)).simplify_sin_cos()
+   5⋅cos(ω₀⋅t - atan(3/4))
+
+- `simplify_terms()`  simplifies each term separately.
+
+- `simplify_units()` simplifies the units of an expression, for example, `V/A` becomes `ohms`.
+
+- `simplify_unit_impulse()` simplifies unit impulses.
+
+- `expand_hyperbolic_trig` converts sinh, cosh, tanh into sum of exponentials.   For example::
+
+   >>> (sinh(s) + cosh(s)).expand_hyperbolic_trig()
+      s
+   2⋅ℯ
+
+
+Approximation
+=============
+
+Lcapy has the following approximation methods:
+
+- `approximate_exp(method, order, numer_order)` approximates exponential function with a rational function.  If `numer_order` is specified, this is used as the order for the numerator while `order` is used for the order of the denominator; otherwise `order` is used for the order of the numerator and denominator.  For example,
+
+   >>> exp(-s*'T').approximate_exp(order=2)
+    2  2
+   T ⋅s  - 6⋅T⋅s + 12
+   ──────────────────
+    2  2
+   T ⋅s  + 6⋅T⋅s + 12
+
+   >>> exp(-s*'T').approximate_exp(order=3, numer_order=2)
+          2  2
+       3⋅T ⋅s  - 24⋅T⋅s + 60
+   ─────────────────────────────
+    3  3      2  2
+   T ⋅s  + 9⋅T ⋅s  + 36⋅T⋅s + 60
+
+Note, some higher order approximations can be unstable.  For example, the step-response of `exp(-s)` using a bilinear transformation is unstable for order 3 Pade approximation as in the following figure.
+
+.. image:: examples/discretetime/pade-step-delay.png
+   :width: 12cm
+
+.. image:: examples/discretetime/pade-step-delay2.png
+   :width: 12cm
+
+- `approximate_hyperbolic_trig(method, order, numer_order)` approximates hyperbolic trig. functions with rational functions.  This expands hyperbolic trig. functions using `expand_hyperbolic_trig` and then uses `approximate_exp`.  For example::
+
+   >>> cosh(s).approximate_hyperbolic_trig(order=1)
+   2 - s   s + 2
+   ───── + ─────
+   s + 2   2 - s
+
+- `approximate_fractional_power(method, order)` approximates `s**a` where `a` is fractional with a rational function.
+
+- `approximate(method, order, numer_order)` applies all the approximations.
+
+- `prune_HOT(degree)` prunes higher order terms if expression is a polynomial so that resultant approximate expression has the desired degree.
+
+The default approximation method, and the only supported method at
+present, is a Pade approximant.
+
+
 Assumptions
 ===========
 
@@ -1689,7 +1838,7 @@ There are several attributes for determining assumptions:
 
 - `is_causal` -- zero for :math:`t < 0`
 
-- `is_unknown` -- unknown for :math:`t < 0`  
+- `is_unknown` -- unknown for :math:`t < 0`
 
 - `is_real` -- real
 
@@ -1698,10 +1847,10 @@ There are several attributes for determining assumptions:
 - `is_positive` -- positive
 
 - `is_integer` -- integer
-    
+
 For example:
-  
-   >>> t.is_complex  
+
+   >>> t.is_complex
    False
    >>> s.is_complex
    True
@@ -1709,7 +1858,7 @@ For example:
 The `ac`, `dc`, `causal`, and `unknown` assumptions are lazily
 determined.  If unspecified, they are inferred prior to a Laplace
 transform.
-   
+
 
 Assumptions for symbols
 -----------------------
@@ -1737,9 +1886,9 @@ the `assumptions` attribute.  For example::
    >>> a.assumptions
    {'real': True}
 
-The `assumptions0` attribute shows all the assumptions assumed by SymPy.   
+The `assumptions0` attribute shows all the assumptions assumed by SymPy.
 
-      
+
 Assumptions for inverse Laplace transform
 -----------------------------------------
 
@@ -1758,25 +1907,25 @@ information.  This is provided using assumptions:
 -  `dc` says the signal is constant.
 
 -  `damped_sin` says to write response of a second-order system as a damped sinusoid.
-   
+
 For example::
 
    >>> H = 1 / (s + 2)
    >>> H(t)
-    -2⋅t           
+    -2⋅t
    e      for t ≥ 0
-                   
+
    >>> H(t, causal=True)
-    -2⋅t             
+    -2⋅t
    e    ⋅Heaviside(t)
 
    >>> h = cos(6 * pi * t)
    >>> H = h(s)
    >>> H
-       s     
+       s
    ──────────
     2       2
-   s  + 36⋅π 
+   s  + 36⋅π
    >>> H(t)
    {cos(6⋅π⋅t)  for t ≥ 0
    >>> H(t, ac=True)
@@ -1806,6 +1955,63 @@ Laplace domain entities there are the following classes:
 These classes should not be explicitly used.  Instead use the factory functions
 `expr`, `voltage`, `current`, `transfer`, `admittance`, and `impedance`.
 
+
+.. _discrete-time-approximation:
+
+
+Discrete-time approximation
+===========================
+
+A continuous time transfer function in the Laplace domain can be
+converted to a discrete-time transfer function in the Z-domain using
+the `discretize()` method:
+
+:math:`H(z) \approx H_c(s)` .
+
+If :math:`H(s)` is a transfer function then for the impulse-invariance
+method, the discrete-time impulse response is related to the
+continuous-time impulse response by
+
+:math:`h[n] = h_c(n \Delta t)` .
+
+Note, when designing digital filters, it is often common to to scale
+the discrete-time impulse response by the sampling interval:
+
+:math:`h[n] = \Delta t \; h_c(n \Delta t)` .
+
+There are many methods to approximate a Laplace transform with a Z-transform; there is no universally best method since there is a trade-off between accuracy and stability.
+
+The default method is 'bilinear'.  Other methods are:
+
+- 'impulse-invariance' samples the impulse response (using :math:`t = n \Delta t`) and then converts to the Z-domain.  It does not work with transfer functions that are not strictly proper (high-pass, band-pass) since these have impulse responses with Dirac deltas that cannot be be sampled.  It requires the sampling frequency to be many times the system bandwidth to avoid aliasing.
+
+- 'bilinear', 'tustin', 'trapezoidal' uses :math:`s = \frac{2}{\Delta t}  (1 - z^{-1}) / (1 + z^{-1})`.  This is equivalent to trapezoidal integration.   The overall result is divided by :math:`\Delta t`.
+
+- 'generalized-bilinear', 'gbf' uses :math:`s = \frac{1}{\Delta t}
+  \frac{1 - z^{-1}}{\alpha + (1 - \alpha) z^{-1})}` (alpha = 0
+  corresponds to forward Euler, alpha = 0.5 corresponds to bilinear,
+  and alpha = 1 corresponds to backward Euler).  The overall result is divided by :math:`\Delta t`.
+
+- 'euler', 'forward-diff', 'forward-euler' uses :math:`s = \frac{1}{\Delta t}  (1 - z^{-1}) / z^{-1}`.  The overall result is divided by :math:`\Delta t`.
+
+- 'backward-diff', 'backward-euler' uses :math:`s = \frac{1}{\Delta t}  (1 - z^{-1}).`  The overall result is divided by :math:`\Delta t`.
+
+- 'simpson' uses :math:`s = \frac{3}{\Delta t} (z^2 - 1) / (z^2 + 4
+  z + 1)`.  This is equivalent to integration with Simpsons's rule.
+  The overall result is divided by :math:`\Delta t`.  Note, this method
+  can be more accurate but doubles the order and can lead to
+  instability.
+
+- 'matched-Z', 'zero-pole-matching' matches poles and zeros where :math:`s + \alpha = (1 - \exp(-\alpha  \Delta t) / z)`.  The overall result is divided by :math:`\Delta t`.  When the expression has no zeros, the matched-Z and impulse invariance methods are equivalent.
+
+The following figure compares the impulse responses computed using
+some of these methods for a continuous-time impulse response
+:math:`\exp(-t) u(t)`.  The matched-Z method gives the same answer as
+the impulse-invariance method since the Laplace transform of the
+impulse response has no zeros.  For this example, the bilinear and impulse-invariance methods give the same response for :math:`n > 0`.
+
+.. image:: examples/discretetime/discretize1.png
+   :width: 12cm
 
 .. _noisesignals:
 
@@ -1838,16 +2044,16 @@ resulting-power spectral density is given by
   S_Z(f) = S_X(f) + S_Y(f),
 
 and the amplitude spectral density is
-  
+
 .. math::
   \mathcal{A}_Z(f) = \sqrt{\mathcal{A}_X^2(f) + \mathcal{A}_Y^2(f)}.
 
 Furthermore, the resultant autocorrelation is
-  
+
 .. math::
   R_Z(\tau) =  R_X(\tau) + R_Y(\tau).
 
-  
+
 Noise signals can be created using the `noisevoltage()` and
 `noisecurrent()` methods.  For example, a white-noise signal can be
 created using::
@@ -1859,16 +2065,16 @@ created using::
    'fourier noise'
    >>> X.nid
    1
-   
+
 
 When another white-noise signal is created, it is is assigned a
 different noise identifier since the noise signals are assumed to be
 independent::
-  
-   >>> Y = noisevoltage(4)     
+
+   >>> Y = noisevoltage(4)
    >>> Y.nid
    2
-   
+
 Since the noise signals are independent and wide-sense stationary, the
 ASD of the result is found from the square root of the sum of the
 squared ASDs::
@@ -1892,11 +2098,11 @@ Lcapy when performing circuit analysis).  For example::
 
    >>> from lcapy.superpositionvoltage import SuperpositionVoltage
    >>> X = noisevoltage(3)
-   >>> Y = noisevoltage(4)     
+   >>> Y = noisevoltage(4)
    >>> Z = SuperpositionVoltage(X) + SuperpositionVoltage(Y)
    {n1: 3, n2: 4}
    >>> Z = SuperpositionVoltage(X) + SuperpositionVoltage(Y) - SuperpositionVoltage(X)
-   {n2: 4}   
+   {n2: 4}
 
 
 .. _plotting:
@@ -1922,31 +2128,31 @@ You can control the range for the time values using a tuple::
 
 Alternatively, a NumPy array can be used::
 
-   >>> from numpy import linspace 
+   >>> from numpy import linspace
    >>> vt = linspace(-5, 5, 200)
    >>> cos(2 * t).plot(vt)
 
 .. image:: examples/plotting/cos3.png
-   :width: 12cm  
+   :width: 12cm
 
 The returned value from the `plot()` method is a Matplotlib axes
 object (or a tuple if more than one set of axes are used, say for a
 magnitude/phase plot).  This is useful to overlay plots, for example::
 
-   >>> from numpy import linspace 
+   >>> from numpy import linspace
    >>> vt = linspace(-5, 5, 200)
    >>> axes = cos(2 * t).plot(vt, label='cos')
    >>> sin(2 * t).plot(vt, label='sin', axes=axes)
    >>> axes.legend()
-           
+
 .. image:: examples/plotting/sincos1.png
-   :width: 12cm             
+   :width: 12cm
 
 You can create your own Matplotlib axes and use this for plotting::
 
    >>> from matplotlib.pyplot import subplots
-   >>> from numpy import linspace 
-   >>> vt = linspace(-5, 5, 200)   
+   >>> from numpy import linspace
+   >>> vt = linspace(-5, 5, 200)
    >>> figs, axes = subplots(1)
    >>> cos(2 * t).plot(vt, axes=axes, label='cos')
    >>> sin(2 * t).plot(vt, axes=axes, label='sin')
@@ -1955,14 +2161,14 @@ You can create your own Matplotlib axes and use this for plotting::
 Finally, you can manage all the plotting yourself, for example::
 
    >>> from matplotlib.pyplot import subplots
-   >>> from numpy import linspace 
-   >>> vt = linspace(-5, 5, 200)   
+   >>> from numpy import linspace
+   >>> vt = linspace(-5, 5, 200)
    >>> figs, axes = subplots(1)
    >>> axes.plot(vt, cos(2 * t).evaluate(vt), label='cos')
    >>> axes.plot(vt, sin(2 * t).evaluate(vt), label='sin')
-   >>> axes.legend()  
-   
-   
+   >>> axes.legend()
+
+
 Pole-zero plots
 ---------------
 
@@ -1989,7 +2195,7 @@ controlled by the `plot_type` argument.  By default this is
 `dB-phase` for complex expressions which plots both the magnitude as dB and the phase.
 Other choices are `real`, `imag`, `magnitude`, `phase`, `real-imag`, `magnitude-phase`, `dB`,
 `degrees`, and `radians`.
-           
+
 Frequencies are shown on a linear scale by default.  A logarithmic
 scale is used if `log_frequency=True` is specified.
 
@@ -2051,7 +2257,7 @@ Discrete-time plots
 Discrete-time signals are plotted as stem (lollipop) plots, for example::
 
    >>> cos(2 * n * 0.2).plot()
-  
+
 .. image:: examples/plotting/lollipop1.png
    :width: 12cm
 
@@ -2059,9 +2265,9 @@ Complex discrete-time signals can also be plotted in polar format, for example::
 
    >>> x = 0.9**n * exp(j * n * 0.5)
    >>> x.plot((1, 10), polar=True)
-  
+
 .. image:: examples/discretetime/cdt1-plot1.png
-   :width: 10cm  
+   :width: 10cm
 
 
 Dirac deltas
@@ -2073,7 +2279,7 @@ Dirac deltas in a time domain or discrete-time domain expression are plotted as 
 
 .. image:: examples/plotting/deltas.png
    :width: 12cm
-           
+
 
 Plot customisation
 ------------------
@@ -2081,10 +2287,10 @@ Plot customisation
 The `plot()` method has a number of generic keyword arguments to customise the plots.   These include:
 
 - `xlabel` sets the xlabel string
-  
+
 - `ylabel` sets the ylabel string
 
-- `title` sets the title string    
+- `title` sets the title string
 
 For example::
 
@@ -2109,17 +2315,17 @@ The best way to customise plots is to create a matplotlib style file.  For examp
    >>> from matplotlib.pyplot import style
    >>> style.use('polezero.mplstyle')
    >>> H = s / (s + 2)
-   >>> H.plot()     
+   >>> H.plot()
 
 where polezero.mplstyle might contain
 
    ``lines.markersize = 20``
-   
+
    ``font.size = 14``
 
 Matplotlib has many pre-defined styles, see https://matplotlib.org/stable/gallery/style_sheets/style_sheets_reference.html .
 
-   
+
 .. _parameterization:
 
 Parameterization
@@ -2130,7 +2336,7 @@ Lcapy can parameterize an expression into zero-pole-gain (ZPK) form with the `pa
    >>> H = (5*s**2 + 5) / (s**2 + 5*s + 4)
    >>> H1, defs = H.parameterize_ZPK()
    >>> H1
-      (s - z₁)⋅(s - z₂) 
+      (s - z₁)⋅(s - z₂)
    K⋅───────────────────
      (-p₁ + s)⋅(-p₂ + s)
    >>> defs
@@ -2141,28 +2347,28 @@ Note, SymPy likes to print `p` before `s` and hence `-p1 + s` rather than `s - p
 `defs` is a dictionary of definitions; it can be substituted into the parameterized expression to obtain the original expression::
 
    >>> H1.subs(defs)
-        3      
+        3
    ────────────
-    2          
+    2
    z  + 5⋅z + 4
-   
+
 Lcapy can parameterize a number of first order, second order, and third order s-domain expressions into common forms.  For example::
 
    >>> H1 = 3 / (s + 2)
    >>> H1p, defs = H1.parameterize()
    >>> H1p
-     K  
+     K
    ─────
    α + s
-   >>> defs                                                                    
+   >>> defs
    {K: 3, alpha: 2}
 
 Here `defs` is a dictionary of the parameter definitions.
-   
+
 The original expression can be obtained by substituting the parameter definitions into the parameterized expression:
 
-   >>> H1p.subs(defs)                                                           
-     3  
+   >>> H1p.subs(defs)
+     3
    ─────
    s + 2
 
@@ -2171,11 +2377,11 @@ Here's a second order example:
    >>> H2 = 3 / (s**2 + 2*s + 4)
    >>> H2p, defs = H2.parameterize()
    >>> H2p
-              K         
+              K
    ───────────────────
      2               2
-   ω₀  + 2⋅ω₀⋅s⋅ζ + s 
- 
+   ω₀  + 2⋅ω₀⋅s⋅ζ + s
+
    >>> defs
    {K: 3, omega_0: 2, zeta: 1/2}
 
@@ -2183,17 +2389,17 @@ Second order systems can be parameterized in many ways.  Here's another example:
 
    >>> H2p, defs = H2.parameterize(zeta=False)
    >>> H2p
-               K           
+               K
    ───────────────────────
      2    2              2
-   ω₁  + s  + 2⋅s⋅σ₁ + σ₁ 
+   ω₁  + s  + 2⋅s⋅σ₁ + σ₁
 
    >>> defs
    {K: 3, omega_1: √3, sigma_1: 1}
 
 
 .. _network-synthesis:
-   
+
 Network synthesis
 =================
 
@@ -2208,19 +2414,19 @@ Foster and Cauer synthesis.
     >>> n
     ((C(1) + R(2)) | C(3)) + R(4)
     >>> n.Z(s).canonical()
-    
+
     :math:`\frac{4 s^{2} + 3 s + \frac{1}{6}}{s^{2} + \frac{2 s}{3}}`
 
     >>> n.draw(form='ladder')
-          
+
 Note, in this example `one` is used to avoid generating a floating-point number `1 / 6`.
 An alternative approach to use quotes around the expression (see :ref:`floating-point`)::
 
     >>> Z = impedance('(4*s**2 + 3 * s + 1 / 6) / (s**2 + 2 * s / 3)')
 
-    
+
 .. _special-functions:
-    
+
 Special functions
 =================
 
@@ -2248,9 +2454,9 @@ used with SymPy and NumPy) using the relation:
 Note, there is also a related discrete-time function called `unitstep`.
 
 .. image:: examples/functions/heaviside.png
-   :width: 12cm  
+   :width: 12cm
 
-   
+
 Signum function sign(t)
 -----------------------
 
@@ -2260,7 +2466,7 @@ The signum function `sign(t)` is defined in terms of the Heaviside function as:
 
    \mathop{\mathrm{sign}}(t) = 2 \mathop{\mathrm{H}}(t) - 1
 
-and thus:   
+and thus:
 
 .. math::
 
@@ -2274,12 +2480,12 @@ and thus:
 Note, there is also a related discrete-time signum function.
 
 .. image:: examples/functions/sign.png
-   :width: 12cm  
+   :width: 12cm
 
-   
+
 Rectangle function rect(t)
 --------------------------
-   
+
 The rectangle function `rect(t)` is defined in terms of the Heaviside step as
 
 .. math::
@@ -2289,13 +2495,13 @@ The rectangle function `rect(t)` is defined in terms of the Heaviside step as
 With the assumption `H(0) = 0` then `rect(0.5) = 0.5`.  In other words
 
 .. math::
-   
+
    \mathop{\mathrm{rect}}(t) =
    \begin{cases}
    0 & t < -0.5 \\
    -0.5 & t = 0.5 \\
    1  & -0.5 \lt t \lt  0.5 \\
-   0.5 & t = 0.5 \\   
+   0.5 & t = 0.5 \\
    0  & t > 0.5
    \end{cases}
 
@@ -2303,7 +2509,7 @@ Note, there is also a related discrete-time rectangle `dtrect` defined
 in terms of the discrete-time unit step function.
 
 .. image:: examples/functions/rect.png
-   :width: 12cm  
+   :width: 12cm
 
 
 Triangle function tri(t)
@@ -2314,10 +2520,10 @@ The triangle function `tri(t)` is the convolution of `rect(t)` and `rect(t)`.
 .. image:: examples/functions/tri.png
    :width: 12cm
 
-   
+
 Trapezoid function trap(t, alpha)
 ---------------------------------
-   
+
 The trapezoid function `trap(t, alpha)` is the convolution of `rect(t
 / alpha)` and `rect(t)`. The parameter `alpha` is the normalized
 rise/fall time.  When `alpha = 0` it is equivalent to `rect(t)` and
@@ -2351,7 +2557,7 @@ the future.
    :width: 12cm
 
 .. image:: examples/functions/sincu.png
-   :width: 12cm           
+   :width: 12cm
 
 
 
@@ -2375,11 +2581,11 @@ It is sometimes called the aliased sinc function and is similar to the Dirichlet
    :width: 12cm
 
 .. image:: examples/functions/psinc8.png
-   :width: 12cm                  
+   :width: 12cm
 
 Note, `psinc(2, t)` is equivalent to `cos(pi * t)`.
-           
-    
+
+
 Discrete-time unit step u[n]
 ----------------------------
 
@@ -2394,7 +2600,7 @@ The discrete-time unit step is defined as
    \end{cases}
 
 .. image:: examples/functions/unitstep.png
-   :width: 12cm   
+   :width: 12cm
 
 Discrete-time unit impulse delta[n]
 -----------------------------------
@@ -2412,10 +2618,10 @@ The discrete-time unit impulse is defined as
 
 .. image:: examples/functions/unitimpulse.png
    :width: 12cm
-   
+
 
 Discrete-time rectangle function rect[n]
-----------------------------------------   
+----------------------------------------
 
 The discrete-time rectangle function `rect[n]` is defined in terms of
 the discrete-time unit step function as:
@@ -2427,7 +2633,7 @@ the discrete-time unit step function as:
 With this definition:
 
 .. math::
-   
+
    \mathop{\mathrm{rect}}[n] =
    \begin{cases}
    0 & n < -0.5 \\
@@ -2439,7 +2645,7 @@ Notes:
 
 - Lcapy converts `rect(n)` to `dtrect(n)` for discrete-time signals and prints it as `rect[n]`.
 
-- `dtrect(n/N)` produces a symmetrical result when `N` is odd.  When `N` is even, there is one more non-zero value for negative `n` compared to positive `n`.   
+- `dtrect(n/N)` produces a symmetrical result when `N` is odd.  When `N` is even, there is one more non-zero value for negative `n` compared to positive `n`.
 
 - The internal name `dtrect` may change when I can think of something better.
 
@@ -2447,9 +2653,9 @@ Notes:
    :width: 12cm
 
 .. image:: examples/functions/dtrect5.png
-   :width: 12cm          
-  
-  
+   :width: 12cm
+
+
 Discrete-time signum function sign[n]
 -------------------------------------
 
@@ -2461,7 +2667,7 @@ discrete-time unit step function as:
    \mathop{\mathrm{sign}}[n] = 2 \mathop{\mathrm{u}}[n] - 1
 
 and thus:
-   
+
 .. math::
 
    \mathop{\mathrm{sign}}[n] =
@@ -2478,9 +2684,9 @@ Notes:
 
 
 .. image:: examples/functions/dtsign.png
-   :width: 12cm  
-  
-  
+   :width: 12cm
+
+
 
 Expression manipulation tips
 ============================
@@ -2503,7 +2709,7 @@ The result can then be converted back to an Lcapy expression using the
 
 Functions
 ---------
-    
+
 Lcapy does not explicitly support all the SymPy functions.  However, a
 SymPy function can be made into an Lcapy function using the `Function`
 class, for example::
@@ -2529,7 +2735,7 @@ assumptions that SymPy uses for a symbol.  These can be found with the
 
    >>> t.assumptions
    {'real': True}
-  
+
    >>> t.assumptions0
    {'real': True,
    'complex': True,
@@ -2576,11 +2782,10 @@ numbers.  However, it is not a complex value::
   >>>  x.is_complex
   False
 
-  
+
 Parameterization
 ----------------
 
-Symbolic expressions can get unweildy.  One approach is to
+Symbolic expressions can get unwieldy.  One approach is to
 parameterize an expression using the `parameterize()` method, perform
 manipulations, and then substitute for the parameter definitions.
-

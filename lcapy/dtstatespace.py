@@ -12,7 +12,7 @@ from .nmatrix import DiscreteTimeDomainMatrix
 from .statespacebase import StateSpaceBase
 from .nexpr import n, nexpr
 from .expr import expr
-from .dsym import zsym
+from .sym import zsym
 import sympy as sym
 
 # TODO: reachability implies controllability but controllability only

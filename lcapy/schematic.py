@@ -12,7 +12,7 @@ This module performs schematic drawing using circuitikz from a netlist.
 >>> sch.add('W 0.2 0.2; right')
 >>> sch.draw()
 
-Copyright 2014--2021 Michael Hayes, UCECE
+Copyright 2014--2022 Michael Hayes, UCECE
 """
 
 # Strings starting with ;; are schematic options.  They are parsed in
@@ -33,16 +33,18 @@ from .netfile import NetfileMixin
 from .system import LatexRunner, PDFConverter, tmpfilename
 from os import path, remove
 from collections import OrderedDict
+from warnings import warn
 import math
+
 
 __all__ = ('Schematic', )
 
 
 def display_matplotlib(filename, dpi=150, scale=2):
-        
+
     from matplotlib.pyplot import figure, figaspect
     from matplotlib.image import imread
-    
+
     img = imread(filename)
     h, w, d = img.shape
     width = scale * w / dpi
@@ -57,18 +59,18 @@ def display_matplotlib(filename, dpi=150, scale=2):
 def png_image_size(filename):
 
     import struct
-    
+
     with open(filename, 'rb') as f:
         header = f.read(25)
 
     if (header[:8] != b'\211PNG\r\n\032\n' and (header[12:16] != b'IHDR')):
-        raise Exception('%s not a png image' % filename)        
+        raise Exception('%s not a png image' % filename)
     w, h = struct.unpack('>LL', header[16:24])
     width = int(w)
     height = int(h)
     return width, height
 
-    
+
 class SchematicOpts(Opts):
 
     def __init__(self):
@@ -80,11 +82,12 @@ class SchematicOpts(Opts):
              'annotate_values': False,
              'label_nodes': 'primary',
              'scale' : 1.0,
-             'dpi' : 150,             
+             'dpi' : 150,
              'cpt_size' : 1.5,
              'node_spacing' : 2.0,
              'help_lines' : 0.0,
-             'style' : 'american'})
+             'style' : 'american',
+             'voltage dir' : 'RP'})
 
 
 class Node(object):
@@ -101,16 +104,16 @@ class Node(object):
         # See MX1.sch for example.
         if '._' in name:
             self.primary = False
-        
+
         self.elt_list = []
         self.pos = 'unknown'
         # Sanitised name
         self.s = name.replace('.', '@')
         self.label = latex_format_node_label(self.name)
-        self.labelpos = None        
+        self.labelpos = None
         self.pin = False
         self.pinlabel = ''
-        self.namepos = None                
+        self.namepos = None
         self.pinname = ''
         self.pinpos = None
         self.clock = False
@@ -132,7 +135,7 @@ class Node(object):
         if len(fields) < 2:
             return None
         return fields[-2]
-        
+
     def __repr__(self):
         return '%s @ (%s)' % (self.name, self.pos)
 
@@ -155,7 +158,7 @@ class Node(object):
 
     def belongs(self, cpt_name):
         return self.cptname == cpt_name
-    
+
     def visible(self, draw_nodes):
         """Return true if node drawn.
         `draw_nodes' can be `all', 'none', 'connections', 'primary', None,
@@ -163,7 +166,7 @@ class Node(object):
 
         if self.auxiliary:
             return False
-        
+
         if draw_nodes in ('all', True):
             return True
 
@@ -171,7 +174,7 @@ class Node(object):
             return False
 
         if self.implicit:
-            return False        
+            return False
 
         if self._port:
             return True
@@ -186,9 +189,9 @@ class Node(object):
         if draw_nodes in ('connections', 'connected'):
             return self.count > 2
 
-        if draw_nodes == 'primary':        
+        if draw_nodes == 'primary':
             return self.primary
-        
+
         raise ValueError('Unknown argument %s for draw_nodes' % draw_nodes)
 
     @property
@@ -198,10 +201,10 @@ class Node(object):
         return self._port or self.count == 1
 
     def show_label(self, label_nodes):
-        
+
         if self.label == '':
             return False
-        
+
         name = self.basename
 
         # pins is for backward compatibility
@@ -223,8 +226,8 @@ class Node(object):
     def debug(self):
         print(' %s @ (%s), count=%d, pin=%s' % (self.name, self.pos,
                                                 self.count, self.pin))
-    
-    
+
+
 class Schematic(NetfileMixin):
 
     def __init__(self, filename=None, allow_anon=False, **kwargs):
@@ -244,7 +247,7 @@ class Schematic(NetfileMixin):
             self.netfile_add(filename)
 
     def __repr__(self):
-        
+
         return self.netlist()
 
     def __getitem__(self, name):
@@ -280,7 +283,7 @@ class Schematic(NetfileMixin):
         if nodename not in self.nodes:
             self.nodes[nodename] = Node(nodename)
         node = self.nodes[nodename]
-            
+
         node.append(elt)
 
         if node.auxiliary is None:
@@ -288,7 +291,7 @@ class Schematic(NetfileMixin):
         elif node.auxiliary and not auxiliary:
             # An auxiliary node can be made a proper node.
             node.auxiliary = False
-        
+
         return node
 
     def _cpt_add(self, cpt):
@@ -299,9 +302,9 @@ class Schematic(NetfileMixin):
             n1 = cpt.node_names[0]
             n2 = cpt.node_names[1]
             # If have only two parallel components, can used fixed node names.
-            self.dummy_node += 1                            
+            self.dummy_node += 1
             on1 = n1 + 'off%d' % self.dummy_node
-            self.dummy_node += 1                            
+            self.dummy_node += 1
             on2 = n2 + 'off%d' % self.dummy_node
 
             angle = 90
@@ -309,7 +312,7 @@ class Schematic(NetfileMixin):
             if size < 0:
                 size = -size
                 angle = -angle
-            
+
             w1 = 'W %s %s; rotate=%s, size=%s' % (n1, on1, cpt.angle + angle, size)
             w2 = 'W %s %s; rotate=%s, size=%s' % (n2, on2, cpt.angle + angle, size)
 
@@ -319,7 +322,7 @@ class Schematic(NetfileMixin):
             # Add open-circuit to ensure alignment.
             o = 'O %s %s; rotate=%s, size=%s' % (n1, n2, cpt.angle, cpt.size)
             self.add(o)
-            
+
             # Rename nodes
             parts = cpt.net.split(' ')
             parts[1] = on1
@@ -328,7 +331,7 @@ class Schematic(NetfileMixin):
             cpt.opts.strip('offset')
             self.add('%s; %s' % (net, cpt.opts))
             return
-        
+
         def tex_name(name, subscript=None):
 
             if subscript is None:
@@ -340,7 +343,7 @@ class Schematic(NetfileMixin):
                 subscript = r'\mathrm{%s}' % subscript
             if len(subscript) == 0:
                 return name
-        
+
             return '%s_{%s}' % (name, subscript)
 
         # There are two possible labels for a component:
@@ -382,7 +385,7 @@ class Schematic(NetfileMixin):
             elif cpt.classname not in ('TP',):
                 try:
                     # Handle things like 9/1000 that can occur
-                    # when substituting cpt values.  
+                    # when substituting cpt values.
                     value = float(sym.Rational(expr))
                     if cpt.type in units_map:
                         value_label = EngFormatter().latex_math(value, units_map[cpt.type])
@@ -404,17 +407,20 @@ class Schematic(NetfileMixin):
             self.hints = True
 
         if cpt.name in self.elements:
-            print('Overriding component %s' % cpt.name)
+            warn('Overriding component %s' % cpt.name)
             # Need to search lists and update component.
 
         self.elements[cpt.name] = cpt
 
-        for node in cpt.auxiliary_node_names:
-            self._node_add(node, cpt, auxiliary=True)
+        # Perhaps don't show nodes if cpt invisible?
+        if not cpt.ignore:
 
-        # Note, an auxiliary node can be trumped...
-        for node in cpt.required_node_names:
-            self._node_add(node, cpt, auxiliary=False)
+            for node in cpt.auxiliary_node_names:
+                self._node_add(node, cpt, auxiliary=True)
+
+            # Note, an auxiliary node can be trumped...
+            for node in cpt.required_node_names:
+                self._node_add(node, cpt, auxiliary=False)
 
     def _setup(self):
         # This is called before node positions are assigned.
@@ -436,13 +442,17 @@ class Schematic(NetfileMixin):
 
     def _positions_calculate(self, method='graph', debug=False):
 
+        if self.debug & 4:
+            print('Creating graphs')
         placer = schemplacer(self.elements, self.nodes, method, debug)
-        self.width, self.height = placer.solve(self.node_spacing)        
-    
+        if self.debug & 4:
+            print('Solving graphs')
+        self.width, self.height = placer.solve(self.node_spacing)
+
     def _tikz_draw(self, style_args='', **kwargs):
 
         method = kwargs.pop('method', 'graph')
-        
+
         self._setup()
 
         self._positions_calculate(method, self.debug)
@@ -456,15 +466,19 @@ class Schematic(NetfileMixin):
             opts.append(kwargs.pop('options'))
 
         if 'font' in kwargs:
-            font = kwargs.pop('font')            
+            font = kwargs.pop('font')
             opts.append('font=' + font)
-        
+
+        if 'voltage dir' in kwargs:
+            voltage_dir = kwargs.pop('voltage dir')
+            opts.append('voltage dir=' + voltage_dir)
+
         s = r'\begin{tikzpicture}[%s]''\n' % ', '.join(opts)
 
-        # Add preamble        
+        # Add preamble
         if 'preamble' in kwargs:
             s += '  ' + kwargs.pop('preamble') + '\n'
-        
+
         help_lines = float(kwargs.pop('help_lines', 0))
         color = kwargs.pop('color', 'blue')
         if help_lines != 0:
@@ -481,15 +495,15 @@ class Schematic(NetfileMixin):
 
         # Keyword args for second pass
         kwargs2 = kwargs.copy()
-            
+
         # Pass 1: Draw components
         for elt in self.elements.values():
             if elt.ignore:
                 continue
-            if elt.directive:            
+            if elt.directive:
                 for key, val in elt.opts.items():
                     # Update kwargs
-                    kwargs[key] = val 
+                    kwargs[key] = val
 
             s += elt.draw(**kwargs)
             s += elt.draw_nodes(**kwargs)
@@ -498,15 +512,15 @@ class Schematic(NetfileMixin):
         # Pass 2: Add the node labels
         for elt in self.elements.values():
             if elt.ignore:
-                continue                        
+                continue
             if elt.directive:
                 for key, val in elt.opts.items():
                     kwargs2[key] = val
-            s += elt.draw_node_labels(**kwargs2)            
+            s += elt.draw_node_labels(**kwargs2)
 
         # Add postamble
         if 'postamble' in kwargs:
-            s += '  ' + kwargs.pop('postamble') + '\n'        
+            s += '  ' + kwargs.pop('postamble') + '\n'
 
         s += r'\end{tikzpicture}''\n'
 
@@ -518,10 +532,18 @@ class Schematic(NetfileMixin):
 
         self.debug = kwargs.pop('debug', 0)
         style = kwargs.pop('style', 'american')
-        self.dpi = float(kwargs.pop('dpi', 150))        
+        self.dpi = float(kwargs.pop('dpi', 150))
         self.cpt_size = float(kwargs.pop('cpt_size', 1.2))
         self.node_spacing = float(kwargs.pop('node_spacing', 2.0))
         self.scale = float(kwargs.pop('scale', 1.0))
+
+        include = ''
+        if 'include' in kwargs:
+            include += kwargs.pop('include')
+        if 'includefile' in kwargs:
+            file = open(kwargs.pop('includefile'))
+            include += file.read()
+            file.close()
 
         if style == 'american':
             style_args = 'american currents, american voltages'
@@ -537,27 +559,29 @@ class Schematic(NetfileMixin):
         nosave = kwargs.pop('nosave', False)
 
         latexrunner = LatexRunner(self.debug & 2)
-        
-        self.circuitikz_date, self.circuitikz_version = latexrunner.circuitikz_version()
-        if self.circuitikz_date is None:
-            raise RuntimeError('circuitikz is not installed')
 
         content = self._tikz_draw(style_args=style_args, **kwargs)
-        
+
         if nosave:
             return
 
         if self.debug & 1:
+            self.circuitikz_date, self.circuitikz_version = latexrunner.circuitikz_version()
+            if self.circuitikz_date is None:
+                raise RuntimeError('circuitikz is not installed')
+
             print('circuitikz version %s (%s)' % (self.circuitikz_version,
                                                   self.circuitikz_date))
             print('width=%d, height=%d, dpi=%d, cpt_size=%.2f, node_spacing=%.2f, scale=%.2f'
-                  % (self.width, self.height, self.dpi, 
+                  % (self.width, self.height, self.dpi,
                      self.cpt_size, self.node_spacing, self.scale))
             print('Nodes:')
             for node in self.nodes.values():
                 node.debug()
 
         if ext in ('.pytex', '.schtex', '.pgf'):
+            if include != '':
+                warn('Include option ignored for non-standalone file')
             open(filename, 'w').write(content)
             return
 
@@ -566,8 +590,9 @@ class Schematic(NetfileMixin):
                     '\\usepackage{amsmath}\n'
                     '\\usepackage{circuitikz}\n'
                     '\\usetikzlibrary{fit, shapes, arrows, patterns, decorations.text, decorations.markings}\n'
+                    '%s\n'
                     '\\begin{document}\n%s\\end{document}')
-        content = template % content
+        content = template % (include, content)
         tex_filename = filename.replace(ext, '.tex')
         open(tex_filename, 'w').write(content)
 
@@ -580,7 +605,7 @@ class Schematic(NetfileMixin):
             latexrunner.cleanup(tex_filename, pdf_filename)
 
         if not path.exists(pdf_filename):
-            raise RuntimeError('Could not generate %s with pdflatex' % 
+            raise RuntimeError('Could not generate %s with pdflatex' %
                                pdf_filename)
 
         if ext == '.pdf':
@@ -610,28 +635,29 @@ class Schematic(NetfileMixin):
         Note, if using Jupyter, then need to first issue command %matplotlib inline
 
         kwargs include:
-           label_ids: True to show component ids
-           label_values: True to display component values
-           annotate_values: True to display component values as separate label
-           draw_nodes: True to show all nodes,
-             False or 'none' to show no nodes, 
+           'label_ids': True to show component ids
+           'label_values': True to display component values
+           'annotate_values': True to display component values as separate label
+           'draw_nodes': True to show all nodes,
+             False or 'none' to show no nodes,
              'primary' to show primary nodes,
              'connections' to show nodes that connect more than two components,
              'all' to show all nodes
-           label_nodes: True to label all nodes,
-             False or 'none' to label no nodes, 
+           'label_nodes': True to label all nodes,
+             False or 'none' to label no nodes,
              'primary' to label primary nodes,
              'alpha' to label nodes starting with a letter,
              'pins' to label nodes that are pins on a chip,
              'all' to label all nodes,
              'none' to label no nodes
-           style: 'american', 'british', or 'european'
-           scale: schematic scale factor, default 1.0
-           node_spacing: spacing between component nodes, default 2.0
-           cpt_size: size of a component, default 1.5
-           dpi: dots per inch for png files
-           help_lines: distance between lines in grid, default 0.0 (disabled)
-           debug: Non-zero to display debug information
+           'include': name of file to include before \\begin{document}
+           'style': 'american', 'british', or 'european'
+           'scale': schematic scale factor, default 1.0
+           'node_spacing': spacing between component nodes, default 2.0
+           'cpt_size': size of a component, default 1.5
+           'dpi': dots per inch for png files
+           'help_lines': distance between lines in grid, default 0.0 (disabled)
+           'debug': Non-zero to display debug information
         """
 
         # None means don't care, so remove.
@@ -648,8 +674,8 @@ class Schematic(NetfileMixin):
         # Default options
         opts = SchematicOpts()
         for key, val in opts.items():
-            if key not in kwargs:            
-                kwargs[key] = val            
+            if key not in kwargs:
+                kwargs[key] = val
 
         # Global options (usually at end of netlist for historical reasons)
         # These can be overwritten
@@ -684,7 +710,7 @@ class Schematic(NetfileMixin):
         if in_ipynb() and filename is None:
             png = 'png' in kwargs and kwargs.pop('png')
             svg = 'svg' in kwargs and kwargs.pop('svg')
-            
+
             if not png and not svg:
                 svg = False
 
@@ -694,12 +720,12 @@ class Schematic(NetfileMixin):
 
                     svgfilename = tmpfilename('.svg')
                     self.tikz_draw(svgfilename, **kwargs)
-                    
+
                     # Create and display SVG image object.
                     # Note, there is a problem displaying multiple SVG
                     # files since the later ones inherit the namespace of
                     # the first ones.
-                    display_svg(SVG(filename=svgfilename)) 
+                    display_svg(SVG(filename=svgfilename))
                     return
                 except:
                     pass
@@ -708,7 +734,7 @@ class Schematic(NetfileMixin):
 
             png_filename = tmpfilename('.png')
             self.tikz_draw(png_filename, **kwargs)
-            
+
             # Create and display PNG image object.
             # There are two problems:
             # 1. The image metadata (width, height) is ignored
@@ -720,19 +746,19 @@ class Schematic(NetfileMixin):
             display_png(Image(filename=png_filename,
                               width=width, height=height))
             if not (self.debug & 1):
-                remove(png_filename)            
+                remove(png_filename)
             return
 
         if filename is None:
             filename = tmpfilename('.png')
             # Thicken up lines to reduce aliasing causing them to
             # disappear, especially when using pdftoppm.
-            self.tikz_draw(filename=filename, 
+            self.tikz_draw(filename=filename,
                            options='/tikz/circuitikz/bipoles/thickness=2',
                            **kwargs)
             display_matplotlib(filename, self.dpi)
             if not (self.debug & 1):
-                remove(filename)            
+                remove(filename)
             return
 
         self.tikz_draw(filename=filename, **kwargs)

@@ -4,7 +4,9 @@ Copyright 2020--2021 Michael Hayes, UCECE
 
 """
 
-from sympy import Add, Mul, DiracDelta, Heaviside, Integral, oo, sin, cos, sqrt, atan2, pi, Symbol, solve, Min, Max
+from sympy import Add, Mul, DiracDelta, Heaviside, Integral, re, im
+from sympy import oo, sin, cos, sqrt, atan2, pi, Symbol, solve, Min, Max
+from sympy import cosh, sinh, tanh, exp
 from .extrafunctions import UnitStep, UnitImpulse, rect, dtrect
 
 
@@ -13,7 +15,7 @@ def simplify_dirac_delta_product_term(expr):
 
     if not expr.has(DiracDelta):
         return expr
-    
+
     def query(expr):
 
         return expr.is_Mul and expr.has(DiracDelta)
@@ -29,7 +31,7 @@ def simplify_dirac_delta_product_term(expr):
                 arg = factor.args[0]
                 dirac = factor
             else:
-                parts.append(factor)        
+                parts.append(factor)
 
         if arg is None or not arg.has(Symbol):
             return expr
@@ -48,10 +50,10 @@ def simplify_dirac_delta_product(expr, expand=False):
         return expr
 
     # Could also convert delta(a * t) to delta(t) / a
-    
+
     if not expand:
         return simplify_dirac_delta_product_term(expr)
-    
+
     terms = expr.expand().as_ordered_terms()
 
     return Add(*[simplify_dirac_delta_product_term(term) for term in terms])
@@ -61,12 +63,12 @@ def simplify_dirac_delta(expr, var=None):
 
     if not expr.has(DiracDelta):
         return expr
-    
+
     expr = simplify_dirac_delta_product(expr)
     if var is not None:
 
         # Convert delta(a * t) to delta(t) / a
-        expr = expr.expand(diracdelta=True, wrt=var)        
+        expr = expr.expand(diracdelta=True, wrt=var)
     return expr
 
 
@@ -77,13 +79,13 @@ def simplify_dirac_delta(expr, var=None):
 #     def pre(expr):
 #         if (expr.is_Mul and expr.args[0].func == Heaviside and
 #               expr.args[1].func == Heaviside):
-#             heaviside_products.append(expr)            
-#        
+#             heaviside_products.append(expr)
+#
 #         for arg in expr.args:
-#             pre(arg)    
+#             pre(arg)
 #
 #     pre(expr)
-#            
+#
 #     for product in heaviside_products:
 #         # TODO
 #         pass
@@ -93,20 +95,20 @@ def simplify_dirac_delta(expr, var=None):
 
 def simplify_power(expr):
 
-    powers = []    
-    
+    powers = []
+
     def pre(expr):
         if (expr.is_Pow and expr.args[0].func in (Heaviside, UnitStep, rect, dtrect) and
             expr.args[1].is_constant):
-            powers.append(expr)            
-        
+            powers.append(expr)
+
         for arg in expr.args:
             pre(arg)
 
     pre(expr)
 
     for power in powers:
-        expr = expr.replace(power, power.args[0])            
+        expr = expr.replace(power, power.args[0])
     return expr
 
 
@@ -145,14 +147,14 @@ def simplify_heaviside_integral(expr):
                       arg.args[1].args[0] == -1 and arg.args[1].args[1] == var):
                     upper_limit = Min(upper_limit, arg.args[0])
                     # Cannot remove Heaviside function in general.
-                    
+
             result *= factor
 
         ret = Integral(result, (var, lower_limit, upper_limit))
         return ret
-    
+
     expr = expr.replace(query, value)
-    
+
     return expr
 
 
@@ -183,19 +185,19 @@ def simplify_heaviside_scale(expr, var):
             return expr
 
         return expr.func(var + (b / a).cancel())
-    
-    return expr.replace(query, value)    
+
+    return expr.replace(query, value)
 
 
 def simplify_heaviside(expr, var=None):
 
     if not expr.has(Heaviside) and not expr.has(UnitStep):
         return expr
-    
+
     expr = simplify_heaviside_integral(expr)
     expr = simplify_power(expr)
     if var is not None:
-        expr = simplify_heaviside_scale(expr, var)    
+        expr = simplify_heaviside_scale(expr, var)
     return expr
 
 
@@ -204,78 +206,92 @@ def simplify_rect(expr, var=None):
     if not expr.has(rect) and not expr.has(dtrect):
         return expr
 
-    expr = simplify_power(expr)    
+    expr = simplify_power(expr)
     return expr
 
-    
+
 def simplify_sin_cos(expr, as_cos=False, as_sin=False):
 
     if not (expr.has(sin) and expr.has(cos)):
         return expr
-    
+
     terms = expr.expand().as_ordered_terms()
 
     rest = 0
-    cos_part = None
-    sin_part = None    
-    
+    cos_parts = []
+    sin_parts = []
+
     for term in terms:
-        if term.has(sin) and sin_part is None:
-            sin_part = term
-        elif term.has(cos) and cos_part is None:
-            cos_part = term
+        if term.has(sin):
+            sin_parts.append(term)
+        elif term.has(cos):
+            cos_parts.append(term)
         else:
             rest += term
 
-    if cos_part is None or sin_part is None:
+    if cos_parts == [] or sin_parts == []:
         return expr
 
-    cfactors = cos_part.expand().as_ordered_factors()
-    sfactors = sin_part.expand().as_ordered_factors()
+    result = 0
 
-    commonfactors = []
-    for factor in cfactors:
-        if factor in sfactors:
-            commonfactors.append(factor)
+    # Use list to make copy for iterator.
+    for cos_part in list(cos_parts):
+        cfactors = cos_part.expand().as_ordered_factors()
 
-    for factor in commonfactors:
-        sfactors.remove(factor)
-        cfactors.remove(factor)
+        for sin_part in list(sin_parts):
+            sfactors = sin_part.expand().as_ordered_factors()
 
-    cosfactor = None
-    sinfactor = None    
-    for cfactor in cfactors:
-        if cfactor.has(cos):
-            cosfactor = cfactor
+            commonfactors = []
+            for factor in cfactors:
+                if factor in sfactors:
+                    commonfactors.append(factor)
+
+            for factor in commonfactors:
+                sfactors.remove(factor)
+                cfactors.remove(factor)
+
+            cos_factor = None
+            sin_factor = None
+            for cfactor in cfactors:
+                if cfactor.has(cos):
+                    cos_factor = cfactor
+                    break
+
+            for sfactor in sfactors:
+                if sfactor.has(sin):
+                    sin_factor = sfactor
+                    break
+
+            if cos_factor is None or sin_factor is None:
+                continue
+
+            if cos_factor.args[0] != sin_factor.args[0]:
+                continue
+
+            cfactors.remove(cos_factor)
+            sfactors.remove(sin_factor)
+
+            c = Mul(*cfactors)
+            s = Mul(*sfactors)
+            A = sqrt(c * c + s * s) * Mul(*commonfactors)
+            phi = atan2(s, c)
+
+            if as_sin:
+                result += A * sin(cos_factor.args[0] - phi + pi / 2, evaluate=False)
+
+            if as_cos:
+                result += A * cos(cos_factor.args[0] - phi, evaluate=False)
+
+            # SymPy will choose sin or cos as convenient.
+            if not as_sin and not as_cos:
+                result += A * cos(cos_factor.args[0] - phi)
+
+            cos_parts.remove(cos_part)
+            sin_parts.remove(sin_part)
             break
-        
-    for sfactor in sfactors:
-        if sfactor.has(sin):
-            sinfactor = sfactor
-            break
-        
-    if cosfactor is None or sinfactor is None:
-        return expr
 
-    if cosfactor.args[0] != sinfactor.args[0]:
-        return expr
-        
-    cfactors.remove(cosfactor)
-    sfactors.remove(sinfactor)    
-
-    c = Mul(*cfactors)
-    s = Mul(*sfactors)
-    A = sqrt(c * c + s * s) * Mul(*commonfactors)
-    phi = atan2(s, c)
-
-    if as_sin:
-        return rest + A * sin(cosfactor.args[0] - phi + pi / 2, evaluate=False)
-
-    if as_cos:
-        return rest + A * cos(cosfactor.args[0] - phi, evaluate=False)
-
-    # SymPy will choose sin or cos as convenient.
-    return rest + A * cos(cosfactor.args[0] - phi)
+    result = Add(result, rest, *cos_parts, *sin_parts)
+    return result
 
 
 def simplify_unit_impulse(expr, var=None):
@@ -301,5 +317,65 @@ def simplify_unit_impulse(expr, var=None):
             return expr
 
         return expr.func(var + (b / a).cancel())
-    
-    return expr.replace(query, value)        
+
+    return expr.replace(query, value)
+
+
+def simplify_conjugates(expr):
+
+    factors = expr.as_ordered_factors()
+
+    if len(factors) > 1:
+        sfactors = []
+        for factor in factors:
+            sfactors.append(simplify_conjugates(factor))
+        return Mul(*sfactors)
+
+    terms = expr.expand().as_ordered_terms()
+
+    sterms = []
+    for m, term in enumerate(terms):
+        if term == 0:
+            continue
+        cterm = term.conjugate()
+
+        for m1, term1 in enumerate(terms[m + 1:]):
+            if cterm == term1:
+                terms[m1 + m + 1] = 0
+                term = 2 * re(term)
+                break
+            elif cterm == -term1:
+                terms[m1 + m + 1] = 0
+                term = 2 * im(term)
+                break
+
+        sterms.append(term)
+
+    return Add(*sterms)
+
+
+def expand_hyperbolic_trig(expr):
+
+    # Note, rewrite(exp) does this except it also converts s**2 to
+    # exp(2 * log(s)).
+
+    def query(expr):
+        return expr.is_Function and expr.func in (cosh, sinh, tanh)
+
+    def value(expr):
+        arg = expr.args[0]
+
+        if expr.func == cosh:
+            return exp(arg) + exp(-arg)
+        elif expr.func == sinh:
+            return exp(arg) - exp(-arg)
+        elif expr.func == tanh:
+            return (exp(arg) - exp(-arg)) / (exp(arg) + exp(-arg))
+        else:
+            raise RuntimeError('Internal error')
+
+    return expr.replace(query, value)
+
+
+# Could have simplify_sum for things like Sum(0**m * x(m), (m, 0, oo))
+# that simplifies to x(0).

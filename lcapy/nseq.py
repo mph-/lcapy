@@ -7,7 +7,7 @@ Copyright 2021 Michael Hayes, UCECE
 
 from .domains import DiscreteTimeDomain
 from .sequence import Sequence
-from .dsym import nsym
+from .sym import nsym
 
 __all__ = ('nseq', )
 

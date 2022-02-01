@@ -1,7 +1,7 @@
 """
 This module implements modified nodal analysis (MNA).
 
-Copyright 2014--2019 Michael Hayes, UCECE
+Copyright 2014--2022 Michael Hayes, UCECE
 """
 
 from __future__ import division
@@ -20,6 +20,7 @@ import sympy as sym
 # efficient and, more importantly, overcomes some of the wrapping
 # problems which casues the is_real attribute to be dropped.
 
+
 class Nodedict(ExprDict):
 
     def __getitem__(self, name):
@@ -33,12 +34,12 @@ class Nodedict(ExprDict):
 
 class Branchdict(ExprDict):
     pass
-    
 
-class MNAMixin(object):
+
+class MNA(object):
     """This class performs modified nodal analysis (MNA) on a netlist of
     components.  There are several variants:
-    
+
     1. DC analysis if all the independent sources are DC.  The .V and .I
     methods return DC expressions with the dc assumption set.
 
@@ -56,36 +57,18 @@ class MNAMixin(object):
 
     5. Noise analysis.
 
-    It is assumed that the use of this class uses superposition to
-    solve problems with mixed independent sources, such as DC and AC.
+    Note, it is assumed that the user of this class uses superposition
+    to solve problems with mixed independent sources, such as DC and
+    AC.
 
     """
 
-    def _invalidate(self):
-        for attr in ('_A', '_Vdict', '_Idict'):
-            if hasattr(self, attr):
-                delattr(self, attr)
+    def __init__(self, cct):
 
-    def _node_index(self, node):
-        """Return node index; ground is -1"""
-        return self.node_list.index(self.node_map[node]) - 1
+        self.cct = cct
+        self.kind = cct.kind
 
-    def _branch_index(self, cpt_name):
-
-        try:
-            index = self.unknown_branch_currents.index(cpt_name)
-            return index
-        except ValueError:
-            raise ValueError('Unknown component name %s for branch current' % cpt_name)
-
-    def _analyse(self):
-        """Analyse network."""
-
-        if hasattr(self, '_A'):
-            return
-
-        # Hack, to indirectly generate element list for network.
-        if self.elements == {}:
+        if cct.elements == {}:
             raise ValueError('No elements to analyse')
 
         # TODO: think this out.  When a circuit is converted
@@ -95,18 +78,18 @@ class MNAMixin(object):
         # into a Thevenin model and renamed.
         if hasattr(self, '_s_model'):
             raise RuntimeError('Cannot analyse s-domain model')
-            
+
         # Determine which branch currents are needed.
         self.unknown_branch_currents = []
 
-        for elt in self.elements.values():
+        for elt in self.cct.elements.values():
             if elt.need_branch_current:
                 self.unknown_branch_currents.append(elt.name)
             if elt.need_extra_branch_current:
                 self.unknown_branch_currents.append(elt.name + 'X')
 
         # Generate stamps.
-        num_nodes = len(self.node_list) - 1
+        num_nodes = len(self.cct.node_list) - 1
         num_branches = len(self.unknown_branch_currents)
 
         self._G = sym.zeros(num_nodes, num_nodes)
@@ -118,8 +101,9 @@ class MNAMixin(object):
         self._Es = sym.zeros(num_branches, 1)
 
         # Iterate over circuit elements and fill in matrices.
-        for elt in self.elements.values():
-            elt._stamp(self)
+        for elt in self.cct.elements.values():
+            if not elt.nosim:
+                elt._stamp(self)
 
         # Augment the admittance matrix to form A matrix.
         self._A = self._G.row_join(self._B).col_join(self._C.row_join(self._D))
@@ -127,41 +111,68 @@ class MNAMixin(object):
         # to form Z vector.
         self._Z = self._Is.col_join(self._Es)
 
+
+    def _invalidate(self):
+        for attr in ('_A', '_Vdict', '_Idict'):
+            if hasattr(self, attr):
+                delattr(self, attr)
+
+    def _cpt_node_indexes(self, cpt):
+
+        return [self._node_index(n) for n in cpt.nodenames]
+
+    def _cpt_branch_index(self, cpt):
+
+        return self._branch_index(cpt.name)
+
+    def _node_index(self, node):
+        """Return node index; ground is -1"""
+        return self.cct.node_list.index(self.cct.node_map[node]) - 1
+
+    def _branch_index(self, cpt_name):
+
+        try:
+            index = self.unknown_branch_currents.index(cpt_name)
+            return index
+        except ValueError:
+            raise ValueError('Unknown component name %s for branch current' % cpt_name)
+
     def _failure_reasons(self):
 
         message = 'The MNA A matrix is not invertible for %s analysis:\n' % self.kind
 
         reasons = []
-        
-        if self.kind == 'dc':
+
+        cct = self.cct
+
+        if cct.kind == 'dc':
             reasons.append('Check there is a DC path between all nodes.')
-        if self.transformers != []:
+        if cct.transformers != []:
             reasons.append('Check secondary of transformer is referenced to ground.')
-        if len(self.capacitors) > 1:
+        if len(cct.capacitors) > 1:
             reasons.append('Check capacitors are not in series.')
-        if self.voltage_sources != []:
+        if cct.voltage_sources != []:
             reasons.append('Check voltage source is not short-circuited.')
-        if self.current_sources != []:
+        if cct.current_sources != []:
             reasons.append('Check current source is not open-circuited.')
 
         return message + '    ' + '\n    '.join(reasons)
-        
+
     def _solve(self):
         """Solve network."""
-        
+
         if hasattr(self, '_Vdict'):
             return
-        self._analyse()
 
-        if '0' not in self.node_map:
+        if '0' not in self.cct.node_map:
             raise RuntimeError('Cannot solve: nothing connected to ground node 0')
-        
+
         # Solve for the nodal voltages
         try:
             # The default method, Gaussian elimination, is the fastest
             # but hangs on some matrices with sympy-1.6.1
             # Comparative times for the testsuites are:
-            # GE 66, ADJ 73, LU 76. 
+            # GE 66, ADJ 73, LU 76.
             Ainv = matrix_inverse(self._A)
         except ValueError:
             message = self._failure_reasons()
@@ -169,13 +180,13 @@ class MNAMixin(object):
 
         results = symsimplify(Ainv * self._Z)
 
-        results = results.subs(self.context.symbols)
+        results = results.subs(self.cct.context.symbols)
 
         branchdict = {}
-        for elt in self.elements.values():
+        for elt in self.cct.elements.values():
             if elt.type == 'K' or elt.ignore:
                 continue
-            n1, n2 = self.node_map[elt.nodenames[0]], self.node_map[elt.nodenames[1]]
+            n1, n2 = self.cct.node_map[elt.nodenames[0]], self.cct.node_map[elt.nodenames[1]]
             branchdict[elt.name] = (n1, n2)
 
         vtype = Vtype(self.kind)
@@ -184,38 +195,38 @@ class MNAMixin(object):
         if vtype.is_phasor_domain:
             assumptions.set('omega', self.kind)
         elif self.kind in ('s', 'ivp'):
-            assumptions.set('ac', self.is_ac)
-            assumptions.set('dc', self.is_dc)
-            assumptions.set('causal', self.is_causal)            
+            assumptions.set('ac', self.cct.is_ac)
+            assumptions.set('dc', self.cct.is_dc)
+            assumptions.set('causal', self.cct.is_causal)
         elif isinstance(self.kind, str) and self.kind[0] == 'n':
             assumptions.set('nid', self.kind)
-       
+
         # Create dictionary of node voltages
         self._Vdict = Nodedict()
         self._Vdict['0'] = vtype(0, **assumptions)
-        for n in self.nodes:
+        for n in self.cct.nodes:
             index = self._node_index(n)
             if index >= 0:
                 self._Vdict[n] = vtype(results[index], **assumptions).simplify()
             else:
                 self._Vdict[n] = vtype(0, **assumptions)
 
-        num_nodes = len(self.node_list) - 1
+        num_nodes = len(self.cct.node_list) - 1
 
         # Create dictionary of branch currents through elements
         self._Idict = Branchdict()
         for m, key in enumerate(self.unknown_branch_currents):
             I = results[m + num_nodes]
-            if key in self.elements and self.elements[key].is_source:
+            if key in self.cct.elements and self.cct.elements[key].is_source:
                 I = -I
             self._Idict[key] = itype(I, **assumptions).simplify()
 
         # Calculate the branch currents.  These should be lazily
         # evaluated as required.
-        for elt in self.elements.values():
+        for elt in self.cct.elements.values():
             if elt.type in ('R', 'NR', 'C'):
-                n1 = self.node_map[elt.nodenames[0]]
-                n2 = self.node_map[elt.nodenames[1]]                
+                n1 = self.cct.node_map[elt.nodenames[0]]
+                n2 = self.cct.node_map[elt.nodenames[1]]
                 V1, V2 = self._Vdict[n1], self._Vdict[n2]
                 I = (V1.expr - V2.expr - elt.V0.expr) / elt.Z.expr
                 self._Idict[elt.name] = itype(I, **assumptions).simplify()
@@ -226,24 +237,56 @@ class MNAMixin(object):
     def A(self):
         """Return A matrix for MNA"""
 
-        self._analyse()
         return Matrix(self._A)
 
     @property
-    def ZV(self):
+    def B(self):
+        """Return B matrix for MNA"""
+
+        return Matrix(self._B)
+
+    @property
+    def C(self):
+        """Return C matrix for MNA"""
+
+        return Matrix(self._C)
+
+    @property
+    def D(self):
+        """Return D matrix for MNA"""
+
+        return Matrix(self._D)
+
+    @property
+    def G(self):
+        """Return G matrix for MNA"""
+
+        return Matrix(self._G)
+
+    @property
+    def Z(self):
         """Return Z vector for MNA"""
 
-        self._analyse()
         return Vector(self._Z)
+
+    @property
+    def E(self):
+        """Return E vector for MNA"""
+
+        return Vector(self._Es)
+
+    @property
+    def I(self):
+        """Return I vector for MNA"""
+
+        return Vector(self._Is)
 
     @property
     def X(self):
         """Return X vector (of unknowns) for MNA"""
 
-        self._analyse()
-        
-        V = [self.Vname('Vn%s' % node) for node in self.node_list[1:]]
-        I = [self.Iname('I%s' % branch) for branch in self.unknown_branch_currents]
+        V = [self.cct.Vname('Vn%s' % node) for node in self.cct.node_list[1:]]
+        I = [self.cct.Iname('I%s' % branch) for branch in self.unknown_branch_currents]
         return Vector(V + I)
 
     @property
@@ -273,18 +316,15 @@ class MNAMixin(object):
 
         If `invert` is True, evaluate the matrix inverse."""
 
-        self._analyse()
-        
-        sys = SystemEquations(self._A, self._Z, self.X)        
-        return sys.format(form, invert)        
+        sys = SystemEquations(self._A, self._Z, self.X)
+        return sys.format(form, invert)
 
     def equations(self, inverse=False):
         """System of equations used to find the unknowns.
 
         If inverse is True, evaluate the matrix inverse.
 
-        This is for compatibility and is deprecated.  Use 
+        This is for compatibility and is deprecated.  Use
         matrix_equations instead."""
 
         return self.matrix_equations(invert=inverse)
-    

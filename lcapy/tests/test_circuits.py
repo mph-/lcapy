@@ -48,8 +48,8 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.C1.Y, admittance('s * C1'), "Y incorrect")
         self.assertEqual(a.C1.G, 0, "G incorrect")
         # Use ac to force jomega form.
-        self.assertEqual(a.ac().C1.B, admittance('-omega * C1'), "B incorrect")        
-        
+        self.assertEqual(a.ac().C1.B, admittance('-omega * C1'), "B incorrect")
+
 
     def test_VRC1(self):
         """Check VRC circuit
@@ -183,7 +183,7 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual2(a.R2.V, V(10).Voc, "Incorrect voltage")
 
-        
+
     def test_CCVS2(self):
         """Check CCVS
 
@@ -194,14 +194,14 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(t.V, 0, "Incorrect Thevenin voltage")
         self.assertEqual(t.Z, impedance(-4), "Incorrect Thevenin impedance")
         self.assertEqual(a.H1.Voc, 0, "Incorrect cpt voltage")
-        self.assertEqual(a.H1.Z, 0, "Incorrect cpt impedance")         
+        self.assertEqual(a.H1.Z, 0, "Incorrect cpt impedance")
 
 
     def test_V1(self):
         """Test V1"""
 
         a = Circuit()
-        a.add('V1 1 0 10') 
+        a.add('V1 1 0 10')
 
         self.assertEqual(a.V1.V.dc, voltage(10), "Incorrect voltage")
 
@@ -233,11 +233,11 @@ class LcapyTester(unittest.TestCase):
         a.add('R1 1 2')
         a.add('L1 2 0 L1 {(V1 + 1) / R1}')
         # This tests if symbols are converted to the defined ones.
-        self.assertEqual2(a.L1.v, V(0).Voc.s.inverse_laplace(), 
-                          "Incorrect time domain voltage")        
+        self.assertEqual2(a.L1.v, V(0).Voc.s.inverse_laplace(),
+                          "Incorrect time domain voltage")
         v = LaplaceDomainVoltage('(V1+1)/s', dc=False).inverse_laplace()
-        self.assertEqual2(a.R1.v, v, 
-                          "Incorrect time domain voltage")        
+        self.assertEqual2(a.R1.v, v,
+                          "Incorrect time domain voltage")
         self.assertEqual(a.is_ivp, True, "Initial value problem incorrect")
         self.assertEqual(a.is_dc, False, "DC incorrect")
         self.assertEqual(a.is_ac, False, "AC incorrect")
@@ -287,12 +287,12 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(H, 1 / (2 * s + 1), "Incorrect transfer function")
         h = H.inverse_laplace()
         self.assertEqual2(h, exp(-t / 2) * Heaviside(t) / 2,
-                          "Incorrect impulse response")        
+                          "Incorrect impulse response")
         H1 = a.transfer((1, 0), (2, 0))
         self.assertEqual2(H1, H, "Incorrect transfer function")
         H2 = a.transfer('R1', 'C1')
         self.assertEqual2(H2, H, "Incorrect transfer function")
-        
+
 
     def test_VRC2(self):
         """Check VRC circuit with arbitrary s-domain source
@@ -300,15 +300,15 @@ class LcapyTester(unittest.TestCase):
         """
 
         a = Circuit()
-        a.add('V1 1 0 {V(s)}') 
-        a.add('R1 1 2') 
-        a.add('C1 2 0 C1 0') 
+        a.add('V1 1 0 {V(s)}')
+        a.add('R1 1 2')
+        a.add('C1 2 0 C1 0')
         H = a[2].V.s / a[1].V.s
 
         self.assertEqual2(H, 1 / (s * 'R1' * 'C1' + 1),  "Incorrect ratio")
-    
+
     def test_causal1(self):
-        """Test VRL circuit causality"""                
+        """Test VRL circuit causality"""
 
         a = Circuit()
         a.add('V1 1 0 {4 + 2 * u(t)}; down')
@@ -338,7 +338,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.V1.i, TimeDomainCurrent('5*cos(t)'), "V1 current incorrect")
         self.assertEqual(a.R1.i, TimeDomainCurrent('5*cos(t)'), "R1 current incorrect")
 
-        
+
     def test_VRL1_ac2(self):
         """Check VRL circuit at ac for angular frequency 1
 
@@ -355,7 +355,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.is_time_domain, False, "Time domain incorrect")
         self.assertEqual(a.V1.v, TimeDomainVoltage('5*cos(t)'), "V1 voltage incorrect")
         self.assertEqual(a.R1.i, TimeDomainCurrent('(4*sin(t)+3*cos(t))/5'), "R1 current incorrect")
-        
+
 
     def test_VRC_ivp(self):
         """Check VRC IVP"""
@@ -369,7 +369,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.is_ivp, True, "Initial value problem incorrect")
         self.assertEqual(a.R.I, a.C.I, "R + C current different")
         self.assertEqual(a.V.I, a.C.I, "V + C current different")
-        self.assertEqual(a.V.V,  a.R.V + a.C.V, "KVL fail")        
+        self.assertEqual(a.V.V,  a.R.V + a.C.V, "KVL fail")
 
         a = Circuit("""
         V 1 0 dc; down
@@ -395,7 +395,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.is_ivp, True, "Initial value problem incorrect")
         self.assertEqual(a.R.I, a.L.I, "R + L current different")
         self.assertEqual(a.V.I, a.L.I, "V + L current different")
-        self.assertEqual(a.V.V,  a.R.V + a.L.V, "KVL fail")        
+        self.assertEqual(a.V.V,  a.R.V + a.L.V, "KVL fail")
 
         a = Circuit("""
         V 1 0 dc; down
@@ -406,7 +406,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.is_ivp, True, "Initial value problem incorrect")
         self.assertEqual(a.R.I, a.L.I, "R + L current different")
         self.assertEqual(a.V.I, a.L.I, "V + L current different")
-        self.assertEqual(a.V.V,  a.R.V + a.L.V, "KVL fail")                        
+        self.assertEqual(a.V.V,  a.R.V + a.L.V, "KVL fail")
 
     def test_RL_ivp(self):
         """Check RL IVP"""
@@ -443,7 +443,7 @@ class LcapyTester(unittest.TestCase):
         L1 2 0""")
 
         self.assertEqual(a.ac().R1.V, 0, "AC model incorrect")
-        self.assertEqual(a.dc().R1.V, 0, "DC model incorrect")                
+        self.assertEqual(a.dc().R1.V, 0, "DC model incorrect")
 
 
     def test_IV_series(self):
@@ -466,8 +466,8 @@ class LcapyTester(unittest.TestCase):
         R 1 0""")
 
         self.assertEqual(a.R.v, voltage('V'), "R voltage incorrect")
-        self.assertEqual(a.R.i, current('V / R'), "R current incorrect")        
-        
+        self.assertEqual(a.R.i, current('V / R'), "R current incorrect")
+
     def test_oneport(self):
         """Test oneport"""
 
@@ -507,7 +507,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(th.Isc, no.Isc, "Isc incorrect")
         self.assertEqual(th.Z, no.Z, "Z incorrect")
         self.assertEqual(th.Y, no.Y, "Y incorrect")
-        
+
     def test_directive(self):
         """Test directive"""
 
@@ -517,7 +517,7 @@ class LcapyTester(unittest.TestCase):
 
         R 2 0 1""")
 
-        self.assertEqual(a.R.i, current(10), "i incorrect")        
+        self.assertEqual(a.R.i, current(10), "i incorrect")
 
     def test_K(self):
         """Test mutual inductances"""
@@ -537,7 +537,7 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(a.R1.v, voltage('V1 * cos(omega_0 * t) * abs(omega_0) / omega_0'),
                          "coupling incorrect")
-        
+
 
     def test_kill(self):
         """Test kill"""
@@ -560,14 +560,14 @@ class LcapyTester(unittest.TestCase):
         d = a.kill_except('V1')
 
         self.assertEqual(d.R.V, voltage(6), "incorrect voltage with all killed except V1")
-        
-        
+
+
     def test_TF(self):
-        """Test TF"""                        
+        """Test TF"""
 
         a = Circuit("""
         TF 2 0 1 0 k
-        R 2 0""")        
+        R 2 0""")
 
         self.assertEqual(a.impedance(1, 0), impedance('R / k**2'), "incorrect impedance")
 
@@ -590,14 +590,14 @@ class LcapyTester(unittest.TestCase):
 
         # TODO, FIXME without passing matrix elements through expr
         self.assertEqual(expr(A[0, 0]), expr('(R2 + R3) / R2'), "A11")
-        self.assertEqual(expr(A[0, 1]), expr('R1 + R1 * R3 / R2 + R3'), "A12")                
+        self.assertEqual(expr(A[0, 1]), expr('R1 + R1 * R3 / R2 + R3'), "A12")
         self.assertEqual(expr(A[1, 0]), expr('1 / R2'), "A21")
         self.assertEqual(expr(A[1, 1]), expr('(R1 + R2) / R2'), "A22")
 
         Z = a.Zparams(3, 0, 1, 0)
 
         self.assertEqual(expr(Z[0, 0]), expr('R2 + R3'), "Z11")
-        self.assertEqual(expr(Z[0, 1]), expr('R2'), "Z12")                
+        self.assertEqual(expr(Z[0, 1]), expr('R2'), "Z12")
         self.assertEqual(expr(Z[1, 0]), expr('R2'), "Z21")
         self.assertEqual(expr(Z[1, 1]), expr('R1 + R2'), "Z22")
 
@@ -612,13 +612,13 @@ class LcapyTester(unittest.TestCase):
         R4 3 4
         R5 4 0""")
 
-        self.assertEqual(a.in_series('R1'), set(('V', 'R1', 'R2')), "in_series(R1)")
+        self.assertEqual(a.in_series('R1'), set(('V', 'R2')), "in_series(R1)")
         self.assertEqual(a.in_series('R3'), set(), "in_series(R3)")
-        self.assertEqual(a.in_series('R4'), set(('R4', 'R5')), "in_series(R4)")                
+        self.assertEqual(a.in_series('R4'), set(('R5',)), "in_series(R4)")
 
     def test_in_parallel(self):
-        """Test in_parallel"""        
-        
+        """Test in_parallel"""
+
         a = Circuit("""
         V 1 0 dc
         R1 1 0
@@ -627,9 +627,9 @@ class LcapyTester(unittest.TestCase):
         R4 2 0
         R5 2 0""")
 
-        self.assertEqual(a.in_parallel('R1'), set(('V', 'R1', 'R2')), "in_parallel(R1)")
+        self.assertEqual(a.in_parallel('R1'), set(('V', 'R2')), "in_parallel(R1)")
         self.assertEqual(a.in_parallel('R3'), set(), "in_parallel(R3)")
-        self.assertEqual(a.in_parallel('R4'), set(('R4', 'R5')), "in_parallel(R4)")                        
+        self.assertEqual(a.in_parallel('R4'), set(('R5', )), "in_parallel(R4)")
 
     def test_simplify(self):
         """Test simplify"""
@@ -648,8 +648,8 @@ class LcapyTester(unittest.TestCase):
 
         b = a.simplify()
 
-        self.assertEqual(b.impedance(1, 2), a.impedance(1, 2), "simplify parallel")        
-        
+        self.assertEqual(b.impedance(1, 2), a.impedance(1, 2), "simplify parallel")
+
     def test_VRL1_super(self):
         """Check VRL circuit
 
@@ -670,7 +670,7 @@ class LcapyTester(unittest.TestCase):
         R2 1 3""")
 
         self.assertEqual(a.super_nodes, [['1', '2']], "super_nodes")
-        
+
     def test_transfer(self):
         """Test transfer"""
 
@@ -683,7 +683,7 @@ class LcapyTester(unittest.TestCase):
         H2 = a.transfer(2, 1, 1, 0)
 
         self.assertEqual(H1, H2, "transfer cpt/nodes")
-        self.assertEqual(H1, -1, "transfer")        
+        self.assertEqual(H1, -1, "transfer")
 
     def test_replace(self):
         """Test replace"""
@@ -694,8 +694,8 @@ class LcapyTester(unittest.TestCase):
         R 1 0""")
 
         b = a.replace('V', 'W')
-        c = a.replace('V', 'W 2 0')        
-        
+        c = a.replace('V', 'W 2 0')
+
         self.assertEqual(a.has('V'), True, "has V")
         self.assertEqual(b.has('V'), False, "has V")
         self.assertEqual(c.has('V'), False, "has V")
@@ -706,14 +706,14 @@ class LcapyTester(unittest.TestCase):
         a = Circuit("""
         V 2 0
         L 2 1
-        R 1 0""")        
-        
+        R 1 0""")
+
         self.assertEqual(a.is_connected, True, "is_connected")
 
         a.add("R2 3 4")
 
-        self.assertEqual(a.is_connected, False, "not is_connected")        
-        
+        self.assertEqual(a.is_connected, False, "not is_connected")
+
     def test_netlist_subs(self):
         """Test netlist subs"""
 
@@ -722,7 +722,7 @@ class LcapyTester(unittest.TestCase):
 
         b = a.subs({'V1': f})
 
-        self.assertEqual(b.V1.Voc, expr(f), "netlist subs")                
+        self.assertEqual(b.V1.Voc, expr(f), "netlist subs")
 
     def test_cpt(self):
         """Test cpt"""
@@ -734,19 +734,19 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(a.V1.is_source, True, "V is_source")
         self.assertEqual(a.V1.is_dependent_source, False, "V is_dependent_source")
-        self.assertEqual(a.V1.is_independent_source, True, "V is_independent_source")         
+        self.assertEqual(a.V1.is_independent_source, True, "V is_independent_source")
         self.assertEqual(a.V1.is_resistor, False, "V is_resistor")
 
         self.assertEqual(a.E1.is_source, True, "E is_source")
         self.assertEqual(a.E1.is_dependent_source, True, "E is_dependent_source")
-        self.assertEqual(a.E1.is_independent_source, False, "E is_independent_source")                 
+        self.assertEqual(a.E1.is_independent_source, False, "E is_independent_source")
         self.assertEqual(a.E1.is_resistor, False, "E is_resistor")
 
         self.assertEqual(a.R1.is_source, False, "E is_source")
         self.assertEqual(a.R1.is_dependent_source, False, "R is_dependent_source")
-        self.assertEqual(a.R1.is_independent_source, False, "R is_independent_source")                         
-        self.assertEqual(a.R1.is_resistor, True, "E is_resistor")                
-        
+        self.assertEqual(a.R1.is_independent_source, False, "R is_independent_source")
+        self.assertEqual(a.R1.is_resistor, True, "E is_resistor")
+
 
     def test_TP(self):
         """Test TP"""
@@ -755,9 +755,9 @@ class LcapyTester(unittest.TestCase):
         b = n.Bmodel
         c = b.circuit()
         c.add('V 1 0 15; down')
-        self.assertEqual(c[3].V, 10, "Bmodel")                        
-        
+        self.assertEqual(c[3].V, 10, "Bmodel")
+
         d = n.Ymodel
         e = d.circuit()
         e.add('V 1 0 15; down')
-        self.assertEqual(e[3].V, 10, "Ymodel")                                
+        self.assertEqual(e[3].V, 10, "Ymodel")

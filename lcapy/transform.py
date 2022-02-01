@@ -1,27 +1,28 @@
 """This module performs transformations between domains.
 
-Copyright 2018--2021 Michael Hayes, UCECE
+Copyright 2018--2022 Michael Hayes, UCECE
 
 """
 
 from .sym import sympify, pi
-from .dsym import dt
-from .symbols import f, s, t, omega, j, jw, jw0, Omega, F
+from .sym import dt
+from .symbols import f, s, t, omega, j, jw, jw0, Omega, F, k, n, z
+from .symbols import domain_vars, domain_var_ids
 from .nexpr import n
 from .expr import expr as expr1
 from .expr import Expr
 
 
 def transform(expr, arg, **assumptions):
-    """If arg is n, f, s, t, F, omega, Omega, or jw perform domain
-    transformation, otherwise perform substitution.
+    """If arg is a domain variable perform domain transformation,
+    otherwise perform substitution.
 
     Note (1 / s)(omega) will fail since 1 / s is assumed not to be
     causal and so the Fourier transform is unknown.  However,
     impedance(1 / s)(omega) will work since an impedance is assumed to
-    be causal.  Alternatively, use (1 / s)(omega, causal=True). 
+    be causal.  Alternatively, use (1 / s)(omega, causal=True).
 
-    Transforming from s->jomega is fast since it just requires 
+    Transforming from s->jomega is fast since it just requires
     a substitution of s with jomega.
 
     Transforming from s->omega, s->Omega, s->f, or s->F can be slow since
@@ -40,30 +41,33 @@ def transform(expr, arg, **assumptions):
         return expr.subs(arg)
 
     # Handle expr(t), expr(s), expr(f), expr(omega), expr(jomega), expr(3j)
-    if arg is t:
-        return expr.time(**assumptions)
-    elif arg is s:
-        return expr.laplace(**assumptions)
-    elif arg is f:
-        return expr.fourier(**assumptions)
-    elif arg is omega:
-        return expr.angular_fourier(**assumptions)
-    elif arg is Omega:
-        return expr.norm_angular_fourier(**assumptions)
-    elif arg is F:
-        return expr.norm_fourier(**assumptions)        
-    elif arg.has(j):
-        return expr.phasor(omega=arg / j, **assumptions)    
-    elif arg is n and expr.is_fourier_domain:
-        return expr.IDTFT(**assumptions)
-    elif arg is n and expr.is_angular_fourier_domain:
-        return expr.subs(2 * pi * f).IDTFT(**assumptions)
-    elif arg is n and expr.is_norm_angular_fourier_domain:
-        return expr.subs(2 * pi * f * dt).IDTFT(**assumptions)        
-    
+    try:
+        if arg is t:
+            return expr.time(**assumptions)
+        elif arg is s:
+            return expr.laplace(**assumptions)
+        elif arg is f:
+            return expr.fourier(**assumptions)
+        elif arg is omega:
+            return expr.angular_fourier(**assumptions)
+        elif arg is Omega:
+            return expr.norm_angular_fourier(**assumptions)
+        elif arg is F:
+            return expr.norm_fourier(**assumptions)
+        elif arg.has(j):
+            return expr.phasor(omega=arg / j, **assumptions)
+        elif arg is n:
+            return expr.discrete_time(**assumptions)
+        elif arg is k:
+            return expr.discrete_frequency(**assumptions)
+        elif arg is z:
+            return expr.zdomain(**assumptions)
+    except AttributeError:
+        raise AttributeError('Transform of %s domain to %s domain not implemented' % (expr.domain, arg.domain))
+
     # Handle expr(texpr), expr(sexpr), expr(fexpr), expr(omegaexpr).
     # For example, expr(2 * f).
-    result = None 
+    result = None
     if isinstance(arg, TimeDomainExpression):
         result = expr.time(**assumptions)
     elif isinstance(arg, LaplaceDomainExpression):
@@ -71,13 +75,19 @@ def transform(expr, arg, **assumptions):
     elif isinstance(arg, FourierDomainExpression):
         result = expr.fourier(**assumptions)
     elif isinstance(arg, NormFourierDomainExpression):
-        result = expr.norm_fourier(**assumptions)                        
+        result = expr.norm_fourier(**assumptions)
     elif isinstance(arg, AngularFourierDomainExpression):
         result = expr.angular_fourier(**assumptions)
     elif isinstance(arg, NormAngularFourierDomainExpression):
         result = expr.norm_angular_fourier(**assumptions)
     elif arg.has(j):
         result = expr.phasor(omega=arg / j, **assumptions)
+    elif isinstance(arg, DiscreteTimeDomainExpression):
+        result = expr.discrete_time(**assumptions)
+    elif isinstance(arg, DiscreteFourierDomainExpression):
+        result = expr.discrete_frequency(**assumptions)
+    elif isinstance(arg, ZDomainExpression):
+        result = expr.zdomain(**assumptions)
     elif arg.is_constant:
         if not isinstance(expr, Superposition):
             result = expr.time(**assumptions)
@@ -91,29 +101,28 @@ def transform(expr, arg, **assumptions):
 
 def call(expr, arg, **assumptions):
 
-    if id(arg) in (id(n), id(f), id(s), id(t), id(omega), id(jw), id(jw0)):
-        return expr.transform(arg, **assumptions)
+    from numpy import ndarray, array
 
-    if arg in (n, f, s, t, omega, F, Omega, jw, jw0):
-        return expr.transform(arg, **assumptions)
+    if isinstance(arg, (tuple, list)):
+        return [expr._subs1(expr.var, arg1) for arg1 in arg]
 
-    try:
-        # arg might be an int, float, complex, etc.
-        if arg.has(j):
-            return expr.transform(arg, **assumptions)
-    except:
-        pass
-        
-    return expr.subs(arg)
+    elif isinstance(arg, ndarray):
+        return array([expr._subs1(expr.var, arg1) for arg1 in arg])
+
+    arg = expr1(arg)
+    if arg.is_constant:
+        return expr.subs(arg)
+
+    return expr.transform(arg, **assumptions)
 
 
 def select(expr, kind):
 
     if not isinstance(kind, str):
-        return expr.subs(j * kind)                
+        return expr.subs(j * kind)
 
     # If kind is an expr, then will add 'dc', 'time', etc. as symbols.
-    
+
     if kind == 't':
         return expr.time()
     elif kind in ('dc', 'time'):
@@ -127,19 +136,22 @@ def select(expr, kind):
     elif kind == 'Omega':
         return expr.norm_angular_fourier()
     elif kind == 'F':
-        return expr.norm_fourier()        
+        return expr.norm_fourier()
     elif isinstance(kind, str) and kind.startswith('n'):
         return expr.angular_fourier()
     else:
         raise RuntimeError('unknown kind')
 
 
-from .fexpr import FourierDomainExpression    
+from .fexpr import FourierDomainExpression
 from .sexpr import LaplaceDomainExpression
 from .texpr import TimeDomainExpression
 from .omegaexpr import AngularFourierDomainExpression
 from .normfexpr import NormFourierDomainExpression
 from .normomegaexpr import NormAngularFourierDomainExpression
+from .nexpr import DiscreteTimeDomainExpression
+from .kexpr import DiscreteFourierDomainExpression
+from .zexpr import ZDomainExpression
 from .super import Superposition
 from .current import current
 from .voltage import voltage

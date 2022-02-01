@@ -12,15 +12,15 @@ Lcapy is a Python package for symbolic linear circuit analysis and signal-proces
 .. image:: examples/schematics/lpf1-buffer-loaded2.png
    :width: 11cm
 
-_ 
+_
    >>> H = 5 * (s**2 + 1) / (s**2 + 5*s + 4)
-   >>> H(t)   
-                -t       -4⋅t           
-            10⋅ℯ     85⋅ℯ               
+   >>> H(t)
+                -t       -4⋅t
+            10⋅ℯ     85⋅ℯ
    5⋅δ(t) + ────── - ────────  for t ≥ 0
-              3         3               
+              3         3
 
-   
+
 Contents:
 =========
 
@@ -30,23 +30,24 @@ Contents:
    install.rst
    overview.rst
    expressions.rst
-   discretetime.rst                         
+   discretetime.rst
    circuits.rst
    networks.rst
    netlists.rst
    systems.rst
    schematics.rst
    tutorials.rst
-   novice.rst              
+   novice.rst
    latex.rst
    transforms.rst
    config.rst
    applications.rst
-   problems.rst                          
+   problems.rst
    internals.rst
    releases.rst
+   development.rst
    modules.rst
-   about.rst   
+   about.rst
 
 Indices and tables
 ==================
@@ -54,4 +55,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-

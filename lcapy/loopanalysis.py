@@ -39,11 +39,16 @@ class LoopAnalysis(object):
     >>> la.mesh_equations().pprint()
 
     """
+
+    @classmethod
+    def from_circuit(cls, cct):
+
+        return cls(cct)
     
     def __init__(self, cct):
 
         self.cct = cct
-        self.cg = CircuitGraph(cct)
+        self.cg = CircuitGraph.from_circuit(cct)
 
         self.kind = self.cct.kind
         if self.kind == 'super':

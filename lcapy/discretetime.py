@@ -14,7 +14,7 @@ from .sym import sympify
 from .nexpr import nexpr, n
 from .kexpr import kexpr, k
 from .zexpr import zexpr, z
-from .dsym import nsym, ksym, zsym, dt, df
+from .sym import nsym, ksym, zsym, dt, df
 
 from .transform import transform as transform1
 from .transform import call as call1

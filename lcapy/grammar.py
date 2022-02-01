@@ -1,7 +1,7 @@
 """
 This module defines a grammar for SPICE-like netlists.
 
-Copyright 2015--2021 Michael Hayes, UCECE
+Copyright 2015--2022 Michael Hayes, UCECE
 """
 
 # SPICE also considers = a delimiter.
@@ -69,7 +69,7 @@ O: Oname Np Np; Open circuit
 P: Pname Np Np; Port
 Q: Qname Nc Nb Ne [Value]; NPN transistor
 Qnpn: Qname Nc Nb Ne npn [Value]; NPN transistor
-Qpnp: Qname Nc Nb Ne pnp [Value]; PNP transistor 
+Qpnp: Qname Nc Nb Ne pnp [Value]; PNP transistor
 r: rname Np Nm [Value]; Damper
 R: Rname Np Nm [Value]; Resistor
 RV: RVname Np Nm No [Value] [Value]; Potentiometer
@@ -90,7 +90,8 @@ TF: TFname Np Nm Ncp Ncm [Value]; Ideal transformer (works to DC!)
 TFcore: TFname Np Nm Ncp Ncm core [Value]; Transformer with core (works to DC!)
 TFtap: TFname Np Nm Ncp Ncm tap Nt Nt [Value]; Tapped transformer (works to DC!)
 TFtapcore: TFname Np Nm Ncp Ncm tapcore Nt Nt [Value]; Tapped transformer with core (works to DC!)
-TL: TLname Np Nm Ncp Ncm [Value]; Transmission line
+TL: TLname Np Nm Ncp Ncm [Z0] [Gamma] [Length]; Transmission line
+TLlossless: TLname Np Nm Ncp Ncm lossless [Z0] [Gamma] [Length]; Lossless transmission line
 TP: TPname Np Nm Ncp Ncm; Generic two-port
 TPA: TPname Np Nm Ncp Ncm A A11 A12 A21 A22 [V1] [I1]; A-parameter two-port
 TPB: TPname Np Nm Ncp Ncm B B11 B12 B21 B22 [V2] [I2]; B-parameter two-port
@@ -169,6 +170,7 @@ nc: keyword;
 spdt: keyword;
 tap: keyword;
 tapcore: keyword;
+lossless: keyword;
 opamp: keyword;
 inamp: keyword;
 isoamp: keyword;
@@ -254,9 +256,12 @@ Value: value; Value
 IC: value; Initial condition
 NID: value; Noise identifier
 Power: value; Power
-Lname1: name; Inductor1 name 
-Lname2: name; Inductor2 name 
-Vcontrol: name; Control voltage name 
+Lname1: name; Inductor1 name
+Lname2: name; Inductor2 name
+Vcontrol: name; Control voltage name
+Z0: value; Characteristic impedance
+Gamma: value; Propagation constant
+Length: value; Transmission line length
 Ac: value; Common-mode gain
 A11: value; A11
 A12: value; A12

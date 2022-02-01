@@ -329,7 +329,7 @@ class LcapyTester(unittest.TestCase):
 
     def test_transforms(self):
 
-        A = AMatrix.generic()        
+        A = AMatrix.generic()
         self.assertEqual(A.Aparams.Aparams.simplify(), A, "A.Aparams.Aparams")
         self.assertEqual(A.Bparams.Aparams.simplify(), A, "A.Bparams.Aparams")
         self.assertEqual(A.Gparams.Aparams.simplify(), A, "A.Gparams.Aparams")
@@ -339,7 +339,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(A.Yparams.Aparams.simplify(), A, "A.Yparams.Aparams")
         self.assertEqual(A.Zparams.Aparams.simplify(), A, "A.Zparams.Aparams")
 
-        Z = ZMatrix.generic()            
+        Z = ZMatrix.generic()
         self.assertEqual(Z.Aparams.Zparams.simplify(), Z, "Z.Aparams.Zparams")
         self.assertEqual(Z.Bparams.Zparams.simplify(), Z, "Z.Bparams.Zparams")
         self.assertEqual(Z.Gparams.Zparams.simplify(), Z, "Z.Gparams.Zparams")
@@ -347,13 +347,31 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(Z.Sparams.Zparams.simplify(), Z, "Z.Sparams.Zparams")
         self.assertEqual(Z.Tparams.Zparams.simplify(), Z, "Z.Tparams.Zparams")
         self.assertEqual(Z.Yparams.Zparams.simplify(), Z, "Z.Yparams.Zparams")
-        self.assertEqual(Z.Zparams.Zparams.simplify(), Z, "Z.Zparams.Zparams")        
-        
-        
+        self.assertEqual(Z.Zparams.Zparams.simplify(), Z, "Z.Zparams.Zparams")
+
     def test_twoport_print(self):
-        
+
         a = Series(C(1)).chain(Shunt(L(2))).chain(Series(R(3)))
         self.assertEqual(a.pretty(), 'Chain(Chain(Series(C(1)), Shunt(L(2))), Series(R(3)))', 'pretty')
         self.assertEqual(str(a), 'Chain(Chain(Series(C(1)), Shunt(L(2))), Series(R(3)))', 'str')
         self.assertEqual(repr(a), 'Chain(Chain(Series(C(1)), Shunt(L(2))), Series(R(3)))', 'repr')
         self.assertEqual(a.latex(), '\\mathrm{Chain}(\\mathrm{Chain}(\\mathrm{Series}(\\mathrm{C}(1)), \\mathrm{Shunt}(\\mathrm{L}(2))), \\mathrm{Series}(\\mathrm{R}(3)))', 'latex')
+
+
+    def test_params(self):
+
+        attrs = ('Z1sc', 'Z1oc', 'Z2sc', 'Z2oc', 'Vgain12', 'Vgain21', 'Igain12', 'Igain21')
+
+        models = ('Aparams', 'Bparams', 'Gparams', 'Hparams', 'Yparams', 'Zparams')
+
+        a = TSection(R(1), R(2), R(3))
+
+        vals = {}
+
+        for attr in attrs:
+            vals[attr] = getattr(a, attr)
+
+        for model in models:
+            params = getattr(a, model)
+            for attr in attrs:
+                self.assertEqual(vals[attr], getattr(params, attr), 'Mismatch for %s.%s' % (model, attr))

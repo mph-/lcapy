@@ -1,15 +1,29 @@
 """This module provides common utility functions.
 
-Copyright 2021 Michael Hayes, UCECE
+Copyright 2021--2022 Michael Hayes, UCECE
 """
 
 import sympy as sym
 
 def factor_const(expr, var):
     """Extract constant factor from expression and return tuple
-    of constant and the rest of the expression."""    
+    of constant and the rest of the expression.
+
+    For example `a * r(var)` returns `a, r(var)`.
+
+    If have a polynomial expression, the leading coefficient is
+    returned as the constant, for example: `2 * s + 4` returns `2, s + 2`.
+
+    """
 
     # Perhaps use expr.as_coeff_Mul() ?
+
+    if expr.is_polynomial():
+        poly = sym.Poly(expr, var)
+        const = poly.LC()
+        if const == 0 or const == 1:
+            return 1, expr
+        return const, expr / const
 
     rest = sym.S.One
     const = sym.S.One
@@ -40,7 +54,7 @@ def term_const(expr, var):
 
 
 def scale_shift(expr, var):
-        
+
     if expr == var:
         return sym.S.One, sym.S.Zero
 
@@ -49,29 +63,53 @@ def scale_shift(expr, var):
         raise ValueError('Expression not a linear function of %s: %s' % (var, expr))
 
     scale = expr.coeff(var, 1)
-    shift = expr.coeff(var, 0)        
+    shift = expr.coeff(var, 0)
 
     return scale, shift
 
 
-def as_N_D(expr, var, monic_denominator=False):
+def as_N_D(expr, var, monic_denominator=False, use_sympy=False):
 
-    N = 1
-    D = 1
+    if use_sympy:
+        return expr.as_numer_denom()
+
     factors = expr.as_ordered_factors()
-    
+
+    numers = []
+    denoms = []
     for factor in factors:
-        a, b = factor.as_numer_denom()
-        N *= a
-        if b.is_polynomial(var):
-            D *= b
+        if factor.is_Function and factor.func == sym.exp:
+            # SymPy treats exp(-s * a) as 1 / exp(s * a)
+            numer = factor
+            denom = sym.S.One
         else:
-            N /= b
-                
+            numer, denom = factor.as_numer_denom()
+        numers.append(numer)
+        denoms.append(denom)
+
+    poly_denom = False
+    for denom in denoms:
+        if denom != 1 and denom.is_polynomial(var):
+            poly_denom = True
+            break
+
+    if not poly_denom:
+        return expr.as_numer_denom()
+
+    N = sym.S.One
+    D = sym.S.One
+
+    for numer, denom in zip(numers, denoms):
+        N *= numer
+        if denom.is_polynomial(var):
+            D *= denom
+        else:
+            N /= denom
+
     N = N.simplify()
 
     if monic_denominator:
-        Dpoly = sym.Poly(D, var)            
+        Dpoly = sym.Poly(D, var)
         LC = Dpoly.LC()
         D = Dpoly.monic().as_expr()
         N = (N / LC).simplify()
@@ -80,7 +118,7 @@ def as_N_D(expr, var, monic_denominator=False):
 
 
 def as_sum_terms(expr, var):
-        
+
     N, D = as_N_D(expr, var)
     N = N.simplify()
 
@@ -88,7 +126,7 @@ def as_sum_terms(expr, var):
 
 
 def as_sum(expr, var):
-        
+
     result = 0
     for term in as_sum_terms(expr, var):
         result += term
@@ -98,29 +136,29 @@ def as_sum(expr, var):
 def merge_common(lists):
     # From www.geeksforgeeks.org
 
-    from collections import defaultdict     
-    
-    neighbours = defaultdict(set) 
-    visited = set() 
-    for each in lists: 
-        for item in each: 
-            neighbours[item].update(each) 
+    from collections import defaultdict
 
-    def comp(node, neighbours=neighbours, visited=visited, visit=visited.add): 
+    neighbours = defaultdict(set)
+    visited = set()
+    for each in lists:
+        for item in each:
+            neighbours[item].update(each)
 
-        nodes = set([node]) 
-        next_node = nodes.pop 
-        while nodes: 
-            node = next_node() 
-            visit(node) 
-            nodes |= neighbours[node] - visited 
+    def comp(node, neighbours=neighbours, visited=visited, visit=visited.add):
+
+        nodes = set([node])
+        next_node = nodes.pop
+        while nodes:
+            node = next_node()
+            visit(node)
+            nodes |= neighbours[node] - visited
             yield node
-            
-    for node in neighbours: 
-        if node not in visited: 
+
+    for node in neighbours:
+        if node not in visited:
             yield sorted(comp(node))
 
-            
+
 def isiterable(arg):
 
     return hasattr(arg, '__iter__')
@@ -148,7 +186,7 @@ def separate_dirac_delta(expr):
             deltas.append(term)
         else:
             rest += term
-            
+
     return rest, deltas
 
 
@@ -165,7 +203,7 @@ def split_dirac_delta(expr):
     rest = 0
 
     # FIXME, DiracDelta needs to be a factor
-    
+
     for term in terms:
         if term.has(sym.DiracDelta):
             if len(term.args) == 1:
@@ -187,7 +225,7 @@ def split_dirac_delta(expr):
             result.append(parts[key])
         else:
             result.append(0)
-            
+
     return result
 
 
@@ -198,7 +236,7 @@ def remove_images(expr, var, dt, m1=0, m2=0):
         m1, m2 = m1
 
     remove_all =  m1 == 0 and m2 == 0
-        
+
     const, expr1 = factor_const(expr, var)
 
     result = sym.S.Zero
@@ -208,11 +246,11 @@ def remove_images(expr, var, dt, m1=0, m2=0):
         for term in expr1.as_ordered_terms():
             result += remove_images(term, var, dt, m1, m2)
         return const * result
-        
+
     if not isinstance(expr1, sym.Sum):
         return expr
 
-    sumsym = expr1.args[1].args[0]    
+    sumsym = expr1.args[1].args[0]
 
     def query(expr):
 
@@ -223,7 +261,7 @@ def remove_images(expr, var, dt, m1=0, m2=0):
             return expr
 
         if not expr.is_polynomial(var) and not expr.as_poly(var).is_linear:
-            return expr        
+            return expr
         expr = expr.expand()
         a = expr.coeff(var, 1)
         b = expr.coeff(var, 0)
@@ -233,8 +271,8 @@ def remove_images(expr, var, dt, m1=0, m2=0):
         if b / a != -sumsym / dt:
             return expr
         return a * var
-    
-    expr1 = expr1.replace(query, value)    
+
+    expr1 = expr1.replace(query, value)
 
     if remove_all:
         return const * expr1.args[0]
@@ -259,7 +297,7 @@ def pair_conjugates(poles_dict):
             pole_single_dict.pop(pole_c, None)
 
             o1 = poles_dict[pole]
-            o2 = poles_dict[pole_c]            
+            o2 = poles_dict[pole_c]
             if o1 == o2:
                 pole_pair_dict[pole, pole_c] = o1
             elif o1 > o2:
@@ -270,3 +308,44 @@ def pair_conjugates(poles_dict):
                 pole_single_dict[pole_c] = o2 - o1
 
     return pole_pair_dict, pole_single_dict
+
+
+def similarity_shift(expr, var):
+    """Rewrite foo(a * t + b) as foo(t) and return a, b."""
+
+    scale = None
+    shift = None
+    fail = False
+
+    for expr1 in sym.preorder_traversal(expr):
+
+        if not expr1.is_Function:
+            continue
+
+        arg = expr1.args[0]
+        if not arg.has(var):
+            continue
+
+        poly = arg.as_poly(var)
+        if poly is None or not poly.is_linear:
+            fail = True
+            break
+
+        scale1 = arg.coeff(var, 1)
+        shift1 = arg.coeff(var, 0)
+
+        if scale is None:
+            scale = scale1
+        if shift is None:
+            shift = shift1
+
+        if scale != scale1 or shift != shift1:
+            fail = True
+            break
+
+    if fail:
+        return expr, 1, 0
+
+    expr2 = expr.replace(var * scale + shift, var)
+
+    return expr2, scale, shift

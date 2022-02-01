@@ -1,7 +1,7 @@
 """This module provides support for the unilateral inverse Laplace
 transform.
 
-Copyright 2021 Michael Hayes, UCECE
+Copyright 2021--2022 Michael Hayes, UCECE
 
 """
 
@@ -9,6 +9,8 @@ from .transformer import UnilateralInverseTransformer
 from .ratfun import Ratfun
 from .sym import simplify, AppliedUndef
 from .utils import factor_const, scale_shift, as_sum_terms
+from .matrix import matrix_inverse
+from warnings import warn
 import sympy as sym
 
 Zero = sym.S.Zero
@@ -20,7 +22,7 @@ __all__ = ('ILT', 'inverse_laplace_transform')
 class InverseLaplaceTransformer(UnilateralInverseTransformer):
 
     name = 'inverse Laplace transform'
-    
+
     def noevaluate(self, expr, s, t):
 
         # Construct Bromwich integral.
@@ -34,7 +36,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
     def key(self, expr, s, t, **kwargs):
         return (expr, s, t,
                 kwargs.get('causal', False),
-                kwargs.get('damped_sin', True),            
+                kwargs.get('damped_sin', True),
                 kwargs.get('damping', None))
 
     def func(self, expr, s, t):
@@ -42,7 +44,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         if not isinstance(expr, AppliedUndef):
             self.error('Expecting function')
 
-        scale, shift = scale_shift(expr.args[0], s)    
+        scale, shift = scale_shift(expr.args[0], s)
 
         # Convert V(s) to v(t), etc.
         name = expr.func.__name__
@@ -51,7 +53,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         result = undef.subs(t, t / scale) / abs(scale)
 
         if shift != 0:
-            result = result * sym.exp(t * shift / scale)    
+            result = result * sym.exp(t * shift / scale)
         return result
 
     def do_damped_sin(self, expr, s, t):
@@ -60,7 +62,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         K = ncoeffs[0] / dcoeffs[0]
 
         ncoeffs = [(c / ncoeffs[0]) for c in ncoeffs]
-        dcoeffs = [(c / dcoeffs[0]) for c in dcoeffs]        
+        dcoeffs = [(c / dcoeffs[0]) for c in dcoeffs]
 
         if len(ncoeffs) > 3 or len(dcoeffs) > 3:
             self.error('Not a second-order response')
@@ -69,7 +71,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         zeta = dcoeffs[1] / (2 * omega0)
 
         if zeta.is_constant() and zeta > 1:
-            print('Warning: expression is overdamped')
+            warn('Expression is overdamped')
 
         sigma1 = (zeta * omega0).simplify()
         omega1 = (omega0 * sym.sqrt(1 - zeta**2)).simplify()
@@ -103,6 +105,9 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
 
     def ratfun(self, expr, s, t, **kwargs):
 
+        if kwargs.pop('pdb', False):
+            import pdb; pdb.set_trace()
+
         sexpr = Ratfun(expr, s)
 
         if kwargs.get('damped_sin', False):
@@ -111,76 +116,62 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             #if False and sexpr.degree == 3 and Ratfun(expr * s).degree == 2:
             #    return self.do_damped_sin3(sexpr, s, t)
 
-        Q, M, D, delay, undef = sexpr.as_QMD()
+        self.debug('Finding QRPO representation')
+
+        damping = kwargs.get('damping', None)
+        Q, R, P, O, delay, undef = sexpr.as_QRPO(damping)
+
         if delay != 0:
             # This will be caught and trigger expansion of the expression.
-            raise ValueError('Unhandled delay %s' % delay)
+            self.error('Unhandled delay %s' % delay)
 
         cresult = Zero
 
         if Q:
-            Qpoly = sym.Poly(Q, s)        
+            Qpoly = sym.Poly(Q, s)
             C = Qpoly.all_coeffs()
             for n, c in enumerate(C):
                 cresult += c * sym.diff(sym.DiracDelta(t), t, len(C) - n - 1)
 
-        expr = M / D
-        for factor in expr.as_ordered_factors():
-            if factor == sym.oo:
-                return Zero, factor
+        if R == []:
+            return cresult, 0
 
-        sexpr = Ratfun(expr, s)
-        poles = sexpr.poles(damping=kwargs.get('damping', None))
+        uresult = 0
+        for m, (p, n, A) in enumerate(zip(P, O, R)):
 
-        polesdict = {}
-        for pole in poles:
-            polesdict[pole.expr] = pole.n
-
-        uresult = Zero
-
-        for pole in poles:
-
-            p = pole.expr
-
-            # Number of occurrences of the pole.
-            o = polesdict[p]        
-
-            if o == 0:
+            # This is zero for the conjugate pole.
+            if R[m] == 0:
                 continue
 
-            if o == 1:
-                pc = pole.conj
-                r = sexpr.residue(p, poles)
+            # Search and remove conjugate pair.
+            has_conjpair = False
+            if p.is_complex and kwargs.get('pairs', True):
+                pc = p.conjugate()
+                Ac = A.conjugate()
+                for m2, p2 in enumerate(P[m + 1:]):
+                    m2 += m + 1
+                    if n == O[m2] and p2 == pc and R[m2] == Ac:
+                        R[m2] = 0
+                        has_conjpair = True
+                        break
 
-                if pc != p and pc in polesdict:
-                    # Remove conjugate from poles and process pole with its
-                    # conjugate.  Unfortunately, for symbolic expressions
-                    # we cannot tell if a quadratic has two real poles,
-                    # a repeated real pole, or a complex conjugate pair of poles.
+            if has_conjpair:
+                # Combine conjugate pairs.
+                p = p.expand(complex=True)
+                A = A.expand(complex=True)
+                p_re = sym.re(p)
+                p_im = sym.im(p)
+                A_re = sym.re(A)
+                A_im = sym.im(A)
+                et = sym.exp(p_re * t)
+                result = 2 * A_re * et * sym.cos(p_im * t)
+                result -= 2 * A_im * et * sym.sin(p_im * t)
+            else:
+                result = A * sym.exp(p * t)
 
-                    polesdict[pc] -= 1
-
-                    p_re = sym.re(p)
-                    p_im = sym.im(p)
-                    r_re = sym.re(r)
-                    r_im = sym.im(r)
-                    et = sym.exp(p_re * t)
-                    uresult += 2 * r_re * et * sym.cos(p_im * t)
-                    uresult -= 2 * r_im * et * sym.sin(p_im * t)
-                else:
-                    uresult += r * sym.exp(p * t)
-                continue
-
-            # Handle repeated poles.
-            expr2 = expr * (s - p) ** o
-            expr2 = expr2.simplify()
-            bino = 1
-            for n in range(1, o + 1):
-                m = o - n
-                r = sym.limit(
-                    sym.diff(expr2, s, m), s, p) / sym.factorial(m)
-                uresult += r * sym.exp(p * t) * t**(n - 1) / bino
-                bino *= n                
+            if n > 1:
+                result *= t ** (n - 1) / sym.factorial(n - 1)
+            uresult += result
 
         # cresult is a sum of Dirac deltas and its derivatives so is known
         # to be causal.
@@ -197,7 +188,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             t2 = t
         else:
             t1 = -sym.oo
-            t2 = sym.oo        
+            t2 = sym.oo
 
         const, expr = factor_const(expr, s)
 
@@ -230,23 +221,23 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
                 # Note, as_ordered_factors puts powers of s before the functions.
                 if factors[0] == s:
                     # Handle differentiation
-                    # Convert s * V(s) to d v(t) / dt                        
-                    result = self.func(factors[1], s, t)            
+                    # Convert s * V(s) to d v(t) / dt
+                    result = self.func(factors[1], s, t)
                     result = sym.Derivative(result, t)
                     continue
                 elif factors[0].is_Pow and factors[0].args[0] == s and factors[0].args[1] > 0:
                     # Handle higher order differentiation
                     # Convert s ** 2 * V(s) to d^2 v(t) / dt^2
-                    result = self.func(factors[1], s, t)            
+                    result = self.func(factors[1], s, t)
                     result = sym.Derivative(result, t, factors[0].args[1])
-                    continue                
+                    continue
                 elif factors[0].is_Pow and factors[0].args[0] == s and factors[0].args[1] == -1:
                     # Handle integration  1 / s * V(s)
                     tau = self.dummy_var(expr, 'tau', level=intnum, real=True)
                     intnum += 1
                     result = self.func(factors[1], s, tau)
                     result = sym.Integral(result, (tau, t1, t))
-                    continue                
+                    continue
             # Convert product to convolution
             tau = self.dummy_var(expr, 'tau', level=intnum, real=True)
             intnum += 1
@@ -281,7 +272,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
 
     def delay_factor(self, expr, var):
 
-        delay = Zero    
+        delay = Zero
         rest = One
 
         for f in expr.as_ordered_factors():
@@ -300,13 +291,139 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
 
     def sympy(self, expr, s, t):
 
+        self.debug('Resorting to SymPy')
+
         # This barfs when needing to generate Dirac deltas
         from sympy.integrals.transforms import inverse_laplace_transform
         result = inverse_laplace_transform(expr, s, t)
 
         if result.has(sym.InverseLaplaceTransform):
-            raise ValueError('SymPy cannot find inverse Laplace transform of %s' % expr)
+            self.error('SymPy does not know either')
         return result
+
+    def tline_end(self, expr, s, t):
+        """Attempt to find response at end of unterminated lossless
+        transmission line."""
+
+        # Look for expression of form 1 / (a * cosh(s * T) + b * sinh(s * T))
+
+        func = sym.DiracDelta
+        if (expr.is_Mul and expr.args[0].is_Pow and
+            expr.args[0].args[0] == s and expr.args[0].args[1] == -1):
+            expr *= s
+            func = sym.Heaviside
+
+        if not expr.is_Pow or expr.args[1] != -1:
+            self.error('Not 1 / X')
+
+        denom = expr.args[0]
+
+        arg = None
+        a = Zero
+        b = Zero
+
+        for term in denom.expand().as_ordered_terms():
+
+            const, e = factor_const(term, s)
+            if e.is_Function and e.func == sym.cosh:
+                if arg is None:
+                    arg = e.args[0]
+                elif arg != e.args[0]:
+                    self.error('Mismatch cosh arg')
+                a += const
+            elif e.is_Function and e.func == sym.sinh:
+                if arg is None:
+                    arg = e.args[0]
+                elif arg != e.args[0]:
+                    self.error('Mismatch sinh arg')
+                b += const
+            else:
+                self.error('Term does not include cosh or sinh')
+
+        T = arg / s
+        if T.has(s):
+            self.error('Frequency dependent delay')
+
+        m = self.dummy_var(expr, 'm', level=0, real=True)
+        g = (b - a) / (b + a)
+        if g == 0:
+            h = 1 / (b + a) * func(t - T)
+        else:
+            h = 1 / (b + a) * sym.Sum(g**m * func(t - (2 * m + 1) * T), (m, 0, sym.oo))
+        return h
+
+    def tline_start(self, expr, s, t):
+        """Attempt to find response at start of unterminated lossless
+        transmission line."""
+
+        # Look for expression of form
+        # c * cosh(s * T) + d * sinh(s * T) / (a * cosh(s * T) + b * sinh(s * T))
+        func = sym.DiracDelta
+        if (expr.is_Mul and expr.args[0].is_Pow and
+            expr.args[0].args[0] == s and expr.args[0].args[1] == -1):
+            expr *= s
+            func = sym.Heaviside
+
+        numer, denom = expr.as_numer_denom()
+
+        arg = None
+        a = Zero
+        b = Zero
+        c = Zero
+        d = Zero
+
+        for term in denom.expand().as_ordered_terms():
+
+            const, e = factor_const(term, s)
+            if e.is_Function and e.func == sym.cosh:
+                if arg is None:
+                    arg = e.args[0]
+                elif arg != e.args[0]:
+                    self.error('Mismatch cosh arg')
+                a += const
+            elif e.is_Function and e.func == sym.sinh:
+                if arg is None:
+                    arg = e.args[0]
+                elif arg != e.args[0]:
+                    self.error('Mismatch sinh arg')
+                b += const
+            else:
+                self.error('Term does not include cosh or sinh')
+
+        for term in numer.expand().as_ordered_terms():
+
+            const, e = factor_const(term, s)
+            if e.is_Function and e.func == sym.cosh:
+                if arg is None:
+                    arg = e.args[0]
+                elif arg != e.args[0]:
+                    self.error('Mismatch cosh arg')
+                c += const
+            elif e.is_Function and e.func == sym.sinh:
+                if arg is None:
+                    arg = e.args[0]
+                elif arg != e.args[0]:
+                    self.error('Mismatch sinh arg')
+                d += const
+            else:
+                self.error('Term does not include cosh or sinh')
+
+        T = arg / s
+        if T.has(s):
+            self.error('Frequency dependent delay')
+
+        Z0 = sym.sqrt((b * d - a * c) * d / (d**2 - c**2))
+        Zl = Z0 * c / d
+        Zs = (a - Z0 * Zl) / Z0
+        K = d / Z0**2
+        # The simplify can be slow
+        Gammas = ((Zs - Z0) / (Zs + Z0)).simplify()
+        Gammal = ((Zl - Z0) / (Zl + Z0)).simplify()
+
+        m = self.dummy_var(expr, 'm', level=0, real=True)
+        h1 = (1 - Gammas) / 2 * func(t)
+        h2 = (1 - Gammas) * (1 + Gammas) / (2 * Gammas) * sym.Sum((Gammas * Gammal)**m * func(t - 2 * m * T), (m, 1, sym.oo))
+        return K * (h1 + h2)
 
     def term1(self, expr, s, t, **kwargs):
 
@@ -328,10 +445,37 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         except:
             pass
 
-        if expr.is_Pow and expr.args[0] == s:
-            return Zero, const * self.power(expr, s, t)            
+        if expr.is_Pow and expr.args[1] == -1 and expr.args[0].is_Function:
+            arg = expr.args[0].args[0]
 
-        raise ValueError('Cannot determine inverse Laplace transform')
+            m = self.dummy_var(expr, 'm', level=0, real=True)
+            if expr.args[0].func == sym.cosh:
+                scale, shift = scale_shift(arg, s)
+                if shift == 0:
+                    return const * 2 * sym.Sum((-1)**m * sym.DiracDelta(t - scale * (2 * m + 1)), (m, 0, sym.oo)), Zero
+            elif expr.args[0].func == sym.sinh:
+                scale, shift = scale_shift(arg, s)
+                if shift == 0:
+                    return const * 2 * sym.Sum(sym.DiracDelta(t - scale * (2 * m + 1)), (m, 0, sym.oo)), Zero
+            elif expr.args[0].func == sym.tanh:
+                scale, shift = scale_shift(arg, s)
+                if shift == 0:
+                    return const * 2 * sym.Sum((-1)**m * sym.DiracDelta(t - scale * (2 * m + 1)), (m, 1, sym.oo)) + const * sym.DiracDelta(t), Zero
+
+        if expr.has(sym.cosh) and expr.has(sym.sinh):
+            try:
+                return const * self.tline_end(expr, s, t), Zero
+            except:
+                pass
+            try:
+                return const * self.tline_start(expr, s, t), Zero
+            except:
+                pass
+
+        if expr.is_Pow and expr.args[0] == s:
+            return Zero, const * self.power(expr, s, t)
+
+        self.error('Cannot determine inverse Laplace transform')
 
     def term(self, expr, s, t, **kwargs):
 
@@ -353,7 +497,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
 
             # With deep=True, SymPy makes mess of (1 - exp(-s * T))
             terms = expr.expand(deep=False).as_ordered_terms()
-           
+
             if len(terms) > 1:
 
                 try:
@@ -361,10 +505,10 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
                     return self.product(expr, s, t, **kwargs), Zero
                 except:
                     pass
-                
+
                 uresult = Zero
                 cresult = Zero
-                
+
                 for term in terms:
                     term = term.simplify()
                     cterm, uterm = self.term(term, s, t, **kwargs)
@@ -372,11 +516,11 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
                     uresult += uterm
                 return cresult, uresult
 
-            expr = expr.simplify()            
- 
+            expr = expr.simplify()
+
             try:
                 cresult, uresult = self.term1(expr, s, t, **kwargs)
-            except:           
+            except:
                 return Zero, self.sympy(expr, s, t)
 
         if delay != 0:
@@ -397,25 +541,25 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             # exp(-3 * s) / s**2 + exp(-4 * s) / s.  So for now,
             # assume causal expression...
 
-            if not kwargs.get('causal', False):
-                print('Warning, assuming causal expression')
-            
+            if not kwargs.get('causal', False) and expr.has(AppliedUndef):
+                warn('Assuming causal expression')
+
             if not delay.is_negative:
                 if not delay.is_positive:
-                    print('Assuming %s is positive' % delay)
+                    warn('Assuming %s is positive' % delay)
                 cresult += uresult * sym.Heaviside(t - delay)
                 uresult = Zero
             else:
-                raise ValueError('Causality violated with time advance %s.' % delay)
+                self.error('Causality violated with time advance %s.' % delay)
 
         else:
             if kwargs.get('causal', False):
                 cresult += uresult * sym.Heaviside(t)
-                uresult = Zero                
+                uresult = Zero
 
         return cresult, uresult
 
-    
+
 inverse_laplace_transformer = InverseLaplaceTransformer()
 
 
@@ -429,7 +573,7 @@ def inverse_laplace_transform(expr, s, t, evaluate=True, **kwargs):
     `causal` -- x(t) = 0 for n < 0.
     `ac` -- x(t) = A cos(a * n) + B * sin(b * n)
     """
-    
+
     return inverse_laplace_transformer.transform(expr, s, t,
                                                  evaluate=evaluate,
                                                  **kwargs)

@@ -7,7 +7,7 @@ Copyright 2021 Michael Hayes, UCECE
 
 from .domains import ZDomain
 from .sequence import Sequence
-from .dsym import zsym
+from .sym import zsym
 
 __all__ = ('zseq', )
 

@@ -41,7 +41,7 @@ help:
 clean:
 	-rm -rf $(BUILDDIR)/*
 
-html: extra figs 
+html: extra figs
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
@@ -172,3 +172,6 @@ extra: fourier_transforms.rst laplace_transforms.rst ztransforms.rst DTFTs.rst D
 
 %.rst: %.py
 	python3 $< > $@
+
+%.png: %.py
+	python3 $<

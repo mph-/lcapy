@@ -1,6 +1,6 @@
 """This module provides the ZDomainExpression class to represent z-domain expressions.
 
-Copyright 2020--2021 Michael Hayes, UCECE
+Copyright 2020--2022 Michael Hayes, UCECE
 
 """
 
@@ -8,7 +8,7 @@ from __future__ import division
 from .domains import ZDomain
 from .inverse_ztransform import inverse_ztransform
 from .sym import j, pi, fsym, omegasym
-from .dsym import nsym, ksym, zsym, dt
+from .sym import nsym, ksym, zsym, dt
 from .vector import Vector
 from .ratfun import _zp2tf, Ratfun
 from .expr import symbol, expr, ExprDict, ExprList
@@ -16,7 +16,6 @@ from .diffeq import DifferenceEquation
 from .seqexpr import SequenceExpression
 from .zseq import ZDomainSequence
 from .functions import sqrt, exp
-import numpy as np
 from sympy import Eq, div, limit, oo, Sum
 
 
@@ -54,7 +53,7 @@ class ZDomainExpression(ZDomain, SequenceExpression):
     def nintegrate(self):
         """First order integration in n-domain."""
 
-        q = 1 / (1 - 1 / self.var) * dt       
+        q = 1 / (1 - 1 / self.var) * dt
         return self.__class__(self.expr * q, **self.assumptions)
 
     def initial_value(self):
@@ -109,7 +108,7 @@ class ZDomainExpression(ZDomain, SequenceExpression):
         vector specified.
 
         """
-        from .symbols import f        
+        from .symbols import f
 
         X = self.subs(j * 2 * pi * f)
 
@@ -121,27 +120,31 @@ class ZDomainExpression(ZDomain, SequenceExpression):
     def response(self, x, t):
         """Evaluate response to input signal x at times t."""
 
+        from numpy import allclose, diff, ones, zeros, arange, convolve, hstack
+
         if len(x) != len(t):
             raise ValueError('x must have same length as t')
 
         dt = t[1] - t[0]
-        if not np.allclose(np.diff(t), np.ones(len(t) - 1) * dt):
+        if not allclose(diff(t), ones(len(t) - 1) * dt):
             raise (ValueError, 't values not equally spaced')
 
-        # Perform polynomial long division so expr = Q + M / D                
-        N, D, delay = self._decompose()
+        # Perform polynomial long division so expr = Q + M / D
+        N, D, delay, undef = self._as_N_D_delay_undef()
+        if undef != 1:
+            raise ValueError('Have undefined expression %s' % undef)
         Q, M = div(N, D)
         expr = M / D
 
         N = len(t)
 
         # Evaluate transient response.
-        th = np.arange(N) * dt - dt
+        th = arange(N) * dt - dt
         h = ZDomainExpression(expr).transient_response(th)
 
         print('Convolving...')
         ty = t
-        y = np.convolve(x, h)[0:N] * dt
+        y = convolve(x, h)[0:N] * dt
 
         if Q:
             # Handle Dirac deltas and their derivatives.
@@ -150,8 +153,8 @@ class ZDomainExpression(ZDomain, SequenceExpression):
 
                 y += c * x
 
-                x = np.diff(x) / dt
-                x = np.hstack((x, 0))
+                x = diff(x) / dt
+                x = hstack((x, 0))
 
         from scipy.interpolate import interp1d
 
@@ -171,7 +174,7 @@ class ZDomainExpression(ZDomain, SequenceExpression):
         canonical form, or 'DCF' for the diagonal canonical form."""
 
         from .dtstatespace import DTStateSpace
-        
+
         a = self.a
         b = self.b
 
@@ -183,11 +186,6 @@ class ZDomainExpression(ZDomain, SequenceExpression):
         For other forms, use `state_space()`."""
 
         return self.state_space()
-    def _decompose(self):
-
-        N, D, delay = Ratfun(self, z).as_ratfun_delay()                
-
-        return N, D, delay
 
     def evaluate(self, svector=None):
 
@@ -204,7 +202,7 @@ class ZDomainExpression(ZDomain, SequenceExpression):
         xscale - the x-axis scaling
         yscale - the y-axis scaling
         in addition to those supported by the matplotlib plot command.
-        
+
         The plot axes are returned."""
 
         if 'unitcircle' not in kwargs:
@@ -223,7 +221,7 @@ class ZDomainExpression(ZDomain, SequenceExpression):
         This method makes the assumption that the expression is causal.
 
         """
-        from .discretetime import dt        
+        from .discretetime import dt
 
         return self.DTFT(causal=True).subs(dt, 1).bode_plot(fvector, **kwargs)
 
@@ -237,7 +235,7 @@ class ZDomainExpression(ZDomain, SequenceExpression):
         `npoints` set the number of plotted points.
 
         This method makes the assumption that the expression is causal.
-        """        
+        """
         from .discretetime import dt
 
         if fvector is None:
@@ -255,14 +253,14 @@ class ZDomainExpression(ZDomain, SequenceExpression):
 
         This method makes the assumption that the expression is causal.
 
-        """        
+        """
         from .discretetime import dt
 
         if fvector is None:
             fvector = (-0.5, 0.5)
         return self.DTFT(causal=True).subs(dt, 1).nichols_plot(fvector,
                                                                log_frequency=log_frequency,
-                                                               **kwargs)    
+                                                               **kwargs)
 
     def inverse_bilinear_transform(self):
 
@@ -270,12 +268,12 @@ class ZDomainExpression(ZDomain, SequenceExpression):
         from .discretetime import dt
 
         # z = exp(s * dt) gives the exact solution
-        
+
         return self.subs((1 + s * dt / 2) / (1 - s * dt / 2))
 
     def DFT(self, N=None, evaluate=True, **assumptions):
-        """Determine DFT.  
-        
+        """Determine DFT.
+
         `N` needs to be a positive integer symbol or a str specifying
         the extent of the DFT.  By default `N` is defined as 'N'."""
 
@@ -285,11 +283,14 @@ class ZDomainExpression(ZDomain, SequenceExpression):
     def discrete_time_fourier_transform(self, var=None, images=oo,
                                         **assumptions):
         """Convert to Fourier domain using discrete time Fourier transform."""
-        return self.DTFT(var, images, **assumptions)        
+        return self.DTFT(var, images, **assumptions)
 
     def DTFT(self, var=None, images=oo, **assumptions):
         """Convert to Fourier domain using discrete time Fourier transform."""
         from .symbols import f
+
+        if var is None:
+            var = f
 
         if assumptions.get('causal', self.is_causal):
             result = self.subs(exp(j * 2 * pi * f * dt))
@@ -297,23 +298,51 @@ class ZDomainExpression(ZDomain, SequenceExpression):
             result = self.IZT(**assumptions).DTFT(images=images)
         return result(var)
 
+    def fourier(self, var=None, evaluate=True, **assumptions):
+        """Attempt discrete-time Fourier transform. This is an alias for DTFT."""
+
+        return self.DTFT(var, evaluate, **assumptions)
+
+    def norm_fourier(self, evaluate=True, **assumptions):
+        """Attempt normalized discrete-time Fourier transform."""
+
+        from .symbols import F
+
+        return self.DTFT(F, evaluate, **assumptions)
+
+    def angular_fourier(self, evaluate=True, **assumptions):
+        """Attempt angular discrete-time Fourier transform."""
+
+        from .symbols import omega
+
+        return self.DTFT(omega, evaluate, **assumptions)
+
+    def norm_angular_fourier(self, evaluate=True, **assumptions):
+        """Attempt normalized angular discrete-time Fourier transform."""
+
+        from .symbols import Omega
+
+        return self.DTFT(Omega, evaluate, **assumptions)
+
     def as_ab(self):
         """Return lists of denominator and numerator coefficients
         when the denominator and numerator are expressed as polynomials
         in z**-1.  The lowest order coefficients are returned first."""
 
+        from numpy import array
+
         C, R = self.factor_const()
-        
+
         zi = symbol('zi')
         H = R.replace(z, 1 / zi).cancel()
         a = H.D.coeffs(zi)
         b = H.N.coeffs(zi)
-        return a[::-1], list(np.array(b) * C)[::-1]
+        return a[::-1], list(array(b) * C)[::-1]
 
     def as_AB(self):
 
         C, R = self.factor_const()
-        
+
         zi = symbol('zi')
         H = R.replace(z, 1 / zi).factor()
         r = Ratfun(H, zi.expr)
@@ -324,9 +353,9 @@ class ZDomainExpression(ZDomain, SequenceExpression):
         if C1.is_negative:
             A = -A
             B = -B
-        
+
         return A, B * C
-    
+
     def difference_equation(self, inputsym='x', outputsym='y', form='iir'):
         """Create difference equation from transfer function.
 
@@ -343,14 +372,14 @@ class ZDomainExpression(ZDomain, SequenceExpression):
         if form in ('iir', 'direct form I'):
             # Direct form I
             return self.dlti_filter().difference_equation()
-            
+
         elif form == 'fir':
             H = H.partfrac()
             lhs = y
             rhs = (H * X).IZT(causal=True)
 
         else:
-            raise ValueError('Unhandled form ' + form)    
+            raise ValueError('Unhandled form ' + form)
 
         return DifferenceEquation(lhs, rhs, inputsym, outputsym)
 
@@ -359,17 +388,17 @@ class ZDomainExpression(ZDomain, SequenceExpression):
         transfer function."""
 
         # TODO, perhaps add only to DiscreteTimeDomainTransfer?
-        
+
         from .dltifilter import DLTIFilter
-        
+
         if not self.is_rational_function:
-            raise ValueError("Not a rational function")            
-            
+            raise ValueError("Not a rational function")
+
         N = self.N
         D = self.D
         nn = N.coeffs()
         dn = D.coeffs()
-    
+
         if len(nn) > len(dn):
             raise ValueError("System not causal")
 
@@ -379,8 +408,8 @@ class ZDomainExpression(ZDomain, SequenceExpression):
         if normalize_a0:
             bn = [bx / an[0] for bx in bn]
             an = [ax / an[0] for ax in an]
-        
-        lpf = DLTIFilter(bn, an) 
+
+        lpf = DLTIFilter(bn, an)
         return lpf
 
     def inverse_bilinear_transform(self):
@@ -394,14 +423,44 @@ class ZDomainExpression(ZDomain, SequenceExpression):
         from .discretetime import dt
 
         a = s * dt / 2
-        
+
         return self.subs((1 + a) / (1 - a))
-        
+
+    def zdomain(self, **assumptions):
+        return self
+
+    def discrete_frequency(self, **assumptions):
+        N = assumptions.pop('N', None)
+        evaluate = assumptions.pop('evaluate', True)
+        return self.IZT(**assumptions).DFT(N, evaluate)
+
+    def discrete_time(self, **assumptions):
+        return self.IZT(**assumptions)
+
+    def fourier(self, **assumptions):
+        return self.DTFT(**assumptions)
+
+    def angular_fourier(self, **assumptions):
+        from .symbols import omega
+
+        return self.DTFT(omega, **assumptions)
+
+    def norm_fourier(self, **assumptions):
+        from .symbols import F
+
+        return self.DTFT(F, **assumptions)
+
+    def norm_angular_fourier(self, **assumptions):
+        from .symbols_time import Omega
+
+        return self.DTFT(Omega, **assumptions)
+
+
 def zexpr(arg, **assumptions):
     """Create ZDomainExpression object.  If `arg` is zsym return z"""
 
     from .expr import Expr
-    
+
     if arg is zsym:
         return z
 
@@ -409,7 +468,7 @@ def zexpr(arg, **assumptions):
         if assumptions == {}:
             return arg
         return arg.__class__(arg, **assumptions)
-    
+
     return ZDomainExpression(arg, **assumptions)
 
 
