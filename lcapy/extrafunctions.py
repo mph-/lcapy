@@ -2,7 +2,7 @@
 They are for internal use by Lcapy.  The user versions are defined in
 function.py.
 
-Copyright 2020--2021 Michael Hayes, UCECE
+Copyright 2020--2022 Michael Hayes, UCECE
 
 """
 
@@ -14,13 +14,13 @@ from .config import unitstep_zero
 class UnitImpulse(sym.Function):
 
     is_integer = True
-    
+
     @classmethod
     def eval(cls, nval):
         """
         Evaluates the discrete unit impulse function.
         """
-        
+
         if nval.is_zero:
             return S.One
         elif fuzzy_not(nval.is_zero):
@@ -30,26 +30,29 @@ class UnitImpulse(sym.Function):
 class UnitStep(sym.Function):
 
     is_integer = True
-    
+
     @classmethod
     def eval(cls, nval, zero=None):
         """
         Evaluates the discrete unit step function.   This is defined
-        as 1 for n >= 0 and 0 otherwise.  
+        as 1 for n >= 0 and 0 otherwise.
         """
 
         if nval.is_zero:
             if zero is None:
                 zero = unitstep_zero
             return zero
-        
+
         if nval.is_nonnegative:
             return S.One
         elif nval.is_negative:
             return S.Zero
 
-        
+
 class rect(sym.Function):
+    """The rectangle function.
+
+    rect(t) = 1 for abs(t) <= 0.5 otherwise 0."""
 
     @classmethod
     def eval(cls, val):
@@ -86,7 +89,7 @@ class dtrect(sym.Function):
         x = self.args[0]
         return UnitStep(x + S.Half) - UnitStep(x - S.Half)
 
-    
+
 class dtsign(sym.Function):
 
     @classmethod
@@ -100,9 +103,9 @@ class dtsign(sym.Function):
                 return S.One
             return S.Zero
 
-        
+
 class sincn(sym.Function):
-    
+
     @classmethod
     def eval(cls, val):
         """
@@ -115,7 +118,7 @@ class sincn(sym.Function):
                 return S.One
             x = sym.pi * val
             return sym.sin(x) / x
-        
+
     def rewrite(self, *args, **hints):
 
         x = sym.pi * self.args[0]
@@ -123,7 +126,7 @@ class sincn(sym.Function):
 
 
 class sincu(sym.Function):
-    
+
     @classmethod
     def eval(cls, val):
         """
@@ -135,14 +138,14 @@ class sincu(sym.Function):
             if val == 0:
                 return S.One
             return sym.sin(val) / val
-        
+
     def rewrite(self, *args, **hints):
 
         x = self.args[0]
-        return sym.sin(x) / x    
+        return sym.sin(x) / x
 
 class psinc(sym.Function):
-    
+
     @classmethod
     def eval(cls, M, val):
         """
@@ -153,16 +156,19 @@ class psinc(sym.Function):
                 return S.One
             x = sym.pi * val
             return sym.sin(M * x) / (M * sym.sin(x))
-        
+
     def rewrite(self, *args, **hints):
 
-        M = self.args[0]        
+        M = self.args[0]
         x = sym.pi * self.args[1]
         # If evaluate, SymPy will convert sin(n * pi) to 0.
         return sym.sin(M * x, evaluate=False) / (M * sym.sin(x, evaluate=False))
 
-    
+
 class tri(sym.Function):
+    """The triangle function.
+
+    tri(t) = 1 - abs(t) for abs(t) <= 1 otherwise 0."""
 
     @classmethod
     def eval(cls, val):
@@ -171,7 +177,7 @@ class tri(sym.Function):
         """
 
         if val.is_Number:
-            
+
             if val >= 1:
                 return S.Zero
             elif val <= -1:
@@ -181,6 +187,7 @@ class tri(sym.Function):
 
 
 class trap(sym.Function):
+    """The trapezoidal function."""
 
     @classmethod
     def eval(cls, val, alpha):
@@ -197,11 +204,10 @@ class trap(sym.Function):
                 if val < -0.5 or val > 0.5:
                     return S.Zero
                 return S.One
-            
+
             if foo >= 0.5 * alpha:
                 return S.Zero
             elif foo <= -0.5 * alpha:
                 return S.One
             else:
                 return 0.5 - foo / alpha
-

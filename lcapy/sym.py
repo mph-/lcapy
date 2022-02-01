@@ -1,7 +1,7 @@
 """This module contains functions for handling symbols and in particular
 for integrating with SymPy.
 
-Copyright 2014--2020 Michael Hayes, UCECE
+Copyright 2014--2022 Michael Hayes, UCECE
 
 """
 
@@ -20,7 +20,8 @@ import re
 from .state import state
 from .simplify import simplify_dirac_delta, simplify_heaviside, simplify_rect
 from .simplify import simplify_unit_impulse
-from .extrafunctions import UnitImpulse, UnitStep, rect, dtrect
+from .extrafunctions import (UnitImpulse, UnitStep, rect, dtrect,
+                             tri, trap, dtsign, sincn, sincu, psinc)
 
 __all__ = ('symsymbol', 'sympify', 'simplify', 'symbol_delete')
 
@@ -32,6 +33,17 @@ for _alias, _name in aliases.items():
     global_dict[_alias] = global_dict[_name]
 
 global_dict['abs'] = sym.Abs
+# Populate Lcapy defined functions
+global_dict['rect'] = rect
+global_dict['tri'] = tri
+global_dict['trap'] = trap
+global_dict['sincn'] = sincn
+global_dict['sincu'] = sincu
+global_dict['psinc'] = psinc
+global_dict['dtrect'] = dtrect
+global_dict['dsign'] = dtsign
+global_dict['ui'] = UnitImpulse
+global_dict['us'] = UnitStep
 
 for _symbol in excludes:
     try:

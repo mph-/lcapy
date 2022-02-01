@@ -276,6 +276,15 @@ class LcapyCoreTester(unittest.TestCase):
         self.assertEqual(a.evaluate(2), 4.0, "scalar evaluate incorrect.")
         self.assertEqual(a.evaluate((2, 3))[1], 9.0, "vector evaluate incorrect.")
 
+    def test_expr(self):
+        """Check expr
+        """
+
+        e = expr('rect(t)')
+        self.assertEqual(e, rect(t), "expr('rect(t)'")
+        e = expr('tri(t)')
+        self.assertEqual(e, tri(t), "expr('tri(t)'")
+
     def test_step(self):
         """Check step
 

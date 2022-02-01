@@ -343,7 +343,7 @@ def similarity_shift(expr, var):
             fail = True
             break
 
-    if fail:
+    if fail or scale is None:
         return expr, 1, 0
 
     expr2 = expr.replace(var * scale + shift, var)
