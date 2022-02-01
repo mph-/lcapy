@@ -1965,6 +1965,42 @@ class Gyrator(FixedCpt):
             self.args_str(**kwargs), 0.95 * self.scale, 0.89 * yscale,
             -self.angle, self.s)
 
+        print(s)
+
+        s += self.draw_label(self.centre, **kwargs)
+        return s
+
+class Triode(FixedCpt):
+    """Triode"""
+
+    node_pinnames = ('anode', 'grid', 'cathode')    
+    pins = {'anode' : ('l', 0.75, 0),
+            'grid' : ('l', 0.25, 0.5),
+            'cathode' : ('l', -0.25, 0)}
+    
+    def draw(self, **kwargs):
+
+        if not self.check():
+            return ''
+
+        yscale = self.scale
+        if self.mirror:
+            yscale = -yscale
+        
+        # stupid thing above sets distance between nodes.
+        # get correct distance, then slide into place.
+        print(self.centre, "centre")
+        mid = self.centre
+        #print(help(mid))
+        mid = mid + Pos(0, -0.5)
+
+        s = r'  \draw (%s) node[triode, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
+            str(mid),
+            self.args_str(**kwargs), 1 * self.scale, 1 * yscale,
+            0, self.s)        
+
+        print(s)
+
         s += self.draw_label(self.centre, **kwargs)
         return s
 
@@ -3354,6 +3390,8 @@ defcpt('H', CCS, 'CCVS', 'american controlled voltage source')
 defcpt('FS', Bipole, 'Fuse', 'fuse')
 
 defcpt('GY', Gyrator, 'Gyrator', 'gyrator')
+
+defcpt('TVtriode', Triode, 'Triode', 'triode')
 
 defcpt('I', Bipole, 'Current source', 'I')
 defcpt('sI', Bipole, 'Current source', 'I')
