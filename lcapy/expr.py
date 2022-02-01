@@ -1000,6 +1000,10 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
             ret = a(*newargs, **newkwargs)
 
             if not isinstance(ret, sym.Expr):
+                # Hack for jupyter notebook printer returning
+                # png as a bytes object
+                if isinstance(ret, bytes):
+                    return ret
                 # Wrap list, tuple, etc.
                 return expr(ret)
 
@@ -3452,7 +3456,7 @@ def exprcontainer(arg, **assumptions):
             raise ValueError('Multidimensional arrays unsupported; convert to Matrix')
         return Vector(arg, **assumptions)
 
-    raise ValueError('Unsupported exprcontainer %s' % arg.__class__.name)
+    raise ValueError('Unsupported exprcontainer %s' % arg.__class__.__name__)
 
 
 def _make_domain(expr, **assumptions):
