@@ -1,4 +1,3 @@
 sympy>=1.7.1
 # To keep networkx happy
-decorator==4.4.2
-
+# decorator==4.4.2
