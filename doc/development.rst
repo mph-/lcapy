@@ -26,3 +26,12 @@ To find which modules are slow to import, use::
 This requires Python3.7.  tuna graphically shows which modules take the most time to import.   tuna can be installed with pip::
 
   $ pip3 install tuna
+
+
+Python package dependencies
+===========================
+
+To find Python package dependencies::
+
+   $ pip3 install pipdeptree
+   $ pipdeptree
