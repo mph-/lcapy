@@ -1,7 +1,7 @@
 """This module defines the StateSpace class for representing a linear
 continuous time-invariant system as a state-space model.
 
-Copyright 2021 Michael Hayes, UCECE
+Copyright 2021--2022 Michael Hayes, UCECE
 
 """
 
@@ -99,8 +99,9 @@ class StateSpace(StateSpaceBase):
         where x is the state vector and u is the input vector.
         """
 
-        return expr(sym.Eq(self.dotx, sym.MatAdd(sym.MatMul(self._A, self.x),
-                                                 sym.MatMul(self._B, self.u)),
+        return expr(sym.Eq(self.dotx,
+                           sym.MatAdd(sym.MatMul(self._A.sympy, self.x.sympy),
+                                      sym.MatMul(self._B.sympy, self.u.sympy)),
                            evaluate=False))
 
     def output_equations(self):
@@ -113,8 +114,9 @@ class StateSpace(StateSpaceBase):
 
         """
 
-        return expr(sym.Eq(self.y, sym.MatAdd(sym.MatMul(self._C, self.x),
-                                              sym.MatMul(self._D, self.u)),
+        return expr(sym.Eq(self.y,
+                           sym.MatAdd(sym.MatMul(self._C.sympy, self.x.sympy),
+                                      sym.MatMul(self._D.sympy, self.u.sympy)),
                            evaluate=False))
 
     @property
@@ -165,7 +167,7 @@ class StateSpace(StateSpaceBase):
     def M(self):
         """Modal matrix (eigenvectors of A)."""
 
-        E, L = self._A.diagonalize()
+        E, L = self._A.sympy.diagonalize()
 
         return LaplaceDomainMatrix(E)
 
