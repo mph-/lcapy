@@ -141,11 +141,12 @@ class TimeDomainExpression(TimeDomain, Expr):
         maximum value with the minimum value set to 0.
 
         kwargs include:
-        axes - the plot axes to use otherwise a new figure is created
-        xlabel - the x-axis label
-        ylabel - the y-axis label
-        xscale - the x-axis scaling, say for plotting as ms
-        yscale - the y-axis scaling, say for plotting mV
+        `axes - the plot axes to use otherwise a new figure is created
+        `xlabel` - the x-axis label
+        `ylabel` - the y-axis label
+        `xscale` - the x-axis scaling, say for plotting as ms
+        `yscale` - the y-axis scaling, say for plotting mV
+        `plot_deltas` - plot Dirac deltas as arrows
         in addition to those supported by the matplotlib plot command.
 
         The plot axes are returned."""
@@ -209,7 +210,7 @@ class TimeDomainExpression(TimeDomain, Expr):
         expr = self.expr
         if self.is_conditional:
             expr = expr.args[0].args[0]
-        expr = expr * Heaviside(t)
+        expr = expr * Heaviside(t.var)
         return self.__class__(expr)
 
     def discretize(self, method='bilinear', alpha=0.5):

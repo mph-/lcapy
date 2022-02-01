@@ -240,7 +240,7 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
         expr = self.expr
         if self.is_conditional:
             expr = expr.args[0].args[0]
-        expr = expr * UnitStep(n)
+        expr = expr * UnitStep(n.var)
         return self.__class__(expr)
 
     def zdomain(self, **assumptions):
