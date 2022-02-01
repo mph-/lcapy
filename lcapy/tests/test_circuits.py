@@ -576,7 +576,8 @@ class LcapyTester(unittest.TestCase):
         a = Circuit("""
         TVtriode 0 1 2 100 1.6e-3 3e-12 3e-12; up
         """).draw("triode.png")
-        self.assertTrue(os.path.exists("triode.png"))
+        self.assertTrue(os.path.exists('triode.png'))
+        os.remove('triode.png')
 
     def test_params(self):
         """Test params"""
