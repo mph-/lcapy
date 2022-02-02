@@ -25,7 +25,7 @@ from .transformer import UnilateralForwardTransformer
 from .ratfun import Ratfun
 from .sym import sympify, simplify, AppliedUndef
 from .utils import (factor_const, scale_shift, as_sum_terms, similarity_shift,
-                    expand_function)
+                    expand_functions)
 from .extrafunctions import rect, tri, ramp, rampstep
 import sympy as sym
 from warnings import warn
@@ -308,7 +308,7 @@ class LaplaceTransformer(UnilateralForwardTransformer):
             result = self.function(expr, t, s)
             if result is not None:
                 return result * const
-            expr = expand_function(expr, t)
+            expr = expand_functions(expr, t)
 
         if expr.has(sym.Heaviside(t)):
             return self.integrate_0(expr.replace(sym.Heaviside(t), 1), t, s) * const

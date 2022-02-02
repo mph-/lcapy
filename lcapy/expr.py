@@ -26,7 +26,8 @@ from .state import state
 from .printing import pprint, pretty, print_str, latex
 from .functions import sqrt, log10, atan2, gcd, exp, Function, Eq
 from .units import units, u as uu, dB
-from .utils import as_N_D, as_sum, remove_images, pair_conjugates, split_dirac_delta
+from .utils import (as_N_D, as_sum, remove_images, pair_conjugates,
+                    split_dirac_delta, expand_functions)
 import sympy as sym
 from sympy.utilities.lambdify import lambdify
 from .sym import simplify
@@ -3011,7 +3012,16 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             return self.copy()
         return self.__class__(self._ratfun.expandcanonical(), **self.assumptions)
 
-    def expandresponse(self):
+    def expand_functions(self):
+        """Expand functions in expression.
+
+        For example `rect(t)` -> `u(t + 1 / 2) - u(t - 1 / 2)`
+        """
+
+        return self.__class__(expand_functions(self.sympy, self.var),
+                              **self.assumptions)
+
+    def expand_response(self):
         """Expand expression into a sum of Lcapy responses, where each
         response has the form B(var) * expp(-var * T) / A(var).
         This helps with inverse Laplace transforms.

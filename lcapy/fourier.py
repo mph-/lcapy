@@ -23,7 +23,7 @@ from sympy import DiracDelta, Heaviside, FourierTransform, Integral
 from sympy import fourier_transform as sympy_fourier_transform, Function
 from .sym import symsimplify, j
 from .transformer import BilateralForwardTransformer
-from .utils import factor_const, similarity_shift, expand_function
+from .utils import factor_const, similarity_shift, expand_functions
 from .extrafunctions import rect, sincn, sincu, trap, tri
 
 __all__ = ('FT', 'IFT')
@@ -284,7 +284,7 @@ class FourierTransformer(BilateralForwardTransformer):
 
             if expr.is_Function and expr.args[0] == t:
                 # Try to handle functions such as ramp, rampstep.
-                expr2 = expand_function(expr, t)
+                expr2 = expand_functions(expr, t)
                 if expr != expr2:
                     terms = expr2.as_ordered_terms()
                     result = 0

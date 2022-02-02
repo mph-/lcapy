@@ -351,16 +351,25 @@ def similarity_shift(expr, var):
     return expr2, scale, shift
 
 
-def expand_function(expr, var):
-
-    expr = expr.rewrite()
-    terms = expr.as_ordered_terms()
+def expand_functions(expr, var):
 
     # Try rewriting functions such as rampstep(t - 1)
     # to ramp(t - 1) - ramp(t - 2) to sums of weighted Heavisides...
+
+    const, expr = factor_const(expr, var)
+
+    if expr.is_Function:
+        new_expr = expr.rewrite()
+        if expr != new_expr:
+            return const * expand_functions(new_expr, var)
+        return const * new_expr
+
+    terms = expr.as_ordered_terms()
+    if len(terms) == 1:
+        return const * expr
+
     expr = 0
     for term in terms:
-        const, term = factor_const(term, var)
-        expr += const * term.rewrite()
+        expr += expand_functions(term, var)
 
-    return expr
+    return const * expr

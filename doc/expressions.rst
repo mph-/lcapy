@@ -1776,6 +1776,11 @@ Lcapy has the following simplification methods:
       s
    2⋅ℯ
 
+- `expand_functions` converts functions into simpler forms.  For example::
+
+   >>> rect(t).expand_functions()
+   -u(t - 1/2) + u(t + 1/2)
+
 
 Approximation
 =============
