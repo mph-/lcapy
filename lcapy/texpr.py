@@ -141,7 +141,7 @@ class TimeDomainExpression(TimeDomain, Expr):
         maximum value with the minimum value set to 0.
 
         kwargs include:
-        `axes - the plot axes to use otherwise a new figure is created
+        `axes` - the plot axes to use otherwise a new figure is created
         `xlabel` - the x-axis label
         `ylabel` - the y-axis label
         `xscale` - the x-axis scaling, say for plotting as ms

@@ -735,6 +735,7 @@ expression.""")
         """Convert to s-domain."""
 
         result = domain_quantity_to_class('laplace', quantity=self.quantity)(0)
+        result.is_causal = True
         for val in self.values():
             result += val.laplace(**assumptions)
         return result
@@ -743,6 +744,7 @@ expression.""")
         """Convert to Fourier domain."""
 
         result = domain_quantity_to_class('fourier', quantity=self.quantity)(0)
+        result.is_causal = True
         for val in self.values():
             result += val.fourier(**assumptions)
         return result
