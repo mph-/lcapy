@@ -20,8 +20,9 @@ import re
 from .state import state
 from .simplify import simplify_dirac_delta, simplify_heaviside, simplify_rect
 from .simplify import simplify_unit_impulse
-from .extrafunctions import (UnitImpulse, UnitStep, rect, dtrect,
-                             tri, trap, dtsign, sincn, sincu, psinc)
+from .extrafunctions import (UnitImpulse, UnitStep, rect, dtrect, tri,
+                             trap, dtsign, sincn, sincu, psinc, ramp,
+                             rampstep)
 
 __all__ = ('symsymbol', 'sympify', 'simplify', 'symbol_delete')
 
@@ -44,6 +45,9 @@ global_dict['dtrect'] = dtrect
 global_dict['dsign'] = dtsign
 global_dict['ui'] = UnitImpulse
 global_dict['us'] = UnitStep
+global_dict['ramp'] = ramp
+global_dict['rampstep'] = rampstep
+
 
 for _symbol in excludes:
     try:

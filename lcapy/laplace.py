@@ -24,8 +24,9 @@ Copyright 2016--2022 Michael Hayes, UCECE
 from .transformer import UnilateralForwardTransformer
 from .ratfun import Ratfun
 from .sym import sympify, simplify, AppliedUndef
-from .utils import factor_const, scale_shift, as_sum_terms, similarity_shift
-from .extrafunctions import rect, tri
+from .utils import (factor_const, scale_shift, as_sum_terms, similarity_shift,
+                    expand_function)
+from .extrafunctions import rect, tri, ramp, rampstep
 import sympy as sym
 from warnings import warn
 
@@ -230,6 +231,30 @@ class LaplaceTransformer(UnilateralForwardTransformer):
 
         return E
 
+    def function(self, expr, t, s):
+
+        expr, scale, shift = similarity_shift(expr, t)
+
+        if shift != 0:
+            # This will be handled by rewriting the function.
+            return None
+
+        if expr.func is rect:
+            warn('Laplace transform ignores rect(t) for t < 0')
+            return (1 - sym.exp(-s / (2 * scale))) / s
+
+        elif expr.func is tri:
+            warn('Laplace transform ignores tri(t) for t < 0')
+            return 1 / s - (1 - sym.exp(-s / scale)) / (scale * s**2)
+
+        elif expr.func is ramp:
+            return scale / s**2
+
+        elif expr.func is rampstep:
+            return (1 - sym.exp(-s / scale)) / s**2
+
+        return None
+
     def term(self, expr, t, s):
 
         # Unilateral LT ignores expr for t < 0 so remove Piecewise.
@@ -279,21 +304,11 @@ class LaplaceTransformer(UnilateralForwardTransformer):
                     return const * result.subs(s, s - scale)
             self.error('Cannot handle product')
 
-        if expr.is_Function and expr.func is rect and expr.args[0].has(t):
-            # Could rewrite rect(t / a) as 1 - u(t - a / 2)
-            expr, scale, shift = similarity_shift(expr, t)
-            if shift == 0:
-                warn('Laplace transform ignores rect(t) for t < 0')
-                return (1 - sym.exp(-s / (2 * scale))) / s
-            # TODO, handle shifted rect
-
-        if expr.is_Function and expr.func is tri and expr.args[0].has(t):
-            # Could rewrite tri(t / a) as (1 - t / a) * (1 - u(t - a))
-            expr, scale, shift = similarity_shift(expr, t)
-            if shift == 0:
-                warn('Laplace transform ignores tri(t) for t < 0')
-                return 1 / s - (1 - sym.exp(-s / scale)) / (scale * s**2)
-            # TODO, handle shifted tri
+        if expr.is_Function and expr.args[0].has(t):
+            result = self.function(expr, t, s)
+            if result is not None:
+                return result * const
+            expr = expand_function(expr, t)
 
         if expr.has(sym.Heaviside(t)):
             return self.integrate_0(expr.replace(sym.Heaviside(t), 1), t, s) * const

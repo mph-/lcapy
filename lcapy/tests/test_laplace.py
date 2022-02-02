@@ -25,6 +25,9 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(rect(t).laplace(), (1 - exp(-s / 2)) / s, "rect(t)")
         self.assertEqual(rect(t / 2).laplace(), (1 - exp(-s)) / s, "rect(t / 2)")
+        self.assertEqual(ramp(t).laplace(), 1 / s**2, "ramp(t)")
+        self.assertEqual(rampstep(t).laplace(), (1 - exp(-s)) / s**2, "rampstep(t)")
+
 
     def test_inverse_laplace(self):
 

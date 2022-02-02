@@ -14,6 +14,14 @@ from warnings import warn
 Zero = sym.S.Zero
 One = sym.S.One
 
+# Perhaps have 3 classes to represent responses?
+# 1. RationalFunction            N(s) / D(s)
+# 2. RationalFunctionWithExp     B(s) * exp(-s * T) / D(s)
+# 3. RationalFunctionWithExpSum  Sum(B_m(s) * exp(-s * T_m), m) / D(s)
+#
+# 2 is a generalized form of 1 with T = 0.
+
+
 def polyroots(poly, var):
     """Return roots of polynomial `poly` for variable `var`."""
 

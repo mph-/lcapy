@@ -2439,9 +2439,9 @@ The Heaviside unit step is defined as
 
    \mathop{\mathrm{sign}}(t) =
    \begin{cases}
-   0 & t < 0 \\
-   0.5  & t = 0 \\
-   1  & t > 0
+   0   & t < 0 \\
+   0.5 & t = 0 \\
+   1   & t > 0
    \end{cases}
 
 Note, the definition `H(0) = 0.5` is consistent with `sign(0) = 0` (as
@@ -2483,6 +2483,61 @@ Note, there is also a related discrete-time signum function.
    :width: 12cm
 
 
+Ramp function ramp(t)
+---------------------
+
+The rectangle function `ramp(t)` is defined in terms of the Heaviside step as
+
+.. math::
+
+   \mathop{\mathrm{ramp}}(t) = t H(t)
+
+In other words
+
+.. math::
+
+   \mathop{\mathrm{ramp}}(t) =
+   \begin{cases}
+   0 & t < 0 \\
+   t & t > 0
+   \end{cases}
+
+
+.. image:: examples/functions/ramp.png
+   :width: 12cm
+
+
+Rampstep function rampstep(t)
+-----------------------------
+
+The rectangle function `rampstep(t)` is defined in terms of the
+ramp function as
+
+.. math::
+
+   \mathop{\mathrm{rampstep}}(t) = \mathop{\mathrm{ramp}}(t) - \mathop{\mathrm{ramp}}(t - 1)
+
+or in terms of the Heaviside's step as
+
+.. math::
+
+   \mathop{\mathrm{rampstep}}(t) = t H(t) - (t - 1) H(t - 1)
+
+In other words
+
+.. math::
+
+   \mathop{\mathrm{rampstep}}(t) =
+   \begin{cases}
+   0 & t < 0 \\
+   t & 0 \le t \le 1 \\
+   1 & t > 1
+   \end{cases}
+
+.. image:: examples/functions/rampstep.png
+   :width: 12cm
+
+
 Rectangle function rect(t)
 --------------------------
 
@@ -2516,6 +2571,19 @@ Triangle function tri(t)
 ------------------------
 
 The triangle function `tri(t)` is the convolution of `rect(t)` and `rect(t)`.
+
+It can be described in terms of the ramp function as
+
+.. math::
+
+   \mathop{\mathrm{tri}}(t) = \mathop{\mathrm{ramp}}(t + 1) - 2 \mathop{\mathrm{ramp}}(t) + \mathop{\mathrm{ramp}}(t - 1)
+
+or in terms of Heaviside's step as
+
+.. math::
+
+   \mathop{\mathrm{tri}}(t) = (t + 1) H(t + 1) - 2 t H(t) + (t - 1) H(t - 1)
+
 
 .. image:: examples/functions/tri.png
    :width: 12cm

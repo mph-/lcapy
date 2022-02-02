@@ -14,9 +14,9 @@ __all__ = ('conjugate', 'sqrt', 'exp', 'log', 'log10', 'sin', 'cos',
            'heaviside', 'Heaviside', 'delta', 'DiracDelta', 'ui',
            'us', 'unitimpulse', 'unitstep', 'UnitImpulse', 'UnitStep',
            'rect', 'sinc', 'sincn', 'sincu', 'psinc', 'tri', 'trap',
-           'Sum', 'dtrect', 'dtsign', 'Piecewise', 'Eq', 'Ne',
-           'Lt', 'Le', 'Gt', 'Ge', 'Derivative', 'Integral', 'Max', 'Min',
-           're', 'im', 'MatMul', 'MatAdd')
+           'ramp', 'rampstep', 'Sum', 'dtrect', 'dtsign', 'Piecewise',
+           'Eq', 'Ne', 'Lt', 'Le', 'Gt', 'Ge', 'Derivative',
+           'Integral', 'Max', 'Min', 're', 'im', 'MatMul', 'MatAdd')
 
 from .extrafunctions import UnitImpulse as UnitImpulse1
 from .extrafunctions import UnitStep as UnitStep1
@@ -28,6 +28,9 @@ from .extrafunctions import dtrect as dtrect1
 from .extrafunctions import dtsign as dtsign1
 from .extrafunctions import tri as tri1
 from .extrafunctions import trap as trap1
+from .extrafunctions import ramp as ramp1
+from .extrafunctions import rampstep as rampstep1
+1
 
 class Function(object):
 
@@ -244,6 +247,10 @@ psinc = PsincFunction(psinc1)
 tri = Function(tri1)
 
 trap = Function(trap1)
+
+ramp = Function(ramp1)
+
+rampstep = Function(rampstep1)
 
 function_mapping = {sym.Heaviside: UnitStep1,
                     sym.DiracDelta: UnitImpulse1,

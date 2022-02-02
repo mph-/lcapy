@@ -2016,6 +2016,21 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 else:
                     return 1.0 - abs(arg)
 
+            def ramp(arg):
+
+                if arg >= 0:
+                    return arg
+                return 0
+
+            def rampstep(arg):
+
+                if arg < 0:
+                    return 0
+                elif arg > 1:
+                    return 1
+                else:
+                    return arg
+
             def dirac(arg):
                 return np.inf if arg == 0.0 else 0.0
 
@@ -2064,6 +2079,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                               'sinc' : sinc, 'sincn' : sincn,
                               'sincu' : sincu, 'psinc' : psinc,
                               'rect' : rect, 'tri' : tri, 'trap' : trap,
+                              'ramp' : ramp, 'rampstep' : rampstep,
                               'sqrt' : sqrt, 'exp' : exp, 'sign' : sign},
                              "scipy", "numpy", "math", "sympy"])
 

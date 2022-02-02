@@ -185,6 +185,11 @@ class tri(sym.Function):
             else:
                 return 1 - abs(val)
 
+    def rewrite(self, *args, **hints):
+
+        x = self.args[0]
+        return ramp(x + 1) - 2 * ramp(x) + ramp(x - 1)
+
 
 class trap(sym.Function):
     """The trapezoidal function."""
@@ -211,3 +216,63 @@ class trap(sym.Function):
                 return S.One
             else:
                 return 0.5 - foo / alpha
+
+    def rewrite(self, *args, **hints):
+
+        x = self.args[0]
+        alpha = self.args[1]
+        if alpha == 0:
+            return rect(x)
+        elif alpha == 1:
+            return tri(x)
+        return self
+
+
+class ramp(sym.Function):
+    """The ramp function.
+
+    ramp(t) = t for t > 0 otherwise 0."""
+
+    @classmethod
+    def eval(cls, val):
+        """
+        Evaluates the ramp function.
+        """
+
+        if val.is_Number:
+
+            if val >= 0:
+                return val
+            else:
+                return 0
+
+    def rewrite(self, *args, **hints):
+
+        x = self.args[0]
+        return x * sym.Heaviside(x)
+
+
+class rampstep(sym.Function):
+    """The rampstep function.
+
+    rampstep(t) = t for 0 < t < 1, 1 for t > 1 and otherwise 0."""
+
+    @classmethod
+    def eval(cls, val):
+        """
+        Evaluates the rampstep function.
+        """
+
+        if val.is_Number:
+
+            if val >= 0 and val < 1:
+                return val
+            elif val > 1:
+                return 1
+            else:
+                return 0
+
+    def rewrite(self, *args, **hints):
+
+        x = self.args[0]
+        return ramp(x) - ramp(x - 1)
