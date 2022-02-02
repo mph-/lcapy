@@ -225,7 +225,7 @@ class trap(sym.Function):
             return rect(x)
         elif alpha == 1:
             return tri(x)
-        return self
+        return rampstep((x + (1 + alpha) / 2) / alpha) - rampstep((x - (1 - alpha) / 2) / alpha)
 
 
 class ramp(sym.Function):
