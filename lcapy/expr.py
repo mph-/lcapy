@@ -2995,6 +2995,22 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             return self.copy()
         return self.__class__(self._ratfun.expandcanonical(), **self.assumptions)
 
+    def expandresponse(self):
+        """Expand expression into a sum of Lcapy responses, where each
+        response has the form B(var) * expp(-var * T) / A(var).
+        This helps with inverse Laplace transforms.
+
+        """
+
+        N = self.N
+        D = self.D
+        Nterms = N.expand().as_ordered_terms()
+
+        result = sym.S.Zero
+        for Nterm in Nterms:
+            result += (Nterm / D)
+        return self.__class__(result, **self.assumptions)
+
     def coeffs(self, var=None, norm=False):
         """Return list of coeffs assuming the expr is a polynomial in terms of
         `var`.  If `var` is None, the default variable is used.
