@@ -119,12 +119,12 @@ class Netlist(NetlistMixin, NetfileMixin):
     def _sub_make(self):
 
         groups = self._groups()
-        self._sub = Transformdomains()
+        sub = Transformdomains()
 
         for kind, sources in groups.items():
-            self._sub[kind] = SubNetlist(self, kind)
+            sub[kind] = SubNetlist(self, kind)
 
-        return self._sub
+        return sub
 
     @property
     def sub(self):
@@ -134,10 +134,13 @@ class Netlist(NetlistMixin, NetfileMixin):
 
         """
 
-        if hasattr(self, '_sub'):
-            return self._sub
+        if not hasattr(self, '_sub'):
+            self._sub = self._sub_make()
 
-        return self._sub_make()
+        if self._sub == {}:
+            warn('Netlist has no sources')
+
+        return self._sub
 
     @property
     def subcircuits(self):

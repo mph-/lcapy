@@ -882,7 +882,9 @@ class NetlistMixin(object):
             return A
 
         except ValueError:
-            raise ValueError('Cannot create A matrix')
+            warn('Cannot create A matrix directly; trying via Z matrix')
+            Z = self.Zparams(N1p, N1m, N2p, N2m)
+            return Z.Aparams
 
     def Bparams(self, N1p, N1m, N2p=None, N2m=None):
         """Create B-parameters for two-port defined by nodes N1p, N1m, N2p, and N2m, where:
