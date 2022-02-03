@@ -2571,6 +2571,11 @@ in terms of the discrete-time unit step function.
 .. image:: examples/functions/rect.png
    :width: 12cm
 
+A casual rect function can be created by a shift of 0.5.
+
+.. image:: examples/functions/crect.png
+   :width: 12cm
+
 
 Triangle function tri(t)
 ------------------------
@@ -2593,6 +2598,11 @@ or in terms of Heaviside's step as
 .. image:: examples/functions/tri.png
    :width: 12cm
 
+A casual triangle function can be created by a shift of 1.
+
+.. image:: examples/functions/ctri.png
+   :width: 12cm
+
 
 Trapezoid function trap(t, alpha)
 ---------------------------------
@@ -2603,6 +2613,11 @@ rise/fall time.  When `alpha = 0` it is equivalent to `rect(t)` and
 when `alpha = 1` it is equivalent to `tri(t)`.
 
 .. image:: examples/functions/trapa.png
+   :width: 12cm
+
+A casual trap function can be created by a shift of `(1 + alpha) / 2`.
+
+.. image:: examples/functions/ctrap.png
    :width: 12cm
 
 
