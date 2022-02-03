@@ -20,7 +20,7 @@ Copyright 2014--2021 Michael Hayes, UCECE
 
 from __future__ import division
 from .functions import Heaviside, cos, exp
-from .sym import omega0sym, tsym, oo
+from .sym import omega0sym, tsym, ksym, oo
 from .symbols import j, t, s
 from .network import Network
 from .immittancemixin import ImmittanceMixin
@@ -1450,6 +1450,11 @@ class K(Dummy):
     """Coupling coefficient"""
 
     def __init__(self, L1, L2, K, **kwargs):
+
+        if K is ksym or (isinstance(K, Expr) and K.var is ksym) :
+            warn("""
+Coupling coefficient %s is the discrete Fourier domain variable.
+You can override it using %s = symbol('%s', force=True).""" % (K, K, K))
 
         self.kwargs = kwargs
         self.args = (L1, L2, K)
