@@ -30,7 +30,7 @@ from .extrafunctions import tri as tri1
 from .extrafunctions import trap as trap1
 from .extrafunctions import ramp as ramp1
 from .extrafunctions import rampstep as rampstep1
-1
+
 
 class Function(object):
 

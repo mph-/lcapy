@@ -309,7 +309,7 @@ def symsymbol(name, force=False, **assumptions):
 
     """
 
-    usym = symsymbol1(name, **assumptions)
+    usym = symsymbol1(name, force=force, **assumptions)
     state.global_context.user_symbols[name] = usym
     return usym
 
