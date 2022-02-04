@@ -23,8 +23,8 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(v.laplace(), V, "R0 * exp(-alpha * t) * i(t)")
 
-        self.assertEqual(rect(t).laplace(), (1 - exp(-s / 2)) / s, "rect(t)")
-        self.assertEqual(rect(t / 2).laplace(), (1 - exp(-s)) / s, "rect(t / 2)")
+        self.assertEqual(rect(t - 0.5).laplace(), (1 - exp(-s)) / s, "rect(t)")
+        self.assertEqual(rect(t / 2 - 0.5).laplace(), (1 - exp(-2 * s)) / s, "rect(t / 2)")
         self.assertEqual(ramp(t).laplace(), 1 / s**2, "ramp(t)")
         self.assertEqual(rampstep(t).laplace(), (1 - exp(-s)) / s**2, "rampstep(t)")
 
