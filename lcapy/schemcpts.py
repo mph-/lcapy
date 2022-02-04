@@ -12,6 +12,7 @@ from .schemmisc import Pos, Steps
 from .opts import Opts
 import numpy as np
 import sys
+from warnings import warn
 
 module = sys.modules[__name__]
 
@@ -1513,6 +1514,7 @@ class Transistor(FixedCpt):
     can_mirror = True
     can_scale = True
     can_invert = True
+    kinds = ()
 
     @property
     def pins(self):
@@ -1537,10 +1539,17 @@ class Transistor(FixedCpt):
         if self.invert:
             xscale = -xscale
 
-        s = r'  \draw (%s) node[%s, %s, xscale=%s, yscale=%s, rotate=%d] (%s) {};''\n' % (
-            centre, self.tikz_cpt, self.args_str(**kwargs), xscale, yscale,
-            self.angle, self.s)
-        s += self.draw_label(centre, **kwargs)
+        cpt = self.tikz_cpt
+        if self.kind is not None:
+            if self.kind not in self.kinds:
+                warn('Kind %s not in known kinds: %s' %
+                     (self.kind, ', '.join(self.kinds)))
+            cpt = self.kind
+
+        s = r'  \draw (%s) node[%s, %s, xscale=%s, yscale=%s, rotate=%d] (%s) {%s};''\n' % (
+            centre, cpt, self.args_str(**kwargs), xscale, yscale,
+            self.angle, self.s, self.label(**kwargs))
+        # s += self.draw_label(centre, **kwargs)
 
         # Add additional wires.  These help to compensate for the
         # slight differences in sizes of the different transistors.
@@ -1570,6 +1579,8 @@ class BJT(Transistor):
     inpins = {'e' : ('lx', 0, 1.6),
              'b' : ('lx', 1, 0.8),
              'c' : ('lx', 0, 0)}
+
+    kinds = ('nigbt', 'pigbt', 'Lnigbt', 'Lpigbt')
 
 
 class JFET(Transistor):
@@ -1606,6 +1617,11 @@ class MOSFET(Transistor):
     inpins = {'d' : ('lx', -0.25, 1.64),
              'g' : ('lx', 0.85, 0.82),
              's' : ('lx', -0.25, 0)}
+
+    kinds = ('nmos', 'pmos', 'nmosd', 'pmosd',
+             'nfet', 'pfet', 'nfetd', 'pfetd',
+             'nigfet', 'pigfet', 'nigfete', 'pigfete',
+             'nigfetbulk', 'pigfetbulk', 'hemt')
 
 
 class MT(Bipole):
@@ -1965,19 +1981,17 @@ class Gyrator(FixedCpt):
             self.args_str(**kwargs), 0.95 * self.scale, 0.89 * yscale,
             -self.angle, self.s)
 
-        print(s)
-
         s += self.draw_label(self.centre, **kwargs)
         return s
 
 class Triode(FixedCpt):
     """Triode"""
 
-    node_pinnames = ('anode', 'grid', 'cathode')    
+    node_pinnames = ('anode', 'grid', 'cathode')
     pins = {'anode' : ('l', 0.75, 0),
             'grid' : ('l', 0.25, 0.5),
             'cathode' : ('l', -0.25, 0)}
-    
+
     def draw(self, **kwargs):
 
         if not self.check():
@@ -1986,7 +2000,7 @@ class Triode(FixedCpt):
         yscale = self.scale
         if self.mirror:
             yscale = -yscale
-        
+
         # stupid thing above sets distance between nodes.
         # get correct distance, then slide into place.
         print(self.centre, "centre")
@@ -1997,9 +2011,7 @@ class Triode(FixedCpt):
         s = r'  \draw (%s) node[triode, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
             str(mid),
             self.args_str(**kwargs), 1 * self.scale, 1 * yscale,
-            0, self.s)        
-
-        print(s)
+            0, self.s)
 
         s += self.draw_label(self.centre, **kwargs)
         return s
@@ -3259,7 +3271,7 @@ class Wire(Bipole):
                 self.args_str(**kwargs), path)
 
         if self.voltage_str != '':
-            print('There is no voltage drop across an ideal wire!')
+            warn('There is no voltage drop across an ideal wire!')
 
         if self.current_str != '' or self.label_str != '':
             # FIXME, we don't really want the wire drawn since this
@@ -3407,9 +3419,9 @@ defcpt('Jpjf', 'J', 'P JFET transistor', 'pjfet')
 
 defcpt('L', Bipole, 'Inductor', 'L')
 
-defcpt('M', MOSFET, 'N MOSJFET transistor', 'nmos')
-defcpt('Mnmos', 'M', 'N channel MOSJFET transistor', 'nmos')
-defcpt('Mpmos', 'M', 'P channel MOSJFET transistor', 'pmos')
+defcpt('M', MOSFET, 'N MOSFET transistor', 'nmos')
+defcpt('Mnmos', 'M', 'N channel MOSFET transistor', 'nmos')
+defcpt('Mpmos', 'M', 'P channel MOSFET transistor', 'pmos')
 defcpt('MISC', Bipole, 'Generic circuitikz component', '')
 
 defcpt('NR', Bipole, 'Noiseless resistor', 'R')

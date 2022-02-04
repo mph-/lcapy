@@ -84,7 +84,7 @@ positive x axis.  For example,
 
    >>> cct.add('D1 1 2; rotate=45')
 
-The component orientation can also be specified by a direction keyword.  Note, this rotates the component:
+The component orientation can also be specified by a direction attribute.  Note, this rotates the component:
 
 - right (0 degrees)
 
@@ -139,7 +139,7 @@ Component size
 
 By default each component has a minimum size of 1. This can be
 stretched to satisfy a node constraint.  The minimum size is specified
-using the size keyword, for example:
+using the size attribute, for example:
 
    >>> cct.add('R1 1 2; right, size=2')
 
@@ -659,6 +659,58 @@ The transistors can be flipped up-down with the `mirror` attribute and left-righ
 .. image:: examples/schematics/transistors2.png
    :width: 6cm
 
+There are many variants of transistor that can be selected with the `kind` attribute.  For example,
+
+.. literalinclude:: examples/schematics/transistors3.sch
+
+
+.. image:: examples/schematics/transistors3.png
+   :width: 3cm
+
+
+There are several kinds of bipolar transistor:
+
+- `nigbt`, `pigbt` n- and p-type L-shaped insulated gate bipolar transistor
+
+- `Lnigbt`, `Lpigbt` n- and p-type L-shaped insulated gate bipolar transistor
+
+
+There are many kinds of MOSFET:
+
+- `nmos`, `pmos` simplified form of n- and p-channel enhancement mode MOSFETS
+
+- `nmosd`, `pmosd` siplified form of n- and p-channel depletion mode MOSFETS
+
+- `nfet`, `pfet` n- and p-channel enhancement mode MOSFETS
+
+- `nfetd`, `pfetd`  n- and p-channel depletion mode MOSFETS
+
+- `nigfete`, `pigfete` n- and p-channel enhancement mode MOSFETS with insulated gate
+
+- `nigfetd`, `pigfetd`  n- and p-channel depletion mode MOSFETS with insulated gate
+
+- `nigfetbulk`, `pigfetbulk`
+
+- `hemt` high-electron mobility transistor
+
+
+Bipolar transistors have the following attributes:
+
+- `bodydiode`
+
+- `schottky base`
+
+
+MOSFET transistors have the following attributes:
+
+- `bodydiode`
+
+- `arrow`
+
+- `ferroel gate` ferroelectric gate
+
+See the `Circuitikz manual <https://texdoc.org/serve/circuitikz/0>`_ for the various attributes that can be applied to transistors.
+
 
 Transmission lines
 ------------------
@@ -951,7 +1003,7 @@ Here's an example of their use:
 `triangle` is an equilateral triangle.  Its shape can be changed with the `aspect` attribute.   It has anchors `n`, `e`, `s`, `w`, `c`, `c1`, `c2`, `c3`,
 
 
-The label of a shape can be replaced by an image, using the `image` keyword.  For example,
+The label of a shape can be replaced by an image, using the `image` attribute.  For example,
 
 .. literalinclude:: examples/schematics/image1.sch
 
