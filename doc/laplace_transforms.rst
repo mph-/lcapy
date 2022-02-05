@@ -30,3 +30,11 @@
 
 :math:`e^{- t} u\left(t\right) \longleftrightarrow \frac{1}{s + 1}`
 
+:math:`\mathrm{rect}{\left(t - \frac{1}{2} \right)} \longleftrightarrow \frac{1}{s} - \frac{e^{- s}}{s}`
+
+:math:`\mathrm{tri}{\left(t - 1 \right)} \longleftrightarrow \frac{2 e^{- s}}{s} - \frac{2 e^{- 2 s}}{s} + \frac{4 \left(\frac{s}{2} + \frac{1}{4}\right) e^{- 2 s}}{s^{2}} - \frac{2 \left(s + 1\right) e^{- s}}{s^{2}} + \frac{1}{s^{2}}`
+
+:math:`\mathrm{ramp}{\left(t \right)} \longleftrightarrow \frac{1}{s^{2}}`
+
+:math:`\mathrm{rampstep}{\left(t \right)} \longleftrightarrow \frac{1 - e^{- s}}{s^{2}}`
+
