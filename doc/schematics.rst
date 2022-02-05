@@ -665,7 +665,7 @@ There are many variants of transistor that can be selected with the `kind` attri
 
 
 .. image:: examples/schematics/transistors3.png
-   :width: 3cm
+   :width: 2.5cm
 
 
 There are several kinds of bipolar transistor:
