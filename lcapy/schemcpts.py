@@ -1063,24 +1063,24 @@ class Bipole(StretchyCpt):
             else:
                 raise ValueError('Component %s not variable' % self.name)
 
-        if self.kind is not None:
-            if self.kind not in self.kinds:
-                raise ValueError('Unknown %s kind %s: known kinds %s'
-                                 % (self.__name__, self.kind,
-                                    ', '.join(self.kinds.keys())))
-            tikz_cpt = self.kinds[self.kind]
-
-        if self.style is not None:
-            if self.style not in self.styles:
-                raise ValueError('Unknown %s style %s: known styles %s'
-                                 % (self.__name__, self.style,
-                                    ', '.join(self.styles.keys())))
-            tikz_cpt += self.styles[self.style]
-
         if self.type == 'MISC':
             if self.kind is None:
                 raise ValueError('Kind must be specified for %s' % self)
             tikz_cpt = self.kind
+        else:
+            if self.kind is not None:
+                if self.kind not in self.kinds:
+                    raise ValueError('Unknown %s kind %s: known kinds %s'
+                                     % (self.__name__, self.kind,
+                                        ', '.join(self.kinds.keys())))
+                tikz_cpt = self.kinds[self.kind]
+
+            if self.style is not None:
+                if self.style not in self.styles:
+                    raise ValueError('Unknown %s style %s: known styles %s'
+                                     % (self.__name__, self.style,
+                                        ', '.join(self.styles.keys())))
+                tikz_cpt += self.styles[self.style]
 
         label_pos = '_'
         voltage_pos = '^'
