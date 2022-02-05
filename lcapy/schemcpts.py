@@ -102,6 +102,8 @@ class Cpt(object):
     auxiliary = {}
     directive = False
     place = True
+    kinds = {}
+    styles = {}
 
     @property
     def s(self):
@@ -789,9 +791,10 @@ class Cpt(object):
         kwargs = kwargs.copy()
         for key, val in self.opts.items():
             if key == 'anchor':
-                anchor_map = {'n':'north', 'e':'east', 's':'south', 'w':'west',
-                              'ne':'north east', 'nw':'north west',
-                              'se':'south east', 'sw':'south west'}
+                anchor_map = {'n': 'north', 'e': 'east',
+                              's': 'south', 'w': 'west',
+                              'ne': 'north east', 'nw': 'north west',
+                              'se': 'south east', 'sw': 'south west'}
                 if val in anchor_map:
                     val = anchor_map[val]
 
@@ -1060,37 +1063,23 @@ class Bipole(StretchyCpt):
             else:
                 raise ValueError('Component %s not variable' % self.name)
 
-        cpts = {'C' : {'name': 'capacitor',
-                       'kinds': {'electrolytic': 'eC', 'polar': 'pC', 'variable': 'vC'},
-                       'styles' : {}},
-                'L' : {'name': 'inductor', 'kinds': {'variable': 'vL'},
-                       'styles' : {}},
-                'BAT' : {'name': 'battery', 'kinds': {'cell1': 'battery1'},
-                         'styles' : {}},
-                'D' : {'name': 'diode',
-                       'kinds': {'led': 'leD', 'photo': 'pD', 'schottky' : 'sD',
-                                 'zener': 'zD', 'zzener': 'zzD', 'tunnel' : 'tD'},
-                       'styles' : {'empty': '', 'full': '*', 'stroke': '-'}}}
-        if self.type in cpts:
-            cpt = cpts[self.type]
+        if self.kind is not None:
+            if self.kind not in self.kinds:
+                raise ValueError('Unknown %s kind %s: known kinds %s'
+                                 % (self.__name__, self.kind,
+                                    ', '.join(self.kinds.keys())))
+            tikz_cpt = self.kinds[self.kind]
 
-            if self.kind is not None:
-                kinds = cpt['kinds']
-                if self.kind not in kinds:
-                    raise ValueError('Unknown %s kind %s: known kinds %s'
-                                     % (cpt['name'], self.kind, ', '.join(kinds.keys())))
-                tikz_cpt = kinds[self.kind]
+        if self.style is not None:
+            if self.style not in self.styles:
+                raise ValueError('Unknown %s style %s: known styles %s'
+                                 % (self.__name__, self.style,
+                                    ', '.join(self.styles.keys())))
+            tikz_cpt += self.styles[self.style]
 
-            if self.style is not None:
-                styles = cpt['styles']
-                if self.style not in styles:
-                    raise ValueError('Unknown %s style %s: known styles %s'
-                                     % (cpt['name'], self.style, ', '.join(styles.keys())))
-                tikz_cpt += styles[self.style]
-
-        elif self.type == 'MISC':
+        if self.type == 'MISC':
             if self.kind is None:
-                raise ValueError('kind must be specified for %s' % self)
+                raise ValueError('Kind must be specified for %s' % self)
             tikz_cpt = self.kind
 
         label_pos = '_'
@@ -1508,13 +1497,42 @@ class Cable(Shape):
         return s
 
 
+class Bat(Bipole):
+    """Battery"""
+
+    tikz_cpt = 'battery'
+    kinds = {'cell1': 'battery1'}
+
+
+class C(Bipole):
+    """Capacitor"""
+
+    tikz_cpt = 'C'
+    kinds = {'electrolytic': 'eC', 'polar': 'pC', 'variable': 'vC'}
+
+
+class D(Bipole):
+    """Diode"""
+
+    tikz_cpt = 'D'
+    kinds = {'led': 'leD', 'photo': 'pD', 'schottky' : 'sD',
+             'zener': 'zD', 'zzener': 'zzD', 'tunnel' : 'tD'}
+    styles = {'empty': '', 'full': '*', 'stroke': '-'}
+
+
+class L(Bipole):
+    """Inductor"""
+
+    tikz_cpt = 'L'
+    kinds = {'variable': 'variable'}
+
+
 class Transistor(FixedCpt):
     """Transistor"""
 
     can_mirror = True
     can_scale = True
     can_invert = True
-    kinds = ()
 
     @property
     def pins(self):
@@ -1541,6 +1559,9 @@ class Transistor(FixedCpt):
 
         cpt = self.tikz_cpt
         if self.kind is not None:
+            # It may be better to have classes for each transistor kind
+            # but this is a lot of extra work.
+
             if self.kind not in self.kinds:
                 warn('Kind %s not in known kinds: %s' %
                      (self.kind, ', '.join(self.kinds)))
@@ -1579,8 +1600,8 @@ class BJT(Transistor):
     inpins = {'e' : ('lx', 0, 1.6),
              'b' : ('lx', 1, 0.8),
              'c' : ('lx', 0, 0)}
-
-    kinds = ('nigbt', 'pigbt', 'Lnigbt', 'Lpigbt')
+    kinds = {'nigbt': 'nigbt', 'pigbt': 'pigbt', 'Lnigbt': 'Lnigbt',
+             'Lpigbt': 'Lpigbt'}
 
 
 class JFET(Transistor):
@@ -1617,12 +1638,12 @@ class MOSFET(Transistor):
     inpins = {'d' : ('lx', -0.25, 1.64),
              'g' : ('lx', 0.85, 0.82),
              's' : ('lx', -0.25, 0)}
-
-    kinds = ('nmos', 'pmos', 'nmosd', 'pmosd',
-             'nfet', 'pfet', 'nfetd', 'pfetd',
-             'nigfet', 'pigfet', 'nigfete', 'pigfete',
-             'nigfetbulk', 'pigfetbulk', 'hemt')
-
+    kinds = {'nmos': 'nmos', 'pmos': 'pmos', 'nmosd': 'nmosd', 'pmosd': 'pmosd',
+             'nfet': 'nfet', 'pfet': 'pfet', 'nfetd': 'nfetd', 'pfetd': 'pfetd',
+             'nigfet': 'nigfet', 'pigfet': 'pigfet',
+             'nigfete': 'nfigete', 'pigfete': 'pigfete',
+             'nigfetbulk': 'nigfetbulk', 'pigfetbulk': 'pigfetbulk',
+             'hemt': 'hemt'}
 
 class MT(Bipole):
     """Motor"""
@@ -3382,17 +3403,12 @@ def make(classname, parent, name, cpt_type, cpt_id,
 defcpt('ADC', Bipole, 'ADC', 'adc')
 defcpt('AM', Bipole, 'Ammeter', 'ammeter')
 
-defcpt('BAT', Bipole, 'Battery', 'battery')
-
-defcpt('C', Bipole, 'Capacitor', 'C')
-
-defcpt('D', Bipole, 'Diode', 'D')
 defcpt('DAC', Bipole, 'DAC', 'dac')
-defcpt('Dled', 'D', 'LED', 'leD')
-defcpt('Dphoto', 'D', 'Photo diode', 'pD')
-defcpt('Dschottky', 'D', 'Schottky diode', 'zD')
-defcpt('Dtunnel', 'D', 'Tunnel diode', 'tD')
-defcpt('Dzener', 'D', 'Zener diode', 'zD')
+defcpt('Dled', D, 'LED', 'leD')
+defcpt('Dphoto', D, 'Photo diode', 'pD')
+defcpt('Dschottky', D, 'Schottky diode', 'zD')
+defcpt('Dtunnel', D, 'Tunnel diode', 'tD')
+defcpt('Dzener', D, 'Zener diode', 'zD')
 
 defcpt('E', VCS, 'VCVS', 'american controlled voltage source')
 defcpt('F', VCS, 'CCCS', 'american controlled current source')
@@ -3416,8 +3432,6 @@ defcpt('Inoise', 'I', 'Noise current source', 'sI')
 defcpt('J', JFET, 'N JFET transistor', 'njfet')
 defcpt('Jnjf', 'J', 'N JFET transistor', 'njfet')
 defcpt('Jpjf', 'J', 'P JFET transistor', 'pjfet')
-
-defcpt('L', Bipole, 'Inductor', 'L')
 
 defcpt('M', MOSFET, 'N MOSFET transistor', 'nmos')
 defcpt('Mnmos', 'M', 'N channel MOSFET transistor', 'nmos')
