@@ -1,6 +1,7 @@
 .PHONY: install
 install:
-	python3 setup.py install
+	#python3 setup.py install
+	pip3 install .
 
 .PHONY: package
 package:
