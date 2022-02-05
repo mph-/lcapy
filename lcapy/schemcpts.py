@@ -1497,7 +1497,7 @@ class Cable(Shape):
         return s
 
 
-class Bat(Bipole):
+class BAT(Bipole):
     """Battery"""
 
     tikz_cpt = 'battery'
