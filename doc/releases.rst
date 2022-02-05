@@ -2,12 +2,62 @@
 Release notes
 =============
 
+V1.3
+====
+
+- Adds support for more transistor types in schematics
+
+- Warns if there are no sources in circuit analysis
+
+- Warns if use `k` for coupling coefficient
+
+- Fixes force option for `symbol()`
+
+- Adds Laplace transforms for `ramp`, `rampstep`, `rect`, `tri`
+
+- Adds `ramp()` and `rampstep()` functions
+
+- Adds `expand_functions()` method to `Expr`
+
+- Renames `expandresponse()` to `expand_response`
+
+- Fixes setting causal assumption when extracting from a superposition
+
+- Adds `plot_deltas` argument to `plot()` methods
+
+- Avoids wrapping Jupyter notebook result
+
+- Adds preliminary support for triodes
+
+- Tries harder to find poles and zeros
+
+- Improves finding numerator and denominator expressions
+
+- Fixes conversion to norm Fourier and norm angular Fourier domains
+
+- Makes result of difference equation causal
+
+- Fixes `transfer_function()` and `impulse_response()` for `DLTIFilter`
+
+- Fixes Z-transform for down-sampling
+
+- Fixes discrete-time convolution
+
+- Allows `(f)` notation for DTFT
+
+- Adds lossless transmission line component
+
+- Adds `short()` method to `Circuit`
+
+- Adds `in_series()` and `in_parallel()` methods for components
+
+
 V1.2.4
 ======
 
 - Lazily import scipy, numpy, and networkx to speed up loading
 
--  Allows two-ports to be created from netlist using component names
+- Allows two-ports to be created from netlist using component names
 
 
 V1.2.3
