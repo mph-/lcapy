@@ -346,10 +346,11 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
 
         m = self.dummy_var(expr, 'm', level=0, real=True)
         g = (b - a) / (b + a)
+        d = (b + a) / 2
         if g == 0:
-            h = 1 / (b + a) * func(t - T)
+            h = 1 / d * func(t - T)
         else:
-            h = 1 / (b + a) * sym.Sum(g**m * func(t - (2 * m + 1) * T), (m, 0, sym.oo))
+            h = 1 / d * sym.Sum(g**m * func(t - (2 * m + 1) * T), (m, 0, sym.oo))
         return h
 
     def tline_start(self, expr, s, t):
@@ -422,7 +423,12 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
 
         m = self.dummy_var(expr, 'm', level=0, real=True)
         h1 = (1 - Gammas) / 2 * func(t)
-        h2 = (1 - Gammas) * (1 + Gammas) / (2 * Gammas) * sym.Sum((Gammas * Gammal)**m * func(t - 2 * m * T), (m, 1, sym.oo))
+        if Gammal == 0:
+            h2 = 0
+        elif Gammas == 0:
+            h2 = (1 - Gammas) * (1 + Gammas) * func(t - 2 * m * T)
+        else:
+            h2 = (1 - Gammas) * (1 + Gammas) / Gammas * sym.Sum((Gammas * Gammal)**m * func(t - 2 * m * T), (m, 1, sym.oo))
         return K * (h1 + h2)
 
     def term1(self, expr, s, t, **kwargs):
