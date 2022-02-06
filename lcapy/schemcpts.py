@@ -3489,6 +3489,8 @@ defcpt('CCCS', VCS, 'CCCS', 'american controlled current source')
 defcpt('VCCS', CCS, 'VCCS', 'american controlled current source')
 defcpt('CCVS', CCS, 'CCVS', 'american controlled voltage source')
 
+defcpt('TLlossless', TL, 'Lossless transmission line', '')
+
 defcpt('VM', Bipole, 'Voltmeter', 'voltmeter')
 
 defcpt('W', Wire, 'Wire', 'short')
