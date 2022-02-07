@@ -694,10 +694,7 @@ class NetlistMixin(object):
         Voc = self.Voc(Np, Nm)
         Zoc = self.impedance(Np, Nm)
 
-        # Convert to time-domain to handle arbitrary sources.  Either
-        # this or define a way to represent a superposition in a
-        # netlist.
-        return (V(Voc.time()) + Z(Zoc)).simplify()
+        return (V(Voc) + Z(Zoc)).simplify()
 
     def norton(self, Np, Nm=None):
         """Return s-domain Norton model between nodes Np and Nm.
@@ -711,10 +708,7 @@ class NetlistMixin(object):
         Isc = self.Isc(Np, Nm)
         Ysc = self.admittance(Np, Nm)
 
-        # Convert to time-domain to handle arbitrary sources.  Either
-        # this or define a way to represent a superposition in a
-        # netlist.
-        return (I(Isc.time()) | Y(Ysc)).simplify()
+        return (I(Isc) | Y(Ysc)).simplify()
 
     def match(self, pattern):
         """Return list of components names matching regular
@@ -727,7 +721,6 @@ class NetlistMixin(object):
             if match(pattern, cpt.name):
                 elts.append(cpt.name)
         return elts
-
 
     def admittance(self, Np, Nm=None):
         """Return driving-point admittance between nodes
