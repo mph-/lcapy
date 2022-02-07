@@ -2,7 +2,7 @@
 Current and Voltage.  It represents voltages and currents as a
 superposition in different transform domains.
 
-Copyright 2019--2021 Michael Hayes, UCECE
+Copyright 2019--2022 Michael Hayes, UCECE
 
 """
 
@@ -520,6 +520,13 @@ class Superposition(SuperpositionDomain, ExprDict):
             return keyword, val, 0, val.omega
 
         return keyword, val
+
+    def _netrepr(self):
+        """Format value as a string value for a netlist."""
+
+        # FIXME: converting to time-domain is only required
+        # if have a superposition of values.
+        return str(self.time())
 
     def _kind(self, value):
         if isinstance(value, PhasorTimeDomainExpression):

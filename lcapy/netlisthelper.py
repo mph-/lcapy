@@ -46,20 +46,23 @@ class NetlistHelper(object):
 
     def _netarg(self, arg):
 
-        from .super import Superposition
-
         if self.evalf:
             try:
+                # The arg may not be an Expr.
                 arg = arg.evalf(n=self.evalf)
             except:
                 pass
 
-        arg = str(arg)
+        try:
+            # This is primarily for Superposition values.
+            argstr = arg._netrepr()
+        except:
+            argstr = str(arg)
 
         # TODO: make more robust to catch expressions.
-        if ('(' in arg) or (')' in arg) or (' ' in arg) or (',' in arg) or ('*' in arg) or ('/' in arg):
-            return '{%s}' % arg
-        return arg
+        if ('(' in argstr) or (')' in argstr) or (' ' in argstr) or (',' in argstr) or ('*' in argstr) or ('/' in argstr):
+            return '{%s}' % argstr
+        return argstr
 
     def _netargs(self, net):
 
