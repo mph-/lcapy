@@ -38,6 +38,7 @@ Contents:
    schematics.rst
    tutorials.rst
    novice.rst
+   advanced.rst
    latex.rst
    transforms.rst
    config.rst
