@@ -1,7 +1,7 @@
 Vs 1 0 step; down
 Rs 1 2a; right
 W 2a 2; right=0.5
-TL 3 0_3 2 0_2 lossless; right
+TL 3 0_3 2 0_2 lossless; right, l=Z_0
 W 3 4; right=0.5
 Rl 4 0_4; down
 W 0_3 0_4; right
