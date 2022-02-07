@@ -610,34 +610,18 @@ class Cpt(ImmittanceMixin):
         return self.dpVoc.time()
 
     @property
-    def dpYs(self):
-        """Driving-point generalized admittance (s-domain) measured across
-        component in-circuit.  For the admittance of the component in isolation
-        use .Ys"""
-
-        return self.oneport().Ys
-
-    @property
-    def dpZs(self):
-        """Driving-point generalized impedance (s-domain) measured across
-        component in-circuit.  For the impedance of the component in isolation
-        use .Zs"""
-
-        return self.oneport().Zs
-
-    @property
     def dpY(self):
         """Driving-point admittance measured across component in-circuit.  For
         the admittance of the component in isolation use .Y"""
 
-        return self.oneport().Y
+        return self.cct.admittance(self.nodenames[1], self.nodenames[0])
 
     @property
     def dpZ(self):
         """Driving-point impedance measured across component in-circuit.  For
         the impedance of the component in isolation use .Z"""
 
-        return self.oneport().Z
+        return self.cct.impedance(self.nodenames[1], self.nodenames[0])
 
     def dummy_node(self):
 
@@ -1106,13 +1090,13 @@ class GY(Dummy):
 
 
 class TVtriode(Dummy):
-    """Triode"""    
+    """Triode"""
 
     need_branch_current = True
     need_extra_branch_current = True
 
     def _stamp(self, cct):
-        
+
         n1, n2, n3= self.node_indexes
         m1 = self.cct._branch_index(self.defname + 'X')
         m2 = self.branch_index
@@ -1127,10 +1111,10 @@ class TVtriode(Dummy):
 
         # V2 = -I1 Z2     V1 = I2 Z1
         # where V2 = V[n1] - V[n2] and V1 = V[n3] - V[n4]
-        
-        Z1 = ConstantDomainExpression(self.args[0]).expr                    
+
+        Z1 = ConstantDomainExpression(self.args[0]).expr
         Z2 = Z1
-        
+
         if n1 >= 0:
             cct._B[n1, m2] += 1
             cct._C[m1, n1] += 1
@@ -1139,7 +1123,7 @@ class TVtriode(Dummy):
             cct._C[m1, n2] -= 1
         if n3 >= 0:
             cct._B[n3, m1] += 1
-            cct._C[m2, n3] += 1 
+            cct._C[m2, n3] += 1
 
         cct._D[m1, m1] += Z2
         cct._D[m2, m2] -= Z1
