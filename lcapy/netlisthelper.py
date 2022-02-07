@@ -1,7 +1,7 @@
 """This module provides the NetlistHelper class used by the
 NetlistMaker and LadderMaker classes.
 
-Copyright 2020--2021 Michael Hayes, UCECE
+Copyright 2020--2022 Michael Hayes, UCECE
 
 """
 
@@ -11,8 +11,8 @@ from .componentnamer import ComponentNamer
 class NetlistHelper(object):
 
     evalf = False
-    
-    @property 
+
+    @property
     def _node(self):
 
         if not hasattr(self, '_node_counter'):
@@ -24,7 +24,7 @@ class NetlistHelper(object):
     def _make_nodes(self, *nodes):
 
         return [self._node if node is None else node for node in nodes]
-    
+
     def _make_name(self, kind):
         """Make identifier"""
 
@@ -42,12 +42,17 @@ class NetlistHelper(object):
         if not hasattr(self, '_namer'):
             self._namer = ComponentNamer()
 
-        return self._namer.netid(kind, '')    
+        return self._namer.netid(kind, '')
 
     def _netarg(self, arg):
 
+        from .super import Superposition
+
         if self.evalf:
-            arg = arg.evalf(n=self.evalf)
+            try:
+                arg = arg.evalf(n=self.evalf)
+            except:
+                pass
 
         arg = str(arg)
 
@@ -59,4 +64,3 @@ class NetlistHelper(object):
     def _netargs(self, net):
 
         return ' '.join([self._netarg(arg) for arg in net.args])
-
