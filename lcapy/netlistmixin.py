@@ -1846,6 +1846,24 @@ class NetlistMixin(object):
 
         return self.noisy(T=T)
 
+    def propagate(self, T):
+        """"Solve inductor currents and capacitor voltages at time `T`
+        and use for new initial values."""
+
+        new = self._new()
+
+        for cpt in self._elements.values():
+            if cpt.is_inductor:
+                i0 = cpt.I.time().subs(T)
+                net = cpt._netmake(args=(cpt.args[0], i0))
+            elif cpt.is_capacitor:
+                v0 = cpt.V.time().subs(T)
+                net = cpt._netmake(args=(cpt.args[0], v0))
+            else:
+                net = cpt._copy()
+            new._add(net)
+        return new
+
     def draw(self, filename=None, **kwargs):
         """Draw schematic of netlist.
 
