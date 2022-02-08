@@ -54,14 +54,14 @@ The two approaches have many attributes and methods in common.  For example,
 However, there are subtle differences.  For example,
 
    >>> cct1.Voc.laplace()
-      5   
+      5
    ──────
     2   s
    s  + ─
         2
 
    >>> cct2.Voc(2, 0).laplace()
-      5   
+      5
    ──────
     2   s
    s  + ─
@@ -72,7 +72,7 @@ open-circuit voltage across.  The advantage of the netlist approach is
 that component names can be used, for example,
 
    >>> cct2.V1.V.laplace()
-      5   
+      5
    ──────
     2   s
    s  + ─
@@ -100,10 +100,10 @@ can be found by solving a system of linear equations.
 Lcapy's algorithm for solving a circuit is:
 
 1. If a capacitor or inductor is found to have initial conditions, then the circuit is analysed as an initial value problem using Laplace methods.  In this case, the sources are ignored for :math:`t<0` and the result is only known for :math:`t\ge 0`.
-   
+
 2. If there are no capacitors and inductors and if none of the independent sources are specified in the Laplace domain, then time-domain analysis is performed (since no derivatives or integrals are required).
-   
-3. Finally, Lcapy tries to decompose the sources into DC, AC, transient, and noise components.  The circuit is analysed for each source category using the appropriate transform domain (phasors for AC, Laplace domain for transients) and the results are added.  If there are multiple noise sources, these are considered independently since they are assumed to be uncorrelated.  
+
+3. Finally, Lcapy tries to decompose the sources into DC, AC, transient, and noise components.  The circuit is analysed for each source category using the appropriate transform domain (phasors for AC, Laplace domain for transients) and the results are added.  If there are multiple noise sources, these are considered independently since they are assumed to be uncorrelated.
 
 The method that Lcapy uses can be found using the `describe()` method.   For example,
 
@@ -126,7 +126,7 @@ The method that Lcapy uses can be found using the `describe()` method.   For exa
    Time-domain analysis is used for source V1.
    Phasor analysis is used for source V2.
 
-   
+
 
 DC analysis
 -----------
@@ -200,7 +200,7 @@ circuit analysis, the circuit prior to the switch changing can be
 analysed and used to determine the initial conditions for the circuit
 after the switched changed.  Lcapy can help automate this with the
 `initialize()` method.  For example,
-      
+
    >>> from lcapy import *
    >>> a1 = Circuit("""
    ... V 1 0 dc; down
@@ -235,12 +235,29 @@ this case the capacitor `C` is initialized with the corresponding
 capacitor voltage for the circuit `a1` at time `t1`.  Note, it is
 assumed that `t1` is a valid time for the results of circuit `a1`.
 
+The `initialize()` method can be applied to update the initial values
+of a circuit.  For example,
+
+   >>> from lcapy import *
+   >>> a1 = Circuit("""
+   ... V 1 0 dc; down
+   ... R 1 2; right
+   ... C 2 0_2; down
+   ... W 0 0_2; right
+   ... """)
+   >>> a1.initialize(a1, 3)
+   V 1 0 dc; down
+   R 1 2; right
+   C 2 0_2 C V; down
+   W 0 0_2; right
+
+This is a trivial case where the capacitor voltage is set to the DC voltage of the source.
+
 
 Noise analysis
 --------------
 
-Each noise source is assigned a noise identifier (nid), see :ref:`noisesignals`.  Noise
-expressions with different nids are assumed to be independent and thus
+Each noise source is assigned a noise identifier (nid), see :ref:`noisesignals`.  Noise expressions with different nids are assumed to be independent and thus
 represent different noise realisations.
 
 Lcapy analyses the circuit for each noise realisation independently
@@ -290,24 +307,24 @@ law around each loop in a circuit.  For example, consider the netlist:
    >>> cct.draw()
 
 .. image:: examples/netlists/graph2.png
-   :width: 8cm   
+   :width: 8cm
 
-           
-The mesh equations are found using::           
-   
+
+The mesh equations are found using::
+
    >>> l = cct.loop_analysis()
    >>> l.mesh_equations()
-   ⎧                                              t                                                                                 
-   ⎪                                              ⌠                                                                                 
-   ⎪                                              ⎮  (-i₁(τ) + i₃(τ)) dτ                                                            
-   ⎨                                              ⌡                                                                                 
-   ⎪          d               d                   -∞                                   
+   ⎧                                              t
+   ⎪                                              ⌠
+   ⎪                                              ⎮  (-i₁(τ) + i₃(τ)) dτ
+   ⎨                                              ⌡
+   ⎪          d               d                   -∞
    ⎪i₁(t): L₁⋅──(-i₁(t)) + L₂⋅──(i₁(t) - i₂(t)) + ────────────────────── = 0,
-   ⎩          dt              dt                            C₂               
+   ⎩          dt              dt                            C₂
               d
     i₂(t): L₂⋅──(i₁(t) - i₂(t)) - R₁⋅i₂(t) + v₁(t) = 0,
               dt
-                                   t                                                                                 
+                                   t
                                   ⌠                         ⎪
                                   ⎮  (-i₁(τ) + i₃(τ)) dτ    ⎪
                                   ⌡                         ⎬
@@ -329,9 +346,9 @@ The mesh equations can be formulated in the s-domain using:
 The system of equations can be formulated in matrix form as :math:`\mathbf{A} \mathbf{y} = \mathbf{b}` using::
 
    >>> l.matrix_equations(form='A y = b')
-   ⎡      R₁                                     ⎤             
-   ⎢-L₂ - ──          0                 L₂       ⎥             
-   ⎢      s                                      ⎥             
+   ⎡      R₁                                     ⎤
+   ⎢-L₂ - ──          0                 L₂       ⎥
+   ⎢      s                                      ⎥
    ⎢                                             ⎥        ⎡-1 ⎤
    ⎢            R₂   R₃     1          -1        ⎥ ⎡I₁⎤   ⎢───⎥
    ⎢   0      - ── - ── + ─────       ─────      ⎥ ⎢  ⎥   ⎢ s ⎥
@@ -339,13 +356,13 @@ The system of equations can be formulated in matrix form as :math:`\mathbf{A} \m
    ⎢                      C₂⋅s        C₂⋅s       ⎥ ⎢  ⎥   ⎢ 0 ⎥
    ⎢                                             ⎥ ⎣I₃⎦   ⎢   ⎥
    ⎢                  1                       1  ⎥        ⎣ 0 ⎦
-   ⎢  -L₂           ─────        -L₁ + L₂ - ─────⎥             
-   ⎢                    2                       2⎥             
-   ⎣                C₂⋅s                    C₂⋅s ⎦   
+   ⎢  -L₂           ─────        -L₁ + L₂ - ─────⎥
+   ⎢                    2                       2⎥
+   ⎣                C₂⋅s                    C₂⋅s ⎦
 
 There are a number of forms that the system of equations can be shown: `y = Ainv b`, `Ainv b = y`, `A y = b`, and `b = A y`.  The `invert` argument calculates the inverse of the `A` matrix.
-   
-The matrix is returned by the `A` attribute, the vector of unknowns by the `y` attribute, and the result vector by the `b` attribute.   
+
+The matrix is returned by the `A` attribute, the vector of unknowns by the `y` attribute, and the result vector by the `b` attribute.
 
 .. _nodal-analysis:
 
@@ -369,20 +386,20 @@ law at each node in a circuit.  For example, consider the netlist:
    >>> cct.draw()
 
 .. image:: examples/netlists/graph2.png
-   :width: 8cm   
+   :width: 8cm
 
-           
-The nodal equations are found using::           
-   
+
+The nodal equations are found using::
+
    >>> n = cct.nodal_analysis()
    >>> n.nodal_equations()
-   ⎧                    
-   ⎪                   
-   ⎪                   
-   ⎨                   
-   ⎪                   
-   ⎪ 1: v₁(t) = u(t), 
-   ⎩                   
+   ⎧
+   ⎪
+   ⎪
+   ⎨
+   ⎪
+   ⎪ 1: v₁(t) = u(t),
+   ⎩
                              t              t
                             ⌠              ⌠
                             ⎮  v₂(τ) dτ    ⎮  (v₂(τ) - v₃(τ)) dτ
@@ -390,15 +407,15 @@ The nodal equations are found using::
          -v₁(t) + v₂(t)   -∞             -∞
      2: ──────────────── + ──────────── + ─────────────────────── = 0,
                 R₁               L₂                   L₁
-   
-                                           t     
+
+                                           t
                                           ⌠
-                                          ⎮  (-v₂(τ) + v₃(τ)) dτ     
+                                          ⎮  (-v₂(τ) + v₃(τ)) dτ
                                           ⌡
            d            v₃(t) - v₄(t)   -∞
-     3: C₂⋅──(v₃(t)) + ─────────────── + ──────────────────────── = 0, 
-           dt                  R₂                  L₁                  
-                        
+     3: C₂⋅──(v₃(t)) + ─────────────── + ──────────────────────── = 0,
+           dt                  R₂                  L₁
+
                                       ⎫
                                       ⎪
                                       ⎪
@@ -406,7 +423,7 @@ The nodal equations are found using::
          v₄(t)   -v₃(t) + v₄(t)       ⎪
      4: ────── + ──────────────── = 0 ⎪
           R₃            R₂            ⎭
-        
+
 
 Note, these are keyed by the node names.  The `node_prefix` argument
 can be used with `nodal_analysis()` to resolve ambiguities with component
@@ -416,26 +433,26 @@ The nodal equations can be formulated in the s-domain using::
 
    >>> na = cct.laplace().nodal_analysis()
    >>> na.nodal_equations()
-   ⎧           1  
+   ⎧           1
    ⎨1: V₁(s) = ─,
    ⎩           s
        -V₁(s) + V₂(s)   V₂(s)   V₂(s) - V₃(s)
     2: ────────────── + ───── + ───────────── = 0,
-             R₁          L₂⋅s        L₁⋅s    
+             R₁          L₂⋅s        L₁⋅s
                     V₃(s) - V₄(s)   -V₂(s) + V₃(s)
     3: C₂⋅s⋅V₃(s) + ───────────── + ────────────── = 0,
-                          R₂             L₁⋅s          
+                          R₂             L₁⋅s
        V₄(s)   -V₃(s) + V₄(s)    ⎫
     4: ───── + ────────────── = 0⎬
          R₃          R₂          ⎭
 
-         
+
 The system of equations can be formulated in matrix form as :math:`\mathbf{A} \mathbf{y} = \mathbf{b}` using::
 
    >>> l.matrix_equations(form='A y = b')
-   ⎡ 1             0                    0               0     ⎤           
-   ⎢                                                          ⎥           
-   ⎢-1     1       1       1           -1                     ⎥           
+   ⎡ 1             0                    0               0     ⎤
+   ⎢                                                          ⎥
+   ⎢-1     1       1       1           -1                     ⎥
    ⎢────  ──── + ───── + ─────        ─────             0     ⎥        ⎡1⎤
    ⎢R₁⋅s  R₁⋅s       2       2            2                   ⎥ ⎡V₁⎤   ⎢─⎥
    ⎢             L₂⋅s    L₁⋅s         L₁⋅s                    ⎥ ⎢  ⎥   ⎢s⎥
@@ -445,13 +462,13 @@ The system of equations can be formulated in matrix form as :math:`\mathbf{A} \m
    ⎢                 2               R₂⋅s       2     R₂⋅s    ⎥ ⎢  ⎥   ⎢0⎥
    ⎢             L₁⋅s                       L₁⋅s              ⎥ ⎣V₄⎦   ⎢ ⎥
    ⎢                                                          ⎥        ⎣0⎦
-   ⎢                                  -1            1      1  ⎥           
-   ⎢ 0             0                  ────         ──── + ────⎥           
-   ⎣                                  R₂⋅s         R₃⋅s   R₂⋅s⎦           
+   ⎢                                  -1            1      1  ⎥
+   ⎢ 0             0                  ────         ──── + ────⎥
+   ⎣                                  R₂⋅s         R₃⋅s   R₂⋅s⎦
 
 There are a number of forms that the system of equations can be shown: `y = Ainv b`, `Ainv b = y`, `A y = b`, and `b = A y`.  The `invert` argument calculates the inverse of the `A` matrix.
 
-The matrix is returned by the `A` attribute, the vector of unknowns by the `y` attribute, and the result vector by the `b` attribute.      
+The matrix is returned by the `A` attribute, the vector of unknowns by the `y` attribute, and the result vector by the `b` attribute.
 
 
 .. _modified-nodal-analysis:
@@ -488,10 +505,10 @@ The corresponding circuit for DC analysis can be found using the `dc()` method:
 The equations used to solve this can be found with the `matrix_equations()` method:
 
    >>> ac.dc().matrix_equations()
-                                   -1     
-            ⎛⎡1    -1            ⎤⎞       
-            ⎜⎢──   ───  0   1  0 ⎥⎟       
-            ⎜⎢R₁    R₁           ⎥⎟       
+                                   -1
+            ⎛⎡1    -1            ⎤⎞
+            ⎜⎢──   ───  0   1  0 ⎥⎟
+            ⎜⎢R₁    R₁           ⎥⎟
    ⎡V₁  ⎤   ⎜⎢                   ⎥⎟   ⎡0 ⎤
    ⎢    ⎥   ⎜⎢-1   1             ⎥⎟   ⎢  ⎥
    ⎢V₂  ⎥   ⎜⎢───  ──   0   0  1 ⎥⎟   ⎢0 ⎥
@@ -501,9 +518,9 @@ The equations used to solve this can be found with the `matrix_equations()` meth
    ⎢I_V1⎥   ⎜⎢ 0    0   ──  0  -1⎥⎟   ⎢10⎥
    ⎢    ⎥   ⎜⎢          R₂       ⎥⎟   ⎢  ⎥
    ⎣I_L1⎦   ⎜⎢                   ⎥⎟   ⎣0 ⎦
-            ⎜⎢ 1    0   0   0  0 ⎥⎟       
-            ⎜⎢                   ⎥⎟       
-            ⎝⎣ 0    1   -1  0  0 ⎦⎠       
+            ⎜⎢ 1    0   0   0  0 ⎥⎟
+            ⎜⎢                   ⎥⎟
+            ⎝⎣ 0    1   -1  0  0 ⎦⎠
 
 Here `V1`, `V2`, and `V3` are the unknown node voltages for nodes 1, 2, and 3.  `I_V1` is the current through V1 and `I_L1` is the current through L1.
 
@@ -511,10 +528,10 @@ Here `V1`, `V2`, and `V3` are the unknown node voltages for nodes 1, 2, and 3.  
 The equations are similar for the transient response:
 
    >>> a.transient().matrix_equations()
-                                                -1       
-               ⎛⎡1    -1                      ⎤⎞         
-               ⎜⎢──   ───      0      1    0  ⎥⎟         
-               ⎜⎢R₁    R₁                     ⎥⎟         
+                                                -1
+               ⎛⎡1    -1                      ⎤⎞
+               ⎜⎢──   ───      0      1    0  ⎥⎟
+               ⎜⎢R₁    R₁                     ⎥⎟
    ⎡V₁(s)  ⎤   ⎜⎢                             ⎥⎟   ⎡ 0  ⎤
    ⎢       ⎥   ⎜⎢-1   1                       ⎥⎟   ⎢    ⎥
    ⎢V₂(s)  ⎥   ⎜⎢───  ──       0      0    1  ⎥⎟   ⎢ 0  ⎥
@@ -524,9 +541,9 @@ The equations are similar for the transient response:
    ⎢I_V1(s)⎥   ⎜⎢ 0    0   C₁⋅s + ──  0   -1  ⎥⎟   ⎢V(s)⎥
    ⎢       ⎥   ⎜⎢                 R₂          ⎥⎟   ⎢    ⎥
    ⎣I_L1(s)⎦   ⎜⎢                             ⎥⎟   ⎣ 0  ⎦
-               ⎜⎢ 1    0       0      0    0  ⎥⎟         
-               ⎜⎢                             ⎥⎟         
-               ⎝⎣ 0    1      -1      0  -L₁⋅s⎦⎠         
+               ⎜⎢ 1    0       0      0    0  ⎥⎟
+               ⎜⎢                             ⎥⎟
+               ⎝⎣ 0    1      -1      0  -L₁⋅s⎦⎠
 
 
 .. _state-space-analysis:
@@ -578,8 +595,8 @@ The initial values of the state variable vector are shown using the `x0` attribu
    >>> ss.x0
    ⎡0⎤
    ⎢ ⎥
-   ⎣0⎦   
-   
+   ⎣0⎦
+
 The independent source vector is shown using the `u` attribute.  In this example, there is a single independent source:
 
    >>> ss.u
@@ -599,22 +616,22 @@ vector is shown using the `y` attribute:
 The state equations are shown using the `state_equations()` method:
 
    >>> ss.state_equations()
-   ⎡d         ⎤   ⎡-R₁  -1  ⎤                      
-   ⎢──(i_L(t))⎥   ⎢───  ─── ⎥            ⎡1⎤       
-   ⎢dt        ⎥   ⎢ L    L  ⎥ ⎡i_L(t)⎤   ⎢─⎥       
+   ⎡d         ⎤   ⎡-R₁  -1  ⎤
+   ⎢──(i_L(t))⎥   ⎢───  ─── ⎥            ⎡1⎤
+   ⎢dt        ⎥   ⎢ L    L  ⎥ ⎡i_L(t)⎤   ⎢─⎥
    ⎢          ⎥ = ⎢         ⎥⋅⎢      ⎥ + ⎢L⎥⋅[v(t)]
-   ⎢d         ⎥   ⎢-1   -1  ⎥ ⎣v_C(t)⎦   ⎢ ⎥       
-   ⎢──(v_C(t))⎥   ⎢───  ────⎥            ⎣0⎦       
-   ⎣dt        ⎦   ⎣ C   C⋅R₂⎦                      
+   ⎢d         ⎥   ⎢-1   -1  ⎥ ⎣v_C(t)⎦   ⎢ ⎥
+   ⎢──(v_C(t))⎥   ⎢───  ────⎥            ⎣0⎦
+   ⎣dt        ⎦   ⎣ C   C⋅R₂⎦
 
 The output equations are shown using the `output_equations()` method:
 
    >>> ss.output_equations()
-   ⎡v₁(t)⎤   ⎡0    0⎤            ⎡1⎤       
-   ⎢     ⎥   ⎢      ⎥ ⎡i_L(t)⎤   ⎢ ⎥       
+   ⎡v₁(t)⎤   ⎡0    0⎤            ⎡1⎤
+   ⎢     ⎥   ⎢      ⎥ ⎡i_L(t)⎤   ⎢ ⎥
    ⎢v₂(t)⎥ = ⎢-R₁  0⎥⋅⎢      ⎥ + ⎢1⎥⋅[v(t)]
-   ⎢     ⎥   ⎢      ⎥ ⎣v_C(t)⎦   ⎢ ⎥       
-   ⎣v₃(t)⎦   ⎣0    1⎦            ⎣0⎦       
+   ⎢     ⎥   ⎢      ⎥ ⎣v_C(t)⎦   ⎢ ⎥
+   ⎣v₃(t)⎦   ⎣0    1⎦            ⎣0⎦
 
 
 The `A`, `B`, `C`, and `D` matrices are obtained using the attributes
@@ -709,7 +726,7 @@ attribute, for example,
    >>> ss.P
     2   s⋅(C⋅R₁⋅R₂ + L)   R₁ + R₂
    s  + ─────────────── + ────────
-             C⋅L⋅R₂        C⋅L⋅R₂ 
+             C⋅L⋅R₂        C⋅L⋅R₂
 
 The roots of this polynomial are the eigenvalues of the system.  These
 are given by the `eigenvalues` attribute.  The corresponding
@@ -744,16 +761,16 @@ Both `NodalAnalysis` and `LoopAnalysis` use `CircuitGraph` to represent a netlis
 The graph is:
 
 .. image:: examples/netlists/circuitgraph1.png
-   :width: 8cm           
+   :width: 8cm
 
 The loops in the graph can be found using::
-  
+
    >>> cg = cct.circuit_graph()
-   >>> cg.loops()                                                              
+   >>> cg.loops()
    [['0', '1', '3'], ['0', '1', '2']]
    >>> cg.draw()
 
-Here's another example::           
+Here's another example::
 
    >>> cct = Circuit("""
    ...V1 1 0; down
@@ -768,11 +785,11 @@ Here's another example::
    ...W 0_3 0_4; right""")
    >>> cct.draw()
 
-   
-.. image:: examples/netlists/graph2.png
-   :width: 8cm   
 
-The graph is:           
+.. image:: examples/netlists/graph2.png
+   :width: 8cm
+
+The graph is:
 
 .. image:: examples/netlists/circuitgraph2.png
    :width: 8cm
@@ -797,18 +814,18 @@ Note, `circuit_graph()` inserts dummy nodes and wires to avoid parallel edges.  
      W 0_3 0_4; right""")
    >>> cct.draw()
 
-   
-.. image:: examples/netlists/graph4.png
-   :width: 8cm   
 
-In this circuit, R2 is in parallel with C so Lcapy adds a dummy node 0* and a dummy component W01.  The resulting graph is:           
+.. image:: examples/netlists/graph4.png
+   :width: 8cm
+
+In this circuit, R2 is in parallel with C so Lcapy adds a dummy node 0* and a dummy component W01.  The resulting graph is:
 
 .. image:: examples/netlists/circuitgraph4.png
    :width: 8cm
 
 
 
-   
+
 .. _simulation:
 
 
@@ -833,10 +850,10 @@ CircuitGraph attributes
 
 - `nullity` the number of meshes for a planar graph
 
-- `rank` the required number of node voltages for nodal analysis  
+- `rank` the required number of node voltages for nodal analysis
 
 - `node_connectivity` the minimum connectivity of the graph.  If 0, one or more components are connected, if 1, one or more components are connected at a single node, etc.
-  
+
 
 CircuitGraph methods
 --------------------
@@ -866,8 +883,8 @@ CircuitGraph methods
 - `tree()` the minimum spanning tree.
 
 - `links()` the edges removed from the graph to form the minimum spanning tree.
-  
-  
+
+
 Numerical simulation
 ====================
 
@@ -884,29 +901,29 @@ an R-L circuit:
    >>> from lcapy import Circuit
    >>> from numpy import linspace
    >>> from matplotlib.pyplot import savefig
-   >>> 
+   >>>
    >>> cct = Circuit("""
    >>> V1 1 0 step 10; down
    >>> R1 1 2 5; right
    >>> L1 2 0_2 2; down
    >>> W 0 0_2; right""")
-   >>> 
+   >>>
    >>> tv = linspace(0, 1, 100)
-   >>> 
+   >>>
    >>> results = cct.sim(tv)
-   >>> 
+   >>>
    >>> ax = cct.R1.v.plot(tv, label='analytic')
    >>> ax.plot(tv, results.R1.v, label='simulated')
    >>> ax.legend()
-   >>> 
+   >>>
    >>> savefig('sim1.png')
 
 .. image:: examples/simulation/VRL1.png
    :width: 6cm
-   
+
 .. image:: examples/simulation/sim1.png
    :width: 12cm
-   
+
 
 Integration methods
 -------------------
@@ -921,4 +938,3 @@ between accuracy and stability.
 Here's an example of using the backward-Euler integration method:
 
    >>> results = cct.sim(tv, integrator='backward-euler')
-

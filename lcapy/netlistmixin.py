@@ -1766,24 +1766,6 @@ class NetlistMixin(object):
             new._add(net)
         return new
 
-    def initialize(self, cct, time):
-        """Set the initial values for this netlist based on the values
-        computed for netlist cct at specified time."""
-
-        new = self._new()
-
-        for cpt in self._elements.values():
-            ic = 0
-            if cpt.name in cct.reactances:
-                if cpt.type == 'C':
-                    ic = cct[cpt.name].v.remove_condition()(time)
-                else:
-                    ic = cct[cpt.name].i.remove_condition()(time)
-
-            net = cpt._initialize(ic)
-            new._add(net)
-        return new
-
     def pre_initial_model(self):
         """Generate circuit model for determining the pre-initial
         conditions."""
@@ -1846,26 +1828,21 @@ class NetlistMixin(object):
 
         return self.noisy(T=T)
 
-    def propagate(self, T):
-        """"Solve circuit to find inductor currents and capacitor voltages at
-        time `T` and create new netlist using these values as initial
-        values.  This is useful for switching circuits where the
-        circuit topology changes.  This is experimental and the method
-        name may change!
-
-        """
+    def initialize(self, cct, T):
+        """Set the initial values for this netlist based on the values
+        computed for netlist `cct` at specified time `T`."""
 
         new = self._new()
 
         for cpt in self._elements.values():
-            if cpt.is_inductor:
-                i0 = cpt.I.time().subs(T)
-                net = cpt._netmake(args=(cpt.args[0], i0))
-            elif cpt.is_capacitor:
-                v0 = cpt.V.time().subs(T)
-                net = cpt._netmake(args=(cpt.args[0], v0))
-            else:
-                net = cpt._copy()
+            ic = 0
+            if cpt.name in cct.reactances:
+                if cpt.type == 'C':
+                    ic = cct[cpt.name].v.remove_condition().subs(T)
+                else:
+                    ic = cct[cpt.name].i.remove_condition().subs(T)
+
+            net = cpt._initialize(ic)
             new._add(net)
         return new
 

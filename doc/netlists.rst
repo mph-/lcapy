@@ -387,10 +387,10 @@ Circuit methods
 - `noise_model()` Replaces resistors with a series combination of a
   resistor and a noise voltage source
 
-- `propagate(T)` Solves circuit to find inductor currents and
-        capacitor voltages at time `T` and creates a new circuit using
-        these values as initial values.  This is useful for switching
-        circuits where the circuit topology changes.
+- `initialize(cct, T)` Sets initial values for reactive components
+  based on the values computed for the circuit `cct` at time `T`.
+  This is useful for switching circuits where the circuit topology
+  changes.
 
 - `replace(name, net)` Replaces the named component.  For example,
 
