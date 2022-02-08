@@ -1847,8 +1847,13 @@ class NetlistMixin(object):
         return self.noisy(T=T)
 
     def propagate(self, T):
-        """"Solve inductor currents and capacitor voltages at time `T`
-        and use for new initial values."""
+        """"Solve circuit to find inductor currents and capacitor voltages at
+        time `T` and create new netlist using these values as initial
+        values.  This is useful for switching circuits where the
+        circuit topology changes.  This is experimental and the method
+        name may change!
+
+        """
 
         new = self._new()
 
