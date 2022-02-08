@@ -85,7 +85,7 @@ class Cpt(ImmittanceMixin):
         self.nosim = 'nosim' in self.opts
 
         # No defined cpt
-        if self.type in ('XX', 'Cable'):
+        if self.type in ('XX', 'Cable') or self.nosim:
             self._cpt = lcapy.oneport.Dummy()
             return
 
@@ -702,10 +702,7 @@ class Cpt(ImmittanceMixin):
 
 
 class Invalid(Cpt):
-
-    @property
-    def cpt(self):
-         raise NotImplementedError('Invalid component for circuit analysis: %s' % self)
+    pass
 
 
 class NonLinear(Invalid):
