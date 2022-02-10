@@ -115,8 +115,10 @@ class Netlist(NetlistMixin, NetfileMixin):
         else:
             return self.independent_source_groups(transform=True)
 
+    def _subs_make(self, nowarn=False):
 
-    def _sub_make(self):
+        if hasattr(self, '_sub'):
+            return self._sub
 
         groups = self._groups()
         sub = Transformdomains()
@@ -124,6 +126,10 @@ class Netlist(NetlistMixin, NetfileMixin):
         for kind, sources in groups.items():
             sub[kind] = SubNetlist(self, kind)
 
+        if sub == {} and not nowarn:
+            warn('Netlist has no sources')
+
+        self._sub = sub
         return sub
 
     @property
@@ -133,14 +139,7 @@ class Netlist(NetlistMixin, NetfileMixin):
         selected.
 
         """
-
-        if not hasattr(self, '_sub'):
-            self._sub = self._sub_make()
-
-        if self._sub == {}:
-            warn('Netlist has no sources')
-
-        return self._sub
+        return self._subs_make()
 
     @property
     def subcircuits(self):
@@ -202,11 +201,13 @@ class Netlist(NetlistMixin, NetfileMixin):
         self._Idict = result
         return result
 
-    def get_I(self, name):
+    def get_I(self, name, nowarn=False):
         """Current through component (time-domain)"""
 
+        subs = self._subs_make(nowarn=nowarn)
+
         result = SuperpositionCurrent()
-        for sub in self.sub.values():
+        for sub in subs.values():
             I = sub.get_I(name)
             result.add(I)
         result = result
@@ -217,21 +218,23 @@ class Netlist(NetlistMixin, NetfileMixin):
 
         return self.get_I(name).time()
 
-    def _get_Vd(self, Np, Nm=None):
+    def _get_Vd(self, Np, Nm=None, nowarn=False):
         """This does not check nodes."""
 
+        subs = self._subs_make(nowarn=nowarn)
+
         result = SuperpositionVoltage()
-        for sub in self.sub.values():
+        for sub in subs.values():
             Vd = sub.get_Vd(Np, Nm)
             result.add(Vd)
         result = result.canonical()
         return result
 
-    def get_Vd(self, Np, Nm=None):
+    def get_Vd(self, Np, Nm=None, **kwargs):
         """Voltage drop between nodes (time-domain)"""
 
         Np, Nm = self._check_nodes(Np, Nm)
-        return self._get_Vd(Np, Nm)
+        return self._get_Vd(Np, Nm, **kwargs)
 
     def get_vd(self, Np, Nm=None):
         """Time-domain voltage drop between nodes"""

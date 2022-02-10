@@ -636,18 +636,18 @@ class NetlistMixin(object):
 
         return N1p, N1m, N2p, N2m
 
-    def Voc(self, Np, Nm=None):
+    def Voc(self, Np, Nm=None, **kwargs):
         """Return open-circuit transform-domain voltage between nodes Np and
         Nm."""
 
-        return self.get_Vd(Np, Nm)
+        return self.get_Vd(Np, Nm, **kwargs)
 
     def voc(self, Np, Nm=None):
         """Return open-circuit t-domain voltage between nodes Np and Nm."""
 
         return self.Voc(Np, Nm).time()
 
-    def Isc(self, Np, Nm=None):
+    def Isc(self, Np, Nm=None, **kwargs):
         """Return short-circuit transform-domain current between nodes Np and
         Nm."""
 
@@ -661,7 +661,8 @@ class NetlistMixin(object):
             new.add('Vshort_ %s %s 0' % (Np, Nm))
 
         # Negate current since Vshort is a considered a source.
-        Isc = -new.Vshort_.I
+        Isc = -new.get_I('Vshort_', **kwargs)
+
         new.remove('Vshort_')
 
         return Isc
@@ -818,6 +819,7 @@ class NetlistMixin(object):
         V2 = new.Voc(N2p, N2m)
         V1 = new.V1_.V
 
+        # Note, this can cancel s, say in s * B / s * A.
         H = V2.laplace() / V1.laplace()
         H.causal = True
         return H
@@ -1646,33 +1648,33 @@ class NetlistMixin(object):
             net.add('W %s 0' % N1m)
 
         if model == 'A':
-            V1a = net.Voc(N1p, N1m)(s)
-            I1a = net.Isc(N1p, N1m)(s)
+            V1a = net.Voc(N1p, N1m, nowarn=True)(s)
+            I1a = net.Isc(N1p, N1m, nowarn=True)(s)
             A = net.Aparams(N1p, N1m, N2p, N2m)
             return TwoPortAModel(A, V1a=V1a, I1a=I1a)
         elif model == 'B':
-            V2b = net.Voc(N2p, N2m)(s)
-            I2b = net.Isc(N2p, N2m)(s)
+            V2b = net.Voc(N2p, N2m, nowarn=True)(s)
+            I2b = net.Isc(N2p, N2m, nowarn=True)(s)
             A = net.Aparams(N1p, N1m, N2p, N2m)
             return TwoPortBModel(A.Bparams, V2b=V2b, I2b=I2b)
         elif model == 'Z':
-            V1 = net.Voc(N1p, N1m)(s)
-            V2 = net.Voc(N2p, N2m)(s)
+            V1 = net.Voc(N1p, N1m, nowarn=True)(s)
+            V2 = net.Voc(N2p, N2m, nowarn=True)(s)
             Z = net.Zparams(N1p, N1m, N2p, N2m)
             return TwoPortZModel(Z, V1z=V1, V2z=V2)
         elif model == 'Y':
-            I1 = net.Isc(N1p, N1m)(s)
-            I2 = net.Isc(N2p, N2m)(s)
+            I1 = net.Isc(N1p, N1m, nowarn=True)(s)
+            I2 = net.Isc(N2p, N2m, nowarn=True)(s)
             Z = net.Zparams(N1p, N1m, N2p, N2m)
             return TwoPortYModel(Z.Y, I1y=I1, I2y=I2)
         elif model == 'G':
-            I1 = net.Isc(N1p, N1m)(s)
-            V2 = net.Voc(N2p, N2m)(s)
+            I1 = net.Isc(N1p, N1m, nowarn=True)(s)
+            V2 = net.Voc(N2p, N2m, nowarn=True)(s)
             Z = net.Zparams(N1p, N1m, N2p, N2m)
             return TwoPortGModel(Z.G, I1g=I1, V2g=V2)
         elif model == 'H':
-            V1 = net.Voc(N1p, N1m)(s)
-            I2 = net.Isc(N2p, N2m)(s)
+            V1 = net.Voc(N1p, N1m, nowarn=True)(s)
+            I2 = net.Isc(N2p, N2m, nowarn=True)(s)
             Z = net.Zparams(N1p, N1m, N2p, N2m)
             return TwoPortHModel(Z.H, V1h=V1, I2h=I2)
         else:
