@@ -994,8 +994,8 @@ class NetlistMixin(object):
             Z = ZMatrix(((Z11, Z12), (Z21, Z22)))
             return Z
 
-        except ValueError:
-            raise ValueError('Cannot create Z matrix')
+        except ValueError as e:
+            raise ValueError('Cannot create Z matrix: %s' % e)
 
     def Yparamsn(self, *nodes):
         """Create Y-parameters for N-port defined by list of node-pairs.
@@ -1034,8 +1034,8 @@ class NetlistMixin(object):
                     net.remove('V%d_' % row)
             return Y
 
-        except ValueError:
-            raise ValueError('Cannot create Y matrix')
+        except ValueError as e:
+            raise ValueError('Cannot create Y matrix: %s' % e)
 
     def Yparams3(self, N1p, N1m, N2p, N2m, N3p, N3m):
         """Create Y-parameters for three-port defined by nodes N1p, N1m, N2p,
@@ -1085,8 +1085,8 @@ class NetlistMixin(object):
                 net.remove('I_')
             return Z
 
-        except ValueError:
-            raise ValueError('Cannot create Z matrix')
+        except ValueError as e:
+            raise ValueError('Cannot create Z matrix: %s' % e)
 
     def Zparams3(self, N1p, N1m, N2p, N2m, N3p, N3m):
         """Create Z-parameters for three-port defined by nodes N1p, N1m, N2p,
