@@ -168,6 +168,8 @@ figs:
 	cd examples/tutorials/shield-guard; make
 	cd examples/tutorials/annotations; make
 	cd examples/tutorials/txline; make
+	cd examples/tutorials/transducers; make
+	cd examples/tutorials/transformers; make
 
 extra: fourier_transforms.rst laplace_transforms.rst ztransforms.rst DTFTs.rst DFTs.rst ODTFTs.rst
 
