@@ -1,6 +1,6 @@
 """This module provides support for nodes.
 
-Copyright 2020 Michael Hayes, UCECE
+Copyright 2020--2022 Michael Hayes, UCECE
 
 """
 
@@ -19,6 +19,7 @@ class Node(ImmittanceMixin):
         self.primary = len(parts) == 1
         # List of elements connected to this node.
         self._connected = []
+        self._count = 0
 
     def __repr__(self):
         return "Node('%s')" % self.name
@@ -51,8 +52,17 @@ class Node(ImmittanceMixin):
 
         if cpt.type in ('P', ):
             self.port = True
+        if cpt.type not in ('A', 'O'):
+            self._count += 1
 
         self._connected.append(cpt)
+
+    @property
+    def count(self):
+        """Number of elements (including wires but not open-circuits and
+        annotations) connected to the node"""
+
+        return self._count
 
     def oneport(self, node=0):
         """Create oneport object with respect to specified node

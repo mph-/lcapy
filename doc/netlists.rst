@@ -449,6 +449,8 @@ Circuit methods
 
 - `Zparamsn(N1p, N1m, N2p, N2m, ...)` Returns the n-port Z-parameters matrix.  See :ref:`Z-parameters`.
 
+- `unconnected_nodes` Returns list of names of nodes that are unconnected.
+
 
 Circuit components
 ==================
@@ -690,6 +692,9 @@ For example,
        L₁
 
 - `connected` list of components connected to node
+
+- `count` number of components connected to node (excluding
+  annotations and open-circuits)
 
 
 Node methods
