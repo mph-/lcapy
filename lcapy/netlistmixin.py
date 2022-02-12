@@ -157,7 +157,7 @@ class NetlistMixin(object):
     def _cpt_add(self, cpt):
 
         if cpt.name in self._elements:
-            print('Overriding component %s' % cpt.name)
+            warn('Overriding component %s' % cpt.name)
             # Need to search lists and update component.
             # For example, remove nodes that are only connected
             # to this component.
@@ -1462,14 +1462,14 @@ class NetlistMixin(object):
         okay = True
         for name1 in subset:
             if self.elements[name1].has_ic != has_ic:
-                print('Incompatible initial conditions for %s and %s' % (name, name1))
+                warn('Incompatible initial conditions for %s and %s' % (name, name1))
                 okay = False
         if not has_ic:
             return okay
         ic = self.elements[name].cpt.args[1]
         for name1 in subset:
             if self.elements[name1].cpt.args[1] != ic:
-                print('Incompatible initial conditions for %s and %s' % (name, name1))
+                warn('Incompatible initial conditions for %s and %s' % (name, name1))
                 okay = False
 
         return okay
@@ -1491,7 +1491,7 @@ class NetlistMixin(object):
             subsets = net._find_combine_subsets(aset)
             for k, subset in subsets.items():
                 if k == 'I':
-                    print('Netlist has current sources in series: %s' % subset)
+                    warn('Netlist has current sources in series: %s' % subset)
                 elif k in ('R', 'NR', 'L', 'V', 'Z'):
                     if k == 'L' and not self._check_ic(subset):
                         continue
@@ -1517,7 +1517,7 @@ class NetlistMixin(object):
             subsets = net._find_combine_subsets(aset)
             for k, subset in subsets.items():
                 if k == 'V':
-                    print('Netlist has voltage sources in parallel: %s'% subset)
+                    warn('Netlist has voltage sources in parallel: %s'% subset)
                 elif k in ('R', 'NR', 'L', 'Z'):
                     changed |= self._do_simplify_combine('Can combine in parallel: %s',
                                                          subset, net, explain, False, False)
