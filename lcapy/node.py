@@ -22,7 +22,7 @@ class Node(ImmittanceMixin):
 
     def __repr__(self):
         return "Node('%s')" % self.name
-        
+
     @property
     def V(self):
         """Node voltage with respect to ground."""
@@ -43,9 +43,9 @@ class Node(ImmittanceMixin):
 
     @property
     def impedance(self):
-        """Driving-point impedance between node and ground."""        
+        """Driving-point impedance between node and ground."""
 
-        return self.cct.impedance(self.name, '0')        
+        return self.cct.impedance(self.name, '0')
 
     def append(self, cpt):
 
@@ -58,24 +58,24 @@ class Node(ImmittanceMixin):
         """Create oneport object with respect to specified node
         (default ground)."""
 
-        return self.cct.oneport(self.name, node)        
-        
+        return self.cct.oneport(self.name, node)
+
     def thevenin(self, node=0):
         """Create Thevenin oneport object with respect to specified
         node (default ground)."""
-        
+
         return self.cct.thevenin(self.name, node)
 
     def norton(self, node=0):
         """Create Norton oneport object with respect to specified node
         (default ground)."""
-        
-        return self.cct.norton(self.name, node)    
+
+        return self.cct.norton(self.name, node)
 
     @property
     def connected(self):
         """Return list of components connected to the node."""
-        
+
         return self._connected
 
     def is_connected(self, cpt):
@@ -86,7 +86,14 @@ class Node(ImmittanceMixin):
                 if cpt1.name == cpt:
                     return True
             return False
-        
+
         return cpt in self.connected
 
-                
+    def is_wired_to(self, node):
+        """Return True if the nodes are wired together."""
+
+        node = str(node)
+        for nodes in self.cct.equipotential_nodes.values():
+            if self.name in nodes and node in nodes:
+                return True
+        return False
