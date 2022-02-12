@@ -97,3 +97,12 @@ class Node(ImmittanceMixin):
             if self.name in nodes and node in nodes:
                 return True
         return False
+
+    def wired_to(self):
+        """Return list of names of nodes that are wired to this node."""
+
+        for nodes in self.cct.equipotential_nodes.values():
+            if self.name in nodes:
+                nodes.remove(self.name)
+                return nodes
+        return []

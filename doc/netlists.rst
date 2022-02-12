@@ -705,6 +705,8 @@ Node methods
 
 - `thevenin(node)` Creates Thevenin oneport object with respect to specified node (default ground).
 
+- `wired_to()`  Returns list of names of nodes that are wired to this node.
+
 
 .. image:: examples/netlists/graph1.png
    :width: 8cm
