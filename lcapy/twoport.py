@@ -3111,7 +3111,7 @@ class Transformer(TwoPortBModel):
     def __init__(self, alpha=1):
 
         super(Transformer, self).__init__(BMatrix.transformer(alpha))
-        self.alpha = alpha
+        self.alpha = expr(alpha)
         self.args = (alpha, )
 
 
@@ -3131,7 +3131,7 @@ class IdealTransformer(TwoPortBModel):
         self.args = (alpha, )
 
 
-class TF(IdealTransformer):
+class TF(Transformer):
     pass
 
 
