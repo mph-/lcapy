@@ -2220,7 +2220,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         expr = new
         if isinstance(new, Expr):
-            if old == self.var:
+            if old == self.var or self.var is None:
                 domain = new.domain
             else:
                 domain = self.domain
