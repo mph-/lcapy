@@ -697,6 +697,8 @@ Node methods
 
 - `is_connected(node)` Returns True if connected to specified node by a single component.
 
+- `is_wired_to(node)` Returns True if wired to specified node, directly or indirectly.
+
 - `norton(node)` Creates Norton oneport object with respect to specified node (default ground).
 
 - `oneport(node)` Creates oneport object with respect to specified node (default ground).
