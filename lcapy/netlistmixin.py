@@ -613,10 +613,10 @@ class NetlistMixin(object):
                 except:
                     pass
                 if arg1 not in self.elements.values():
-                    raise ValueError('Unknown component %s' % arg1.name)
+                    raise ValueError('Unknown component %s' % arg1)
                 if arg1.is_voltage_source:
                     # The killed voltage source will short the applied signal.
-                    raise ValueError("Cannot determine transfer function across voltage source %s; you will need to remove it, e.g., new = cct.remove('%s')" % (arg1.name, arg1.name))
+                    raise ValueError("Cannot determine transfer function across voltage source %s; you will need to remove it, e.g., new = cct.remove('%s')" % (arg1, arg1))
                 N1p, N1m = [n.name for n in arg1.nodes[0:2]]
 
             if isinstance(arg2, tuple):
@@ -628,7 +628,7 @@ class NetlistMixin(object):
                     pass
 
                 if arg2 not in self.elements.values():
-                    raise ValueError('Unknown component %s' % arg2.name)
+                    raise ValueError('Unknown component %s' % arg2)
                 N2p, N2m = [n.name for n in arg2.nodes[0:2]]
 
         elif N2p is None or N2m is None:
