@@ -729,15 +729,6 @@ class Misc(Invalid):
         raise NotImplementedError('Cannot analyse misc component: %s' % self)
 
 
-class Ignored(Cpt):
-
-    ignore = True
-
-    def _stamp(self, mna):
-        # Could print warning
-        pass
-
-
 class Dummy(Cpt):
 
     causal = True
@@ -1516,6 +1507,7 @@ class TL(Cpt):
         A21 = cpt.A21.sympy
         A22 = cpt.A22.sympy
 
+        # This stamp is the same as an A twoport.
         if n1 >= 0:
             if n3 >= 0:
                 mna._G[n1, n3] += A21
@@ -1551,11 +1543,14 @@ class TL(Cpt):
         mna._D[m, m] += A12
 
 
-class Cable(Ignored):
+class Cable(Cpt):
     """Cable"""
 
     equipotential_nodes = (('in+', 'out+'), ('in-', 'out-'), ('in', 'out'),
                            ('ignd', 'ognd', 'b', 't'), ('mid', 'out'))
+
+    def _stamp(self, mna):
+        pass
 
 
 class TP(Misc):
