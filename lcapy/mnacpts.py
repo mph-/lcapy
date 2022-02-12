@@ -177,8 +177,9 @@ class Cpt(ImmittanceMixin):
         return self._copy()
 
     def _netsubs(self, node_map=None, zero=False, subs_dict=None):
-        """Create a new net description.  If node_map is not None,
-        rename the nodes.  If zero is True, set args to zero."""
+        """Create a new net description using substitutions in `subs_dict`.
+        If `node_map` is not `None`, rename the nodes.  If `zero` is `True`,
+        set args to zero."""
 
         string = self.defname
         field = 0
@@ -200,9 +201,8 @@ class Cpt(ImmittanceMixin):
         for arg in self.args:
             if zero:
                 arg = 0
-
-            # Perform substitutions
-            if subs_dict is not None:
+            elif subs_dict is not None:
+                # Perform substitutions
                 arg = str(expr(arg).subs(subs_dict))
 
             string += ' ' + self._arg_format(arg)
