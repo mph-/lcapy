@@ -35,15 +35,15 @@ In this case, Python evaluates 2 / 3 as a floating-point number which is then co
    2/3
 
 Another approach is to use:
- 
+
    >>> one * 2 / 3
    2/3
 
 Here `one` is a SymPy object representing the number 1.
 
-    
+
 .. _equality:
-    
+
 
 Equality
 --------
@@ -57,10 +57,10 @@ For equality Lcapy requires expressions to have the same domain and quantity.  T
     >>> V.quantity
     'voltage'
     >>> I.quantity
-    'current'    
+    'current'
 
 The quantity can be removed using the `as_expr()` method.  For example::
- 
+
    >>> V.as_expr() == I.as_expr()
    True
 
@@ -94,7 +94,7 @@ Here's an example of how to access the symbols:
     'tau': tau,
     'x': x}
 
-This shows the pre-defined symbols and the newly defined symbol.   Each directory entry is a SymPy symbol.    
+This shows the pre-defined symbols and the newly defined symbol.   Each directory entry is a SymPy symbol.
 
 
 Symbol assumptions
@@ -143,26 +143,40 @@ Be careful with zero substitutions.  For example, consider
     >>> (x * (s + 1 / x)).subs(x, 0)
     0
 
-In general it is safer (but slower) to evaluate a limit at zero.  
+In general it is safer (but slower) to evaluate a limit at zero.
 
     >>> x = symbol('x')
     >>> (x * (s + 1 / x)).limit(x, 0)
     1
-    
+
 Another approach is expand the expression to avoid the division:
 
     >>> x = symbol('x')
     >>> (x * (s + 1 / x)).expand().subs(x, 0)
     1
 
-    
+
 Symbol confusion
 ----------------
 
 `j` is an Lcapy symbol denoting the imaginary unit but `1j` is a Python floating-point imaginary number.
 
 `pi` is an Lcapy symbol denoting the transcendental number :math:`\pi` but `np.pi` and `math.pi` is a floating-point number approximating :math:`\pi`.
-    
+
+
+MNA problems
+------------
+
+Lcapy uses modified nodal analysis to determine the node voltages and
+branch currents.  This requires inversion of a matrix but sometimes
+this matrix is singular.   The common reasons for this are:
+
+1. There are capacitors in series
+2. A voltage source is short-circuited
+3. A current source is open-circuited
+4. The secondary of a transformer is floating (use a resistor or wire)
+5. Nodes are unconnected (use `cct.unconnected_nodes`)
+
 
 Computation speed
 -----------------
@@ -188,7 +202,7 @@ SymPy differences
 - SymPy uses 0 for the lower limit of Laplace transforms, Lcapy uses :math:`0^{-}`, see :ref:`laplace_transforms`.
 
 
-  .. _performance:   
+  .. _performance:
 
 Performance
 ===========
@@ -213,7 +227,7 @@ that shows an order of magnitude improvement for MNA matrices
 comprised of fewer than 11 components.
 
 
-.. _debugging:   
+.. _debugging:
 
 Debugging
 =========
@@ -248,7 +262,7 @@ Testing
 If you fix a problem, please add a test in `lcapy/lcapy/tests`.  These use the nose format, see https://pythontesting.net/framework/nose/nose-introduction/  The tests can be run using:
 
 .. code-block:: console
-                
+
     $ make check
 
 
@@ -257,10 +271,10 @@ Specific tests can be run using:
 
 .. code-block:: console
 
-    $ nosetests3 --pdb lcapy/tests/test_laplace.py 
+    $ nosetests3 --pdb lcapy/tests/test_laplace.py
 
 With the --pdb option, the Python debugger is entered on failure:
-    
+
 
 To check for coverage use:
 
@@ -269,7 +283,7 @@ To check for coverage use:
     $ make cover
 
 and then view cover/index.html in a web browser.
-    
+
 
 .. _issues:
 
@@ -282,5 +296,3 @@ Please attach the output from running::
 
     >>> from lcapy import show_versions
     >>> show_versions()
-    
-   
