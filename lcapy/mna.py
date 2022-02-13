@@ -139,12 +139,12 @@ class MNA(object):
 
     def _failure_reasons(self):
 
-        message = 'The MNA A matrix is not invertible for %s analysis:\n' % self.kind
+        message = 'The MNA A matrix is not invertible for %s analysis:' % self.kind
+        cct = self.cct
+        if not cct.is_connected:
+            return message + ' Not all nodes are connected.'
 
         reasons = []
-
-        cct = self.cct
-
         if cct.kind == 'dc':
             reasons.append('Check there is a DC path between all nodes.')
         if cct.transformers != []:
@@ -156,7 +156,7 @@ class MNA(object):
         if cct.current_sources != []:
             reasons.append('Check current source is not open-circuited.')
 
-        return message + '    ' + '\n    '.join(reasons)
+        return message + '\n    ' + '\n    '.join(reasons)
 
     def _solve(self):
         """Solve network."""
