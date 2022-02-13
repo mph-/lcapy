@@ -1,6 +1,6 @@
 """This module provides printing support.
 
-Copyright 2014--2021 Michael Hayes, UCECE
+Copyright 2014--2022 Michael Hayes, UCECE
 
 """
 
@@ -50,11 +50,14 @@ def canonical_name(name):
     if not isinstance(name, str):
         return name
 
-    # If the symbol name created with symbol() or symbols()
+    if '\\' in name:
+        return name
+
+    # If the symbol name was created with symbol() or symbols()
     # then keep it as is.
     if name in state.context.user_symbols:
         return name
-    
+
     # Convert R_{out} to R_out for SymPy to recognise.
     name = sub_super_pattern.sub(foo, name)
 
@@ -63,7 +66,7 @@ def canonical_name(name):
     if (len(name) >= 3 and name[0:2] in ('v_', 'V_', 'i_', 'I_') and
         name[2] in ('L', 'C')):
         return name[0:2] + canonical_name(name[2:])
-    
+
     if name.find('_') != -1:
         return name
 
@@ -89,14 +92,14 @@ def canonical_name(name):
             return name
         name = match.groups()[0] + '_' + match.groups()[1]
         return name
-    
+
     # Convert i1 to i_1, etc.
     if name[1].isdigit:
         return name[0] + '_' + name[1:]
 
     # Convert irms to i_rms, etc.
     if name[1:].lower() in subscripts:
-        return name[0] + '_' + name[1:]    
+        return name[0] + '_' + name[1:]
 
     return name
 
@@ -110,8 +113,8 @@ class LcapyStrPrinter(StrPrinter):
             expr = expr.expr
 
         # Convert sym.I to j etc.
-        try:            
-            if expr in pretty_expr_map:        
+        try:
+            if expr in pretty_expr_map:
                 return str_expr_map[expr]
         except:
             pass
@@ -121,7 +124,7 @@ class LcapyStrPrinter(StrPrinter):
         # Do not canonicalise name since this is required for name
         # matching.  The only caller is the __str__ method for Expr.
         expr = sym.Symbol(expr.name)
-        return super(LcapyStrPrinter, self)._print_Symbol(expr)    
+        return super(LcapyStrPrinter, self)._print_Symbol(expr)
 
 
 class LcapyLatexPrinter(LatexPrinter):
@@ -130,13 +133,13 @@ class LcapyLatexPrinter(LatexPrinter):
 
         from .expr import Expr
         from .sequence import Sequence
-        
-        if isinstance(expr, Expr):        
+
+        if isinstance(expr, Expr):
             expr = expr.expr
 
         if isinstance(expr, Sequence):
             return self._print_Sequence(expr)
-            
+
         # Convert sym.I to j etc.
         try:
             if expr in latex_expr_map:
@@ -146,7 +149,7 @@ class LcapyLatexPrinter(LatexPrinter):
 
         if exp is None:
             return super(LcapyLatexPrinter, self)._print(expr)
-        return super(LcapyLatexPrinter, self)._print(expr, exp=exp)        
+        return super(LcapyLatexPrinter, self)._print(expr, exp=exp)
 
     def _print_Sequence(self, seq):
 
@@ -155,26 +158,26 @@ class LcapyLatexPrinter(LatexPrinter):
         items = []
         if seq.start_trunc:
             items.append('\\ldots')
-            
+
         for v1, n1 in zip(a, a.n):
             try:
                 s = v1.latex()
             except:
                 s = str(v1)
-            
+
             if n1 == 0:
                 s = r'\underline{%s}' % v1
             items.append(s)
 
         if seq.end_trunc:
             items.append('\\ldots')
-            
+
         return r'\left\{%s\right\}' % ', '.join(items)
-    
+
     def _print_Piecewise(self, expr):
 
         if len(expr.args) > 1:
-            return super(LcapyLatexPrinter, self)._print_Piecewise(expr)                    
+            return super(LcapyLatexPrinter, self)._print_Piecewise(expr)
 
         e, c = expr.args[0]
         return  r"%s \;\; \text{for}\: %s" % (self._print(e), self._print(c))
@@ -213,12 +216,12 @@ class LcapyLatexPrinter(LatexPrinter):
         tex = r"\mathop{\mathrm{sign}}\left[%s\right]" % self._print(expr.args[0])
         if exp:
             tex = r"\mathop{\mathrm{sign}}\left[%s\right]^{%s}" % (tex, exp)
-        return tex        
+        return tex
 
     def _print_symbol_name(self, name):
 
         name = canonical_name(name)
-        
+
         parts = name.split('_')
 
         expr = sym.Symbol(parts[0])
@@ -232,13 +235,13 @@ class LcapyLatexPrinter(LatexPrinter):
 
         # Sympy cannot print a symbol name with a double subscript
         # using LaTeX.  This should be fixed in Sympy.
-        # Need to convert v_C_1 to v_{C_{1}}        
+        # Need to convert v_C_1 to v_{C_{1}}
 
         if len(parts) == 3:
             return latex_str(s + '_{%s_{%s}}' % (parts[1], parts[2]))
 
         raise ValueError('Cannot handle more than two subscripts for %s' % name)
-    
+
     def _print_Symbol(self, expr):
 
         return self._print_symbol_name(expr.name)
@@ -246,24 +249,24 @@ class LcapyLatexPrinter(LatexPrinter):
     def _print_AppliedUndef(self, expr):
 
         s = self._print_symbol_name(expr.func.__name__)
-        args = [str(self._print(arg)) for arg in expr.args]        
+        args = [str(self._print(arg)) for arg in expr.args]
         return '%s(%s)' % (s, ','.join(args))
 
-    
+
 class LcapyPrettyPrinter(PrettyPrinter):
 
     def _print(self, expr, exp=None):
 
         from .expr import Expr
         from .sequence import Sequence
-        
-        if isinstance(expr, Expr):        
+
+        if isinstance(expr, Expr):
             expr = expr.expr
 
         if isinstance(expr, Sequence):
             return self._print_Sequence(expr)
-            
-        try:            
+
+        try:
             if expr in pretty_expr_map:
                 return self._print_basestring(pretty_expr_map[expr])
         except:
@@ -272,23 +275,23 @@ class LcapyPrettyPrinter(PrettyPrinter):
 
     def _print_Sequence(self, seq):
         from sympy.printing.pretty.stringpict import prettyForm, stringPict
-        
+
         pforms = []
         if seq.start_trunc:
             pforms.append('...')
-        
+
         for item, n1 in zip(seq.vals, seq.n):
             if pforms:
                 pforms.append(', ')
             if n1 == 0:
-                pforms.append('_')                
+                pforms.append('_')
             pform = self._print(item)
             pforms.append(pform)
 
         if seq.end_trunc:
             if pforms:
                 pforms.append(', ')
-            pforms.append('...')            
+            pforms.append('...')
 
         if not pforms:
             s = stringPict('')
@@ -300,8 +303,8 @@ class LcapyPrettyPrinter(PrettyPrinter):
 
     def _print_Symbol(self, expr):
 
-        expr = sym.Symbol(canonical_name(expr.name))                
-        parts = expr.name.split('_')        
+        expr = sym.Symbol(canonical_name(expr.name))
+        parts = expr.name.split('_')
         if len(parts) >= 2:
             # Due to unicode limitations, Sympy cannot print a symbol
             # name with a double subscript.  As a work-around combine
@@ -314,7 +317,7 @@ class LcapyPrettyPrinter(PrettyPrinter):
     def _print_Piecewise(self, expr):
 
         from sympy.printing.pretty.stringpict import prettyForm
-        
+
         if len(expr.args) > 1:
             return super(LcapyPrettyPrinter, self)._print_Piecewise(expr)
 
@@ -328,7 +331,7 @@ class LcapyPrettyPrinter(PrettyPrinter):
     def _print_Heaviside(self, expr):
 
         from sympy.printing.pretty.stringpict import prettyForm
-        
+
         if self._use_unicode:
             pform = self._print(expr.args[0])
             pform = prettyForm(*pform.parens(left='(', right=')'))
@@ -341,7 +344,7 @@ class LcapyPrettyPrinter(PrettyPrinter):
 
         from sympy.printing.pretty.stringpict import prettyForm
         from sympy.printing.pretty.pretty_symbology import greek_unicode
-        
+
         if self._use_unicode:
             pform = self._print(expr.args[0])
             pform = prettyForm(*pform.parens(left='[', right=']'))
@@ -353,7 +356,7 @@ class LcapyPrettyPrinter(PrettyPrinter):
     def _print_UnitStep(self, expr):
 
         from sympy.printing.pretty.stringpict import prettyForm
-        
+
         if self._use_unicode:
             pform = self._print(expr.args[0])
             pform = prettyForm(*pform.parens(left='[', right=']'))
@@ -365,7 +368,7 @@ class LcapyPrettyPrinter(PrettyPrinter):
     def _print_dtrect(self, expr):
 
         from sympy.printing.pretty.stringpict import prettyForm
-        
+
         if self._use_unicode:
             pform = self._print(expr.args[0])
             pform = prettyForm(*pform.parens(left='[', right=']'))
@@ -377,19 +380,19 @@ class LcapyPrettyPrinter(PrettyPrinter):
     def _print_dtsign(self, expr):
 
         from sympy.printing.pretty.stringpict import prettyForm
-        
+
         if self._use_unicode:
             pform = self._print(expr.args[0])
             pform = prettyForm(*pform.parens(left='[', right=']'))
             pform = prettyForm(*pform.left('sign'))
             return pform
         else:
-            return self._print_Function(expr)                
-    
-    
+            return self._print_Function(expr)
+
+
 def print_str(expr):
     """Convert expression into a string."""
-    
+
     return LcapyStrPrinter().doprint(expr)
 
 
@@ -422,7 +425,7 @@ def latex(expr, fold_frac_powers=False, fold_func_brackets=False,
 
     # This is mostly lifted from sympy/printing/latex.py when all we needed
     # was a hook...
-    
+
     if symbol_names is None:
         symbol_names = {}
 
