@@ -119,6 +119,8 @@ an answer that appears valid for DC.
 
 30. Handle responses such as (1 - exp(-s * T)) / A(s).
 
+31. ILT(cosh(d*s/(2*c))/cosh(d*s/c))
+
 
 Testing
 =======

@@ -173,18 +173,59 @@ Lcapy can draw this using:
 
 In the Laplace domain, the transformer coupling ratio is
 
-:math:`\phi = \frac{s Z_0}{2 h} \frac{1}{\sinh\left(\frac{s d}{2 c}\right)}`
+:math:`\phi = \frac{s Z_0}{2 h} \frac{1}{\sinh\left(\frac{s d}{2 c}\right)}`,
 
-and the impedance of `X1` is
+the impedance of `X1` is
 
-:math:`X_1 = \frac{j h^2}{s^2 Z_0} \sinh\left(\frac{s d}{c}\right)`
+:math:`X_1 = \frac{j h^2}{s^2 Z_0} \sinh\left(\frac{s d}{c}\right)`,
+
+and
+
+:math:`C_0 = \frac{\epsilon^{S} A}{d}`,
 
 where :math:`Z_0` is the characteristic impedance of the pizeoelectric
-crystal, :math:`h` is the pressure constant of the crystal, and
-:math:`d` is the thickness of the crysal.
+crystal, :math:`h` is the pressure constant of the crystal, :math:`d`
+is the thickness of the crystal, and :math:`\epsilon^{S}` is the
+clamped (zero strain,high frequency) permittivity of the crystal.
 
 The model has three ports: an electrical port, a back mechanical port,
-and a fron mechanical port.
+and a front mechanical port.
+
+The above netlist is not suitable for simulation since the
+transmission lines are represented with cables; Lcapy treats them as
+ideal wires.  Instead transmission line components are required as in
+the following netlist:
+
+.. literalinclude:: examples/tutorials/transducers/KLM3.sch
+
+This is drawn as
+
+.. image:: examples/tutorials/transducers/KLM3.png
+   :width: 12cm
+
+Let's consider finding the ratio of the force across the front
+mechanical port given an applied voltage across the electrical port
+with the back mechanical port free.  With the back port free,
+there is no force across it.  This can be asserted by applying a
+short across `Pb`.  For example,
+
+   >>> from lcapy import Circuit
+   >>> a = Circuit('KLM-demo.sch')
+   >>> a.short('Pb')
+
+The ratio of the mechanical force to an applied voltage can be found
+using the `transfer()` method of the circuit:
+
+   >>> H = a.transfer('Pe', 'Pf')
+                                                     ⎛d⋅s⎞
+                                  -2⋅ⅉ⋅C₀⋅Z₀⋅φ⋅s⋅sinh⎜───⎟
+                                                     ⎝2⋅c⎠
+   ───────────────────────────────────────────────────────────────────────────────────────
+            2       2⎛d⋅s⎞            2       ⎛            ⎛d⋅s⎞      2     2⎛d⋅s⎞      2⎞
+   4⋅C₀⋅X₁⋅φ ⋅s⋅sinh ⎜───⎟ + 2⋅C₀⋅X₁⋅φ ⋅s - ⅉ⋅⎜C₀⋅Z₀⋅s⋅sinh⎜───⎟ + 4⋅φ ⋅sinh ⎜───⎟ + 2⋅φ ⎟
+                     ⎝2⋅c⎠                    ⎝            ⎝ c ⎠             ⎝2⋅c⎠       ⎠
+
+The frequency response can be found by substituting :math:`2 \pi f` for :math:`s`.
 
 
 Transformers
