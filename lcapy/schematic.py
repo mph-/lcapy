@@ -151,8 +151,8 @@ class Node(object):
 
     @property
     def count(self):
-        """Number of elements (including wires but not open-circuits)
-        connected to the node"""
+        """Number of elements (including wires but not open-circuits and
+        annotations) connected to the node"""
 
         return self._count
 
