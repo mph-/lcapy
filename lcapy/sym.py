@@ -98,9 +98,10 @@ def symbols_find(arg):
 
         return symbols
 
-    from .expr import Expr as LExpr
-    if isinstance(arg, LExpr):
-        arg = arg.expr
+    try:
+        arg = arg.sympy
+    except:
+        pass
 
     if not isinstance(arg, (Symbol, Expr, AppliedUndef)):
         return []
@@ -295,19 +296,46 @@ def symsymbol1(name, override=True, force=False, **assumptions):
         elif name in state.context.user_symbols:
             symbol_delete(name)
 
-    return sympify(name, override=override, **assumptions)
+    if name in state.context.symbols:
+        return state.context.symbols[name]
+
+    if assumptions == {}:
+        assumptions['positive'] = True
+        # Note this implies that imag is False.   Also note that all
+        # reals are considered complex (but with a zero imag part).
+
+    elif 'positive' in assumptions:
+        if not assumptions['positive']:
+            assumptions.pop('positive')
+
+    symbol = sym.Symbol(name, **assumptions)
+    state.context.symbols[name] = symbol
+    return symbol
 
 
 def symsymbol(name, force=False, **assumptions):
     """Create a SymPy symbol.
 
     This function allows symbol assumptions to be defined,
-    e.g., real=True, integer=True
+    e.g., `real=True, integer=True`
 
     By default, symbols are assumed to be positive unless real is
     defined.
 
+    If `name` is already a symbol, it is overridden unless it is
+    a domain symbol in which case `force` must be `True`.
+
     """
+
+    try:
+        name = name.sympy
+    except:
+        pass
+    try:
+        # Handle Symbol
+        name = name.name
+    except:
+        pass
 
     usym = symsymbol1(name, force=force, **assumptions)
     state.global_context.user_symbols[name] = usym
@@ -317,6 +345,9 @@ def symsymbol(name, force=False, **assumptions):
 def domainsymbol(name, **assumptions):
     """Create a SymPy symbol and register as a domain symbol
     that should not be overwritten."""
+
+    if not isinstance(name, str):
+        raise ValueError('Symbol name %s must be a string' % name)
 
     sym = symsymbol1(name, **assumptions)
     state.global_context.domain_symbols[name] = sym
@@ -368,9 +399,10 @@ def simplify(expr, **kwargs):
     except:
         pass
 
-    from .expr import Expr as LExpr
-    if isinstance(expr, LExpr):
-        expr = expr.expr
+    try:
+        expr = expr.sympy
+    except:
+        pass
 
     return symsimplify(expr, **kwargs)
 

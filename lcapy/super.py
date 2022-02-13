@@ -9,7 +9,7 @@ Copyright 2019--2022 Michael Hayes, UCECE
 from __future__ import division
 import sympy as sym
 from .expr import Expr, ExprDict, expr
-from .sym import tsym, omega0sym, symbols_find, is_sympy, symsymbol
+from .sym import tsym, omega0sym, symbols_find, is_sympy
 from .acdc import is_ac
 from .state import state
 from .domains import SuperpositionDomain
@@ -192,7 +192,7 @@ class Superposition(SuperpositionDomain, ExprDict):
         V.has_symbol(t)
 
         """
-        return self.has(symsymbol(sym))
+        return self.has(expr(sym))
 
     @property
     def has_dc(self):
