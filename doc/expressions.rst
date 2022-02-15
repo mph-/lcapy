@@ -186,6 +186,10 @@ maintains a table of symbols that are not to be printed in canonical form.
 
    >>> n = symbol('n', force=True, real=True)
 
+6. If you want an esoteric name, such as `\hat{x}`, you will need to use the `symbol` or `symbols` function, rather than `expr`.  For example:
+
+   >>> xest = symbol(`\hat{x}`)
+
 
 .. _expressionsfunctions:
 
