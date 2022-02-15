@@ -47,18 +47,18 @@ class StateSpaceBase(object):
         if B.shape[0] != Nx:
             raise ValueError('B matrix has wrong dimension')
         if C.shape[1] != Nx:
-            raise ValueError('C matrix has wrong dimension')        
+            raise ValueError('C matrix has wrong dimension')
         if (D.shape[0] != Ny) or (D.shape[1] != Nu):
-            raise ValueError('D matrix has wrong dimension')                
+            raise ValueError('D matrix has wrong dimension')
 
         if x is not None:
             if x.shape[0] != Nx:
                 raise ValueError('x vector has wrong dimension')
-            x = Vector(x)            
+            x = Vector(x)
         if x0 is not None:
             if x0.shape[0] != Nx:
                 raise ValueError('x0 vector has wrong dimension')
-            x0 = Vector(x0)                        
+            x0 = Vector(x0)
         if u is not None:
             if u.shape[0] != Nu:
                 raise ValueError('u vector has wrong dimension')
@@ -67,7 +67,7 @@ class StateSpaceBase(object):
             if y.shape[0] != Ny:
                 raise ValueError('y vector has wrong dimension')
             y = Vector(y)
-            
+
         self._A = A
         self._B = B
         self._C = C
@@ -75,7 +75,7 @@ class StateSpaceBase(object):
 
         self._u = u
         self._x = x
-        self._x0 = x0        
+        self._x0 = x0
         self._y = y
 
     @classmethod
@@ -89,9 +89,9 @@ class StateSpaceBase(object):
 
         """
         return cls.from_transfer_function_coeffs(cls, b, a, form)
-        
+
     @classmethod
-    def from_transfer_function_coeffs(cls, b, a, form='CCF'):    
+    def from_transfer_function_coeffs(cls, b, a, form='CCF'):
         """Create state-space representation from transfer function
         specified with numerator and denominator coefficients.
 
@@ -99,21 +99,21 @@ class StateSpaceBase(object):
         determined by the `form` argument.  Currently this can be
         'CCF' for the controllable canonical form.
 
-        """        
+        """
 
         if form == 'CCF':
             return cls.from_ba_CCF(b, a)
         elif form == 'OCF':
             return cls.from_ba_OCF(b, a)
         elif form == 'DCF':
-            return cls.from_ba_DCF(b, a)        
+            return cls.from_ba_DCF(b, a)
         else:
             raise ValueError('Only CCF, DCF, and OCF forms are currently supported')
         # TODO, add Jordan and real Jordan forms.
 
     @classmethod
     def from_ba_CCF(cls, b, a):
-        
+
         b = list(b)
         a = list(a)
         Nb = len(b)
@@ -157,7 +157,7 @@ class StateSpaceBase(object):
         # Bobs = Ccon.T
         # Cobs = Bcon.T
         # Dobs = Dcon
-        
+
         b = list(b)
         a = list(a)
         Nb = len(b)
@@ -198,7 +198,7 @@ class StateSpaceBase(object):
     def from_ba_DCF(cls, b, a):
 
         from .sexpr import tf
-        
+
         b = list(b)
         a = list(a)
         Nb = len(b)
@@ -207,14 +207,14 @@ class StateSpaceBase(object):
         if Nb > Na:
             # Need extended state-space representation...
             raise ValueError('Improper transfer function; require derivatives of input')
-        
+
         H = tf(b, a)
 
         poles = H._ratfun.poles()
         for p in poles:
             if p.n != 1:
                 raise ValueError('Require unique poles')
-        
+
         Nx = len(a) - 1
         Nu = 1
         Ny = 1
@@ -228,13 +228,19 @@ class StateSpaceBase(object):
         if Na == Nb:
             D[0, 0] = b[0]
         else:
-            D[0, 0] = 0            
+            D[0, 0] = 0
 
         for n, p in enumerate(poles):
             A[n, n] = p.expr
             C[n] = H._ratfun.residue(p.expr, poles)
-        
-        return cls(A, B, C, D)        
+
+        return cls(A, B, C, D)
+
+    def pdb(self):
+        """Enter the python debugger."""
+
+        import pdb; pdb.set_trace()
+        return self
 
     @property
     def A(self):
@@ -244,7 +250,7 @@ class StateSpaceBase(object):
     @property
     def state_matrix(self):
         """State matrix."""
-        return self._A    
+        return self._A
 
     @property
     def B(self):
@@ -255,7 +261,7 @@ class StateSpaceBase(object):
     def input_matrix(self):
         """Input matrix."""
         return self._B
-    
+
     @property
     def C(self):
         """Output matrix."""
@@ -264,7 +270,7 @@ class StateSpaceBase(object):
     @property
     def output_matrix(self):
         """Output matrix."""
-        return self._C    
+        return self._C
 
     @property
     def D(self):
@@ -274,37 +280,37 @@ class StateSpaceBase(object):
     @property
     def feedthrough_matrix(self):
         """Feed-through matrix."""
-        return self._D            
+        return self._D
 
     @property
     def state_transition_matrix(self):
-        """State transition matrix."""        
+        """State transition matrix."""
         return self.phi
-        
+
     @property
     def transfer_functions(self):
         """System transfer functions.  See also `transfer_function`"""
         return self.G
-        
+
     @property
     def transfer_function(self):
         """System transfer function for a SISO system.  See also
         `transfer_functions`"""
         return self.G[0]
-    
-    @cached_property        
+
+    @cached_property
     def eigenvalues_dict(self):
         """Dictionary of eigenvalues, the roots of the characteristic
         polynomial (equivalent to the poles of Phi(s)).  The
         dictionary values are the multiplicity of the eigenvalues.
 
-        For a list of eigenvalues use eigenvalues."""        
+        For a list of eigenvalues use eigenvalues."""
 
         # Equivalent to _A.sympy.eigenvals()
-        
+
         return self.characteristic_polynomial().roots()
-        
-    @cached_property        
+
+    @cached_property
     def eigenvalues(self):
         """List of eigenvalues, the roots of the characteristic polynomial
         (equivalent to the poles of Phi(s))."""
@@ -318,14 +324,14 @@ class StateSpaceBase(object):
                 e.append(v)
         return ExprList(e)
 
-    @cached_property        
+    @cached_property
     def eigenvectors(self):
         """List of tuples (eigenvalue, multiplicity of eigenvalue,
         basis of the eigenspace) of A."""
-        
+
         return self._A.eigenvects()
-    
-    @cached_property        
+
+    @cached_property
     def singular_values(self):
         """Vector of singular_values."""
 
@@ -338,27 +344,27 @@ class StateSpaceBase(object):
 
     @property
     def Nu(self):
-        """Number of inputs."""    
+        """Number of inputs."""
         return self._B.shape[1]
 
     @property
     def Ny(self):
-        """Number of outputs."""        
+        """Number of outputs."""
         return self._C.shape[0]
-    
-    @cached_property    
+
+    @cached_property
     def is_symbolic(self):
 
         return ((self.A.symbols != {}) or (self.B.symbols != {}) or
                 (self.C.symbols != {}) or (self.D.symbols != {}))
-    
-    @cached_property    
+
+    @cached_property
     def is_stable(self):
         """True if system is stable."""
 
         if self.is_symbolic:
             return None
-        
+
         for e in self.eigenvalues:
             if e.real > 0:
                 return False
@@ -372,7 +378,7 @@ class StateSpaceBase(object):
             steps = self.Nx
         if steps < 0:
             raise ValueError('steps must be positive')
-        
+
         B = self.B
         A = self.A
 
@@ -382,29 +388,29 @@ class StateSpaceBase(object):
             Q = A * Q
             R = R.hstack(R, Q)
         return R
-    
-    @cached_property        
+
+    @cached_property
     def controllability_matrix(self):
         """Return controllability matrix."""
-        
+
         return self.controllability_matrix_steps()
 
-    @property        
+    @property
     def R(self):
         """Return controllability matrix."""
 
-        return self.controllability_matrix    
+        return self.controllability_matrix
 
-    @cached_property        
+    @cached_property
     def is_controllable(self):
-        """True if system is controllable."""        
+        """True if system is controllable."""
 
         R = self.controllability_matrix
         return R.rank() == R.shape[0]
 
-    @cached_property        
+    @cached_property
     def observability_matrix(self):
-        """Return observability matrix."""        
+        """Return observability matrix."""
 
         C = self.C
         A = self.A
@@ -414,30 +420,30 @@ class StateSpaceBase(object):
         for n in range(self.Nx - 1):
             Q *= A
             O = O.vstack(O, Q)
-        return O    
+        return O
 
-    @property        
+    @property
     def O(self):
         """Return observability matrix."""
 
         return self.observability_matrix
-    
-    @cached_property        
+
+    @cached_property
     def is_observable(self):
-        """True if system is observable."""                
+        """True if system is observable."""
 
         O = self.observability_matrix
         return O.rank() == O.shape[1]
 
-    @cached_property        
+    @cached_property
     def reachability_range(self):
         """Return reachability range (image, column space)
         as a list of vectors that span the columnspace
         of the controllability matrix."""
 
         return self.controllability_matrix.columnspace()
-    
-    @cached_property            
+
+    @cached_property
     def hankel_singular_values(self):
 
         from numpy import sqrt
@@ -445,7 +451,7 @@ class StateSpaceBase(object):
 
         if not self.is_stable:
             raise ValueError('System not stable')
-        
+
         Wc = self.controllability_gramian.evaluate()
         Wo = self.observability_gramian.evaluate()
 
@@ -455,11 +461,11 @@ class StateSpaceBase(object):
         h = sqrt(abs(e))
         return expr(h, rational=False)
 
-    @cached_property                
+    @cached_property
     def balanced_transformation(self):
         """Return the transformation matrix `T` required to balance the
         controllability and observability gramians.
-        
+
         `Wob = Tinv.T * Wo * Tinv
         Wcb = T * Wc * T.T`
 
@@ -472,7 +478,7 @@ class StateSpaceBase(object):
 
         if not self.is_stable:
             raise ValueError('System not stable')
-        
+
         Wc = self.controllability_gramian.evaluate()
         Wo = self.observability_gramian.evaluate()
 
@@ -485,7 +491,7 @@ class StateSpaceBase(object):
 
         # e is a vector of squared Hankel singular values
         Einv = diag(e ** -0.25)
-        
+
         Tinv = R.T @ U @ Einv
         return Matrix(Tinv).inv()
 
@@ -496,14 +502,14 @@ class StateSpaceBase(object):
 
         T = self.balanced_transformation
         return self.transform(T)
-    
+
     def transform(self, T):
 
         Tinv = T.inv()
         Ap = T * self.A * Tinv
         Bp = T * self.B
         Cp = self.C * Tinv
-        
+
         return self.__class__(Ap, Bp, Cp, self.D,
                               self._u, self._y, self._x, self._x0)
 
@@ -533,20 +539,20 @@ class StateSpaceBase(object):
             A1 = hstack((A1, self.A[:, i]))
         A11 = A1[mkeep, :]
         A21 = A1[melim, :]
-        
+
         # A2 is a matrix of all columns of A to eliminate
         A2 = self.A[:, melim[0]]
         for i in melim[1:]:
             A2 = hstack((A2, self.A[:, i]))
         A12 = A2[mkeep, :]
         A22 = A2[melim, :]
-        
+
         C1 = self.C[:, mkeep]
         C2 = self.C[:, melim]
         B1 = self.B[mkeep, :]
         B2 = self.B[melim, :]
         D = self.D
-        
+
         if method == 'truncate':
             Ar = A11
             Br = B1
@@ -554,7 +560,7 @@ class StateSpaceBase(object):
             Dr = D
         elif method == 'matchdc':
             A22I = linalg.inv(A22)
-            
+
             Ar = A11 - A12 * A22I * A21
             Br = B1 - A12 * A22I * B2
             Cr = C1 - C2 * A22I * A21
@@ -573,9 +579,9 @@ class StateSpaceBase(object):
         if u is not None:
             u = array(u)[mkeep]
         if y is not None:
-            y = array(y)[mkeep]            
-        
-        return self.__class__(Ar, Br, Cr, Dr, u, y, x, x0)        
+            y = array(y)[mkeep]
+
+        return self.__class__(Ar, Br, Cr, Dr, u, y, x, x0)
 
     def balance_reduce(self, threshold, method='truncate'):
         """Perform balanced model reduction where the states with hankel
@@ -592,12 +598,14 @@ class StateSpaceBase(object):
 
         """
 
-        return self.__class__(self.A.subs(*args, **kwargs),
-                              self.B.subs(*args, **kwargs),
-                              self.C.subs(*args, **kwargs),
-                              self.D.subs(*args, **kwargs),
-                              self._u, self._y, self._x, self._x0)        
-        
-    
+        Anew = self.A.subs(*args, **kwargs)
+        Bnew = self.B.subs(*args, **kwargs)
+        Cnew = self.C.subs(*args, **kwargs)
+        Dnew = self.D.subs(*args, **kwargs)
+
+        return self.__class__(Anew, Bnew, Cnew, Dnew,
+                              self._u, self._y, self._x, self._x0)
+
+
 from .symbols import t, s
 from .expr import ExprList
