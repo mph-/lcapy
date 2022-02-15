@@ -11,8 +11,11 @@ class Context(object):
 
     def __init__(self):
         self.symbols = AttrDict()
+        # User symbols are created with symbol or symbols.
+        # These are printed as defined.
         self.user_symbols = {}
-        self.domain_symbols = {}        
+        # Domain symbols are symbols such as tsym, ssym.
+        self.domain_symbols = {}
         self.assumptions = {}
         # Noise instance identifier
         self.nid = 0

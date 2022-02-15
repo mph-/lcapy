@@ -2240,7 +2240,15 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             else:
                 warn('Substituting a list...')
 
-        result = self.expr.subs(old, expr, **kwargs)
+        if isinstance(old, str):
+            result = self.sympy
+        else:
+            if state.warn_subs and not self.sympy.has(old):
+                warn('Expression %s does not have %s' % (self.sympy, old))
+            if state.break_subs and not self.sympy.has(old):
+                import pdb; pdb.set_trace()
+
+            result = self.sympy.subs(old, expr, **kwargs)
 
         # If get empty Piecewise, then result unknowable.  TODO: sympy
         # 1.2 requires Piecewise constructor to have at least one

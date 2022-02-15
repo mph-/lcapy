@@ -23,6 +23,7 @@ from .simplify import simplify_unit_impulse
 from .extrafunctions import (UnitImpulse, UnitStep, rect, dtrect, tri,
                              trap, dtsign, sincn, sincu, psinc, ramp,
                              rampstep)
+from warnings import warn
 
 __all__ = ('symsymbol', 'sympify', 'simplify', 'symbol_delete')
 
@@ -188,7 +189,7 @@ def parse(string, symbols=None, evaluate=True, local_dict=None,
     for symbol in s.atoms(Symbol):
         name = symbol_name(symbol)
         if name not in symbols:
-            if False:
+            if state.notify_symbol_add:
                 print("Adding symbol '%s'" % name)
 
             symbols[name] = symbol
@@ -332,7 +333,7 @@ def symsymbol(name, force=False, **assumptions):
     except:
         pass
     try:
-        # Handle Symbol
+        # Handle sympy Symbol
         name = name.name
     except:
         pass
@@ -464,8 +465,13 @@ def symbol_map(name):
     elif name in state.global_context.symbols:
         new = state.global_context.symbols[name]
     else:
-        # Perhaps have symbol defined using sympy?
-        pass
+        # This can occur when trying to substitute an expression
+        # rather than a symbol, for example, when making state-space.
+        if state.warn_unknown_symbol:
+            warn('Lcapy does not know symbol %s' % name)
+        if state.break_unknown_symbol:
+            import pdb; pdb.set_trace()
+
     return new
 
 

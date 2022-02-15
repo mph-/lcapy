@@ -1,7 +1,7 @@
 """This module provides the State class that maintains the global state,
 such as the symbol context.
 
-Copyright 2014--2021 Michael Hayes, UCECE
+Copyright 2014--2022 Michael Hayes, UCECE
 
 """
 
@@ -19,8 +19,7 @@ class State(object):
 
     `loose_units` (default True) allows constants to be added to quantities
     `show_units` (default False) prints the units after an expression
-    `canonical_units` (default True) converts units to canonical form, e.g., V / A is
-    shown as ohms.
+    `canonical_units` (default True) converts units to canonical form, e.g., V / A is shown as ohms.
     'printing.abbreviate_units` (default True) prints V rather than volts
     'printing.order` (default `none`) controls the order that symbols in an expression are printed.
 
@@ -31,7 +30,7 @@ class State(object):
         self.context = self.global_context
         self.previous_context = []
         self.printing = PrintingConfig()
-        
+
         # With loose_units can add constants to quantities, e.g., voltage(1) + 2
         # or impedance(2) == 2.
         self.loose_units = loose_units
@@ -41,12 +40,18 @@ class State(object):
         self.printing.abbreviate_units = abbreviate_units
         self.printing.order = printing_order
 
+        self.warn_subs = False
+        self.break_subs = False
+        self.notify_symbol_add = False
+        self.warn_unknown_symbol = False
+        self.break_unknown_symbol = False
+
     def new_context(self):
 
         context = Context()
         context.symbols = copy(self.global_context.symbols)
         return context
-        
+
     def switch_context(self, context):
 
         self.previous_context.append(self.context)
@@ -58,9 +63,9 @@ class State(object):
     def restore_context(self):
 
         self.context.assumptions.update(global_assumptions)
-        
+
         self.context = self.previous_context.pop()
-        
+
         global_assumptions.clear()
         global_assumptions.update(self.context.assumptions)
 
