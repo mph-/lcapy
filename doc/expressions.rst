@@ -138,7 +138,7 @@ This applies to the units: volts, amperes, ohms, siemens, and watts.
 Note, this is experimental and may be deprecated since the resultant units might be too confusing.
 
 
-User defined symbols
+User-defined symbols
 --------------------
 
 Symbols can also be created with Lcapy's `symbol` function.  For
@@ -147,7 +147,8 @@ example::
    >>> tau = symbol('tau', real=True)
    >>> N = symbol('N', even=True)
 
-They are also implicitly created from strings.  For example::
+They are also implicitly created from strings using the `expr()`
+function.  For example::
 
    >>> v = expr('exp(-t / tau) * u(t)')
 
@@ -158,17 +159,27 @@ or
 
 Notes:
 
-1. By default, symbols are assumed to be positive, unless explicitly specified not to be.
+1. Lcapy maintains a registry of symbols, created both explicitly and
+   implicitly.  This includes special symbols such as `j` and `pi`,
+   domain symbols such as `s` and `t` (associated with the domain
+   variables), and user-defined symbols.
 
-2. There are restrictions on symbol names that can be used.  Currently, this excludes names that are Python keywords.  For example, `Is` is not allowed but `I_s` is valid.
+2. By default, symbols are assumed to be positive, unless explicitly
+   specified not to be.  For example:
 
-3. Symbols created with the `symbol` or `symbols` function are printed
-verbatim.  Otherwise, they are printed in a canonical form.  For
-example, R1 is printed as R_1, even though it is stored as R1.  Lcapy
-maintains a table of symbols that are not to be printed in canonical form.
+   >>> a = symbol('a', negative=True)
 
-4. Some symbols are previously defined by SymPy.  These are
-   overwritten using `symbol` or `symbols` but not with `expr` unless
+3. Symbols created with the `symbol()` or `symbols()` function are printed
+   verbatim.  For example:
+
+   >>> xest = symbol('\hat{x}')
+   \hat{x}
+
+4. Symbols created with `expr()` are printed in a canonical form.  For
+   example, R1 is printed as R_1, even though it is stored as R1.
+
+5. Some symbols are previously defined by SymPy.  These can be
+   redefined using `symbol` or `symbols` but not with `expr` unless
    the `override` argument is True.  For example::
 
    >>> mypi = symbol('pi')
@@ -180,15 +191,11 @@ maintains a table of symbols that are not to be printed in canonical form.
    In both cases, the special number symbol `pi` becomes an arbitrary
    symbol.
 
-5. Domain symbols (`t`, `f`, etc.) can only be redefined with
+6. Domain symbols (`t`, `f`, etc.) can only be redefined with
    `force=True`.  Caveat emptor!  This can cause confusion.  For
    example:
 
    >>> n = symbol('n', force=True, real=True)
-
-6. If you want an esoteric name, such as `\hat{x}`, you will need to use the `symbol` or `symbols` function, rather than `expr`.  For example:
-
-   >>> xest = symbol(`\hat{x}`)
 
 
 .. _expressionsfunctions:
