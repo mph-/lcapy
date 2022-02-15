@@ -49,7 +49,8 @@ class State(object):
     def new_context(self):
 
         context = Context()
-        context.symbols = copy(self.global_context.symbols)
+        # Share symbols for all circuits.
+        context.symbols = self.global_context.symbols
         return context
 
     def switch_context(self, context):

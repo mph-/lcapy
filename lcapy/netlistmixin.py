@@ -38,8 +38,7 @@ class NetlistMixin(object):
         self.namespaces = {}
         self.nodes = AttrDict()
         if context is None:
-            # context = state.new_context()
-            context = state.context
+            context = state.new_context()
 
         self.context = context
         self.allow_anon = allow_anon
