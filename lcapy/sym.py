@@ -25,7 +25,7 @@ from .extrafunctions import (UnitImpulse, UnitStep, rect, dtrect, tri,
                              rampstep)
 from warnings import warn
 
-__all__ = ('symsymbol', 'sympify', 'simplify', 'symbol_delete')
+__all__ = ('sympify', 'simplify', 'symbol_delete')
 
 
 global_dict = {}
@@ -186,14 +186,7 @@ def parse(string, symbols=None, evaluate=True, local_dict=None,
         return s
 
     # Add newly defined symbols.
-    for symbol in s.atoms(Symbol):
-        name = symbol_name(symbol)
-        if name not in symbols:
-            if state.notify_symbol_add:
-                print("Adding symbol '%s'" % name)
-
-            symbols[name] = symbol
-
+    symbols.add_from_expr(s)
     return s
 
 
@@ -282,39 +275,27 @@ def sympify(expr, evaluate=True, override=False, rational=True, **assumptions):
         if not assumptions['positive']:
             assumptions.pop('positive')
 
-    return sympify1(expr, state.context.symbols, evaluate, override,
+    return sympify1(expr, state.symbols, evaluate, override,
                     rational, **assumptions)
 
+def miscsymbol(name, force=False, **assumptions):
+    """Create a SymPy symbol.
 
-def symsymbol1(name, override=True, force=False, **assumptions):
+    This function allows symbol assumptions to be defined,
+    e.g., `real=True, integer=True`
 
-    if override:
-        if name in state.context.domain_symbols:
-            if not force:
-                raise ValueError('Cannot override domain symbol %s without force=True' % name)
-            symbol_delete(name)
+    By default, symbols are assumed to be positive unless real is
+    defined.
 
-        elif name in state.context.user_symbols:
-            symbol_delete(name)
+    If `name` is already a symbol, it is overridden unless it is
+    a domain symbol in which case `force` must be `True`.
 
-    if name in state.context.symbols:
-        return state.context.symbols[name]
+    """
 
-    if assumptions == {}:
-        assumptions['positive'] = True
-        # Note this implies that imag is False.   Also note that all
-        # reals are considered complex (but with a zero imag part).
-
-    elif 'positive' in assumptions:
-        if not assumptions['positive']:
-            assumptions.pop('positive')
-
-    symbol = sym.Symbol(name, **assumptions)
-    state.context.symbols[name] = symbol
-    return symbol
+    return state.symbols.add_misc(name, force=force, **assumptions)
 
 
-def symsymbol(name, force=False, **assumptions):
+def usersymbol(name, force=False, **assumptions):
     """Create a SymPy symbol.
 
     This function allows symbol assumptions to be defined,
@@ -338,21 +319,14 @@ def symsymbol(name, force=False, **assumptions):
     except:
         pass
 
-    usym = symsymbol1(name, force=force, **assumptions)
-    state.global_context.user_symbols[name] = usym
-    return usym
+    return state.symbols.add_user(name, force=force, **assumptions)
 
 
-def domainsymbol(name, **assumptions):
+def domainsymbol(name : str, **assumptions):
     """Create a SymPy symbol and register as a domain symbol
     that should not be overwritten."""
 
-    if not isinstance(name, str):
-        raise ValueError('Symbol name %s must be a string' % name)
-
-    sym = symsymbol1(name, **assumptions)
-    state.global_context.domain_symbols[name] = sym
-    return sym
+    return state.symbols.add_domain(name, **assumptions)
 
 
 def symsimplify(expr, var=None, **kwargs):
@@ -449,48 +423,29 @@ def symbol_delete(sym):
     """Delete symbol.  This is useful if a symbol needs to be redefined
     with different assumptions."""
 
-    state.context.symbols.pop(sym)
+    state.symbols.pop(sym)
 
 
 def symbol_map(name):
 
-    new = name
-    if not isinstance(name, str):
-        name = str(name)
-
-    # Replace symbol names with symbol definitions to
-    # avoid problems with real or positive attributes.
-    if name in state.context.symbols:
-        new = state.context.symbols[name]
-    elif name in state.global_context.symbols:
-        new = state.global_context.symbols[name]
-    else:
-        # This can occur when trying to substitute an expression
-        # rather than a symbol, for example, when making state-space.
-        if state.warn_unknown_symbol:
-            warn('Lcapy does not know symbol %s' % name)
-        if state.break_unknown_symbol:
-            import pdb; pdb.set_trace()
-
-    return new
-
+    return state.symbols.lookup(name)
 
 # The following domain symbols are all SymPy symbols.
 ssym = domainsymbol('s', complex=True)
 tsym = domainsymbol('t', real=True)
 fsym = domainsymbol('f', real=True)
 omegasym = domainsymbol('omega', real=True)
-omega0sym = symsymbol('omega_0', real=True)
-tausym = symsymbol('tau', real=True)
-nusym = symsymbol('nu', real=True)
+omega0sym = miscsymbol('omega_0', real=True)
+tausym = miscsymbol('tau', real=True)
+nusym = miscsymbol('nu', real=True)
 Omegasym = domainsymbol('Omega', real=True)
 Fsym = domainsymbol('F', real=True)
 nsym = domainsymbol('n', integer=True)
 ksym = domainsymbol('k', integer=True)
 zsym = domainsymbol('z', real=False)
 
-dt = symsymbol('Delta_t', real=True, positive=True)
-df = symsymbol('Delta_f', real=True, positive=True)
+dt = miscsymbol('Delta_t', real=True, positive=True)
+df = miscsymbol('Delta_f', real=True, positive=True)
 
 pi = sym.pi
 j = sym.I
@@ -500,7 +455,7 @@ one = sym.S.One
 
 # This is required for expr('I') to work as j but it prevents having
 # a current called I.
-state.context.symbols['I'] = sym.I
+state.symbols['I'] = sym.I
 
 try:
     from sympy.core.function import AppliedUndef

@@ -8,7 +8,7 @@ Copyright 2021-2022 Michael Hayes, UCECE
 from .transformer import UnilateralInverseTransformer
 from .ratfun import Ratfun
 from .utils import factor_const, scale_shift, pair_conjugates
-from .sym import sympify, simplify, symsymbol, AppliedUndef
+from .sym import sympify, simplify, miscsymbol, AppliedUndef
 from .utils import factor_const, scale_shift
 from .extrafunctions import UnitImpulse, UnitStep
 import sympy as sym

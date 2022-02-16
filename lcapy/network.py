@@ -309,15 +309,6 @@ class Network(object):
 
         return self.cct.symbols
 
-    @property
-    def all_symbols(self):
-        """Return dictionary of symbols defined in the network and global
-        symbols."""
-
-        symbols = self.symbols
-        symbols.update(state.global_context.symbols)
-        return symbols
-
     def transform(self, form='cauerI'):
         """Transform the network impedance into an alternative form.  The
         transformation is performed using network synthesis of the

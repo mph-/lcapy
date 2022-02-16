@@ -86,12 +86,12 @@ class DiscreteFourierDomainExpression(DiscreteFourierDomain, SequenceExpression)
         the extent of the inverse DFT.  By default `N` is defined as
         'N'."""
 
-        from .sym import symsymbol
+        from .sym import miscsymbol
 
         if N is None:
-            N = symsymbol('N', integer=True, positive=True)
+            N = miscsymbol('N', integer=True, positive=True)
         elif isinstance(N, str):
-            N = symsymbol(N, integer=True, positive=True)
+            N = miscsymbol(N, integer=True, positive=True)
 
         result = IDFT(self.expr, ksym, nsym, N, evaluate=evaluate)
         result = self.change(result, domain='discrete time')

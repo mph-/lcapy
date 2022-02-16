@@ -5,7 +5,7 @@ Copyright 2020--2022 Michael Hayes, UCECE
 """
 
 from sympy import Eq, Symbol, Piecewise, S, Heaviside
-from .sym import symsymbol
+from .sym import miscsymbol
 from .utils import factor_const, remove_images
 from .extrafunctions import UnitStep
 
@@ -81,9 +81,9 @@ class Transformer(object):
 
         for dummy in dummies:
             if level == 0:
-                nu = symsymbol(dummy, **kwargs)
+                nu = miscsymbol(dummy, **kwargs)
             else:
-                nu = symsymbol(dummy + '_%d' % level, **kwargs)
+                nu = miscsymbol(dummy + '_%d' % level, **kwargs)
             if not expr.has(nu):
                 return nu
         raise self.error('Dummy variable conflict with symbols: %s' % ', '.join(dummies))

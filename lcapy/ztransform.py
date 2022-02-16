@@ -6,7 +6,7 @@ Copyright 2020--2022 Michael Hayes, UCECE
 
 from .transformer import UnilateralForwardTransformer
 from .ratfun import Ratfun
-from .sym import sympify, simplify, symsymbol, AppliedUndef
+from .sym import sympify, simplify, miscsymbol, AppliedUndef
 from .utils import factor_const, scale_shift
 from .extrafunctions import UnitImpulse, UnitStep, dtrect
 import sympy as sym

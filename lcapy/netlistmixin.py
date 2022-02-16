@@ -115,15 +115,6 @@ class NetlistMixin(object):
         return self.context.symbols
 
     @property
-    def all_symbols(self):
-        """Return dictionary of symbols defined in the circuit and global
-        symbols."""
-
-        symbols = self.symbols
-        symbols.update(state.global_context.symbols)
-        return symbols
-
-    @property
     def elements(self):
 
         if hasattr(self, '_add_elements'):

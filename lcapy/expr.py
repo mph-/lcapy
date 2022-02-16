@@ -19,7 +19,7 @@ from .domains import UndefinedDomain
 from .quantity import UndefinedQuantity
 from .ratfun import Ratfun
 from .sym import sympify, symsimplify, j, omegasym, symdebug, AppliedUndef
-from .sym import capitalize_name, tsym, symsymbol, symbol_map, tausym, nusym, oo
+from .sym import capitalize_name, tsym, miscsymbol, usersymbol, symbol_map, tausym, nusym, oo
 from .sym import fsym, ssym, Fsym, Omegasym, symbol_delete, pi
 from .sym import nsym, ksym, zsym
 from .state import state
@@ -2900,7 +2900,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if self._ratfun is None:
             return self.copy()
 
-        tmpsym = symsymbol('qtmp')
+        tmpsym = miscsymbol('qtmp')
 
         expr = self.subs(1 / tmpsym)
         ratfun = Ratfun(expr.expr, tmpsym)
@@ -3673,7 +3673,7 @@ def symbol(name, **assumptions):
     a domain symbol in which case `force` must be `True`.
     """
 
-    ssym = symsymbol(name, **assumptions)
+    ssym = usersymbol(name, **assumptions)
     # Create Lcapy symbol
     return expr(ssym, **assumptions)
 

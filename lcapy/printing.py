@@ -55,7 +55,7 @@ def canonical_name(name):
 
     # If the symbol name was created with symbol() or symbols()
     # then keep it as is.
-    if name in state.context.user_symbols:
+    if state.context.symbols.kind(name) == 'user':
         return name
 
     # Convert R_{out} to R_out for SymPy to recognise.

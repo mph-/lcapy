@@ -11,6 +11,7 @@ from .context import Context
 from .config import check_units, abbreviate_units, loose_units, show_units
 from .config import canonical_units, printing_order
 from .printing_config import PrintingConfig
+from .symbolregistry import SymbolRegistry
 from copy import copy
 
 class State(object):
@@ -26,8 +27,9 @@ class State(object):
     """
 
     def __init__(self):
-        self.global_context = Context()
-        self.context = self.global_context
+        self.symbols = SymbolRegistry()
+        self.context = Context()
+        self.context.symbols = self.symbols
         self.previous_context = []
         self.printing = PrintingConfig()
 
@@ -49,8 +51,7 @@ class State(object):
     def new_context(self):
 
         context = Context()
-        # Share symbols for all circuits.
-        context.symbols = self.global_context.symbols
+        context.symbols = self.symbols
         return context
 
     def switch_context(self, context):
