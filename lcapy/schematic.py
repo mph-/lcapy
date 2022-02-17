@@ -87,7 +87,7 @@ class SchematicOpts(Opts):
              'node_spacing' : 2.0,
              'help_lines' : 0.0,
              'style' : 'american',
-             'voltage dir' : 'RP'})
+             'voltage_dir' : 'RP'})
 
 
 class Node(object):
@@ -469,8 +469,8 @@ class Schematic(NetfileMixin):
             font = kwargs.pop('font')
             opts.append('font=' + font)
 
-        if 'voltage dir' in kwargs:
-            voltage_dir = kwargs.pop('voltage dir')
+        if 'voltage_dir' in kwargs:
+            voltage_dir = kwargs.pop('voltage_dir')
             opts.append('voltage dir=' + voltage_dir)
 
         s = r'\begin{tikzpicture}[%s]''\n' % ', '.join(opts)

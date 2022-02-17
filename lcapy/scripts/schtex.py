@@ -169,6 +169,10 @@ def main (argv=None):
     parser.add_argument('--method', type=str, default='graph',
                         help='specify component placement algorithm')
 
+    parser.add_argument('--voltage-dir', type=str, default='RP',
+                        dest='voltage_dir',
+                        help="specify voltage dir: 'RP' (rising potential) or 'EF' (electric field)")
+
     parser.add_argument('filename', type=str, help='schematic filename')
 
     parser.add_argument('outfilename', type=str, nargs='?',
@@ -256,7 +260,7 @@ def main (argv=None):
                  filename=outfilename, scale=args.scale,
                  node_spacing=args.node_spacing, cpt_size=args.cpt_size,
                  help_lines=args.help_lines, debug=args.debug,
-                 method=args.method,
+                 method=args.method, voltage_dir=args.voltage_dir,
                  dpi=args.dpi, nosave=nosave, **kwargs)
 
     if args.xgraph:
