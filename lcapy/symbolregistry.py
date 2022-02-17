@@ -8,24 +8,30 @@ from sympy import Symbol
 from .attrdict import AttrDict
 from warnings import warn
 
+# Cannot add attributes to SymPy symbols since the Symbol
+# class defines __slots__ = ().  So perhaps use facade for
+# symbols that includes the symbol kind?
+kinds = {}
 
 class SymbolRegistry(AttrDict):
+    """This maintains a registry of symbols so that there is only
+    a single symbol of a given name.
 
-    def __init__(self):
+    The symbol kinds are:
+    'domain' defined by Lcapy for domain variables
+    'misc' defined by Lcapy for misc. variables, such as nu
+    'user' defined by the user using `symbol()` or `symbols()`
+    'expr' defined by the user using `expr()`
+    """
 
-        super (SymbolRegistry, self).__init__()
-        # Cannot add attributes to SymPy symbols.  So perhaps
-        # use facade for symbols that includes the symbol kind.
-        self.kinds = {}
-
-    def _add(self, name, symbol, kind='user'):
+    def register(self, name, symbol, kind='user'):
         from .state import state
 
         if state.notify_symbol_add:
             print("Adding symbol '%s'" % name)
 
         self[name] = symbol
-        self.kinds[name] = kind
+        kinds[name] = kind
         return symbol
 
     def add(self, name : str, kind='user', override=True,
@@ -37,7 +43,7 @@ class SymbolRegistry(AttrDict):
             if not override:
                 return symbol
 
-            if self.kinds[name] == 'domain' and not force:
+            if kinds[name] == 'domain' and not force:
                 raise ValueError('Cannot override domain symbol %s without force=True' % name)
 
         if assumptions == {}:
@@ -50,7 +56,7 @@ class SymbolRegistry(AttrDict):
                 assumptions.pop('positive')
 
         symbol = Symbol(name, **assumptions)
-        return self._add(name, symbol, kind)
+        return self.register(name, symbol, kind)
 
     def delete(self, name):
 
@@ -73,16 +79,7 @@ class SymbolRegistry(AttrDict):
 
         for symbol in expr.atoms(Symbol):
             name = str(symbol)
-            self._add(name, symbol, kind='expr')
-
-    def user(self):
-        """Return user defined symbols."""
-
-        syms = {}
-        for name, sym in self.items():
-            if self.kinds[name] == 'user':
-                syms[name] = sym
-        return syms
+            self.register(name, symbol, kind='expr')
 
     def delete_user(self):
         """Delete user symbols."""
@@ -90,14 +87,23 @@ class SymbolRegistry(AttrDict):
         for name in self.user().keys():
             self.delete(name)
 
+    def by_kind(self, kind):
+
+        syms = self.__class__()
+        for name, sym in self.items():
+            if kinds[name] == kind:
+                syms[name] = sym
+        return syms
+
+    def user(self):
+        """Return user defined symbols."""
+
+        return self.by_kind('user')
+
     def expr(self):
         """Return expr defined symbols."""
 
-        syms = {}
-        for name, sym in self.items():
-            if self.kinds[name] == 'expr':
-                syms[name] = sym
-        return syms
+        return self.by_kind('expr')
 
     def delete_expr(self):
         """Delete expr symbols."""
@@ -133,8 +139,9 @@ class SymbolRegistry(AttrDict):
         return new
 
     def kind(self, name):
+        """Return the symbol kind or 'unknown' if unknown."""
 
         try:
-            return self.kinds[name]
+            return kinds[name]
         except:
             return 'unknown'

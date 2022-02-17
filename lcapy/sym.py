@@ -455,7 +455,7 @@ one = sym.S.One
 
 # This is required for expr('I') to work as j but it prevents having
 # a current called I.
-state.symbols['I'] = sym.I
+state.symbols.register('I', sym.I, 'misc')
 
 try:
     from sympy.core.function import AppliedUndef
