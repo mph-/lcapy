@@ -78,13 +78,7 @@ The drawing direction provides a constraint.  For example, the nodes
 of components with a vertical orientation have the same x coordinate,
 whereas nodes of horizontal components have the same y coordinate.
 
-The component orientation is specified by a rotation angle.  This
-angle is degrees anticlockwise with zero degrees being along the
-positive x axis.  For example,
-
-   >>> cct.add('D1 1 2; rotate=45')
-
-The component orientation can also be specified by a direction attribute.  Note, this rotates the component:
+The component orientation can be specified by a direction attribute.  Note, this rotates the component:
 
 - right (0 degrees)
 
@@ -107,7 +101,19 @@ For example:
    :width: 1.5cm
 
 Note, the drawing direction is from the positive node to the negative
-node.
+node.  For example,
+
+.. literalinclude:: examples/schematics/voltage_sources.sch
+
+.. image:: examples/schematics/voltage_sources.png
+   :width: 1.5cm
+
+
+The component orientation is also specified by a rotation angle.  This
+angle is degrees anticlockwise with zero degrees being along the
+positive x axis.  For example,
+
+   >>> cct.add('D1 1 2; rotate=45')
 
 Here's an example of how to draw a diode bridge:
 
@@ -1187,6 +1193,10 @@ example,
 .. image:: examples/schematics/voltage_labels1.png
    :width: 8cm
 
+The direction of the voltage labels depends on the `voltage dir`
+attribute.  This can be `RP` for rising potential or `EF` for electric
+field.  `RP` is the default.
+
 Current and flow labels
 -----------------------
 
@@ -1582,12 +1592,15 @@ Customisation
 
 The drawing can be customised using the following options:
 
-- `style` this can be 'american', 'british', or 'european'
+- `style` can be 'american', 'british', or 'european'
 - `preamble` inserts a command at the start of the drawing commands
 - `postamble` inserts a command at the end of the drawing commands
 - `include` inserts a string at the start of the document (this is useful to switch to different fonts)
 - `includefile` insert the contents of a file at the start of the document  (this is useful to switch to different fonts)
 - `font` specify fonts(e.g., '\\small', '\\sffamily\\tiny')
+- `voltage-dir` can be `RP` (for rising potential) or `EF` (for electric field)
+- `draw-nodes` can be 'none', 'connections', 'primary', 'all'
+- `label-nodes` can be 'none', 'alpha', 'pins', 'primary', 'all', or a list of comma separated node names in braces
 
 The `include` and `includefile` option are only used for creating a stand-alone file.  They are useful for customising the fonts to match the document they are to be embedded in.
 
