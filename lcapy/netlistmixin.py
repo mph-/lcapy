@@ -1239,11 +1239,12 @@ class NetlistMixin(object):
         return new
 
     def short(self, cpt):
-        """Apply short-circuit across specified component."""
+        """Apply short-circuit across component.  Returns voltage source
+        component used as the short."""
 
         if isinstance(cpt, Cpt):
             cpt = cpt.name
-        self.elements[cpt].short()
+        return self.elements[cpt].short()
 
     def _kill(self, sourcenames):
 

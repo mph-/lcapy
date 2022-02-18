@@ -680,7 +680,8 @@ class Cpt(ImmittanceMixin):
         return cpt in self.connected
 
     def short(self):
-        """Apply short-circuit across component."""
+        """Apply short-circuit across component.  Returns voltage source
+        component used as the short."""
 
         parallel_set = self.in_parallel()
         for cptname in parallel_set:
@@ -693,12 +694,12 @@ class Cpt(ImmittanceMixin):
             elif cpt.is_current_source:
                 warn('Shorting current source %s in parallel with %s' % (cptname, self.name))
 
-        #self.cct.add('W %s %s' % (self.nodes[0].name, self.nodes[1].name))
-        # Could add zero ohm resistor but then could not determine current
-        # through the short.
+        # Could add wire or zero ohm resistor but then could not
+        # determine current through the short.  So instead add a
+        # voltage source.
         self.cct.add('V? %s %s 0' % (self.nodes[0].name, self.nodes[1].name))
 
-        # Perhaps have option to delete component?
+        return self.cct.last_added()
 
 
 class Invalid(Cpt):

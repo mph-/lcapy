@@ -1,7 +1,7 @@
 """This module provides the NetfileMixin class.  This is used for
 Netlist and Schematic to parse a netlist file.
 
-Copyright 2020 Michael Hayes, UCECE
+Copyright 2020--2022 Michael Hayes, UCECE
 
 """
 
@@ -30,7 +30,7 @@ class NetfileMixin(object):
     def _make_anon_name(self, kind):
         """Make name for anonymous component"""
 
-        return self.namer.name(kind, 'anon')    
+        return self.namer.name(kind, 'anon')
 
     def _include(self, string):
 
@@ -40,21 +40,21 @@ class NetfileMixin(object):
         filename = parts[1]
         if len(parts) == 2:
             return self._netfile_add(filename, self.namespace)
-        
+
         if len(parts) != 4 and parts[2] != 'as':
             raise ValueError('Expecting include filename as name in %s' % string)
         name = parts[3]
         namespace = self.namespace
         self.namespace = name + '.' + namespace
         self.subnetlists[self.namespace[0:-1]] = None
-        ret = self._netfile_add(filename, self.namespace)        
+        ret = self._netfile_add(filename, self.namespace)
         self.namespace = namespace
         return ret
 
     def _directive(self, string, namespace=''):
-        
+
         return self.parser.cpts.Directive(self, string, namespace)
-        
+
     def _parse(self, string, namespace=''):
         """The general form is: 'Name Np Nm symbol'
         where Np is the positive node and Nm is the negative node.
@@ -70,7 +70,7 @@ class NetfileMixin(object):
 
         if string.startswith('...'):
             string = string[3:].strip()
-        
+
         if string == '':
             pass
         elif string[0:9] == '.include ':
@@ -96,10 +96,10 @@ class NetfileMixin(object):
             state.switch_context(self.context)
         self._add(string)
         self._invalidate()
-        if self.context is not None:        
+        if self.context is not None:
             state.restore_context()
         return self
-        
+
     def _add(self, string, namespace=''):
         """The general form is: 'Name Np Nm symbol'
         where Np is the positive node and Nm is the negative node.
@@ -120,12 +120,17 @@ class NetfileMixin(object):
             self._cpt_add(cpt)
         return cpt
 
+    def last_added(self):
+        """Return last added component."""
+
+        return list(self.values())[-1]
+
     def netfile_add(self, filename):
         """Add the nets from file with specified filename"""
 
         self.dirname = dirname(filename)
         self._netfile_add(filename)
-    
+
     def _netfile_add(self, filename, namespace=''):
         """Add the nets from file with specified filename"""
 
@@ -146,17 +151,17 @@ class NetfileMixin(object):
             try:
                 netfile = open(join(self.dirname, filename), 'r')
             except:
-                pass            
+                pass
 
-        if netfile is None:            
+        if netfile is None:
             raise FileNotFoundError('Could not open ' + filename)
 
         lines = netfile.readlines()
         netfile.close()
 
-        if self.context is not None:        
-            state.switch_context(self.context)        
+        if self.context is not None:
+            state.switch_context(self.context)
         for line in lines:
             self._add(line, namespace)
-        if self.context is not None:                    
+        if self.context is not None:
             state.restore_context()
