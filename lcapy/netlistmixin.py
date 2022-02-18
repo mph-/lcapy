@@ -820,6 +820,54 @@ class NetlistMixin(object):
         H.causal = True
         return H
 
+    def voltage_gain(self, cpt1, cpt2):
+        """Create s-domain voltage transfer function V2(s) / V1(s) where:
+        V1 is the voltage across `cpt1`
+        V2 is the voltage across `cpt2`
+
+        Note, independent sources are killed and initial conditions
+        are ignored.  Since the result is causal, the frequency response
+        can be found by substituting j * omega for s.
+        """
+
+        return self.transfer(cpt1, cpt2)
+
+    def current_gain(self, cpt1, cpt2):
+        """Create s-domain current transfer function I2(s) / I1(s) where:
+        I1 is the current through `cpt1`
+        I2 is the current through `cpt2`
+
+        Note, independent sources are killed and initial conditions
+        are ignored.  Since the result is causal, the frequency response
+        can be found by substituting j * omega for s.
+        """
+
+        if isinstance(cpt1, str):
+            cpt1 = self[cpt1]
+        if isinstance(cpt2, str):
+            cpt2 = self[cpt2]
+
+        if len(cpt1.nodes) != 2:
+            # FIXME
+            raise ValueError('Cannot determine current gain for component %s' % cpt1.name)
+
+        N1p = cpt1.nodes[0].name
+        N1m = cpt1.nodes[1].name
+
+        new = self.kill()
+        if '0' not in new.nodes:
+            new.add('W %s 0' % N1m)
+
+        # Replace cpt with current source.
+        # FIXME, need to add cpt in series with current source in
+        # case a controlled source requires the voltage across the cpt.
+        new.remove(cpt1.name)
+        new._add('I1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
+
+        H = new.I1_.I.laplace()
+        H.causal = True
+        return H
+
     def Aparams(self, N1p, N1m, N2p=None, N2m=None):
         """Create A-parameters for two-port defined by nodes N1p, N1m, N2p, and N2m, where:
         I1 is the current flowing into N1p and out of N1m
