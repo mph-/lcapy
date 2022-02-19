@@ -427,6 +427,45 @@ Circuit methods
    R1 1 2
    L1 2 0 3
 
+- `unconnected_nodes` Returns list of names of nodes that are unconnected.
+
+
+Circuit two-port methods
+------------------------
+
+Circuits have a number of two-port methods.  The ports are specified
+by component name or a tuple of node names.  Note, currents are
+defined to be flowing into the positive node of a port:
+
+.. image:: examples/netlists/transfer1.png
+   :width: 10cm
+
+Here's an example::
+
+   >>> a = Circuit("""
+   ... P1 1 0
+   ... R1 1 2
+   ... R2 2 0
+   ... R3 2 3
+   ... P2 3 0""")
+   >>> a.voltage_gain(1, 0, 3, 0)
+     R₂
+   ───────
+   R₁ + R₂
+   >>> a.current_gain('P1', 'P2')
+    -R₂
+   ───────
+   R₂ + R₃
+   >>> a.transimpedance('P1', (3, 0))
+   R₂
+   >>> tpz = a.twoport('P1', 'P2', model='Z')
+   >>> tpz.voltage_gain
+     R₂
+   ───────
+   R₁ + R₂
+
+The methods are:
+
 - `transfer(N1p, N1m, N2p, N2m)` Returns the s-domain transfer
   function `V2(s) / V1(s)`, for the ports defined by nodes `N1p`,
   `N1m`, `N2p`, and `N2m` where `V1 = V[N1p] - V[N1m]` and `V2 =
@@ -463,18 +502,7 @@ Circuit methods
   circuit voltage measured between `N2p` and `N1p`.  See also
   `transfer()`.
 
-- `twoport(N1p, N1m, N2p, N2m, model='B')` Returns an s-domain
-   two-port model defined by nodes `N1p`, `N1m`, `N2p`, and `N2m`,
-   where `I1` is the current flowing into `N1p` and out of `N1m`, `I2`
-   is the current flowing into `N2p` and out of `N2m`, `V1 = V[N1p] -
-   V[N1m]`, and `V2 = V[N2p] - V[N2m]`.  `model` can be `A`, `B`, `G`,
-   `H`, `Y`, or `Z`.
-
-   The ports can also be specified using a component name or a tuple
-   of node names, for example,
-
-  >>> Z1 = cct.transfer('R1', 'L1', model='Z')
-  >>> Z2 = cct.transfer('R1', (2, 0), model='Z')
+- `twoport(N1p, N1m, N2p, N2m, model='B')` Returns an s-domain two-port model defined by nodes `N1p`, `N1m`, `N2p`, and `N2m`, where `I1` is the current flowing into `N1p` and out of `N1m`, `I2` is the current flowing into `N2p` and out of `N2m`, `V1 = V[N1p] -  V[N1m]`, and `V2 = V[N2p] - V[N2m]`.  `model` can be `A`, `B`, `G`, `H`, `Y`, or `Z`.
 
 - `Aparams(N1p, N1m, N2p, N2m)` Returns the two-port A-parameters matrix for the two-port defined by nodes `N1p`, `N1m`, `N2p`, and `N2m`, where `I1` is the current flowing into `N1p` and out of `N1m`, `I2` is the current flowing into `N2p` and out of `N2m`, `V1 = V[N1p] - V[N1m]`, and `V2 = V[N2p] - V[N2m]`.  See :ref:`A-parameters` and `twoport()`.
 
@@ -492,11 +520,13 @@ Circuit methods
 
 - `Zparams(N1p, N1m, N2p, N2m)` Returns the two-port Z-parameters matrix.  See :ref:`Z-parameters` and `twoport()`.
 
+
+Circuit multi-port methods
+--------------------------
+
 - `Yparamsn(N1p, N1m, N2p, N2m, ...)` Returns the n-port Y-parameters matrix.  See :ref:`Y-parameters`.
 
 - `Zparamsn(N1p, N1m, N2p, N2m, ...)` Returns the n-port Z-parameters matrix.  See :ref:`Z-parameters`.
-
-- `unconnected_nodes` Returns list of names of nodes that are unconnected.
 
 
 Circuit components
