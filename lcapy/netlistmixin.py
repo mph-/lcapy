@@ -101,6 +101,11 @@ class NetlistMixin(object):
 
         return '_' + self._make_anon_name('node')
 
+    def _add_ground(self, node):
+
+        if '0' not in self.nodes:
+            self.add('W %s 0' % node)
+
     @property
     def params(self):
         """Return list of symbols used as arguments in the circuit."""
@@ -735,8 +740,7 @@ class NetlistMixin(object):
         Np, Nm = self._check_nodes(Np, Nm)
 
         new = self.kill()
-        if '0' not in new.nodes:
-            new.add('W %s 0' % Nm)
+        new._add_ground(Nm)
 
         # Connect 1 V s-domain voltage source between nodes and
         # measure current.
@@ -757,8 +761,7 @@ class NetlistMixin(object):
         Np, Nm = self._check_nodes(Np, Nm)
 
         new = self.kill()
-        if '0' not in new.nodes:
-            new.add('W %s 0' % Nm)
+        new._add_ground(Nm)
 
         # Connect 1 A s-domain current source between nodes and
         # measure voltage.
@@ -812,8 +815,7 @@ class NetlistMixin(object):
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
 
         new = self.kill()
-        if '0' not in new.nodes:
-            new.add('W %s 0' % N1m)
+        new._add_ground(N1m)
 
         new._add('V1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
 
@@ -847,8 +849,7 @@ class NetlistMixin(object):
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
 
         new = self.kill()
-        if '0' not in new.nodes:
-            new.add('W %s 0' % N1m)
+        new._add_ground(N1m)
 
         new._add('V1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
 
@@ -884,8 +885,7 @@ class NetlistMixin(object):
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
 
         new = self.kill()
-        if '0' not in new.nodes:
-            new.add('W %s 0' % N1m)
+        new._add_ground(N1m)
 
         new._add('I1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
 
@@ -918,8 +918,7 @@ class NetlistMixin(object):
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
 
         new = self.kill()
-        if '0' not in new.nodes:
-            new.add('W %s 0' % N1m)
+        new._add_ground(N1m)
 
         new._add('V1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
 
@@ -951,8 +950,7 @@ class NetlistMixin(object):
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
 
         new = self.kill()
-        if '0' not in new.nodes:
-            new.add('W %s 0' % N1m)
+        new._add_ground(N1m)
 
         new._add('I1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
 
@@ -974,41 +972,40 @@ class NetlistMixin(object):
 
         N1p, N1m, N2p, N2m = self._parse_node_args4(N1p, N1m, N2p, N2m, 'Aparams')
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
-        net = self.kill()
-        if '0' not in net.nodes:
-            net.add('W %s 0' % N1m)
+        new = self.kill()
+        new._add_ground(N1m)
 
         try:
-            net.add('V1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
+            new.add('V1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
 
             # A11 = V1 / V2 with I2 = 0
             # Apply V1 and measure V2 with port 2 open-circuit
-            A11 = net.V1_.V(s) / net.Voc(N2p, N2m)(s)
+            A11 = new.V1_.V(s) / new.Voc(N2p, N2m)(s)
 
             # A12 = V1 / I2 with V2 = 0
             # Apply V1 and measure -I2 with port 2 short-circuit
-            A12 = net.V1_.V(s) / net.Isc(N2p, N2m)(s)
+            A12 = new.V1_.V(s) / new.Isc(N2p, N2m)(s)
 
-            net.remove('V1_')
+            new.remove('V1_')
 
-            net.add('I1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
+            new.add('I1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
 
             # A21 = I1 / V2 with I2 = 0
             # Apply I1 and measure V2 with port 2 open-circuit
             try:
-                A21 = current(0 * s + 1) / net.Voc(N2p, N2m)(s)
+                A21 = current(0 * s + 1) / new.Voc(N2p, N2m)(s)
             except ValueError:
                 # It is likely there is an open-circuit.
-                net2 = net.copy()
-                net2.add('W %s %s' % (N2p, N2m))
-                A21 = -net2.I1_.I(s) / net2.Voc(N2p, N2m)(s)
+                new2 = new.copy()
+                new2.add('W %s %s' % (N2p, N2m))
+                A21 = -new2.I1_.I(s) / new2.Voc(N2p, N2m)(s)
                 A21 = 0
 
             # A22 = I1 / I2 with V2 = 0
             # Apply I1 and measure -I2 with port 2 short-circuit
-            A22 = current(0 * s + 1) / net.Isc(N2p, N2m)(s)
+            A22 = current(0 * s + 1) / new.Isc(N2p, N2m)(s)
 
-            net.remove('I1_')
+            new.remove('I1_')
             A = AMatrix(((A11, A12), (A21, A22)))
             return A
 
@@ -1098,34 +1095,33 @@ class NetlistMixin(object):
 
         N1p, N1m, N2p, N2m = self._parse_node_args4(N1p, N1m, N2p, N2m, 'Zparams')
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
-        net = self.kill()
-        if '0' not in net.nodes:
-            net.add('W %s 0' % N1m)
+        new = self.kill()
+        new._add_ground(N1m)
 
         try:
-            net.add('I1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
+            new.add('I1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
 
             # Z11 = V1 / I1 with I2 = 0
             # Apply I1 and measure V1 with port 2 open-circuit
-            Z11 = impedance(net.Voc(N1p, N1m)(s))
+            Z11 = impedance(new.Voc(N1p, N1m)(s))
 
             # Z21 = V2 / I1 with I2 = 0
             # Apply I1 and measure V2 with port 2 open-circuit
-            Z21 = impedance(net.Voc(N2p, N2m)(s))
+            Z21 = impedance(new.Voc(N2p, N2m)(s))
 
-            net.remove('I1_')
+            new.remove('I1_')
 
-            net.add('I2_ %s %s {DiracDelta(t)}' % (N2p, N2m))
+            new.add('I2_ %s %s {DiracDelta(t)}' % (N2p, N2m))
 
             # Z12 = V1 / I2 with I1 = 0
             # Apply I2 and measure V1 with port 1 open-circuit
-            Z12 = impedance(net.Voc(N1p, N1m)(s))
+            Z12 = impedance(new.Voc(N1p, N1m)(s))
 
             # Z22 = V2 / I2 with I1 = 0
             # Apply I2 and measure V2 with port 1 open-circuit
-            Z22 = impedance(net.Voc(N2p, N2m)(s))
+            Z22 = impedance(new.Voc(N2p, N2m)(s))
 
-            net.remove('I2_')
+            new.remove('I2_')
 
             Z = ZMatrix(((Z11, Z12), (Z21, Z22)))
             return Z
@@ -1147,9 +1143,8 @@ class NetlistMixin(object):
         for m in range(len(nodes) // 2):
             ports.append((nodes[m * 2], nodes[m * 2 + 1]))
 
-        net = self.kill()
-        if '0' not in net.nodes:
-            net.add('W %s 0' % nodes[1])
+        new = self.kill()
+        new._add_ground(nodes[1])
 
         try:
 
@@ -1159,15 +1154,15 @@ class NetlistMixin(object):
 
                 for row in range(len(ports)):
                     if row == col:
-                        net.add('V%d_ %s %s {DiracDelta(t)}' % (row, ports[row][0], ports[row][1]))
+                        new.add('V%d_ %s %s {DiracDelta(t)}' % (row, ports[row][0], ports[row][1]))
                     else:
-                        net.add('V%d_ %s %s 0' % (row, ports[row][0], ports[row][1]))
+                        new.add('V%d_ %s %s 0' % (row, ports[row][0], ports[row][1]))
 
                 for row in range(len(ports)):
-                    Y[row, col] = admittance(net.elements['V%d_' % row].I(s))
+                    Y[row, col] = admittance(new.elements['V%d_' % row].I(s))
 
                 for row in range(len(ports)):
-                    net.remove('V%d_' % row)
+                    new.remove('V%d_' % row)
             return Y
 
         except ValueError as e:
@@ -1204,21 +1199,20 @@ class NetlistMixin(object):
         for m in range(len(nodes) // 2):
             ports.append((nodes[m * 2], nodes[m * 2 + 1]))
 
-        net = self.kill()
-        if '0' not in net.nodes:
-            net.add('W %s 0' % nodes[1])
+        new = self.kill()
+        new._add_ground(nodes[1])
 
         try:
 
             Z = Matrix.zeros(len(ports))
 
             for col in range(len(ports)):
-                net.add('I_ %s %s {DiracDelta(t)}' % (ports[col][0], ports[col][1]))
+                new.add('I_ %s %s {DiracDelta(t)}' % (ports[col][0], ports[col][1]))
 
                 for row in range(len(ports)):
-                    Z[row, col] = impedance(net.Voc(ports[row][0], ports[row][1])(s))
+                    Z[row, col] = impedance(new.Voc(ports[row][0], ports[row][1])(s))
 
-                net.remove('I_')
+                new.remove('I_')
             return Z
 
         except ValueError as e:
@@ -1780,39 +1774,38 @@ class NetlistMixin(object):
 
         # TODO, generalise for not just s-domain.
 
-        net = self.copy()
-        if '0' not in net.nodes:
-            net.add('W %s 0' % N1m)
+        new = self.copy()
+        new._add_ground(N1m)
 
         if model == 'A':
-            V1a = net.Voc(N1p, N1m, nowarn=True)(s)
-            I1a = net.Isc(N1p, N1m, nowarn=True)(s)
-            A = net.Aparams(N1p, N1m, N2p, N2m)
+            V1a = new.Voc(N1p, N1m, nowarn=True)(s)
+            I1a = new.Isc(N1p, N1m, nowarn=True)(s)
+            A = new.Aparams(N1p, N1m, N2p, N2m)
             return TwoPortAModel(A, V1a=V1a, I1a=I1a)
         elif model == 'B':
-            V2b = net.Voc(N2p, N2m, nowarn=True)(s)
-            I2b = net.Isc(N2p, N2m, nowarn=True)(s)
-            A = net.Aparams(N1p, N1m, N2p, N2m)
+            V2b = new.Voc(N2p, N2m, nowarn=True)(s)
+            I2b = new.Isc(N2p, N2m, nowarn=True)(s)
+            A = new.Aparams(N1p, N1m, N2p, N2m)
             return TwoPortBModel(A.Bparams, V2b=V2b, I2b=I2b)
         elif model == 'Z':
-            V1 = net.Voc(N1p, N1m, nowarn=True)(s)
-            V2 = net.Voc(N2p, N2m, nowarn=True)(s)
-            Z = net.Zparams(N1p, N1m, N2p, N2m)
+            V1 = new.Voc(N1p, N1m, nowarn=True)(s)
+            V2 = new.Voc(N2p, N2m, nowarn=True)(s)
+            Z = new.Zparams(N1p, N1m, N2p, N2m)
             return TwoPortZModel(Z, V1z=V1, V2z=V2)
         elif model == 'Y':
-            I1 = net.Isc(N1p, N1m, nowarn=True)(s)
-            I2 = net.Isc(N2p, N2m, nowarn=True)(s)
-            Z = net.Zparams(N1p, N1m, N2p, N2m)
+            I1 = new.Isc(N1p, N1m, nowarn=True)(s)
+            I2 = new.Isc(N2p, N2m, nowarn=True)(s)
+            Z = new.Zparams(N1p, N1m, N2p, N2m)
             return TwoPortYModel(Z.Y, I1y=I1, I2y=I2)
         elif model == 'G':
-            I1 = net.Isc(N1p, N1m, nowarn=True)(s)
-            V2 = net.Voc(N2p, N2m, nowarn=True)(s)
-            Z = net.Zparams(N1p, N1m, N2p, N2m)
+            I1 = new.Isc(N1p, N1m, nowarn=True)(s)
+            V2 = new.Voc(N2p, N2m, nowarn=True)(s)
+            Z = new.Zparams(N1p, N1m, N2p, N2m)
             return TwoPortGModel(Z.G, I1g=I1, V2g=V2)
         elif model == 'H':
-            V1 = net.Voc(N1p, N1m, nowarn=True)(s)
-            I2 = net.Isc(N2p, N2m, nowarn=True)(s)
-            Z = net.Zparams(N1p, N1m, N2p, N2m)
+            V1 = new.Voc(N1p, N1m, nowarn=True)(s)
+            I2 = new.Isc(N2p, N2m, nowarn=True)(s)
+            Z = new.Zparams(N1p, N1m, N2p, N2m)
             return TwoPortHModel(Z.H, V1h=V1, I2h=I2)
         else:
             raise ValueError('Model %s unknown, must be B, H, Y, or Z' % model)
