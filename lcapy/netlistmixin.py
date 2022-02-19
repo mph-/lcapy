@@ -96,6 +96,11 @@ class NetlistMixin(object):
         # Perhaps should prune wires, open-circuits, etc. ?
         return list(self._elements.keys())
 
+    def _dummy_node(self):
+        """Create a dummy node name."""
+
+        return '_' + self._make_anon_name('node')
+
     @property
     def params(self):
         """Return list of symbols used as arguments in the circuit."""
@@ -832,14 +837,18 @@ class NetlistMixin(object):
 
         return self.transfer(cpt1, cpt2)
 
-    def current_gain(self, cpt1, cpt2):
+    def current_gain(self, cpt1, cpt2, parallel=False):
         """Create s-domain current transfer function I2(s) / I1(s) where:
         I1 is the current through `cpt1`
         I2 is the current through `cpt2`
 
+        If `parallel` is `True`, a test current is applied in parallel
+        with `cpt1` otherwise it is applied in series with `cpt1`.
+
         Note, independent sources are killed and initial conditions
         are ignored.  Since the result is causal, the frequency response
         can be found by substituting j * omega for s.
+
         """
 
         if isinstance(cpt1, str):
@@ -858,14 +867,19 @@ class NetlistMixin(object):
         if '0' not in new.nodes:
             new.add('W %s 0' % N1m)
 
-        # Replace cpt with current source.
-        # FIXME, need to add cpt in series with current source in
-        # case a controlled source requires the voltage across the cpt.
-        new.remove(cpt1.name)
+        if not parallel:
+            N1m = self._dummy_node()
+            net = cpt1._netmake(nodes=(N1m, ) + new[cpt1.name].relnodes[1:])
+            new.remove(cpt1.name)
+            new._add(net)
+
         new._add('I1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
 
-        # This will fail if both nodes of cpt1 do not have a path to ground.
-        H = new[cpt2.name].I.laplace() / new['I1_'].I.laplace()
+        try:
+            # This will fail if both nodes of cpt1 do not have a path to ground.
+            H = new[cpt2.name].I.laplace() / new['I1_'].I.laplace()
+        except ValueError as e:
+            raise ValueError('Cannot apply test current: %s' % e)
         H.causal = True
         return H
 
@@ -897,10 +911,13 @@ class NetlistMixin(object):
         H.causal = True
         return H
 
-    def transimpedance(self, cpt1, cpt2):
+    def transimpedance(self, cpt1, cpt2, parallel=False):
         """Create s-domain transimpedance function V2(s) / I1(s) where:
         I1 is the current through `cpt1`
         V2 is the voltage across `cpt2`
+
+        If `parallel` is `True`, a test current is applied in parallel
+        with `cpt1` otherwise it is applied in series with `cpt1`.
 
         Note, independent sources are killed and initial conditions
         are ignored.  Since the result is causal, the frequency response
@@ -923,14 +940,20 @@ class NetlistMixin(object):
         if '0' not in new.nodes:
             new.add('W %s 0' % N1m)
 
-        # Replace cpt with current source.
-        # FIXME, need to add cpt in series with current source in
-        # case a controlled source requires the voltage across the cpt.
-        new.remove(cpt1.name)
+        if not parallel:
+            N1m = self._dummy_node()
+            net = cpt1._netmake(nodes=(N1m, ) + new[cpt1.name].relnodes[1:])
+            new.remove(cpt1.name)
+            new._add(net)
+
         new._add('I1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
 
-        # This will fail if both nodes of cpt1 do not have a path to ground.
-        H = new[cpt2.name].V.laplace() / new['I1_'].I.laplace()
+        try:
+            # This will fail if both nodes of cpt1 do not have a path to ground.
+            H = new[cpt2.name].I.laplace() / new['I1_'].I.laplace()
+        except ValueError as e:
+            raise ValueError('Cannot apply test current: %s' % e)
+
         H.causal = True
         return H
 
@@ -1239,8 +1262,8 @@ class NetlistMixin(object):
         return new
 
     def short(self, cpt):
-        """Apply short-circuit across component.  Returns voltage source
-        component used as the short."""
+        """Apply short-circuit across component.  Returns name of voltage
+        source component used as the short."""
 
         if isinstance(cpt, Cpt):
             cpt = cpt.name

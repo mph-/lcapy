@@ -623,9 +623,9 @@ class Cpt(ImmittanceMixin):
 
         return self.cct.impedance(self.nodenames[1], self.nodenames[0])
 
-    def dummy_node(self):
+    def _dummy_node(self):
 
-        return '_' + self.cct._make_anon_name('node')
+        return self.cct._dummy_node()
 
     def oneport(self):
         """Create oneport object."""
@@ -680,8 +680,8 @@ class Cpt(ImmittanceMixin):
         return cpt in self.connected
 
     def short(self):
-        """Apply short-circuit across component.  Returns voltage source
-        component used as the short."""
+        """Apply short-circuit across component.  Returns name of voltage
+        source component used as the short."""
 
         parallel_set = self.in_parallel()
         for cptname in parallel_set:
@@ -794,7 +794,7 @@ class RLC(Cpt):
         if self.Voc == 0:
             return self._netmake_variant('Z', args=self.Z(var))
 
-        dummy_node = self.dummy_node()
+        dummy_node = self._dummy_node()
 
         opts = self.opts.copy()
 
@@ -832,7 +832,7 @@ class RC(RLC):
 
     def _noisy(self, T='T'):
 
-        dummy_node = self.dummy_node()
+        dummy_node = self._dummy_node()
 
         opts = self.opts.copy()
 
@@ -899,7 +899,7 @@ class C(RC):
 
     def _r_model(self):
 
-        dummy_node = self.dummy_node()
+        dummy_node = self._dummy_node()
         opts = self.opts.copy()
 
         # Use Thevenin model.  This will require the current through
@@ -1233,7 +1233,7 @@ class L(RLC):
 
     def _r_model(self):
 
-        dummy_node = self.dummy_node()
+        dummy_node = self._dummy_node()
         opts = self.opts.copy()
 
         # Use Thevenin model.  This will require the current through

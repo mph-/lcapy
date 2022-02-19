@@ -121,9 +121,9 @@ class NetfileMixin(object):
         return cpt
 
     def last_added(self):
-        """Return last added component."""
+        """Return name of last added component."""
 
-        return list(self.values())[-1]
+        return list(self.elements.keys())[-1]
 
     def netfile_add(self, filename):
         """Add the nets from file with specified filename"""
