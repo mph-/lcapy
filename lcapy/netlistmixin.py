@@ -922,7 +922,7 @@ class NetlistMixin(object):
 
         new._add('V1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
 
-        H = new.Voc(N2p, N2m).laplace() / new['V1_'].V.laplace()
+        H = new.Isc(N2p, N2m).laplace() / new['V1_'].V.laplace()
         H.causal = True
         return H
 
@@ -954,7 +954,7 @@ class NetlistMixin(object):
 
         new._add('I1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
 
-        H = new.Isc(N2p, N2m).laplace() / new['I1_'].I.laplace()
+        H = new.Voc(N2p, N2m).laplace() / new['I1_'].I.laplace()
         H.causal = True
         return H
 

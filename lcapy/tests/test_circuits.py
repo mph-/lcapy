@@ -1,6 +1,7 @@
 from lcapy import *
 from lcapy.texpr import TimeDomainVoltage, TimeDomainCurrent
-from lcapy.sexpr import LaplaceDomainVoltage
+from lcapy.sexpr import (LaplaceDomainVoltage, LaplaceDomainTransferFunction,
+                         LaplaceDomainImpedance, LaplaceDomainAdmittance)
 import unittest
 import sympy as sym
 import os
@@ -50,7 +51,6 @@ class LcapyTester(unittest.TestCase):
         # Use ac to force jomega form.
         self.assertEqual(a.ac().C1.B, admittance('-omega * C1'), "B incorrect")
 
-
     def test_VRC1(self):
         """Check VRC circuit
 
@@ -78,7 +78,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.is_ivp, False, "Initial value problem incorrect")
         self.assertEqual(a.is_dc, False, "DC incorrect")
         self.assertEqual(a.is_ac, False, "AC incorrect")
-
 
     def test_VRL1(self):
         """Check VRL circuit
@@ -169,7 +168,6 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual2(a.R2.V, V(10).Voc, "Incorrect voltage")
 
-
     def test_CCVS1(self):
         """Check CCVS
 
@@ -183,7 +181,6 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual2(a.R2.V, V(10).Voc, "Incorrect voltage")
 
-
     def test_CCVS2(self):
         """Check CCVS
 
@@ -196,7 +193,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.H1.Voc, 0, "Incorrect cpt voltage")
         self.assertEqual(a.H1.Z, 0, "Incorrect cpt impedance")
 
-
     def test_V1(self):
         """Test V1"""
 
@@ -204,7 +200,6 @@ class LcapyTester(unittest.TestCase):
         a.add('V1 1 0 10')
 
         self.assertEqual(a.V1.V.dc, voltage(10), "Incorrect voltage")
-
 
     def test_VRL1_dc(self):
         """Check VRL circuit at dc
@@ -218,7 +213,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.is_ivp, False, "Initial value problem incorrect")
         self.assertEqual(a.is_dc, True, "DC incorrect")
         self.assertEqual(a.is_ac, False, "AC incorrect")
-
 
     def test_VRL1_dc2(self):
         """Check VRL circuit at dc but with initial conditions
@@ -272,28 +266,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.R1.I, a.L1.I, "currents different")
         self.assertEqual(a.V1.I, a.L1.I, "currents different")
 
-
-    def test_transfer(self):
-        """Check transfer function
-
-        """
-
-        a = Circuit()
-        a.add('R1 1 0 1')
-        a.add('R2 1 2 2')
-        a.add('C1 2 0 1')
-
-        H = a.transfer(1, 0, 2, 0)
-        self.assertEqual2(H, 1 / (2 * s + 1), "Incorrect transfer function")
-        h = H.inverse_laplace()
-        self.assertEqual2(h, exp(-t / 2) * Heaviside(t) / 2,
-                          "Incorrect impulse response")
-        H1 = a.transfer((1, 0), (2, 0))
-        self.assertEqual2(H1, H, "Incorrect transfer function")
-        H2 = a.transfer('R1', 'C1')
-        self.assertEqual2(H2, H, "Incorrect transfer function")
-
-
     def test_VRC2(self):
         """Check VRC circuit with arbitrary s-domain source
 
@@ -338,7 +310,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.V1.i, TimeDomainCurrent('5*cos(t)'), "V1 current incorrect")
         self.assertEqual(a.R1.i, TimeDomainCurrent('5*cos(t)'), "R1 current incorrect")
 
-
     def test_VRL1_ac2(self):
         """Check VRL circuit at ac for angular frequency 1
 
@@ -355,7 +326,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.is_time_domain, False, "Time domain incorrect")
         self.assertEqual(a.V1.v, TimeDomainVoltage('5*cos(t)'), "V1 voltage incorrect")
         self.assertEqual(a.R1.i, TimeDomainCurrent('(4*sin(t)+3*cos(t))/5'), "R1 current incorrect")
-
 
     def test_VRC_ivp(self):
         """Check VRC IVP"""
@@ -381,7 +351,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.R.I, a.C.I, "R + C current different")
         self.assertEqual(a.V.I, a.C.I, "V + C current different")
         self.assertEqual(a.V.V,  a.R.V + a.C.V, "KVL fail")
-
 
     def test_VRL_ivp(self):
         """Check VRL IVP"""
@@ -444,7 +413,6 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(a.ac().R1.V, 0, "AC model incorrect")
         self.assertEqual(a.dc().R1.V, 0, "DC model incorrect")
-
 
     def test_IV_series(self):
         """Test IV series"""
@@ -538,7 +506,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.R1.v, voltage('V1 * cos(omega_0 * t) * abs(omega_0) / omega_0'),
                          "coupling incorrect")
 
-
     def test_kill(self):
         """Test kill"""
 
@@ -560,7 +527,6 @@ class LcapyTester(unittest.TestCase):
         d = a.kill_except('V1')
 
         self.assertEqual(d.R.V, voltage(6), "incorrect voltage with all killed except V1")
-
 
     def test_TF(self):
         """Test TF"""
@@ -750,7 +716,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.R1.is_independent_source, False, "R is_independent_source")
         self.assertEqual(a.R1.is_resistor, True, "E is_resistor")
 
-
     def test_TP(self):
         """Test TP"""
 
@@ -764,3 +729,54 @@ class LcapyTester(unittest.TestCase):
         e = d.circuit()
         e.add('V 1 0 15; down')
         self.assertEqual(e[3].V, 10, "Ymodel")
+
+    def test_transfer(self):
+        """Check transfer function
+
+        """
+
+        a = Circuit()
+        a.add('R1 1 0 1')
+        a.add('R2 1 2 2')
+        a.add('C1 2 0 1')
+
+        H = a.transfer(1, 0, 2, 0)
+        self.assertEqual2(H, 1 / (2 * s + 1), "Incorrect transfer function")
+        h = H.inverse_laplace()
+        self.assertEqual2(h, exp(-t / 2) * Heaviside(t) / 2,
+                          "Incorrect impulse response")
+        H1 = a.transfer((1, 0), (2, 0))
+        self.assertEqual2(H1, H, "Incorrect transfer function")
+        H2 = a.transfer('R1', 'C1')
+        self.assertEqual2(H2, H, "Incorrect transfer function")
+
+    def test_transfer(self):
+        """Check transfer functions
+
+        """
+
+        a = Circuit("""
+        P1 1 0; down
+        R1 1 2; right
+        R2 2 0_2; down
+        R3 2 3; right
+        W 0 0_2; right
+        P2 3 0_3; down
+        W 0_2 0_3; right
+        """)
+
+        Av = a.voltage_gain('P1', 'P2')
+        self.assertEqual2(Av, LaplaceDomainTransferFunction('R2 / (R1 + R2)'),
+                          'voltage_gain')
+
+        Av = a.current_gain('P1', 'P2')
+        self.assertEqual2(Av, LaplaceDomainTransferFunction('R2 / (R2 + R3)'),
+                          'current_gain')
+
+        Z = a.transimpedance('P1', 'P2')
+        self.assertEqual2(Z, LaplaceDomainImpedance('R2'),
+                          'transimpedance')
+
+        Y = a.transadmittance('P1', 'P2')
+        self.assertEqual2(Y, LaplaceDomainAdmittance('R2 / (R1 * R2 + R1 * R3 + R2 * R3)'),
+                          'transadmittance')
