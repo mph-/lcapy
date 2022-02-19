@@ -756,21 +756,18 @@ class LcapyTester(unittest.TestCase):
         """
 
         a = Circuit("""
-        P1 1 0; down
-        R1 1 2; right
-        R2 2 0_2; down
-        R3 2 3; right
-        W 0 0_2; right
-        P2 3 0_3; down
-        W 0_2 0_3; right
-        """)
+        P1 1 0
+        R1 1 2
+        R2 2 0
+        R3 2 3
+        P2 3 0""")
 
         Av = a.voltage_gain('P1', 'P2')
         self.assertEqual2(Av, LaplaceDomainTransferFunction('R2 / (R1 + R2)'),
                           'voltage_gain')
 
-        Av = a.current_gain('P1', 'P2')
-        self.assertEqual2(Av, LaplaceDomainTransferFunction('R2 / (R2 + R3)'),
+        Ai = a.current_gain('P1', 'P2')
+        self.assertEqual2(Ai, LaplaceDomainTransferFunction('-R2 / (R2 + R3)'),
                           'current_gain')
 
         Z = a.transimpedance('P1', 'P2')
