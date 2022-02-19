@@ -106,6 +106,16 @@ class NetlistMixin(object):
         if '0' not in self.nodes:
             self.add('W %s 0' % node)
 
+    def _add_test_voltage_source(self, Np, Nm):
+
+        self._add('V? %s %s {DiracDelta(t)}' % (Np, Nm))
+        return self.last_added()
+
+    def _add_test_current_source(self, Np, Nm):
+
+        self._add('I? %s %s {DiracDelta(t)}' % (Np, Nm))
+        return self.last_added()
+
     @property
     def params(self):
         """Return list of symbols used as arguments in the circuit."""
@@ -741,12 +751,8 @@ class NetlistMixin(object):
 
         new = self.kill()
         new._add_ground(Nm)
-
-        # Connect 1 V s-domain voltage source between nodes and
-        # measure current.
-        new._add('Vin_ %s %s {DiracDelta(t)}' % (Np, Nm))
-        If = new.Vin_.I
-        new.remove('Vin_')
+        test = new._add_test_voltage_source(Np, Nm)
+        If = new[test].I
 
         return admittance(If.laplace().expr)
 
@@ -762,13 +768,9 @@ class NetlistMixin(object):
 
         new = self.kill()
         new._add_ground(Nm)
+        new._add_test_current_source(Np, Nm)
 
-        # Connect 1 A s-domain current source between nodes and
-        # measure voltage.
-        new._add('Iin_ %s %s {DiracDelta(t)}' % (Np, Nm))
         Vf = new.Voc(Np, Nm)
-        new.remove('Iin_')
-
         return impedance(Vf.laplace().expr)
 
     def resistance(self, Np, Nm=None):
@@ -816,11 +818,10 @@ class NetlistMixin(object):
 
         new = self.kill()
         new._add_ground(N1m)
-
-        new._add('V1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
+        test = new._add_test_voltage_source(N1p, N1m)
 
         V2 = new.Voc(N2p, N2m)
-        V1 = new.V1_.V
+        V1 = new[test].V
 
         # Note, this can cancel s, say in s * B / s * A.
         H = V2.laplace() / V1.laplace()
@@ -850,11 +851,10 @@ class NetlistMixin(object):
 
         new = self.kill()
         new._add_ground(N1m)
-
-        new._add('V1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
+        test = new._add_test_voltage_source(N1p, N1m)
 
         V2 = new.Voc(N2p, N2m)
-        V1 = new.V1_.V
+        V1 = new[test].V
 
         # Note, this can cancel s, say in s * B / s * A.
         H = V2.laplace() / V1.laplace()
@@ -886,10 +886,9 @@ class NetlistMixin(object):
 
         new = self.kill()
         new._add_ground(N1m)
+        test = new._add_test_current_source(N1p, N1m)
 
-        new._add('I1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
-
-        H = -new.Isc(N2p, N2m).laplace() / new['I1_'].I.laplace()
+        H = -new.Isc(N2p, N2m).laplace() / new[test].I.laplace()
         H.causal = True
         return H
 
@@ -919,10 +918,9 @@ class NetlistMixin(object):
 
         new = self.kill()
         new._add_ground(N1m)
+        test = new._add_test_voltage_source(N1p, N1m)
 
-        new._add('V1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
-
-        H = new.Isc(N2p, N2m).laplace() / new['V1_'].V.laplace()
+        H = new.Isc(N2p, N2m).laplace() / new[test].V.laplace()
         H.causal = True
         return H
 
@@ -951,10 +949,9 @@ class NetlistMixin(object):
 
         new = self.kill()
         new._add_ground(N1m)
+        test = new._add_test_current_source(N1p, N1m)
 
-        new._add('I1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
-
-        H = new.Voc(N2p, N2m).laplace() / new['I1_'].I.laplace()
+        H = new.Voc(N2p, N2m).laplace() / new[test].I.laplace()
         H.causal = True
         return H
 
@@ -976,19 +973,19 @@ class NetlistMixin(object):
         new._add_ground(N1m)
 
         try:
-            new.add('V1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
+            test = new._add_test_voltage_source(N1p, N1m)
 
             # A11 = V1 / V2 with I2 = 0
             # Apply V1 and measure V2 with port 2 open-circuit
-            A11 = new.V1_.V(s) / new.Voc(N2p, N2m)(s)
+            A11 = new.Voc(N1p, N1m)(s) / new.Voc(N2p, N2m)(s)
 
             # A12 = V1 / I2 with V2 = 0
             # Apply V1 and measure -I2 with port 2 short-circuit
-            A12 = new.V1_.V(s) / new.Isc(N2p, N2m)(s)
+            A12 = new.Voc(N1p, N1m)(s) / new.Isc(N2p, N2m)(s)
 
-            new.remove('V1_')
+            new.remove(test)
 
-            new.add('I1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
+            test = new._add_test_current_source(N1p, N1m)
 
             # A21 = I1 / V2 with I2 = 0
             # Apply I1 and measure V2 with port 2 open-circuit
@@ -998,14 +995,14 @@ class NetlistMixin(object):
                 # It is likely there is an open-circuit.
                 new2 = new.copy()
                 new2.add('W %s %s' % (N2p, N2m))
-                A21 = -new2.I1_.I(s) / new2.Voc(N2p, N2m)(s)
+                A21 = -new2[test].I(s) / new2.Voc(N2p, N2m)(s)
                 A21 = 0
 
             # A22 = I1 / I2 with V2 = 0
             # Apply I1 and measure -I2 with port 2 short-circuit
             A22 = current(0 * s + 1) / new.Isc(N2p, N2m)(s)
 
-            new.remove('I1_')
+            new.remove(test)
             A = AMatrix(((A11, A12), (A21, A22)))
             return A
 
@@ -1099,7 +1096,7 @@ class NetlistMixin(object):
         new._add_ground(N1m)
 
         try:
-            new.add('I1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
+            test = new._add_test_current_source(N1p, N1m)
 
             # Z11 = V1 / I1 with I2 = 0
             # Apply I1 and measure V1 with port 2 open-circuit
@@ -1109,9 +1106,9 @@ class NetlistMixin(object):
             # Apply I1 and measure V2 with port 2 open-circuit
             Z21 = impedance(new.Voc(N2p, N2m)(s))
 
-            new.remove('I1_')
+            new.remove(test)
 
-            new.add('I2_ %s %s {DiracDelta(t)}' % (N2p, N2m))
+            test = new._add_test_current_source(N2p, N2m)
 
             # Z12 = V1 / I2 with I1 = 0
             # Apply I2 and measure V1 with port 1 open-circuit
@@ -1121,7 +1118,7 @@ class NetlistMixin(object):
             # Apply I2 and measure V2 with port 1 open-circuit
             Z22 = impedance(new.Voc(N2p, N2m)(s))
 
-            new.remove('I2_')
+            new.remove(test)
 
             Z = ZMatrix(((Z11, Z12), (Z21, Z22)))
             return Z
@@ -1802,17 +1799,17 @@ class NetlistMixin(object):
             I1 = new.Isc(N1p, N1m, nowarn=True)(s)
             I2 = new.Isc(N2p, N2m, nowarn=True)(s)
             Z = new.Zparams(N1p, N1m, N2p, N2m)
-            return TwoPortYModel(Z.Y, I1y=I1, I2y=I2)
+            return TwoPortYModel(Z.Yparams, I1y=I1, I2y=I2)
         elif model == 'G':
             I1 = new.Isc(N1p, N1m, nowarn=True)(s)
             V2 = new.Voc(N2p, N2m, nowarn=True)(s)
             Z = new.Zparams(N1p, N1m, N2p, N2m)
-            return TwoPortGModel(Z.G, I1g=I1, V2g=V2)
+            return TwoPortGModel(Z.Gparams, I1g=I1, V2g=V2)
         elif model == 'H':
             V1 = new.Voc(N1p, N1m, nowarn=True)(s)
             I2 = new.Isc(N2p, N2m, nowarn=True)(s)
             Z = new.Zparams(N1p, N1m, N2p, N2m)
-            return TwoPortHModel(Z.H, V1h=V1, I2h=I2)
+            return TwoPortHModel(Z.Hparams, V1h=V1, I2h=I2)
         else:
             raise ValueError('Model %s unknown, must be B, H, Y, or Z' % model)
 
