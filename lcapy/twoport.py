@@ -483,6 +483,14 @@ class TwoPortMixin(object):
         return expr(self._Z22)
 
     @property
+    def voltage_gain(self):
+        """Return V2 / V1 for I2 = 0 with internal sources zero.
+
+        This is an alias for forward_voltage_gain."""
+
+        return self.Vgain12
+
+    @property
     def forward_voltage_gain(self):
         """Return V2 / V1 for I2 = 0 with internal sources zero."""
 
@@ -493,6 +501,14 @@ class TwoPortMixin(object):
         """Return V1 / V2 for I1 = 0 with internal sources zero."""
 
         return self.Vgain21
+
+    @property
+    def current_gain(self):
+        """Return I2 / I1 for V2 = 0 with internal sources zero.
+
+        This is an alias for forward_current_gain."""
+
+        return self.Igain12
 
     @property
     def forward_current_gain(self):
@@ -507,6 +523,14 @@ class TwoPortMixin(object):
         return self.Igain21
 
     @property
+    def transadmittance(self):
+        """Return I2 / V1 for V2 = 0 with internal sources zero.
+
+        This is an alias for forward_transadmittance."""
+
+        return LaplaceDomainAdmittance(self._Y21)
+
+    @property
     def forward_transadmittance(self):
         """Return I2 / V1 for V2 = 0 with internal sources zero."""
 
@@ -517,6 +541,14 @@ class TwoPortMixin(object):
         """Return I1 / V2 for V1 = 0 with internal sources zero."""
 
         return LaplaceDomainAdmittance(self._Y12)
+
+    @property
+    def transimpedance(self):
+        """Return V2 / I1 for I2 = 0 with internal sources zero.
+
+        This is an alias for forward_transadmittance."""
+
+        return LaplaceDomainImpedance(self._Z21)
 
     @property
     def forward_transimpedance(self):
