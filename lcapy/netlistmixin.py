@@ -825,81 +825,26 @@ class NetlistMixin(object):
         H.causal = True
         return H
 
-    def voltage_gain(self, cpt1, cpt2):
+    def voltage_gain(self, N1p, N1m, N2p=None, N2m=None):
         """Create s-domain voltage transfer function V2(s) / V1(s) where:
-        V1 is the voltage across `cpt1`
-        V2 is the voltage across `cpt2`
-
-        Note, independent sources are killed and initial conditions
-        are ignored.  Since the result is causal, the frequency response
-        can be found by substituting j * omega for s.
-        """
-
-        return self.transfer(cpt1, cpt2)
-
-    def current_gain(self, cpt1, cpt2, parallel=False):
-        """Create s-domain current transfer function I2(s) / I1(s) where:
-        I1 is the current through `cpt1`
-        I2 is the current through `cpt2`
-
-        If `parallel` is `True`, a test current is applied in parallel
-        with `cpt1` otherwise it is applied in series with `cpt1`.
+        V1 is the test voltage applied between N1p and N1m
+        V2 is the measured open-circuit voltage between N2p and N2m
 
         Note, independent sources are killed and initial conditions
         are ignored.  Since the result is causal, the frequency response
         can be found by substituting j * omega for s.
 
+        Alternative forms are:
+            voltage_gain(N1p, N1m, N2p, N2m)
+            voltage_gain(cpt1, cpt2)
+            voltage_gain((N1p, N1m), cpt2)
+            voltage_gain(cpt1, (N2p, N2m))
         """
 
-        if isinstance(cpt1, str):
-            cpt1 = self[cpt1]
-        if isinstance(cpt2, str):
-            cpt2 = self[cpt2]
-
-        if len(cpt1.nodes) != 2:
-            # FIXME
-            raise ValueError('Cannot determine current gain for component %s' % cpt1.name)
-
-        N1p = cpt1.nodes[0].name
-        N1m = cpt1.nodes[1].name
-
-        new = self.kill()
-        if '0' not in new.nodes:
-            new.add('W %s 0' % N1m)
-
-        if not parallel:
-            N1m = self._dummy_node()
-            net = cpt1._netmake(nodes=(N1m, ) + new[cpt1.name].relnodes[1:])
-            new.remove(cpt1.name)
-            new._add(net)
-
-        new._add('I1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
-
-        try:
-            # This will fail if both nodes of cpt1 do not have a path to ground.
-            H = new[cpt2.name].I.laplace() / new['I1_'].I.laplace()
-        except ValueError as e:
-            raise ValueError('Cannot apply test current: %s' % e)
-        H.causal = True
-        return H
-
-    def transadmittance(self, cpt1, cpt2):
-        """Create s-domain transadmittance function I2(s) / V1(s) where:
-        V1 is the voltage across `cpt1`
-        I2 is the current through `cpt2`
-
-        Note, independent sources are killed and initial conditions
-        are ignored.  Since the result is causal, the frequency response
-        can be found by substituting j * omega for s.
-        """
-
-        if isinstance(cpt1, str):
-            cpt1 = self[cpt1]
-        if isinstance(cpt2, str):
-            cpt2 = self[cpt2]
-
-        N1p = cpt1.nodes[0].name
-        N1m = cpt1.nodes[1].name
+        # This is the same as transfer.
+        N1p, N1m, N2p, N2m = self._parse_node_args4(N1p, N1m, N2p, N2m,
+                                                    'voltage_gain')
+        N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
 
         new = self.kill()
         if '0' not in new.nodes:
@@ -907,53 +852,111 @@ class NetlistMixin(object):
 
         new._add('V1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
 
-        H = new[cpt2.name].I.laplace() / new['V1_'].V.laplace()
+        V2 = new.Voc(N2p, N2m)
+        V1 = new.V1_.V
+
+        # Note, this can cancel s, say in s * B / s * A.
+        H = V2.laplace() / V1.laplace()
         H.causal = True
         return H
 
-    def transimpedance(self, cpt1, cpt2, parallel=False):
-        """Create s-domain transimpedance function V2(s) / I1(s) where:
-        I1 is the current through `cpt1`
-        V2 is the voltage across `cpt2`
+    def current_gain(self, N1p, N1m, N2p=None, N2m=None):
+        """Create s-domain current transfer function I2(s) / I1(s) where:
+        I1 is the test current applied between N1p and N1m
+        I2 is the measured short-circuit current flowing from N2m to N2p
 
-        If `parallel` is `True`, a test current is applied in parallel
-        with `cpt1` otherwise it is applied in series with `cpt1`.
+        Note, the currents are considered to be flowing into the
+        positive nodes as is convention with two-ports.
 
         Note, independent sources are killed and initial conditions
         are ignored.  Since the result is causal, the frequency response
         can be found by substituting j * omega for s.
+
+        Alternative forms are:
+            current_gain(N1p, N1m, N2p, N2m)
+            current_gain(cpt1, cpt2)
+            current_gain((N1p, N1m), cpt2)
+            current_gain(cpt1, (N2p, N2m))
         """
 
-        if isinstance(cpt1, str):
-            cpt1 = self[cpt1]
-        if isinstance(cpt2, str):
-            cpt2 = self[cpt2]
-
-        if len(cpt1.nodes) != 2:
-            # FIXME
-            raise ValueError('Cannot determine current gain for component %s' % cpt1.name)
-
-        N1p = cpt1.nodes[0].name
-        N1m = cpt1.nodes[1].name
+        N1p, N1m, N2p, N2m = self._parse_node_args4(N1p, N1m, N2p, N2m,
+                                                    'current_gain')
+        N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
 
         new = self.kill()
         if '0' not in new.nodes:
             new.add('W %s 0' % N1m)
 
-        if not parallel:
-            N1m = self._dummy_node()
-            net = cpt1._netmake(nodes=(N1m, ) + new[cpt1.name].relnodes[1:])
-            new.remove(cpt1.name)
-            new._add(net)
+        new._add('I1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
+
+        H = new.Isc(N2p, N2m).laplace() / new['I1_'].I.laplace()
+        H.causal = True
+        return H
+
+    def transadmittance(self, N1p, N1m, N2p=None, N2m=None):
+        """Create s-domain transadmittance function I2(s) / V1(s) where:
+        V1 is the test voltage applied between N1p and N1m
+        I2 is the measured short-circuit current flowing from N2m to N2p
+
+        Note, I2 is considered to be flowing into the positive node as
+        is convention with two-ports.
+
+        Note, independent sources are killed and initial conditions
+        are ignored.  Since the result is causal, the frequency response
+        can be found by substituting j * omega for s.
+
+        Alternative forms are:
+            transadmittance(N1p, N1m, N2p, N2m)
+            transadmittance(cpt1, cpt2)
+            transadmittance((N1p, N1m), cpt2)
+            transadmittance(cpt1, (N2p, N2m))
+
+        """
+
+        N1p, N1m, N2p, N2m = self._parse_node_args4(N1p, N1m, N2p, N2m,
+                                                    'transadmittance')
+        N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
+
+        new = self.kill()
+        if '0' not in new.nodes:
+            new.add('W %s 0' % N1m)
+
+        new._add('V1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
+
+        H = new.Voc(N2p, N2m).laplace() / new['V1_'].V.laplace()
+        H.causal = True
+        return H
+
+    def transimpedance(self, N1p, N1m, N2p=None, N2m=None):
+        """Create s-domain transimpedance function V2(s) / I1(s) where:
+        I1 is the test current applied between N1p and N1m
+        V2 is the measured open-circuit voltage between N2p and N2m
+
+        Note, I1 is considered to be flowing into the positive node as
+        is convention with two-ports.
+
+        Note, independent sources are killed and initial conditions
+        are ignored.  Since the result is causal, the frequency response
+        can be found by substituting j * omega for s.
+
+        Alternative forms are:
+            transimpedance(N1p, N1m, N2p, N2m)
+            transimpedance(cpt1, cpt2)
+            transimpedance((N1p, N1m), cpt2)
+            transimpedance(cpt1, (N2p, N2m))
+        """
+
+        N1p, N1m, N2p, N2m = self._parse_node_args4(N1p, N1m, N2p, N2m,
+                                                    'transadmittance')
+        N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
+
+        new = self.kill()
+        if '0' not in new.nodes:
+            new.add('W %s 0' % N1m)
 
         new._add('I1_ %s %s {DiracDelta(t)}' % (N1p, N1m))
 
-        try:
-            # This will fail if both nodes of cpt1 do not have a path to ground.
-            H = new[cpt2.name].I.laplace() / new['I1_'].I.laplace()
-        except ValueError as e:
-            raise ValueError('Cannot apply test current: %s' % e)
-
+        H = new.Isc(N2p, N2m).laplace() / new['I1_'].I.laplace()
         H.causal = True
         return H
 
