@@ -427,23 +427,70 @@ Circuit methods
    R1 1 2
    L1 2 0 3
 
-- `transfer(N1p, N1m, N2p, N2m)` Returns the s-domain transfer function `V2(s) / V1(s)`, between the ports defined by nodes `N1p`, `N1m`, `N2p`, and `N2m` where `V1 = V[N1p] - V[N1m]` and `V2 = V[N2p] - V[N2m]`.
+- `transfer(N1p, N1m, N2p, N2m)` Returns the s-domain transfer
+  function `V2(s) / V1(s)`, for the ports defined by nodes `N1p`,
+  `N1m`, `N2p`, and `N2m` where `V1 = V[N1p] - V[N1m]` and `V2 =
+  V[N2p] - V[N2m]`.  This is an alias for `voltage_gain()`.  The ports
+  can also be specified using a component name or a tuple of node
+  names, for example,
 
-- `Aparams(N1p, N1m, N2p, N2m)` Returns the two-port A-parameters matrix for the two-port defined by nodes `N1p`, `N1m`, `N2p`, and `N2m`, where `I1` is the current flowing into `N1p` and out of `N1m`, `I2` is the current flowing into `N2p` and out of `N2m`, `V1 = V[N1p] - V[N1m]`, and `V2 = V[N2p] - V[N2m]`.  See :ref:`A-parameters`.
+  >>> H1 = cct.transfer('R1', 'L1')
+  >>> H2 = cct.transfer('R1', (2, 0))
 
-- `Bparams(N1p, N1m, N2p, N2m)` Returns the two-port B-parameters matrix.  See :ref:`B-parameters`.
+- `voltage_gain(N1p, N1m, N2p, N2m)` Returns the s-domain transfer
+  function `V2(s) / V1(s)`, for the ports defined by nodes `N1p`,
+  `N1m`, `N2p`, and `N2m` where `V1 = V[N1p] - V[N1m]` and `V2 =
+  V[N2p] - V[N2m]`.  See also `transfer()`.
 
-- `Gparams(N1p, N1m, N2p, N2m)` Returns the two-port G-parameters matrix.  See :ref:`G-parameters`.
+- `current_gain(N1p, N1m, N2p, N2m)` Returns the s-domain transfer
+  function `I2(s) / I1(s)`, for the ports defined by nodes `N1p`,
+  `N1m`, `N2p`, and `N2m`.  `I1(s)` is a test current injected into
+  node `N1p` from node `N1m`.  `I2(s)` is the short circuit current
+  flowing into `N2p` from `N1p` as is the convention with two-ports.
+  See also `transfer()`.
 
-- `Hparams(N1p, N1m, N2p, N2m)` Returns the two-port H-parameters matrix.  See :ref:`H-parameters`.
+- `transadmittance(N1p, N1m, N2p, N2m)` Returns the s-domain
+  transadmittance function `I2(s) / V1(s)`, for the ports defined by
+  nodes `N1p`, `N1m`, `N2p`, and `N2m`.  `V1(s)` is a test voltage
+  applied between nodes `N1p` and `N1m`.  `I2(s)` is the short circuit
+  current flowing into `N2p` from `N1p` as is the convention with
+  two-ports.  See also `transfer()`.
 
-- `Sparams(N1p, N1m, N2p, N2m)` Returns the two-port S-parameters matrix.  See :ref:`S-parameters`.
+- `transimpedance(N1p, N1m, N2p, N2m)` Returns the s-domain
+  transimpedance function `V2(s) / I1(s)`, for the ports defined by
+  nodes `N1p`, `N1m`, `N2p`, and `N2m`.  `I1(s)` is a test current
+  injected into node `N1p` from node `N1m`.  `V2(s)` is the open
+  circuit voltage measured between `N2p` and `N1p`.  See also
+  `transfer()`.
 
-- `Tparams(N1p, N1m, N2p, N2m)` Returns the two-port T-parameters matrix.  See :ref:`T-parameters`.
+- `twoport(N1p, N1m, N2p, N2m, model='B')` Returns an s-domain
+   two-port model defined by nodes `N1p`, `N1m`, `N2p`, and `N2m`,
+   where `I1` is the current flowing into `N1p` and out of `N1m`, `I2`
+   is the current flowing into `N2p` and out of `N2m`, `V1 = V[N1p] -
+   V[N1m]`, and `V2 = V[N2p] - V[N2m]`.  `model` can be `A`, `B`, `G`,
+   `H`, `Y`, or `Z`.
 
-- `Yparams(N1p, N1m, N2p, N2m)` Returns the two-port Y-parameters matrix.  See :ref:`Y-parameters`.
+   The ports can also be specified using a component name or a tuple
+   of node names, for example,
 
-- `Zparams(N1p, N1m, N2p, N2m)` Returns the two-port Z-parameters matrix.  See :ref:`Z-parameters`.
+  >>> Z1 = cct.transfer('R1', 'L1', model='Z')
+  >>> Z2 = cct.transfer('R1', (2, 0), model='Z')
+
+- `Aparams(N1p, N1m, N2p, N2m)` Returns the two-port A-parameters matrix for the two-port defined by nodes `N1p`, `N1m`, `N2p`, and `N2m`, where `I1` is the current flowing into `N1p` and out of `N1m`, `I2` is the current flowing into `N2p` and out of `N2m`, `V1 = V[N1p] - V[N1m]`, and `V2 = V[N2p] - V[N2m]`.  See :ref:`A-parameters` and `twoport()`.
+
+- `Bparams(N1p, N1m, N2p, N2m)` Returns the two-port B-parameters matrix.  See :ref:`B-parameters` and `twoport()`.
+
+- `Gparams(N1p, N1m, N2p, N2m)` Returns the two-port G-parameters matrix.  See :ref:`G-parameters` and `twoport()`.
+
+- `Hparams(N1p, N1m, N2p, N2m)` Returns the two-port H-parameters matrix.  See :ref:`H-parameters` and `twoport()`.
+
+- `Sparams(N1p, N1m, N2p, N2m)` Returns the two-port S-parameters matrix.  See :ref:`S-parameters` and `twoport()`.
+
+- `Tparams(N1p, N1m, N2p, N2m)` Returns the two-port T-parameters matrix.  See :ref:`T-parameters` and `twoport()`.
+
+- `Yparams(N1p, N1m, N2p, N2m)` Returns the two-port Y-parameters matrix.  See :ref:`Y-parameters` and `twoport()`.
+
+- `Zparams(N1p, N1m, N2p, N2m)` Returns the two-port Z-parameters matrix.  See :ref:`Z-parameters` and `twoport()`.
 
 - `Yparamsn(N1p, N1m, N2p, N2m, ...)` Returns the n-port Y-parameters matrix.  See :ref:`Y-parameters`.
 

@@ -792,7 +792,7 @@ class NetlistMixin(object):
     def susceptance(self, Np, Nm=None):
         """Return susceptance (inverse reactance) between nodes Np and Nm with
         independent sources killed.  The result is in the AC (omega)
-        domain.   See also conductance, reactance, resistance."""
+        domain.  See also conductance, reactance, resistance."""
         return self.impedance(Np, Nm).B
 
     def transfer(self, N1p, N1m, N2p=None, N2m=None):
@@ -965,7 +965,7 @@ class NetlistMixin(object):
         V1 is V[N1p] - V[N1m]
         V2 is V[N2p] - V[N2m]
 
-        See also  Bparams, Gparams, Hparams, Sparams, Tparams, Yparams, and Zparams.
+        See also twoport, Bparams, Gparams, Hparams, Sparams, Tparams, Yparams, and Zparams.
         """
 
         from .twoport import AMatrix
@@ -1021,7 +1021,7 @@ class NetlistMixin(object):
         V1 is V[N1p] - V[N1m]
         V2 is V[N2p] - V[N2m]
 
-        See also  Aparams, Gparams, Hparams, Sparams, Tparams, Yparams, and Zparams.
+        See also twoport, Aparams, Gparams, Hparams, Sparams, Tparams, Yparams, and Zparams.
         """
         return self.Aparams(N1p, N1m, N2p, N2m).Bparams
 
@@ -1032,7 +1032,7 @@ class NetlistMixin(object):
         V1 is V[N1p] - V[N1m]
         V2 is V[N2p] - V[N2m]
 
-        See also  Aparams, Bparams, Hparams, Sparams, Tparams, Yparams, and Zparams.
+        See also twoport, Aparams, Bparams, Hparams, Sparams, Tparams, Yparams, and Zparams.
         """
         return self.Aparams(N1p, N1m, N2p, N2m).Gparams
 
@@ -1043,7 +1043,7 @@ class NetlistMixin(object):
         V1 is V[N1p] - V[N1m]
         V2 is V[N2p] - V[N2m]
 
-        See also  Aparams, Bparams, Gparams, Sparams, Tparams, Yparams, and Zparams.
+        See also twoport, Aparams, Bparams, Gparams, Sparams, Tparams, Yparams, and Zparams.
         """
         return self.Aparams(N1p, N1m, N2p, N2m).Hparams
 
@@ -1054,7 +1054,7 @@ class NetlistMixin(object):
         V1 is V[N1p] - V[N1m]
         V2 is V[N2p] - V[N2m]
 
-        See also  Aparams, Bparams, Gparams, Hparams, Tparams, Yparams, and Zparams.
+        See also twoport, Aparams, Bparams, Gparams, Hparams, Tparams, Yparams, and Zparams.
         """
         return self.Aparams(N1p, N1m, N2p, N2m).Sparams
 
@@ -1065,7 +1065,7 @@ class NetlistMixin(object):
         V1 is V[N1p] - V[N1m]
         V2 is V[N2p] - V[N2m]
 
-        See also  Aparams, Bparams, Gparams, Hparams, Sparams, Yparams, and Zparams.
+        See also twoport, Aparams, Bparams, Gparams, Hparams, Sparams, Yparams, and Zparams.
         """
         return self.Tparams(N1p, N1m, N2p, N2m).Hparams
 
@@ -1076,7 +1076,7 @@ class NetlistMixin(object):
         V1 is V[N1p] - V[N1m]
         V2 is V[N2p] - V[N2m]
 
-        See also  Aparams, Bparams, Gparams, Hparams, Sparams, Tparams, and Zparams.
+        See also twoport, Aparams, Bparams, Gparams, Hparams, Sparams, Tparams, and Zparams.
         """
         return self.Zparams(N1p, N1m, N2p, N2m).Yparams
 
@@ -1087,7 +1087,7 @@ class NetlistMixin(object):
         V1 is V[N1p] - V[N1m]
         V2 is V[N2p] - V[N2m]
 
-        See also  Aparams, Bparams, Gparams, Hparams, Sparams, Tparams, and Yparams.
+        See also twoport, Aparams, Bparams, Gparams, Hparams, Sparams, Tparams, and Yparams.
         """
         from .twoport import ZMatrix
 
@@ -1764,6 +1764,12 @@ class NetlistMixin(object):
         V2 is V[N2p] - V[N2m]
 
         `model` is `A, `B`, `G`, `H`, `Y`, or `Z`.
+
+        Alternative forms are:
+            twoport(N1p, N1m, N2p, N2m)
+            twoport(cpt1, cpt2)
+            twoport((N1p, N1m), cpt2)
+            twoport(cpt1, (N2p, N2m))
         """
 
         from .twoport import TwoPortAModel, TwoPortBModel, TwoPortGModel
