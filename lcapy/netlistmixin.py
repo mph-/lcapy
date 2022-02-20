@@ -117,8 +117,37 @@ class NetlistMixin(object):
         self._add('I? %s %s {DiracDelta(t)}' % (Np, Nm))
         return self.last_added()
 
+    def apply_test_voltage_source(self, Np, Nm=None):
+        """This copies the netlist, kills all the sources, and applies a Dirac
+        delta test voltage source across the specified nodes.  If the
+        netlist is not connected to ground, the negative specified
+        node is connected to ground.  The new netlist is returned."""
+
+        Np, Nm = self._parse_node_args2(Np, Nm)
+        Np, Nm = self._check_nodes(Np, Nm)
+
+        new = self.kill()
+        new._add_ground(Nm)
+        new._add_test_voltage_source(Np, Nm)
+        return new
+
+    def apply_test_current_source(self, Np, Nm=None):
+        """This copies the netlist, kills all the sources, and applies a Dirac
+        delta test current source across the specified nodes.  If the
+        netlist is not connected to ground, the negative specified
+        node is connected to ground.  The new netlist is returned."""
+
+        Np, Nm = self._parse_node_args2(Np, Nm)
+        Np, Nm = self._check_nodes(Np, Nm)
+
+        new = self.kill()
+        new._add_ground(Nm)
+        new._add_test_current_source(Np, Nm)
+        return new
+
     @property
     def params(self):
+
         """Return list of symbols used as arguments in the circuit."""
 
         symbols = self.symbols
@@ -755,7 +784,7 @@ class NetlistMixin(object):
         test = new._add_test_voltage_source(Np, Nm)
         If = new[test].I
 
-        return admittance(If.laplace().expr)
+        return admittance(If.laplace().sympy)
 
     def impedance(self, Np, Nm=None):
         """Return driving-point impedance between nodes
@@ -767,12 +796,9 @@ class NetlistMixin(object):
         Np, Nm = self._parse_node_args2(Np, Nm)
         Np, Nm = self._check_nodes(Np, Nm)
 
-        new = self.kill()
-        new._add_ground(Nm)
-        new._add_test_current_source(Np, Nm)
-
+        new = self.apply_test_current_source(Np, Nm)
         Vf = new.Voc(Np, Nm)
-        return impedance(Vf.laplace().expr)
+        return impedance(Vf.laplace().sympy)
 
     def resistance(self, Np, Nm=None):
         """Return resistance between nodes Np and Nm with independent
@@ -814,13 +840,11 @@ class NetlistMixin(object):
             transfer(cpt1, (N2p, N2m))
         """
 
-        N1p, N1m, N2p, N2m = self._parse_node_args4(N1p, N1m, N2p, N2m, 'transfer')
+        N1p, N1m, N2p, N2m = self._parse_node_args4(N1p, N1m, N2p, N2m,
+                                                    'transfer')
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
 
-        new = self.kill()
-        new._add_ground(N1m)
-        new._add_test_voltage_source(N1p, N1m)
-
+        new = self.apply_test_voltage_source(N1p, N1m)
         V2 = new.Voc(N2p, N2m)
         H = transfer(V2.laplace())
         H.causal = True
@@ -847,10 +871,7 @@ class NetlistMixin(object):
                                                     'voltage_gain')
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
 
-        new = self.kill()
-        new._add_ground(N1m)
-        new._add_test_voltage_source(N1p, N1m)
-
+        new = self.apply_test_voltage_source(N1p, N1m)
         V2 = new.Voc(N2p, N2m)
         H = transfer(V2.laplace())
         H.causal = True
@@ -879,10 +900,7 @@ class NetlistMixin(object):
                                                     'current_gain')
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
 
-        new = self.kill()
-        new._add_ground(N1m)
-        new._add_test_current_source(N1p, N1m)
-
+        new = self.apply_test_current_source(N1p, N1m)
         H = transfer(-new.Isc(N2p, N2m).laplace())
         H.causal = True
         return H
@@ -911,10 +929,7 @@ class NetlistMixin(object):
                                                     'transadmittance')
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
 
-        new = self.kill()
-        new._add_ground(N1m)
-        new._add_test_voltage_source(N1p, N1m)
-
+        new = self.apply_test_voltage_source(N1p, N1m)
         H = admittance(new.Isc(N2p, N2m).laplace())
         H.causal = True
         return H
@@ -942,10 +957,7 @@ class NetlistMixin(object):
                                                     'transadmittance')
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
 
-        new = self.kill()
-        new._add_ground(N1m)
-        new._add_test_current_source(N1p, N1m)
-
+        new = self.apply_test_current_source(N1p, N1m)
         H = impedance(new.Voc(N2p, N2m).laplace())
         H.causal = True
         return H
