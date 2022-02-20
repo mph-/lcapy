@@ -18,6 +18,7 @@ from .netfile import NetfileMixin
 from .statespace import StateSpace
 from .voltage import Vname
 from .current import Iname, current
+from .transfer import transfer
 from .simulator import Simulator
 from .netlistnamespace import NetlistNamespace
 from .matrix import Matrix
@@ -818,13 +819,10 @@ class NetlistMixin(object):
 
         new = self.kill()
         new._add_ground(N1m)
-        test = new._add_test_voltage_source(N1p, N1m)
+        new._add_test_voltage_source(N1p, N1m)
 
         V2 = new.Voc(N2p, N2m)
-        V1 = new[test].V
-
-        # Note, this can cancel s, say in s * B / s * A.
-        H = V2.laplace() / V1.laplace()
+        H = transfer(V2.laplace())
         H.causal = True
         return H
 
@@ -851,13 +849,10 @@ class NetlistMixin(object):
 
         new = self.kill()
         new._add_ground(N1m)
-        test = new._add_test_voltage_source(N1p, N1m)
+        new._add_test_voltage_source(N1p, N1m)
 
         V2 = new.Voc(N2p, N2m)
-        V1 = new[test].V
-
-        # Note, this can cancel s, say in s * B / s * A.
-        H = V2.laplace() / V1.laplace()
+        H = transfer(V2.laplace())
         H.causal = True
         return H
 
@@ -886,9 +881,9 @@ class NetlistMixin(object):
 
         new = self.kill()
         new._add_ground(N1m)
-        test = new._add_test_current_source(N1p, N1m)
+        new._add_test_current_source(N1p, N1m)
 
-        H = -new.Isc(N2p, N2m).laplace() / new[test].I.laplace()
+        H = transfer(-new.Isc(N2p, N2m).laplace())
         H.causal = True
         return H
 
@@ -918,9 +913,9 @@ class NetlistMixin(object):
 
         new = self.kill()
         new._add_ground(N1m)
-        test = new._add_test_voltage_source(N1p, N1m)
+        new._add_test_voltage_source(N1p, N1m)
 
-        H = new.Isc(N2p, N2m).laplace() / new[test].V.laplace()
+        H = admittance(new.Isc(N2p, N2m).laplace())
         H.causal = True
         return H
 
@@ -949,9 +944,9 @@ class NetlistMixin(object):
 
         new = self.kill()
         new._add_ground(N1m)
-        test = new._add_test_current_source(N1p, N1m)
+        new._add_test_current_source(N1p, N1m)
 
-        H = new.Voc(N2p, N2m).laplace() / new[test].I.laplace()
+        H = impedance(new.Voc(N2p, N2m).laplace())
         H.causal = True
         return H
 
