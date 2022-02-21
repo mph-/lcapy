@@ -679,7 +679,18 @@ class Cpt(ImmittanceMixin):
 
         return cpt in self.connected
 
-    def short(self):
+    def open_circuit(self):
+        """Apply open-circuit in series with component.  Returns name of
+        open-circuit component."""
+
+        dummy_node = self._dummy_node()
+        net = self._netmake((dummy_node, ) + self.relnodes[1:])
+        self.cct.remove(self.name)
+        self.cct.add(net)
+        self.cct.add('O? %s %s' % (self.relnodes[0], dummy_node))
+        return self.cct.last_added()
+
+    def short_circuit(self):
         """Apply short-circuit across component.  Returns name of voltage
         source component used as the short."""
 

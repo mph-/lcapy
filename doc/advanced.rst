@@ -207,16 +207,16 @@ Let's consider finding the ratio of the force across the front
 mechanical port given an applied voltage across the electrical port
 with the back mechanical port free.  With the back port free,
 there is no force across it.  This can be asserted by applying a
-short across `Pb`.  For example,
+short-circuit across `Pb`.  For example,
 
    >>> from lcapy import Circuit
    >>> a = Circuit('KLM-demo.sch')
-   >>> a.short('Pb')
+   >>> a.short_circuit('Pb')
 
 The ratio of the mechanical force to an applied voltage can be found
-using the `transfer()` method of the circuit:
+using the `voltage_gain()` method of the circuit:
 
-   >>> H = a.transfer('Pe', 'Pf')
+   >>> H = a.voltage_gain('Pe', 'Pf')
                                                      ⎛d⋅s⎞
                                   -2⋅ⅉ⋅C₀⋅Z₀⋅φ⋅s⋅sinh⎜───⎟
                                                      ⎝2⋅c⎠

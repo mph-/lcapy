@@ -1268,13 +1268,21 @@ class NetlistMixin(object):
             new._add(net)
         return new
 
-    def short(self, cpt):
+    def open_circuit(self, cpt):
+        """Apply open-circuit in series with component.  Returns name of open
+        circuit component."""
+
+        if isinstance(cpt, Cpt):
+            cpt = cpt.name
+        return self.elements[cpt].open_circuit()
+
+    def short_circuit(self, cpt):
         """Apply short-circuit across component.  Returns name of voltage
         source component used as the short."""
 
         if isinstance(cpt, Cpt):
             cpt = cpt.name
-        return self.elements[cpt].short()
+        return self.elements[cpt].short_circuit()
 
     def _kill(self, sourcenames):
 
