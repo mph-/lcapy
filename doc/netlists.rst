@@ -464,6 +464,12 @@ Here's an example::
    ───────
    R₁ + R₂
 
+Note, the currents are considered to be flowing into the positive
+nodes as is the convention with two-ports.  Thus the input and output
+currents have opposite directions and so a piece of wire has a current
+gain of -1.  Similarly the transadmittance of a resistor of resistance
+R is -1 / R.
+
 The methods are:
 
 - `transfer(N1p, N1m, N2p, N2m)` Returns the s-domain transfer

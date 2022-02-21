@@ -883,7 +883,9 @@ class NetlistMixin(object):
         I2 is the measured short-circuit current flowing from N2m to N2p
 
         Note, the currents are considered to be flowing into the
-        positive nodes as is convention with two-ports.
+        positive nodes as is the convention with two-ports.  Thus the
+        input and output currents have opposite directions and so a
+        piece of wire has a current gain of -1.
 
         Note, independent sources are killed and initial conditions
         are ignored.  Since the result is causal, the frequency response
@@ -894,6 +896,7 @@ class NetlistMixin(object):
             current_gain(cpt1, cpt2)
             current_gain((N1p, N1m), cpt2)
             current_gain(cpt1, (N2p, N2m))
+
         """
 
         N1p, N1m, N2p, N2m = self._parse_node_args4(N1p, N1m, N2p, N2m,
@@ -906,12 +909,14 @@ class NetlistMixin(object):
         return H
 
     def transadmittance(self, N1p, N1m, N2p=None, N2m=None):
-        """Create s-domain transadmittance function I2(s) / V1(s) where:
-        V1 is the test voltage applied between N1p and N1m
-        I2 is the measured short-circuit current flowing from N2m to N2p
+        """Create s-domain transadmittance (transfer admittance) function
+        I2(s) / V1(s) where:
+          V1 is the test voltage applied between N1p and N1m
+          I2 is the measured short-circuit current flowing from N2m to N2p.
 
         Note, I2 is considered to be flowing into the positive node as
-        is convention with two-ports.
+        is the convention with two-ports.  Thus the transadmittance of
+        a series resistor with resistance R is -1 / R.
 
         Note, independent sources are killed and initial conditions
         are ignored.  Since the result is causal, the frequency response
@@ -930,17 +935,18 @@ class NetlistMixin(object):
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
 
         new = self.apply_test_voltage_source(N1p, N1m)
-        H = admittance(new.Isc(N2p, N2m).laplace())
+        H = admittance(-new.Isc(N2p, N2m).laplace())
         H.causal = True
         return H
 
     def transimpedance(self, N1p, N1m, N2p=None, N2m=None):
-        """Create s-domain transimpedance function V2(s) / I1(s) where:
-        I1 is the test current applied between N1p and N1m
-        V2 is the measured open-circuit voltage between N2p and N2m
+        """Create s-domain transimpedance (transfer impedance) function
+        V2(s) / I1(s) where:
+          I1 is the test current applied between N1p and N1m
+          V2 is the measured open-circuit voltage between N2p and N2m.
 
         Note, I1 is considered to be flowing into the positive node as
-        is convention with two-ports.
+        is the convention with two-ports.
 
         Note, independent sources are killed and initial conditions
         are ignored.  Since the result is causal, the frequency response

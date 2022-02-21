@@ -775,5 +775,5 @@ class LcapyTester(unittest.TestCase):
                           'transimpedance')
 
         Y = a.transadmittance('P1', 'P2')
-        self.assertEqual2(Y, LaplaceDomainAdmittance('R2 / (R1 * R2 + R1 * R3 + R2 * R3)'),
+        self.assertEqual2(Y, LaplaceDomainAdmittance('-R2 / (R1 * R2 + R1 * R3 + R2 * R3)'),
                           'transadmittance')
