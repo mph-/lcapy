@@ -18,6 +18,33 @@ If you wish to help with the development or documentation you are most
 welcome.
 
 
+Citation
+========
+
+
+To cite Lcapy in publications use
+
+Hayes M. 2022. Lcapy: symbolic linear circuit analysis with Python. PeerJ Computer Science 8:e875 https://doi.org/10.7717/peerj-cs.875
+
+A BibTeX entry for LaTeX users is
+
+.. code-block:: none
+
+   @article{10.7717/peerj-cs.875,
+    title = {Lcapy: symbolic linear circuit analysis with Python},
+    author = {Hayes, Michael},
+    year = 2022,
+    month = Feb,
+    keywords = {Linear circuit analysis, symbolic computation, Python},
+    pages = {e875},
+    journal = {PeerJ Computer Science},
+    issn = {2376-5992},
+    url = {https://doi.org/10.7717/peerj-cs.875},
+    doi = {10.7717/peerj-cs.875}
+   }
+
+
+
 Contributors
 ============
 

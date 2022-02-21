@@ -31,13 +31,13 @@ branch voltages, and node voltages (with respect to the ground node 0).  For exa
     >>> cct[1].V(t)
     5⋅R_b⋅u(t)
     ──────────
-     Rₐ + R_b 
+     Rₐ + R_b
     >>> cct.Ra.I(t)
-     5⋅u(t) 
+     5⋅u(t)
     ────────
     Rₐ + R_b
     >>> cct.Ra.V(s)
-       5⋅Rₐ    
+       5⋅Rₐ
     ────────────
     s⋅(Rₐ + R_b)
 
@@ -70,7 +70,7 @@ The component values can be specified numerically or symbolically
 using strings, for example,
 
     >>> from lcapy import Vdc, R, L, C, s, t
-    >>> R1 = R('R_1') 
+    >>> R1 = R('R_1')
     >>> L1 = L('L_1')
     >>> a = Vdc(10) + R1 + L1
 
@@ -102,7 +102,7 @@ If you want units displayed:
     >>> state.show_units=True
     >>> a.Isc(t)
     10/R_1.A
-    
+
 
 
 Two-port networks
@@ -200,4 +200,30 @@ For release notes see http://lcapy.readthedocs.io/en/latest/releases.html
 For another view on Lcapy see https://blog.ouseful.info/2018/08/07/an-easier-approach-to-electrical-circuit-diagram-generation-lcapy/
 
 
-Copyright 2014--2021 Michael Hayes, UCECE
+Citation
+--------
+
+To cite Lcapy in publications use
+
+> Hayes M. 2022. Lcapy: symbolic linear circuit analysis with Python. PeerJ Computer Science 8:e875 https://doi.org/10.7717/peerj-cs.875
+
+A BibTeX entry for LaTeX users is
+
+``` bibtex
+@article{10.7717/peerj-cs.875,
+ title = {Lcapy: symbolic linear circuit analysis with Python},
+ author = {Hayes, Michael},
+ year = 2022,
+ month = Feb,
+ keywords = {Linear circuit analysis, symbolic computation, Python},
+ volume = 3,
+ pages = {e875},
+ journal = {PeerJ Computer Science},
+ issn = {2376-5992},
+ url = {https://doi.org/10.7717/peerj-cs.875},
+ doi = {10.7717/peerj-cs.875}
+}
+```
+
+
+Copyright 2014--2022 Michael Hayes, UCECE
