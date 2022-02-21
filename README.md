@@ -216,7 +216,6 @@ A BibTeX entry for LaTeX users is
  year = 2022,
  month = Feb,
  keywords = {Linear circuit analysis, symbolic computation, Python},
- volume = 3,
  pages = {e875},
  journal = {PeerJ Computer Science},
  issn = {2376-5992},
