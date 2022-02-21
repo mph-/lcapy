@@ -2,6 +2,41 @@
 Release notes
 =============
 
+V1.4
+====
+
+- Renames `short` to `short-circuit` and adds `open-circuit`
+
+- Adds `voltage_gain()`, `current_gain()`, `transadmittance()`, `transimpedance()` methods for netlists
+
+- Adds `voltage_gain`, `current_gain`, `transadmittance`,
+  `transimpedance`, `forward_forward_voltage_gain`,
+  `forward_current_gain`, `forward_transadmittance`,
+  `forward_transimpedance`, `reverse_voltage_gain`,
+  `reverse_current_gain`, `reverse_transadmittance`,
+  `reverse_transimpedance`  attributes for networks
+
+- Adds `apply_test_current()` and `apply_test_voltage()` methods
+
+- Fixes `voltage_dir` argument for schematics
+
+- Adds symbol registry
+
+- Shares symbol registry for all circuits
+
+- Allows fancy symbol names
+
+- Checks if components connected if MNA fails
+
+- Adds `wired_to` and `is_wired_to` attributes
+
+- Fixes `nosim` argument for diodes and transistors
+
+- Adds `TLlossless` for lossless transmission lines
+
+- Adds transient response at start of transmission line
+
+
 V1.3
 ====
 
