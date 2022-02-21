@@ -12,7 +12,8 @@ Originally, Lcapy was developed for modelling piezoelectric
 transducers and then it grew...  Along the way, Michael has been
 assisted by some of his postgraduate students who like to find bugs.
 A special thanks to Matthew Edwards for dragging the continuous
-improvement into the twenty-first century.
+improvement into the twenty-first century and to Juergen Weizenecker
+for his work on Z-transforms, DTFTs, and DFTs.
 
 If you wish to help with the development or documentation you are most
 welcome.
