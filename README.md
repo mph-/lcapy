@@ -211,7 +211,7 @@ A BibTeX entry for LaTeX users is
 
 ``` bibtex
 @article{10.7717/peerj-cs.875,
- title = {Lcapy: symbolic linear circuit analysis with Python},
+ title = {Lcapy: symbolic linear circuit analysis with {Python}},
  author = {Hayes, Michael},
  year = 2022,
  month = Feb,
