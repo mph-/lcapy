@@ -490,22 +490,22 @@ The methods are:
 - `current_gain(N1p, N1m, N2p, N2m)` Returns the s-domain transfer
   function `I2(s) / I1(s)`, for the ports defined by nodes `N1p`,
   `N1m`, `N2p`, and `N2m`.  `I1(s)` is a test current injected into
-  node `N1p` from node `N1m`.  `I2(s)` is the short circuit current
+  node `N1p` from node `N1m`.  `I2(s)` is the short-circuit current
   flowing into `N2p` from `N1p` as is the convention with two-ports.
   See also `transfer()`.
 
 - `transadmittance(N1p, N1m, N2p, N2m)` Returns the s-domain
   transadmittance function `I2(s) / V1(s)`, for the ports defined by
   nodes `N1p`, `N1m`, `N2p`, and `N2m`.  `V1(s)` is a test voltage
-  applied between nodes `N1p` and `N1m`.  `I2(s)` is the short circuit
+  applied between nodes `N1p` and `N1m`.  `I2(s)` is the short-circuit
   current flowing into `N2p` from `N1p` as is the convention with
   two-ports.  See also `transfer()`.
 
 - `transimpedance(N1p, N1m, N2p, N2m)` Returns the s-domain
   transimpedance function `V2(s) / I1(s)`, for the ports defined by
   nodes `N1p`, `N1m`, `N2p`, and `N2m`.  `I1(s)` is a test current
-  injected into node `N1p` from node `N1m`.  `V2(s)` is the open
-  circuit voltage measured between `N2p` and `N1p`.  See also
+  injected into node `N1p` from node `N1m`.  `V2(s)` is the
+  open-circuit voltage measured between `N2p` and `N1p`.  See also
   `transfer()`.
 
 - `twoport(N1p, N1m, N2p, N2m, model='B')` Returns an s-domain two-port model defined by nodes `N1p`, `N1m`, `N2p`, and `N2m`, where `I1` is the current flowing into `N1p` and out of `N1m`, `I2` is the current flowing into `N2p` and out of `N2m`, `V1 = V[N1p] -  V[N1m]`, and `V2 = V[N2p] - V[N2m]`.  `model` can be `A`, `B`, `G`, `H`, `Y`, or `Z`.
@@ -726,7 +726,9 @@ Component methods
 
 - `in_series()` Return set of names of components in series with the component.
 
-- `short()` Apply short circuit across the component.
+- `open_circuit(cpt)` Apply open circuit in series with the component.  The name of the open circuit component is returned.
+
+- `short_curcuit(cpt)` Apply short circuit across the component using a 0 V voltage source.  The name of the voltage source is returned.
 
 - `noisy(T='T')` Create noisy model where resistors are replaced with a noiseless resistor and a noise voltage source.
 
