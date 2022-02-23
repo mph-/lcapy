@@ -611,14 +611,14 @@ class NetlistMixin(object):
     @property
     def branch_list(self):
         """Determine list of names of branch elements, e.g.,
-        ['C1', 'V1', 'R1', 'R2'b]."""
+        ['C1', 'V1', 'R1', 'R2']."""
 
         if hasattr(self, '_branch_list'):
             return self._branch_list
 
         self._branch_list = []
         for key, elt in self.elements.items():
-            if elt.type not in ('W', 'O', 'P', 'K'):
+            if elt.type not in ('W', 'O', 'P', 'K', 'XX'):
                 self._branch_list.append(elt.name)
         return self._branch_list
 

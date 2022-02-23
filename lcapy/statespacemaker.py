@@ -1,7 +1,7 @@
 """
 This module performs state-space analysis.
 
-Copyright 2021 Michael Hayes, UCECE
+Copyright 2021-2022 Michael Hayes, UCECE
 
 """
 
@@ -15,6 +15,7 @@ from .statespace import StateSpace
 from .circuitgraph import CircuitGraph
 from .sym import sympify
 import sympy as sym
+from warnings import warn
 
 __all__ = ('StateSpaceMaker', )
 
@@ -50,7 +51,7 @@ def _hack_vars(exprs):
     for m, expr1 in enumerate(exprs):
         for c in ('i_V', 'i_C', 'i_L', 'v_C'):
             sym1 = sympify(c + 'anon1(t)')
-            sym2 = sympify(c + 'anon2(t)')            
+            sym2 = sympify(c + 'anon2(t)')
             if expr1.has(sym1) and not expr1.has(sym2):
                 expr1 = expr1.subs(sym1, sympify(c + '(t)'))
                 exprs[m] = expr1
@@ -90,10 +91,10 @@ class StateSpaceMaker(object):
 
         if branch_currents is None:
             branch_currents = cct.branch_list
-        
+
         if node_voltages == [] and branch_currents == []:
             raise ValueError('State-space: no outputs')
-        
+
         inductors = []
         capacitors = []
         independent_current_sources = []
@@ -110,7 +111,7 @@ class StateSpaceMaker(object):
             sselt = sscct._add(ssnet)
             name = elt.name
             cpt_map[name] = sselt.name
-            
+
             if elt.is_inductor:
                 if sselt.name in cct.elements:
                     raise ValueError('Name conflict %s, either rename the component or improve the code!' % sselt.name)
@@ -123,7 +124,7 @@ class StateSpaceMaker(object):
             elif elt.is_independent_current_source:
                 independent_current_sources.append(elt)
             elif elt.is_independent_voltage_source:
-                independent_voltage_sources.append(elt)                
+                independent_voltage_sources.append(elt)
 
         independent_sources = independent_voltage_sources + independent_current_sources
 
@@ -135,13 +136,13 @@ class StateSpaceMaker(object):
                 for name in cg.in_series(elt.name):
                     if cct[name].is_inductor:
                         raise ValueError('Cannot create state-space model since have inductor %s in series with independent current source %s' % (name, elt.name))
-        
+
         cct = cct
         sscct = sscct
         # sscct can be analysed in the time domain since it has no
         # reactive components.  However, for large circuits
         # this can take a long time due to inversion of the MNA matrix.
-        
+
         dotx_exprs = []
         statevars = []
         statenames = []
@@ -174,10 +175,10 @@ class StateSpaceMaker(object):
         sourcenames = []
         for elt in independent_sources:
             name = cpt_map[elt.name]
-            
+
             if isinstance(elt, V):
                 expr = elt.cpt.voc
-                var = sscct[name].voc                
+                var = sscct[name].voc
             else:
                 expr = elt.cpt.isc
                 var = sscct[name].isc
@@ -186,7 +187,7 @@ class StateSpaceMaker(object):
             sourcevars.append(var)
             sourcenames.append(name)
 
-        sourcesyms = sympify(sourcenames)            
+        sourcesyms = sympify(sourcenames)
 
         # linear_eq_to_matrix expects only Symbols and not AppliedUndefs,
         # so substitute.
@@ -194,17 +195,25 @@ class StateSpaceMaker(object):
         for var, sym1 in zip(statevars, statesyms):
             subsdict[var.expr] = sym1
         for var, sym1 in zip(sourcevars, sourcesyms):
-            subsdict[var.expr] = sym1       
+            subsdict[var.expr] = sym1
 
         for m, expr in enumerate(dotx_exprs):
             dotx_exprs[m] = expr.subs(subsdict).expr.expand()
 
-        A, b = sym.linear_eq_to_matrix(dotx_exprs, *statesyms)
-        if sourcesyms != []:
+        if dotx_exprs == []:
+            warn('State-space: no state variables found')
+        if sourcesyms == []:
+            warn('State-space: no independent sources found')
+
+        if dotx_exprs != []:
+            A, b = sym.linear_eq_to_matrix(dotx_exprs, *statesyms)
+        else:
+            A = sym.zeros(len(dotx_exprs), len(dotx_exprs))
+
+        if sourcesyms != [] and dotx_exprs != []:
             B, b = sym.linear_eq_to_matrix(dotx_exprs, *sourcesyms)
         else:
-            B = []
-            print('State-space: no independent sources found')
+            B = sym.zeros(len(dotx_exprs), len(sources))
 
         # Determine output variables.
         yexprs = []
@@ -220,25 +229,29 @@ class StateSpaceMaker(object):
         for name in branch_currents:
             # Perhaps ignore L since the current through it is a
             # state variable?
-            name2 = cpt_map[name]                    
+            name2 = cpt_map[name]
             yexprs.append(sscct[name2].i.subs(subsdict).expand().expr)
-            y.append(current('i_%s(t)' % name))                    
+            y.append(current('i_%s(t)' % name))
 
-        Cmat, b = sym.linear_eq_to_matrix(yexprs, *statesyms)
-        if sourcesyms != []:        
+        if statesyms != [] and yexprs != []:
+            C, b = sym.linear_eq_to_matrix(yexprs, *statesyms)
+        else:
+            C = sym.zeros(len(yexprs), len(statesyms))
+
+        if sourcesyms != [] and yexprs != []:
             D, b = sym.linear_eq_to_matrix(yexprs, *sourcesyms)
         else:
-            D = []
+            D = sym.zeros(len(yexprs), len(sourcesyms))
 
         # Rewrite vCanon1(t) as vC(t) etc if appropriate.
         _hack_vars(statevars)
         _hack_vars(sources)
-        
+
         # Note, Matrix strips the class from each element...
         x = TimeDomainMatrix(statevars)
 
         x0 = Matrix(initialvalues)
-        
+
         u = TimeDomainMatrix(sources)
 
         A = Matrix(A)
@@ -246,17 +259,17 @@ class StateSpaceMaker(object):
             # No sources
             B = Matrix.zeros(A.shape[0], 0)
         else:
-            B = Matrix(B)        
-            
+            B = Matrix(B)
+
         # Perhaps could use v_R1(t) etc. as the output voltages?
         y = TimeDomainMatrix(y)
 
-        C = Matrix(Cmat)
+        C = Matrix(C)
 
         if D == []:
             # No sources
             D = Matrix.zeros(C.shape[0], 0)
         else:
-            D = Matrix(D)        
-        
+            D = Matrix(D)
+
         return StateSpace(A, B, C, D, u, y, x, x0)
