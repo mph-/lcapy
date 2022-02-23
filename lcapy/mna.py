@@ -142,7 +142,7 @@ class MNA(object):
         message = 'The MNA A matrix is not invertible for %s analysis:' % self.kind
         cct = self.cct
         if not cct.is_connected:
-            return message + ' Not all nodes are connected.'
+            return message + ' Not all nodes are connected.  Use cct.unconnected_nodes() to find them.'
 
         reasons = []
         if cct.kind == 'dc':
