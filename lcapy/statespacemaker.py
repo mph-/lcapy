@@ -254,22 +254,12 @@ class StateSpaceMaker(object):
 
         u = TimeDomainMatrix(sources)
 
-        A = Matrix(A)
-        if B == []:
-            # No sources
-            B = Matrix.zeros(A.shape[0], 0)
-        else:
-            B = Matrix(B)
-
         # Perhaps could use v_R1(t) etc. as the output voltages?
         y = TimeDomainMatrix(y)
 
+        A = Matrix(A)
+        B = Matrix(B)
         C = Matrix(C)
-
-        if D == []:
-            # No sources
-            D = Matrix.zeros(C.shape[0], 0)
-        else:
-            D = Matrix(D)
+        D = Matrix(D)
 
         return StateSpace(A, B, C, D, u, y, x, x0)
