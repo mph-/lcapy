@@ -1579,7 +1579,7 @@ class NetlistMixin(object):
             if explain:
                 print('%s combined IC = %s' % (subset, ic))
 
-        newname = self.namer(name[0], 't')
+        newname = self.namer(name[0] + 't')
         net1 = elt._new_value(total, ic)
         parts = net1.split(' ', 1)
         net1 = newname + ' ' + parts[1]

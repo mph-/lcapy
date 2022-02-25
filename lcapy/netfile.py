@@ -22,15 +22,15 @@ class NetfileMixin(object):
         self.namer = ComponentNamer()
         self.dirname = None
 
-    def _make_anon_netid(self, kind):
+    def _make_anon_cpt_id(self, cpt_type):
         """Make identifier for anonymous component"""
 
-        return self.namer.netid(kind, 'anon')
+        return self.namer.cpt_id(cpt_type + 'anon')
 
-    def _make_anon_name(self, kind):
+    def _make_anon_name(self, cpt_type):
         """Make name for anonymous component"""
 
-        return self.namer.name(kind, 'anon')
+        return self.namer.name(cpt_type + 'anon')
 
     def _include(self, string):
 

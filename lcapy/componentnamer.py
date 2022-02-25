@@ -1,7 +1,7 @@
 """This module provides the ComponentNamer class for automatic
 naming of components.
 
-Copyright 2020 Michael Hayes, UCECE
+Copyright 2020--2022 Michael Hayes, UCECE
 
 """
 
@@ -10,30 +10,25 @@ class ComponentNamer(object):
 
     def __init__(self):
 
-        self.names = {}
+        self.counts = {}
 
-    def netid(self, cpt_kind, name_kind='anon'):
+    def cpt_id(self, cpt_type):
 
-        if name_kind not in self.names:
-            self.names[name_kind] = {}
+        if cpt_type not in self.counts:
+            self.counts[cpt_type] = 0
 
-        foo = self.names[name_kind]
-            
-        if cpt_kind not in foo:
-            foo[cpt_kind] = 0
+        self.counts[cpt_type] += 1
 
-        foo[cpt_kind] += 1
+        return str(self.counts[cpt_type])
 
-        return name_kind + str(foo[cpt_kind])
+    def name(self, cpt_type):
 
-    def name(self, cpt_kind, name_kind='anon'):
+        cpt_id = self.cpt_id(cpt_type)
 
-        netid = self.netid(cpt_kind, name_kind)
+        return cpt_type + cpt_id
 
-        return cpt_kind + netid
-    
-    def __call__(self, cpt_kind, name_kind='anon'):
-        """Create component name based on `cpt_kind` (`R`, `L`, etc.)
+    def __call__(self, cpt_type):
+        """Create component name based on `cpt_type` (`R`, `L`, etc.)
         and the name_kind (`anon`, `t`, etc)."""
 
-        return self.name(cpt_kind, name_kind)
+        return self.name(cpt_type)

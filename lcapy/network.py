@@ -32,7 +32,7 @@ class Network(object):
     # False if initial conditions are not specified.
     has_ic = None
 
-    netname = ''
+    cpt_type = ''
     netkeyword = ''
     kwargs = {}
 
@@ -122,7 +122,7 @@ class Network(object):
         # Hack, create ground reference.
         self._add('W %d 0' % (self._node - 1))
 
-    def _net_make(self, netlist, n1=None, n2=None, dir='right'):
+    def _net_make(self, netlistmaker, n1=None, n2=None, dir='right'):
 
         net = self
         if n2 == None:
@@ -130,18 +130,16 @@ class Network(object):
         if n1 == None:
             n1 = net._node
 
-        netname = net.__class__.__name__ if net.netname == '' else net.netname
+        cpt_type = net.__class__.__name__ if net.cpt_type == '' else net.cpt_type
 
         opts_str = self._opts_str(dir)
-        netid = netlist._make_id(netname)
+        name = netlistmaker._make_name(cpt_type, self.args)
         if net.netkeyword != '':
-            return '%s%s %s %s %s %s; %s' % (netname, netid,
-                                             n1, n2,
-                                             net.netkeyword,
-                                             netlist._netargs(net), opts_str)
+            return '%s %s %s %s %s; %s' % (name, n1, n2, net.netkeyword,
+                                           netlistmaker._netargs(net), opts_str)
         else:
-            return '%s%s %s %s %s; %s' % (netname, netid,
-                                          n1, n2, netlist._netargs(net), opts_str)
+            return '%s %s %s %s; %s' % (name, n1, n2,
+                                        netlistmaker._netargs(net), opts_str)
 
     @property
     def _depths(self):

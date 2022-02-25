@@ -25,7 +25,7 @@ def split(s, delimiters):
             current = []
         else:
             if c == close_bracket:
-                close_bracket = bracket_stack.pop()                
+                close_bracket = bracket_stack.pop()
             elif c == '{':
                 bracket_stack.append(close_bracket)
                 close_bracket = '}'
@@ -41,7 +41,7 @@ def split(s, delimiters):
 class Param(object):
 
     def __init__(self, name, base, comment):
-        
+
         self.name = name
         self.base = base
         self.comment = comment
@@ -57,7 +57,7 @@ class Param(object):
 class Rule(object):
 
     def __init__(self, cpt_type, classname, params, comment, pos):
-        
+
         self.type = cpt_type
         self.classname = classname
         self.params = params
@@ -70,7 +70,7 @@ class Rule(object):
 
     def syntax_error(self, error, string):
 
-        raise ValueError('Syntax error: %s when parsing %s\nExpected format: %s' % (error, string, repr(self)))        
+        raise ValueError('Syntax error: %s when parsing %s\nExpected format: %s' % (error, string, repr(self)))
 
     def process(self, paramdict, string, fields, name, namespace):
 
@@ -128,7 +128,7 @@ class Parser(object):
         self.cpts = cpts
         self.paramdict = {}
         self.ruledict = {}
-        
+
         for param in params.split('\n'):
             self._add_param(param)
 
@@ -151,7 +151,7 @@ class Parser(object):
         fields = fields[1].split(';', 1)
         parambase = fields[0].strip()
         comment = fields[1].strip()
-        
+
         self.paramdict[paramname] = Param(paramname, parambase, comment)
 
     def _add_rule(self, string):
@@ -164,7 +164,7 @@ class Parser(object):
         fields = fields[1].split(';', 1)
         string = fields[0].strip()
         comment = fields[1].strip()
-        
+
         fields = string.split(' ')
         params = fields[1:]
 
@@ -193,9 +193,9 @@ class Parser(object):
         if net == '':
             directive = True
         elif net[0] in self.comments:
-            directive = True            
+            directive = True
         elif net[0] == ';':
-            directive = True                        
+            directive = True
         elif net[0] == '.':
             directive = True
 
@@ -203,27 +203,27 @@ class Parser(object):
             cpt_type = 'XX'
             cpt_id = ''
             name = 'XX'
-            name += parent._make_anon_netid(cpt_type)
+            name += parent._make_anon_cpt_id(cpt_type)
             defname = namespace + cpt_type + cpt_id
 
             if string.startswith(';') and not string.startswith(';;'):
                 opts_string = string[1:]
             else:
-                opts_string = ''                
-                
+                opts_string = ''
+
             return self.cpts.make('XX', parent, '', defname, name,
                                   cpt_type, cpt_id, string, opts_string, (), '')
 
         net = namespace + net
         parts = net.split(';', 1)
-        
+
         fields = split(parts[0], self.delimiters)
 
         # Strip {} and "".
         for m, field in enumerate(fields):
             if field[0] in '{"':
                 fields[m] = fields[m][1:-1]
-        
+
         name = fields.pop(0)
         parts = name.split('.')
         namespace = ''
@@ -260,16 +260,16 @@ class Parser(object):
         name = defname
         if (cpt_id == '' and parent is not None
             and (cpt_type in ('A', 'W', 'O', 'P')) or self.allow_anon):
-            name += parent._make_anon_netid(cpt_type)
+            name += parent._make_anon_cpt_id(cpt_type)
         elif cpt_id == '?':
             # Automatically name cpts to ensure they are unique
-            name = name[:-1] + parent._make_anon_netid(cpt_type)
+            name = name[:-1] + parent._make_anon_cpt_id(cpt_type)
 
-        nodes, args = rule.process(self.paramdict, net, fields, name, 
+        nodes, args = rule.process(self.paramdict, net, fields, name,
                                    namespace)
 
         parts = net.split(';', 1)
-        opts_string = parts[1].strip() if len(parts) > 1 else '' 
+        opts_string = parts[1].strip() if len(parts) > 1 else ''
 
         keyword = (pos, keyword)
 

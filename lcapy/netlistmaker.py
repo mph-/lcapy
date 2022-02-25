@@ -12,7 +12,8 @@ class NetlistMaker(NetlistHelper):
     def __init__(self, net, layout='horizontal', evalf=None):
 
         self.net = net
-        self.evalf = evalf        
+        self.evalf = evalf
+        self.names = []
 
         if layout == 'horizontal':
             self.dir = 'right'
@@ -24,5 +25,5 @@ class NetlistMaker(NetlistHelper):
     def __call__(self):
 
         n1 = self._node
-        n2 = self._node        
-        return self.net._net_make(self, n2, n1, dir=self.dir)    
+        n2 = self._node
+        return self.net._net_make(self, n2, n1, dir=self.dir)

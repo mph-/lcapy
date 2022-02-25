@@ -15,7 +15,7 @@ currents, respectively, to model transient responses.
 One-ports can either be connected in series (+) or parallel (|) to
 create a new one-port.
 
-Copyright 2014--2021 Michael Hayes, UCECE
+Copyright 2014--2022 Michael Hayes, UCECE
 """
 
 from __future__ import division
@@ -1018,7 +1018,7 @@ class Z(OnePort):
 class VoltageSourceBase(OnePort):
 
     is_voltage_source = True
-    netname = 'V'
+    cpt_type = 'V'
     is_noisy = False
 
     def v_equation(self, i, kind='t'):
@@ -1150,7 +1150,7 @@ class v(VoltageSourceBase):
 class CurrentSourceBase(OnePort):
 
     is_current_source = True
-    netname = 'I'
+    cpt_type = 'I'
     is_noisy = False
 
     @property
