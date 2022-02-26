@@ -390,7 +390,14 @@ Circuit methods
 - `initialize(cct, T)` Sets initial values for reactive components
   based on the values computed for the circuit `cct` at time `T`.
   This is useful for switching circuits where the circuit topology
-  changes.
+  changes, see :ref:`switching-analysis`.  Alternatively, the
+  `initialize()` method can also take a dictionary of initial values
+  keyed by component name, for example,
+
+   >>> a = Circuit("""
+   ... L1 1 2""")
+   >>> a.initialize({'L1': 7})
+   L1 1 2 L1 7
 
 - `replace(name, net)` Replaces the named component.  For example,
 

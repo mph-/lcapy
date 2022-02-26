@@ -251,7 +251,7 @@ of a circuit.  For example,
    C 2 0_2 C V; down
    W 0 0_2; right
 
-This is a trivial case where the capacitor voltage is set to the DC voltage of the source.
+This is a trivial case where the capacitor voltage is set to the DC voltage of the source.   Note, the `initialize()` method can also take a dictionary of initial values keyed by component name.
 
 
 Noise analysis
