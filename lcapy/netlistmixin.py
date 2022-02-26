@@ -1984,9 +1984,33 @@ class NetlistMixin(object):
 
         return self.noisy(T=T)
 
-    def initialize(self, cct, T):
-        """Set the initial values for this netlist based on the values
-        computed for netlist `cct` at specified time `T`."""
+    def _initialize_from_dict(self, values):
+
+        for key, value in values.items():
+            if key not in self.reactances:
+                warn('Cannot set initial value for %s since not a reactance' % key)
+            elif key not in self._elements:
+                raise ValueError('Unknown compoment %s' % key)
+
+        new = self._new()
+
+        for cpt in self._elements.values():
+            ic = 0
+            if cpt.name in values:
+                ic = values[cpt.name]
+                try:
+                    ic = ic.remove_condition()
+                except:
+                    pass
+
+            net = cpt._initialize(ic)
+            new._add(net)
+        return new
+
+    def _initialize_from_circuit(self, cct, T=None):
+
+        if T is None:
+            raise ValueError('Time T not specified')
 
         new = self._new()
 
@@ -2001,6 +2025,19 @@ class NetlistMixin(object):
             net = cpt._initialize(ic)
             new._add(net)
         return new
+
+    def initialize(self, cct, T=None):
+        """Set the initial values for this netlist based on the values
+        computed for netlist `cct` at specified time `T`.
+
+        Alternatively, set the initial values using a dictionary
+        of values keyed by the component name.
+        """
+
+        if isinstance(cct, dict):
+            return self._initialize_from_dict(cct)
+
+        return self._initialize_from_circuit(cct, T)
 
     def draw(self, filename=None, **kwargs):
         """Draw schematic of netlist.
