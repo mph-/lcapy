@@ -17,11 +17,11 @@ upload: package
 
 .PHONY: test
 test: lcapy/*.py
-	nosetests3 -s --pdb
+	nosetests -s --pdb
 
 .PHONY: cover
 cover: lcapy/*.py
-	nosetests3 --pdb --with-coverage --cover-package=lcapy --cover-html
+	nosetests --pdb --with-coverage --cover-package=lcapy --cover-html
 
 .PHONY: doc-install
 doc-install: doc
