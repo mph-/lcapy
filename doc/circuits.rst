@@ -556,11 +556,11 @@ chooses the currents through inductors and the voltage across
 capacitors as the state variables.  It can then generate the state and
 output equations as well as the characteristic polynomial, etc.
 
-However, Lcapy does not support degenerate circuits.  These are
-circuits with a loop consisting only of voltage sources and/or
-capacitors, or a cut set consisting only of current sources and/or
-inductors.  Using `simplify()` on the netlist can resolve some of
-these problems.
+However, Lcapy does not support degenerate circuits (see
+:ref:`degenerate-circuits`).  These are circuits with a loop
+consisting only of voltage sources and/or capacitors, or a cut set
+consisting only of current sources and/or inductors.  Using
+`simplify()` on the netlist can resolve some of these problems.
 
 State-space analysis is performed by accessing the `ss` attribute of a
 circuit (this generates a `StateSpace` object and caches the result), e.g.,
@@ -579,6 +579,8 @@ circuit (this generates a `StateSpace` object and caches the result), e.g.,
 
 .. image:: examples/netlists/ss1.png
    :width: 8cm
+
+If you want to control which node voltages or branch currents are used as output variables, use the `state_space()` method.
 
 This circuit has two reactive components and thus there are two state
 variables; the current through `L` and the voltage across `C`.
@@ -739,6 +741,42 @@ The singular values of the system are returned by the `singular_values` attribut
 For other methods and attributes, see :ref:`state-space`.
 
 
+.. _degenerate-circuits:
+
+Degenerate circuits
+-------------------
+
+Lcapy's state-space analysis currently does not support degenerate
+circuits.  These are circuits with a loop consisting only of voltage
+sources and/or capacitors, or a cut set consisting only of current
+sources and/or inductors.  In these cases, choosing capacitor voltages
+(or inductor currents) for the state variables produces dependent
+state variables.
+
+Consider an opamp integrator.
+
+.. image:: examples/schematics/integrator.png
+   :width: 8cm
+
+In this circuit, there is one state variable; the voltage across the capacitor.
+However, if the resistor was replaced with a wire, the voltage across the capacitor is constrained and so the capacitor voltage is not a state variable.  Lcapy will produce the following error:
+
+   >>> Circuit('degenerate.sch').ss
+   ValueError: State-space analysis failed.
+   The MNA A matrix is not invertible for time analysis:
+       Check voltage source is not short-circuited.
+       Check for loop of voltage sources.
+       Check for a loop consisting of voltage sources and/or capacitors.
+
+A similar problem will occur if a capacitor is connected in parallel
+with the resistor.  In this case, there is a loop consisting of
+voltage sources and capacitors (the output of the opamp is a voltage
+controlled voltage source).  Thus both the capacitor voltages cannot
+be chosen as state variables since they are not independent (the
+voltage across one capacitor is constrained by the voltage across the
+other capacitor).
+
+
 CircuitGraph
 ============
 
@@ -787,7 +825,7 @@ Here's another example::
 
 
 .. image:: examples/netlists/graph2.png
-   :width: 8cm
+   :width: 10cm
 
 The graph is:
 

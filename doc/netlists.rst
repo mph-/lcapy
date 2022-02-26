@@ -356,7 +356,7 @@ Circuit methods
 
 - `admittance(Np, Nm)` Returns the driving-point admittance between
   nodes `Np` and `Nm` and `admittance(cpt)` returns the driving-point
-  admittance between the nodes of the specified component.
+  admittance between the nodes of the specified component
 
 - `annotate_node_voltages()` Produces a new netlist with drawing
   commands to annotate node voltages for specified nodes (see :ref:`annotated_node_voltages`)
@@ -367,17 +367,29 @@ Circuit methods
 - `annotate_currents()` Produces a new netlist with drawing
   commands to annotate component currents for specified components (see :ref:`annotated_currents`)
 
+- `apply_test_current_source(Np, Nm)` Copies the netlist, kills all
+   the sources, and applies a Dirac delta test current source across
+   the specified nodes.  If the netlist is not connected to ground,
+   the negative specified node is connected to ground.  The new
+   netlist is returned.
+
+- `apply_test_voltage_source(Np, Nm)` Copies the netlist, kills all
+   the sources, and applies a Dirac delta test voltage source across
+   the specified nodes.  If the netlist is not connected to ground,
+   the negative specified node is connected to ground.  The new
+   netlist is returned.
+
 - `describe()` Prints message describing how netlist is solved
 
 - `has()` Returns True if component in netlist
 
 - `impedance(Np, Nm)` Returns the driving-point impedance between
   nodes `Np` and `Nm` and `impedance(cpt)` returns the driving-point
-  impedance between the nodes of the specified component.
+  impedance between the nodes of the specified component
 
-- `in_parallel()` Returns a list of sets of component names that are connected in parallel.
+- `in_parallel()` Returns a list of sets of component names that are connected in parallel
 
-- `in_series()` Returns a list of sets of component names that are connected in series.
+- `in_series()` Returns a list of sets of component names that are connected in series
 
 - `kill()` Kills specified independent sources (voltage sources
   become short-circuits and current sources become open-circuits)
@@ -385,7 +397,13 @@ Circuit methods
 - `kill_except()` Kills all but the specified independent sources
 
 - `noise_model()` Replaces resistors with a series combination of a
-  resistor and a noise voltage source
+  resistor and a noise voltage source.  For example,
+
+   >>> a = Circuit("""
+   ... R1 1 2""")
+   >>> a.noise_model()
+   NR1 1 _nodeanon1 R1
+   VnR1 _nodeanon1 2 noise {sqrt(4 * k_B * T * R1)}
 
 - `initialize(cct, T)` Sets initial values for reactive components
   based on the values computed for the circuit `cct` at time `T`.
@@ -399,6 +417,11 @@ Circuit methods
    >>> a.initialize({'L1': 7})
    L1 1 2 L1 7
 
+- `open_circuit(cpt)` Applies open circuit in series with the component.  The name of the open circuit component is returned.
+
+- `r_model()` Creates a resistive equivalent model using companion
+  circuits (this is used for time-stepping simulation)
+
 - `replace(name, net)` Replaces the named component.  For example,
 
    >>> cct = Circuit("""
@@ -411,16 +434,23 @@ Circuit methods
    ... R1 1 2
    ... C1 2 0""")
 
-- `r_model()` Creates a resistive equivalent model using companion
-  circuits (this is used for time-stepping simulation)
-
-- `replace()` Replaces component with new component in netlist
-
 - `s_model()` Converts sources to the s-domain and represents
   reactive components as impedances
 
+- `short_circuit(cpt)` Applies short circuit across the component using a 0 V voltage source.  The name of the voltage source is returned.
+
+- `state_space(node_voltages, branch_currents)` Generates a
+  state-space representation (see :ref:`state-space-analysis`) where
+  `node_voltages` is a list of node names to use as voltage outputs
+  (if `None` use all nodes) and `branch_currents` is a list of
+  component names to use as branch current outputs (if `None` use all
+  the components).  Here's an example:
+
+  >>> cct = Circuit('cct.sch')
+  >>> ss = cct.state_space(node_voltages=['1', '3'], branch_currents=['L1', 'L2'])
+
 - `state_space_model()` Creates a state-space model by replacing inductors
-  with current sources and capacitors with voltage sources
+  with current sources and capacitors with voltage sources, see :ref:`state-space-analysis`.
 
 - `subs(subs_dict)` Substitutes symbolic values in the netlist using a dictionary of symbols `subs_dict`.  For example,
 
@@ -434,7 +464,7 @@ Circuit methods
    R1 1 2
    L1 2 0 3
 
-- `unconnected_nodes` Returns list of names of nodes that are unconnected.
+- `unconnected_nodes` Returns list of names of nodes that are unconnected
 
 
 Circuit two-port methods
@@ -717,29 +747,29 @@ Here is the complete list of component attributes.
 Component methods
 -----------------
 
-- `norton()` Create Norton oneport object viewed from nodes of the component.
+- `norton()` Creates Norton oneport object viewed from nodes of the component.
 
-- `thevenin()` Create Thevenin oneport object viewed from nodes of the component.
+- `thevenin()` Creates Thevenin oneport object viewed from nodes of the component.
 
-- `oneport()` Create Thevenin or Noton oneport object as appropriate when viewed from nodes of the component.
+- `oneport()` Creates Thevenin or Noton oneport object as appropriate when viewed from nodes of the component.
 
-- `transfer(cpt)` Create transfer function for the voltage across `cpt` divided by the voltage across the component.
+- `transfer(cpt)` Creates transfer function for the voltage across `cpt` divided by the voltage across the component.
 
-- `connected()` Return list of components connected to this component (i.e., components that share a node).
+- `connected()` Returns list of components connected to this component (i.e., components that share a node).
 
-- `is_connected(cpt)` Return True if connected to specified `cpt` (i.e., the components share a node).
+- `is_connected(cpt)` Returns True if connected to specified `cpt` (i.e., the components share a node).
 
-- `in_parallel()` Return set of names of components in parallel with the component.
+- `in_parallel()` Returns set of names of components in parallel with the component.
 
-- `in_series()` Return set of names of components in series with the component.
+- `in_series()` Returns set of names of components in series with the component.
 
-- `open_circuit(cpt)` Apply open circuit in series with the component.  The name of the open circuit component is returned.
+- `noisy(T='T')` Creates noisy model where resistors are replaced with a noiseless resistor and a noise voltage source.
 
-- `short_curcuit(cpt)` Apply short circuit across the component using a 0 V voltage source.  The name of the voltage source is returned.
+- `noisy_except(resistors, T='T')` Creates noisy model where all but the specified resistors are replaced with a noiseless resistance and a noise voltage source.
 
-- `noisy(T='T')` Create noisy model where resistors are replaced with a noiseless resistor and a noise voltage source.
+- `open_circuit()` Applies open circuit in series with the component.  The name of the open circuit component is returned.
 
-- `noisy_except(resistors, T='T')` Create noisy model where all but the specified resistors are replaced with a noiseless resistance and a noise voltage source.
+- `short_circuit()` Applies short circuit across the component using a 0 V voltage source.  The name of the voltage source is returned.
 
 
 Nodes

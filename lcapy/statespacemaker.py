@@ -144,11 +144,17 @@ class StateSpaceMaker(object):
         # this can take a long time due to inversion of the MNA matrix.
 
         try:
-            # Analyse node voltages and brnach currents.
+            # Analyse node voltages and branch currents.
             sscct[0].V
         except ValueError as e:
-            raise ValueError("""
-            State-space analysis failed.\n%s\n    Check that circuit is not degenerate, such as (1) a loop consisting of voltage sources and/or capacitors, (2) a cut set consisting only of current sources and/or inductors.""" % e)
+            reasons = []
+            if len(inductors) > 0:
+                reasons.append('Check for cut set consisting only of current sources and/or inductors.')
+            if len(capacitors) > 0:
+                reasons.append('Check for a loop consisting of voltage sources and/or capacitors.')
+
+            raise ValueError("State-space analysis failed.\n%s\n     %s" % (
+                e, '\n    '.join(reasons)))
 
         dotx_exprs = []
         statevars = []
