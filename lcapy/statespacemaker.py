@@ -143,6 +143,13 @@ class StateSpaceMaker(object):
         # reactive components.  However, for large circuits
         # this can take a long time due to inversion of the MNA matrix.
 
+        try:
+            # Analyse node voltages and brnach currents.
+            sscct[0].V
+        except ValueError as e:
+            raise ValueError("""
+            State-space analysis failed.\n%s\n    Check that circuit is not degenerate, such as (1) a loop consisting of voltage sources and/or capacitors, (2) a cut set consisting only of current sources and/or inductors.""" % e)
+
         dotx_exprs = []
         statevars = []
         statenames = []
