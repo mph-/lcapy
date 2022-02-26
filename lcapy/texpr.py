@@ -190,16 +190,6 @@ class TimeDomainExpression(TimeDomain, Expr):
 
         return self.limit(self.var, oo)
 
-    def remove_condition(self):
-        """Remove the piecewise condition from the expression.
-        See also force_causal."""
-
-        if not self.is_conditional:
-            return self
-        expr = self.expr
-        expr = expr.args[0].args[0]
-        return self.__class__(expr)
-
     def force_causal(self):
         """Remove the piecewise condition from the expression
         and multiply by Heaviside function.  See also remove_condition."""

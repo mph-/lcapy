@@ -3444,6 +3444,16 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         else:
             return ret
 
+    def remove_condition(self):
+        """Remove the piecewise condition from the expression.
+        See also force_causal."""
+
+        if not self.is_conditional:
+            return self
+        expr = self.expr
+        expr = expr.args[0].args[0]
+        return self.__class__(expr)
+
     def remove_images(self, m1=0, m2=0):
         """Remove all spectral images resulting from a DTFT.
 
