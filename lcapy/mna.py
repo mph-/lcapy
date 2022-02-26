@@ -153,8 +153,12 @@ class MNA(object):
             reasons.append('Check capacitors are not in series.')
         if cct.voltage_sources != []:
             reasons.append('Check voltage source is not short-circuited.')
+        if len(cct.voltage_sources) > 1:
+            reasons.append('Check for loop of voltage sources.')
         if cct.current_sources != []:
             reasons.append('Check current source is not open-circuited.')
+        if len(cct.current_sources) > 1:
+            reasons.append('Check for current sources in series.')
 
         return message + '\n    ' + '\n    '.join(reasons)
 
