@@ -511,6 +511,10 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
 
     var = None
 
+    # This provides a minor speed improvement for attribute lookup
+    # but prevents dynamic adding of new attributes.
+    __slots__ = ()
+
     _mul_mapping = {('voltage', 'admittance'): 'current',
                     ('current', 'impedance'): 'voltage',
                     ('voltage', 'transfer'): 'voltage',
