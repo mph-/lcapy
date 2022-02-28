@@ -1478,3 +1478,108 @@ which produces:
 
 .. image:: examples/tutorials/annotations/circuit1_component_currents3.png
    :width: 9cm
+
+
+Discrete-time
+=============
+
+
+Simulating an analog filter
+---------------------------
+
+Consider the analog filter:
+
+.. image:: examples/tutorials/discretetime/filter1.png
+   :width: 9cm
+
+This can be described by the nestlist:
+
+.. literalinclude:: examples/tutorials/discretetime/filter1.sch
+
+Here `P1` denotes the input port and `P2` denotes the output port.
+
+The transfer function can be found using:
+
+   >>> a = Circuit('filter.sch')
+   >>> H = a.transfer('P1', 'P2')
+   >>> H
+                     ⎛  s  ⎞
+                     ⎜─────⎟
+                     ⎝C₂⋅R₁⎠
+   ────────────────────────────────────────────
+    2   s⋅(C₁⋅R₁ + C₁⋅R₂ + C₂⋅R₂)        1
+   s  + ───────────────────────── + ───────────
+               C₁⋅C₂⋅R₁⋅R₂          C₁⋅C₂⋅R₁⋅R₂
+
+Let's assume that R1 = 22 ohms, C1 = 100 nF, R2 = 1 Mohm, and C2 = 1nF, thus
+
+   >>> Hv = H.subs({'R1':22, 'C1':100e-9, 'R2':1e6, 'C2':1e-9})
+   >>> Hv
+                 500000000⋅s
+    ──────────────────────────────────
+       ⎛ 2   505011000⋅s   5000000000⎞
+    11⋅⎜s  + ─────────── + ──────────⎟
+       ⎝          11           11    ⎠
+
+Note, Lcapy stores floats as rational numbers.  They can be converted to floats using the `evalf()` method.  For example,
+
+   >>> Hv.evalf(4)
+           4.545e+7⋅s
+   ──────────────────────────
+    2
+   s  + 4.591e+7⋅s + 4.545e+8
+
+The frequency response of the filter can be plotted using:
+
+  >>> Hv(f).bode_plot((0, 1e3))
+
+The transfer function can be approximated by a discrete, linear, time-invariant (DLTI) filter using the `dlti_filter()` method.  For example,
+
+   >>> fil = H.dlti_filter()
+
+This creates an instance of a `DLTIFilter` class with two attributes:
+`a`, a tuple of the denominator coefficients, and `b`, a tuple of the
+numerator coefficients.  For example,
+
+   >>> fil.a[1]
+                                          2
+                     -8⋅C₁⋅C₂⋅R₁⋅R₂ + 2⋅Δₜ
+   ──────────────────────────────────────────────────────────
+                                                            2
+   4⋅C₁⋅C₂⋅R₁⋅R₂ + 2⋅C₁⋅Δₜ⋅R₁ + 2⋅C₁⋅Δₜ⋅R₂ + 2⋅C₂⋅Δₜ⋅R₂ + Δₜ
+
+Alternatively, using numerical values:
+
+   >>> filv = Hv.dlti_filter()
+   >>> filv.a
+   ⎛                       2                            2                    ⎞
+   ⎜          2500000000⋅Δₜ  - 22          1250000000⋅Δₜ  - 252505500⋅Δₜ + 11⎟
+   ⎜1, ──────────────────────────────────, ──────────────────────────────────⎟
+   ⎜                2                                   2                    ⎟
+   ⎝   1250000000⋅Δₜ  + 252505500⋅Δₜ + 11  1250000000⋅Δₜ  + 252505500⋅Δₜ + 11⎠
+
+
+Here `Δₜ` is the sampling period, represented by the symbol Lcapy `dt`.   Let's assume a sampling frequency of 1 MHz:
+
+   >>> filv = filv.subs({dt: 1 / 1e6})
+   >>> filv.a
+   ⎛   -87990   -74309 ⎞
+   ⎜1, ───────, ───────⎟
+   ⎝   1054027   81079 ⎠
+   >>> filv.b
+   ⎛1000000000000     -1000000000000 ⎞
+   ⎜─────────────, 0, ───────────────⎟
+   ⎝   1054027            1054027    ⎠
+
+Note, the coefficients are stored as SymPy rational numbers.  To convert them to Python floats, use the `.fval` attribute.  For example,
+
+   >>> filv.a.fval
+   (1.0, -0.08347983495678953, -0.9165011901972151)
+   >>> filv.b.fval
+   (948742.2997703095, 0.0, -948742.2997703095)
+
+These coefficients can now be used in the SciPy `lfilter` function.
+
+Note, the symbolic response can also be found using the `response()`
+method of a `DLTIFilter` object.  However, the output soons becomes
+tedious for this filter.
