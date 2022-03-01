@@ -198,7 +198,7 @@ class Cpt(ImmittanceMixin):
         else:
             args = self.args
 
-        for arg in self.args:
+        for arg in args:
             if zero:
                 arg = 0
             elif subs_dict is not None:
@@ -208,7 +208,11 @@ class Cpt(ImmittanceMixin):
             string += ' ' + self._arg_format(arg)
             field += 1
             if field == self.keyword[0]:
-                string += self.keyword[1]
+                string += ' ' + self.keyword[1]
+
+        if len(args) == 0 and self.keyword[0] == 0:
+            string += ' ' + self.keyword[1]
+
         opts_str = str(self.opts).strip()
         if opts_str != '':
             string += '; ' + opts_str
