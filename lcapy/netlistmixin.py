@@ -524,12 +524,38 @@ class NetlistMixin(object):
         if node_map is None:
             node_map = {}
 
+        # Add nodes with names like U1.vdd so they don't get renamed.
+        ignore_nodes = []
+        for node in self.nodes.keys():
+            if node in node_map:
+                continue
+            parts = node.split('.')
+            if len(parts) < 2:
+                continue
+            if parts[-2] in self._elements:
+                node_map[node] = node
+                ignore_nodes.append(node)
+
         # It would be desirable to renumber the nodes say from left to
         # right and top to bottom.  The schematic drawing algorithms
         # could help with this since they figure out the node
         # placement.
 
         enodes = self.equipotential_nodes
+
+        # Rewrite the equipotential nodes removing nodes that need to
+        # be ignored.
+        enodes2 = {}
+        for key, nodes in enodes.items():
+            newnodes = []
+            for node in nodes:
+                if node not in ignore_nodes:
+                    newnodes.append(node)
+
+            if key in ignore_nodes:
+                key = newnodes[0]
+            enodes2[key] = newnodes
+        enodes = enodes2
 
         if '0' in self.nodes and '0' not in node_map:
             node_map['0'] = '0'
@@ -538,6 +564,7 @@ class NetlistMixin(object):
         for m in range(len(enodes)):
             numbers.append('%s' % (m + 1))
 
+        # Check if user has supplied an unknown node in node_map.
         for old, new in node_map.items():
             if old not in self.nodes:
                 raise ValueError('Unknown node %s' % old)
