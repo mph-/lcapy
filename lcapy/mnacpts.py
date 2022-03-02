@@ -153,11 +153,16 @@ class Cpt(ImmittanceMixin):
                 return '{' + string + '}'
         return string
 
-    def highlight(self, arg):
-        """Highlight cpt by adding `arg` to opts."""
+    def annotate(self, **kwargs):
+        """Annotate cpt by adding `kwargs` to opts.
+        For example, `color='blue'`."""
+
+        s = ''
+        for key, val in kwargs.items():
+            s += ',' + key + '=' + val
 
         opts = self.opts.copy()
-        opts.add(arg)
+        opts.add(s)
 
         return self._netmake(opts=opts)
 
