@@ -2425,3 +2425,25 @@ class NetlistMixin(object):
 
     def Iname(self, name):
         return Iname(name, self.kind)
+
+    def _highlight(self, cpt, arg):
+
+        if isinstance(cpt, Cpt):
+            name = cpt.name
+        else:
+            name = cpt
+        if not self.has(name):
+            raise ValueError('Unknown component %s' % name)
+
+        new = self._new()
+
+        for cpt in self._elements.values():
+            if cpt.name == name:
+                new.add(cpt.highlight(arg))
+            else:
+                new.add(cpt._copy())
+        return new
+
+    def highlight(self, cpt, color='blue'):
+
+        return self._highlight(cpt, 'color=' + color)

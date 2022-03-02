@@ -153,6 +153,14 @@ class Cpt(ImmittanceMixin):
                 return '{' + string + '}'
         return string
 
+    def highlight(self, arg):
+        """Highlight cpt by adding `arg` to opts."""
+
+        opts = self.opts.copy()
+        opts.add(arg)
+
+        return self._netmake(opts=opts)
+
     def _kill(self):
         """Kill sources."""
 
