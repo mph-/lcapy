@@ -358,7 +358,7 @@ Circuit methods
   nodes `Np` and `Nm` and `admittance(cpt)` returns the driving-point
   admittance between the nodes of the specified component
 
-- `annotate_node_voltages(cpts)` Produces a new netlist with the
+- `annotate(cpts)` Produces a new netlist with the
   specified component (or list or tuple of components) annotated by
   appending to the schematic attributes.  For example,
 
@@ -377,7 +377,10 @@ Circuit methods
 
    Here's another example that highlights 'R1' and the components that are in series with it:
 
-   >>> cct.annotate('R1', color='blue').annotate(cct.in_series('R1'), color='purple')
+   >>> cct.annotate('R1', color='blue').annotate(cct.in_series('R1'), color='purple').draw()
+
+.. image:: examples/netlists/inseries1.png
+   :width: 6cm
 
 - `annotate_node_voltages(nodes)` Produces a new netlist with drawing
   commands to annotate node voltages for specified nodes (see :ref:`annotated_node_voltages`)
