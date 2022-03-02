@@ -358,13 +358,34 @@ Circuit methods
   nodes `Np` and `Nm` and `admittance(cpt)` returns the driving-point
   admittance between the nodes of the specified component
 
-- `annotate_node_voltages()` Produces a new netlist with drawing
+- `annotate_node_voltages(cpts)` Produces a new netlist with the
+  specified component (or list or tuple of components) annotated by
+  appending to the schematic attributes.  For example,
+
+   >>> cct = Circuit("""
+   R1 1 2; right
+   R2 2 3; right
+   R3 3 4; right""")
+   >>> cct.annotate('R1', color='blue')
+   R1 1 2; right, color=blue
+   R2 2 3; right
+   R3 3 4; right
+   >>> cct.annotate(('R1','R2'),'dashed, color=blue')
+   R1 1 2; right, dashed, color=blue
+   R2 2 3; right, dashed, color=blue
+   R3 3 4; right
+
+   Here's another example that highlights 'R1' and the components that are in series with it:
+
+   >>> cct.annotate('R1', color='blue').annotate(cct.in_series('R1'), color='purple')
+
+- `annotate_node_voltages(nodes)` Produces a new netlist with drawing
   commands to annotate node voltages for specified nodes (see :ref:`annotated_node_voltages`)
 
-- `annotate_voltages()` Produces a new netlist with drawing
+- `annotate_voltages(cpts)` Produces a new netlist with drawing
   commands to annotate component voltages for specified components (see :ref:`annotated_voltages`)
 
-- `annotate_currents()` Produces a new netlist with drawing
+- `annotate_currents(cpts)` Produces a new netlist with drawing
   commands to annotate component currents for specified components (see :ref:`annotated_currents`)
 
 - `apply_test_current_source(Np, Nm)` Copies the netlist, kills all
