@@ -403,7 +403,8 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
         label = plot1_type
 
     lines = plotit(ax, obj, f, V, plot1_type, deltas, log_frequency=log_frequency,
-                   log_magnitude=log_magnitude, norm=norm, label=label, dbmin=dbmin, **kwargs)
+                   log_magnitude=log_magnitude, norm=norm, label=label,
+                   dbmin=dbmin, **kwargs)
 
     if plot2_type is None:
         return ax
@@ -449,12 +450,19 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
 
         ymin = np.floor(dBmin / 10) * 10
         ymax = np.ceil(dBmax / 10) * 10
+        yrange = ymax - ymin
+
+        if False:
+            # Provide some wiggle room
+            ymin -= yrange / 10
+            ymax += yrange / 10
+            yrange = ymax - ymin
+
         # This will clobber previous plot values
         ax.set_ylim(ymin, ymax)
 
-        yrange = ymax - ymin
         if nyticks is None:
-            # Add odd number is better to show zero phase.
+            # An odd number is better to show zero phase.
             for nyticks in (7, 6, 5, 8, 9):
                 if yrange / (nyticks - 1) in (20, 10, 5, 2):
                     break

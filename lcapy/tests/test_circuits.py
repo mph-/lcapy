@@ -581,9 +581,9 @@ class LcapyTester(unittest.TestCase):
         R4 3 4
         R5 4 0""")
 
-        self.assertEqual(a.in_series('R1'), set(('V', 'R2')), "in_series(R1)")
-        self.assertEqual(a.in_series('R3'), set(), "in_series(R3)")
-        self.assertEqual(a.in_series('R4'), set(('R5',)), "in_series(R4)")
+        self.assertEqual(set(a.in_series('R1')), set(('V', 'R2')), "in_series(R1)")
+        self.assertEqual(set(a.in_series('R3')), set(), "in_series(R3)")
+        self.assertEqual(set(a.in_series('R4')), set(('R5',)), "in_series(R4)")
 
     def test_in_parallel(self):
         """Test in_parallel"""
@@ -596,9 +596,9 @@ class LcapyTester(unittest.TestCase):
         R4 2 0
         R5 2 0""")
 
-        self.assertEqual(a.in_parallel('R1'), set(('V', 'R2')), "in_parallel(R1)")
-        self.assertEqual(a.in_parallel('R3'), set(), "in_parallel(R3)")
-        self.assertEqual(a.in_parallel('R4'), set(('R5', )), "in_parallel(R4)")
+        self.assertEqual(set(a.in_parallel('R1')), set(('V', 'R2')), "in_parallel(R1)")
+        self.assertEqual(set(a.in_parallel('R3')), set(), "in_parallel(R3)")
+        self.assertEqual(set(a.in_parallel('R4')), set(('R5', )), "in_parallel(R4)")
 
     def test_simplify(self):
         """Test simplify"""
