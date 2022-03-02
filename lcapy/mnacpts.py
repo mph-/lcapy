@@ -153,11 +153,14 @@ class Cpt(ImmittanceMixin):
                 return '{' + string + '}'
         return string
 
-    def annotate(self, **kwargs):
+    def annotate(self, *args, **kwargs):
         """Annotate cpt by adding `kwargs` to opts.
-        For example, `color='blue'`."""
+        For example, `color='blue'` or `'color=blue'`."""
 
         s = ''
+        for arg in args:
+            s += ',' + arg
+
         for key, val in kwargs.items():
             s += ',' + key + '=' + val
 

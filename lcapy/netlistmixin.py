@@ -2426,24 +2426,43 @@ class NetlistMixin(object):
     def Iname(self, name):
         return Iname(name, self.kind)
 
-    def annotate(self, cpt, **kwargs):
+    def annotate(self, cpts, *args, **kwargs):
+        """Annotate a particular component (or list of components)
+        with specified schematic attributes and return new netlist.
 
-        if isinstance(cpt, Cpt):
-            name = cpt.name
-        else:
-            name = cpt
-        if not self.has(name):
-            raise ValueError('Unknown component %s' % name)
+        For example:
+        `cct.annotate('R1', color='blue')`
+        `cct.annotate('R1', 'color=blue, dashed')`
+        `cct.annotate(('U1', 'U2'), fill='blue')`
+
+        See also `highlight`."""
+
+        if not isinstance(cpts, (tuple, list)):
+            cpts = [cpts]
+
+        names = []
+        for cpt in cpts:
+            if isinstance(cpt, Cpt):
+                name = cpt.name
+            else:
+                name = cpt
+            if not self.has(name):
+                raise ValueError('Unknown component %s' % name)
+            names.append(name)
 
         new = self._new()
 
         for cpt in self._elements.values():
-            if cpt.name == name:
-                new.add(cpt.annotate(**kwargs))
+            if cpt.name in names:
+                new.add(cpt.annotate(*args, **kwargs))
             else:
                 new.add(cpt._copy())
         return new
 
-    def highlight(self, cpt, color='blue'):
+    def highlight(self, cpts, color='blue'):
+        """Highlight a particular component (or list of components)
+        with specified color and return new netlist.
 
-        return self.annotate(cpt, color=color)
+        See also `annotate`."""
+
+        return self.annotate(cpts, color=color)
