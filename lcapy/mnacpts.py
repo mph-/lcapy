@@ -262,7 +262,8 @@ class Cpt(ImmittanceMixin):
         parts.extend(fmtargs)
 
         # Insert keyword...
-
+        if self.keyword[0] == 0:
+            parts.append(self.keyword[1])
 
         net = ' '.join(parts)
         opts_str = str(opts).strip()
