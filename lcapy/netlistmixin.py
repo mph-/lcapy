@@ -1556,7 +1556,7 @@ class NetlistMixin(object):
         if len(names) < 2:
             return set()
         names.discard(cpt)
-        return names
+        return list(names)
 
     def in_series(self, cpt=None):
         """Return set of cpts in series with specified cpt.  If no cpt
@@ -1572,7 +1572,7 @@ class NetlistMixin(object):
         if len(names) < 2:
             return set()
         names.discard(cpt)
-        return names
+        return list(names)
 
     def _do_simplify_combine(self, string, subset, net,
                              explain=False, add=False, series=False):
@@ -2437,7 +2437,7 @@ class NetlistMixin(object):
 
         See also `highlight`."""
 
-        if not isinstance(cpts, (tuple, list)):
+        if not isinstance(cpts, (tuple, list, set)):
             cpts = [cpts]
 
         names = []
