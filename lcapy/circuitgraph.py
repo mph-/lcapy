@@ -425,3 +425,8 @@ class CircuitGraph(object):
         """For a planar circuit, this is equal to the number of meshes in the graph."""
 
         return self.num_branches - self.num_nodes + self.num_parts
+
+    def pdb(self):
+
+        import pdb; pdb.set_trace()
+        return self
