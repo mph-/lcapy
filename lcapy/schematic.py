@@ -75,19 +75,19 @@ class SchematicOpts(Opts):
 
     def __init__(self):
 
-        super (SchematicOpts, self).__init__(
+        super(SchematicOpts, self).__init__(
             {'draw_nodes': 'primary',
              'label_values': True,
              'label_ids': True,
              'annotate_values': False,
              'label_nodes': 'primary',
-             'scale' : 1.0,
-             'dpi' : 150,
-             'cpt_size' : 1.5,
-             'node_spacing' : 2.0,
-             'help_lines' : 0.0,
-             'style' : 'american',
-             'voltage_dir' : 'RP'})
+             'scale': 1.0,
+             'dpi': 150,
+             'cpt_size': 1.5,
+             'node_spacing': 2.0,
+             'help_lines': 0.0,
+             'style': 'american',
+             'voltage_dir': 'RP'})
 
 
 class Node(object):
@@ -99,7 +99,8 @@ class Node(object):
         self._count = 0
         parts = name.split('_')
         # Primary 1, 2, a, a_3.  Not primary _1, _2, _a, _a_3, 0_3, a_b_c
-        self.primary = (name[0] != '_' and len(parts) <= 2) and not (name[0].isdigit() and len(parts) != 1)
+        self.primary = (name[0] != '_' and len(parts) <= 2) and not (
+            name[0].isdigit() and len(parts) != 1)
 
         # See MX1.sch for example.
         if '._' in name:
@@ -313,8 +314,10 @@ class Schematic(NetfileMixin):
                 size = -size
                 angle = -angle
 
-            w1 = 'W %s %s; rotate=%s, size=%s' % (n1, on1, cpt.angle + angle, size)
-            w2 = 'W %s %s; rotate=%s, size=%s' % (n2, on2, cpt.angle + angle, size)
+            w1 = 'W %s %s; rotate=%s, size=%s' % (
+                n1, on1, cpt.angle + angle, size)
+            w2 = 'W %s %s; rotate=%s, size=%s' % (
+                n2, on2, cpt.angle + angle, size)
 
             self.add(w1)
             self.add(w2)
@@ -388,7 +391,8 @@ class Schematic(NetfileMixin):
                     # when substituting cpt values.
                     value = float(sym.Rational(expr))
                     if cpt.type in units_map:
-                        value_label = EngFormatter().latex_math(value, units_map[cpt.type])
+                        value_label = EngFormatter().latex_math(
+                            value, units_map[cpt.type])
                     else:
                         value_label = Expr(expr, cache=False).latex_math()
 
@@ -401,7 +405,8 @@ class Schematic(NetfileMixin):
         # defaults to the component identifier.  Note, some objects
         # we do not want to label, such as wires and ports.
         cpt.id_label = '' if id_label is None else latex_format_label(id_label)
-        cpt.value_label = cpt.id_label if value_label is None else latex_format_label(value_label)
+        cpt.value_label = cpt.id_label if value_label is None else latex_format_label(
+            value_label)
 
         if cpt.opts_string != '':
             self.hints = True
@@ -432,7 +437,8 @@ class Schematic(NetfileMixin):
             if node.ref is not None:
                 continue
             if node.cptname is not None and not node.implicit:
-                raise ValueError('Unreferenced pin connection %s for %s' % (node.name, node.elt_list))
+                raise ValueError('Unreferenced pin connection %s for %s' % (
+                    node.name, node.elt_list))
 
     def make_graphs(self, debug=0):
 
@@ -763,6 +769,7 @@ class Schematic(NetfileMixin):
             return
 
         self.tikz_draw(filename=filename, **kwargs)
+
 
 def test():
 
