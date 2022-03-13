@@ -471,18 +471,10 @@ class Schematic(NetfileMixin):
         if 'options' in kwargs:
             opts.append(kwargs.pop('options'))
 
-        if 'font' in kwargs:
-            font = kwargs.pop('font')
-            opts.append('font=' + font)
-
-        if 'voltage_dir' in kwargs:
-            voltage_dir = kwargs.pop('voltage_dir')
-            opts.append('voltage dir=' + voltage_dir)
-
-        # TODO, handle other global options automatically.
-        if 'color' in kwargs:
-            color = kwargs.pop('color')
-            opts.append('color=' + color)
+        global_options = ['font', 'voltage_dir', 'color']
+        for opt in global_options:
+            if opt in kwargs:
+                opts.append(opt.replace('_', ' ') + '=' + kwargs[opt])
 
         s = r'\begin{tikzpicture}[%s]''\n' % ', '.join(opts)
 
