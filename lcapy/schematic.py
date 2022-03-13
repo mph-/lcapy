@@ -479,6 +479,11 @@ class Schematic(NetfileMixin):
             voltage_dir = kwargs.pop('voltage_dir')
             opts.append('voltage dir=' + voltage_dir)
 
+        # TODO, handle other global options automatically.
+        if 'color' in kwargs:
+            color = kwargs.pop('color')
+            opts.append('color=' + color)
+
         s = r'\begin{tikzpicture}[%s]''\n' % ', '.join(opts)
 
         # Add preamble
@@ -486,13 +491,13 @@ class Schematic(NetfileMixin):
             s += '  ' + kwargs.pop('preamble') + '\n'
 
         help_lines = float(kwargs.pop('help_lines', 0))
-        color = kwargs.pop('color', 'blue')
+        help_lines_color = kwargs.pop('help_lines_color', 'blue')
         if help_lines != 0:
             start = Pos(-0.5, -0.5) * self.node_spacing
             stop = Pos(self.width + 0.5, self.height + 0.5) * self.node_spacing
 
             s += r'  \draw[help lines, %s] (%s) grid [xstep=%s, ystep=%s] (%s);''\n' % (
-                color, start, help_lines, help_lines, stop)
+                help_lines_color, start, help_lines, help_lines, stop)
 
         # Write coordinates.  TODO, not all coordinates are needed
         # so those can be weeded out to simplify the generated file.
