@@ -303,3 +303,136 @@ Sometimes the secondary leakage inductance is referred to the primary:
 
 .. image:: examples/tutorials/transformers/tee-model-transformer3.png
    :width: 11cm
+
+
+
+Non-linear analysis using state-space
+=====================================
+
+Let's consider the step-response of a CMOS device switching from low
+to high.  In the circuit below, the capacitance `Cl` denotes a
+capacitive load, say the input of another CMOS device, `Rs` is a
+series resistance, say to control the rise-time', and `Vt` and `Rt`
+comprise a Thevenin load, say due to a pull-up resistor.
+
+.. image:: examples/tutorials/nonlinear/cmos_R_series_C_load_thevenin.png
+   :width: 9cm
+
+Using an IBIS output model to model the parastic components, the
+equivalent circuit is:
+
+.. image:: examples/tutorials/nonlinear/cmos_ibis_R_series_C_load_thevenin.png
+   :width: 14cm
+
+In this model, the CMOS output is modelled as a voltage dependent
+current-source, :math:`I_o(V_o)`.   The netlist is:
+
+.. literalinclude:: examples/tutorials/nonlinear/cmos_ibis_R_series_C_load_thevenin.sch
+
+Using this netlist, a state-space model can be created:
+
+   >>> from lcapy import Circuit
+   >>> cct = Circuit('cmos_ibis_R_series_C_load_thevenin.sch')
+   >>> ss = cct.state_space(node_voltages=(1, 5), branch_currents=())
+
+Here the outputs are the node voltages 1 and 5 corresponding to the
+output voltage :math:`V_o` and the load voltage :math:`V_l` across
+`Cl`.  The state vector is
+
+   >>> ss.x
+   ⎡i_Lpkg(t) ⎤
+   ⎢          ⎥
+   ⎢v_Ccomp(t)⎥
+   ⎢          ⎥
+   ⎢v_Cpkg(t) ⎥
+   ⎢          ⎥
+   ⎣ v_Cl(t)  ⎦
+
+the input vector is
+
+   >>> ss.u
+   ⎡Vₜ⎤
+   ⎢  ⎥
+   ⎣Iₒ⎦
+
+the output vector is
+
+   >>> ss.y
+   ⎡v₁(t)⎤
+   ⎢     ⎥
+   ⎣v₅(t)⎦
+
+and the system matrices are
+
+   >>> ss.A
+   ⎡-R_pkg     1      -1                     ⎤
+   ⎢───────  ─────   ─────           0       ⎥
+   ⎢ L_pkg   L_pkg   L_pkg                   ⎥
+   ⎢                                         ⎥
+   ⎢ -1                                      ⎥
+   ⎢──────     0       0             0       ⎥
+   ⎢C_comp                                   ⎥
+   ⎢                                         ⎥
+   ⎢   1              -1            1        ⎥
+   ⎢ ─────     0    ────────     ────────    ⎥
+   ⎢ C_pkg          C_pkg⋅Rₛ     C_pkg⋅Rₛ    ⎥
+   ⎢                                         ⎥
+   ⎢                   1          1       1  ⎥
+   ⎢   0       0     ─────    - ───── - ─────⎥
+   ⎣                 Cₗ⋅Rₛ      Cₗ⋅Rₜ   Cₗ⋅Rₛ⎦
+
+   >>> ss.B
+   ⎡  0      0   ⎤
+   ⎢             ⎥
+   ⎢         1   ⎥
+   ⎢  0    ──────⎥
+   ⎢       C_comp⎥
+   ⎢             ⎥
+   ⎢  0      0   ⎥
+   ⎢             ⎥
+   ⎢  1          ⎥
+   ⎢─────    0   ⎥
+   ⎣Cₗ⋅Rₜ        ⎦
+
+   >>> ss.C
+   ⎡0  1  0  0⎤
+   ⎢          ⎥
+   ⎣0  0  0  1⎦
+
+   >>> ss.D
+   ⎡0  0⎤
+   ⎢    ⎥
+   ⎣0  0⎦
+
+Since the CMOS device is non-linear, there is no analytic solution and a numerical solution is required.  This can be achieved using the SciPy `ivp_solve` function.
+
+   >>> A = array(((-Rpkg / Lpkg, 1 / Lpkg, -1 / Lpkg, 0),
+                  (-1 / Ccomp, 0, 0, 0),
+                  (1 / Cpkg, 0, -1 / (Cpkg * Rs), 1 / (Cpkg * Rs)),
+                  (0, 0, 1 / (CL * Rs), -1 / (CL * Rs) - 1 / (CL * Rt))))
+   >>> B = array(((0, 0),
+                  (0, 1 / Ccomp),
+                  (0, 0),
+                  (1 / (CL * Rt), 0)))
+   >>> C = array(((0, 1, 0, 0),
+                  (0, 0, 0, 1)))
+   >>> D = array(((0, 0),
+                  (0, 0)))
+   >>>
+   >>> def func(t, x):
+   >>>    y = dot(C, x)
+   >>>    Vo = y[0]
+   >>>    Vl = y[1]
+   >>>    Io = lookup_Io(Vo)
+   >>>    u = array((Vt, Io))
+   >>>    xdot = dot(A, x) + dot(B, u)
+   >>>    return xdot
+   >>>
+   >>> ret = solve_ivp(func, [t[0], t[-1]], [0, 0, 0, 0], t_eval=t)
+   >>>
+   >>> Vl = ret.y[3].squeeze()
+
+In this snippet of code, the line `lookup_Io(Vo)` determines the output current for a specific output voltage, say by interpolating a lookup table.
+
+Note, `solve_ivp` can choose a poor initial step for this circuit.  A
+work-around is to scale the the capacitances, inductances, and time.
