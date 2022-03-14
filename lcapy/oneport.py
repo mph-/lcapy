@@ -19,15 +19,6 @@ Copyright 2014--2022 Michael Hayes, UCECE
 """
 
 from __future__ import division
-from .twoport import Ladder, LSection, TSection
-from .superpositioncurrent import SuperpositionCurrent
-from .superpositionvoltage import SuperpositionVoltage
-from .noiseomegaexpr import AngularFourierNoiseDomainCurrent, AngularFourierNoiseDomainVoltage
-from .phasor import phasor
-from .texpr import TimeDomainExpression
-from .sexpr import LaplaceDomainExpression
-from .cexpr import cexpr
-from .expr import Expr, expr
 from .functions import Heaviside, cos, exp
 from .sym import omega0sym, tsym, ksym, oo
 from .symbols import j, t, s
@@ -1571,3 +1562,12 @@ def ladder(*args, **kwargs):
 
 
 # Imports at end to circumvent circular dependencies
+from .twoport import Ladder, LSection, TSection
+from .superpositioncurrent import SuperpositionCurrent
+from .superpositionvoltage import SuperpositionVoltage
+from .noiseomegaexpr import AngularFourierNoiseDomainCurrent, AngularFourierNoiseDomainVoltage
+from .phasor import phasor
+from .texpr import TimeDomainExpression
+from .sexpr import LaplaceDomainExpression
+from .cexpr import cexpr
+from .expr import Expr, expr
