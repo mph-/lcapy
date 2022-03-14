@@ -81,10 +81,12 @@ class StateSpaceMaker(object):
     @classmethod
     def from_circuit(cls, cct, node_voltages=None, branch_currents=None):
         """`node_voltages` is a list of node names to use as voltage outputs.
-        If `None` use all the unique node names.
+        If `None` use all the unique node names.  Use `()`
+        if want no branch currents.
 
         `branch_currents` is a list of component names to use as
-        current outputs.  If `None` use all the components."""
+        current outputs.  If `None` use all the components.  Use `()`
+        if want no branch currents."""
 
         if node_voltages is None:
             node_voltages = cct.node_list
