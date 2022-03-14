@@ -114,12 +114,14 @@ class StateSpaceMaker(object):
 
             if elt.is_inductor:
                 if sselt.name in cct.elements:
-                    raise ValueError('Name conflict %s, either rename the component or improve the code!' % sselt.name)
+                    raise ValueError(
+                        'Name conflict %s, either rename the component or improve the code!' % sselt.name)
 
                 inductors.append(elt)
             elif elt.is_capacitor:
                 if sselt.name in cct.elements:
-                    raise ValueError('Name conflict %s, either rename the component or improve the code!' % sselt.name)
+                    raise ValueError(
+                        'Name conflict %s, either rename the component or improve the code!' % sselt.name)
                 capacitors.append(elt)
             elif elt.is_independent_current_source:
                 independent_current_sources.append(elt)
@@ -135,7 +137,8 @@ class StateSpaceMaker(object):
             for elt in independent_current_sources:
                 for name in cg.in_series(elt.name):
                     if cct[name].is_inductor:
-                        raise ValueError('Cannot create state-space model since have inductor %s in series with independent current source %s' % (name, elt.name))
+                        raise ValueError(
+                            'Cannot create state-space model since have inductor %s in series with independent current source %s' % (name, elt.name))
 
         cct = cct
         sscct = sscct
@@ -149,9 +152,11 @@ class StateSpaceMaker(object):
         except ValueError as e:
             reasons = []
             if len(inductors) > 0:
-                reasons.append('Check for cut set consisting only of current sources and/or inductors.')
+                reasons.append(
+                    'Check for cut set consisting only of current sources and/or inductors.')
             if len(capacitors) > 0:
-                reasons.append('Check for a loop consisting of voltage sources and/or capacitors.')
+                reasons.append(
+                    'Check for a loop consisting of voltage sources and/or capacitors.')
 
             raise ValueError("State-space analysis failed.\n%s\n     %s" % (
                 e, '\n    '.join(reasons)))

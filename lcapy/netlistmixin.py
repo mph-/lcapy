@@ -87,7 +87,8 @@ class NetlistMixin(object):
     def pdb(self):
         """Enter the python debugger."""
 
-        import pdb; pdb.set_trace()
+        import pdb
+        pdb.set_trace()
         return self
 
     @property
@@ -147,7 +148,6 @@ class NetlistMixin(object):
 
     @property
     def params(self):
-
         """Return list of symbols used as arguments in the circuit."""
 
         symbols = self.symbols
@@ -375,7 +375,7 @@ class NetlistMixin(object):
             cpts = []
             for elt in self._elements.values():
                 if (elt.is_resistor or elt.is_capacitor or
-                    elt.is_inductor or elt.is_voltage_source):
+                        elt.is_inductor or elt.is_voltage_source):
                     cpts.append(elt.name)
 
         label = ('f' if flow else 'i') + pos
@@ -391,7 +391,8 @@ class NetlistMixin(object):
                 if evalf:
                     I = I.evalf(num_digits)
                 net += ', ' if ';' in net else '; '
-                net += ', %s={$%s$}' % (label, I.latex_with_units(eng_format=eng_format, evalf=evalf, num_digits=num_digits, show_units=show_units))
+                net += ', %s={$%s$}' % (label, I.latex_with_units(
+                    eng_format=eng_format, evalf=evalf, num_digits=num_digits, show_units=show_units))
             new.add(net)
         return new
 
@@ -421,7 +422,7 @@ class NetlistMixin(object):
             cpts = []
             for elt in self._elements.values():
                 if (elt.is_resistor or elt.is_capacitor or
-                    elt.is_inductor or elt.is_current_source):
+                        elt.is_inductor or elt.is_current_source):
                     cpts.append(elt.name)
 
         if domainvar is None:
@@ -435,7 +436,8 @@ class NetlistMixin(object):
                 if evalf:
                     V = V.evalf(num_digits)
                 net += ', ' if ';' in net else '; '
-                net += 'v%s={$%s$}' % (pos, V.latex_with_units(eng_format=eng_format, evalf=evalf, num_digits=num_digits, show_units=show_units))
+                net += 'v%s={$%s$}' % (pos, V.latex_with_units(eng_format=eng_format,
+                                       evalf=evalf, num_digits=num_digits, show_units=show_units))
             new.add(net)
         return new
 
@@ -580,7 +582,8 @@ class NetlistMixin(object):
                     continue
                 if newkey is not None:
                     # TODO, FIXME
-                    raise ValueError('Cannot rename two nodes of same potential')
+                    raise ValueError(
+                        'Cannot rename two nodes of same potential')
                 newkey = node_map[node]
             if newkey is None:
                 newkey = numbers.pop(0)
@@ -689,7 +692,8 @@ class NetlistMixin(object):
                     raise ValueError('Unknown component %s' % arg1)
                 if arg1.is_voltage_source:
                     # The killed voltage source will short the applied signal.
-                    raise ValueError("Cannot determine transfer function across voltage source %s; you will need to remove it, e.g., new = cct.remove('%s')" % (arg1, arg1))
+                    raise ValueError(
+                        "Cannot determine transfer function across voltage source %s; you will need to remove it, e.g., new = cct.remove('%s')" % (arg1, arg1))
                 N1p, N1m = [n.name for n in arg1.nodes[0:2]]
 
             if isinstance(arg2, tuple):
@@ -705,7 +709,8 @@ class NetlistMixin(object):
                 N2p, N2m = [n.name for n in arg2.nodes[0:2]]
 
         elif N2p is None or N2m is None:
-            raise ValueError('Expecting %s(cpt1, cpt2), %s(cpt1, (N2p, N2m), %s((N1p, N1m), cpt2), or %s(N1p, N1m, N2p, N2m)' % (name, name, name, name))
+            raise ValueError('Expecting %s(cpt1, cpt2), %s(cpt1, (N2p, N2m), %s((N1p, N1m), cpt2), or %s(N1p, N1m, N2p, N2m)' % (
+                name, name, name, name))
 
         return N1p, N1m, N2p, N2m
 
@@ -1007,7 +1012,8 @@ class NetlistMixin(object):
 
         from .twoport import AMatrix
 
-        N1p, N1m, N2p, N2m = self._parse_node_args4(N1p, N1m, N2p, N2m, 'Aparams')
+        N1p, N1m, N2p, N2m = self._parse_node_args4(
+            N1p, N1m, N2p, N2m, 'Aparams')
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
         new = self.kill()
         new._add_ground(N1m)
@@ -1130,7 +1136,8 @@ class NetlistMixin(object):
 
         # TODO, generalise to multiports.
 
-        N1p, N1m, N2p, N2m = self._parse_node_args4(N1p, N1m, N2p, N2m, 'Zparams')
+        N1p, N1m, N2p, N2m = self._parse_node_args4(
+            N1p, N1m, N2p, N2m, 'Zparams')
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
         new = self.kill()
         new._add_ground(N1m)
@@ -1191,9 +1198,11 @@ class NetlistMixin(object):
 
                 for row in range(len(ports)):
                     if row == col:
-                        new.add('V%d_ %s %s {DiracDelta(t)}' % (row, ports[row][0], ports[row][1]))
+                        new.add('V%d_ %s %s {DiracDelta(t)}' % (
+                            row, ports[row][0], ports[row][1]))
                     else:
-                        new.add('V%d_ %s %s 0' % (row, ports[row][0], ports[row][1]))
+                        new.add('V%d_ %s %s 0' %
+                                (row, ports[row][0], ports[row][1]))
 
                 for row in range(len(ports)):
                     Y[row, col] = admittance(new.elements['V%d_' % row].I(s))
@@ -1244,10 +1253,12 @@ class NetlistMixin(object):
             Z = Matrix.zeros(len(ports))
 
             for col in range(len(ports)):
-                new.add('I_ %s %s {DiracDelta(t)}' % (ports[col][0], ports[col][1]))
+                new.add('I_ %s %s {DiracDelta(t)}' %
+                        (ports[col][0], ports[col][1]))
 
                 for row in range(len(ports)):
-                    Z[row, col] = impedance(new.Voc(ports[row][0], ports[row][1])(s))
+                    Z[row, col] = impedance(
+                        new.Voc(ports[row][0], ports[row][1])(s))
 
                 new.remove('I_')
             return Z
@@ -1336,7 +1347,8 @@ class NetlistMixin(object):
 
         for arg in args:
             if arg not in self.independent_sources and arg != 'ICs':
-                raise ValueError('Element %s is not a known independent source' % arg)
+                raise ValueError(
+                    'Element %s is not a known independent source' % arg)
         sources = []
         for source in self.independent_sources:
             if source not in args:
@@ -1365,7 +1377,8 @@ class NetlistMixin(object):
             elif arg in self.independent_sources:
                 sources.append(arg)
             else:
-                raise ValueError('Element %s is not a known independent source' % arg)
+                raise ValueError(
+                    'Element %s is not a known independent source' % arg)
 
         return self._kill(sources)
 
@@ -1378,7 +1391,7 @@ class NetlistMixin(object):
         for cpt in self._elements.values():
             if (cpt.independent_source and
                 (cpt.is_voltage_source and cpt.Voc == 0) or
-                (cpt.is_current_source and cpt.Isc == 0)):
+                    (cpt.is_current_source and cpt.Isc == 0)):
                 net = cpt._kill()
             else:
                 net = cpt._copy()
@@ -1638,14 +1651,16 @@ class NetlistMixin(object):
         okay = True
         for name1 in subset:
             if self.elements[name1].has_ic != has_ic:
-                warn('Incompatible initial conditions for %s and %s' % (name, name1))
+                warn('Incompatible initial conditions for %s and %s' %
+                     (name, name1))
                 okay = False
         if not has_ic:
             return okay
         ic = self.elements[name].cpt.args[1]
         for name1 in subset:
             if self.elements[name1].cpt.args[1] != ic:
-                warn('Incompatible initial conditions for %s and %s' % (name, name1))
+                warn('Incompatible initial conditions for %s and %s' %
+                     (name, name1))
                 okay = False
 
         return okay
@@ -1693,12 +1708,12 @@ class NetlistMixin(object):
             subsets = net._find_combine_subsets(aset)
             for k, subset in subsets.items():
                 if k == 'V':
-                    warn('Netlist has voltage sources in parallel: %s'% subset)
+                    warn('Netlist has voltage sources in parallel: %s' % subset)
                 elif k in ('R', 'NR', 'L', 'Z'):
                     changed |= self._do_simplify_combine('Can combine in parallel: %s',
                                                          subset, net, explain, False, False)
                 elif k in ('C', 'Y', 'I'):
-                    if k == 'C' and  not self._check_ic(subset):
+                    if k == 'C' and not self._check_ic(subset):
                         continue
                     changed |= self._do_simplify_combine('Can add in parallel: %s',
                                                          subset, net, explain, True, False)
@@ -1727,7 +1742,8 @@ class NetlistMixin(object):
                 for name in aset:
                     cpt = self._elements[name]
                     if cpt.type != 'I':
-                        warn('Have redundant %s in series with %s' % (name, Iname))
+                        warn('Have redundant %s in series with %s' %
+                             (name, Iname))
 
         return net, False
 
@@ -1747,7 +1763,8 @@ class NetlistMixin(object):
                 for name in aset:
                     cpt = self._elements[name]
                     if cpt.type != 'V':
-                        warn('Have redundant %s in parallel with %s' % (name, Vname))
+                        warn('Have redundant %s in parallel with %s' %
+                             (name, Vname))
 
         return net, False
 
@@ -1820,7 +1837,8 @@ class NetlistMixin(object):
         from .twoport import TwoPortAModel, TwoPortBModel, TwoPortGModel
         from .twoport import TwoPortHModel, TwoPortYModel, TwoPortZModel
 
-        N1p, N1m, N2p, N2m = self._parse_node_args4(N1p, N1m, N2p, N2m, 'twoport')
+        N1p, N1m, N2p, N2m = self._parse_node_args4(
+            N1p, N1m, N2p, N2m, 'twoport')
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
 
         # TODO, generalise for not just s-domain.
@@ -2371,8 +2389,10 @@ class NetlistMixin(object):
         analysis['dependent_sources'] = dependent_sources
         analysis['independent_sources'] = independent_sources
         analysis['control_sources'] = control_sources
-        analysis['ac'] = ac_count > 0 and (num_sources == ac_count) and not has_ic
-        analysis['dc'] = dc_count > 0 and (num_sources == dc_count) and not has_ic
+        analysis['ac'] = ac_count > 0 and (
+            num_sources == ac_count) and not has_ic
+        analysis['dc'] = dc_count > 0 and (
+            num_sources == dc_count) and not has_ic
         analysis['causal'] = causal and zeroic
         analysis['time_domain'] = not reactive and not has_s
 

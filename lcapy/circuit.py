@@ -31,6 +31,7 @@ from .netlist import Netlist
 
 __all__ = ('Circuit', )
 
+
 class Circuit(Netlist):
 
     """The Circuit class is used for describing networks using
@@ -77,7 +78,7 @@ class Circuit(Netlist):
     cct.R1.I
 
     The transform domain nodal voltages with respect to the ground node (0)
-    can be found using: 
+    can be found using:
     cct[2].V
 
     The time domain voltages and currents are displayed using
@@ -108,10 +109,12 @@ class Circuit(Netlist):
 
         # Treat filename as netlist if it has a newline.
         if filename is not None and '\n' in filename:
-            super(Circuit, self).__init__(allow_anon=allow_anon, context=context)
+            super(Circuit, self).__init__(allow_anon=allow_anon,
+                                          context=context)
             self.add(filename)
         else:
-            super(Circuit, self).__init__(filename, allow_anon=allow_anon, context=context)
-            
+            super(Circuit, self).__init__(filename, allow_anon=allow_anon,
+                                          context=context)
+
         if netlist is not None:
             self.add(netlist)

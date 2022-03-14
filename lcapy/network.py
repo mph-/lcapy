@@ -83,7 +83,8 @@ class Network(object):
         for key, val in self.kwargs.items():
             parts.append("%s='%s'" % (key, val))
 
-        argsrepr = ', '.join([pretty1(arg, **kwargs) for arg in self.args] + parts)
+        argsrepr = ', '.join([pretty1(arg, **kwargs)
+                             for arg in self.args] + parts)
         return '%s(%s)' % (self.__class__.__name__, argsrepr)
 
     def latex(self, **kwargs):
@@ -174,7 +175,8 @@ class Network(object):
     def pdb(self):
         """Enter the python debugger."""
 
-        import pdb; pdb.set_trace()
+        import pdb
+        pdb.set_trace()
         return self
 
     def sch(self, layout='horizontal', evalf=False):

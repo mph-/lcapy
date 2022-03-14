@@ -52,7 +52,7 @@ class Netlist(NetlistMixin, NetfileMixin):
 
     def __init__(self, filename=None, context=None, allow_anon=False):
 
-        super (Netlist, self).__init__(filename, context, allow_anon=allow_anon)
+        super(Netlist, self).__init__(filename, context, allow_anon=allow_anon)
         self._invalidate()
         self.kind = 'super'
 
@@ -90,10 +90,10 @@ class Netlist(NetlistMixin, NetfileMixin):
 
             if self.missing_ic != {}:
                 warn('Missing initial conditions for %s' %
-                      namelist(self.missing_ic))
+                     namelist(self.missing_ic))
 
             groups = self.independent_source_groups()
-            newgroups = {'ivp' : []}
+            newgroups = {'ivp': []}
             for key, sources in groups.items():
                 if isinstance(key, str) and key[0] == 'n':
                     warn('Ignoring noise source %s for initial value problem' % sources)
@@ -104,7 +104,7 @@ class Netlist(NetlistMixin, NetfileMixin):
         elif self.is_time_domain:
 
             groups = self.independent_source_groups()
-            newgroups = {'time' : []}
+            newgroups = {'time': []}
             for key, sources in groups.items():
                 if isinstance(key, str) and key[0] == 'n':
                     newgroups[key] = sources

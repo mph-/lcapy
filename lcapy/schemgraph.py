@@ -52,7 +52,7 @@ class Gedge(object):
         return '%s --%s%s--> %s' % (
             self.from_gnode.fmt_name, self.size, '*' if self.stretch else '',
             self.to_gnode.fmt_name)
-    
+
     @property
     def name(self):
         if self.cpt is None:
@@ -75,22 +75,22 @@ class Gnode(object):
     def pos(self):
         return self._pos
 
-    @pos.setter    
+    @pos.setter
     def pos(self, value):
 
         if value is not None and self._pos is not None:
             raise RuntimeError('Changing node %s pos' % self)
         if False and value is not None:
             print('Setting node %s to pos %f' % (self, value))
-            
+
         self._pos = value
 
     def add_fedge(self, edge):
 
         for edge1 in self.fedges:
-            if (edge1.cpt == edge.cpt and 
+            if (edge1.cpt == edge.cpt and
                 edge1.to_gnode == edge.to_gnode and
-                edge1.from_gnode == edge.from_gnode):
+                    edge1.from_gnode == edge.from_gnode):
                 return
 
         self.fedges.append(edge)
@@ -98,9 +98,9 @@ class Gnode(object):
     def add_redge(self, edge):
 
         for edge1 in self.redges:
-            if (edge1.cpt == edge.cpt and 
+            if (edge1.cpt == edge.cpt and
                 edge1.to_gnode == edge.to_gnode and
-                edge1.from_gnode == edge.from_gnode):
+                    edge1.from_gnode == edge.from_gnode):
                 return
 
         self.redges.append(edge)
@@ -113,10 +113,10 @@ class Gnode(object):
         return self.name
 
     def __repr__(self):
-        
+
         return self.fmt_name
 
-    
+
 class GraphPath(list):
     """This is a list of edges defining a path through a graph."""
 
@@ -141,7 +141,7 @@ class GraphPath(list):
 
         if self == []:
             return False
-        
+
         for edge in self:
             if edge.from_gnode == match_node:
                 return True
@@ -152,7 +152,7 @@ class GraphPath(list):
 
         if match_node == self.from_gnode:
             return 0
-        
+
         distance = 0
         for edge in self:
             distance += edge.size
@@ -163,25 +163,25 @@ class GraphPath(list):
     def from_dist(self, match_node):
 
         if match_node == self.to_gnode:
-            return 0        
+            return 0
 
         distance = 0
         for edge in reversed(self):
             distance += edge.size
             if edge.from_gnode == match_node:
                 return distance
-        raise ValueError('Node not on path')    
+        raise ValueError('Node not on path')
 
-    @property    
+    @property
     def gnodes(self):
         """Return list of nodes along path including end nodes."""
-        
+
         nodes = []
         nodes.append(self.from_gnode)
         for edge in self:
             nodes.append(edge.to_gnode)
         return nodes
-    
+
     @property
     def to_gnode(self):
 
@@ -227,12 +227,12 @@ class Graph(dict):
 
     def link(self, n1, n2):
         """Make nodes n1 and n2 share common node"""
-        
+
         self.cnodes.link(n1, n2)
 
     def add(self, cpt, n1, n2, size, stretch):
         """Add cpt between nodes n1 and n2 to the graph"""
-        
+
         if size == 0:
             return
 
@@ -251,7 +251,7 @@ class Graph(dict):
         self.add_edges(cpt, gnode1, gnode2, size, stretch)
 
     def add_node(self, n):
-        
+
         if n not in self:
             self[n] = Gnode(n)
         return self[n]
@@ -290,12 +290,12 @@ class Graph(dict):
 
         for edge in gnode.fedges:
             if (not edge.stretch and edge.to_gnode.pos is not None
-                and edge.to_gnode.name != 'end'):
+                    and edge.to_gnode.name != 'end'):
                 gnode.pos = edge.to_gnode.pos - edge.size
                 return True
         for edge in gnode.redges:
             if (not edge.stretch and edge.to_gnode.pos is not None
-                and edge.to_gnode.name != 'start'):
+                    and edge.to_gnode.name != 'start'):
                 gnode.pos = edge.to_gnode.pos + edge.size
                 return True
         return False
@@ -325,10 +325,10 @@ class Graph(dict):
         # the distance of the path, the total separation, and the
         # number of stretches.  If only one known position is found,
         # the node is dangling and the stretch is zero.
-        
+
         # TODO, check for multiple paths with a conflict, for example,
         # a stretchy path of a longer distance than a fixed path.
-        
+
         to_path = self.path_to_closest_known(gnode, forward=True)
         from_path = self.path_to_closest_known(gnode, forward=False)
 
@@ -338,7 +338,7 @@ class Graph(dict):
 
         if from_gnode.name == 'start' and to_gnode.name == 'end':
             # There is a chance that we have naively picked an
-            # unlucky gnode. 
+            # unlucky gnode.
             return False
 
         if from_gnode.name == 'start':
@@ -355,23 +355,24 @@ class Graph(dict):
 
         path = self.longest_path(from_gnode, to_gnode)
 
-        #if len(path) == 1:
+        # if len(path) == 1:
         #    return False
-        
+
         # The gnode may not be on this path but this does not matter.
         # It will be processed again later.
 
         stretches = path.stretches
         separation = to_gnode.pos - from_gnode.pos
-        extent = path.dist        
+        extent = path.dist
 
         if extent - separation > 1e-6:
-            print('Inconsistent %s schematic graph, component(s) will not fit:  separation %s between %s and %s, need %s.\n%s' % (self.name, separation, from_gnode, to_gnode, extent, self))
-        
+            print('Inconsistent %s schematic graph, component(s) will not fit:  separation %s between %s and %s, need %s.\n%s' % (
+                self.name, separation, from_gnode, to_gnode, extent, self))
+
         # This how much each component needs to stretch.
         if stretches == 0:
             stretch = 0
-        else:            
+        else:
             stretch = (separation - extent) / stretches
             if stretch < 0:
                 stretch = 0
@@ -393,7 +394,7 @@ class Graph(dict):
 
             if edge.to_gnode.pos == None:
                 edge.to_gnode.pos = pos
-                unknown.remove(edge.to_gnode.name)                
+                unknown.remove(edge.to_gnode.name)
 
         return True
 
@@ -408,7 +409,7 @@ class Graph(dict):
                 if gnode.pos is not None:
                     unknown.remove(n)
                     break
-                
+
                 changes = self.assign_stretchy1(gnode, unknown)
                 if changes:
                     self.assign_fixed(unknown)
@@ -418,7 +419,7 @@ class Graph(dict):
 
         if path == []:
             raise RuntimeError('Empty path')
-        
+
         pos = 0
         for edge in path:
             edge.from_gnode.pos = pos
@@ -440,7 +441,7 @@ class Graph(dict):
                 # If don't have multiple edges, cannot have redundancy
                 if len(edges) < 2:
                     return edges
-                
+
                 fromto = {}
                 for edge in edges:
                     key = (edge.from_gnode, edge.to_gnode)
@@ -448,15 +449,15 @@ class Graph(dict):
                         fromto[key] = []
                     fromto[key].append(edge)
 
-                newedges = []                        
+                newedges = []
                 for key, edges in fromto.items():
 
                     best_edge = edges[0]
 
                     if len(edges) == 1:
-                        newedges.append(best_edge)                        
+                        newedges.append(best_edge)
                         continue
-                    
+
                     fixed = False
                     size = 0
                     for edge in edges:
@@ -469,10 +470,12 @@ class Graph(dict):
                     if fixed and grizzle:
                         for edge in edges:
                             if edge.size != size and not edge.stretch:
-                                print('Component fixed size violation for %s, expected %f, got %f' % (edge.cpt, size, edge.size))
-                            elif edge.size > size:                                
-                                print('Component size violation for %s, expected %f or less, got %f' % (edge.cpt, size, edge.size))
-                                
+                                print('Component fixed size violation for %s, expected %f, got %f' % (
+                                    edge.cpt, size, edge.size))
+                            elif edge.size > size:
+                                print('Component size violation for %s, expected %f or less, got %f' % (
+                                    edge.cpt, size, edge.size))
+
                     elif not fixed:
                         # Choose largest component size since all are stretchy
                         for edge in edges:
@@ -483,7 +486,6 @@ class Graph(dict):
                     newedges.append(best_edge)
 
                 return newedges
-                    
 
             gnode.fedges = check(gnode.fedges, grizzle=True)
             gnode.redges = check(gnode.redges)
@@ -498,8 +500,8 @@ class Graph(dict):
             if len(fedges) != 2:
                 continue
             fedge1 = fedges[0]
-            fedge2 = fedges[1]            
-            
+            fedge2 = fedges[1]
+
             node1 = fedge1.to_gnode
             node2 = fedge2.to_gnode
             if len(node1.fedges) != 2:
@@ -509,19 +511,19 @@ class Graph(dict):
             if node1.fedges[0].to_gnode == node2.fedges[0].to_gnode:
                 node3 = node1.fedges[0].to_gnode
                 fedge3 = node1.fedges[0]
-                fedge4 = node2.fedges[0]                
+                fedge4 = node2.fedges[0]
             elif node1.fedges[0].to_gnode == node2.fedges[1].to_gnode:
                 node3 = node1.fedges[0].to_gnode
                 fedge3 = node1.fedges[0]
-                fedge4 = node2.fedges[1]                                
+                fedge4 = node2.fedges[1]
             elif node1.fedges[1].to_gnode == node2.fedges[0].to_gnode:
                 node3 = node1.fedges[1].to_gnode
                 fedge3 = node1.fedges[1]
-                fedge4 = node2.fedges[0]                                
+                fedge4 = node2.fedges[0]
             elif node1.fedges[1].to_gnode == node2.fedges[1].to_gnode:
                 node3 = node1.fedges[1].to_gnode
                 fedge3 = node1.fedges[1]
-                fedge4 = node2.fedges[1]                                
+                fedge4 = node2.fedges[1]
             else:
                 continue
             if len(node3.fedges) != 0:
@@ -532,8 +534,9 @@ class Graph(dict):
                 pass
             else:
                 continue
-            
-            print('Suggest a constraint between nodes %s and %s for %s graph' % (node1, node2, self.name))
+
+            print('Suggest a constraint between nodes %s and %s for %s graph' %
+                  (node1, node2, self.name))
 
     def solve(self, stage=None):
         """
@@ -554,29 +557,29 @@ class Graph(dict):
             for n, gnode in self.cnodes.items():
                 pos[n] = 0
             return pos, 0
-        
+
         if stage == 0:
             return
 
-        # Prune redundant edges from graph.        
+        # Prune redundant edges from graph.
         self.prune()
 
         self.suggest_edges()
-        
+
         if stage == 1:
             return
 
         self.add_start_nodes()
         unknown.append('start')
-        unknown.append('end')        
-        
+        unknown.append('end')
+
         # Find longest path through the graph.  This provides the
         # dimension for the graph.
         path = self.longest_path(self['start'], self['end'])
 
-        # Assign gnodes on the longest path.        
+        # Assign gnodes on the longest path.
         self.assign_longest(path, unknown)
-        
+
         if stage == 2:
             return
 
@@ -592,9 +595,9 @@ class Graph(dict):
         if unknown != []:
             raise ValueError('Cannot assign nodes %s for %s graph.\n%s' %
                              (unknown, self.name, self))
-            
+
         self.check_positions()
-  
+
         try:
             pos = {}
             for n, gnode in self.cnodes.items():
@@ -605,7 +608,7 @@ class Graph(dict):
             msg = "The %s schematic graph is dodgy, probably a component is attached to the wrong nodes.\n" % self.name
             if self.debug:
                 msg += str(self)
-            raise AttributeError(msg)            
+            raise AttributeError(msg)
 
         distance_max = self['end'].pos
 
@@ -620,7 +623,7 @@ class Graph(dict):
         # the to_gnode cannot be reached from gnode.
         for gnode in self.values():
             gnode.dist = None
-            gnode.next = None            
+            gnode.next = None
 
         def traverse(gnode):
 
@@ -630,7 +633,7 @@ class Graph(dict):
 
             # If have reached goal, return dist of 0.
             if gnode == to_gnode:
-                gnode.dist = 0                
+                gnode.dist = 0
                 return 0
 
             # Do not traverse nodes at known positions.
@@ -656,22 +659,22 @@ class Graph(dict):
             msg = "The %s schematic graph is dodgy, probably a component is attached to the wrong nodes.\n" % self.name
             if self.debug:
                 msg += str(self)
-            
+
             raise RuntimeError(msg)
 
         return self.makepath(from_gnode)
 
     def makepath(self, from_gnode):
-        
+
         # Construct path
         path = GraphPath()
         gnode = from_gnode
         while gnode.next is not None:
             path.append(gnode.next)
             gnode = gnode.next.to_gnode
-            
+
         return path
-        
+
     def path_to_closest_known(self, from_gnode, forward=True):
         """Find path through DAG to the closest node with a known pos."""
 
@@ -712,7 +715,7 @@ class Graph(dict):
             raise RuntimeError(msg)
 
         return self.makepath(from_gnode)
-        
+
     def check_positions(self):
 
         for gnode in self.values():
@@ -739,7 +742,7 @@ class Graph(dict):
         from .system import tmpfilename, run_dot
         from .schematic import display_matplotlib
         from os import path
-        
+
         def fmt_dec(value):
             return ('%.2f' % value).rstrip('0').rstrip('.')
 
@@ -779,24 +782,25 @@ class Graph(dict):
                 colour = colours['fixednode']
             else:
                 colour = colours['assignednode'] if gnode.pos is not None else colours['unassignednode']
-            if gnode.name  == 'start':
+            if gnode.name == 'start':
                 colour = colours['startnode']
-            elif gnode.name  == 'end':
-                colour = colours['endnode']                
+            elif gnode.name == 'end':
+                colour = colours['endnode']
 
             pos = gnode.pos
             if pos is None or pos < 1e-6:
                 pos = 0
 
-            dotfile.write('\t"%s"\t [style=filled, color=%s];\n' % (fmt_node_label(gnode), colour))
+            dotfile.write('\t"%s"\t [style=filled, color=%s];\n' % (
+                fmt_node_label(gnode), colour))
 
         for gnode in self.values():
             for edge in gnode.fedges:
                 colour = colours['stretchedge'] if edge.stretch else colours['fixededge']
                 dotfile.write('\t"%s" ->\t"%s" [ color=%s, label="%s%s" ];\n' % (
-                    fmt_node_label(gnode), fmt_node_label(edge.to_gnode), colour, 
+                    fmt_node_label(gnode), fmt_node_label(
+                        edge.to_gnode), colour,
                     fmt_dec(edge.size), '*' if edge.stretch else ''))
 
         dotfile.write('}\n')
         dotfile.close()
-

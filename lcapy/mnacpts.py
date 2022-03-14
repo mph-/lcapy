@@ -91,7 +91,7 @@ class Cpt(ImmittanceMixin):
 
         if ((args == () and not self.type in ('W', 'O', 'P', 'TP', 'TL'))
             or (self.type in ('F', 'H', 'CCCS', 'CCVS') and len(args) == 1)
-            or (self.type == 'K' and len(args) == 2)):
+                or (self.type == 'K' and len(args) == 2)):
             # Default value is the component name
             value = self.type + self.id
 
@@ -720,11 +720,14 @@ class Cpt(ImmittanceMixin):
             cpt = self.cct.elements[cptname]
             if cpt.is_voltage_source:
                 if cpt.value == 0:
-                    warn('Component %s already shorted by %s' % (self.name, cptname))
+                    warn('Component %s already shorted by %s' %
+                         (self.name, cptname))
                 else:
-                    warn('Shorting voltage source %s in parallel with %s' % (cptname, self.name))
+                    warn('Shorting voltage source %s in parallel with %s' %
+                         (cptname, self.name))
             elif cpt.is_current_source:
-                warn('Shorting current source %s in parallel with %s' % (cptname, self.name))
+                warn('Shorting current source %s in parallel with %s' %
+                     (cptname, self.name))
 
         # Could add wire or zero ohm resistor but then could not
         # determine current through the short.  So instead add a
@@ -741,13 +744,15 @@ class Invalid(Cpt):
 class NonLinear(Invalid):
 
     def _stamp(self, mna):
-        raise NotImplementedError('Cannot analyse non-linear component: %s' % self)
+        raise NotImplementedError(
+            'Cannot analyse non-linear component: %s' % self)
 
 
 class TimeVarying(Invalid):
 
     def _stamp(self, mna):
-        raise NotImplementedError('Cannot analyse time-varying component: %s' % self)
+        raise NotImplementedError(
+            'Cannot analyse time-varying component: %s' % self)
 
 
 class Logic(Invalid):
@@ -1118,7 +1123,7 @@ class TVtriode(Dummy):
 
     def _stamp(self, cct):
 
-        n1, n2, n3= self.node_indexes
+        n1, n2, n3 = self.node_indexes
         m1 = self.cct._branch_index(self.defname + 'X')
         m2 = self.branch_index
 
@@ -1223,9 +1228,9 @@ class K(Dummy):
 
         self.Lname1 = args[0]
         self.Lname2 = args[1]
-        super (K, self).__init__(cct, namespace, defname, name,
-                                 cpt_type, cpt_id, string,
-                                 opts_string, nodes, keyword, *args)
+        super(K, self).__init__(cct, namespace, defname, name,
+                                cpt_type, cpt_id, string,
+                                opts_string, nodes, keyword, *args)
 
     def _stamp(self, mna):
         from .sym import ssym
@@ -1371,6 +1376,7 @@ class R(RC):
     def _r_model(self):
         return self._copy()
 
+
 class NR(R):
 
     add_series = True
@@ -1515,7 +1521,8 @@ class TFtap(Cpt):
     """Tapped transformer"""
 
     def _stamp(self, mna):
-        raise NotImplementedError('Cannot analyse tapped transformer %s' % self)
+        raise NotImplementedError(
+            'Cannot analyse tapped transformer %s' % self)
 
 
 class TL(Cpt):
@@ -1655,7 +1662,7 @@ class TPB(TPA):
         if self.cpt.V2b != 0 or self.cpt.I2b != 0:
             raise ValueError('Sources not supported yet for %s' % self)
 
-        super (TPB, self)._stamp(mna)
+        super(TPB, self)._stamp(mna)
 
 
 class TPG(TPA):
@@ -1668,7 +1675,7 @@ class TPG(TPA):
         if self.cpt.I1g != 0 or self.cpt.V2g != 0:
             raise ValueError('Sources not supported yet for %s' % self)
 
-        super (TPG, self)._stamp(mna)
+        super(TPG, self)._stamp(mna)
 
 
 class TPH(TPA):
@@ -1681,7 +1688,7 @@ class TPH(TPA):
         if self.cpt.V1h != 0 or self.cpt.I2h != 0:
             raise ValueError('Sources not supported yet for %s' % self)
 
-        super (TPH, self)._stamp(mna)
+        super(TPH, self)._stamp(mna)
 
 
 class TPY(TPCpt):
@@ -1743,7 +1750,7 @@ class TPZ(TPY):
         if self.cpt.V1z != 0 or self.cpt.V2z != 0:
             raise ValueError('Sources not supported yet for %s' % self)
 
-        super (TPZ, self)._stamp(mna)
+        super(TPZ, self)._stamp(mna)
 
 
 class TR(Dummy):
@@ -1817,11 +1824,13 @@ class W(Dummy):
 
     @property
     def I(self):
-        raise ValueError('Cannot determine current through wire, use a 0 V voltage source')
+        raise ValueError(
+            'Cannot determine current through wire, use a 0 V voltage source')
 
     @property
     def i(self):
-        raise ValueError('Cannot determine current through wire, use a 0 V voltage source')
+        raise ValueError(
+            'Cannot determine current through wire, use a 0 V voltage source')
 
 
 class XT(Misc):
@@ -1845,6 +1854,7 @@ class Z(RC):
 
 
 classes = {}
+
 
 def defcpt(name, base, docstring):
 
@@ -1981,6 +1991,7 @@ defcpt('k', C, 'Spring')
 defcpt('r', R, 'Damper')
 
 # Append classes defined in this module but not imported.
-clsmembers = inspect.getmembers(module, lambda member: inspect.isclass(member) and member.__module__ == __name__)
+clsmembers = inspect.getmembers(module, lambda member: inspect.isclass(
+    member) and member.__module__ == __name__)
 for name, cls in clsmembers:
     classes[name] = cls

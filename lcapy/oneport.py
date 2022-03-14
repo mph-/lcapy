@@ -19,6 +19,15 @@ Copyright 2014--2022 Michael Hayes, UCECE
 """
 
 from __future__ import division
+from .twoport import Ladder, LSection, TSection
+from .superpositioncurrent import SuperpositionCurrent
+from .superpositionvoltage import SuperpositionVoltage
+from .noiseomegaexpr import AngularFourierNoiseDomainCurrent, AngularFourierNoiseDomainVoltage
+from .phasor import phasor
+from .texpr import TimeDomainExpression
+from .sexpr import LaplaceDomainExpression
+from .cexpr import cexpr
+from .expr import Expr, expr
 from .functions import Heaviside, cos, exp
 from .sym import omega0sym, tsym, ksym, oo
 from .symbols import j, t, s
@@ -37,6 +46,7 @@ __all__ = ('V', 'I', 'v', 'i', 'R', 'NR', 'L', 'C', 'G', 'Y', 'Z',
            'Iac', 'Vnoise', 'Inoise',
            'Par', 'Ser', 'Xtal', 'FerriteBead', 'CPE', 'series', 'parallel',
            'ladder')
+
 
 def _check_oneport_args(args):
 
@@ -459,7 +469,7 @@ class ParSer(OnePort):
                 # The currents should be the same!
                 if arg1.i0 != arg2.i0 or arg1.has_ic != arg2.has_ic:
                     raise ValueError('Series inductors with different'
-                          ' initial currents!')
+                                     ' initial currents!')
                 i0 = arg1.i0 if arg1.has_ic else None
                 return L(arg1.L + arg2.L, i0)
             if isinstance(arg1, G):
@@ -483,7 +493,7 @@ class ParSer(OnePort):
                 # The voltages should be the same!
                 if arg1.v0 != arg2.v0 or arg1.has_ic != arg2.has_ic:
                     raise ValueError('Parallel capacitors with different'
-                          ' initial voltages!')
+                                     ' initial voltages!')
                 v0 = arg1.v0 if arg1.has_ic else None
                 return C(arg1.C + arg2.C, v0)
             if isinstance(arg1, R):
@@ -615,11 +625,12 @@ class Par(ParSer):
                     raise ValueError('Voltage sources connected in parallel'
                                      ' %s and %s' % (arg1, arg2))
                 elif isinstance(arg1, V):
-                    print('Warn: redundant component %s in parallel with voltage source %s' % (arg2, arg1))
+                    print('Warn: redundant component %s in parallel with voltage source %s' % (
+                        arg2, arg1))
 
                 elif isinstance(arg2, V):
-                    print('Warn: redundant component %s in parallel with voltage source %s' % (arg1, arg2))
-
+                    print('Warn: redundant component %s in parallel with voltage source %s' % (
+                        arg1, arg2))
 
     @property
     def width(self):
@@ -644,7 +655,7 @@ class Par(ParSer):
         s = []
         if n1 is None:
             n1 = netlist._node
-        n3, n4 =  netlist._node, netlist._node
+        n3, n4 = netlist._node, netlist._node
 
         H = [(arg.height + self.hsep) * 0.5 for arg in self.args]
 
@@ -672,7 +683,7 @@ class Par(ParSer):
             else:
                 sep = H[N // 2 - n] + H[N // 2 - 1 - n]
 
-            nc, nd =  netlist._node, netlist._node
+            nc, nd = netlist._node, netlist._node
             s.append('W %s %s; %s=%s' % (na, nc, updir, sep))
             s.append('W %s %s; %s=%s' % (nb, nd, updir, sep))
             s.append(self.args[N // 2 - 1 - n]._net_make(netlist, nc, nd, dir))
@@ -688,10 +699,11 @@ class Par(ParSer):
             else:
                 sep = H[(N + 1) // 2 + n] + H[(N + 1) // 2 - 1 + n]
 
-            nc, nd =  netlist._node, netlist._node
+            nc, nd = netlist._node, netlist._node
             s.append('W %s %s; %s=%s' % (na, nc, downdir, sep))
             s.append('W %s %s; %s=%s' % (nb, nd, downdir, sep))
-            s.append(self.args[(N + 1) // 2 + n]._net_make(netlist, nc, nd, dir))
+            s.append(self.args[(N + 1) // 2 +
+                     n]._net_make(netlist, nc, nd, dir))
             na, nb = nc, nd
 
         if n2 is None:
@@ -748,10 +760,12 @@ class Ser(ParSer):
                     raise ValueError('Current sources connected in series'
                                      ' %s and %s' % (arg1, arg2))
                 elif isinstance(arg1, I):
-                    print('Warn: redundant component %s in series with current source %s' % (arg2, arg1))
+                    print(
+                        'Warn: redundant component %s in series with current source %s' % (arg2, arg1))
 
                 elif isinstance(arg2, I):
-                    print('Warn: redundant component %s in series with current source %s' % (arg1, arg2))
+                    print(
+                        'Warn: redundant component %s in series with current source %s' % (arg1, arg2))
 
     @property
     def height(self):
@@ -1059,7 +1073,8 @@ class Vstep(VoltageSourceBase):
         self.kwargs = kwargs
         self.args = (v, )
         v = cexpr(v)
-        self._Voc = SuperpositionVoltage(TimeDomainExpression(v) * Heaviside(t))
+        self._Voc = SuperpositionVoltage(
+            TimeDomainExpression(v) * Heaviside(t))
         self.v0 = v
 
 
@@ -1206,7 +1221,8 @@ class Istep(CurrentSourceBase):
         self.kwargs = kwargs
         self.args = (Ival, )
         Ival = cexpr(Ival)
-        self._Isc = SuperpositionCurrent(TimeDomainExpression(Ival) * Heaviside(t))
+        self._Isc = SuperpositionCurrent(
+            TimeDomainExpression(Ival) * Heaviside(t))
         self.i0 = Ival
 
 
@@ -1451,7 +1467,7 @@ class K(Dummy):
 
     def __init__(self, L1, L2, K, **kwargs):
 
-        if K is ksym or (isinstance(K, Expr) and K.var is ksym) :
+        if K is ksym or (isinstance(K, Expr) and K.var is ksym):
             warn("""
 Coupling coefficient %s is the discrete Fourier domain variable.
 You can override it using %s = symbol('%s', force=True).""" % (K, K, K))
@@ -1549,18 +1565,9 @@ def ladder(*args, **kwargs):
     elif len(args) == 1:
         return args[0]
     elif start_series:
-        return series(args[0], ladder(*args[1:], start_series = not start_series))
+        return series(args[0], ladder(*args[1:], start_series=not start_series))
     else:
-        return parallel(args[0], ladder(*args[1:], start_series = not start_series))
+        return parallel(args[0], ladder(*args[1:], start_series=not start_series))
 
 
 # Imports at end to circumvent circular dependencies
-from .expr import Expr, expr
-from .cexpr import cexpr
-from .sexpr import LaplaceDomainExpression
-from .texpr import TimeDomainExpression
-from .phasor import phasor
-from .noiseomegaexpr import AngularFourierNoiseDomainCurrent, AngularFourierNoiseDomainVoltage
-from .superpositionvoltage import SuperpositionVoltage
-from .superpositioncurrent import SuperpositionCurrent
-from .twoport import Ladder, LSection, TSection

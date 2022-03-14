@@ -111,7 +111,6 @@ class MNA(object):
         # to form Z vector.
         self._Z = self._Is.col_join(self._Es)
 
-
     def _invalidate(self):
         for attr in ('_A', '_Vdict', '_Idict'):
             if hasattr(self, attr):
@@ -135,7 +134,8 @@ class MNA(object):
             index = self.unknown_branch_currents.index(cpt_name)
             return index
         except ValueError:
-            raise ValueError('Unknown component name %s for branch current' % cpt_name)
+            raise ValueError(
+                'Unknown component name %s for branch current' % cpt_name)
 
     def _failure_reasons(self):
 
@@ -148,7 +148,8 @@ class MNA(object):
         if cct.kind == 'dc':
             reasons.append('Check there is a DC path between all nodes.')
         if cct.transformers != []:
-            reasons.append('Check secondary of transformer is referenced to ground.')
+            reasons.append(
+                'Check secondary of transformer is referenced to ground.')
         if len(cct.capacitors) > 1:
             reasons.append('Check capacitors are not in series.')
         if cct.voltage_sources != []:
@@ -169,7 +170,8 @@ class MNA(object):
             return
 
         if '0' not in self.cct.node_map:
-            raise RuntimeError('Cannot solve: nothing connected to ground node 0')
+            raise RuntimeError(
+                'Cannot solve: nothing connected to ground node 0')
 
         # Solve for the nodal voltages
         try:
@@ -190,7 +192,8 @@ class MNA(object):
         for elt in self.cct.elements.values():
             if elt.type == 'K' or elt.ignore:
                 continue
-            n1, n2 = self.cct.node_map[elt.nodenames[0]], self.cct.node_map[elt.nodenames[1]]
+            n1, n2 = self.cct.node_map[elt.nodenames[0]
+                                       ], self.cct.node_map[elt.nodenames[1]]
             branchdict[elt.name] = (n1, n2)
 
         vtype = Vtype(self.kind)
@@ -211,7 +214,8 @@ class MNA(object):
         for n in self.cct.nodes:
             index = self._node_index(n)
             if index >= 0:
-                self._Vdict[n] = vtype(results[index], **assumptions).simplify()
+                self._Vdict[n] = vtype(
+                    results[index], **assumptions).simplify()
             else:
                 self._Vdict[n] = vtype(0, **assumptions)
 
@@ -290,7 +294,8 @@ class MNA(object):
         """Return X vector (of unknowns) for MNA"""
 
         V = [self.cct.Vname('Vn%s' % node) for node in self.cct.node_list[1:]]
-        I = [self.cct.Iname('I%s' % branch) for branch in self.unknown_branch_currents]
+        I = [self.cct.Iname('I%s' % branch)
+             for branch in self.unknown_branch_currents]
         return Vector(V + I)
 
     @property

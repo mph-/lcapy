@@ -11,6 +11,7 @@ from .state import state
 from .componentnamer import ComponentNamer
 from os.path import dirname, join
 
+
 class NetfileMixin(object):
     """This parses netlist files for Netlist and Schematic."""
 
@@ -42,7 +43,8 @@ class NetfileMixin(object):
             return self._netfile_add(filename, self.namespace)
 
         if len(parts) != 4 and parts[2] != 'as':
-            raise ValueError('Expecting include filename as name in %s' % string)
+            raise ValueError(
+                'Expecting include filename as name in %s' % string)
         name = parts[3]
         namespace = self.namespace
         self.namespace = name + '.' + namespace
@@ -77,7 +79,8 @@ class NetfileMixin(object):
             self._include(string)
             return None
         elif string[0:4] == '.pdb':
-            import pdb; pdb.set_trace()
+            import pdb
+            pdb.set_trace()
 
         cpt = self.parser.parse(string, namespace, self)
         return cpt

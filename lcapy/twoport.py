@@ -110,6 +110,7 @@ __all__ = ('Chain', 'Par2', 'Ser2', 'Hybrid2', 'InverseHybrid2',
            'TwoPortGModel', 'TwoPortHModel', 'TP',
            'TPA', 'TPB', 'TPG', 'TPH', 'TPY', 'TPZ')
 
+
 def DeltaWye(Z1, Z2, Z3):
 
     ZZ = (Z1 * Z2 + Z2 * Z3 + Z3 * Z1)
@@ -127,6 +128,7 @@ def _check_oneport_args(args):
     for arg1 in args:
         if not isinstance(arg1, OnePort):
             raise ValueError('%s not a OnePort' % arg1)
+
 
 class TwoPortMixin(object):
 
@@ -603,7 +605,8 @@ class TwoPortMatrix(Matrix, TwoPortMixin):
         return ZMatrix(self.Yparams.inv()).simplify()
 
     def pdb(self):
-        import pdb; pdb.set_trace()
+        import pdb
+        pdb.set_trace()
         return self
 
     @property
@@ -688,7 +691,6 @@ class AMatrix(TwoPortMatrix):
             self._Bparams = BMatrix(self.inv()).simplify()
         return self._Bparams
 
-
     @property
     def Hparams(self):
 
@@ -698,15 +700,13 @@ class AMatrix(TwoPortMatrix):
         return HMatrix(((self._A12 / self._A22, det / self._A22),
                         (-1 / self._A22, self._A21 / self._A22))).simplify()
 
-
     @property
     def Sparams(self):
         Z0 = LaplaceDomainImpedance('Z_0').as_expr()
         d = self._A12 + Z0 * (self._A11 + self._A22) + Z0**2 * self._A21
         return SMatrix((((self._A12 + Z0 * (self._A11 - self._A22) - Z0**2 * self._A21) / d,
                          (2 * Z0 * (self._A11 * self._A22 - self._A12 * self._A21)) / d),
-                         (2 * Z0 / d, (self._A12 - Z0 * (self._A11 - self._A22) - Z0**2 * self._A21) / d))).simplify()
-
+                        (2 * Z0 / d, (self._A12 - Z0 * (self._A11 - self._A22) - Z0**2 * self._A21) / d))).simplify()
 
     @property
     def Yparams(self):
@@ -760,7 +760,6 @@ class AMatrix(TwoPortMatrix):
         """Reverse voltage gain"""
         return LaplaceDomainTransferFunction((self._A11 * self._A22 - self._A12 * self._A21) / self.A22)
 
-
     @property
     def Igain12(self):
         """Forward current gain"""
@@ -770,7 +769,6 @@ class AMatrix(TwoPortMatrix):
     def Igain21(self):
         """Reverse current gain"""
         return LaplaceDomainTransferFunction(-(self._A11 * self._A22 - self._A12 * self._A21) / self.A11)
-
 
     @property
     def forward_transadmittance(self):
@@ -1454,7 +1452,6 @@ class YMatrix(TwoPortMatrix):
         return LaplaceDomainTransferFunction(self._Y12 / self._Y22)
 
 
-
 class ZMatrix(TwoPortMatrix):
     """Z-parameters (impedance parameters)
     ::
@@ -1582,16 +1579,19 @@ class TwoPort(Network, TwoPortMixin):
         n2, n1, n4, n3 = netlist._make_nodes(n2, n1, n4, n3)
 
         return 'TP? %s %s %s %s B %s %s %s %s; %s' % (n3, n4, n1, n2,
-             netlist._netarg(self.B11), netlist._netarg(self.B12),
-                                                      netlist._netarg(self.B21),
-                                                      netlist._netarg(self.B22),
+                                                      netlist._netarg(
+                                                          self.B11), netlist._netarg(self.B12),
+                                                      netlist._netarg(
+                                                          self.B21),
+                                                      netlist._netarg(
+                                                          self.B22),
                                                       self._opts_str(l=''))
 
     def _TP_make(self, netlist, n1, n2, n3, n4, kind, *args):
 
         n2, n1, n4, n3 = netlist._make_nodes(n2, n1, n4, n3)
 
-        args =  ' '.join([netlist._netarg(arg) for arg in args])
+        args = ' '.join([netlist._netarg(arg) for arg in args])
 
         s = 'TP? %s %s %s %s %s %s; right, %s' % (n3, n4, n1, n2,
                                                   kind, args,
@@ -2247,7 +2247,7 @@ class TwoPortBModel(TwoPort):
     offset = ('V2b', 'I2b')
 
     def __init__(self, B11=None, B12=None, B21=None, B22=None,
-                  V2b=None, I2b=None, **kwargs):
+                 V2b=None, I2b=None, **kwargs):
 
         if B11 is not None and B12 is None and B21 is None and B22 is None:
             B = B11
@@ -2272,7 +2272,8 @@ class TwoPortBModel(TwoPort):
         V2b = LaplaceDomainVoltage(V2b)
         I2b = LaplaceDomainCurrent(I2b)
 
-        super(TwoPortBModel, self).__init__(B[0, 0], B[0, 1], B[1, 0], B[1, 1], V2b, I2b, **kwargs)
+        super(TwoPortBModel, self).__init__(
+            B[0, 0], B[0, 1], B[1, 0], B[1, 1], V2b, I2b, **kwargs)
         self._params = B
         self._V2b = V2b
         self._I2b = I2b
@@ -2358,7 +2359,8 @@ class TwoPortAModel(TwoPort):
         V1a = LaplaceDomainVoltage(V1a)
         I1a = LaplaceDomainCurrent(I1a)
 
-        super(TwoPortAModel, self).__init__(A[0, 0], A[0, 1], A[1, 0], A[1, 1], V1a, I1a, **kwargs)
+        super(TwoPortAModel, self).__init__(
+            A[0, 0], A[0, 1], A[1, 0], A[1, 1], V1a, I1a, **kwargs)
         self._params = A
         self._V1a = V1a
         self._I1a = I1a
@@ -2436,7 +2438,8 @@ class TwoPortGModel(TwoPort):
         I1g = LaplaceDomainCurrent(I1g)
         V2g = LaplaceDomainVoltage(V2g)
 
-        super(TwoPortGModel, self).__init__(G[0, 0], G[0, 1], G[1, 0], G[1, 1], I1g, V2g, **kwargs)
+        super(TwoPortGModel, self).__init__(
+            G[0, 0], G[0, 1], G[1, 0], G[1, 1], I1g, V2g, **kwargs)
         self._params = G
         self._I1g = I1g
         self._V2g = V2g
@@ -2458,7 +2461,7 @@ class TwoPortGModel(TwoPort):
     def V2b(self):
         """Return V2b"""
 
-        #return self._V2g - LaplaceDomainVoltage(self._I1g / self.Gparams._G12)
+        # return self._V2g - LaplaceDomainVoltage(self._I1g / self.Gparams._G12)
         return self._V2g - LaplaceDomainVoltage(self._I1g * self.B21)
 
     @property
@@ -2532,7 +2535,8 @@ class TwoPortHModel(TwoPort):
         V1h = LaplaceDomainVoltage(V1h)
         I2h = LaplaceDomainCurrent(I2h)
 
-        super(TwoPortHModel, self).__init__(H[0, 0], H[0, 1], H[1, 0], H[1, 1], V1h, I2h, **kwargs)
+        super(TwoPortHModel, self).__init__(
+            H[0, 0], H[0, 1], H[1, 0], H[1, 1], V1h, I2h, **kwargs)
         self._params = H
         self._V1h = V1h
         self._I2h = I2h
@@ -2628,7 +2632,8 @@ class TwoPortYModel(TwoPort):
         I1y = LaplaceDomainCurrent(I1y)
         I2y = LaplaceDomainCurrent(I2y)
 
-        super(TwoPortYModel, self).__init__(Y[0, 0], Y[0, 1], Y[1, 0], Y[1, 1], I1y, I2y, **kwargs)
+        super(TwoPortYModel, self).__init__(
+            Y[0, 0], Y[0, 1], Y[1, 0], Y[1, 1], I1y, I2y, **kwargs)
         self._params = Y
         self._I1y = I1y
         self._I2y = I2y
@@ -2719,7 +2724,8 @@ class TwoPortZModel(TwoPort):
         V1z = LaplaceDomainVoltage(V1z)
         V2z = LaplaceDomainVoltage(V2z)
 
-        super(TwoPortZModel, self).__init__(Z[0, 0], Z[0, 1], Z[1, 0], Z[1, 1], V1z, V2z, **kwargs)
+        super(TwoPortZModel, self).__init__(
+            Z[0, 0], Z[0, 1], Z[1, 0], Z[1, 1], V1z, V2z, **kwargs)
         self._params = Z
         self._V1z = V1z
         self._V2z = V2z
@@ -2834,7 +2840,8 @@ class Chain(TwoPortBModel):
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
 
-        n2, n1, n4, n3, n6, n5 = netlist._make_nodes(n2, n1, n4, n3, None, None)
+        n2, n1, n4, n3, n6, n5 = netlist._make_nodes(
+            n2, n1, n4, n3, None, None)
 
         nets = []
         nets.append(self.args[0]._net_make(netlist, n1, n2, n5, n6))
@@ -2884,8 +2891,10 @@ class Par2(TwoPortYModel):
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
 
-        n2, n1, n4, n3, n6, n5, n8, n7 = netlist._make_nodes(n2, n1, n4, n3, *([None] * 4))
-        n10, n9, n12, n11, n14, n13, n16, n15, n18, n17, n20, n19 = netlist._make_nodes(*([None] * 12))
+        n2, n1, n4, n3, n6, n5, n8, n7 = netlist._make_nodes(
+            n2, n1, n4, n3, *([None] * 4))
+        n10, n9, n12, n11, n14, n13, n16, n15, n18, n17, n20, n19 = netlist._make_nodes(
+            *([None] * 12))
 
         nets = []
         nets.append(self.args[0]._net_make(netlist, n5, n6, n7, n8))
@@ -3001,8 +3010,10 @@ class Hybrid2(TwoPortHModel):
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
 
-        n2, n1, n4, n3, n6, n5, n8, n7 = netlist._make_nodes(n2, n1, n4, n3, *([None] * 4))
-        n10, n9, n12, n11, n14, n13, n16, n15, n18, n17 = netlist._make_nodes(*([None] * 10))
+        n2, n1, n4, n3, n6, n5, n8, n7 = netlist._make_nodes(
+            n2, n1, n4, n3, *([None] * 4))
+        n10, n9, n12, n11, n14, n13, n16, n15, n18, n17 = netlist._make_nodes(
+            *([None] * 10))
 
         nets = []
         nets.append(self.args[0]._net_make(netlist, n5, n6, n7, n8))
@@ -3049,8 +3060,10 @@ class InverseHybrid2(TwoPortGModel):
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
 
-        n2, n1, n4, n3, n6, n5, n8, n7 = netlist._make_nodes(n2, n1, n4, n3, *([None] * 4))
-        n10, n9, n12, n11, n14, n13, n16, n15, n18, n17 = netlist._make_nodes(*([None] * 10))
+        n2, n1, n4, n3, n6, n5, n8, n7 = netlist._make_nodes(
+            n2, n1, n4, n3, *([None] * 4))
+        n10, n9, n12, n11, n14, n13, n16, n15, n18, n17 = netlist._make_nodes(
+            *([None] * 10))
 
         nets = []
         nets.append(self.args[0]._net_make(netlist, n5, n6, n7, n8))
@@ -3092,7 +3105,8 @@ class Series(TwoPortBModel):
         _check_oneport_args((OP, ))
 
         super(Series, self).__init__(BMatrix.Zseries(OP.Z.laplace()),
-                                     V2b=LaplaceDomainVoltage(OP.Voc.laplace()),
+                                     V2b=LaplaceDomainVoltage(
+                                         OP.Voc.laplace()),
                                      I2b=LaplaceDomainCurrent(0))
         self.OP = OP
         self.args = (OP, )
@@ -3140,7 +3154,8 @@ class Shunt(TwoPortBModel):
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
 
-        n2, n1, n4, n3, n6, n5 = netlist._make_nodes(n2, n1, n4, n3, None, None)
+        n2, n1, n4, n3, n6, n5 = netlist._make_nodes(
+            n2, n1, n4, n3, None, None)
 
         nets = []
         nets.append(self.args[0]._net_make(netlist, n5, n6, dir='down'))
@@ -3377,7 +3392,6 @@ class TSection(TwoPortBModel):
         super(TSection, self).__init__(self.tp)
         self.args = (OP1, OP2, OP3)
 
-
     def Pisection(self):
 
         ZV = WyeDelta(self.args[0].Z, self.args[1].Z, self.args[2].Z)
@@ -3417,7 +3431,8 @@ class TwinTSection(TwoPortBModel):
     def __init__(self, OP1a, OP2a, OP3a, OP1b, OP2b, OP3b):
 
         _check_oneport_args((OP1a, OP2a, OP3a, OP1b, OP2b, OP3b))
-        self.tp = TSection(OP1a, OP2a, OP3a).parallel(TSection(OP1b, OP2b, OP3b))
+        self.tp = TSection(OP1a, OP2a, OP3a).parallel(
+            TSection(OP1b, OP2b, OP3b))
         super(TwinTSection, self).__init__(self.tp)
         self.args = (OP1a, OP2a, OP3a, OP1b, OP2b, OP3b)
 
