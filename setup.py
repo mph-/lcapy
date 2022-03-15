@@ -2,12 +2,13 @@
 from setuptools import setup, find_packages
 
 
-__version__ = '1.3.1dev'
+__version__ = '1.4'
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
-tests_require = ['nose', 'flake8', 'flake8-bugbear', 'flake8-comprehensions', 'flake8-requirements']
+tests_require = ['nose', 'flake8', 'flake8-bugbear',
+                 'flake8-comprehensions', 'flake8-requirements']
 
 
 setup(name='lcapy',
@@ -28,7 +29,7 @@ setup(name='lcapy',
                         'setuptools',
                         'wheel',
                         'property_cached'
-      ],
+                        ],
       python_requires='>=3.6',
       extras_require={
           'test': tests_require,
@@ -47,4 +48,4 @@ setup(name='lcapy',
           "License :: OSI Approved :: GNU Lesser General Public License v2 or later (LGPLv2+)",
           "Operating System :: OS Independent",
       ],
-)
+      )

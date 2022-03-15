@@ -5,6 +5,20 @@ Release notes
 V1.4
 ====
 
+- `color` attribute applies to whole schematic; use `help_lines_color` to specify the color of the help lines
+
+- `in_series` and `in_parallel` return lists rather than sets
+
+- Fixes node renumbering when have chips
+
+- Adds `annotate()` method for circuits
+
+- Warns about matrix inversion time for large matrices
+
+- Warns about degenerate circuits
+
+- Fixes state-space analysis when there are no state variables
+
 - Renames `short` to `short-circuit` and adds `open-circuit`
 
 - Adds `voltage_gain()`, `current_gain()`, `transadmittance()`, `transimpedance()` methods for netlists
