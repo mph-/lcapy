@@ -30,15 +30,17 @@ def polyroots(poly, var):
     for root, n in roots.items():
         num_roots += n
     if num_roots != poly.degree():
-        # When the degree is five or above, the roots
-        # cannot be found, see Abel-Ruffini theorem.
+        if poly.degree() >= 5:
+            warn('Cannot find symbolic roots for polynomial of degree %d, see Abel-Ruffini theorem' % poly.degree())
+
         # If the coefficients of the polynomial are numerical,
         # the SymPy nroots function can be used to find
         # numerical approximations to the roots.
         a = set()
         a.add(var)
         if poly.free_symbols == a:
-            warn('Only %d of %d roots found, using numerical approximation' % (num_roots, poly.degree()))
+            warn('Only %d of %d roots found, using numerical approximation' %
+                 (num_roots, poly.degree()))
 
             nroots = poly.nroots()
 
@@ -80,7 +82,7 @@ class Pole(object):
         for factor in expr.as_ordered_factors():
             if (factor.is_Pow and factor.args[1] == One / 2 and
                 factor.args[0].is_Add and factor.args[0].args[1].is_Mul and
-                factor.args[0].args[1].args[0] < 0):
+                    factor.args[0].args[1].args[0] < 0):
                 if dexpr is not None:
                     return None
                 dexpr = factor.args[0]
@@ -525,7 +527,8 @@ class Ratfun(object):
 
         """
 
-        Q, R, F, delay, undef = self.as_QRF(combine_conjugates, damping, method)
+        Q, R, F, delay, undef = self.as_QRF(
+            combine_conjugates, damping, method)
 
         result = Q
         for R, F in zip(R, F):
@@ -590,12 +593,14 @@ class Ratfun(object):
         num = 1
         for zeros, order in zero_pairs.items():
             for m in range(order):
-                num *= (var**2 - zeros[0] * var - zeros[1] * var + zeros[0] * zeros[1]).simplify()
+                num *= (var**2 - zeros[0] * var - zeros[1]
+                        * var + zeros[0] * zeros[1]).simplify()
 
         den = 1
         for poles, order in pole_pairs.items():
             for m in range(order):
-                den *= (var**2 - poles[0] * var - poles[1] * var + poles[0] * poles[1]).simplify()
+                den *= (var**2 - poles[0] * var - poles[1]
+                        * var + poles[0] * poles[1]).simplify()
 
         result1 *= (num / den)
 
@@ -737,7 +742,8 @@ class Ratfun(object):
                         r = sym.limit(dexpr, var, p) / sym.factorial(m)
 
                         rc = r.conjugate()
-                        r = sym.simplify(r * (var - pc) ** n + rc * (var - p) ** n)
+                        r = sym.simplify(r * (var - pc) **
+                                         n + rc * (var - p) ** n)
                         R.append(r)
                         D.append(D2 ** n)
             else:
@@ -970,13 +976,13 @@ class Ratfun(object):
                 break
 
             if has_conjugate:
-                Rnew.append(((self.var - pc) * r + (self.var - p) * rc).expand())
+                Rnew.append(
+                    ((self.var - pc) * r + (self.var - p) * rc).expand())
                 Fnew.append(((self.var - p) * (self.var - pc)).expand())
             else:
                 Rnew.append(r)
                 Fnew.append(F[m])
         return Rnew, Fnew
-
 
     def as_QRF(self, combine_conjugates=False, damping=None, method=None):
         """Decompose expression into Q, R, F, delay, undef where
