@@ -190,7 +190,7 @@ class MNA(object):
 
         branchdict = {}
         for elt in self.cct.elements.values():
-            if elt.type == 'K' or elt.ignore:
+            if elt.type in ('K', 'Cable') or elt.ignore:
                 continue
             n1, n2 = self.cct.node_map[elt.nodenames[0]
                                        ], self.cct.node_map[elt.nodenames[1]]
