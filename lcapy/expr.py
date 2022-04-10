@@ -3696,13 +3696,18 @@ def difference_equation(lhs, rhs, inputsym='x', outputsym='y', **assumptions):
 
 
 def symbol(name, **assumptions):
-    """Create an Lcapy symbol.
+    """Create Lcapy symbols from whitespace or comma delimited string of
+    symbol names.
 
-    By default, symbols are assumed to be positive unless real is
-    defined or `positive` is defined as False.
+    By default, symbols are assumed to be positive and real.
 
-    If `name` is already a symbol, it is overridden unless it is
-    a domain symbol in which case `force` must be `True`.
+    `symbols('a b', real=True)` creates real symbols
+
+    `symbols('a b', complex=True)` creates complex symbols
+
+    `symbols('a b', integer=True, positive=True)` creates positive integer symbols
+
+    See also symbol.
     """
 
     ssym = usersymbol(name, **assumptions)
