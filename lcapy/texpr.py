@@ -18,6 +18,7 @@ from sympy import Heaviside, Integral, limit, Expr as symExpr
 
 __all__ = ('texpr', )
 
+
 class TimeDomainExpression(TimeDomain, Expr):
     """t-domain expression or symbol."""
 
@@ -75,7 +76,8 @@ class TimeDomainExpression(TimeDomain, Expr):
         """Determine one-sided Laplace transform with 0- as the lower limit."""
 
         assumptions = self.assumptions.merge_and_infer(self, **assumptions)
-        result = laplace_transform(self.expr, self.var, ssym, evaluate=evaluate)
+        result = laplace_transform(
+            self.expr, self.var, ssym, evaluate=evaluate)
         return self.change(result, domain='laplace', units_scale=uu.s, **assumptions)
 
     def phasor(self, **assumptions):
@@ -95,11 +97,14 @@ class TimeDomainExpression(TimeDomain, Expr):
         if var is None:
             var = f
         if id(var) not in (id(f), id(F), id(omega), id(Omega)):
-            raise ValueError('FT requires var to be f, F, omega, or Omega`, not %s' % var)
+            raise ValueError(
+                'FT requires var to be f, F, omega, or Omega`, not %s' % var)
 
         assumptions = self.assumptions.merge_and_infer(self, **assumptions)
-        result = fourier_transform(self.expr, self.var, fsym, evaluate=evaluate)
-        result = self.change(result, domain='fourier', units_scale=uu.s, **assumptions)
+        result = fourier_transform(
+            self.expr, self.var, fsym, evaluate=evaluate)
+        result = self.change(result, domain='fourier',
+                             units_scale=uu.s, **assumptions)
         result = result(var)
         result = result.expand(diracdelta=True, wrt=var)
         result = result.simplify()
@@ -272,7 +277,7 @@ def texpr(arg, **assumptions):
     return expr_make('time', arg, **assumptions)
 
 
-from .expressionclasses import expressionclasses
+from .expressionclasses import expressionclasses  # nopep8
 
 classes = expressionclasses.register('time', TimeDomainExpression)
 TimeDomainVoltage = classes['voltage']

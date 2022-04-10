@@ -15,7 +15,7 @@ def Vname(name, kind, cache=False):
 
     if kind == 't':
         name = name.lower()
-        
+
     undef = domain_kind_to_symbol(kind, name)
     cls = domain_kind_quantity_to_class(kind, 'voltage')
     return cls(undef, cache=cache)
@@ -23,7 +23,7 @@ def Vname(name, kind, cache=False):
 
 def Vtype(kind):
 
-    return domain_kind_quantity_to_class(kind, 'voltage')    
+    return domain_kind_quantity_to_class(kind, 'voltage')
 
 
 def voltage(arg, **assumptions):
@@ -32,20 +32,22 @@ def voltage(arg, **assumptions):
 
     if 'nid' in assumptions:
         from .noisefexpr import FourierNoiseDomainVoltage
-        from .noiseomegaexpr import AngularFourierNoiseDomainVoltage        
-        
+        from .noiseomegaexpr import AngularFourierNoiseDomainVoltage
+
         if expr1.is_fourier_domain or expr1.is_constant_domain:
             expr1 = FourierNoiseDomainVoltage(expr1)
         elif expr1.is_angular_fourier_domain:
             expr1 = AngularFourierNoiseDomainVoltage(expr1)
         else:
-            raise ValueError('Cannot represent noise voltage in %s domain' % expr1.domain)
-                
+            raise ValueError(
+                'Cannot represent noise voltage in %s domain' % expr1.domain)
+
     try:
         expr1 = expr1.as_voltage()
-    except:        
-        raise ValueError('Cannot represent %s(%s) as voltage' % (expr1.__class__.__name__, expr1))
-    
+    except:
+        raise ValueError('Cannot represent %s(%s) as voltage' %
+                         (expr1.__class__.__name__, expr1))
+
     return expr1
 
 
@@ -53,12 +55,12 @@ def noisevoltage(arg, **assumptions):
     """Create a new noise voltage with specified amplitude spectral density."""
 
     nid = assumptions.get('nid', None)
-    positive = assumptions.get('positive', True)    
+    positive = assumptions.get('positive', True)
 
     return voltage(arg, nid=None, positive=positive, **assumptions)
 
 
 def phasorvoltage(arg, omega=None, **assumptions):
     from .phasor import phasor
-    
+
     return phasor(arg, omega, **assumptions).as_voltage()

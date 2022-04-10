@@ -1,4 +1,4 @@
-"""This module provides preliminary support for polyphase systems. 
+"""This module provides preliminary support for polyphase systems.
 
 Copyright 2020 Michael Hayes, UCECE
 
@@ -34,24 +34,24 @@ class PhaseVoltageVector(PolyphaseVoltageVector):
         return SequenceVoltageVector(A * self)
 
     def line(self):
-        """Convert to line voltage vector."""        
+        """Convert to line voltage vector."""
         D = phase_to_line_matrix(len(self))
         return LineVoltageVector(D * self)
 
-    
+
 class PhaseCurrentVector(PolyphaseCurrentVector):
-    """These are the phase currents."""    
+    """These are the phase currents."""
 
     def sequence(self):
         """Convert to sequence current vector."""
         A = polyphase_decompose_matrix(len(self))
-        return SequenceCurrentVector(A * self)        
+        return SequenceCurrentVector(A * self)
 
     def line(self):
         """Convert to line current vector."""
         D = phase_to_line_matrix(len(self))
         return LineCurrentVector(D * self)
-    
+
 
 class SequenceVoltageVector(PolyphaseVoltageVector):
 
@@ -62,25 +62,25 @@ class SequenceVoltageVector(PolyphaseVoltageVector):
         return PhaseVoltageVector(A * self)
 
     def line(self):
-        """Convert to line voltage vector."""        
+        """Convert to line voltage vector."""
         return self.phase().line()
 
-    @property    
+    @property
     def V0(self):
         """Zero sequence voltage component"""
         return phasorvoltage(self[0])
 
-    @property    
+    @property
     def V1(self):
         """Positive sequence voltage component"""
         return phasorvoltage(self[1])
 
-    @property    
+    @property
     def V2(self):
         """Negative sequence voltage component"""
         return phasorvoltage(self[2])
 
-    
+
 class SequenceCurrentVector(PolyphaseCurrentVector):
 
     def phase(self):
@@ -88,37 +88,37 @@ class SequenceCurrentVector(PolyphaseCurrentVector):
         return PhaseCurrentVector(A * self)
 
     def line(self):
-        """Convert to line current vector."""        
+        """Convert to line current vector."""
         return self.phase().line()
 
-    @property    
+    @property
     def I0(self):
         """Zero sequence current component"""
         return phasorcurrent(self[0])
 
-    @property    
+    @property
     def I1(self):
         """Positive sequence current component"""
         return phasorcurrent(self[1])
 
-    @property    
+    @property
     def I2(self):
         """Negative sequence current component"""
         return phasorcurrent(self[2])
 
-    
+
 class LineVoltageVector(PolyphaseVoltageVector):
     """These are also known as phase to phase voltages."""
 
-    @property    
+    @property
     def Vab(self):
         return phasorvoltage(self[0])
 
-    @property    
+    @property
     def Vbc(self):
         return phasorvoltage(self[1])
 
-    @property    
+    @property
     def Vca(self):
         return phasorvoltage(self[2])
 
@@ -131,7 +131,7 @@ class LineCurrentVector(PolyphaseCurrentVector):
 def phase_to_line_matrix(N=3):
 
     a = Matrix.zeros(N)
-    
+
     for row in range(N):
         a[row, row] = 1
         col = (row + 1) % N
@@ -147,14 +147,14 @@ def polyphase_decompose_matrix(N=3, expand=False):
     required for negative frequency components.
 
     """
-    
+
     if expand:
         alpha = polyphase_alpha(N)
     else:
         alpha = expr('alpha')
 
     a = Matrix.zeros(N)
-    
+
     for row in range(N):
         for col in range(N):
             a[row, col] = alpha ** ((row * col) % N) / N
@@ -176,7 +176,7 @@ def polyphase_compose_matrix(N=3, expand=False):
         alpha = expr('alpha')
 
     a = Matrix.zeros(N)
-    
+
     for row in range(N):
         for col in range(N):
             a[row, col] = alpha ** ((-row * col) % N)
@@ -204,7 +204,7 @@ class PolyphaseVoltageCurrentVector(PolyphaseVector):
     def N(self):
         return self.N_phases
 
-    
+
 class LineVoltageCurrentVector(PolyphaseVoltageCurrentVector):
     """These are also known as phase to phase voltages/currents."""
 
@@ -216,23 +216,23 @@ class LineVoltageCurrentVector(PolyphaseVoltageCurrentVector):
     @property
     def I(self):
         N = self.N_phases
-        return LineCurrentVector(self[N:])    
+        return LineCurrentVector(self[N:])
 
-    @property    
+    @property
     def Vab(self):
         return phasorvoltage(self.V[0])
 
-    @property    
+    @property
     def Vbc(self):
         return phasorvoltage(self.V[1])
 
-    @property    
+    @property
     def Vca(self):
         return phasorvoltage(self.V[2])
-    
+
 
 class PhaseVoltageCurrentVector(PolyphaseVoltageCurrentVector):
-    
+
     @property
     def V(self):
         N = self.N_phases
@@ -241,7 +241,7 @@ class PhaseVoltageCurrentVector(PolyphaseVoltageCurrentVector):
     @property
     def I(self):
         N = self.N_phases
-        return PhaseCurrentVector(self[N:])    
+        return PhaseCurrentVector(self[N:])
 
     def sequence(self):
         """Convert to sequence voltageCurrent vector."""
@@ -249,34 +249,35 @@ class PhaseVoltageCurrentVector(PolyphaseVoltageCurrentVector):
         A = polyphase_decompose_matrix(self.N)
         return SequenceVoltageCurrentVector.from_voltage_current(A * self.V,
                                                                  A * self.I)
+
     def line(self):
-        """Convert to line voltageCurrent vector."""        
+        """Convert to line voltageCurrent vector."""
         D = phase_to_line_matrix(self.N)
 
         return LineVoltageCurrentVector.from_voltage_current(D * self.V,
                                                              D * self.I)
 
-    @property    
+    @property
     def Va(self):
         return phasorvoltage(self.V[0])
 
-    @property    
+    @property
     def Vb(self):
         return phasorvoltage(self.V[1])
 
-    @property    
+    @property
     def Vc(self):
         return phasorvoltage(self.V[2])
 
-    @property    
+    @property
     def Ia(self):
         return phasorcurrent(self.I[0])
 
-    @property    
+    @property
     def Ib(self):
         return phasorcurrent(self.I[1])
 
-    @property    
+    @property
     def Ic(self):
         return phasorcurrent(self.I[2])
 
@@ -291,61 +292,61 @@ class SequenceVoltageCurrentVector(PolyphaseVoltageCurrentVector):
     @property
     def I(self):
         N = self.N_phases
-        return SequenceCurrentVector(self[N:])    
-    
+        return SequenceCurrentVector(self[N:])
+
     def phase(self):
         """Convert to phase voltageCurrent vector."""
 
         A = polyphase_compose_matrix(self.N)
-        
+
         return PhaseVoltageCurrentVector.from_voltage_current(A * self.V,
                                                               A * self.I)
-    
+
     def line(self):
-        """Convert to line voltageCurrent vector."""        
+        """Convert to line voltageCurrent vector."""
         return LineVoltageCurrentVector.from_voltage_current(self.V.line(),
                                                              self.I.line())
-                                     
-    @property    
+
+    @property
     def V0(self):
         """Zero sequence voltage component"""
         return phasorvoltage(self.V[0])
 
-    @property    
+    @property
     def V1(self):
         """Positive sequence voltage component"""
         return phasorvoltage(self.V[1])
 
-    @property    
+    @property
     def V2(self):
         """Negative sequence voltage component"""
         return phasorvoltage(self.V[2])
 
-    @property    
+    @property
     def I0(self):
         """Zero sequence current component"""
         return phasorcurrent(self.I[0])
 
-    @property    
+    @property
     def I1(self):
         """Positive sequence current component"""
         return phasorcurrent(self.I[1])
 
-    @property    
+    @property
     def I2(self):
         """Negative sequence current component"""
         return phasorcurrent(self.I[2])
 
-                                     
-def alpha_simplify3(self, alpha=None):    
-        
+
+def alpha_simplify3(self, alpha=None):
+
     if alpha is None:
         alpha = expr('alpha')
-        
+
     new1 = self.expand()
     new2 = new1.replace(alpha**4, alpha)
     new3 = new2.replace(alpha**3, 1)
     new4 = new3.replace(alpha**2, -1 - alpha)
     new = new4.simplify()
-    
+
     return new

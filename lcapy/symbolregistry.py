@@ -13,6 +13,7 @@ from warnings import warn
 # symbols that includes the symbol kind?
 kinds = {}
 
+
 class SymbolRegistry(AttrDict):
     """This maintains a registry of symbols so that there is only
     a single symbol of a given name.
@@ -34,7 +35,7 @@ class SymbolRegistry(AttrDict):
         kinds[name] = kind
         return symbol
 
-    def add(self, name : str, kind='user', override=True,
+    def add(self, name: str, kind='user', override=True,
             force=False, **assumptions):
 
         if name in self:
@@ -44,7 +45,8 @@ class SymbolRegistry(AttrDict):
                 return symbol
 
             if kinds[name] == 'domain' and not force:
-                raise ValueError('Cannot override domain symbol %s without force=True' % name)
+                raise ValueError(
+                    'Cannot override domain symbol %s without force=True' % name)
 
         if assumptions == {}:
             assumptions['positive'] = True
@@ -62,15 +64,15 @@ class SymbolRegistry(AttrDict):
 
         self.pop(name)
 
-    def add_domain(self, name : str, **assumptions):
+    def add_domain(self, name: str, **assumptions):
 
         return self.add(name, kind='domain', **assumptions)
 
-    def add_misc(self, name : str, **assumptions):
+    def add_misc(self, name: str, **assumptions):
 
         return self.add(name, kind='misc', **assumptions)
 
-    def add_user(self, name : str, **assumptions):
+    def add_user(self, name: str, **assumptions):
 
         return self.add(name, kind='user', **assumptions)
 
@@ -134,7 +136,8 @@ class SymbolRegistry(AttrDict):
             if state.warn_unknown_symbol:
                 warn('Lcapy does not know symbol %s' % name)
             if state.break_unknown_symbol:
-                import pdb; pdb.set_trace()
+                import pdb
+                pdb.set_trace()
 
         return new
 

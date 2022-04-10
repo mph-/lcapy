@@ -34,7 +34,6 @@ from .system import LatexRunner, PDFConverter, tmpfilename
 from os import path, remove
 from collections import OrderedDict
 from warnings import warn
-import math
 
 
 __all__ = ('Schematic', )
@@ -42,7 +41,7 @@ __all__ = ('Schematic', )
 
 def display_matplotlib(filename, dpi=150, scale=2):
 
-    from matplotlib.pyplot import figure, figaspect
+    from matplotlib.pyplot import figure
     from matplotlib.image import imread
 
     img = imread(filename)

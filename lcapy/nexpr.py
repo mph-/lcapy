@@ -7,9 +7,8 @@ Copyright 2020--2022 Michael Hayes, UCECE
 
 from __future__ import division
 from .domains import DiscreteTimeDomain
-from .sequence import Sequence
-from .functions import exp, UnitStep
-from .sym import j, oo, pi, fsym, oo
+from .functions import UnitStep
+from .sym import oo, fsym
 from .sym import nsym, ksym, zsym, dt
 from .ztransform import ztransform
 from .dft import DFT
@@ -19,6 +18,7 @@ from sympy import Sum, summation, limit
 
 
 __all__ = ('nexpr', )
+
 
 class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
     """Discrete-time expression or symbol."""
@@ -147,7 +147,7 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
         result = result.simplify_unit_impulse()
         return result
 
-    def delay(self,m):
+    def delay(self, m):
         """Delay signal by m samples."""
 
         return self.subs(n - m)
@@ -184,7 +184,6 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
 
         """
 
-        from .extrafunctions import UnitStep
         from .symbols import f, omega, Omega, F
         from .fexpr import fexpr
         from .dtft import DTFT
@@ -192,7 +191,8 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
         if var is None:
             var = f
         if id(var) not in (id(f), id(F), id(omega), id(Omega)):
-            raise ValueError('DTFT requires var to be f, F, omega, or Omega`, not %s' % var)
+            raise ValueError(
+                'DTFT requires var to be f, F, omega, or Omega`, not %s' % var)
 
         dtft = DTFT(self.expr, self.var, fsym, images=images)
 
@@ -265,17 +265,11 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
 
         return self.DTFT(F, **assumptions)
 
-    def norm_angular_fourier(self, **assumptions):
-        from .symbols_time import Omega
-
-        return self.DTFT(Omega, **assumptions)
-
 
 def nexpr(arg, **assumptions):
     """Create nExpr object.  If `arg` is nsym return n"""
 
     from .expr import Expr
-    from .seq import seq
 
     if arg is nsym:
         return n
@@ -296,9 +290,10 @@ def nexpr(arg, **assumptions):
     return DiscreteTimeDomainExpression(arg, **assumptions)
 
 
-from .expressionclasses import expressionclasses
+from .expressionclasses import expressionclasses  # nopep8
 
-classes = expressionclasses.register('discrete time', DiscreteTimeDomainExpression)
+classes = expressionclasses.register(
+    'discrete time', DiscreteTimeDomainExpression)
 DiscreteTimeDomainVoltage = classes['voltage']
 DiscreteTimeDomainCurrent = classes['current']
 

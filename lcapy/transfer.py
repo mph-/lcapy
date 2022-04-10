@@ -6,6 +6,7 @@ Copyright 2020 Michael Hayes, UCECE
 from .expr import expr
 from .units import u as uu
 
+
 def transfer(arg, causal=True, **assumptions):
 
     expr1 = expr(arg, causal=True, **assumptions)
@@ -15,7 +16,7 @@ def transfer(arg, causal=True, **assumptions):
     try:
         expr1 = expr1.as_transfer()
     except:
-        raise ValueError('Cannot represent %s(%s) as transfer function' % (expr1.__class__.__name__, expr1))
+        raise ValueError('Cannot represent %s(%s) as transfer function' % (
+            expr1.__class__.__name__, expr1))
 
     return expr1
-

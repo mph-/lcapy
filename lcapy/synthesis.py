@@ -13,11 +13,13 @@ from .expr import expr
 
 # Could make this a mixin for Zs and Ys but would need a Z flavour
 # and a Y flavour.
+
+
 class Synthesis(object):
 
     def seriesRL(self, lexpr):
         """Z = s * L + R"""
-        
+
         if lexpr == 0:
             # Perhaps return Wire object
             return None
@@ -37,7 +39,7 @@ class Synthesis(object):
 
         if d != {}:
             raise ValueError('Not series RL')
-        
+
         return net
 
     def seriesRC(self, lexpr):
@@ -47,7 +49,7 @@ class Synthesis(object):
             raise ValueError('Not series RC')
 
         var = lexpr.var
-        lexpr = lexpr.partfrac()        
+        lexpr = lexpr.partfrac()
         d = lexpr.expr.collect(var, evaluate=False)
 
         net = None
@@ -71,7 +73,7 @@ class Synthesis(object):
             raise ValueError('Not series GC')
 
         var = lexpr.var
-        lexpr = lexpr.partfrac()        
+        lexpr = lexpr.partfrac()
         d = lexpr.expr.collect(var, evaluate=False)
 
         net = None
@@ -86,7 +88,7 @@ class Synthesis(object):
         if d != {}:
             raise ValueError('Not series GC')
 
-        return net    
+        return net
 
     def seriesLC(self, lexpr):
         """Z = s * L + 1 / (s * C)"""
@@ -101,7 +103,7 @@ class Synthesis(object):
         net = None
         a = d.pop(1, 0)
         if a != 0:
-            raise ValueError('Not series LC')            
+            raise ValueError('Not series LC')
 
         a = d.pop(1 / var, None)
         if a is not None:
@@ -109,7 +111,7 @@ class Synthesis(object):
 
         a = d.pop(var, None)
         if a is not None:
-            net = series(net, L(a))            
+            net = series(net, L(a))
 
         if d != {}:
             raise ValueError('Not series LC')
@@ -123,7 +125,7 @@ class Synthesis(object):
             raise ValueError('Not series RLC')
 
         var = lexpr.var
-        lexpr = lexpr.partfrac()        
+        lexpr = lexpr.partfrac()
         d = lexpr.expr.collect(var, evaluate=False)
 
         net = None
@@ -137,7 +139,7 @@ class Synthesis(object):
 
         a = d.pop(var, None)
         if a is not None:
-            net = series(net, L(a))            
+            net = series(net, L(a))
 
         if d != {}:
             raise ValueError('Not series RLC')
@@ -146,13 +148,13 @@ class Synthesis(object):
 
     def parallelRL(self, lexpr):
         """Y = 1 / (s * L) + 1 / R"""
-        
+
         if lexpr == 0:
             # Perhaps return Wire object
             return None
 
         var = lexpr.var
-        yexpr = (1 / lexpr).partfrac()        
+        yexpr = (1 / lexpr).partfrac()
         d = yexpr.expr.collect(var, evaluate=False)
 
         net = None
@@ -166,7 +168,7 @@ class Synthesis(object):
 
         if d != {}:
             raise ValueError('Not parallel RL')
-        
+
         return net
 
     def parallelRC(self, lexpr):
@@ -176,7 +178,7 @@ class Synthesis(object):
             raise ValueError('Not parallel RC')
 
         var = lexpr.var
-        yexpr = (1 / lexpr).partfrac()        
+        yexpr = (1 / lexpr).partfrac()
         d = yexpr.expr.collect(var, evaluate=False)
 
         net = None
@@ -200,7 +202,7 @@ class Synthesis(object):
             raise ValueError('Not parallel GC')
 
         var = lexpr.var
-        yexpr = (1 / lexpr).partfrac()        
+        yexpr = (1 / lexpr).partfrac()
         d = yexpr.expr.collect(var, evaluate=False)
 
         net = None
@@ -210,12 +212,12 @@ class Synthesis(object):
 
         a = d.pop(var, None)
         if a is not None:
-            net = parallel(net, C(a))            
+            net = parallel(net, C(a))
 
         if d != {}:
             raise ValueError('Not parallel GC')
 
-        return net    
+        return net
 
     def parallelLC(self, lexpr):
         """Y = s * C + 1 / (s * L)"""
@@ -224,13 +226,13 @@ class Synthesis(object):
             raise ValueError('Not parallel LC')
 
         var = lexpr.var
-        yexpr = (1 / lexpr).partfrac()        
+        yexpr = (1 / lexpr).partfrac()
         d = yexpr.expr.collect(var, evaluate=False)
 
         net = None
         a = d.pop(1, 0)
         if a != 0:
-            raise ValueError('Not parallel LC')            
+            raise ValueError('Not parallel LC')
 
         a = d.pop(var, None)
         if a is not None:
@@ -268,7 +270,7 @@ class Synthesis(object):
 
         a = d.pop(1 / var, None)
         if a is not None:
-            Lnet = L(1 / a)                            
+            Lnet = L(1 / a)
 
         if d != {}:
             raise ValueError('Not parallel RLC')
@@ -277,7 +279,7 @@ class Synthesis(object):
 
     def RLC(self, lexpr):
         """Handle series RLC or parallel RLC.  This will fail on R | L + C."""
-        
+
         try:
             return self.seriesRLC(lexpr)
         except:
@@ -286,15 +288,15 @@ class Synthesis(object):
     def parallelseriesRL(self):
         """(R('R1') + L('L1')) | (R('R2') + L('L2'))"""
         # Like Foster II
-        
+
         raise NotImplementedError('TODO')
 
     def seriesparallelRL(self):
         """(R('R1') | L('L1')) + (R('R2') | L('L2'))"""
         # Like Foster I
-                
-        raise NotImplementedError('TODO')    
-        
+
+        raise NotImplementedError('TODO')
+
     def fosterI(self, lexpr):
 
         expr = lexpr.partfrac(combine_conjugates=True)
@@ -310,20 +312,23 @@ class Synthesis(object):
 
         net = None
         for term in expr.as_ordered_terms():
-            net = parallel(net, self.seriesRLC(LaplaceDomainExpression(1 / term)))
-        return net    
-        
+            net = parallel(net, self.seriesRLC(
+                LaplaceDomainExpression(1 / term)))
+        return net
+
     def cauerI(self, lexpr):
-        
+
         coeffs = lexpr.continued_fraction_coeffs()
 
         net = None
         for m, coeff in enumerate(reversed(coeffs)):
-            n = len(coeffs) - m - 1            
+            n = len(coeffs) - m - 1
             if n & 1 == 0:
-                net = series(net, self.seriesRL(LaplaceDomainExpression(coeff)))
+                net = series(net, self.seriesRL(
+                    LaplaceDomainExpression(coeff)))
             else:
-                net = parallel(net, self.parallelGC(LaplaceDomainExpression(1 / coeff)))
+                net = parallel(net, self.parallelGC(
+                    LaplaceDomainExpression(1 / coeff)))
         return net
 
     def cauerII(self, lexpr):
@@ -332,14 +337,16 @@ class Synthesis(object):
 
         net = None
         for m, coeff in enumerate(reversed(coeffs)):
-            n = len(coeffs) - m - 1            
+            n = len(coeffs) - m - 1
             if n & 1 == 0:
                 if not (n == 0 and coeff == 0):
-                    net = parallel(net, self.seriesRL(LaplaceDomainExpression(1 / coeff)))
+                    net = parallel(net, self.seriesRL(
+                        LaplaceDomainExpression(1 / coeff)))
             else:
-                net = series(net, self.parallelGC(LaplaceDomainExpression(coeff)))
-        return net                                     
-    
+                net = series(net, self.parallelGC(
+                    LaplaceDomainExpression(coeff)))
+        return net
+
     def network(self, lexpr, form='default'):
 
         if form == 'default':
@@ -361,7 +368,7 @@ class Synthesis(object):
         net = method(lexpr)
         return net
 
-    
-def network(lexpr, form='default'):        
+
+def network(lexpr, form='default'):
 
     return Synthesis().network(lexpr, form)

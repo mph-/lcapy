@@ -255,7 +255,7 @@ class CircuitGraph(object):
             def find(loop1, nodename1, nodename2):
                 for m in range(len(loop1) - 1):
                     if (nodename1 == loop1[m] and
-                        nodename2 == loop1[m + 1]):
+                            nodename2 == loop1[m + 1]):
                         return True
 
             if find(loop1, nodenames[0], nodenames[1]):
@@ -428,5 +428,6 @@ class CircuitGraph(object):
 
     def pdb(self):
 
-        import pdb; pdb.set_trace()
+        import pdb
+        pdb.set_trace()
         return self

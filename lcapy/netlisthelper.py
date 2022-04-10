@@ -34,7 +34,7 @@ class NetlistHelper(object):
         name = None
         # See if argument is suitable for the cpt_id
         if (len(args) > 0 and isinstance(args[0], str) and
-            args[0].startswith(cpt_type) and args[0].isalnum()):
+                args[0].startswith(cpt_type) and args[0].isalnum()):
             name = args[0]
 
             # If have already used this name, then resort to auto name.
@@ -52,7 +52,7 @@ class NetlistHelper(object):
 
         if self.evalf:
             try:
-            # The arg may not be an Expr.
+                # The arg may not be an Expr.
                 arg = arg.evalf(n=self.evalf)
             except:
                 pass
@@ -65,7 +65,7 @@ class NetlistHelper(object):
 
         # TODO: make more robust to catch expressions.
         if (('(' in argstr) or (')' in argstr) or (' ' in argstr) or
-            (',' in argstr) or ('*' in argstr) or ('/' in argstr)):
+                (',' in argstr) or ('*' in argstr) or ('/' in argstr)):
             return '{%s}' % argstr
         return argstr
 

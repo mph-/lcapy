@@ -36,7 +36,7 @@ class SuperpositionCurrent(Superposition, CurrentMixin):
 
     def cpt(self):
         from .oneport import I
-        # Perhaps should generate more specific components such as Idc?        
+        # Perhaps should generate more specific components such as Idc?
         return I(self.time())
 
     def _mul(self, x):
@@ -45,26 +45,26 @@ class SuperpositionCurrent(Superposition, CurrentMixin):
 
         if isinstance(x, Superposition):
             raise TypeError('Cannot multiply %s by %s. '
-            'You need to extract a specific component, e.g., a.s * b.s' %
-            (type(self).__name__, type(x).__name__))
-        
+                            'You need to extract a specific component, e.g., a.s * b.s' %
+                            (type(self).__name__, type(x).__name__))
+
         if not x.is_impedance:
             raise TypeError("Unsupported types for *: 'Current' and '%s'" %
                             type(x).__name__)
         if x.is_time_domain:
             raise TypeError("Cannot multiply by time-domain impedance.")
-        
+
         obj = self
         if 't' in self and not x.is_constant_domain:
             obj = self.decompose()
         xs = x.laplace()
-            
+
         new = SuperpositionVoltage()
         if 'dc' in obj:
             new += obj['dc'] * xs(0)
         for key in obj.ac_keys():
             new += obj[key] * xs(j * obj[key].omega)
-        for key in obj.noise_keys():            
+        for key in obj.noise_keys():
             new += obj[key] * xs(omega)
         if 's' in obj:
             new += obj['s'] * xs
@@ -89,17 +89,19 @@ class SuperpositionCurrent(Superposition, CurrentMixin):
 
     def __mul__(self, x):
         if False:
-            raise ValueError('Cannot multiply superposition, need to convert to specific domain')
+            raise ValueError(
+                'Cannot multiply superposition, need to convert to specific domain')
         return self._mul(x)
-    
+
     def __rmul__(self, x):
         return self.__mul__(x)
-    
+
     def __truediv__(self, x):
         if False:
-            raise ValueError('Cannot divide superposition, need to convert to specific domain')        
-        
+            raise ValueError(
+                'Cannot divide superposition, need to convert to specific domain')
+
         return self._div(x)
 
-    
-from .superpositionvoltage import SuperpositionVoltage
+
+from .superpositionvoltage import SuperpositionVoltage  # nopep8

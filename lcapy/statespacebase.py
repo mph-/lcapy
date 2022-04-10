@@ -108,7 +108,8 @@ class StateSpaceBase(object):
         elif form == 'DCF':
             return cls.from_ba_DCF(b, a)
         else:
-            raise ValueError('Only CCF, DCF, and OCF forms are currently supported')
+            raise ValueError(
+                'Only CCF, DCF, and OCF forms are currently supported')
         # TODO, add Jordan and real Jordan forms.
 
     @classmethod
@@ -128,7 +129,8 @@ class StateSpaceBase(object):
             b = [0] * (Na - Nb) + b
         if Nb > Na:
             # Need extended state-space representation...
-            raise ValueError('Improper transfer function; require derivatives of input')
+            raise ValueError(
+                'Improper transfer function; require derivatives of input')
 
         Nx = len(a) - 1
         Nu = 1
@@ -172,7 +174,8 @@ class StateSpaceBase(object):
             b = [0] * (Na - Nb) + b
         if Nb > Na:
             # Need extended state-space representation...
-            raise ValueError('Improper transfer function; require derivatives of input')
+            raise ValueError(
+                'Improper transfer function; require derivatives of input')
 
         Nx = len(a) - 1
         Nu = 1
@@ -206,7 +209,8 @@ class StateSpaceBase(object):
 
         if Nb > Na:
             # Need extended state-space representation...
-            raise ValueError('Improper transfer function; require derivatives of input')
+            raise ValueError(
+                'Improper transfer function; require derivatives of input')
 
         H = tf(b, a)
 
@@ -239,7 +243,8 @@ class StateSpaceBase(object):
     def pdb(self):
         """Enter the python debugger."""
 
-        import pdb; pdb.set_trace()
+        import pdb
+        pdb.set_trace()
         return self
 
     @property
@@ -566,7 +571,8 @@ class StateSpaceBase(object):
             Cr = C1 - C2 * A22I * A21
             Dr = D - C2 * A22I * B2
         else:
-            raise ValueError("Reduction method %s is not supported.  Try 'matchdc' or 'truncate'" % method)
+            raise ValueError(
+                "Reduction method %s is not supported.  Try 'matchdc' or 'truncate'" % method)
 
         x = self._x
         x0 = self._x0
@@ -607,5 +613,5 @@ class StateSpaceBase(object):
                               self._u, self._y, self._x, self._x0)
 
 
-from .symbols import t, s
-from .expr import ExprList
+from .symbols import t, s  # nopep8
+from .expr import ExprList  # nopep8

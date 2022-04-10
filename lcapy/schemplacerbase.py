@@ -6,6 +6,7 @@ Copyright 2021 Michael Hayes, UCECE
 from .schemmisc import Pos
 from numpy import argsort
 
+
 class SchemPlacerBase(object):
 
     def _xlink(self, elt):
@@ -20,7 +21,7 @@ class SchemPlacerBase(object):
     def _ylink(self, elt):
 
         yvals = elt.yvals
-        nodes = elt.nodes        
+        nodes = elt.nodes
         for m1, n1 in enumerate(nodes):
             for m2, n2 in enumerate(nodes[m1 + 1:], m1 + 1):
                 if yvals[m2] == yvals[m1]:
@@ -29,13 +30,13 @@ class SchemPlacerBase(object):
     def _place(self, elt, graph, vals):
 
         if elt.free:
-            return        
+            return
 
         if elt.offset != 0:
             print('TODO: offset %s by %f' % (elt, elt.offset))
-        
+
         size = elt.size
-        nodes = elt.nodes                
+        nodes = elt.nodes
         idx = argsort(vals)[::-1]
         for i in range(len(idx) - 1):
             m1 = idx[i]
@@ -50,7 +51,7 @@ class SchemPlacerBase(object):
         self._place(elt, self.xgraph, elt.xvals)
 
     def _yplace(self, elt):
-        
+
         self._place(elt, self.ygraph, elt.yvals)
 
     def _make_graphs(self):
@@ -77,7 +78,7 @@ class SchemPlacerBase(object):
                 raise ValueError('offset field should be removed')
             if elt.directive or elt.ignore or not elt.place or elt.free:
                 continue
-            
+
             self._xlink(elt)
             self._ylink(elt)
 
@@ -86,7 +87,7 @@ class SchemPlacerBase(object):
         # Note, this must be done after the linking step.
         for m, elt in enumerate(self.elements.values()):
             if elt.directive or elt.ignore or elt.free or not elt.place:
-                continue            
+                continue
             self._xplace(elt)
             self._yplace(elt)
 
@@ -102,4 +103,3 @@ class SchemPlacerBase(object):
             node.pos = Pos(xpos[n] * scale, ypos[n] * scale)
 
         return width, height
-    

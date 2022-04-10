@@ -18,6 +18,7 @@ from .units import u as uu
 from .utils import factor_const
 from sympy import Integral, Expr as symExpr
 
+
 class NormFourierDomainExpression(NormFourierDomain, Expr):
 
     """Normalized  Fourier domain expression or symbol."""
@@ -46,7 +47,8 @@ class NormFourierDomainExpression(NormFourierDomain, Expr):
         """Attempt inverse Fourier transform."""
 
         expr = self.subs(2 * pi * fsym * dt)
-        result = inverse_fourier_transform(expr.sympy, fsym, tsym, evaluate=evaluate)
+        result = inverse_fourier_transform(
+            expr.sympy, fsym, tsym, evaluate=evaluate)
 
         return self.change(result, 'time', units_scale=uu.Hz, **assumptions)
 
@@ -202,7 +204,8 @@ def Fexpr(arg, **assumptions):
         return F
     return expr_make('norm fourier', arg, **assumptions)
 
-from .expressionclasses import expressionclasses
+
+from .expressionclasses import expressionclasses  # nopep8
 
 classes = expressionclasses.register('norm fourier',
                                      NormFourierDomainExpression)

@@ -9,7 +9,7 @@ from .schemmisc import Pos
 from .schemplacerbase import SchemPlacerBase
 
 # Components are positioned using two graphs; one graph for
-# the x direction and the other for the y direction. 
+# the x direction and the other for the y direction.
 #
 # There is a naming confusion.  We have network nodes (electrical
 # nodes) and nodes in the graph used for component placement.
@@ -27,6 +27,7 @@ from .schemplacerbase import SchemPlacerBase
 #      of the nodes are assigned based on the distance along the
 #      longest path.
 
+
 class SchemGraphPlacer(SchemPlacerBase):
 
     def __init__(self, elements, nodes, debug=0):
@@ -37,4 +38,3 @@ class SchemGraphPlacer(SchemPlacerBase):
 
         self.xgraph = Graph('horizontal', nodes, debug)
         self.ygraph = Graph('vertical', nodes, debug)
-

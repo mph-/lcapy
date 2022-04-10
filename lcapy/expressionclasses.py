@@ -34,13 +34,13 @@ quantityclasses = {'voltage': VoltageMixin,
 
 units_mapping = {
     '': S.One,
-    'V': uu.volt, 'A': uu.ampere, 
+    'V': uu.volt, 'A': uu.ampere,
     'V/Hz': uu.volt / uu.Hz, 'A/Hz': uu.ampere / uu.Hz,
     'V/sqrt(Hz)': uu.volt / sqrt(uu.Hz), 'A/sqrt(Hz)': uu.ampere / sqrt(uu.Hz),
     'ohm': uu.ohm, 'S': uu.siemens,
     'ohm/s': uu.ohm / uu.s, 'S/s': uu.siemens / uu.s,
-    'ohm^2/s^2': (uu.ohm / uu.s)**2, 'S^2/s^2': (uu.siemens / uu.s)**2,    
-    'V^2': uu.volt**2, 'A^2': uu.ampere**2, 
+    'ohm^2/s^2': (uu.ohm / uu.s)**2, 'S^2/s^2': (uu.siemens / uu.s)**2,
+    'V^2': uu.volt**2, 'A^2': uu.ampere**2,
     'V^2/Hz^2': (uu.volt / uu.Hz)**2, 'A^2/Hz^2': (uu.ampere / uu.Hz)**2,
     'ohm^2': uu.ohm**2, 'S^2': uu.siemens**2,
     'W': uu.watt, '/s': 1 / uu.s}
@@ -63,17 +63,17 @@ class ExpressionClassBuilder(dict):
 
         quantityclass = quantityclasses[quantity]
         quantityunits = quantityclass.quantity_units
-            
-        unitsstring = quantityunits            
+
+        unitsstring = quantityunits
         if quantity in ('voltage', 'current'):
             if (domainclass.is_laplace_domain or
                 domainclass.is_fourier_domain or
-                domainclass.is_angular_fourier_domain):
+                    domainclass.is_angular_fourier_domain):
                 unitsstring = '%s/Hz' % quantityunits
         elif quantity in ('voltagesquared', 'currentsquared'):
             if (domainclass.is_laplace_domain or
                 domainclass.is_fourier_domain or
-                domainclass.is_angular_fourier_domain):                
+                    domainclass.is_angular_fourier_domain):
                 unitsstring = '%s/Hz^2' % quantityunits
         elif quantity in ('impedance', 'admittance', 'transfer'):
             if domainclass.is_time_domain:
@@ -87,9 +87,11 @@ class ExpressionClassBuilder(dict):
         docstring = '%s-domain %s (units %s).' % (domainclass.domain_label,
                                                   quantity, unitsstring)
 
-        name = domainclass.__name__.replace('Expression', quantityclass.quantity.capitalize())
-        name = name.replace('Sequence', quantityclass.quantity.capitalize() + 'Sequence')
-            
+        name = domainclass.__name__.replace(
+            'Expression', quantityclass.quantity.capitalize())
+        name = name.replace(
+            'Sequence', quantityclass.quantity.capitalize() + 'Sequence')
+
         newclass = type(name, (quantityclass, domainclass),
                         {'__doc__': docstring,
                          '_default_units': units_mapping[unitsstring]})
@@ -97,16 +99,16 @@ class ExpressionClassBuilder(dict):
 
         #print('Created %s %s' % (self.domain, quantity))
         return newclass
-        
+
     def make(self, quantity):
-        
+
         if self.quantities is None:
             return self.make1(quantity, self.domainclass1)
 
         if quantity in self.quantities:
             return self.make1(quantity, self.domainclass1)
 
-        return self.make1(quantity, self.domainclass2)        
+        return self.make1(quantity, self.domainclass2)
 
     def __getitem__(self, quantity):
 
@@ -114,18 +116,19 @@ class ExpressionClassBuilder(dict):
             return super(ExpressionClassBuilder, self).__getitem__(quantity)
 
         return self.make(quantity)
-    
 
-class ExpressionClasses(dict):                 
-    
+
+class ExpressionClasses(dict):
+
     def register(self, domain, domainclass1, domainclass2=None, quantities=None):
 
-        self[domain] = ExpressionClassBuilder(domain, domainclass1, domainclass2, quantities)
+        self[domain] = ExpressionClassBuilder(
+            domain, domainclass1, domainclass2, quantities)
         return self[domain]
-                 
+
     def get_quantity(self, domain, quantity):
 
         return self[domain][quantity]
 
 
-expressionclasses = ExpressionClasses()    
+expressionclasses = ExpressionClasses()

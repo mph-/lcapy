@@ -15,6 +15,7 @@ from sympy import Expr as symExpr
 
 __all__ = ('omegaexpr', )
 
+
 class AngularFourierDomainExpression(AngularFourierDomain, Expr):
     """Fourier domain expression or symbol (angular frequency)."""
 
@@ -22,7 +23,8 @@ class AngularFourierDomainExpression(AngularFourierDomain, Expr):
 
     def __init__(self, val, **assumptions):
 
-        super(AngularFourierDomainExpression, self).__init__(val, **assumptions)
+        super(AngularFourierDomainExpression,
+              self).__init__(val, **assumptions)
 
         if self.expr.has(ssym):
             raise ValueError(
@@ -167,9 +169,10 @@ def omegaexpr(arg, **assumptions):
     return expr_make('angular fourier', arg, **assumptions)
 
 
-from .expressionclasses import expressionclasses
+from .expressionclasses import expressionclasses  # nopep8
 
-classes = expressionclasses.register('angular fourier', AngularFourierDomainExpression)
+classes = expressionclasses.register('angular fourier',
+                                     AngularFourierDomainExpression)
 
 omega = AngularFourierDomainExpression('omega')
 omega.units = uu.rad / uu.s

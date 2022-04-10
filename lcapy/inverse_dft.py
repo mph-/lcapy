@@ -20,7 +20,7 @@ class InverseDFTTransformer(DFTTransformer):
 
     name = 'inverse DFT'
     is_inverse = True
-    
+
     def noevaluate(self, expr, k, n):
 
         foo = expr * sym.exp(2 * j * pi * n * k / self.N)
@@ -32,8 +32,8 @@ class InverseDFTTransformer(DFTTransformer):
 
         if expr.has(n):
             self.error('Expression depends on n')
-        super (InverseDFTTransformer, self).check(expr, k, n, N, **assumptions)
-        
+        super(InverseDFTTransformer, self).check(expr, k, n, N, **assumptions)
+
 
 inverse_dft_transformer = InverseDFTTransformer()
 
@@ -43,7 +43,7 @@ def inverse_discrete_fourier_transform(expr, k, n, N, evaluate=True, **assumptio
 
     Undefined functions such as X(k) are converted to x(n)
     """
-    
+
     return inverse_dft_transformer.transform(expr, k, n, evaluate=evaluate,
                                              N=N, **assumptions)
 
@@ -52,10 +52,10 @@ def IDFT(expr, k, n, N, evaluate=True, **assumptions):
     """Compute bilateral inverse discrete Fourier transform of expr.
 
     Undefined functions such as X(k) are converted to x(n)
-    """    
+    """
 
     return inverse_dft_transformer.transform(expr, k, n, evaluate=evaluate,
-                                             N=N, **assumptions)    
+                                             N=N, **assumptions)
 
 
 def IDFTmatrix(N):
@@ -66,7 +66,7 @@ def IDFTmatrix(N):
     w = exp(j * 2 * pi / N)
 
     a = Matrix.zeros(N)
-    
+
     for row in range(N):
         for col in range(N):
             a[row, col] = w ** (row * col)

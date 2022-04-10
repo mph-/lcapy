@@ -18,6 +18,7 @@ import sympy as sym
 # TODO: reachability implies controllability but controllability only
 # implies reachability if A matrix is full rank.
 
+
 class DTStateSpace(StateSpaceBase):
     """Discrete-time linear time-invariant state space model."""
 
@@ -28,7 +29,7 @@ class DTStateSpace(StateSpaceBase):
             self._u = DiscreteTimeDomainMatrix([nexpr('u_%d(n)' % i) for i in
                                                 range(self.Nu)])
         return self._u
-    
+
     @property
     def x(self):
         """State variable vector."""
@@ -41,15 +42,15 @@ class DTStateSpace(StateSpaceBase):
     def xnext(self):
         """Time derivative of state variable vector."""
         return DiscreteTimeDomainMatrix([nexpr('x_%d(n + 1)' % i) for i in
-                                                range(self.Nx)])
-    
+                                         range(self.Nx)])
+
     @property
     def x0(self):
         """State variable initial value vector."""
         if self._x0 is None:
             self._x0 = DiscreteTimeDomainMatrix([nexpr('x_0_%d(n)' % i) for i in
                                                  range(self.Nx)])
-        return self._x0        
+        return self._x0
 
     @property
     def y(self):
@@ -57,7 +58,7 @@ class DTStateSpace(StateSpaceBase):
         if self._y is None:
             self._y = DiscreteTimeDomainMatrix([nexpr('y_%d(n)' % i) for i in
                                                 range(self.Ny)])
-        return self._y    
+        return self._y
 
     @property
     def U(self):
@@ -66,12 +67,12 @@ class DTStateSpace(StateSpaceBase):
 
     @property
     def X(self):
-        """Z transform of state-variable vector."""        
+        """Z transform of state-variable vector."""
         return ZDomainMatrix(self.x.ZT())
 
     @property
     def Y(self):
-        """Z transform of output vector."""        
+        """Z transform of output vector."""
         return ZDomainMatrix(self.y.ZT())
 
     @cached_property
@@ -81,7 +82,7 @@ class DTStateSpace(StateSpaceBase):
 
     @property
     def h(self):
-        """ILT{X(z) / U(z)}"""        
+        """ILT{X(z) / U(z)}"""
         return DiscreteTimeDomainMatrix(self.H.ILT(causal=True))
 
     @cached_property
@@ -98,7 +99,7 @@ class DTStateSpace(StateSpaceBase):
 
         where x is the state vector and u is the input vector.
         """
-        
+
         return expr(sym.Eq(self.xnext, sym.MatAdd(sym.MatMul(self._A, self.x),
                                                   sym.MatMul(self._B, self.u)),
                            evaluate=False))
@@ -112,16 +113,16 @@ class DTStateSpace(StateSpaceBase):
         the input vector.
 
         """
-        
+
         return expr(sym.Eq(self.y, sym.MatAdd(sym.MatMul(self._C, self.x),
                                               sym.MatMul(self._D, self.u)),
                            evaluate=False))
 
     @property
     def g(self):
-        """System impulse responses."""        
+        """System impulse responses."""
         return DiscreteTimeDomainMatrix(self.G.IZT(causal=True))
-    
+
     @cached_property
     def Phi(self):
         """z-domain state transition matrix."""
@@ -131,7 +132,7 @@ class DTStateSpace(StateSpaceBase):
 
     @cached_property
     def phi(self):
-        """State transition matrix."""        
+        """State transition matrix."""
         return DiscreteTimeDomainMatrix(self.Phi.ILT(causal=True))
 
     def characteristic_polynomial(self):
@@ -139,37 +140,37 @@ class DTStateSpace(StateSpaceBase):
 
         `lambda(z) = |z * I - A|`"""
 
-        M = ZDomainMatrix(sym.eye(self.Nx) * zsym - self._A.sympy)        
+        M = ZDomainMatrix(sym.eye(self.Nx) * zsym - self._A.sympy)
         return ZDomainExpression(M.det()).simplify()
 
     @cached_property
     def P(self):
         """Characteristic polynomial (aka system polynomial).
 
-        `lambda(z) = |z * I - A|`"""        
+        `lambda(z) = |z * I - A|`"""
 
         return self.characteristic_polynomial()
-    
-    @cached_property    
+
+    @cached_property
     def Lambda(self):
         """Diagonal matrix of eigenvalues."""
 
         # Perhaps faster to use diagonalize
         # E, L = self.A.diagonalize()
         # return L
-        
+
         e = self.eigenvalues
         return ZDomainMatrix(sym.diag(*e))
 
-    @cached_property    
+    @cached_property
     def M(self):
         """Modal matrix (eigenvectors of A)."""
 
         E, L = self._A.diagonalize()
-        
+
         return ZDomainMatrix(E)
-    
-    @cached_property            
+
+    @cached_property
     def controllability_gramian(self):
         """Controllability gramian matrix."""
 
@@ -178,21 +179,21 @@ class DTStateSpace(StateSpaceBase):
         B = self.B.evaluate()
         Q = -B @ B.T
 
-        # Find Wc given A @ Wc + Wc @ A.T = Q        
+        # Find Wc given A @ Wc + Wc @ A.T = Q
         # Wc > o if (A, B) controllable
         Wc = linalg.solve_discrete_lyapunov(self.A.evaluate(), Q)
 
         # Wc should be symmetric positive semi-definite
-        Wc = (Wc + Wc.T) / 2        
-        
+        Wc = (Wc + Wc.T) / 2
+
         return Matrix(Wc)
 
-    @property            
+    @property
     def Wc(self):
         """Controllability gramian matrix."""
         return self.controllability_gramian
-    
-    @property            
+
+    @property
     def reachability_gramian(self):
         """Reachability gramian matrix.  This is equivalent to the
         controllability gramian matrix for a linear time independent
@@ -200,12 +201,12 @@ class DTStateSpace(StateSpaceBase):
 
         return self.controllability_gramian
 
-    @property            
+    @property
     def Wr(self):
         """Reachability gramian matrix."""
         return self.reachability_gramian
-    
-    @cached_property            
+
+    @cached_property
     def observability_gramian(self):
         """Observability gramian matrix."""
 
@@ -220,10 +221,10 @@ class DTStateSpace(StateSpaceBase):
 
         # Wo should be symmetric positive semi-definite
         Wo = (Wo + Wo.T) / 2
-        
+
         return Matrix(Wo)
 
-    @property            
+    @property
     def Wo(self):
         """Observability gramian matrix."""
         return self.observability_gramian
@@ -236,13 +237,13 @@ class DTStateSpace(StateSpaceBase):
         if xinitial is None:
             xinitial = self.x0
         else:
-            xinitial = Matrix(xinitial)        
+            xinitial = Matrix(xinitial)
 
         xfinal = Matrix(xfinal)
-            
+
         if steps < 0:
-            raise ValueError('steps must be positive')            
-        
+            raise ValueError('steps must be positive')
+
         C = self.controllability_matrix_steps(steps)
 
         xdiff = xfinal - xinitial
@@ -257,13 +258,13 @@ class DTStateSpace(StateSpaceBase):
         if xinitial is None:
             xinitial = self.x0
         else:
-            xinitial = Matrix(xinitial)        
+            xinitial = Matrix(xinitial)
 
         xfinal = Matrix(xfinal)
-            
+
         if steps < 0:
-            raise ValueError('steps must be positive')            
-        
+            raise ValueError('steps must be positive')
+
         C = self.controllability_matrix_steps(steps)
 
         xdiff = xfinal - xinitial
@@ -278,13 +279,14 @@ class DTStateSpace(StateSpaceBase):
             xinitial = self.x0
         else:
             xinitial = Matrix(xinitial)
-            
+
         u = Matrix(u)
         steps = u.shape[0]
-        
+
         C = self.controllability_matrix_steps(steps)
 
-        xfinal = self.A**steps * xinitial + C * u[::-1,:]
+        xfinal = self.A**steps * xinitial + C * u[::-1, :]
         return xfinal
-        
-from .zexpr import ZDomainExpression
+
+
+from .zexpr import ZDomainExpression  # nopep8

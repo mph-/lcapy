@@ -16,6 +16,7 @@ from .fexpr import f, FourierDomainExpression
 from .omegaexpr import AngularFourierDomainExpression
 import sympy as sym
 
+
 class AngularFourierNoiseDomainExpression(AngularFourierNoiseDomain, NoiseExpression):
     """Angular frequency domain (one-sided) noise spectrum expression (amplitude
     spectral density).
@@ -85,7 +86,8 @@ class AngularFourierNoiseDomainExpression(AngularFourierNoiseDomain, NoiseExpres
             return cls(result, nid=self.nid, **assumptions)
         elif isinstance(arg, AngularFourierDomainExpression):
             result = self.subs(arg, **assumptions)
-            cls = self._class_by_quantity(self.quantity, 'angular fourier noise')
+            cls = self._class_by_quantity(
+                self.quantity, 'angular fourier noise')
             return cls(result, nid=self.nid, **assumptions)
 
         return super(AngularFourierNoiseDomainExpression, self).transform(arg, **assumptions)
@@ -117,12 +119,13 @@ class AngularFourierNoiseDomainCurrent(AngularFourierNoiseDomainExpression):
     units = 'A/rtrad/s'
 
 
-from .expressionclasses import expressionclasses
+from .expressionclasses import expressionclasses  # nopep8
 
-classes = expressionclasses.register('angular fourier noise', AngularFourierNoiseDomainExpression, None,
-                           ('voltage', 'current'))
+classes = expressionclasses.register('angular fourier noise',
+                                     AngularFourierNoiseDomainExpression, None,
+                                     ('voltage', 'current'))
 AngularFourierNoiseDomainVoltage = classes['voltage']
 AngularFourierNoiseDomainCurrent = classes['current']
 
-from .omegaexpr import omega
-from .noisefexpr import FourierNoiseDomainExpression
+from .omegaexpr import omega  # nopep8
+from .noisefexpr import FourierNoiseDomainExpression  # nopep8

@@ -1,5 +1,6 @@
 from .quantity import Quantity
 
+
 class VoltageSquaredMixin(Quantity):
 
     quantity = 'voltagesquared'
@@ -7,5 +8,3 @@ class VoltageSquaredMixin(Quantity):
     quantity_units = 'V^2'
     is_voltagesquared = True
     is_squared = True
-
-    

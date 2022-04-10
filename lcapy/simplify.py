@@ -99,7 +99,7 @@ def simplify_power(expr):
 
     def pre(expr):
         if (expr.is_Pow and expr.args[0].func in (Heaviside, UnitStep, rect, dtrect) and
-            expr.args[1].is_constant):
+                expr.args[1].is_constant):
             powers.append(expr)
 
         for arg in expr.args:
@@ -277,7 +277,8 @@ def simplify_sin_cos(expr, as_cos=False, as_sin=False):
             phi = atan2(s, c)
 
             if as_sin:
-                result += A * sin(cos_factor.args[0] - phi + pi / 2, evaluate=False)
+                result += A * \
+                    sin(cos_factor.args[0] - phi + pi / 2, evaluate=False)
 
             if as_cos:
                 result += A * cos(cos_factor.args[0] - phi, evaluate=False)

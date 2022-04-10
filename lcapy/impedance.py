@@ -21,12 +21,12 @@ def impedance(arg, causal=True, **assumptions):
 
     """
 
-    expr1 = expr(arg, causal=causal, **assumptions)    
+    expr1 = expr(arg, causal=causal, **assumptions)
 
     try:
         expr1 = expr1.as_impedance()
-    except:    
-        raise ValueError('Cannot represent %s(%s) as impedance' % (expr1.__class__.__name__, expr1))
-        
+    except:
+        raise ValueError('Cannot represent %s(%s) as impedance' %
+                         (expr1.__class__.__name__, expr1))
+
     return expr1
-    

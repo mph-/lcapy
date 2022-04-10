@@ -27,7 +27,8 @@ __all__ = ('pretty', 'pprint', 'latex', 'print_str')
 # LaTeX markup is nicer but it requires mathjax.
 
 # FIXME: should import from parser
-cpt_names = ('C', 'E', 'F', 'G', 'H', 'I', 'L', 'R', 'NR', 'V', 'Y', 'Z', 'i', 'v')
+cpt_names = ('C', 'E', 'F', 'G', 'H', 'I', 'L',
+             'R', 'NR', 'V', 'Y', 'Z', 'i', 'v')
 cpt_name_pattern = re.compile(r"(%s)([\w']*)" % '|'.join(cpt_names))
 sub_super_pattern = re.compile(r"([_\^]){([\w]+)}")
 func_pattern = re.compile(r"\\operatorname{(.*)}")
@@ -64,7 +65,7 @@ def canonical_name(name):
     # Convert v_Cfoo to v_C_foo, etc.   This is required for
     # state-space state variables.
     if (len(name) >= 3 and name[0:2] in ('v_', 'V_', 'i_', 'I_') and
-        name[2] in ('L', 'C')):
+            name[2] in ('L', 'C')):
         return name[0:2] + canonical_name(name[2:])
 
     if name.find('_') != -1:
@@ -180,7 +181,7 @@ class LcapyLatexPrinter(LatexPrinter):
             return super(LcapyLatexPrinter, self)._print_Piecewise(expr)
 
         e, c = expr.args[0]
-        return  r"%s \;\; \text{for}\: %s" % (self._print(e), self._print(c))
+        return r"%s \;\; \text{for}\: %s" % (self._print(e), self._print(c))
 
     def _print_Heaviside(self, expr, exp=None):
 
@@ -206,14 +207,16 @@ class LcapyLatexPrinter(LatexPrinter):
 
     def _print_dtrect(self, expr, exp=None):
 
-        tex = r"\mathop{\mathrm{rect}}\left[%s\right]" % self._print(expr.args[0])
+        tex = r"\mathop{\mathrm{rect}}\left[%s\right]" % self._print(
+            expr.args[0])
         if exp:
             tex = r"\mathop{\mathrm{rect}}\left[%s\right]^{%s}" % (tex, exp)
         return tex
 
     def _print_dtsign(self, expr, exp=None):
 
-        tex = r"\mathop{\mathrm{sign}}\left[%s\right]" % self._print(expr.args[0])
+        tex = r"\mathop{\mathrm{sign}}\left[%s\right]" % self._print(
+            expr.args[0])
         if exp:
             tex = r"\mathop{\mathrm{sign}}\left[%s\right]^{%s}" % (tex, exp)
         return tex
@@ -240,7 +243,8 @@ class LcapyLatexPrinter(LatexPrinter):
         if len(parts) == 3:
             return latex_str(s + '_{%s_{%s}}' % (parts[1], parts[2]))
 
-        raise ValueError('Cannot handle more than two subscripts for %s' % name)
+        raise ValueError(
+            'Cannot handle more than two subscripts for %s' % name)
 
     def _print_Symbol(self, expr):
 
@@ -418,10 +422,10 @@ def pprint(expr, **kwargs):
 
 
 def latex(expr, fold_frac_powers=False, fold_func_brackets=False,
-    fold_short_frac=None, inv_trig_style="abbreviated",
-    itex=False, ln_notation=False, long_frac_ratio=None,
-    mat_delim="[", mat_str=None, mode="plain", mul_symbol=None,
-    order=None, symbol_names=None):
+          fold_short_frac=None, inv_trig_style="abbreviated",
+          itex=False, ln_notation=False, long_frac_ratio=None,
+          mat_delim="[", mat_str=None, mode="plain", mul_symbol=None,
+          order=None, symbol_names=None):
 
     # This is mostly lifted from sympy/printing/latex.py when all we needed
     # was a hook...
@@ -430,19 +434,19 @@ def latex(expr, fold_frac_powers=False, fold_func_brackets=False,
         symbol_names = {}
 
     settings = {
-        'fold_frac_powers' : fold_frac_powers,
-        'fold_func_brackets' : fold_func_brackets,
-        'fold_short_frac' : fold_short_frac,
-        'inv_trig_style' : inv_trig_style,
-        'itex' : itex,
-        'ln_notation' : ln_notation,
-        'long_frac_ratio' : long_frac_ratio,
-        'mat_delim' : mat_delim,
-        'mat_str' : mat_str,
-        'mode' : mode,
-        'mul_symbol' : mul_symbol,
-        'order' : order,
-        'symbol_names' : symbol_names,
+        'fold_frac_powers': fold_frac_powers,
+        'fold_func_brackets': fold_func_brackets,
+        'fold_short_frac': fold_short_frac,
+        'inv_trig_style': inv_trig_style,
+        'itex': itex,
+        'ln_notation': ln_notation,
+        'long_frac_ratio': long_frac_ratio,
+        'mat_delim': mat_delim,
+        'mat_str': mat_str,
+        'mode': mode,
+        'mul_symbol': mul_symbol,
+        'order': order,
+        'symbol_names': symbol_names,
     }
 
     string = LcapyLatexPrinter(settings).doprint(expr)
@@ -455,8 +459,10 @@ def latex(expr, fold_frac_powers=False, fold_func_brackets=False,
 
     return string
 
-from sympy import init_printing
-init_printing(latex_printer=latex, pretty_printer=pretty, str_printer=print_str)
+
+from sympy import init_printing  # nopep8
+init_printing(latex_printer=latex, pretty_printer=pretty,
+              str_printer=print_str)
 
 # See sympy/interactive/printing.py and IPython/core/formatters.py
 # Also see hack at end of expr.py to support latex for Lcapy container

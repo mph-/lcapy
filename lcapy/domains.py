@@ -5,7 +5,7 @@ Copyright 2021 Michael Hayes, UCECE
 """
 
 from .units import u as uu
-from sympy import sqrt
+
 
 class Domain(object):
     is_undefined_domain = False

@@ -18,6 +18,7 @@ from .voltagemixin import VoltageMixin
 from .currentmixin import CurrentMixin
 import sympy as sym
 
+
 class FourierNoiseDomainExpression(FourierNoiseDomain, NoiseExpression):
     """Frequency domain (one-sided) noise spectrum expression (amplitude
     spectral density).
@@ -84,7 +85,8 @@ class FourierNoiseDomainExpression(FourierNoiseDomain, NoiseExpression):
         arg = expr(arg)
         if isinstance(arg, AngularFourierDomainExpression):
             result = self.subs(omega / (2 * pi))
-            cls = self._class_by_quantity(self.quantity, 'angular fourier noise')
+            cls = self._class_by_quantity(
+                self.quantity, 'angular fourier noise')
             return cls(result, nid=self.nid, **assumptions)
         elif isinstance(arg, FourierDomainExpression):
             result = self.subs(arg, **assumptions)
@@ -120,11 +122,11 @@ class FourierNoiseDomainCurrent(CurrentMixin, FourierNoiseDomainExpression):
     units = 'A/rtHz'
 
 
-from .expressionclasses import expressionclasses
+from .expressionclasses import expressionclasses  # nopep8
 
 expressionclasses.register('fourier noise', FourierNoiseDomainExpression, None,
                            ('voltage', 'current'))
 
 
-from .fexpr import f
-from .noiseomegaexpr import AngularFourierNoiseDomainExpression
+from .fexpr import f  # nopep8
+from .noiseomegaexpr import AngularFourierNoiseDomainExpression  # nopep8

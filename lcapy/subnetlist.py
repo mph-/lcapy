@@ -25,11 +25,11 @@ class SubNetlist(NetlistMixin):
         return obj
 
     def __init__(self, netlist, kind):
-        """ kind can be 't', 'dc', 's', 'time', 'ivp', 'n*' or omega, 
+        """ kind can be 't', 'dc', 's', 'time', 'ivp', 'n*' or omega,
         where 'n*' is a noise identifer and omega is an angular frequency."""
 
         self.mna = MNA(self)
-        
+
         if not isinstance(kind, str):
             return
         if kind[0] == 'n':

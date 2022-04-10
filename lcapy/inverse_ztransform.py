@@ -90,7 +90,7 @@ class InverseZTransformer(UnilateralInverseTransformer):
         if (len(expr.args) == 2 and expr.args[1].is_Pow and
             expr.args[1].args[0].is_Add and
             expr.args[1].args[0].args[0] == -1 and
-            expr.args[1].args[0].args[1] == z):
+                expr.args[1].args[0].args[1] == z):
 
             delay = None
             if expr.args[0] == z:
@@ -150,7 +150,7 @@ class InverseZTransformer(UnilateralInverseTransformer):
             pole.expr = pole.expr.subs(sym.Abs, sym.Id)
             poles_dict[pole.expr] = pole.n
 
-        ############ Juergen Weizenecker HsKa
+        # Juergen Weizenecker HsKa
 
         # Make two dictionaries in order to handle them differently and make
         # pretty expressions
@@ -171,7 +171,8 @@ class InverseZTransformer(UnilateralInverseTransformer):
         # The canceled denominator (for each (z-p)**o)
         shorten_denom = {}
         for i in range(n_poles):
-            shorten_term = sym.prod([(z - poles[j].expr)**(poles[j].n) for j in range(n_poles) if j != i], a_0)
+            shorten_term = sym.prod(
+                [(z - poles[j].expr)**(poles[j].n) for j in range(n_poles) if j != i], a_0)
             shorten_denom[poles[i].expr] = shorten_term
 
         # Run through single poles real or complex, order 1 or higher
@@ -235,10 +236,10 @@ class InverseZTransformer(UnilateralInverseTransformer):
             lam = sym.sqrt(sym.simplify(p1 * p2))
             p1_n = sym.simplify(p1 / lam)
             # term is of form exp(j*arg())
-            if len(p1_n.args)==1 and p1_n.is_Function and p1_n.func==sym.exp:
+            if len(p1_n.args) == 1 and p1_n.is_Function and p1_n.func == sym.exp:
                 omega_0 = sym.im(p1_n.args[0])
             # term is of form cos() + j sin()
-            elif p1_n.is_Add and sym.re(p1_n).is_Function and  sym.re(p1_n).func == sym.cos:
+            elif p1_n.is_Add and sym.re(p1_n).is_Function and sym.re(p1_n).func == sym.cos:
                 p1_n = p1_n.rewrite(sym.exp)
                 omega_0 = sym.im(p1_n.args[0])
             # general form
@@ -264,7 +265,8 @@ class InverseZTransformer(UnilateralInverseTransformer):
                 # Compute first all derivatives needed
                 all_derivatives_1 = [expr_1]
                 for i in range(1, o1):
-                    all_derivatives_1 += [sym.diff(all_derivatives_1[i - 1], z)]
+                    all_derivatives_1 += [
+                        sym.diff(all_derivatives_1[i - 1], z)]
 
                 # Loop through the binomial series
                 for i in range(1, o1 + 1):
@@ -274,7 +276,7 @@ class InverseZTransformer(UnilateralInverseTransformer):
                     derivative = all_derivatives_1[m]
                     r1 = derivative.subs(z, p1) / sym.factorial(m)
                     # prefactors
-                    prefac = bino * lam **(1 - i) / sym.factorial(i - 1)
+                    prefac = bino * lam ** (1 - i) / sym.factorial(i - 1)
                     # simplify r1
                     r1 = r1.rewrite(sym.exp).simplify()
                     # sum
@@ -284,8 +286,9 @@ class InverseZTransformer(UnilateralInverseTransformer):
 
                 # take result = lam**n * (sum_b*sum_b*exp(j*omega_0*n) + cc)
                 aa = sym.simplify(sym.re(sum_b))
-                bb =  sym.simplify(sym.im(sum_b))
-                uresult += 2 * (aa * sym.cos(omega_0 * n) - bb * sym.sin(omega_0 * n)) * lam**n
+                bb = sym.simplify(sym.im(sum_b))
+                uresult += 2 * (aa * sym.cos(omega_0 * n) -
+                                bb * sym.sin(omega_0 * n)) * lam**n
 
         # cresult is a sum of Dirac deltas and its derivatives so is known
         # to be causal.
@@ -317,7 +320,7 @@ class InverseZTransformer(UnilateralInverseTransformer):
             isinstance(factors[2], AppliedUndef) and
             factors[1].is_Pow and factors[1].args[1] == -1 and
             factors[1].args[0].is_Add and factors[1].args[0].args[0] == -1
-            and factors[1].args[0].args[1] == z):
+                and factors[1].args[0].args[1] == z):
             # Handle cumulative sum  z / (z - 1) * V(z)
             m = self.dummy_var(expr, 'm', level=0, real=True)
             result = self.func(factors[2], z, m, True)
@@ -327,7 +330,7 @@ class InverseZTransformer(UnilateralInverseTransformer):
         # TODO, is this useful?
         if (len(factors) > 2 and not
             isinstance(factors[1], AppliedUndef) and
-            isinstance(factors[2], AppliedUndef)):
+                isinstance(factors[2], AppliedUndef)):
             factors = [factors[0], factors[2], factors[1]] + factors[3:]
 
         # TODO, is this useful?
@@ -391,7 +394,6 @@ class InverseZTransformer(UnilateralInverseTransformer):
 
         return const * result
 
-
     def power(self, expr, z, n):
 
         # Handle expressions with a power of z.
@@ -407,7 +409,7 @@ class InverseZTransformer(UnilateralInverseTransformer):
 
         # Handle expressions with a power of (1 / z).
         if (expr.is_Pow and expr.args[0].is_Pow and
-            expr.args[0].args[0] == z and expr.args[0].args[1] == -1):
+                expr.args[0].args[0] == z and expr.args[0].args[1] == -1):
 
             exponent = expr.args[1]
 

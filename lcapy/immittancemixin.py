@@ -5,13 +5,14 @@ Copyright 2021 Michael Hayes, UCECE
 
 """
 
+
 class ImmittanceMixin(object):
 
     @property
     def R(self):
         """Resistance."""
         from .symbols import s
-        
+
         ret = self.Z.real
         if self.is_causal:
             ret = ret.replace(s.real, 0)
@@ -40,7 +41,7 @@ class ImmittanceMixin(object):
     @property
     def G(self):
         """Conductance.
-        
+
         Note Y = G + j * B = 1 / Z = 1 / (R + j * X)
         and so G = R / (R**2 + X**2).
 
@@ -50,17 +51,17 @@ class ImmittanceMixin(object):
 
         """
         from .symbols import s
-        
+
         ret = self.Y.real
         if self.is_causal:
             ret = ret.replace(s.real, 0)
-        return ret        
+        return ret
 
     @property
     def conductance(self):
         """Conductance."""
-        return self.G    
-    
+        return self.G
+
     @property
     def B(self):
         """Susceptance."""
@@ -72,9 +73,9 @@ class ImmittanceMixin(object):
 
         The admittance is expressed in jomega form for AC circuits
         and in s-domain for for transient circuits.
-        
+
         Use Y(omega) or Y(s) to achieve the desired form."""
-        
+
         return self.admittance
 
     @property
@@ -82,11 +83,11 @@ class ImmittanceMixin(object):
         """Impedance.
 
         The impedance is expressed in jomega form for AC circuits
-        and in s-domain for for transient circuits.  
+        and in s-domain for for transient circuits.
 
         Use Z(omega) or Z(s) to achieve the desired form."""
 
-        return self.impedance    
+        return self.impedance
 
     def network(self, form='default'):
         """Synthesise a network with an equivalent impedance.
@@ -96,5 +97,5 @@ class ImmittanceMixin(object):
         components."""
 
         from .synthesis import network
-        
+
         return network(self.Z, form)

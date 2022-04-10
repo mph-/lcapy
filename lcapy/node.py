@@ -6,6 +6,7 @@ Copyright 2020--2022 Michael Hayes, UCECE
 
 from .immittancemixin import ImmittanceMixin
 
+
 class Node(ImmittanceMixin):
 
     def __init__(self, cct, name):

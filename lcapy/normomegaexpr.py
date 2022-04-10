@@ -18,6 +18,7 @@ from .units import u as uu
 from .utils import factor_const, remove_images
 from sympy import Integral, Expr as symExpr
 
+
 class NormAngularFourierDomainExpression(NormAngularFourierDomain, Expr):
 
     """Normalized angular Fourier domain expression or symbol."""
@@ -28,7 +29,8 @@ class NormAngularFourierDomainExpression(NormAngularFourierDomain, Expr):
 
         check = assumptions.pop('check', True)
         assumptions['real'] = True
-        super(NormAngularFourierDomainExpression, self).__init__(val, **assumptions)
+        super(NormAngularFourierDomainExpression,
+              self).__init__(val, **assumptions)
 
         expr = self.expr
         if check and expr.has(ssym) and not expr.has(Integral):
@@ -45,7 +47,8 @@ class NormAngularFourierDomainExpression(NormAngularFourierDomain, Expr):
         """Attempt inverse Fourier transform."""
 
         expr = self.subs(2 * pi * fsym * dt)
-        result = inverse_fourier_transform(expr.sympy, fsym, tsym, evaluate=evaluate)
+        result = inverse_fourier_transform(
+            expr.sympy, fsym, tsym, evaluate=evaluate)
 
         return self.change(result, 'time', units_scale=uu.Hz, **assumptions)
 
@@ -202,7 +205,8 @@ def Omegaexpr(arg, **assumptions):
         return Omega
     return expr_make('norm angular fourier', arg, **assumptions)
 
-from .expressionclasses import expressionclasses
+
+from .expressionclasses import expressionclasses  # nopep8
 
 classes = expressionclasses.register('norm angular fourier',
                                      NormAngularFourierDomainExpression)

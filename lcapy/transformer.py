@@ -27,8 +27,10 @@ class Transformer(object):
 
     def error(self, message=''):
         if message == '':
-            raise ValueError('Could not compute %s for %s' % (self.name, self.expr))
-        raise ValueError('Could not compute %s for %s: %s' % (self.name, self.expr, message))
+            raise ValueError('Could not compute %s for %s' %
+                             (self.name, self.expr))
+        raise ValueError('Could not compute %s for %s: %s' %
+                         (self.name, self.expr, message))
 
     def debug(self, message=''):
         if self._debug:
@@ -86,7 +88,8 @@ class Transformer(object):
                 nu = miscsymbol(dummy + '_%d' % level, **kwargs)
             if not expr.has(nu):
                 return nu
-        raise self.error('Dummy variable conflict with symbols: %s' % ', '.join(dummies))
+        raise self.error(
+            'Dummy variable conflict with symbols: %s' % ', '.join(dummies))
 
 
 class BilateralForwardTransformer(Transformer):
@@ -130,7 +133,7 @@ class UnilateralForwardTransformer(Transformer):
         for factor in expr.as_ordered_factors():
             if (factor.is_Function and
                 factor.func in (Heaviside, UnitStep) and
-                factor.args[0] == var):
+                    factor.args[0] == var):
                 pass
             else:
                 rest *= factor

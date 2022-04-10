@@ -10,6 +10,7 @@ import re
 # Could use a script to generate parser and parsing tables if speed
 # was important.
 
+
 def split(s, delimiters):
     """Split string by specified delimiters but not if a delimiter is
     within curly brackets {} or ""."""
@@ -70,7 +71,8 @@ class Rule(object):
 
     def syntax_error(self, error, string):
 
-        raise ValueError('Syntax error: %s when parsing %s\nExpected format: %s' % (error, string, repr(self)))
+        raise ValueError('Syntax error: %s when parsing %s\nExpected format: %s' % (
+            error, string, repr(self)))
 
     def process(self, paramdict, string, fields, name, namespace):
 
@@ -176,14 +178,15 @@ class Parser(object):
             if param[0] == '[':
                 param = param[1:-1]
             if param not in self.paramdict:
-                raise ValueError('Unknown parameter %s for %s' % (param, string))
+                raise ValueError('Unknown parameter %s for %s' %
+                                 (param, string))
             if pos is None and self.paramdict[param].base == 'keyword':
                 pos = m
 
         if cpt_type not in self.ruledict:
             self.ruledict[cpt_type] = ()
         self.ruledict[cpt_type] += (Rule(cpt_type, cpt_classname,
-                                        params, comment, pos), )
+                                         params, comment, pos), )
 
     def parse(self, string, namespace='', parent=None):
         """Parse string and create object"""
@@ -233,7 +236,8 @@ class Parser(object):
 
         match = self.cpt_pattern.match(name)
         if match is None:
-            raise ValueError('Unknown component %s while parsing "%s"' % (name, net))
+            raise ValueError(
+                'Unknown component %s while parsing "%s"' % (name, net))
 
         groups = match.groups()
         cpt_type, cpt_id = groups[0], groups[1]
@@ -259,7 +263,7 @@ class Parser(object):
         defname = namespace + cpt_type + cpt_id
         name = defname
         if (cpt_id == '' and parent is not None
-            and (cpt_type in ('A', 'W', 'O', 'P')) or self.allow_anon):
+                and (cpt_type in ('A', 'W', 'O', 'P')) or self.allow_anon):
             name += parent._make_anon_cpt_id(cpt_type)
         elif cpt_id == '?':
             # Automatically name cpts to ensure they are unique

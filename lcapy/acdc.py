@@ -11,6 +11,7 @@ from .functions import Eq
 import sympy as sym
 from sympy import cos, pi, sin, atan2, sqrt, exp
 
+
 class CausalChecker(object):
 
     def _has_causal_factor(self, expr):
@@ -19,7 +20,7 @@ class CausalChecker(object):
         for factor in factors:
             if factor == 0:
                 return True
-            if (not factor.is_Function 
+            if (not factor.is_Function
                 or factor.func not in (sym.Heaviside, sym.DiracDelta,
                                        UnitImpulse, UnitStep)):
                 continue
@@ -27,7 +28,7 @@ class CausalChecker(object):
             # If have Heaviside(t), etc., then is causal
             if factor.args[0] == self.var:
                 return True
-            
+
             p = sym.Poly(factor.args[0], self.var)
             coeffs = p.all_coeffs()
             if len(coeffs) != 2:
@@ -40,7 +41,7 @@ class CausalChecker(object):
             if (a.is_positive and (b.is_negative or b.is_zero)):
                 return True
 
-        return False        
+        return False
 
     def _is_causal(self, expr):
 
@@ -48,17 +49,17 @@ class CausalChecker(object):
         for term in terms:
             if not self._has_causal_factor(term):
                 return False
-                
+
         return True
 
-    def __init__(self, expr, var):        
+    def __init__(self, expr, var):
 
         self.var = getattr(var, 'expr', sympify1(var))
         try:
             expr = expr.expr
         except:
             expr = sympify1(expr)
-        
+
         self.is_causal = self._is_causal(expr)
 
 
@@ -68,22 +69,22 @@ class DCChecker(object):
 
         return not self.var in expr.free_symbols
 
-    def __init__(self, expr, var):        
+    def __init__(self, expr, var):
 
         self.var = getattr(var, 'expr', sympify1(var))
         try:
             expr = expr.expr
         except:
             expr = sympify1(expr)
-        
+
         self.is_dc = self._is_dc(expr)
 
 
 class ACChecker(object):
     """This looks for real ac signals; it does not work for complex ac
-    
+
 signals."""
-    
+
     def _find_freq_phase(self, expr):
 
         self.freq = 0
@@ -104,7 +105,7 @@ signals."""
         arg = expr.args[0]
         if self.is_complex:
             arg /= sym.I
-            
+
         p = sym.Poly(arg, self.var)
         coeffs = p.all_coeffs()
         if len(coeffs) != 2:
@@ -144,13 +145,13 @@ signals."""
 
         # Convert exp(-j*x*t) + exp(j*x*t) into 2 * cos(x) etc.
         expr = sym.exptrigsimp(expr.rewrite(cos))
-        
+
         terms = expr.as_ordered_terms()
         if len(terms) > 1:
             return self._is_sum_ac(terms)
 
         factors = expr.as_ordered_factors()
-            
+
         self.amp = 1
         for factor in factors:
             if factor.is_Function:
@@ -176,8 +177,8 @@ signals."""
         try:
             expr = expr.expr
         except:
-            expr = sympify1(expr)        
-        
+            expr = sympify1(expr)
+
         self.is_ac = self._is_ac(expr)
 
 
@@ -188,7 +189,7 @@ def is_dc(expr, var):
             return is_dc(expr.expr.args[0], var) or is_dc(expr.expr.args[1], var)
     except:
         pass
-    
+
     return DCChecker(expr, var).is_dc
 
 
@@ -199,7 +200,7 @@ def is_ac(expr, var):
             return is_ac(expr.expr.args[0], var) or is_ac(expr.expr.args[1], var)
     except:
         pass
-        
+
     return ACChecker(expr, var).is_ac
 
 
@@ -210,6 +211,5 @@ def is_causal(expr, var):
             return is_causal(expr.expr.args[0], var) or is_causal(expr.expr.args[1], var)
     except:
         pass
-    
-    return CausalChecker(expr, var).is_causal
 
+    return CausalChecker(expr, var).is_causal

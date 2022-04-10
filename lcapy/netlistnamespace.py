@@ -4,6 +4,7 @@ Copyright 2020-2022 Michael Hayes, UCECE
 
 """
 
+
 class NetlistNamespace(object):
     """This class allows elements, nodes, or other namespaces
     in a heirachical namespace to be accessed by name, via __getattr__.

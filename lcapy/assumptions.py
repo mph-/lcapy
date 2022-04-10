@@ -30,7 +30,7 @@ class Assumptions(dict):
 
     def __init__(self, *args, **kwargs):
 
-        super (Assumptions, self).__init__(*args)
+        super(Assumptions, self).__init__(*args)
 
         for assumption, value in kwargs.items():
             self.set(assumption, value)

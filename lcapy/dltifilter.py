@@ -133,7 +133,7 @@ class DLTIFilter(object):
         from numpy import arange, ndarray
 
         if (ic is None and ni is None and isinstance(x, ndarray)
-            and self.a.symbols == {} and self.b.symbols == {}):
+                and self.a.symbols == {} and self.b.symbols == {}):
 
             from scipy.signal import lfilter
 
@@ -154,12 +154,14 @@ class DLTIFilter(object):
         if isinstance(x, (tuple, list, ndarray)):
             x = seq(x)
         elif not isinstance(x, (Sequence, DiscreteTimeDomainExpression)):
-            raise ValueError('The input x must be a scalar, tuple, sequence, nexpr, list, or array')
+            raise ValueError(
+                'The input x must be a scalar, tuple, sequence, nexpr, list, or array')
 
         NO = len(ic)
 
         if NO != len(self.a) - 1:
-            raise ValueError("Expected %d initial conditions, got %d" % (len(self.a) - 1, NO))
+            raise ValueError(
+                "Expected %d initial conditions, got %d" % (len(self.a) - 1, NO))
 
         if ni is None:
             ni = (0, 10)
@@ -186,7 +188,9 @@ class DLTIFilter(object):
                 rhs = sum(self.b[l] * x(nval - l) for l in range(Nr))
 
             # Add lhs
-            y_tot[i + NO] = -1 / self.a[0] * sum(csi * ysi for csi, ysi in zip(a_r, pre_y)) + rhs / self.a[0]
+            y_tot[i + NO] = -1 / self.a[0] * \
+                sum(csi * ysi for csi, ysi in zip(a_r, pre_y)) + \
+                rhs / self.a[0]
 
         # Solution, without initial values
         ret_seq = seq(y_tot[NO:], ni)
@@ -203,5 +207,6 @@ class DLTIFilter(object):
     def pdb(self):
         """Enter the python debugger."""
 
-        import pdb; pdb.set_trace()
+        import pdb
+        pdb.set_trace()
         return self

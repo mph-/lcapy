@@ -4,6 +4,7 @@ Copyright 2018--2022 Michael Hayes, UCECE
 
 """
 
+from .impedance import impedance  # nope8p
 from .sym import sympify, pi
 from .sym import dt
 from .symbols import f, s, t, omega, j, jw, jw0, Omega, F, k, n, z
@@ -63,7 +64,8 @@ def transform(expr, arg, **assumptions):
         elif arg is z:
             return expr.zdomain(**assumptions)
     except AttributeError:
-        raise AttributeError('Transform of %s domain to %s domain not implemented' % (expr.domain, arg.domain))
+        raise AttributeError('Transform of %s domain to %s domain not implemented' % (
+            expr.domain, arg.domain))
 
     # Handle expr(texpr), expr(sexpr), expr(fexpr), expr(omegaexpr).
     # For example, expr(2 * f).
@@ -94,7 +96,8 @@ def transform(expr, arg, **assumptions):
         else:
             result = expr
     else:
-        raise ValueError('Can only return t, f, s, F, omega, Omega, or jw domains')
+        raise ValueError(
+            'Can only return t, f, s, F, omega, Omega, or jw domains')
 
     return result.subs(arg, **assumptions)
 
@@ -143,18 +146,17 @@ def select(expr, kind):
         raise RuntimeError('unknown kind')
 
 
-from .fexpr import FourierDomainExpression
-from .sexpr import LaplaceDomainExpression
-from .texpr import TimeDomainExpression
-from .omegaexpr import AngularFourierDomainExpression
-from .normfexpr import NormFourierDomainExpression
-from .normomegaexpr import NormAngularFourierDomainExpression
-from .nexpr import DiscreteTimeDomainExpression
-from .kexpr import DiscreteFourierDomainExpression
-from .zexpr import ZDomainExpression
-from .super import Superposition
-from .current import current
-from .voltage import voltage
-from .admittance import admittance
-from .impedance import impedance
-from .transfer import transfer
+from .fexpr import FourierDomainExpression  # nopep8
+from .sexpr import LaplaceDomainExpression  # nopep8
+from .texpr import TimeDomainExpression  # nopep8
+from .omegaexpr import AngularFourierDomainExpression  # nopep8
+from .normfexpr import NormFourierDomainExpression  # nopep8
+from .normomegaexpr import NormAngularFourierDomainExpression  # nopep8
+from .nexpr import DiscreteTimeDomainExpression  # nopep8
+from .kexpr import DiscreteFourierDomainExpression  # nopep8
+from .zexpr import ZDomainExpression  # nopep8
+from .super import Superposition  # nopep8
+from .current import current  # nopep8
+from .voltage import voltage  # nopep8
+from .admittance import admittance  # nopep8
+from .transfer import transfer  # nopep8

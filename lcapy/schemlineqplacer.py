@@ -15,12 +15,13 @@ from warnings import warn
 # optimisation where the node positions and component stretches all
 # need to be non-negative.
 
+
 class Constraint(object):
 
     def __init__(self, size, stretch):
         self.size = size
         self.stretch = stretch
-        
+
     def __repr__(self):
         return '%.2f%s' % (self.size, '*' if self.stretch else '')
 
@@ -33,8 +34,8 @@ class Constraints(dict):
         for key, constraint in self.items():
             s += '%s -> %s: %s\n' % (key[0], key[1], repr(constraint))
         return s
-    
-        
+
+
 class Lineq(object):
 
     def __init__(self, direction, nodes, debug=0):
@@ -43,11 +44,11 @@ class Lineq(object):
         self.cnodes = Cnodes(nodes)
         self.debug = debug
         self.constraints = Constraints()
-        
+
     def link(self, n1, n2):
         """Make nodes n1 and n2 share common node"""
-        
-        self.cnodes.link(n1, n2)        
+
+        self.cnodes.link(n1, n2)
 
     def add(self, elt, n1, n2, size, stretch):
 
@@ -64,7 +65,7 @@ class Lineq(object):
             n2 = self.cnodes[n2]
 
         key = n1, n2
-        key2 = n2, n1        
+        key2 = n2, n1
         if key not in self.constraints and key2 not in self.constraints:
             self.constraints[key] = Constraint(size, stretch)
             return
@@ -72,17 +73,18 @@ class Lineq(object):
         if key2 in self.constraints:
             size = -size
             key = key2
-        constraint = Constraint(size, stretch)            
-            
+        constraint = Constraint(size, stretch)
+
         constraint2 = self.constraints[key]
         if not constraint2.stretch:
             if (not constraint.stretch and constraint2.size != constraint.size):
-                raise ValueError('Incompatible fixed constraint of size %s and %s' % (constraint.size, constraint2.size))
+                raise ValueError('Incompatible fixed constraint of size %s and %s' % (
+                    constraint.size, constraint2.size))
             self.constraints[key] = constraint
             return
 
         if abs(constraint.size) > abs(constraint2.size):
-            self.constraints[key] = constraint            
+            self.constraints[key] = constraint
 
     def solve(self, stage=None):
 
@@ -108,7 +110,7 @@ class Lineq(object):
                 m = cnode_map[self.cnodes[node]]
                 pos[node] = 0
             return pos, 0
-        
+
         Nunknowns = Nnodes - 1 + Nstretches
         Nconstraints = len(self.constraints)
 
@@ -125,7 +127,7 @@ class Lineq(object):
 
             if m1 != 0:
                 A[m, m1 - 1] = -1
-            if m2 != 0:        
+            if m2 != 0:
                 A[m, m2 - 1] = 1
             if constraint.stretch:
                 A[m, s + Nnodes - 1] = -1
@@ -146,7 +148,8 @@ class Lineq(object):
 
         for r in range(Nnodes - 1):
             if U[r, r] == 0:
-                raise ValueError('No basic variable for node %s' % cnode_imap[r])
+                raise ValueError(
+                    'No basic variable for node %s' % cnode_imap[r])
             bound[r] = 1
 
         for r in range(U.shape[0]):
@@ -158,7 +161,7 @@ class Lineq(object):
 
         Nbasic = bound.sum()
         Ur = U[0:Nbasic, bound != 0]
-                
+
         br = U[0:Nbasic, -1]
         # A slow one-liner!  Just need to back-substitute.
         xx = dot(inv(Ur), br)
@@ -171,7 +174,7 @@ class Lineq(object):
         for m in range(Nnodes - 1, xx.shape[0]):
             if xx[m] < 0:
                 warn('Negative stretch %s' % xx[m])
-        
+
         minx = min(x)
         width = max(x) - minx
 
@@ -188,13 +191,13 @@ class Lineq(object):
         self.U = U
 
         if ((self.direction == 'horizontal' and self.debug & 4)
-            or (self.direction == 'vertical' and self.debug & 8)):
-        
+                or (self.direction == 'vertical' and self.debug & 8)):
+
             if self.debug & 16:
                 from .matrix import Matrix
                 W = Matrix(W)
                 print(W.latex())
-                
+
             if self.debug & 32:
                 from .matrix import Matrix
                 U = Matrix(U)
@@ -205,14 +208,15 @@ class Lineq(object):
                     print(key, cnode)
 
             if self.debug & 128:
-                for key, constraint in self.constraints.items():                
-                    print(key, constraint)                    
+                for key, constraint in self.constraints.items():
+                    print(key, constraint)
 
             if self.debug & 256:
-                import pdb; pdb.set_trace()
+                import pdb
+                pdb.set_trace()
 
         return pos, width
-        
+
 
 class SchemLineqPlacer(SchemPlacerBase):
 
@@ -221,9 +225,8 @@ class SchemLineqPlacer(SchemPlacerBase):
         self.elements = elements
         self.nodes = nodes
         self.debug = debug
-        
+
         self.xgraph = Lineq('horizontal', nodes, debug)
         self.ygraph = Lineq('vertical', nodes, debug)
 
         warn('This is experimental')
-        

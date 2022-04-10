@@ -13,7 +13,7 @@ class RandomNetworkMaker(object):
                  num_voltage_sources=1, num_current_sources=0,
                  num_parallel=None, numeric_values=False, kind='transient'):
         """`kind` can be 'transient', 'ac', or 'dc'."""
-        
+
         self.num_resistors = num_resistors
         self.num_inductors = num_inductors
         self.num_capacitors = num_capacitors
@@ -36,7 +36,7 @@ class RandomNetworkMaker(object):
             cpts.extend(self._add_cpts(Idc, self.num_current_sources))
         elif self.kind == 'ac':
             cpts.extend(self._add_cpts(Vac, self.num_voltage_sources))
-            cpts.extend(self._add_cpts(Iac, self.num_current_sources))            
+            cpts.extend(self._add_cpts(Iac, self.num_current_sources))
         else:
             raise ValueError('Unknown circuit kind %s' % self.kind)
 
@@ -47,7 +47,7 @@ class RandomNetworkMaker(object):
 
     def _choose_connections(self):
         Nconnections = len(self.cpts) - 1
-        
+
         if self.num_parallel is None:
             connections = random.choices((True, False), k=Nconnections)
         else:
@@ -75,7 +75,7 @@ class RandomNetworkMaker(object):
             else:
                 if cpt.is_current_source and net.has_series_I:
                     return None
-                net = net.series(cpt)            
+                net = net.series(cpt)
         return net
 
     def make(self):
@@ -85,7 +85,7 @@ class RandomNetworkMaker(object):
             if net is not None:
                 return net
             self.connections = self._choose_connections()
-            
+
     def _add_cpts(self, cpt, num):
 
         cpts = []
@@ -94,11 +94,11 @@ class RandomNetworkMaker(object):
                 value = str(random.randint(1, 10))
             else:
                 value = '%s%d' % (cpt.__name__[0:1], m + 1)
-            
+
             cpts.append(cpt(value))
         return cpts
 
-    
+
 def random_network(num_resistors=3, num_inductors=0, num_capacitors=0,
                    num_voltage_sources=1, num_current_sources=0,
                    num_parallel=None, numeric_values=False, kind='transient'):

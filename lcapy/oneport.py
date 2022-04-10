@@ -1562,12 +1562,12 @@ def ladder(*args, **kwargs):
 
 
 # Imports at end to circumvent circular dependencies
-from .twoport import Ladder, LSection, TSection
-from .superpositioncurrent import SuperpositionCurrent
-from .superpositionvoltage import SuperpositionVoltage
-from .noiseomegaexpr import AngularFourierNoiseDomainCurrent, AngularFourierNoiseDomainVoltage
-from .phasor import phasor
-from .texpr import TimeDomainExpression
-from .sexpr import LaplaceDomainExpression
-from .cexpr import cexpr
-from .expr import Expr, expr
+from .twoport import Ladder, LSection, TSection  # nopep8
+from .superpositioncurrent import SuperpositionCurrent  # nopep8
+from .superpositionvoltage import SuperpositionVoltage  # nopep8
+from .noiseomegaexpr import AngularFourierNoiseDomainCurrent, AngularFourierNoiseDomainVoltage  # nopep8
+from .phasor import phasor  # nopep8
+from .texpr import TimeDomainExpression  # nopep8
+from .sexpr import LaplaceDomainExpression  # nopep8
+from .cexpr import cexpr  # nopep8
+from .expr import Expr, expr  # nopep8

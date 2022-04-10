@@ -9,14 +9,14 @@ from .matrix import Matrix
 
 
 class ZDomainMatrix(Matrix):
-    from .zexpr import ZDomainExpression    
+    from .zexpr import ZDomainExpression
     _typewrap = ZDomainExpression
 
     def IZT(self, **assumptions):
 
         def func(expr):
             return expr.IZT(**assumptions)
-        
+
         return DiscreteTimeDomainMatrix(self.applyfunc(func))
 
     def canonical(self):
@@ -37,33 +37,31 @@ class ZDomainMatrix(Matrix):
 
     def timeconst(self):
 
-        return self.applyfunc(self._typewrap.timeconst)   
+        return self.applyfunc(self._typewrap.timeconst)
 
     def ZPK(self):
 
-        return self.applyfunc(self._typewrap.ZPK)    
-    
+        return self.applyfunc(self._typewrap.ZPK)
+
 
 class ZDomainVoltageMatrix(ZDomainMatrix):
-    from .zexpr import ZDomainVoltage    
+    from .zexpr import ZDomainVoltage
     _typewrap = ZDomainVoltage
 
-    
+
 class ZDomainCurrentMatrix(ZDomainMatrix):
-    from .zexpr import ZDomainCurrent    
+    from .zexpr import ZDomainCurrent
     _typewrap = ZDomainCurrent
 
-    
+
 class ZDomainAdmittanceMatrix(ZDomainMatrix):
-    from .zexpr import ZDomainAdmittance    
+    from .zexpr import ZDomainAdmittance
     _typewrap = ZDomainAdmittance
 
-    
-class ZDomainImpedanceMatrix(ZDomainMatrix):
-    from .zexpr import ZDomainImpedance    
-    _typewrap = ZDomainImpedance    
-    
-    
-from .nmatrix import DiscreteTimeDomainMatrix
-    
 
+class ZDomainImpedanceMatrix(ZDomainMatrix):
+    from .zexpr import ZDomainImpedance
+    _typewrap = ZDomainImpedance
+
+
+from .nmatrix import DiscreteTimeDomainMatrix  # nopep8

@@ -5,11 +5,12 @@ Copyright 2021 Michael Hayes, UCECE
 """
 from math import floor, log10
 
+
 class EngFormatter(object):
 
     def __init__(self, trim=True, hundreds=False, num_digits=3):
         """If `hundreds` True format like 100 pF rather than 0.1 nF"""
-        
+
         self.trim = trim
         self.hundreds = hundreds
         self.num_digits = num_digits
@@ -21,7 +22,7 @@ class EngFormatter(object):
             return valstr
 
         return valstr + space + mbox_prefix + prefix + unit + mbox_suffix
-        
+
     def _do(self, value, unit, prefixes, space='', mbox_prefix='',
             mbox_suffix=''):
 
@@ -48,7 +49,7 @@ class EngFormatter(object):
             return self._fmt('%e' % value, unit, '', space, mbox_prefix, mbox_suffix)
         elif idx >= len(prefixes):
             idx = len(prefixes) - 1
-            return self._fmt('%e' % value, unit, '', space, mbox_prefix, mbox_suffix)            
+            return self._fmt('%e' % value, unit, '', space, mbox_prefix, mbox_suffix)
 
         if dp < 0:
             dp = 0
@@ -65,13 +66,12 @@ class EngFormatter(object):
 
         return self._fmt(valstr, unit, prefixes[idx], space,
                          mbox_prefix, mbox_suffix)
-            
 
     def latex_math(self, value, unit):
         """Make latex math-mode string."""
 
         return '$' + self.latex(value, unit) + '$'
-        
+
     def latex(self, value, unit):
         """Make latex string."""
 

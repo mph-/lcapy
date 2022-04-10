@@ -28,19 +28,19 @@ class NodalAnalysis(object):
     ... W 1 5; up
     ... W 2 6; up
     ... C1 5 6; right=2
-    ...''')    
+    ...''')
 
     To perform nodal analysis in the Laplace domain:
 
     >>> na = NodalAnalysis(cct.laplace())
-    
+
     To display the system of equations (in matrix form) that needs to
     be solved:
-    
+
     >>> na.equations().pprint()
-    
+
     To display the equations found by applying KCL at each node:
-    
+
     >>> na.nodal_equations().pprint()
 
     """
@@ -63,11 +63,12 @@ class NodalAnalysis(object):
             self.kind = 'time'
 
         self.node_prefix = node_prefix
-        
+
         self._unknowns = self._make_unknowns()
-        
-        self._y = matrix([val for key, val in self._unknowns.items() if key != '0'])
-        
+
+        self._y = matrix(
+            [val for key, val in self._unknowns.items() if key != '0'])
+
         self._equations = self._make_equations()
 
     @property
@@ -83,7 +84,7 @@ class NodalAnalysis(object):
         # cct.node_list is sorted alphabetically
         for node in self.cct.node_list:
             if node.startswith('*'):
-                continue            
+                continue
             if node == '0':
                 unknowns[node] = 0
             else:
@@ -112,7 +113,7 @@ class NodalAnalysis(object):
                 n2 = self.cg.node_map[elt.nodenames[1]]
 
                 V = elt.cpt.v_equation(0, self.kind)
-                
+
                 lhs, rhs = self._unknowns[n1], self._unknowns[n2] + V
 
             else:
@@ -127,13 +128,15 @@ class NodalAnalysis(object):
                     elif node == n2:
                         n1, n2 = n2, n1
                     else:
-                        raise ValueError('Component %s does not have node %s' % (elt, node))
-                    result += elt.cpt.i_equation(self._unknowns[n1] - self._unknowns[n2], self.kind)
+                        raise ValueError(
+                            'Component %s does not have node %s' % (elt, node))
+                    result += elt.cpt.i_equation(
+                        self._unknowns[n1] - self._unknowns[n2], self.kind)
                 lhs, rhs = result, expr(0)
 
             equations[node] = (lhs, rhs)
 
-        return equations        
+        return equations
 
     def equations_dict(self):
         """Return dictionary of equations keyed by node name."""
@@ -143,7 +146,7 @@ class NodalAnalysis(object):
             equations_dict[node] = equation(lhs, rhs)
 
         return equations_dict
-    
+
     def nodal_equations(self):
         """Return the equations found by applying KCL at each node.  This is a
         directory of equations keyed by the node name."""
@@ -153,7 +156,8 @@ class NodalAnalysis(object):
     def _analyse(self):
 
         if self.kind == 'time':
-            raise ValueError('Cannot put time domain equations into matrix form')
+            raise ValueError(
+                'Cannot put time domain equations into matrix form')
 
         subsdict = {}
         for node, v in self._unknowns.items():
@@ -164,13 +168,13 @@ class NodalAnalysis(object):
         exprs = []
         for node, (lhs, rhs) in self._equations.items():
             lhs = lhs.subs(subsdict).expr.expand()
-            rhs = rhs.subs(subsdict).expr.expand()            
+            rhs = rhs.subs(subsdict).expr.expand()
             exprs.append(lhs - rhs)
-            
+
         y = []
         for y1 in self._y:
-            y.append(y1.subs(subsdict).expr);
-        
+            y.append(y1.subs(subsdict).expr)
+
         A, b = sym.linear_eq_to_matrix(exprs, *y)
         y = [y1.expr for y1 in self._y]
         return SystemEquations(A, b, y)
@@ -185,17 +189,17 @@ class NodalAnalysis(object):
 
     @property
     def b(self):
-        """Return b vector where A y = b."""        
+        """Return b vector where A y = b."""
 
         if not hasattr(self, '_sys'):
             self._sys = self._analyse()
-        return matrix(self._sys.b)        
+        return matrix(self._sys.b)
 
     @property
     def y(self):
         """Return y vector where A y = b."""
         return self._y
-    
+
     def matrix_equations(self, form='default', invert=False):
         """Return the equations in matrix form.
 
@@ -223,11 +227,11 @@ class NodalAnalysis(object):
         return as a dict"""
 
         from .sexpr import s
-        
+
         return self.nodal_equations()(s).solve(self.unknowns(s))
-    
-    
-from .expr import ExprDict, expr
-from .voltage import Vname
-from .current import Itype
-from .matrix import matrix
+
+
+from .expr import ExprDict, expr  # nopep8
+from .voltage import Vname  # nopep8
+from .current import Itype  # nopep8
+from .matrix import matrix  # nopep8

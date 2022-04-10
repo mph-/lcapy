@@ -531,8 +531,8 @@ class Ratfun(object):
             combine_conjugates, damping, method)
 
         result = Q
-        for R, F in zip(R, F):
-            result += R / F
+        for R1, F1 in zip(R, F):
+            result += R1 / F1
 
         if delay != 0:
             result *= sym.exp(-self.var * delay)

@@ -96,7 +96,7 @@ def plot_deltas(ax, t, deltas, var, plot_type='real', color='k'):
         sy = ymax
 
         ax.arrow(t0, 0, 0, y1, fc=color, ec=color,
-                 width = 0.025 * st, head_width=0.1 * st,
+                 width=0.025 * st, head_width=0.1 * st,
                  head_length=0.1 * sy, overhang=0,
                  length_includes_head=True, clip_on=False)
 
@@ -129,7 +129,8 @@ def plot_pole_zero(obj, **kwargs):
     a = np.hstack((p, z))
 
     if unitcircle:
-        ax.add_artist(Circle((0, 0), 1, color='blue', linestyle='--', fill=False))
+        ax.add_artist(Circle((0, 0), 1, color='blue',
+                      linestyle='--', fill=False))
 
     x_min = a.real.min()
     x_max = a.real.max()
@@ -211,10 +212,10 @@ def plot_pole_zero(obj, **kwargs):
 def plotit(ax, obj, f, V, plot_type=None, deltas=None, log_magnitude=False,
            log_frequency=False, norm=False, dbmin=-120, **kwargs):
 
-    plots = {(True, True) : ax.loglog,
-             (True, False) : ax.semilogy,
-             (False, True) : ax.semilogx,
-             (False, False) : ax.plot}
+    plots = {(True, True): ax.loglog,
+             (True, False): ax.semilogy,
+             (False, True): ax.semilogx,
+             (False, False): ax.plot}
 
     label = ''
     if hasattr(obj, 'quantity_label'):
@@ -303,7 +304,8 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
     norm = kwargs.pop('norm', False)
     npoints = kwargs.pop('npoints', 400)
     log_magnitude = kwargs.pop('log_magnitude', False)
-    log_frequency = kwargs.pop('log_frequency', False) or kwargs.pop('log_scale', False)
+    log_frequency = kwargs.pop(
+        'log_frequency', False) or kwargs.pop('log_scale', False)
     if kwargs.pop('loglog', False):
         log_magnitude = True
         log_frequency = True
@@ -340,11 +342,12 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
     V = obj.evaluate(f)
 
     types = ['dB-phase', 'dB-radians', 'dB-phase-degrees', 'dB-degrees',
-             'mag-phase', 'magnitude-phase', 'mag-phase-degrees','magnitude-phase-degrees',
+             'mag-phase', 'magnitude-phase', 'mag-phase-degrees', 'magnitude-phase-degrees',
              'real-imag', 'mag', 'magnitude', 'phase', 'radians', 'phase-degrees',
              'degrees', 'real', 'imag', 'dB', 'abs']
     if plot_type is not None and plot_type not in types:
-        raise ValueError('Unknown plot type %s, expecting: %s ' % (plot_type, ', '.join(types)))
+        raise ValueError('Unknown plot type %s, expecting: %s ' %
+                         (plot_type, ', '.join(types)))
 
     if not V.dtype == complex:
         if plot_type is None:
@@ -362,11 +365,11 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
         plot1_type = 'dB'
         plot2_type = 'degrees'
     elif plot_type in ('mag_phase', 'magnitude_phase',
-                       'mag-phase','magnitude-phase'):
+                       'mag-phase', 'magnitude-phase'):
         plot1_type = 'magnitude'
         plot2_type = 'radians'
     elif plot_type in ('mag_phase_degrees', 'magnitude_phase_degrees',
-                       'mag-phase-degrees','magnitude-phase-degrees'):
+                       'mag-phase-degrees', 'magnitude-phase-degrees'):
         plot1_type = 'magnitude'
         plot2_type = 'degrees'
     elif plot_type in ('real_imag', 'real-imag'):
@@ -417,7 +420,8 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
         kwargs2.pop(key, None)
 
     # Dummy plot to add label to legend.
-    ax.plot([], [], label=plot2_type, color=color2, linestyle=linestyle2, **kwargs2)
+    ax.plot([], [], label=plot2_type, color=color2,
+            linestyle=linestyle2, **kwargs2)
 
     ax2 = ax.twinx()
     kwargs['axes'] = ax2
@@ -550,7 +554,8 @@ def plot_time(obj, t, plot_type=None, **kwargs):
     elif plot_type == 'abs':
         v = abs(v)
     else:
-        raise ValueError('Invalid plot_type: must be real, imag, real-imag, abs')
+        raise ValueError(
+            'Invalid plot_type: must be real, imag, real-imag, abs')
 
     ax = make_axes(figsize=kwargs.pop('figsize', None),
                    axes=kwargs.pop('axes', None))
@@ -644,7 +649,8 @@ def plot_sequence(obj, ni, plot_type=None, polar=False, **kwargs):
     elif plot_type == 'abs':
         v = abs(v)
     else:
-        raise ValueError('Invalid plot_type: must be real, imag, real-imag, abs')
+        raise ValueError(
+            'Invalid plot_type: must be real, imag, real-imag, abs')
 
     deltas = None
     if obj.has(DiracDelta):
@@ -662,7 +668,8 @@ def plot_sequence(obj, ni, plot_type=None, polar=False, **kwargs):
     title = kwargs.pop('title', None)
     color = kwargs.pop('color', None)
 
-    markerline, stemlines, baseline = ax.stem(ni * xscale, v * yscale, use_line_collection=True, **kwargs)
+    markerline, stemlines, baseline = ax.stem(
+        ni * xscale, v * yscale, use_line_collection=True, **kwargs)
     if color is not None:
         stemlines.set_color(color)
         markerline.set_color(color)
@@ -746,7 +753,8 @@ def plot_nyquist(obj, f, norm=False, **kwargs):
                    axes=kwargs.pop('axes', None))
 
     if unitcircle:
-        ax.add_artist(Circle((0, 0), 1, color='blue', linestyle='--', fill=False))
+        ax.add_artist(Circle((0, 0), 1, color='blue',
+                      linestyle='--', fill=False))
 
     lines = ax.plot(V.real, V.imag)
 

@@ -13,12 +13,13 @@ from .polyphase import polyphase_decompose_matrix, polyphase_compose_matrix
 from .polyphase import alpha_simplify3
 from sympy import Add
 
+
 class Polytwoport(Matrix):
 
     @classmethod
     def series(cls, *args, Zn=0):
         """The args are series impedances, for example:
-        
+
          X = Polytwoport.series('Za', 'Zb', 'Zc')
 
         """
@@ -27,9 +28,9 @@ class Polytwoport(Matrix):
         N = len(args)
 
         Zn = expr(Zn).expr
-        
-        I = Matrix.eye(N)        
-        
+
+        I = Matrix.eye(N)
+
         obj = cls(Matrix.zeros(2 * N))
         obj.A = I
         obj.B = Matrix.diag(args) + Matrix.ones(N) * Zn
@@ -39,17 +40,17 @@ class Polytwoport(Matrix):
     @classmethod
     def shunt(cls, *args):
         """The args are shunt admittances to the common node, for example:
-        
+
          X = Polytwoport.shunt('Ya', 'Yb', 'Yc')
 
         """
 
-        args = [expr(arg).expr for arg in args]        
+        args = [expr(arg).expr for arg in args]
         N = len(args)
 
-        Ysum = Add(*args)        
+        Ysum = Add(*args)
 
-        I = Matrix.eye(N)        
+        I = Matrix.eye(N)
         C = Matrix.zeros(N)
 
         for i in range(N):
@@ -58,7 +59,7 @@ class Polytwoport(Matrix):
                     C[i, j] = args[i]
                 else:
                     C[i, j] = - args[i] * args[j] / Ysum
-        
+
         obj = cls(Matrix.zeros(2 * N))
         obj.A = I
         obj.C = C
@@ -68,7 +69,7 @@ class Polytwoport(Matrix):
     @classmethod
     def star(cls, *args):
         """The args are shunt admittances to the common node, for example:
-        
+
          X = Polytwoport.star('Yas', 'Ybs', 'Ycs', 'Ysg')
 
         """
@@ -81,19 +82,19 @@ class Polytwoport(Matrix):
 
         I = Matrix.eye(N)
 
-        d1 = Add(*args[0:-1])        
+        d1 = Add(*args[0:-1])
         d = Add(*args)
         Yas, Ybs, Ycs, Ysg = args
-        
+
         obj = cls(Matrix.zeros(2 * N))
         obj.A = I
         obj.B = I * 0
-        obj.C = Matrix((( Yas * d1,  -Yas * Ybs, -Yas * Ycs),
+        obj.C = Matrix(((Yas * d1,  -Yas * Ybs, -Yas * Ycs),
                         (-Yas * Ybs,  Ybs * d1,  -Ybs * Ycs),
                         (-Yas * Ycs, -Ybs * Ycs,  Ycs * d1))) / d
         obj.D = I
         return obj
-        
+
     @property
     def N_phases(self):
         return self.shape[0] // 2
@@ -138,12 +139,12 @@ class Polytwoport(Matrix):
 
         if W is None:
             W = polyphase_decompose_matrix(self.N)
-        
+
         if Winv is None:
             Winv = polyphase_decompose_matrix(self.N)
 
         new = self * 0
-        
+
         new.A = Winv * self.A * W
         new.B = Winv * self.B * W
         new.C = Winv * self.C * W
@@ -151,12 +152,12 @@ class Polytwoport(Matrix):
 
         if simplify:
             new = new.alpha_simplify()
-        
+
         return new
 
     def alpha_simplify(self, alpha=None):
 
         if self.N != 3:
             return self
-        
+
         return alpha_simplify3(self, alpha)

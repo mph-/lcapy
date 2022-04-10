@@ -11,7 +11,7 @@ class Cnodes(dict):
 
     def __init__(self, nodes):
 
-        super (Cnodes, self).__init__()
+        super(Cnodes, self).__init__()
         for node in nodes:
             # Use tuple so hashable.
             self[node] = (node, )
@@ -31,4 +31,4 @@ class Cnodes(dict):
 
     def all_nodes(self):
 
-        return unique(self.values())        
+        return unique(self.values())

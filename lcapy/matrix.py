@@ -94,7 +94,8 @@ class Matrix(sym.Matrix):
     def pdb(self):
         """Enter the python debugger."""
 
-        import pdb; pdb.set_trace()
+        import pdb
+        pdb.set_trace()
         return self
 
     def canonical(self):
@@ -133,12 +134,13 @@ class Matrix(sym.Matrix):
         except:
             pass
 
-        ret = super(Matrix, self).replace(query, value, map, simultaneous, exact)
+        ret = super(Matrix, self).replace(
+            query, value, map, simultaneous, exact)
         return self.__class__(ret)
 
     def rewrite(self, *args, **hints):
 
-        f = lambda x: expr(x).rewrite(*args, **hints).sympy
+        def f(x): return expr(x).rewrite(*args, **hints).sympy
         return self.applyfunc(f)
 
     def simplify(self):
@@ -148,7 +150,7 @@ class Matrix(sym.Matrix):
     def subs(self, *args, **kwargs):
         """Substitute variables in expression, see sympy.subs for usage."""
 
-        f = lambda x: expr(x).subs(*args, **kwargs).sympy
+        def f(x): return expr(x).subs(*args, **kwargs).sympy
         return self.applyfunc(f)
 
     @property
@@ -298,4 +300,4 @@ of size %dx%d""" % (N, N, N))
         return self.applyfunc(self._typewrap.ZPK)
 
 
-from .expr import Expr, expr
+from .expr import Expr, expr  # nopep8

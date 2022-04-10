@@ -220,12 +220,12 @@ class NoiseExpression(Expr):
 
     def fourier(self):
         warn('No Fourier representation for noise expression, '
-              'assumed zero: use asd() or psd()')
+             'assumed zero: use asd() or psd()')
         return 0
 
     def laplace(self):
         warn('No Laplace representation for noise expression, '
-              'assumed zero')
+             'assumed zero')
         return 0
 
     def asd(self):
@@ -262,5 +262,5 @@ class NoiseExpression(Expr):
         raise ValueError('Invalid var for NoiseExpression')
 
 
-from .fexpr import f
-from .omegaexpr import omega
+from .fexpr import f  # nopep8
+from .omegaexpr import omega  # nopep8

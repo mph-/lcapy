@@ -1,6 +1,7 @@
 import sympy as sym
 from .expr import expr
 
+
 class SystemEquations(object):
 
     def __init__(self, A, b, y):
@@ -16,8 +17,8 @@ class SystemEquations(object):
         if hasattr(self, '_Ainv'):
             return self._Ainv
         self._Ainv = self.A.inv()
-        return self._Ainv        
-        
+        return self._Ainv
+
     def format(self, form='A y = b', invert=False):
         """Forms can be:
          A y = b
@@ -37,7 +38,7 @@ class SystemEquations(object):
             if invert:
                 return expr(sym.Eq(self.y, sym.MatMul(self.Ainv, self.b),
                                    evaluate=False))
-            
+
             return expr(sym.Eq(self.y, sym.MatMul(sym.Pow(self.A, -1), self.b),
                                evaluate=False))
 
@@ -45,9 +46,8 @@ class SystemEquations(object):
             if invert:
                 return expr(sym.Eq(sym.MatMul(self.Ainv, self.b), self.y,
                                    evaluate=False))
-            
+
             return expr(sym.Eq(sym.MatMul(sym.Pow(self.A, -1), self.b), self.y,
                                evaluate=False))
         else:
             raise ValueError('Unknown form %s' % form)
-        

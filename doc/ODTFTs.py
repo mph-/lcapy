@@ -1,4 +1,5 @@
-from lcapy import *
+from lcapy import (symbol, nexpr, delta, H, sign,
+                   rect, sinc, sincu, n, sin, cos, exp, j, Omega)
 
 alpha = symbol('alpha')
 m = symbol('m', integer=True)
@@ -15,4 +16,5 @@ sigs = [nexpr('x(n)'), nexpr('x(a * n)'), nexpr('x(n - m)'),
         sinc(n), sinc(K * n), sinc(K * n)**2, sincu(K * n)]
 
 for sig in sigs:
-    print(':math:`%s \\longleftrightarrow %s`\n' % (sig.latex(), sig(Omega).latex()))
+    print(':math:`%s \\longleftrightarrow %s`\n' %
+          (sig.latex(), sig(Omega).latex()))

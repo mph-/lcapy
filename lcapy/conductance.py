@@ -6,6 +6,7 @@ Copyright 2021 Michael Hayes, UCECE
 from .cexpr import cexpr
 from .units import u as uu
 
+
 def conductance(arg, **assumptions):
 
     # Perhaps, relax to expr?

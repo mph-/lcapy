@@ -13,6 +13,7 @@ from .admittancemixin import AdmittanceMixin
 from .impedancemixin import ImpedanceMixin
 from .transfermixin import TransferMixin
 
+
 class ConstantDomainExpression(ConstantDomain, Expr):
     """Constant real expression or symbol.
 
@@ -29,7 +30,7 @@ class ConstantDomainExpression(ConstantDomain, Expr):
                 raise ValueError(
                     'constant expression %s cannot depend on %s' % (val, symbol))
 
-        assumptions['dc'] = True        
+        assumptions['dc'] = True
         super(ConstantDomainExpression, self).__init__(val, **assumptions)
 
     def as_expr(self):
@@ -47,7 +48,7 @@ class ConstantDomainExpression(ConstantDomain, Expr):
     def angular_fourier(self):
         """Convert to angular Fourier domain representation."""
 
-        return self.time().angular_fourier()        
+        return self.time().angular_fourier()
 
     def canonical(self, factor_const=True):
         # Minor optimisation
@@ -66,13 +67,13 @@ class ConstantDomainExpression(ConstantDomain, Expr):
         return self.time().laplace()
 
     def response(self, xvector, tvector):
-        """Evaluate response to input signal `xvector` at times 
+        """Evaluate response to input signal `xvector` at times
         `tvector`.  This returns a NumPy array."""
 
-        from .sexpr import s        
+        from .sexpr import s
         # This can be optimized!
-        return self(s).response(xvector, tvector)        
-    
+        return self(s).response(xvector, tvector)
+
 
 class ConstantTimeDomainExpression(ConstantDomainExpression):
 
@@ -82,7 +83,7 @@ class ConstantTimeDomainExpression(ConstantDomainExpression):
             return ConstantTimeDomainExpression
 
         return super(ConstantTimeDomainExpression, self)._class_by_quantity(quantity, domain)
-    
+
 
 class ConstantFrequencyDomainExpression(ConstantDomainExpression):
 
@@ -92,16 +93,16 @@ class ConstantFrequencyDomainExpression(ConstantDomainExpression):
             return ConstantFrequencyDomainExpression
 
         return super(ConstantFrequencyDomainExpression, self)._class_by_quantity(quantity, domain)
-    
+
     def laplace(self, **assumptions):
         return self.change(self, domain='laplace', **assumptions)
 
     def time(self, **assumptions):
         """Convert to time domain."""
-        
-        return self.laplace(**assumptions).time(**assumptions)        
 
-    
+        return self.laplace(**assumptions).time(**assumptions)
+
+
 def cexpr(arg, **assumptions):
     """Create Lcapy constant expression from `arg`.
 
@@ -117,11 +118,11 @@ def cexpr(arg, **assumptions):
     if quantity == 'undefined':
         # Sit on the fence rather than choosing ConstantTimeDomainExpression
         return ConstantDomainExpression(arg, **assumptions)
-    
-    return expr_make('constant', arg, **assumptions)    
+
+    return expr_make('constant', arg, **assumptions)
 
 
-from .expressionclasses import expressionclasses
+from .expressionclasses import expressionclasses  # nopep8
 
 expressionclasses.register('constant', ConstantTimeDomainExpression, ConstantFrequencyDomainExpression,
                            ('voltage', 'current', 'voltagesquared', 'currentsquared', 'undefined'))

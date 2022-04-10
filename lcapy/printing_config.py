@@ -3,6 +3,7 @@ from sympy.printing.str import StrPrinter
 from sympy.printing.latex import LatexPrinter
 from sympy.printing.pretty.pretty import PrettyPrinter
 
+
 class PrintingConfig(object):
 
     def __init__(self):
@@ -16,10 +17,10 @@ class PrintingConfig(object):
         return self._abbreviate_units
 
     @abbreviate_units.setter
-    def abbreviate_units(self, val):    
+    def abbreviate_units(self, val):
 
         self._abbreviate_units = val
-    
+
         # Print abbreviated units, V not volt
         StrPrinter._default_settings['abbrev'] = val
 
@@ -33,8 +34,7 @@ class PrintingConfig(object):
         """Use 'none' to disable symbol ordering when expressions are printed."""
 
         self._order = val
-    
+
         StrPrinter._default_settings['order'] = val
         LatexPrinter._default_settings['order'] = val
         PrettyPrinter._default_settings['order'] = val
-        

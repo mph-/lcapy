@@ -42,7 +42,7 @@ class SimulatedComponent(object):
         geq = self.geq(n, dt, v1, v2, i)
         veq = self.veq(n, dt, v1, v2, i)
 
-        return {self.Reqsym:1 / geq, self.Veqsym:veq}
+        return {self.Reqsym: 1 / geq, self.Veqsym: veq}
 
     def stamp(self, A, Z, num_nodes, n, dt, v1, v2, i):
 
@@ -67,8 +67,8 @@ class SimulatedCapacitor(SimulatedComponent):
 
     def __init__(self, C, v1_index, v2_index, v3_index, i_index):
 
-        super (SimulatedCapacitor, self).__init__(C, v1_index, v2_index,
-                                                  v3_index, i_index)
+        super(SimulatedCapacitor, self).__init__(C, v1_index, v2_index,
+                                                 v3_index, i_index)
         self.Cval = C.C.expr
 
 
@@ -76,8 +76,8 @@ class SimulatedInductor(SimulatedComponent):
 
     def __init__(self, L, v1_index, v2_index, v3_index, i_index):
 
-        super (SimulatedInductor, self).__init__(L, v1_index, v2_index,
-                                                 v3_index, i_index)
+        super(SimulatedInductor, self).__init__(L, v1_index, v2_index,
+                                                v3_index, i_index)
         self.Lval = L.L.expr
 
 
@@ -115,6 +115,7 @@ class SimulatedInductorTrapezoid(SimulatedInductor):
         geq = dt / (2 * self.Lval)
         veq = -v - i[n - 1] / geq
         return veq
+
 
 class SimulatedCapacitorBackwardEuler(SimulatedCapacitor):
 
@@ -178,7 +179,6 @@ class SimulationResults(object):
 
         self.node_voltages = zeros((self.num_nodes + 1, N))
         self.branch_currents = zeros((self.num_branches, N))
-
 
     def __getitem__(self, name):
         """Return element or node by name."""
@@ -302,7 +302,8 @@ class Simulator(object):
         Z = array(Zsym).astype(float).squeeze()
 
         if n == 1 and Zsym.free_symbols != set():
-            raise ValueError('Undefined symbols %s in Z vector; use subs to replace with numerical values' % Zsym.free_symbols)
+            raise ValueError(
+                'Undefined symbols %s in Z vector; use subs to replace with numerical values' % Zsym.free_symbols)
 
         # Ensure have a copy.
         A = self.A + 0
@@ -387,7 +388,8 @@ class Simulator(object):
         self.Zsym = Zsym
 
         if Asym.free_symbols != set():
-            raise ValueError('Undefined symbols %s in A matrix; use subs to replace with numerical values' % Asym.free_symbols)
+            raise ValueError(
+                'Undefined symbols %s in A matrix; use subs to replace with numerical values' % Asym.free_symbols)
 
         # Convert to numpy ndarray
         self.A = array(Asym).astype(float)

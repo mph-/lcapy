@@ -87,7 +87,7 @@ class Function(object):
 
         if (self.expr in (sym.sin, sym.cos, sym.tan, sym.cot, sym.exp,
                           sym.sinh, sym.cosh, sym.tanh, sym.coth)
-            and e_args[0].is_phase):
+                and e_args[0].is_phase):
             result.part = ''
         elif self.expr in (sym.atan, sym.atan2):
             result.units = uu.rad
@@ -99,12 +99,13 @@ class Function(object):
             elif isinstance(e_args[1], tuple) and isinstance(e_args[1][0], Expr):
                 result.units = e_args[0].units * e_args[1][0].units
         elif self.expr is sym.DiracDelta and isinstance(e_args[0], Expr):
-                result.units = 1 / e_args[0].units
+            result.units = 1 / e_args[0].units
 
         return result
 
     def pdb(self):
-        import pdb; pdb.set_trace()
+        import pdb
+        pdb.set_trace()
         return self
 
 
@@ -257,4 +258,4 @@ function_mapping = {sym.Heaviside: UnitStep1,
                     rect1: dtrect,
                     sym.sign: dtsign}
 
-from .expr import Expr, expr, delcapify
+from .expr import Expr, expr, delcapify  # nopep8

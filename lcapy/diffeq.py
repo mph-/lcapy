@@ -8,6 +8,7 @@ from .expr import equation
 from .nexpr import DiscreteTimeDomainExpression, nexpr
 import sympy as sym
 
+
 class DifferenceEquation(DiscreteTimeDomainExpression):
 
     def __init__(self, lhs, rhs, inputsym='x', outputsym='y', **assumptions):
@@ -21,11 +22,12 @@ class DifferenceEquation(DiscreteTimeDomainExpression):
         if inputsym not in rhssymbols:
             raise ValueError('Input symbol %s not in rhs %s' % (inputsym, rhs))
         if outputsym not in lhssymbols:
-            raise ValueError('Output symbol %s not in lhs %s' % (outputsym, lhs))
+            raise ValueError('Output symbol %s not in lhs %s' %
+                             (outputsym, lhs))
 
         cls = lhs.__class__
         eqn = sym.Eq(lhs.expr, rhs.expr, evaluate=False)
-        super (DifferenceEquation, self).__init__(cls(eqn), **assumptions)
+        super(DifferenceEquation, self).__init__(cls(eqn), **assumptions)
         self.inputsym = inputsym
         self.outputsym = outputsym
 

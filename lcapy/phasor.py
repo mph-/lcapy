@@ -30,6 +30,7 @@ Copyright 2014--2021 Michael Hayes, UCECE
 """
 
 from __future__ import division
+from .expressionclasses import expressionclasses
 from .acdc import ACChecker
 from .domains import PhasorTimeDomain, PhasorFrequencyDomain
 from .sym import j, omegasym
@@ -37,11 +38,6 @@ from .expr import expr
 from .functions import sin, cos, exp, sqrt
 from .expr import Expr
 from .omegaexpr import omega
-from .voltagemixin import VoltageMixin
-from .currentmixin import CurrentMixin
-from .admittancemixin import AdmittanceMixin
-from .impedancemixin import ImpedanceMixin
-from .transfermixin import TransferMixin
 from sympy import Expr as symExpr
 from warnings import warn
 
@@ -59,7 +55,6 @@ __all__ = ('phasor', )
 # capacitor.  In the Laplace domain it is 1/(s C); in the phasor
 # domain it is 1/(j omega C); in the Fourier domain it is 1/(2 j omega
 # C) + delta(omega) / (2 C).
-
 
 
 class PhasorExpression(Expr):
@@ -118,7 +113,6 @@ class PhasorExpression(Expr):
         the angular frequency limits."""
 
         from .plot import plot_phasor, plot_angular_frequency
-        from .sym import pi, fsym
 
         if self.is_phasor_time_domain:
             return plot_phasor(self, **kwargs)
@@ -135,7 +129,6 @@ class PhasorExpression(Expr):
         frequency limits as (10**m1, 10**m2)."""
 
         from .plot import plot_bode
-        from .sym import pi, fsym
 
         if not self.is_phasor_frequency_domain:
             raise ValueError('Not frequency domain phasor: use plot()')
@@ -194,7 +187,7 @@ class PhasorTimeDomainExpression(PhasorTimeDomain, PhasorExpression):
             assumptions['omega'] = assumptions['omega'].expr
 
         assumptions['ac'] = True
-        super (PhasorExpression, self).__init__(val, **assumptions)
+        super(PhasorExpression, self).__init__(val, **assumptions)
 
     def _class_by_quantity(self, quantity, domain=None):
 
@@ -212,7 +205,8 @@ class PhasorTimeDomainExpression(PhasorTimeDomain, PhasorExpression):
         from .symbols import t
 
         if expr.is_admittance or expr.is_impedance or expr.is_transfer:
-            warn('Should convert %s expression to Laplace-domain first.' % expr.quantity)
+            warn('Should convert %s expression to Laplace-domain first.' %
+                 expr.quantity)
 
         assumptions['ac'] = True
 
@@ -226,7 +220,8 @@ class PhasorTimeDomainExpression(PhasorTimeDomain, PhasorExpression):
                 'Do not know how to convert %s to phasor.  Expecting an AC signal.' % expr)
 
         if omega is not None and check.omega != omega:
-            raise ValueError('Expecting omega=%s, found omega=%s.' % (omega, check.omega))
+            raise ValueError('Expecting omega=%s, found omega=%s.' %
+                             (omega, check.omega))
 
         if check.omega == 0:
             warn('DC phasor.')
@@ -249,7 +244,8 @@ class PhasorTimeDomainExpression(PhasorTimeDomain, PhasorExpression):
         if self.is_complex_signal:
             result = self.expr * exp(j * omega1 * t)
         else:
-            result = self.real.expr * cos(omega1 * t) - self.imag.expr * sin(omega1 * t)
+            result = self.real.expr * \
+                cos(omega1 * t) - self.imag.expr * sin(omega1 * t)
 
         return TimeDomainExpression(result).as_quantity(self.quantity)
 
@@ -279,7 +275,7 @@ class PhasorFrequencyDomainExpression(PhasorFrequencyDomain, PhasorExpression):
         else:
             ass = assumptions
 
-        super (PhasorExpression, self).__init__(val, **ass)
+        super(PhasorExpression, self).__init__(val, **ass)
 
     def _class_by_quantity(self, quantity, domain=None):
 
@@ -303,7 +299,8 @@ class PhasorFrequencyDomainExpression(PhasorFrequencyDomain, PhasorExpression):
             omega = omega.expr
 
         if expr.is_voltage or expr.is_current:
-            warn('Should convert %s expression to time-domain first.' % expr.quantity)
+            warn('Should convert %s expression to time-domain first.' %
+                 expr.quantity)
 
         # Substitute jw for s
         result = expr.laplace(**ass)
@@ -368,12 +365,10 @@ def phasor(arg, omega=None, **assumptions):
         return PhasorFrequencyDomainExpression(arg, omega=omega, **assumptions)
 
 
-from .expressionclasses import expressionclasses
-
 expressionclasses.register('phasor', PhasorTimeDomainExpression,
                            PhasorFrequencyDomainExpression,
                            ('voltage', 'current',
                             'voltagesquared', 'currentsquared', 'undefined'))
 
-from .texpr import TimeDomainExpression
-from .expr import Expr
+from .texpr import TimeDomainExpression  # nopep8
+from .expr import Expr  # nopep8

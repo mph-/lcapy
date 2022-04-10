@@ -1,5 +1,6 @@
 from .quantity import Quantity
 
+
 class VoltageMixin(Quantity):
 
     quantity = 'voltage'
@@ -15,8 +16,5 @@ class VoltageMixin(Quantity):
             return Vdc(self.expr)
         elif self.is_phasor_domain:
             return Vac(self, omega=self.omega)
-        
-        return V(self.expr)
 
-    
-    
+        return V(self.expr)

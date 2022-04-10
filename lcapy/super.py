@@ -7,6 +7,7 @@ Copyright 2019--2022 Michael Hayes, UCECE
 """
 
 from __future__ import division
+import sys
 import sympy as sym
 from .expr import Expr, ExprDict, expr
 from .sym import tsym, omega0sym, symbols_find, is_sympy
@@ -59,7 +60,7 @@ class Superposition(SuperpositionDomain, ExprDict):
     # The 's' key is the transient component viewed in the Laplace domain.
 
     def __init__(self, *args, **kwargs):
-        super (Superposition, self).__init__()
+        super(Superposition, self).__init__()
 
         for arg in args:
 
@@ -155,7 +156,8 @@ class Superposition(SuperpositionDomain, ExprDict):
         necessary to transform to a specific domain.  For example,
         using `V(s)`."""
 
-        raise AttributeError("""Units are not defined for a superposition; convert to a specific domain, say using `V(t)` or `V(s)`.""")
+        raise AttributeError(
+            """Units are not defined for a superposition; convert to a specific domain, say using `V(t)` or `V(s)`.""")
 
     def ac_keys(self):
         """Return list of keys for all ac components."""
@@ -335,7 +337,8 @@ class Superposition(SuperpositionDomain, ExprDict):
             x = x.as_quantity(self.quantity)
 
         if x.quantity != self.quantity:
-            raise ValueError('Incompatible quantities %s and %s' % (self.quantity, x.quantity))
+            raise ValueError('Incompatible quantities %s and %s' %
+                             (self.quantity, x.quantity))
 
         if _is_s_arg(x):
             new = self.decompose()
@@ -506,7 +509,7 @@ class Superposition(SuperpositionDomain, ExprDict):
 
         val = self.select(kind)
         if (isinstance(kind, str) and kind in ('s', 'ivp') and
-            (val.is_causal or val.is_dc or val.is_ac)):
+                (val.is_causal or val.is_dc or val.is_ac)):
             # Convert to time representation so that can re-infer
             # causality, etc.
             return val.time()
@@ -590,8 +593,8 @@ class Superposition(SuperpositionDomain, ExprDict):
             delattr(self, '_decomposition')
 
         if isinstance(value, Superposition):
-            for kind, value in value.items():
-                self.add(value)
+            for kind, value1 in value.items():
+                self.add(value1)
             return
 
         if isinstance(value, str):
@@ -795,19 +798,19 @@ expression.""")
             return self.time()
         return self
 
-from .cexpr import ConstantDomainExpression
-from .fexpr import FourierDomainExpression
-from .sexpr import LaplaceDomainExpression
-from .texpr import TimeDomainExpression
-from .noiseexpr import NoiseExpression
-from .phasor import PhasorTimeDomainExpression
-from .omegaexpr import AngularFourierDomainExpression
-from .symbols import s, omega
+
+from .cexpr import ConstantDomainExpression  # nopep8
+from .fexpr import FourierDomainExpression  # nopep8
+from .sexpr import LaplaceDomainExpression  # nopep8
+from .texpr import TimeDomainExpression  # nopep8
+from .noiseexpr import NoiseExpression  # nopep8
+from .phasor import PhasorTimeDomainExpression  # nopep8
+from .omegaexpr import AngularFourierDomainExpression  # nopep8
+from .symbols import s, omega  # nopep8
 
 
 # See expr.py
 
-import sys
 try:
     from .printing import latex
     formatter = sys.displayhook.shell.display_formatter.formatters['text/latex']

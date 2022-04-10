@@ -9,6 +9,7 @@ from .sequence import Sequence
 from .nexpr import n
 from .utils import isiterable
 
+
 def seq(arg, ni=None, origin=None, domain=None):
     """Create a Sequence from a tuple, list, ndarray, or str.
 
@@ -53,7 +54,8 @@ def seq(arg, ni=None, origin=None, domain=None):
     else:
         raise ValueError('Unknown domain %s' % domain)
 
-from .nseq import nseq
-from .kseq import kseq
-from .zseq import zseq
-from .symbols import n, k, z
+
+from .nseq import nseq  # nopep8
+from .kseq import kseq  # nopep8
+from .zseq import zseq  # nopep8
+from .symbols import n, k, z  # nopep8

@@ -7,6 +7,8 @@ Copyright 2019--2021 Michael Hayes, UCECE
 # SymPy symbols to exclude.  It might be easier to add the ones we want...
 # 'I' is removed to avoid conflict with oneport current source and
 # since `j` is used instead.
+from sympy.printing.pretty.pretty_symbology import atoms_table
+import sympy as sym
 excludes = ['I', 'C', 'O', 'S', 'N', 'E', 'E1', 'Q', 'beta', 'gamma', 'zeta',
             'Le', 'Lt', 'Ge', 'Gt', 'Ci']
 
@@ -14,14 +16,12 @@ excludes = ['I', 'C', 'O', 'S', 'N', 'E', 'E1', 'Q', 'beta', 'gamma', 'zeta',
 aliases = {'delta': 'DiracDelta', 'step': 'Heaviside', 'u': 'Heaviside',
            'H': 'Heaviside', 'j': 'I'}
 
-import sympy as sym
 str_expr_map = {sym.I: 'j'}
 
 latex_expr_map = {sym.I: '\mathrm{j}', sym.Heaviside: 'u'}
 
 # Hack to pretty print i as j
 junicode = '\u2149'
-from sympy.printing.pretty.pretty_symbology import atoms_table
 atoms_table['ImaginaryUnit'] = junicode
 
 pretty_expr_map = {sym.I: junicode, sym.Heaviside: 'u'}

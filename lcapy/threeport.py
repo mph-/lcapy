@@ -120,7 +120,8 @@ class ThreePort(object):
         Y = self.Y
         Voc = self.Voc
 
-        Isc = LaplaceDomainCurrentMatrix([Voc[m] * Y[m, m] for m in range(len(Voc))])
+        Isc = LaplaceDomainCurrentMatrix(
+            [Voc[m] * Y[m, m] for m in range(len(Voc))])
         return Isc
 
     @property
@@ -229,7 +230,8 @@ class ThreePort(object):
         Isc = self.Isc
         Isc[p] += OP.Isc
         Z = Y.Z
-        Voc = LaplaceDomainVoltageMatrix([LaplaceDomainVoltage(Isc[m] * Z[m, m]) for m in range(len(Isc))])
+        Voc = LaplaceDomainVoltageMatrix(
+            [LaplaceDomainVoltage(Isc[m] * Z[m, m]) for m in range(len(Isc))])
         return ThreePort(Z, Voc)
 
     def bridge(self, OP, inport=1, outport=2):
@@ -258,7 +260,8 @@ class ThreePort(object):
         Isc[p1] -= OP.Isc
         Isc[p2] += OP.Isc
         Z = Y.Z
-        Voc = LaplaceDomainVoltageMatrix([LaplaceDomainVoltage(Isc[m] * Z[m, m]) for m in range(len(Isc))])
+        Voc = LaplaceDomainVoltageMatrix(
+            [LaplaceDomainVoltage(Isc[m] * Z[m, m]) for m in range(len(Isc))])
         return ThreePort(Y.Z, Voc)
 
     def parallel(self, MP, port=None):
@@ -277,7 +280,8 @@ class ThreePort(object):
         Y = self.Y + MP.Y
         Isc = self.Isc + MP.Isc
         Z = Y.Z
-        Voc = LaplaceDomainVoltageMatrix([LaplaceDomainVoltage(Isc[m] * Z[m, m]) for m in range(len(Isc))])
+        Voc = LaplaceDomainVoltageMatrix(
+            [LaplaceDomainVoltage(Isc[m] * Z[m, m]) for m in range(len(Isc))])
         return ThreePort(Z, Voc)
 
     def series(self, MP, port=None):

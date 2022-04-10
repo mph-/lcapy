@@ -9,6 +9,7 @@ import numpy as np
 from .oneport import Ser, Par
 from .netlisthelper import NetlistHelper
 
+
 class LadderMaker(NetlistHelper):
 
     def __init__(self, net, layout='ladder', evalf=None):

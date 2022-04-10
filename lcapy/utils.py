@@ -5,6 +5,7 @@ Copyright 2021--2022 Michael Hayes, UCECE
 
 import sympy as sym
 
+
 def factor_const(expr, var):
     """Extract constant factor from expression and return tuple
     of constant and the rest of the expression.
@@ -60,7 +61,8 @@ def scale_shift(expr, var):
 
     expr = expr.expand()
     if not expr.as_poly(var).is_linear:
-        raise ValueError('Expression not a linear function of %s: %s' % (var, expr))
+        raise ValueError(
+            'Expression not a linear function of %s: %s' % (var, expr))
 
     scale = expr.coeff(var, 1)
     shift = expr.coeff(var, 0)
@@ -122,7 +124,7 @@ def as_sum_terms(expr, var):
     N, D = as_N_D(expr, var)
     N = N.simplify()
 
-    return [term / D for term in N.expand().as_ordered_terms ()]
+    return [term / D for term in N.expand().as_ordered_terms()]
 
 
 def as_sum(expr, var):
@@ -235,7 +237,7 @@ def remove_images(expr, var, dt, m1=0, m2=0):
         # Perhaps should warn that this might be deprecated?
         m1, m2 = m1
 
-    remove_all =  m1 == 0 and m2 == 0
+    remove_all = m1 == 0 and m2 == 0
 
     const, expr1 = factor_const(expr, var)
 

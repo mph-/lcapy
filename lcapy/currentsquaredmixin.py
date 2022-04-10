@@ -1,5 +1,6 @@
 from .quantity import Quantity
 
+
 class CurrentSquaredMixin(Quantity):
 
     quantity = 'currentsquared'

@@ -75,28 +75,28 @@ class Opts(dict):
         return ', '.join([fmt(key, val) for key, val in self.items()])
 
     def copy(self):
-        
+
         return self.__class__(super(Opts, self).copy())
 
     def remove(self, arg):
         self.pop(arg)
-            
+
     def strip(self, *args):
 
         stripped = Opts()
         for opt in args:
             if opt in self:
-                stripped[opt] = self.pop(opt)        
+                stripped[opt] = self.pop(opt)
         return stripped
 
     def strip_voltage_labels(self):
-        """Strip voltage labels."""        
+        """Strip voltage labels."""
 
         return self.strip('v', 'vr', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<')
 
     def strip_current_labels(self):
         """Strip current and flow labels."""
-        
+
         return self.strip('i', 'ir', 'i_', 'i^', 'i_>', 'i_<', 'i^>', 'i^<',
                           'i>_', 'i<_', 'i>^', 'i<^',
                           'f', 'fr', 'f_', 'f^', 'f_>', 'f_<', 'f^>', 'f^<',
@@ -110,7 +110,7 @@ class Opts(dict):
         """Strip voltage, current, flow, and labels."""
 
         stripped = Opts()
-        
+
         stripped.update(self.strip_voltage_labels())
         stripped.update(self.strip_current_labels())
         stripped.update(self.strip_labels())

@@ -14,6 +14,7 @@ from .printing_config import PrintingConfig
 from .symbolregistry import SymbolRegistry
 from copy import copy
 
+
 class State(object):
     """This maintains Lcapy's state, such as the defined symbols, and
     behaviour.

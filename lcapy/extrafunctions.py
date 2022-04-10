@@ -11,6 +11,7 @@ from sympy.core import S, Integer
 from sympy.core.logic import fuzzy_not
 from .config import unitstep_zero
 
+
 class UnitImpulse(sym.Function):
 
     is_integer = True
@@ -143,6 +144,7 @@ class sincu(sym.Function):
 
         x = self.args[0]
         return sym.sin(x) / x
+
 
 class psinc(sym.Function):
 

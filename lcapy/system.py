@@ -26,10 +26,11 @@ except ImportError:
 
 programs = {}
 
+
 def which(program):
 
     import os
-    
+
     def is_exe(fpath):
         return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
@@ -51,7 +52,7 @@ def hasexe(program):
         else:
             programs[program] = which(program + '.exe') is not None
 
-    return programs[program]        
+    return programs[program]
 
 
 def checkexe(command):
@@ -74,8 +75,8 @@ def run(command, stderr=DEVNULL, stdout=DEVNULL, shell=False, debug=False):
     if debug:
         print('Running: %s' % ' '.join(command))
     call(command, stderr=stderr, stdout=stdout, shell=shell)
-    
-    
+
+
 def tmpfilename(suffix='', dirname=None):
 
     from tempfile import gettempdir, NamedTemporaryFile
@@ -83,8 +84,8 @@ def tmpfilename(suffix='', dirname=None):
     if dirname is None:
         # Searches using TMPDIR, TEMP, TMP environment variables
         dirname = gettempdir()
-    
-    filename = NamedTemporaryFile(suffix=suffix, dir=dirname, 
+
+    filename = NamedTemporaryFile(suffix=suffix, dir=dirname,
                                   delete=False).name
     return filename
 
@@ -99,43 +100,44 @@ class PDFConverter(object):
 
         run(['pdf2svg', pdf_filename, svg_filename], debug=self.debug)
         if not path.exists(svg_filename):
-            raise RuntimeError('Could not generate %s with pdf2svg.  Is it installed?' % 
+            raise RuntimeError('Could not generate %s with pdf2svg.  Is it installed?' %
                                svg_filename)
-
 
     def to_png_convert(self, pdf_filename, png_filename, dpi=300):
 
-        program = 'convert'    
+        program = 'convert'
         if platform.system() == 'Windows':
             program = 'magick convert'
 
-        run([program, '-density %d' % int(dpi), pdf_filename, png_filename], debug=self.debug)
-        
+        run([program, '-density %d' %
+            int(dpi), pdf_filename, png_filename], debug=self.debug)
+
         if not path.exists(png_filename):
-            raise RuntimeError('Could not generate %s with convert' % 
+            raise RuntimeError('Could not generate %s with convert' %
                                png_filename)
         if stat(png_filename).st_size == 0:
-            raise RuntimeError('Could not generate %s with convert, empty file' % 
+            raise RuntimeError('Could not generate %s with convert, empty file' %
                                png_filename)
-    
+
     def to_png_ghostscript(self, pdf_filename, png_filename, dpi=300):
 
-        program = 'gs'    
+        program = 'gs'
         if platform.system() == 'Windows':
             program = 'gswin32'
             if platform.machine().endswith('64'):
-                program = 'gswin64'            
+                program = 'gswin64'
 
         run([program, '-q', '-dQUIET', '-dSAFER', '-dBATCH', '-dNOPAUSE',
              '-dNOPROMPT',  '-dMaxBitmap=500000000',  '-dAlignToPixels=0',
              '-dGridFitTT=2',  '-sDEVICE=pngalpha',  '-dTextAlphaBits=4',
              '-dGraphicsAlphaBits=4',  '-r%dx%d' % (int(dpi), int(dpi)),
              '-sOutputFile=' + png_filename, pdf_filename], debug=self.debug)
-    
+
     def to_png_pdftoppm(self, pdf_filename, png_filename, dpi=300):
 
         root, ext = path.splitext(png_filename)
-        args = ['pdftoppm', '-r %d' % int(dpi), '-png', '-thinlinemode shape', '-singlefile', pdf_filename, root]
+        args = ['pdftoppm', '-r %d' %
+                int(dpi), '-png', '-thinlinemode shape', '-singlefile', pdf_filename, root]
         if False:
             # TODO, determine why this fails...
             run(args, debug=self.debug)
@@ -143,11 +145,11 @@ class PDFConverter(object):
             from os import system
             checkexe(args)
             system(' '.join(args))
-        
+
         if not path.exists(png_filename):
-            raise RuntimeError('Could not generate %s with pdftoppm' % 
-                               png_filename)    
-    
+            raise RuntimeError('Could not generate %s with pdftoppm' %
+                               png_filename)
+
     def to_png(self, pdf_filename, png_filename, dpi=300):
 
         conversions = (('ghostscript', self.to_png_ghostscript),
@@ -160,7 +162,8 @@ class PDFConverter(object):
             except:
                 pass
 
-        raise RuntimeError("""Could not convert pdf to png, tried: %s.  Check that one of these programs is installed.""" % ', '.join([conversion for conversion, func in conversions]))
+        raise RuntimeError("""Could not convert pdf to png, tried: %s.  Check that one of these programs is installed.""" % ', '.join(
+            [conversion for conversion, func in conversions]))
 
 
 def run_dot(dotfilename, filename):
@@ -168,7 +171,7 @@ def run_dot(dotfilename, filename):
     base, ext = path.splitext(filename)
     #run([which('dot'), '-T ' + ext[1:], '-o ' + filename, dotfilename])
     system('dot -T %s -o %s %s' % (ext[1:], filename, dotfilename))
-    remove(dotfilename)            
+    remove(dotfilename)
     return
 
 
@@ -181,22 +184,23 @@ class LatexRunner(object):
     def run(self, tex_filename):
 
         checkexe('pdflatex')
-    
+
         root, ext = path.splitext(tex_filename)
         dirname = path.dirname(tex_filename)
         baseroot = path.basename(root)
         cwd = getcwd()
         if dirname != '':
             if self.debug:
-                print('Chdir: %s' % dirname)            
+                print('Chdir: %s' % dirname)
             chdir(path.abspath(dirname))
-        
-        run(['pdflatex', '-interaction', 'batchmode', baseroot + '.tex'], debug=self.debug)
-    
+
+        run(['pdflatex', '-interaction', 'batchmode',
+            baseroot + '.tex'], debug=self.debug)
+
         if dirname != '':
             if self.debug:
-                print('Chdir: %s' % cwd)            
-            chdir(cwd)            
+                print('Chdir: %s' % cwd)
+            chdir(cwd)
 
         return root + '.pdf'
 
@@ -205,7 +209,7 @@ class LatexRunner(object):
         root, ext = path.splitext(tex_filename)
         exts = ['.tex', '.aux', '.log', '.pdf']
         filenames = [root + ext for ext in exts]
-        
+
         if wanted_filename in filenames:
             filenames.remove(wanted_filename)
 
@@ -222,13 +226,13 @@ class LatexRunner(object):
         \usepackage{circuitikz}
         \begin{document}
         \end{document}"""
-        
+
         tex_filename = tmpfilename('.tex')
         open(tex_filename, 'w').write(content)
-        
+
         log_filename = tex_filename.replace('.tex', '.log')
         self.run(tex_filename)
-        
+
         with open(log_filename, 'rt') as logfile:
             lines = logfile.readlines()
 
@@ -240,8 +244,6 @@ class LatexRunner(object):
                 date = match.group(1)
                 version = lines[m + 1].strip()
                 break
-            
+
         self.cleanup(tex_filename)
         return date, version
-
-

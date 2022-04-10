@@ -11,12 +11,13 @@ from .sym import nsym
 
 __all__ = ('nseq', )
 
+
 class DiscreteTimeDomainSequence(DiscreteTimeDomain, Sequence):
     """Discrete-time domain sequence."""
 
     var = nsym
     domain = 'discrete time sequence'
-    
+
     def DFT(self):
         """Calculate DFT and return as sequence."""
 
@@ -29,8 +30,8 @@ class DiscreteTimeDomainSequence(DiscreteTimeDomain, Sequence):
         N = len(vals)
         for ki in range(N):
             result = 0
-            for ni in range(N):            
-               result += vals[ni] * exp(-2 * j * pi * self.n[ni] * ki / N)
+            for ni in range(N):
+                result += vals[ni] * exp(-2 * j * pi * self.n[ni] * ki / N)
             result = result.change(result, domain='discrete fourier')
             results.append(result)
 
@@ -48,8 +49,8 @@ class DiscreteTimeDomainSequence(DiscreteTimeDomain, Sequence):
             result = z**(-ni) * vals[ni].expr
             result = result.change(result, domain='Z')
             results.append(result)
-        return self.change(results, domain='Z sequence')        
-    
+        return self.change(results, domain='Z sequence')
+
 
 def nseq(arg, ni=None, origin=None):
     """Create a discrete-time domain Sequence from a tuple, list, ndarray, or str.
@@ -58,7 +59,7 @@ def nseq(arg, ni=None, origin=None):
 
     The sequence indices are specified with the optional `ni` argument.
     For example:
-    
+
     >>> a = nseq((1, 2, 3, 4), (-1, 0, 1, 2))
 
     If the `ni` argument is not specified, the sequence indices
@@ -74,11 +75,12 @@ def nseq(arg, ni=None, origin=None):
 
     >>> a = nseq('{1, _2, 3, 4}').n
     [-1, 0, 1, 2]
-    """    
-    
+    """
+
     return DiscreteTimeDomainSequence(arg, ni, origin)
 
 
-from .expressionclasses import expressionclasses
+from .expressionclasses import expressionclasses  # nopep8
 
-expressionclasses.register('discrete time sequence', DiscreteTimeDomainSequence)
+expressionclasses.register('discrete time sequence',
+                           DiscreteTimeDomainSequence)

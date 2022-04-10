@@ -11,6 +11,7 @@ from .assumptions import Assumptions
 # Perhaps subclass numpy ndarray?  But then could not have symbolic
 # elements in the sequence.
 
+
 def parse_seq_str(s):
 
     if s.startswith('{'):
@@ -89,7 +90,7 @@ class Sequence(ExprList, ExprDomain):
         if not isiterable(seq):
             seq = (seq, )
 
-        super (Sequence, self).__init__(seq, evaluate)
+        super(Sequence, self).__init__(seq, evaluate)
 
         if ni is not None and origin is not None:
             raise ValueError('Cannot specify both ni and origin')
@@ -131,20 +132,24 @@ class Sequence(ExprList, ExprDomain):
         if not isinstance(x, Sequence):
             raise TypeError('Can only add a sequence to a sequence')
         if x.quantity != 'undefined' and self.quantity != 'undefined' and x.quantity != self.quantity:
-            raise TypeError('Sequences have different quantities: %s and %s' % (self.quantity, x.quantity))
+            raise TypeError('Sequences have different quantities: %s and %s' % (
+                self.quantity, x.quantity))
 
         if self.domain != x.domain:
-            raise TypeError('Sequences have different domains: %s and %s' % (self.domain, x.domain))
+            raise TypeError('Sequences have different domains: %s and %s' % (
+                self.domain, x.domain))
 
     def __abs__(self):
         """Absolute value of each element."""
 
-        raise ValueError('abs operator not supported for %s: use .as_array()' % self.__class__.__name__)
+        raise ValueError(
+            'abs operator not supported for %s: use .as_array()' % self.__class__.__name__)
 
     def __neg__(self):
         """Negation of each element."""
 
-        raise ValueError('- operator not supported for %s: use .as_array()' % self.__class__.__name__)
+        raise ValueError(
+            '- operator not supported for %s: use .as_array()' % self.__class__.__name__)
 
     def __add__(self, x):
         """Concatenate with sequence x."""
@@ -455,7 +460,7 @@ class Sequence(ExprList, ExprDomain):
 
     def copy(self):
         return self.__class__(super(Sequence, self).copy(),
-                               self.n)
+                              self.n)
 
     def lfilter(self, b=None, a=None):
         """Implement digital filter specified by a transfer function.  The

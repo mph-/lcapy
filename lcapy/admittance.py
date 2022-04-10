@@ -7,7 +7,7 @@ from __future__ import division
 from .expr import expr
 from .sexpr import LaplaceDomainExpression
 
-    
+
 def admittance(arg, causal=True, **assumptions):
     """Generic admittance factory function.
 
@@ -19,14 +19,14 @@ def admittance(arg, causal=True, **assumptions):
 
     Z(omega) = 1 / Y(omega)
 
-    """    
+    """
 
     expr1 = expr(arg, causal=causal, **assumptions)
 
     try:
         expr1 = expr1.as_admittance()
     except:
-        raise ValueError('Cannot represent %s(%s) as admittance' % (expr1.__class__.__name__, expr1))        
+        raise ValueError('Cannot represent %s(%s) as admittance' %
+                         (expr1.__class__.__name__, expr1))
 
     return expr1
-

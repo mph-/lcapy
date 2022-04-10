@@ -32,6 +32,7 @@ from warnings import warn
 
 __all__ = ('LT', 'laplace_transform')
 
+
 class LaplaceTransformer(UnilateralForwardTransformer):
 
     name = 'Laplace transform'
@@ -118,7 +119,7 @@ class LaplaceTransformer(UnilateralForwardTransformer):
         const2, expr2 = factor_const(integrand, var)
 
         if (expr2.is_Function and
-            expr2.args[0] == t - var and limits[0] == 0 and limits[1] == sym.oo):
+                expr2.args[0] == t - var and limits[0] == 0 and limits[1] == sym.oo):
             return const2 * self.term(expr2.subs(t - var, t), t, s) / s
 
         # Handle integral(x(tau), (tau, -oo, t))
@@ -135,7 +136,7 @@ class LaplaceTransformer(UnilateralForwardTransformer):
             self.error('Cannot handle upper limit %s' % limits[1])
 
         if ((len(expr.args) != 2) or not expr2.is_Mul or
-            not expr2.args[0].is_Function or not expr2.args[1].is_Function):
+                not expr2.args[0].is_Function or not expr2.args[1].is_Function):
             self.error('Need integral of product of two functions')
 
         f1 = expr2.args[0]
@@ -159,7 +160,7 @@ class LaplaceTransformer(UnilateralForwardTransformer):
             self.error('Expecting derivative')
 
         if (not isinstance(expr.args[0], AppliedUndef) and
-            expr.args[1][0] != t):
+                expr.args[1][0] != t):
             self.error('Expecting function of t')
 
         name = expr.args[0].func.__name__
@@ -219,7 +220,8 @@ class LaplaceTransformer(UnilateralForwardTransformer):
         if tau != 0:
             phi += omega * tau
 
-        E = (omega * sym.cos(phi) + (s - alpha) * sym.sin(phi)) / (omega**2 + (s - alpha)**2)
+        E = (omega * sym.cos(phi) + (s - alpha) *
+             sym.sin(phi)) / (omega**2 + (s - alpha)**2)
 
         if tau != 0:
             E *= sym.exp(-tau * s)

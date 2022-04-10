@@ -18,6 +18,7 @@ from sympy import Sum
 
 __all__ = ('kexpr', )
 
+
 class DiscreteFourierDomainExpression(DiscreteFourierDomain, SequenceExpression):
     """Discrete Fourier domain expression or symbol."""
 
@@ -30,7 +31,8 @@ class DiscreteFourierDomainExpression(DiscreteFourierDomain, SequenceExpression)
         if 'integer' not in assumptions:
             assumptions['real'] = True
 
-        super(DiscreteFourierDomainExpression, self).__init__(val, **assumptions)
+        super(DiscreteFourierDomainExpression,
+              self).__init__(val, **assumptions)
 
         expr = self.expr
         if check and expr.has(zsym):
@@ -147,7 +149,7 @@ def kexpr(arg, **assumptions):
     return DiscreteFourierDomainExpression(arg, **assumptions)
 
 
-from .expressionclasses import expressionclasses
+from .expressionclasses import expressionclasses  # nopep8
 
 expressionclasses.register('discrete fourier', DiscreteFourierDomainExpression)
 

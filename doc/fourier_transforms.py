@@ -1,4 +1,5 @@
-from lcapy import *
+from lcapy import (symbol, texpr, cos, sin, exp,
+                   expr, pi, rect, sinc, tri, trap, delta, sign, H, j, t, f)
 
 alpha = symbol('alpha')
 t0 = symbol('t0')
@@ -13,4 +14,5 @@ sigs = [texpr('x(t)'), texpr('x(a * t)'), texpr('x(t - tau)'),
         exp(-abs(t)), exp(-t) * H(t)]
 
 for sig in sigs:
-    print(':math:`%s \\longleftrightarrow %s`\n' % (sig.latex(), sig(f).latex()))
+    print(':math:`%s \\longleftrightarrow %s`\n' %
+          (sig.latex(), sig(f).latex()))

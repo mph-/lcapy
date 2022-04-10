@@ -16,6 +16,7 @@ from .units import u as uu
 from .utils import factor_const
 from sympy import Integral, Expr as symExpr
 
+
 class FourierDomainExpression(FourierDomain, Expr):
 
     """Fourier domain expression or symbol."""
@@ -42,7 +43,8 @@ class FourierDomainExpression(FourierDomain, Expr):
     def inverse_fourier(self, evaluate=True, **assumptions):
         """Attempt inverse Fourier transform."""
 
-        result = inverse_fourier_transform(self.expr, self.var, tsym, evaluate=evaluate)
+        result = inverse_fourier_transform(
+            self.expr, self.var, tsym, evaluate=evaluate)
 
         return self.change(result, 'time', units_scale=uu.Hz, **assumptions)
 
@@ -184,7 +186,8 @@ def fexpr(arg, **assumptions):
         return f
     return expr_make('fourier', arg, **assumptions)
 
-from .expressionclasses import expressionclasses
+
+from .expressionclasses import expressionclasses  # nopep8
 
 classes = expressionclasses.register('fourier', FourierDomainExpression)
 

@@ -1,5 +1,6 @@
 from .quantity import Quantity
 
+
 class PowerMixin(Quantity):
 
     quantity = 'power'
@@ -11,5 +12,3 @@ class PowerMixin(Quantity):
     # For example, in the Fourier domain V * I has units of V/Hz * A/Hz
     # which is equivalent to W / Hz^2 = J / Hz.   This is an energy spectral
     # density.
-    
-    

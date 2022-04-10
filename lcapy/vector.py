@@ -9,6 +9,7 @@ from .matrix import Matrix
 from .sym import sympify
 from .expr import expr
 
+
 class Vector(Matrix):
 
     def __new__(cls, *args, **assumptions):
@@ -19,5 +20,3 @@ class Vector(Matrix):
         args = [expr(arg, **assumptions).sympy for arg in args[0]]
 
         return super(Vector, cls).__new__(cls, args)
-
-

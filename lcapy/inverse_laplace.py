@@ -99,21 +99,23 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         kCdd = -2 * omega1 * sigma1
         kSdd = sigma1**2 - omega1**2
 
-        G = K * E * ((kCdd + ncoeffs[1] * kCd) * C + (kSdd + ncoeffs[1] * kSd + ncoeffs[2]) * S)
+        G = K * E * ((kCdd + ncoeffs[1] * kCd) * C +
+                     (kSdd + ncoeffs[1] * kSd + ncoeffs[2]) * S)
 
         return K * kCd * sym.DiracDelta(t), G
 
     def ratfun(self, expr, s, t, **kwargs):
 
         if kwargs.pop('pdb', False):
-            import pdb; pdb.set_trace()
+            import pdb
+            pdb.set_trace()
 
         sexpr = Ratfun(expr, s)
 
         if kwargs.get('damped_sin', False):
             if sexpr.degree == 2:
                 return self.do_damped_sin(sexpr, s, t)
-            #if False and sexpr.degree == 3 and Ratfun(expr * s).degree == 2:
+            # if False and sexpr.degree == 3 and Ratfun(expr * s).degree == 2:
             #    return self.do_damped_sin3(sexpr, s, t)
 
         self.debug('Finding QRPO representation')
@@ -200,7 +202,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         if (len(factors) > 2 and not
             # Help s * 1 / (s + R * C) * I(s)
             isinstance(factors[1], AppliedUndef) and
-            isinstance(factors[2], AppliedUndef)):
+                isinstance(factors[2], AppliedUndef)):
             factors = [factors[0], factors[2], factors[1]] + factors[3:]
 
         if isinstance(factors[1], AppliedUndef):
@@ -309,7 +311,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
 
         func = sym.DiracDelta
         if (expr.is_Mul and expr.args[0].is_Pow and
-            expr.args[0].args[0] == s and expr.args[0].args[1] == -1):
+                expr.args[0].args[0] == s and expr.args[0].args[1] == -1):
             expr *= s
             func = sym.Heaviside
 
@@ -350,7 +352,8 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         if g == 0:
             h = 1 / d * func(t - T)
         else:
-            h = 1 / d * sym.Sum(g**m * func(t - (2 * m + 1) * T), (m, 0, sym.oo))
+            h = 1 / d * sym.Sum(g**m * func(t - (2 * m + 1)
+                                * T), (m, 0, sym.oo))
         return h
 
     def tline_start(self, expr, s, t):
@@ -361,7 +364,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         # c * cosh(s * T) + d * sinh(s * T) / (a * cosh(s * T) + b * sinh(s * T))
         func = sym.DiracDelta
         if (expr.is_Mul and expr.args[0].is_Pow and
-            expr.args[0].args[0] == s and expr.args[0].args[1] == -1):
+                expr.args[0].args[0] == s and expr.args[0].args[1] == -1):
             expr *= s
             func = sym.Heaviside
 
@@ -428,7 +431,9 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         elif Gammas == 0:
             h2 = (1 - Gammas) * (1 + Gammas) * func(t - 2 * m * T)
         else:
-            h2 = (1 - Gammas) * (1 + Gammas) / Gammas * sym.Sum((Gammas * Gammal)**m * func(t - 2 * m * T), (m, 1, sym.oo))
+            h2 = (1 - Gammas) * (1 + Gammas) / Gammas * \
+                sym.Sum((Gammas * Gammal)**m *
+                        func(t - 2 * m * T), (m, 1, sym.oo))
         return K * (h1 + h2)
 
     def term1(self, expr, s, t, **kwargs):

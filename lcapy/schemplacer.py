@@ -7,6 +7,7 @@ Copyright 2021 Michael Hayes, UCECE
 from .schemgraphplacer import SchemGraphPlacer
 from .schemlineqplacer import SchemLineqPlacer
 
+
 def schemplacer(elements, nodes, method='graph', debug=False):
 
     if method == 'graph':
@@ -17,5 +18,3 @@ def schemplacer(elements, nodes, method='graph', debug=False):
         raise ValueError('Unknown placer method %s' % method)
 
     return placer
-
-    

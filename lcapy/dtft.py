@@ -152,7 +152,7 @@ class DTFTTransformer(BilateralForwardTransformer):
                 res = 1 / (1 - sym.exp(-sym.I * twopidt * f))
                 if aa.is_negative:
                     res = res.subs(f, -f)
-                return const * sym.exp(-sym.I * twopidt * f  * delay) * res  + const * self.add_images(DiracDelta(f), f) / dt / 2
+                return const * sym.exp(-sym.I * twopidt * f * delay) * res + const * self.add_images(DiracDelta(f), f) / dt / 2
 
         # Handle exp(j*a*n+b) * x(n)    o--o   X(W-a) * exp(b)
         elif is_multiplied_with(expr, n, 'exp(n)', xn_fac) and abs(xn_fac[-1] / sym.exp(args[0].coeff(n, 0))) == 1:
@@ -160,7 +160,7 @@ class DTFTTransformer(BilateralForwardTransformer):
             ref = xn_fac[-1].args
             aa = ref[0].coeff(n, 1) / sym.I
             bb = ref[0].coeff(n, 0)
-            X =  self.term(expr, n, f, **kwargs)
+            X = self.term(expr, n, f, **kwargs)
             res = X.subs(f,  f - aa / twopidt)
             return const * res * sym.exp(bb)
 
@@ -173,7 +173,8 @@ class DTFTTransformer(BilateralForwardTransformer):
             X = self.term(expr, n, f, **kwargs)
             Xp = X.subs(f, f + bb / twopidt)
             Xm = X.subs(f, f - bb / twopidt)
-            res = sym.I * (Xp * sym.exp(-sym.I * cc) - Xm * sym.exp(sym.I * cc))
+            res = sym.I * (Xp * sym.exp(-sym.I * cc) -
+                           Xm * sym.exp(sym.I * cc))
             return const / 2 * res
 
         # Handle cos(b*n+c)*x(n)    o--o   1/2 (exp(-jc)* X(W+b) + X(W-b) * exp(jc))
@@ -203,7 +204,7 @@ class DTFTTransformer(BilateralForwardTransformer):
             aa = ref[0].coeff(n, 1)
             bb = ref[0].coeff(n, 0)
             # Check argument of step function
-            if abs(aa) != 1 or not (bb.is_integer or bb.is_integer is None) :
+            if abs(aa) != 1 or not (bb.is_integer or bb.is_integer is None):
                 warn("Check argument of Step function")
             delay = -bb / aa
             #
@@ -248,7 +249,7 @@ class DTFTTransformer(BilateralForwardTransformer):
             bb = args[0].coeff(n, 0)
             delay = -bb / aa
             if delay.is_integer or delay.is_integer is None:
-                return  const * sym.exp(-sym.I * delay * twopidt * f)
+                return const * sym.exp(-sym.I * delay * twopidt * f)
 
         # Handle signum
         elif (len(args) == 1 and expr.is_Function and
@@ -277,7 +278,8 @@ class DTFTTransformer(BilateralForwardTransformer):
                 prefac *= sym.pi
                 K /= sym.pi
             if delay.is_integer:
-                result = const * prefac * dtrect(f / K) * sym.exp(sym.I * delay * twopidt * f)
+                result = const * prefac * \
+                    dtrect(f / K) * sym.exp(sym.I * delay * twopidt * f)
                 return self.add_images(result, f)
 
         # Handle sincu**2
@@ -295,7 +297,8 @@ class DTFTTransformer(BilateralForwardTransformer):
                 prefac *= sym.pi
                 K *= sym.pi
             if delay.is_integer:
-                result = const * prefac * tri(f / K) * sym.exp(sym.I * delay * twopidt * f)
+                result = const * prefac * \
+                    tri(f / K) * sym.exp(sym.I * delay * twopidt * f)
                 return self.add_images(result, f)
 
         # Handle dtrect
@@ -311,7 +314,8 @@ class DTFTTransformer(BilateralForwardTransformer):
                         delay += S.Half
                     elif not N.is_odd:
                         if N.is_symbol:
-                            warn("Assuming %s odd; if even use %s = symbol('%s', even=True)" % (N, N, N))
+                            warn(
+                                "Assuming %s odd; if even use %s = symbol('%s', even=True)" % (N, N, N))
                         else:
                             warn("Assuming %s odd" % N)
 

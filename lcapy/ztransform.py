@@ -23,7 +23,7 @@ def is_multiplied_with(expr, n, cmp, ret):
 
     ret_flag = False
     # Check for multiplication  with n
-    if cmp == 'n' and expr == n:  #only n
+    if cmp == 'n' and expr == n:  # only n
         ret += [n]
         ret_flag = True
     elif (cmp == 'n' and expr.is_Pow and expr.args[0] == n and
@@ -33,7 +33,7 @@ def is_multiplied_with(expr, n, cmp, ret):
     elif cmp == 'n' and expr.is_Mul:   # multiplication with n
         for i in range(len(expr.args)):
             if (expr.args[i].is_Pow and expr.args[i].args[0] == n and
-                expr.args[i].args[1].is_integer and expr.args[i].args[1] >= 1):
+                    expr.args[i].args[1].is_integer and expr.args[i].args[1] >= 1):
                 ret += [n]
                 ret_flag = True
                 break
@@ -64,14 +64,14 @@ def is_multiplied_with(expr, n, cmp, ret):
     elif cmp == 'exp(n)' and expr.is_Mul:
         for i in range(len(expr.args)):
             if (expr.args[i].is_Function and expr.args[i].func == sym.exp and
-                ((expr.args[i].args[0]).as_poly(n)).is_linear):
+                    ((expr.args[i].args[0]).as_poly(n)).is_linear):
                 ret += [expr.args[i]]
                 ret_flag = True
                 break
 
     # Check for multiplication with u(n-n0)
-    elif (cmp == 'UnitStep' and len(expr.args) == 1 and expr.is_Function and  #step only
-          ((expr.args[0]).as_poly(n)).is_linear and expr.func in (sym.Heaviside, UnitStep) ):
+    elif (cmp == 'UnitStep' and len(expr.args) == 1 and expr.is_Function and  # step only
+          ((expr.args[0]).as_poly(n)).is_linear and expr.func in (sym.Heaviside, UnitStep)):
         ret += [expr]
         ret_flag = True
     elif cmp == 'UnitStep' and expr.is_Mul:
@@ -82,7 +82,7 @@ def is_multiplied_with(expr, n, cmp, ret):
                 break
 
     # Check for multiplication with dtrect
-    elif (cmp =='rect' and len(expr.args) == 1 and expr.is_Function and
+    elif (cmp == 'rect' and len(expr.args) == 1 and expr.is_Function and
           expr.func == dtrect and ((expr.args[0]).as_poly(n)).is_linear):
         ret += [expr]
         ret_flag = True
@@ -94,48 +94,46 @@ def is_multiplied_with(expr, n, cmp, ret):
                 break
 
    # Check for multiplication with sin
-    elif (cmp == 'sin(n)' and len(expr.args) == 1 and expr.is_Function and # sin() only
+    elif (cmp == 'sin(n)' and len(expr.args) == 1 and expr.is_Function and  # sin() only
           ((expr.args[0]).as_poly(n)).is_linear and expr.func == sym.sin):
         ret += [expr]
         ret_flag = True
-    elif cmp == 'sin(n)' and expr.is_Pow and expr.args[0].func==sym.sin  and (expr.args[0].args[0]).as_poly(n).is_linear:
+    elif cmp == 'sin(n)' and expr.is_Pow and expr.args[0].func == sym.sin and (expr.args[0].args[0]).as_poly(n).is_linear:
         ret += [expr.args[0]]
         ret_flag = True
     elif cmp == 'sin(n)' and expr.is_Mul:
         for i in range(len(expr.args)):
             if (expr.args[i].is_Function and expr.args[i].func == sym.sin and
-                ((expr.args[i].args[0]).as_poly(n)).is_linear):
+                    ((expr.args[i].args[0]).as_poly(n)).is_linear):
                 ret += [expr.args[i]]
                 ret_flag = True
                 break
             elif (expr.args[i].is_Pow and expr.args[i].args[0].func == sym.sin and
-                ((expr.args[i].args[0].args[0]).as_poly(n)).is_linear):
+                  ((expr.args[i].args[0].args[0]).as_poly(n)).is_linear):
                 ret += [expr.args[i].args[0]]
                 ret_flag = True
                 break
-
 
     # Check for multiplication with cos
     elif (cmp == 'cos(n)' and len(expr.args) == 1 and expr.is_Function and  # cos only
           ((expr.args[0]).as_poly(n)).is_linear and expr.func == sym.cos):
         ret += [expr]
         ret_flag = True
-    elif cmp == 'cos(n)' and expr.is_Pow and expr.args[0].func==sym.cos  and (expr.args[0].args[0]).as_poly(n).is_linear:
+    elif cmp == 'cos(n)' and expr.is_Pow and expr.args[0].func == sym.cos and (expr.args[0].args[0]).as_poly(n).is_linear:
         ret += [expr.args[0]]
         ret_flag = True
     elif cmp == 'cos(n)' and expr.is_Mul:
         for i in range(len(expr.args)):
             if (expr.args[i].is_Function and expr.args[i].func == sym.cos and
-                ((expr.args[i].args[0]).as_poly(n)).is_linear):
+                    ((expr.args[i].args[0]).as_poly(n)).is_linear):
                 ret += [expr.args[i]]
                 ret_flag = True
                 break
             elif (expr.args[i].is_Pow and expr.args[i].args[0].func == sym.cos and
-                ((expr.args[i].args[0].args[0]).as_poly(n)).is_linear):
+                  ((expr.args[i].args[0].args[0]).as_poly(n)).is_linear):
                 ret += [expr.args[i].args[0]]
                 ret_flag = True
                 break
-
 
     return ret_flag
 
@@ -189,7 +187,8 @@ class ZTransformer(UnilateralForwardTransformer):
             # Down-sampling is not shift invariant so z-transform
             # is an approximation.
             m = self.dummy_var(expr, 'm', level=0, real=True)
-            expr = func(z**(1 / scale) * sym.exp(-sym.I * 2 * sym.pi * m / scale))
+            expr = func(z**(1 / scale) *
+                        sym.exp(-sym.I * 2 * sym.pi * m / scale))
             return sym.Sum(expr, (m, 0, scale - 1)) / scale
 
         if not scale.is_rational:
@@ -218,7 +217,7 @@ class ZTransformer(UnilateralForwardTransformer):
         if (isinstance(expr.args[0], AppliedUndef)
             and expr.args[1][0] == expr.args[0].args[0]
             and expr.args[1][1] == -sym.oo
-            and expr.args[1][2] == n):
+                and expr.args[1][2] == n):
             return self.func(expr.args[0].subs(expr.args[0].args[0], n), n, z) / (1 - 1 / z)
 
         # Look for convolution sum
@@ -229,7 +228,7 @@ class ZTransformer(UnilateralForwardTransformer):
         expr = expr.args[0]
         if ((len(expr.args) != 2)
             or (not isinstance(expr.args[0], AppliedUndef))
-            or (not isinstance(expr.args[1], AppliedUndef))):
+                or (not isinstance(expr.args[1], AppliedUndef))):
             self.error('Need convolution of two functions')
 
         f1 = expr.args[0]
@@ -238,7 +237,7 @@ class ZTransformer(UnilateralForwardTransformer):
         # TODO: apply similarity theorem if have f(a tau) etc.
 
         if ((f1.args[0] != var or f2.args[0] != n - var)
-            and (f2.args[0] != var or f1.args[0] != n - var)):
+                and (f2.args[0] != var or f1.args[0] != n - var)):
             self.error('Cannot recognise convolution')
 
         name = f1.func.__name__
@@ -258,7 +257,7 @@ class ZTransformer(UnilateralForwardTransformer):
         # Unilateral ZT ignores expr for n < 0 so remove Piecewise.
         if expr.is_Piecewise:
             if (expr.args[0].args[1].func is sym.GreaterThan and
-                expr.args[0].args[1].args[1] == 0):
+                    expr.args[0].args[1].args[1] == 0):
                 const, e = factor_const(expr.args[0].args[1].args[0], n)
                 if e is n:
                     expr = expr.args[0].args[0]
@@ -325,14 +324,16 @@ class ZTransformer(UnilateralForwardTransformer):
         elif (expr.is_Function and expr.func == sym.sin and (args[0].as_poly(n)).is_linear):
             bb = args[0].coeff(n, 1)
             cc = args[0].coeff(n, 0)
-            result =  (sym.sin(cc) + sym.sin(bb - cc) * invz) / (1 - 2 * sym.cos(bb) * invz + invz**2)
+            result = (sym.sin(cc) + sym.sin(bb - cc) * invz) / \
+                (1 - 2 * sym.cos(bb) * invz + invz**2)
             result = sym.simplify(result)
 
         # cos(b*n+c)
         elif (expr.is_Function and expr.func == sym.cos and (args[0].as_poly(n)).is_linear):
             bb = args[0].coeff(n, 1)
             cc = args[0].coeff(n, 0)
-            result = (sym.cos(cc) - sym.cos(bb - cc) * invz) / (1 - 2 * sym.cos(bb) * invz + invz**2)
+            result = (sym.cos(cc) - sym.cos(bb - cc) * invz) / \
+                (1 - 2 * sym.cos(bb) * invz + invz**2)
             result = sym.simplify(result)
 
         # Multiplication with n       use n*x(n)  o--o  -z d/dz X(z)
@@ -376,7 +377,8 @@ class ZTransformer(UnilateralForwardTransformer):
             msym = sympify('m', real=True)
             nsym = sympify(str(n))
             zsym = sympify(str(z))
-            result = sym.Sum(expr.subs(nsym, msym) * zsym**msym, (msym, 0, sym.oo))
+            result = sym.Sum(expr.subs(nsym, msym) *
+                             zsym**msym, (msym, 0, sym.oo))
 
         return const * result
 
@@ -392,6 +394,7 @@ def ZT(expr, n, z, evaluate=True, **kwargs):
     return ztransformer.transform(expr, n, z,
                                   evaluate=evaluate, **kwargs)
 
+
 def ztransform(expr, n, z, evaluate=True, **kwargs):
     """Compute unilateral Z-Transform transform of expr with lower limit 0.
 
@@ -401,4 +404,4 @@ def ztransform(expr, n, z, evaluate=True, **kwargs):
                                   evaluate=evaluate, **kwargs)
 
 
-from .expr import Expr
+from .expr import Expr  # nopep8

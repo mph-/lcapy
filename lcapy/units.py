@@ -8,7 +8,7 @@ Copyright 2020--2021 Michael Hayes, UCECE
 
 import sympy.physics.units as u
 from sympy.physics.units.systems.si import dimsys_SI
-from sympy.physics.units.systems import SI 
+from sympy.physics.units.systems import SI
 from sympy.physics.units import UnitSystem, Quantity
 from sympy import S
 
@@ -23,16 +23,16 @@ class Units(object):
         self.unit_system = UnitSystem.get_unit_system(unit_system)
         self.dim_sys = self.unit_system.get_dimension_system()
         self._mapping = {}
-        
-        for i in u.__dict__:          
+
+        for i in u.__dict__:
             unit = getattr(u, i)
             if not isinstance(unit, u.Quantity):
                 continue
 
-            key = self._makekey(unit)            
+            key = self._makekey(unit)
 
             # Use earlier defined units
-            
+
             if key not in self._mapping:
                 self._mapping[key] = unit
 
@@ -41,19 +41,20 @@ class Units(object):
 
         # Add entry for S * ohm, etc.
         key = (None, ) * len(key)
-        self._mapping[key] = S.One             
+        self._mapping[key] = S.One
 
     def _get_dependencies(self, unit):
-            
+
         dim = self.unit_system.get_dimensional_expr(unit)
         return self.dim_sys.get_dimensional_dependencies(dim)
-            
+
     def _makekey(self, unit):
-            
+
         deps = self._get_dependencies(unit)
-        key = tuple([deps.get(str(dim.name)) for dim in self.dim_sys.base_dims])
+        key = tuple([deps.get(str(dim.name))
+                    for dim in self.dim_sys.base_dims])
         return key
-            
+
     def simplify_units(self, unit):
 
         key = self._makekey(unit)
@@ -90,7 +91,7 @@ class Units(object):
     def as_value_unit(self, expr):
         return as_value_unit(expr)
 
-    
+
 def as_value_unit(expr):
 
     if isinstance(expr, u.Quantity):
@@ -102,7 +103,7 @@ def as_value_unit(expr):
     if expr.is_Pow and expr.args[1] == -1:
         value, unit = as_value_unit(expr.args[0])
         return S.one / value, S.one / unit
-    
+
     defs = {x: 1 for x in expr.args if not x.has(u.Quantity)}
     unit = expr.subs(defs)
 
@@ -111,8 +112,9 @@ def as_value_unit(expr):
         # FIXME: This function only works for something like 42 * volt or 42 * amp * ohm.
         # It fails for 4 * amp * 2 * ohm + 42 * volt.
         raise ValueError('Expression not of form value * units: %s' % expr)
-    
+
     return value, unit
+
 
 units = Units()
 volts = u.volts

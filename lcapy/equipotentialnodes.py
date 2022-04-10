@@ -5,6 +5,7 @@ Copyright 2020 Michael Hayes, UCECE
 
 """
 
+
 class EquipotentialNodes(dict):
 
     def add(self, nodenames):
@@ -36,5 +37,3 @@ class EquipotentialNodes(dict):
         for i in range(len(nodes)):
             for m in range(i + 1, len(nodes)):
                 self.add_wire(nodes[i], nodes[m])
-            
-

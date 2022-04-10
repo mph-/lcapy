@@ -205,7 +205,8 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
     def phasor(self, **assumptions):
         """Convert to phasor domain."""
 
-        result = PhasorFrequencyDomainExpression.from_laplace(self, **assumptions)
+        result = PhasorFrequencyDomainExpression.from_laplace(
+            self, **assumptions)
         return result
 
     def transient_response(self, tvector=None):
@@ -272,7 +273,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         # Evaluate impulse response.
         th = arange(Nt) * dtval
-        H= LaplaceDomainExpression(expr1, **self.assumptions)
+        H = LaplaceDomainExpression(expr1, **self.assumptions)
         hvector = H.transient_response(th)
 
         ty = tvector
@@ -380,18 +381,19 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         if method in ('impulse-invariance', 'adhoc'):
             result = expr._response_impulse_invariance(xvector, tvector, dtval)
         elif method in ('bilinear', 'tustin', 'trapezoidal'):
-            result = expr._response_bilinear(xvector, tvector, dtval, alpha=0.5)
+            result = expr._response_bilinear(
+                xvector, tvector, dtval, alpha=0.5)
         elif method in ('gbf', 'generalized-bilinear'):
-            result = expr._response_bilinear(xvector, tvector, dtval, alpha=alpha)
+            result = expr._response_bilinear(
+                xvector, tvector, dtval, alpha=alpha)
         elif method in ('euler', 'forward-diff', 'forward-euler'):
             result = expr._response_bilinear(xvector, tvector, dtval, alpha=0)
         elif method in ('backward-diff', 'backward-euler'):
-             result = expr._response_bilinear(xvector, tvector, dtval, alpha=1)
+            result = expr._response_bilinear(xvector, tvector, dtval, alpha=1)
         else:
             raise ValueError('Unknown method %s' % method)
 
         return result * dtval
-
 
     def state_space(self, form='CCF'):
         """Create state-space representation from transfer function.  Note,
@@ -692,7 +694,8 @@ def pr2tf(poles, residues, var=None):
 
     if var is None:
         var = ssym
-    return LaplaceDomainTransferFunction(_pr2tf(sympify(poles), sympify(residues), var),
+    return LaplaceDomainTransferFunction(_pr2tf(sympify(poles),
+                                                sympify(residues), var),
                                          causal=True)
 
 
@@ -704,7 +707,7 @@ def sexpr(arg, **assumptions):
     return expr_make('laplace', arg, **assumptions)
 
 
-from .expressionclasses import expressionclasses
+from .expressionclasses import expressionclasses  # nopep8
 
 classes = expressionclasses.register('laplace', LaplaceDomainExpression)
 LaplaceDomainVoltage = classes['voltage']
@@ -713,8 +716,8 @@ LaplaceDomainAdmittance = classes['admittance']
 LaplaceDomainImpedance = classes['impedance']
 LaplaceDomainTransferFunction = classes['transfer']
 
-from .texpr import TimeDomainExpression, texpr
-from .phasor import PhasorFrequencyDomainExpression
+from .texpr import TimeDomainExpression, texpr  # nopep8
+from .phasor import PhasorFrequencyDomainExpression  # nopep8
 
 s = LaplaceDomainExpression('s')
 s.units = uu.rad / uu.s

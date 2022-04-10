@@ -21,6 +21,7 @@ from sympy import Eq, div, limit, oo, Sum
 
 __all__ = ('zexpr', )
 
+
 class ZDomainExpression(ZDomain, SequenceExpression):
     """z-domain expression or symbol."""
 
@@ -472,7 +473,7 @@ def zexpr(arg, **assumptions):
     return ZDomainExpression(arg, **assumptions)
 
 
-from .expressionclasses import expressionclasses
+from .expressionclasses import expressionclasses  # nopep8
 
 classes = expressionclasses.register('Z', ZDomainExpression)
 ZDomainVoltage = classes['voltage']
@@ -481,5 +482,5 @@ ZDomainAdmittance = classes['admittance']
 ZDomainImpedance = classes['impedance']
 ZDomainTransferFunction = classes['transfer']
 
-from .nexpr import DiscreteTimeDomainExpression, nexpr
+from .nexpr import DiscreteTimeDomainExpression, nexpr  # nopep8
 z = ZDomainExpression('z')
