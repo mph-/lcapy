@@ -175,10 +175,6 @@ class MNA(object):
 
         # Solve for the nodal voltages
         try:
-            # The default method, Gaussian elimination, is the fastest
-            # but hangs on some matrices with sympy-1.6.1
-            # Comparative times for the testsuites are:
-            # GE 66, ADJ 73, LU 76.
             Ainv = matrix_inverse(self._A)
         except ValueError:
             message = self._failure_reasons()
@@ -192,8 +188,8 @@ class MNA(object):
         for elt in self.cct.elements.values():
             if elt.type in ('K', 'Cable') or elt.ignore:
                 continue
-            n1, n2 = self.cct.node_map[elt.nodenames[0]
-                                       ], self.cct.node_map[elt.nodenames[1]]
+            n1 = self.cct.node_map[elt.nodenames[0]]
+            n2 = self.cct.node_map[elt.nodenames[1]]
             branchdict[elt.name] = (n1, n2)
 
         vtype = Vtype(self.kind)

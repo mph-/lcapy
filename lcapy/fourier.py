@@ -28,6 +28,7 @@ from .extrafunctions import rect, sincn, sincu, trap, tri
 
 __all__ = ('FT', 'IFT')
 
+
 class FourierTransformer(BilateralForwardTransformer):
 
     name = 'Fourier transform'
@@ -86,7 +87,7 @@ class FourierTransformer(BilateralForwardTransformer):
         const2, expr2 = factor_const(integrand, var)
 
         if (expr2.is_Function and
-            expr2.args[0] == t - var and limits[0] == 0 and limits[1] == oo):
+                expr2.args[0] == t - var and limits[0] == 0 and limits[1] == oo):
             return const2 * self.term(expr2.subs(t - var, t), t, f) / f
 
         # Look for convolution integral
@@ -95,7 +96,7 @@ class FourierTransformer(BilateralForwardTransformer):
             self.error('Need indefinite limits')
 
         if ((len(expr.args) != 2) or not expr2.is_Mul or
-            not expr2.args[0].is_Function or not expr2.args[1].is_Function):
+                not expr2.args[0].is_Function or not expr2.args[1].is_Function):
             self.error('Need integral of product of two functions')
 
         f1 = expr2.args[0]
@@ -191,7 +192,7 @@ class FourierTransformer(BilateralForwardTransformer):
             if not factor.has(t):
                 const1 *= factor
             else:
-                if factor.is_Function and factor.func == exp:
+                if factor.is_Function and factor.func == exp and factor.args[0].has(I):
                     exps *= factor
                 else:
                     other *= factor
@@ -214,6 +215,9 @@ class FourierTransformer(BilateralForwardTransformer):
                 return -const1 * I * pi * sign(sf)
             elif other == 1 / t**2:
                 return -const1 * 2 * pi**2 * sf * sign(sf)
+            elif False and other == exp(t):
+                # SymPy does not like Dirac Delta of a complex argument.
+                return DiracDelta(sf + I / (2 * pi))
             elif other.is_Function and other.func == Heaviside and other.args[0] == t:
                 return (const1 / (I * 2 * pi * sf) + const1 * DiracDelta(sf) / 2)
             elif other == Heaviside(t) * t:
@@ -255,8 +259,7 @@ class FourierTransformer(BilateralForwardTransformer):
             #     if a != 0:
             #         return const1 * const2 * f * exp(-b * 2 *pi * f / a) * sign(f) / (2 * pi)
 
-            # Sympy incorrectly gives exp(-a * t) instead of exp(-a * t) *
-            # Heaviside(t)
+            # Sympy incorrectly gives exp(-a * t) instead of exp(-a * t) * Heaviside(t)
             elif other.is_Pow and other.args[1] == -1 and other.args[0].has(t):
                 foo = other.args[0]
                 if foo.is_Add:

@@ -13,6 +13,7 @@ Copyright 2014--2022 Michael Hayes, UCECE
 # performed.
 
 from __future__ import division
+import sys
 from .assumptions import Assumptions
 from .cache import cached_property
 from .domains import UndefinedDomain
@@ -43,6 +44,7 @@ from warnings import warn
 
 __all__ = ('expr', 'symbol', 'symbols', 'deg', 'rad', 'degrees',
            'radians', 'equation', 'difference_equation')
+
 
 class ExprPrint(object):
 
@@ -176,7 +178,8 @@ class ExprMisc(object):
     def pdb(self):
         """Enter the python debugger."""
 
-        import pdb; pdb.set_trace()
+        import pdb
+        pdb.set_trace()
         return self
 
 
@@ -313,7 +316,7 @@ class ExprList(ExprPrint, list, ExprContainer, ExprMisc):
                 item = expr(item, **assumptions)
             eiterable.append(item)
 
-        super (ExprList, self).__init__(eiterable)
+        super(ExprList, self).__init__(eiterable)
 
     def __call__(self, *args, **kwargs):
         """Perform substitution/transformation on each element."""
@@ -362,7 +365,7 @@ class ExprTuple(ExprPrint, tuple, ExprContainer, ExprMisc):
     def __new__(cls, iterable, **assumptions):
 
         eiterable = [expr(e, **assumptions) for e in iterable]
-        return super (ExprTuple, cls).__new__(cls, eiterable)
+        return super(ExprTuple, cls).__new__(cls, eiterable)
 
     def __call__(self, *args, **kwargs):
         """Perform substitution/transformation on each element."""
@@ -484,7 +487,8 @@ class ExprDomain(object):
             return SuperpositionVoltage(self)
         elif self.is_current:
             return SuperpositionCurrent(self)
-        raise ValueError('Can only convert voltage or current to superposition')
+        raise ValueError(
+            'Can only convert voltage or current to superposition')
 
     def change(self, arg, domain=None, units_scale=None, **assumptions):
         """Change expression class."""
@@ -596,7 +600,6 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
     # Otherwise pi * t becomes a Mul rather than a TimeDomainExpression object.
     _op_priority = 1000
 
-
     @property
     def _pexpr(self):
         """Return expression for printing."""
@@ -641,14 +644,15 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
         assumptions = Assumptions(assumptions)
 
         # Perhaps could set dc?
-        #if arg == 0:
+        # if arg == 0:
         #    assumptions.set('causal', True)
         if self.is_always_causal:
             assumptions.set('causal', True)
 
         self.assumptions = assumptions
         # Remove Lcapy assumptions from SymPy expr.
-        self.expr = sympify(arg, rational=rational, **self.assumptions.sympy_assumptions())
+        self.expr = sympify(arg, rational=rational, **
+                            self.assumptions.sympy_assumptions())
         try:
             self._units = self._default_units
         except:
@@ -960,7 +964,8 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
             # Hack for ubuntu-20.04, python 3.7 and 3.8
             if attr == 'abbrev':
                 return ''
-            raise AttributeError("'%s' object has no attribute '%s'" % (self.__class__.__name__, attr))
+            raise AttributeError("'%s' object has no attribute '%s'" % (
+                self.__class__.__name__, attr))
 
         # This gets called if there is no explicit attribute attr for
         # this instance.  We call the method of the wrapped sympy
@@ -969,7 +974,6 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
 
         # FIXME.  This propagates the assumptions.  There is a
         # possibility that the operation may violate them.
-
 
         # If it is not callable, directly wrap it.
         if not callable(a):
@@ -1107,7 +1111,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         # Allow phasor(x) * omega, etc.
         if (self.is_phasor_domain and x.is_angular_fourier_domain and
-            self.omega == x.var):
+                self.omega == x.var):
             return True
 
         return False
@@ -1134,8 +1138,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             xunits = x.canonical_units
 
             if (sunits != xunits and self.expr != 0 and x.expr != 0 and not
-                (state.loose_units and x.is_undefined)):
-                self._incompatible(x, op, ' since the units %s are incompatible with %s' % (self.units, x.units))
+                    (state.loose_units and x.is_undefined)):
+                self._incompatible(
+                    x, op, ' since the units %s are incompatible with %s' % (self.units, x.units))
 
         cls = self.__class__
         xcls = x.__class__
@@ -1149,7 +1154,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 return cls, self, x, assumptions
 
         if (isinstance(self, (LaplaceDomainExpression, ZDomainExpression)) or
-            isinstance(x, (LaplaceDomainExpression, ZDomainExpression))):
+                isinstance(x, (LaplaceDomainExpression, ZDomainExpression))):
             assumptions = self.assumptions.add(x)
 
         if self.is_constant_domain and self.quantity == 'undefined':
@@ -1194,15 +1199,16 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         if not isinstance(x, Expr):
             if isinstance(x, (tuple, list, dict)):
-                raise ValueError('Cannot multiply %s by a tuple, list, or dict %s' % (self, x))
+                raise ValueError(
+                    'Cannot multiply %s by a tuple, list, or dict %s' % (self, x))
             x = expr(x)
 
         # Handle omega * t
         if (self.__class__ == AngularFourierDomainExpression and
-            x.__class__ == TimeDomainExpression):
+                x.__class__ == TimeDomainExpression):
             return TimeDomainExpression(self.expr * x.expr)
         if (x.__class__ == AngularFourierDomainExpression and
-            self.__class__ == TimeDomainExpression):
+                self.__class__ == TimeDomainExpression):
             return TimeDomainExpression(self.expr * x.expr)
 
         # Try to convert immittance to a constant so that can handle I(t) * Z
@@ -1381,7 +1387,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         elif x == -1:
             return self.__rtruediv__(1)
         elif self.quantity != 'undefined':
-            raise ValueError('Cannot compute %s(%s) ** %s' % (self.__class__.__name__, self, x))
+            raise ValueError('Cannot compute %s(%s) ** %s' %
+                             (self.__class__.__name__, self, x))
 
         if not isinstance(x, Expr):
             x = expr(x)
@@ -1430,7 +1437,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         x = cls(x)
 
         # This does not speed up the comparison.
-        #if self.expr == x.expr:
+        # if self.expr == x.expr:
         #    return True
 
         # This fails if one of the operands has the is_real attribute
@@ -1573,14 +1580,14 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
     @property
     def conj(self):
-         """Return complex conjugate."""
+        """Return complex conjugate."""
 
-         return self.__class__(sym.conjugate(self.expr), **self.assumptions)
+        return self.__class__(sym.conjugate(self.expr), **self.assumptions)
 
     def conjugate(self):
-         """Return complex conjugate."""
+        """Return complex conjugate."""
 
-         return self.__class__(sym.conjugate(self.expr), **self.assumptions)
+        return self.__class__(sym.conjugate(self.expr), **self.assumptions)
 
     @property
     def real(self):
@@ -1661,7 +1668,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             pass
 
         if (self.var is None or self.has(sym.Derivative) or
-            self.has(sym.Integral)):
+                self.has(sym.Integral)):
             self.__ratfun = None
         else:
 
@@ -1842,7 +1849,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         """Return phase in radians."""
 
         if self.is_time_domain or self.is_discrete_time_domain:
-            raise ValueError('Cannot determine phase of time-domain expression %s' % self)
+            raise ValueError(
+                'Cannot determine phase of time-domain expression %s' % self)
 
         R = self.rationalize_denominator()
         N = R.N
@@ -1939,7 +1947,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                     if arg.real > 500:
                         arg = 500 + 1j * arg.imag
                 elif arg > 500:
-                    arg = 500;
+                    arg = 500
 
                 return np.exp(arg)
 
@@ -2076,17 +2084,17 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             # np.lib.scimath.sqrt converts to complex but cannot be used
             # for lamdification!
             func1 = lambdify(var, expr,
-                            [{'DiracDelta' : dirac,
-                              'Heaviside' : heaviside,
-                              'UnitImpulse' : unitimpulse,
-                              'UnitStep' : unitstep,
-                              'dtrect' : dtrect, 'dtsign' : dtsign,
-                              'sinc' : sinc, 'sincn' : sincn,
-                              'sincu' : sincu, 'psinc' : psinc,
-                              'rect' : rect, 'tri' : tri, 'trap' : trap,
-                              'ramp' : ramp, 'rampstep' : rampstep,
-                              'sqrt' : sqrt, 'exp' : exp, 'sign' : sign},
-                             "scipy", "numpy", "math", "sympy"])
+                             [{'DiracDelta': dirac,
+                              'Heaviside': heaviside,
+                               'UnitImpulse': unitimpulse,
+                               'UnitStep': unitstep,
+                               'dtrect': dtrect, 'dtsign': dtsign,
+                               'sinc': sinc, 'sincn': sincn,
+                               'sincu': sincu, 'psinc': psinc,
+                               'rect': rect, 'tri': tri, 'trap': trap,
+                               'ramp': ramp, 'rampstep': rampstep,
+                               'sqrt': sqrt, 'exp': exp, 'sign': sign},
+                              "scipy", "numpy", "math", "sympy"])
 
             def func(arg):
                 # Lambdify barfs on (-1)**n if for negative values of n.
@@ -2113,7 +2121,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 # Try to flush out weirdness using first argument
                 response = func(arg0)
             except NameError as e:
-                raise RuntimeError('Cannot evaluate expression %s: %s' % (self, e))
+                raise RuntimeError(
+                    'Cannot evaluate expression %s: %s' % (self, e))
             except AttributeError as e:
                 # Could return NaN but this would take some jiggery
                 # pokery.  One solution is to find Piecewise with a
@@ -2130,7 +2139,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                     ' probably have a mysterious function: %s' % (self, e))
 
             except TypeError as e:
-                raise RuntimeError('Cannot evaluate expression %s: %s' % (self, e))
+                raise RuntimeError(
+                    'Cannot evaluate expression %s: %s' % (self, e))
 
             if scalar:
                 if np.allclose(response.imag, 0.0):
@@ -2156,15 +2166,16 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             if arg is None:
                 if len(symbols) == 0:
                     return expr.evalf()
-                raise ValueError('Undefined symbols %s in expression %s' % (tuple(symbols), self))
+                raise ValueError(
+                    'Undefined symbols %s in expression %s' % (tuple(symbols), self))
             if len(symbols) == 0:
                 print('Ignoring arg %s' % arg)
                 return expr.evalf()
             elif len(symbols) == 1:
                 return evaluate_expr(expr, symbols[0], arg)
             else:
-                raise ValueError('Undefined symbols %s in expression %s' % (tuple(symbols), self))
-
+                raise ValueError(
+                    'Undefined symbols %s in expression %s' % (tuple(symbols), self))
 
         var = self.var
         # Use symbol names to avoid problems with symbols of the same
@@ -2174,7 +2185,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if varname in free_symbols:
             free_symbols -= set((varname, ))
             if free_symbols != set():
-                raise ValueError('Undefined symbols %s in expression %s' % (tuple(free_symbols), self))
+                raise ValueError('Undefined symbols %s in expression %s' % (
+                    tuple(free_symbols), self))
 
         if arg is None:
             if expr.has(var):
@@ -2196,7 +2208,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         """
 
-        tweak_patterns = [pattern.expr if isinstance(pattern, (Expr, Function)) else pattern for pattern in patterns]
+        tweak_patterns = [pattern.expr if isinstance(
+            pattern, (Expr, Function)) else pattern for pattern in patterns]
         return self.expr.has(*tweak_patterns)
 
     def has_symbol(self, sym):
@@ -2250,7 +2263,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             if state.warn_subs and not self.sympy.has(old):
                 warn('Expression %s does not have %s' % (self.sympy, old))
             if state.break_subs and not self.sympy.has(old):
-                import pdb; pdb.set_trace()
+                import pdb
+                pdb.set_trace()
 
             result = self.sympy.subs(old, expr, **kwargs)
 
@@ -2434,7 +2448,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if len(args) == 2:
             return self._subs1(args[0], args[1], **kwargs)
 
-        if  isinstance(args[0], dict):
+        if isinstance(args[0], dict):
             dst = self
             for key, val in args[0].items():
                 dst = dst._subs1(key, val, **kwargs)
@@ -2557,7 +2571,6 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         return expr(sym.solve(self.expr, *symbols, **flags))
 
     def split_dirac_delta(self):
-
         """Return expression as a list of terms.  The first term has no
         DiracDeltas, the second term collates the DiracDeltas, the
         third term collates derivatives of DiracDeltas, etc.
@@ -2575,10 +2588,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         """Return dictionary of symbols in the expression keyed by name."""
 
         expr = self.sympy
-        symdict = {sym.name:sym for sym in expr.free_symbols}
+        symdict = {sym.name: sym for sym in expr.free_symbols}
 
         # Look for V(s), etc.
-        funcdict = {atom.func.__name__:atom for atom in expr.atoms(AppliedUndef)}
+        funcdict = {
+            atom.func.__name__: atom for atom in expr.atoms(AppliedUndef)}
 
         symdict.update(funcdict)
         return symdict
@@ -2610,7 +2624,6 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             return _wrap_list(roots)
         else:
             return _wrap_dict(roots)
-
 
     def roots(self, aslist=False, pairs=False):
         """Return roots of expression as a dictionary.  Note this may not find
@@ -2797,11 +2810,14 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 sigma1 = def1(defs, 'sigma_1', dcoeffs[1] / 2)
                 omega1 = def1(defs, 'omega_1',
                               sqrt(dcoeffs[2] - (dcoeffs[1] / 2)**2).simplify())
-                result = K * (self.N / coeffs[0]) / (s**2 + 2 * sigma1 * s + sigma1**2 + omega1**2)
+                result = K * \
+                    (self.N / coeffs[0]) / (s**2 + 2 *
+                                            sigma1 * s + sigma1**2 + omega1**2)
             else:
                 omega0 = def1(defs, 'omega_0', sqrt(dcoeffs[2]))
                 zeta = def1(defs, 'zeta', dcoeffs[1] / (2 * sqrt(dcoeffs[2])))
-                result = K * (self.N / coeffs[0]) / (s**2 + 2 * zeta * omega0 * s + omega0**2)
+                result = K * (self.N / coeffs[0]) / \
+                    (s**2 + 2 * zeta * omega0 * s + omega0**2)
 
         if result is None:
             # Copy?
@@ -3071,7 +3087,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         try:
             z = sym.Poly(self.expr, var)
         except:
-            raise ValueError('Use .N or .D attribute to specify numerator or denominator of rational function')
+            raise ValueError(
+                'Use .N or .D attribute to specify numerator or denominator of rational function')
 
         c = z.all_coeffs()
         if norm:
@@ -3156,7 +3173,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         result = self.copy()
         expr = self.expr
         result.expr = expr.replace(lambda expr: expr.is_Rational,
-                            lambda expr: sym.Float(expr))
+                                   lambda expr: sym.Float(expr))
         return result
 
     def floatrat(self):
@@ -3517,7 +3534,8 @@ def exprcontainer(arg, **assumptions):
     elif isinstance(arg, ndarray):
         from .vector import Vector
         if arg.ndim > 1:
-            raise ValueError('Multidimensional arrays unsupported; convert to Matrix')
+            raise ValueError(
+                'Multidimensional arrays unsupported; convert to Matrix')
         return Vector(arg, **assumptions)
 
     raise ValueError('Unsupported exprcontainer %s' % arg.__class__.__name__)
@@ -3769,24 +3787,23 @@ def check(expr):
             check(arg)
 
 
-from .cexpr import cexpr, ConstantDomainExpression
-from .fexpr import f, fexpr, FourierDomainExpression
-from .omegaexpr import omega, omegaexpr, AngularFourierDomainExpression
-from .normfexpr import Fexpr
-from .normomegaexpr import Omegaexpr
-from .texpr import t, texpr, TimeDomainExpression
-from .sexpr import s, sexpr, LaplaceDomainExpression
-from .nexpr import nexpr
-from .kexpr import kexpr
-from .zexpr import zexpr, ZDomainExpression
-from .expressionclasses import expressionclasses
+from .cexpr import cexpr, ConstantDomainExpression  # nopep8
+from .fexpr import f, fexpr, FourierDomainExpression  # nopep8
+from .omegaexpr import omega, omegaexpr, AngularFourierDomainExpression  # nopep8
+from .normfexpr import Fexpr  # nopep8
+from .normomegaexpr import Omegaexpr  # nopep8
+from .texpr import t, texpr, TimeDomainExpression  # nopep8
+from .sexpr import s, sexpr, LaplaceDomainExpression  # nopep8
+from .nexpr import nexpr  # nopep8
+from .kexpr import kexpr  # nopep8
+from .zexpr import zexpr, ZDomainExpression  # nopep8
+from .expressionclasses import expressionclasses  # nopep8
 
 # Horrible hack to work with IPython around Sympy's back for LaTeX
 # formatting.  The problem is that Sympy does not check for the
 # _repr_latex method and instead relies on a predefined list of known
 # types.  See _can_print_latex method in sympy/interactive/printing.py
 
-import sys
 try:
     from .printing import latex
     formatter = sys.displayhook.shell.display_formatter.formatters['text/latex']
