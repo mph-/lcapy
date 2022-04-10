@@ -15,8 +15,10 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(Heaviside(t).laplace(), 1 / s, "Heaviside(t)")
         self.assertEqual(DiracDelta(t).laplace(), 1, "DiracDelta(t)")
-        self.assertEqual(TimeDomainVoltage('x(t)').laplace(), LaplaceDomainVoltage('X(s)'), "x(t)")
-        self.assertEqual(TimeDomainVoltage('5 * x(t)').laplace(), LaplaceDomainVoltage('5 * X(s)'), "5 * x(t)")
+        self.assertEqual(TimeDomainVoltage('x(t)').laplace(),
+                         LaplaceDomainVoltage('X(s)'), "x(t)")
+        self.assertEqual(TimeDomainVoltage('5 * x(t)').laplace(),
+                         LaplaceDomainVoltage('5 * X(s)'), "5 * x(t)")
 
         v = expr('R0 * exp(-alpha * t) * i(t)')
         V = expr('R0 * I(s + alpha)')
@@ -24,10 +26,11 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(v.laplace(), V, "R0 * exp(-alpha * t) * i(t)")
 
         self.assertEqual(rect(t - 0.5).laplace(), (1 - exp(-s)) / s, "rect(t)")
-        self.assertEqual(rect(t / 2 - 0.5).laplace(), (1 - exp(-2 * s)) / s, "rect(t / 2)")
+        self.assertEqual(rect(t / 2 - 0.5).laplace(),
+                         (1 - exp(-2 * s)) / s, "rect(t / 2)")
         self.assertEqual(ramp(t).laplace(), 1 / s**2, "ramp(t)")
-        self.assertEqual(rampstep(t).laplace(), (1 - exp(-s)) / s**2, "rampstep(t)")
-
+        self.assertEqual(rampstep(t).laplace(),
+                         (1 - exp(-s)) / s**2, "rampstep(t)")
 
     def test_inverse_laplace(self):
 
@@ -43,16 +46,24 @@ class LcapyTester(unittest.TestCase):
                          TimeDomainVoltage('v(t)'), "V(s)")
         self.assertEqual(LaplaceDomainVoltage('10 * V(s)').inverse_laplace(causal=True),
                          TimeDomainVoltage('10 * v(t)'), "V(s)")
-        self.assertEqual(LaplaceDomainVoltage('10 * V(s) * exp(-5 * s)').inverse_laplace(causal=True), TimeDomainVoltage('10 * v(t - 5)'), "10 * V(s) * exp(-5 * s)")
+        self.assertEqual(LaplaceDomainVoltage('10 * V(s) * exp(-5 * s)').inverse_laplace(
+            causal=True), TimeDomainVoltage('10 * v(t - 5)'), "10 * V(s) * exp(-5 * s)")
         self.assertEqual(TimeDomainVoltage('v(t)').laplace().inverse_laplace(causal=True),
                          TimeDomainVoltage('v(t)'), "v(t)")
-        self.assertEqual(expr('1/(s+a)').inverse_laplace(causal=True), expr('exp(-a * t) * u(t)'), "1/(s+a)")
-        self.assertEqual(expr('1/(s**2)').inverse_laplace(causal=True), expr('t * u(t)'), "1/(s**2)")
-        self.assertEqual(expr('1/((s+3)**2)').inverse_laplace(causal=True), expr('t * u(t) * exp(-3 * t)'), "1/((s+3)**2)")
-        self.assertEqual(expr('1/(s**3)').inverse_laplace(causal=True), expr('t**2 * u(t) / 2'), "1/(s**3)")
-        self.assertEqual(expr('s/(s+a)').inverse_laplace(causal=True), expr('-a * exp(-a * t) * u(t) + delta(t)'), "s/(s+a)")
-        self.assertEqual(expr('s/(s**2+a**2)').inverse_laplace(causal=True), expr('cos(a * t) * u(t)'), "s/(s**2+a**2)")
-        self.assertEqual(expr('a/(s**2+a**2)').inverse_laplace(causal=True), expr('sin(a * t) * u(t)'), "a/(s**2+a**2)")
+        self.assertEqual(expr('1/(s+a)').inverse_laplace(causal=True),
+                         expr('exp(-a * t) * u(t)'), "1/(s+a)")
+        self.assertEqual(
+            expr('1/(s**2)').inverse_laplace(causal=True), expr('t * u(t)'), "1/(s**2)")
+        self.assertEqual(expr('1/((s+3)**2)').inverse_laplace(causal=True),
+                         expr('t * u(t) * exp(-3 * t)'), "1/((s+3)**2)")
+        self.assertEqual(expr('1/(s**3)').inverse_laplace(causal=True),
+                         expr('t**2 * u(t) / 2'), "1/(s**3)")
+        self.assertEqual(expr('s/(s+a)').inverse_laplace(causal=True),
+                         expr('-a * exp(-a * t) * u(t) + delta(t)'), "s/(s+a)")
+        self.assertEqual(expr('s/(s**2+a**2)').inverse_laplace(causal=True),
+                         expr('cos(a * t) * u(t)'), "s/(s**2+a**2)")
+        self.assertEqual(expr('a/(s**2+a**2)').inverse_laplace(causal=True),
+                         expr('sin(a * t) * u(t)'), "a/(s**2+a**2)")
         self.assertEqual(expr('(1/s - exp(-s)/s)/s').ILT(causal=True),
                          expr('(t*u(t) + (1 - t)*u(t - 1))'), "(1/s - exp(-s)/s)/s")
         self.assertEqual(expr('(1/s - exp(-s)/s)/s').expand().ILT(causal=True),
@@ -68,6 +79,8 @@ class LcapyTester(unittest.TestCase):
 
         A4 = (1/s - exp(-5*s)/s)/(s**2 + 707*s/500 + 1)
         self.assertEqual(A4(t)(s), A4, str(A4))
+        self.assertEqual(expr('a/(s+a)', causal=True)(t),
+                         expr('a*exp(-a * t)*u(t)'), "s/(s+a)")
 
     def test_damped_sin(self):
 
@@ -78,10 +91,12 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(H1(t, damped_sin=True)(s), H1, "damped sin1")
         self.assertEqual(H2(t, damped_sin=True)(s), H2, "damped sin2")
         self.assertEqual(H3(t, damped_sin=True)(s), H3, "damped sin3")
-        self.assertEqual((H1 + H2)(t, damped_sin=True)(s), H1 + H2, "damped sin1, 2")
-        self.assertEqual((H1 + H3)(t, damped_sin=True)(s), H1 + H3, "damped sin1, 3")
-        self.assertEqual((H1 + H2 + H3)(t, damped_sin=True)(s), H1 + H2 + H3, "damped sin1, 2, 3")
-
+        self.assertEqual((H1 + H2)(t, damped_sin=True)
+                         (s), H1 + H2, "damped sin1, 2")
+        self.assertEqual((H1 + H3)(t, damped_sin=True)
+                         (s), H1 + H3, "damped sin1, 3")
+        self.assertEqual((H1 + H2 + H3)(t, damped_sin=True)
+                         (s), H1 + H2 + H3, "damped sin1, 2, 3")
 
     def test_derivative_undef(self):
 

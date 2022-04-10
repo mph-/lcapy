@@ -254,7 +254,7 @@ def sympify1(arg, symbols=None, evaluate=True, override=False, rational=True,
 def sympify(expr, evaluate=True, override=False, rational=True, **assumptions):
     """Create a SymPy expression.
 
-    By default, symbols are assumed to be positive if no assumptions
+    By default, symbols are assumed to be positive reals if no assumptions
     are explicitly defined.
 
     Note, this will not modify previously defined symbols with the
@@ -266,17 +266,18 @@ def sympify(expr, evaluate=True, override=False, rational=True, **assumptions):
     previously defined by SymPy.
     """
 
-    if assumptions == {}:
+    if 'positive' in assumptions:
+        if not assumptions['positive']:
+            assumptions.pop('positive')
+    elif ('real' not in assumptions and 'complex' not in assumptions
+          and 'integer' not in assumptions):
         assumptions['positive'] = True
         # Note this implies that imag is False.   Also note that all
         # reals are considered complex (but with a zero imag part).
 
-    elif 'positive' in assumptions:
-        if not assumptions['positive']:
-            assumptions.pop('positive')
-
     return sympify1(expr, state.symbols, evaluate, override,
                     rational, **assumptions)
+
 
 def miscsymbol(name, force=False, **assumptions):
     """Create a SymPy symbol.
@@ -322,7 +323,7 @@ def usersymbol(name, force=False, **assumptions):
     return state.symbols.add_user(name, force=force, **assumptions)
 
 
-def domainsymbol(name : str, **assumptions):
+def domainsymbol(name: str, **assumptions):
     """Create a SymPy symbol and register as a domain symbol
     that should not be overwritten."""
 
@@ -429,6 +430,7 @@ def symbol_delete(sym):
 def symbol_map(name):
 
     return state.symbols.lookup(name)
+
 
 # The following domain symbols are all SymPy symbols.
 ssym = domainsymbol('s', complex=True)
