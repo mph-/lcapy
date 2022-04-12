@@ -893,7 +893,17 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
     def fval(self):
         """Evaluate expression and return as a python float value."""
 
-        return float(self.val.expr)
+        val = self.val.expr
+        try:
+            return float(val)
+        except TypeError:
+            pass
+        real, imag = val.as_real_imag()
+        real = float(real)
+        imag = float(imag)
+        if abs(imag / real) > 1e-15:
+            warn('Discarding imaginary part')
+        return real
 
     @property
     def cval(self):
