@@ -138,6 +138,8 @@ class Superposition(SuperpositionDomain, ExprDict):
     def decompose_to_domain(self, expr, kind):
 
         cls = domain_kind_quantity_to_class(kind, self.quantity)
+        if cls.is_phasor_domain:
+            return cls(expr, omega=kind)
         return cls(expr)
 
     @property
