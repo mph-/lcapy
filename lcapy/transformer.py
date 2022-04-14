@@ -5,9 +5,11 @@ Copyright 2020--2022 Michael Hayes, UCECE
 """
 
 from sympy import Eq, Symbol, Piecewise, S, Heaviside
+from .state import state
 from .sym import miscsymbol
 from .utils import factor_const, remove_images
 from .extrafunctions import UnitStep
+from warnings import warn
 
 
 class Transformer(object):
@@ -180,18 +182,12 @@ class UnilateralInverseTransformer(Transformer):
 
         result = const * (cresult + uresult)
 
-        if kwargs.get('dc', False):
-            free_symbols = set([symbol.name for symbol in result.free_symbols])
-            if str(var) in free_symbols:
-                self.error('Weirdness, expecting dc.')
+        # The original signal can only be recovered from an inverse
+        # unilateral Laplace transform if we have the region of
+        # convergence.  In general, the result is unknown for t < 0
+        # unless we know the result is causal.
 
-        elif kwargs.get('ac', False):
-
-            if cresult != 0:
-                self.error('Weirdness, expecting ac.')
-            # TODO, perform more checking of the result.
-
-        elif not kwargs.get('causal', False):
+        if not kwargs.get('causal', False):
 
             if uresult != 0:
                 # Cannot determine result for var < 0
