@@ -2,7 +2,7 @@
 
 :math:`x(a t) \longleftrightarrow \frac{X(\frac{f}{a})}{\left|{a}\right|}`
 
-:math:`x(t - \tau) \longleftrightarrow X(f) e^{- 2 \mathrm{j} \pi f \tau}`
+:math:`x(t - \tau) \longleftrightarrow X(f) e^{2 \mathrm{j} \pi f \tau}`
 
 :math:`\cos{\left(2 \pi f_{0} t \right)} \longleftrightarrow \frac{\delta\left(f - f_{0}\right)}{2} + \frac{\delta\left(f + f_{0}\right)}{2}`
 
@@ -20,7 +20,7 @@
 
 :math:`\delta\left(t\right) \longleftrightarrow 1`
 
-:math:`\delta\left(t - t_{0}\right) \longleftrightarrow e^{- 2 \mathrm{j} \pi f t_{0}}`
+:math:`\delta\left(t - t_{0}\right) \longleftrightarrow e^{2 \mathrm{j} \pi f t_{0}}`
 
 :math:`u\left(t\right) \longleftrightarrow \frac{\delta\left(f\right)}{2} - \frac{\mathrm{j}}{2 \pi f}`
 
