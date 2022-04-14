@@ -352,17 +352,22 @@ class LcapyTester(unittest.TestCase):
     def test_twoport_print(self):
 
         a = Series(C(1)).chain(Shunt(L(2))).chain(Series(R(3)))
-        self.assertEqual(a.pretty(), 'Chain(Chain(Series(C(1)), Shunt(L(2))), Series(R(3)))', 'pretty')
-        self.assertEqual(str(a), 'Chain(Chain(Series(C(1)), Shunt(L(2))), Series(R(3)))', 'str')
-        self.assertEqual(repr(a), 'Chain(Chain(Series(C(1)), Shunt(L(2))), Series(R(3)))', 'repr')
-        self.assertEqual(a.latex(), '\\mathrm{Chain}(\\mathrm{Chain}(\\mathrm{Series}(\\mathrm{C}(1)), \\mathrm{Shunt}(\\mathrm{L}(2))), \\mathrm{Series}(\\mathrm{R}(3)))', 'latex')
-
+        self.assertEqual(
+            a.pretty(), 'Chain(Chain(Series(C(1)), Shunt(L(2))), Series(R(3)))', 'pretty')
+        self.assertEqual(
+            str(a), 'Chain(Chain(Series(C(1)), Shunt(L(2))), Series(R(3)))', 'str')
+        self.assertEqual(
+            repr(a), 'Chain(Chain(Series(C(1)), Shunt(L(2))), Series(R(3)))', 'repr')
+        self.assertEqual(a.latex(
+        ), '\\mathrm{Chain}(\\mathrm{Chain}(\\mathrm{Series}(\\mathrm{C}(1)), \\mathrm{Shunt}(\\mathrm{L}(2))), \\mathrm{Series}(\\mathrm{R}(3)))', 'latex')
 
     def test_params(self):
 
-        attrs = ('Z1sc', 'Z1oc', 'Z2sc', 'Z2oc', 'Vgain12', 'Vgain21', 'Igain12', 'Igain21')
+        attrs = ('Z1sc', 'Z1oc', 'Z2sc', 'Z2oc', 'Vgain12',
+                 'Vgain21', 'Igain12', 'Igain21')
 
-        models = ('Aparams', 'Bparams', 'Gparams', 'Hparams', 'Yparams', 'Zparams')
+        models = ('Aparams', 'Bparams', 'Gparams',
+                  'Hparams', 'Yparams', 'Zparams')
 
         a = TSection(R(1), R(2), R(3))
 
@@ -374,4 +379,5 @@ class LcapyTester(unittest.TestCase):
         for model in models:
             params = getattr(a, model)
             for attr in attrs:
-                self.assertEqual(vals[attr], getattr(params, attr), 'Mismatch for %s.%s' % (model, attr))
+                self.assertEqual(vals[attr], getattr(
+                    params, attr), 'Mismatch for %s.%s' % (model, attr))

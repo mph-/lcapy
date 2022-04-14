@@ -20,15 +20,16 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(ui(1), 0, "ui(1)")
         self.assertEqual(ui(0), 1, "ui(0)")
         self.assertEqual(us(1), 1, "us(1)")
-        self.assertEqual(us(0), 1, "us(0)")                                
+        self.assertEqual(us(0), 1, "us(0)")
         self.assertEqual(us(-1), 0, "us(-1)")
 
-        self.assertEqual(rect(n).rewrite(), us(n + 1 / 2) - us(n - 1 / 2), "rect(n)")
+        self.assertEqual(rect(n).rewrite(), us(
+            n + 1 / 2) - us(n - 1 / 2), "rect(n)")
 
         r = Integral(u(t - tausym), (tausym, 0, t))
         e = u(t).convolve(u(t)).simplify()
-        
-        self.assertEqual(e, r, "simplify integral with u(t)")        
+
+        self.assertEqual(e, r, "simplify integral with u(t)")
 
         f0 = symbol('f_0')
         c = cos(2 * pi * f0 * t)
@@ -38,11 +39,12 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(type(a), AngularFourierDomainExpression, "atan2")
 
         self.assertEqual(sign(-n).evaluate(0), 1, "sign(-n)")
-        self.assertEqual(sign(-n).evaluate(1), -1, "sign(-n)")        
-        
+        self.assertEqual(sign(-n).evaluate(1), -1, "sign(-n)")
+
     def test_heaviside(self):
 
-        self.assertEqual((u(t) * 3 * u(t)).simplify(), 3 * u(t), "u(t) * 3 * u(t)")                
+        self.assertEqual((u(t) * 3 * u(t)).simplify(),
+                         3 * u(t), "u(t) * 3 * u(t)")
 
     def test_dirac_delta_simplify(self):
 
@@ -57,7 +59,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual((rect(t / 4) * delta(t - 1)).simplify(),
                          delta(t - 1),
                          "rect(t / 4) * delta(t - 1)")
-        
+
     def test_sinc(self):
 
         a = sinc(n).evaluate(2)

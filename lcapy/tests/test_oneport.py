@@ -5,6 +5,7 @@ import unittest
 import sympy as sym
 from lcapy.sym import omega0sym
 
+
 class LcapyOneportTester(unittest.TestCase):
 
     """Unit tests for lcapy
@@ -26,7 +27,7 @@ class LcapyOneportTester(unittest.TestCase):
         """
         a = R(10)
         self.assertEqual(a.Z, impedance(10), "Z incorrect.")
-        self.assertEqual(a.Y * 10, admittance(1), "Y incorrect.")        
+        self.assertEqual(a.Y * 10, admittance(1), "Y incorrect.")
         self.assertEqual2(a.Voc, 0, "Voc incorrect.")
         self.assertEqual2(a.Isc, 0, "Isc incorrect.")
         self.assertEqual2(a.voc, 0, "voc incorrect.")
@@ -40,9 +41,10 @@ class LcapyOneportTester(unittest.TestCase):
         self.assertEqual2(a.Z(s), impedance(10 * s), "Zs incorrect.")
         self.assertEqual2(a.Y(s), admittance(1 / (10 * s)), "Ys incorrect.")
         self.assertEqual2(a.Z(jw), impedance(10 * j * omega), "Z incorrect.")
-        self.assertEqual2(a.Y(jw), admittance(1 / (10 * j * omega)), "Y incorrect.")                
+        self.assertEqual2(a.Y(jw), admittance(
+            1 / (10 * j * omega)), "Y incorrect.")
         self.assertEqual2(a.Voc, voltage(-10 * 5 + 0 * s), "Voc incorrect.")
-        self.assertEqual2(a.Isc, current(-5 / s), "Isc incorrect.")        
+        self.assertEqual2(a.Isc, current(-5 / s), "Isc incorrect.")
 
     def test_C(self):
         """Check C
@@ -52,10 +54,11 @@ class LcapyOneportTester(unittest.TestCase):
 
         self.assertEqual2(a.Z(s), impedance(1 / (10 * s)), "Zs incorrect.")
         self.assertEqual2(a.Y(s), admittance(10 * s), "Ys incorrect.")
-        self.assertEqual2(a.Z(jw), impedance(1 / (10 * j * omega)), "Z incorrect.")
-        self.assertEqual2(a.Y(jw), admittance(10 * j * omega), "Y incorrect.")                
+        self.assertEqual2(a.Z(jw), impedance(
+            1 / (10 * j * omega)), "Z incorrect.")
+        self.assertEqual2(a.Y(jw), admittance(10 * j * omega), "Y incorrect.")
         self.assertEqual2(a.Voc, voltage(5 / s), "Voc incorrect.")
-        self.assertEqual(a.Isc, current(0 * s + 50), "Isc incorrect.")        
+        self.assertEqual(a.Isc, current(0 * s + 50), "Isc incorrect.")
 
     def test_R_series_R(self):
         """Check R + R
@@ -66,7 +69,7 @@ class LcapyOneportTester(unittest.TestCase):
         self.assertEqual2(b.R, impedance(15), "R incorrect.")
         self.assertEqual2(b.Z, impedance(15), "Z incorrect.")
         self.assertEqual(b.Voc, 0, "Voc incorrect.")
-        self.assertEqual(b.Isc, 0, "Isc incorrect.")                
+        self.assertEqual(b.Isc, 0, "Isc incorrect.")
         self.assertEqual2(type(b), R, "type incorrect.")
 
     def test_L_series_L(self):
@@ -77,7 +80,7 @@ class LcapyOneportTester(unittest.TestCase):
         b = a.simplify()
         self.assertEqual2(b.L, 15, "L incorrect.")
         self.assertEqual2(b.Z(s), impedance(15 * s), "Zs incorrect.")
-        self.assertEqual2(b.Z(jw), impedance(15 * j * omega), "Z incorrect.")        
+        self.assertEqual2(b.Z(jw), impedance(15 * j * omega), "Z incorrect.")
         self.assertEqual2(type(b), L, "type incorrect.")
 
     def test_C_series_C(self):
@@ -88,7 +91,8 @@ class LcapyOneportTester(unittest.TestCase):
         b = a.simplify()
         self.assertEqual2(b.C, 6, "C incorrect.")
         self.assertEqual2(b.Z(s), impedance(1 / (6 * s)), "Zs incorrect.")
-        self.assertEqual2(b.Z(jw), impedance(1 / (6 * j * omega)), "Z incorrect.")        
+        self.assertEqual2(b.Z(jw), impedance(
+            1 / (6 * j * omega)), "Z incorrect.")
         self.assertEqual2(type(b), C, "type incorrect.")
 
     def test_Vdc_series_Vdc(self):
@@ -111,15 +115,15 @@ class LcapyOneportTester(unittest.TestCase):
         self.assertEqual(a.Voc.dc, voltage(10), "Voc incorrect.")
         self.assertEqual(a.V.dc, voltage(10), "Voc incorrect.")
         self.assertEqual(a.I, 0, "I incorrect.")
-        self.assertEqual(a.v(0), voltage(10), "Voc incorrect.")                
-        self.assertEqual(a.i(0), 0, "I incorrect.")                
+        self.assertEqual(a.v(0), voltage(10), "Voc incorrect.")
+        self.assertEqual(a.i(0), 0, "I incorrect.")
 
         b = a.norton()
         self.assertEqual2(b.voc, Vdc(10).voc, "voc incorrect.")
         self.assertEqual(b.Voc.dc, voltage(10), "Voc incorrect.")
         self.assertEqual(b.V.dc, voltage(10), "Voc incorrect.")
         self.assertEqual(b.I, 0, "I incorrect.")
-        self.assertEqual(b.v(0), voltage(10), "Voc incorrect.")                
+        self.assertEqual(b.v(0), voltage(10), "Voc incorrect.")
         self.assertEqual(b.i(0), 0, "I incorrect.")
 
     def test_Vac_series_R(self):
@@ -128,20 +132,24 @@ class LcapyOneportTester(unittest.TestCase):
         """
         a = Vac(10) + R(5)
         self.assertEqual2(a.voc, Vac(10).voc, "voc incorrect.")
-        self.assertEqual(a.Voc.ac[omega0sym], phasorvoltage(10), "Voc incorrect.")
-        self.assertEqual(a.V.ac[omega0sym], phasorvoltage(10), "Voc incorrect.")
+        self.assertEqual(a.Voc.ac[omega0sym],
+                         phasorvoltage(10), "Voc incorrect.")
+        self.assertEqual(a.V.ac[omega0sym],
+                         phasorvoltage(10), "Voc incorrect.")
         self.assertEqual(a.I, 0, "I incorrect.")
-        self.assertEqual(a.v(0), voltage(10), "Voc incorrect.")                
-        self.assertEqual(a.i(0), 0, "I incorrect.")                
+        self.assertEqual(a.v(0), voltage(10), "Voc incorrect.")
+        self.assertEqual(a.i(0), 0, "I incorrect.")
 
         b = a.norton()
         self.assertEqual2(b.voc, Vac(10).voc, "voc incorrect.")
-        self.assertEqual(b.Voc.ac[omega0sym], phasorvoltage(10), "Voc incorrect.")
-        self.assertEqual(b.V.ac[omega0sym], phasorvoltage(10), "Voc incorrect.")
+        self.assertEqual(b.Voc.ac[omega0sym],
+                         phasorvoltage(10), "Voc incorrect.")
+        self.assertEqual(b.V.ac[omega0sym],
+                         phasorvoltage(10), "Voc incorrect.")
         self.assertEqual(b.I, 0, "I incorrect.")
-        self.assertEqual(b.v(0), voltage(10), "Voc incorrect.")                
-        self.assertEqual(b.i(0), 0, "I incorrect.")        
-        
+        self.assertEqual(b.v(0), voltage(10), "Voc incorrect.")
+        self.assertEqual(b.i(0), 0, "I incorrect.")
+
     def test_R_series_L(self):
         """Check R + L
 
@@ -210,7 +218,8 @@ class LcapyOneportTester(unittest.TestCase):
         b = a.open_circuit()
 
         self.assertEqual2(b.Z, impedance(10), "incorrect Z.")
-        self.assertEqual2(b.Voc.laplace(), LaplaceDomainVoltage(5 / s), "incorrect V.")
+        self.assertEqual2(
+            b.Voc.laplace(), LaplaceDomainVoltage(5 / s), "incorrect V.")
 
     def test_short_circuit(self):
         """Check short_circuit
@@ -221,33 +230,34 @@ class LcapyOneportTester(unittest.TestCase):
         b = a.short_circuit()
 
         self.assertEqual2(b.Z, impedance(10), "incorrect Z.")
-        self.assertEqual2(b.Voc.laplace(), LaplaceDomainVoltage(5 / s), "incorrect V.")
+        self.assertEqual2(
+            b.Voc.laplace(), LaplaceDomainVoltage(5 / s), "incorrect V.")
 
     def test_v(self):
         """Check inverse Laplace for voltage sources"""
 
         a = Vdc(10)
-        self.assertEqual(a.voc, voltage(10), "DC incorrect.")        
+        self.assertEqual(a.voc, voltage(10), "DC incorrect.")
 
         a = Vstep(10)
         self.assertEqual2(a.voc, voltage(10 * Heaviside(t)), "Step incorrect.")
 
         a = Vac(10)
-        self.assertEqual2(a.voc, voltage(10 * cos(omega0 * t)), "AC incorrect.")
-
+        self.assertEqual2(a.voc, voltage(
+            10 * cos(omega0 * t)), "AC incorrect.")
 
     def test_i(self):
         """Check inverse Laplace for current sources"""
 
         a = Idc(10)
-        self.assertEqual(a.isc, current(10), "DC incorrect.")        
+        self.assertEqual(a.isc, current(10), "DC incorrect.")
 
         a = Istep(10)
         self.assertEqual2(a.isc, current(10 * Heaviside(t)), "Step incorrect.")
 
         a = Iac(10)
-        self.assertEqual2(a.isc, current(10 * cos(omega0 * t)), "AC incorrect.")
-
+        self.assertEqual2(a.isc, current(
+            10 * cos(omega0 * t)), "AC incorrect.")
 
     def test_CPE(self):
         """Check CPE
@@ -257,7 +267,8 @@ class LcapyOneportTester(unittest.TestCase):
 
         self.assertEqual2(a.Z(s), impedance(1 / (10 * s)), "Zs incorrect.")
         self.assertEqual2(a.Y(s), admittance(10 * s), "Ys incorrect.")
-        self.assertEqual2(a.Z(jw), impedance(1 / (10 * j * omega)), "Zw incorrect.")
+        self.assertEqual2(a.Z(jw), impedance(
+            1 / (10 * j * omega)), "Zw incorrect.")
         self.assertEqual2(a.Y(jw), admittance(10 * j * omega), "Yw incorrect.")
 
         a = CPE(10, 0)
@@ -277,22 +288,20 @@ class LcapyOneportTester(unittest.TestCase):
         b = a.simplify()
 
         self.assertEqual2(b._Z, None, "Z incorrect.")
-        self.assertEqual2(b._Y, 1, "Y incorrect.")                
+        self.assertEqual2(b._Y, 1, "Y incorrect.")
 
     def test_cpt(self):
 
-        self.assertEqual(type(voltage(2).cpt()), Vdc , "-> Vdc")
+        self.assertEqual(type(voltage(2).cpt()), Vdc, "-> Vdc")
         #self.assertEqual(type(voltage(cos(t)).cpt()), Vac, "-> Vac")
 
         self.assertEqual(type(current(2).cpt()), Idc, "-> Idc")
         #self.assertEqual(type(current(cos(t)).cpt()), Iac, "-> Iac")
-        
-        self.assertEqual(type(impedance(2).cpt()), R , "-> R")
+
+        self.assertEqual(type(impedance(2).cpt()), R, "-> R")
         self.assertEqual(type(impedance(2 * s).cpt()), L, "-> L")
         self.assertEqual(type(impedance(2 / s).cpt()), C, "-> C")
 
         self.assertEqual(type(admittance(2).cpt()), G, "-> G")
         self.assertEqual(type(admittance(2 * s).cpt()), C, "-> C")
-        self.assertEqual(type(admittance(2 / s).cpt()), L, "-> L")        
-        
-        
+        self.assertEqual(type(admittance(2 / s).cpt()), L, "-> L")

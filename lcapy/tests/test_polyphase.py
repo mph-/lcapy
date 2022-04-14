@@ -14,5 +14,5 @@ class LcapyTester(unittest.TestCase):
 
         A = symbol('A')
         alpha = polyphase_alpha(3)
-        
+
         V = PhaseVoltageVector((A, A * alpha, A * alpha**2))

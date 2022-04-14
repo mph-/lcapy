@@ -71,12 +71,12 @@ class LcapyNetworksTester(unittest.TestCase):
 
         """
         a = (Vac('1') + C(2)) | R(3)
-        
+
         self.assertEqual(a.norton().isc, TimeDomainCurrent(-2 * omega0 * sin(omega0 * t)),
                          "Isc incorrect")
         self.assertEqual(a.thevenin().isc, TimeDomainCurrent(-2 * omega0 * sin(omega0 * t)),
                          "Isc incorrect")
-        
+
     def test_superposition(self):
         """Check network superposition"""
 
@@ -85,13 +85,15 @@ class LcapyNetworksTester(unittest.TestCase):
         self.assertEqual(a.Voc.has_dc, False, "Voc.has_dc error")
         self.assertEqual(a.Voc.is_dc, False, "Voc.is_dc error")
         self.assertEqual(a.Voc.has_ac, True, "Voc.has_ac error")
-        self.assertEqual(a.Voc.is_ac, False, "Voc.is_ac error")                                
+        self.assertEqual(a.Voc.is_ac, False, "Voc.is_ac error")
         self.assertEqual2(a.Voc.s, voltage(10 / s), "Voc.s error")
-        self.assertEqual(a.Voc.n.expr, AngularFourierNoiseDomainVoltage(20).expr, "Voc.n error")
+        self.assertEqual(a.Voc.n.expr, AngularFourierNoiseDomainVoltage(
+            20).expr, "Voc.n error")
         self.assertEqual2(a.Isc.s, current(2 / s), "Isc.s error")
         # FIXME, this intermittently fails.
-        self.assertEqual(a.Isc.n.expr, AngularFourierNoiseDomainCurrent(4).expr, "Isc.n error")
-        
+        self.assertEqual(
+            a.Isc.n.expr, AngularFourierNoiseDomainCurrent(4).expr, "Isc.n error")
+
     def test_ivp(self):
         """Check network with initial values"""
 
@@ -104,8 +106,8 @@ class LcapyNetworksTester(unittest.TestCase):
 
         a = Vstep(10) + C('C1')
         self.assertEqual(a.is_causal, True, "causal fail")
-        self.assertEqual(a.Isc.is_causal, True, "causal fail")        
-        
+        self.assertEqual(a.Isc.is_causal, True, "causal fail")
+
     def test_YZ(self):
 
         a = R(1) + V(2) + R(3)
@@ -128,22 +130,21 @@ class LcapyNetworksTester(unittest.TestCase):
     def test_subs(self):
 
         n = (R('R1') + C('C1') + L('L1')) | C('C0')
-        m = n.subs({'R1':2, 'C1':3, 'L1':4, 'C0':5})
+        m = n.subs({'R1': 2, 'C1': 3, 'L1': 4, 'C0': 5})
         p = (R(2) + C(3) + L(4)) | C(5)
 
         self.assertEqual(m.Z(s), p.Z(s), "Z")
-        
+
     def test_noisy(self):
 
-        n = R('R1') + R('R2')        
+        n = R('R1') + R('R2')
         m = n.noisy()
 
         Vn = m.Voc.n
         Vn2 = expr('sqrt(4 * k_B * T * (R1 + R2))')
 
-        n = G('1/R1') + G('1/R2')        
+        n = G('1/R1') + G('1/R2')
         m = n.noisy()
-        Vn = m.Voc.n        
-        
+        Vn = m.Voc.n
+
         self.assertEqual(Vn, Vn2, "G noise sum")
-        

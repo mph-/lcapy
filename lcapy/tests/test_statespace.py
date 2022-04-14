@@ -5,7 +5,7 @@ import unittest
 
 class LcapyTester(unittest.TestCase):
 
-    """Unit tests for lcapy state space analysis    
+    """Unit tests for lcapy state space analysis
     """
 
     def assertEqual2(self, ans1, ans2, comment):
@@ -31,18 +31,27 @@ class LcapyTester(unittest.TestCase):
 
         ss = a.ss
 
-        self.assertEqual2(expr(ss.x[0]), expr('v_C1(t)'), "Incorrect state variable")
-        self.assertEqual2(expr(ss.y[0]), expr('v_1(t)'), "Incorrect output variable1")
-        self.assertEqual2(expr(ss.y[1]), expr('v_2(t)'), "Incorrect output variable2") 
-        self.assertEqual2(expr(ss.A[0]), expr('-1/(R1 * C1)'), "Incorrect A matrix")
-        self.assertEqual2(expr(ss.B[0]), expr('1/(R1 * C1)'), "Incorrect B matrix")
-        self.assertEqual2(expr(ss.C[0]), expr(0), "Incorrect C[0] matrix element")
-        self.assertEqual2(expr(ss.C[1]), expr(1), "Incorrect C[1] matrix element")
-        self.assertEqual2(expr(ss.D[0]), expr(1), "Incorrect D[0] matrix element")
-        self.assertEqual2(expr(ss.D[1]), expr(0), "Incorrect D[1] matrix element")
-        self.assertEqual2(expr(ss.eigenvalues[0]), expr('-1/(R1 * C1)'), "Incorrect eigenvalues")
-        
-        
+        self.assertEqual2(expr(ss.x[0]), expr(
+            'v_C1(t)'), "Incorrect state variable")
+        self.assertEqual2(expr(ss.y[0]), expr(
+            'v_1(t)'), "Incorrect output variable1")
+        self.assertEqual2(expr(ss.y[1]), expr(
+            'v_2(t)'), "Incorrect output variable2")
+        self.assertEqual2(expr(ss.A[0]), expr(
+            '-1/(R1 * C1)'), "Incorrect A matrix")
+        self.assertEqual2(expr(ss.B[0]), expr(
+            '1/(R1 * C1)'), "Incorrect B matrix")
+        self.assertEqual2(expr(ss.C[0]), expr(
+            0), "Incorrect C[0] matrix element")
+        self.assertEqual2(expr(ss.C[1]), expr(
+            1), "Incorrect C[1] matrix element")
+        self.assertEqual2(expr(ss.D[0]), expr(
+            1), "Incorrect D[0] matrix element")
+        self.assertEqual2(expr(ss.D[1]), expr(
+            0), "Incorrect D[1] matrix element")
+        self.assertEqual2(expr(ss.eigenvalues[0]), expr(
+            '-1/(R1 * C1)'), "Incorrect eigenvalues")
+
     def test_VRL1(self):
         """Check VRL circuit
 
@@ -53,18 +62,27 @@ class LcapyTester(unittest.TestCase):
         L1 2 0""")
 
         ss = a.ss
-        
-        self.assertEqual2(expr(ss.x[0]), expr('i_L1(t)'), "Incorrect state variable")
-        self.assertEqual2(expr(ss.y[0]), expr('v_1(t)'), "Incorrect output variable1")
-        self.assertEqual2(expr(ss.y[1]), expr('v_2(t)'), "Incorrect output variable2")        
-        self.assertEqual2(expr(ss.A[0]), expr('-R1 / L1'), "Incorrect A matrix")
+
+        self.assertEqual2(expr(ss.x[0]), expr(
+            'i_L1(t)'), "Incorrect state variable")
+        self.assertEqual2(expr(ss.y[0]), expr(
+            'v_1(t)'), "Incorrect output variable1")
+        self.assertEqual2(expr(ss.y[1]), expr(
+            'v_2(t)'), "Incorrect output variable2")
+        self.assertEqual2(expr(ss.A[0]), expr(
+            '-R1 / L1'), "Incorrect A matrix")
         self.assertEqual2(expr(ss.B[0]), expr('1 / L1'), "Incorrect B matrix")
-        self.assertEqual2(expr(ss.C[0]), expr(0), "Incorrect C[0] matrix element")
-        self.assertEqual2(expr(ss.C[1]), expr('-R1'), "Incorrect C[1] matrix element")
-        self.assertEqual2(expr(ss.D[0]), expr(1), "Incorrect D[0] matrix element")
-        self.assertEqual2(expr(ss.D[1]), expr(1), "Incorrect D[1] matrix element")
-        self.assertEqual2(expr(ss.eigenvalues[0]), expr('-R1 / L1'), "Incorrect eigenvalues")
-    
+        self.assertEqual2(expr(ss.C[0]), expr(
+            0), "Incorrect C[0] matrix element")
+        self.assertEqual2(expr(ss.C[1]), expr(
+            '-R1'), "Incorrect C[1] matrix element")
+        self.assertEqual2(expr(ss.D[0]), expr(
+            1), "Incorrect D[0] matrix element")
+        self.assertEqual2(expr(ss.D[1]), expr(
+            1), "Incorrect D[1] matrix element")
+        self.assertEqual2(expr(ss.eigenvalues[0]), expr(
+            '-R1 / L1'), "Incorrect eigenvalues")
+
     def test_RLC(self):
 
         a = Circuit("""
@@ -78,18 +96,18 @@ class LcapyTester(unittest.TestCase):
         W 0_3 0_4; right""")
         ss = a.ss
 
-        self.assertEqual(ss.x[0], expr('i_L(t)'), "x[0]")        
+        self.assertEqual(ss.x[0], expr('i_L(t)'), "x[0]")
         self.assertEqual(ss.x[1], expr('v_C(t)'), "x[1]")
 
-        self.assertEqual(ss.x0[0], 0, "x0[0]")        
+        self.assertEqual(ss.x0[0], 0, "x0[0]")
         self.assertEqual(ss.x0[1], 0, "x0[1]")
 
-        self.assertEqual(ss.y[0], expr('v_1(t)'), "y[0]")        
+        self.assertEqual(ss.y[0], expr('v_1(t)'), "y[0]")
 
         self.assertEqual(ss.u[0], expr('v(t)'), "u[0]")
 
-        self.assertEqual(ss.A[0, 0], expr('-R1/L'), "A[0, 0]")                
-        
+        self.assertEqual(ss.A[0, 0], expr('-R1/L'), "A[0, 0]")
+
     def test_transfer(self):
         Z = (s**2 + 3) / (s**3 + 2 * s + 10)
 
@@ -108,7 +126,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(sso.G[0], Z, "G")
 
         ssd = Z.state_space('DCF')
-        #self.assertEqual(ssd.G[0], Z, "G")                
+        #self.assertEqual(ssd.G[0], Z, "G")
 
     def test_balanced(self):
 
@@ -118,15 +136,15 @@ class LcapyTester(unittest.TestCase):
         D = [9]
 
         ss = StateSpace(A, B, C, D)
-        
+
         ssb = ss.balance()
 
         h = ss.hankel_singular_values
 
         H = np.diag(h.numpy.squeeze())
 
-        self.assertEqual(np.allclose(ssb.Wo.numpy, ssb.Wc.numpy), True, "Wo==Wc")
-        self.assertEqual(np.allclose(ssb.Wo.numpy, H), True, "Hankel singular values")
+        self.assertEqual(np.allclose(
+            ssb.Wo.numpy, ssb.Wc.numpy), True, "Wo==Wc")
+        self.assertEqual(np.allclose(ssb.Wo.numpy, H),
+                         True, "Hankel singular values")
         self.assertEqual(ss.eigenvalues, [-1, -2], "eigen values")
-        
-        

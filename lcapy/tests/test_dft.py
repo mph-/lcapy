@@ -17,8 +17,10 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(nexpr('2').DFT(), kexpr('2 * N * delta(k)'), "2")
 
         self.assertEqual(nexpr('x(n)').DFT(), kexpr('X(k)'), "x(n)")
-        self.assertEqual(nexpr('2 * x(n)').DFT(), kexpr('2 * X(k)'), "2 * x(n)")
-        self.assertEqual(nexpr('x(2 * n)').DFT(), kexpr('X(k / 2) / 2'), "x(2 * n)")        
+        self.assertEqual(nexpr('2 * x(n)').DFT(),
+                         kexpr('2 * X(k)'), "2 * x(n)")
+        self.assertEqual(nexpr('x(2 * n)').DFT(),
+                         kexpr('X(k / 2) / 2'), "x(2 * n)")
 
         self.assertEqual(nexpr('delta(n - 1)').DFT(),
                          kexpr('exp(-j * 2 * pi * k / N)'), "delta(n - 1)")
@@ -30,24 +32,23 @@ class LcapyTester(unittest.TestCase):
                          kexpr('exp(-j * 2 * pi * 2 * k / N)'), "delta(n - 2)")
 
         # Temp. hack, ideally should get result 2 * N * delta(k + 1)
-        self.assertEqual(nexpr('2 * exp(-j * 2 * pi * n / N)').DFT(), 
+        self.assertEqual(nexpr('2 * exp(-j * 2 * pi * n / N)').DFT(),
                          kexpr('2 * N * delta(k + 1 - N)'), "2 * exp(-j * 2 * pi * n / N)")
-        self.assertEqual(nexpr('x(n-1)').DFT(N=2), 
+        self.assertEqual(nexpr('x(n-1)').DFT(N=2),
                          kexpr('X(k)*exp(-j * pi * k)'), "x(n-1)")
-        
 
     def test_IDFT(self):
 
         self.assertEqual(kexpr('X(k)').IDFT(), nexpr('x(n)'), "X(k)")
         self.assertEqual(kexpr(1).IDFT(), delta(n), "1")
-        self.assertEqual(delta(k).IDFT(), nexpr('1 / N'), "delta(k)")                
+        self.assertEqual(delta(k).IDFT(), nexpr('1 / N'), "delta(k)")
 
     def test_DFT_matrix(self):
 
         X1 = DFTmatrix(4)
-        X2 = Matrix(((1, 1, 1, 1), (1, -j, -1, j), (1, -1, 1, -1), (1, j, -1, -j)))
+        X2 = Matrix(((1, 1, 1, 1), (1, -j, -1, j),
+                    (1, -1, 1, -1), (1, j, -1, -j)))
         X3 = IDFTmatrix(4).conj * 4
-        
+
         self.assertEqual(X1, X2, "DFTmatrix(4)")
-        self.assertEqual(X3, X2, "IDFTmatrix(4)")        
-        
+        self.assertEqual(X3, X2, "IDFTmatrix(4)")

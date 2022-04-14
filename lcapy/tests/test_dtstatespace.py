@@ -5,7 +5,7 @@ import unittest
 
 class LcapyTester(unittest.TestCase):
 
-    """Unit tests for lcapy discrete-time state space analysis    
+    """Unit tests for lcapy discrete-time state space analysis
     """
 
     def assertEqual2(self, ans1, ans2, comment):
@@ -38,7 +38,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(sso.G[0], Z, "G")
 
         ssd = Z.state_space('DCF')
-        #self.assertEqual(ssd.G[0], Z, "G")                
+        #self.assertEqual(ssd.G[0], Z, "G")
 
     def test_balanced(self):
 
@@ -48,29 +48,28 @@ class LcapyTester(unittest.TestCase):
         D = [9]
 
         ss = StateSpace(A, B, C, D)
-        
+
         ssb = ss.balance()
 
         h = ss.hankel_singular_values
 
         H = np.diag(h.numpy.squeeze())
 
-        self.assertEqual(np.allclose(ssb.Wo.numpy, ssb.Wc.numpy), True, "Wo==Wc")
-        self.assertEqual(np.allclose(ssb.Wo.numpy, H), True, "Hankel singular values")
+        self.assertEqual(np.allclose(
+            ssb.Wo.numpy, ssb.Wc.numpy), True, "Wo==Wc")
+        self.assertEqual(np.allclose(ssb.Wo.numpy, H),
+                         True, "Hankel singular values")
         self.assertEqual(ss.eigenvalues, [-1, -2], "eigen values")
-        
 
     def transfer(self):
 
-        ss = DTStateSpace(((0, 1), (1, 1)), (1, 1), ((1,2),), [1])
-        
+        ss = DTStateSpace(((0, 1), (1, 1)), (1, 1), ((1, 2),), [1])
+
         umin = ss.minimum_energy_input(2, [5, 7], [0, 0])
         self.assertEqual(umin, [2, 3], "minimum_energy_input")
 
         umin = ss.minimum_energy(2, [5, 7], [0, 0])
-        self.assertEqual(umin, 13, "minimum_energy")        
+        self.assertEqual(umin, 13, "minimum_energy")
 
         xfinal = ss.state_transfer([[2], [3]], xinitial=[0, 0])
         self.assertEqual(xfinal, [5, 7], "state_transfer")
-        
-
