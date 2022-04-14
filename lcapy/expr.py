@@ -891,7 +891,11 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
 
     @property
     def fval(self):
-        """Evaluate expression and return as a python float value."""
+        """Evaluate expression and return as a python float value.
+        Small imaginary components are discarded.
+
+        Use `cval` to return a complex value.
+        """
 
         val = self.val.expr
         try:
