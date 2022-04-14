@@ -1918,10 +1918,6 @@ information.  This is provided using assumptions:
 
 -  `causal` says the signal is zero for :math:`t < 0`.
 
--  `ac` says the signal is sinusoidal.
-
--  `dc` says the signal is constant.
-
 -  `damped_sin` says to write response of a second-order system as a damped sinusoid.
 
 For example::
@@ -1944,8 +1940,6 @@ For example::
    s  + 36⋅π
    >>> H(t)
    {cos(6⋅π⋅t)  for t ≥ 0
-   >>> H(t, ac=True)
-   cos(6⋅π⋅t)
 
 
 Domain classes

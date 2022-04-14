@@ -28,7 +28,7 @@ analysis, and state-space analysis (see :ref:`mesh-analysis`,
 
 Lcapy cannot directly analyse non-linear devices such as diodes or
 transistors although it does support simple opamps without saturation.
-Nevertheless, it can draw them!  Lcapy can generate text-book quality schematics using vector graphics (unlike the bit-mapped graphics used in this document). 
+Nevertheless, it can draw them!  Lcapy can generate text-book quality schematics using vector graphics (unlike the bit-mapped graphics used in this document).
 
 Lcapy uses SymPy (symbolic Python) for its values and expressions
 and thus the circuit analysis can be performed symbolically.  See http://docs.sympy.org/latest/tutorial/index.html for the SymPy tutorial.
@@ -45,10 +45,10 @@ Lcapy can perform many other linear circuit analysis operations, including:
 
 5. Laplace transforms
 
-6. Fourier transforms   
+6. Fourier transforms
 
 7. Discrete-time Fourier transforms
-   
+
 8. Discrete Fourier transforms
 
 9. z-transforms
@@ -70,7 +70,7 @@ Preliminaries
   >>> ipython --pylab
 
 - Alternatively, you can use a Jupyter notebook.
-  
+
 
 Conventions
 ===========
@@ -82,7 +82,7 @@ current flows out of the positive node.
 .. image:: examples/netlists/VIRLC.png
    :width: 15cm
 
-  
+
 Expressions
 ===========
 
@@ -92,21 +92,21 @@ Lcapy defines a number of symbols corresponding to different domains (see :ref:`
 
 - `f` -- Fourier (frequency) domain
 
-- `F` -- normalised Fourier domain    
+- `F` -- normalised Fourier domain
 
 - `s` -- Laplace (complex frequency) domain
 
 - `omega` -- angular Fourier domain
 
-- `Omega` -- normalised angular Fourier domain  
+- `Omega` -- normalised angular Fourier domain
 
-- `jomega` (or `jw`) -- phasor domain  
+- `jomega` (or `jw`) -- phasor domain
 
 - `n` -- discrete-time domain
 
 - `k` -- discrete-frequency domain
 
-- `z` -- z-domain  
+- `z` -- z-domain
 
 Expressions (see :ref:`expressions`) can be formed using these symbols.  For example, a time-domain expression can be created using::
 
@@ -126,7 +126,7 @@ and a s-domain expression can be created using::
 Numbers in expressions are represented as rationals to avoid numerical problems with floating-point numbers.   For example::
 
   >>> x = t * 0.1
-  t 
+  t
   ──
   10
 
@@ -148,11 +148,11 @@ impedance), and units.  For more details see :ref:`domains`,
    >>> V.quantity
    'voltage'
    >>> V.units
-   V 
+   V
 
 By default, the units are not printed (for more details see :ref:`units`).
 
-   
+
 Lcapy expressions have a number of other attributes  (see :ref:`expressionsattributes`) including:
 
 - `numerator`, `N` --  numerator of rational function
@@ -175,7 +175,7 @@ Lcapy expressions have a number of other attributes  (see :ref:`expressionsattri
 
 - `cval` -- the expression evaluated as a Python floating-point complex number (if possible)
 
-- `fval` -- the expression evaluated as a Python floating-point number (if possible)    
+- `fval` -- the expression evaluated as a Python floating-point number (if possible)
 
 and a number of generic methods (see :ref:`expressionsmethods`) including:
 
@@ -185,7 +185,7 @@ and a number of generic methods (see :ref:`expressionsmethods`) including:
 
 - `divide_top_and_bottom(expr)` -- divides numerator and denominator by `expr`.
 
-- `multiply_top_and_bottom(expr)` -- multiplies numerator and denominator by `expr`.    
+- `multiply_top_and_bottom(expr)` -- multiplies numerator and denominator by `expr`.
 
 - `evaluate()` -- evaluate at specified vector and return floating-point vector
 
@@ -199,21 +199,21 @@ Here's an example of using these attributes and methods::
    ───────
    j⋅ω - 4
    >>> A.rationalize_denominator()
-    2             
+    2
    ω  - 7⋅j⋅ω - 12
    ───────────────
-        2         
-       ω  + 16  
+        2
+       ω  + 16
    >>> A.real
-    2     
+    2
    ω  - 12
    ───────
-    2     
+    2
    ω  + 16
    >>> A.imag
-    -7⋅ω  
+    -7⋅ω
    ───────
-    2     
+    2
    ω  + 16
    >>> A.N
    j⋅ω + 3
@@ -224,11 +224,11 @@ Here's an example of using these attributes and methods::
    atan2⎝-7⋅ω, ω  - 12⎠
    >>> A.magnitude
       __________________
-     ╱  4       2       
-   ╲╱  ω  + 25⋅ω  + 144 
+     ╱  4       2
+   ╲╱  ω  + 25⋅ω  + 144
    ─────────────────────
-           2            
-          ω  + 16       
+           2
+          ω  + 16
 
 
 Each domain has specific methods, including:
@@ -239,7 +239,7 @@ Each domain has specific methods, including:
 
 - `as_time()`      -- Convert to time domain
 
-- `as_phasor()`    -- Convert to phasor domain  
+- `as_phasor()`    -- Convert to phasor domain
 
 
 Lcapy defines a number of functions (see :ref:`expressionsfunctions`) that can be used in expressions, including:
@@ -262,7 +262,7 @@ Lcapy defines a number of functions (see :ref:`expressionsfunctions`) that can b
 
 - `log()` -- natural logarithm
 
-  
+
 Expression formatting
 ---------------------
 
@@ -273,7 +273,7 @@ expressions in partial fraction form::
    >>> from lcapy import *
    >>> G = 1 / (s**2 + 5 * s + 6)
    >>> G.partfrac()
-      1       1  
+      1       1
    - ───── + ─────
      s + 3   s + 2
 
@@ -282,7 +282,7 @@ Here's an example of partial fraction expansion for a not strictly proper ration
    >>> from lcapy import *
    >>> H = 5 * (s + 5) * (s - 4) / (s**2 + 5 * s + 6)
    >>> H.partfrac()
-         70      90 
+         70      90
    5 + ───── - ─────
        s + 3   s + 2
 
@@ -291,7 +291,7 @@ The rational function can also be printed in ZPK (zero-pole-gain) form::
    >>> H.ZPK()
    5⋅(s - 4)⋅(s + 5)
    ─────────────────
-    (s + 2)⋅(s + 3) 
+    (s + 2)⋅(s + 3)
 
 Here it is obvious that the poles are -2 and -3.  These can also be found using the poles function::
 
@@ -317,21 +317,21 @@ a strictly proper rational function::
    >>> from lcapy import s
    >>> H = 5 * (s - 4) / (s**2 + 5 * s + 6)
    >>> H.partfrac()
-     35      30 
+     35      30
    ───── - ─────
    s + 3   s + 2
 
    >>> H.ILT()
-         -2⋅t       -3⋅t           
+         -2⋅t       -3⋅t
    - 30⋅e     + 35⋅e      for t ≥ 0
-   
+
 
 or alternatively
-   
+
    >>> H(t)
-         -2⋅t       -3⋅t           
+         -2⋅t       -3⋅t
    - 30⋅e     + 35⋅e      for t ≥ 0
-                                   
+
 
 Note that the unilateral inverse Laplace transform can only determine
 the result for :math:`t \ge 0`.  If you know that the system is
@@ -352,8 +352,8 @@ or remove the condition that :math:`t \ge 0`,
 
    >>> H(t).remove_condition()
          -2⋅t       -3⋅t
-   - 30⋅e     + 35⋅e    
-   
+   - 30⋅e     + 35⋅e
+
 
 When the rational function is not strictly proper, the inverse Laplace
 transform has Dirac deltas (and derivatives of Dirac deltas)::
@@ -361,11 +361,11 @@ transform has Dirac deltas (and derivatives of Dirac deltas)::
    >>> from lcapy import s
    >>> H = 5 * (s - 4) / (s**2 + 5 * s + 6)
    >>> H.partfrac()
-        70      90 
+        70      90
    5 + ───── - ─────
        s + 3   s + 2
    >>> H.ILT(causal=True)
-   ⎛      -2⋅t       -3⋅t⎞                               
+   ⎛      -2⋅t       -3⋅t⎞
    ⎝- 90⋅e     + 70⋅e    ⎠⋅Heaviside(t) + 5⋅DiracDelta(t)
 
 
@@ -378,14 +378,14 @@ repeated pole::
    5⋅(s + 5)
    ─────────
            2
-    (s + 3) 
+    (s + 3)
    >>> H.partfrac()
-     5        10   
+     5        10
    ───── + ────────
    s + 3          2
-           (s + 3) 
+           (s + 3)
    >>> H.ILT(causal=True)
-   ⎛      -3⋅t      -3⋅t⎞             
+   ⎛      -3⋅t      -3⋅t⎞
    ⎝10⋅t⋅e     + 5⋅e    ⎠⋅Heaviside(t)
 
 
@@ -397,21 +397,21 @@ Rational functions with delays can also be handled::
    >>> H = 5 * (s + 5) * (s - 4) / (s**2 + 5 * s + 6) * sym.exp(-s * T)
    >>> H.partfrac()
    ⎛      70      90 ⎞  -T⋅s
-   ⎜5 + ───── - ─────⎟⋅e    
-   ⎝    s + 3   s + 2⎠      
+   ⎜5 + ───── - ─────⎟⋅e
+   ⎝    s + 3   s + 2⎠
    >>> H.ILT(causal=True)
-   ⎛      2⋅T - 2⋅t       3⋅T - 3⋅t⎞                                         
+   ⎛      2⋅T - 2⋅t       3⋅T - 3⋅t⎞
    ⎝- 90⋅e          + 70⋅e         ⎠⋅Heaviside(-T + t) + 5⋅DiracDelta(-T + t)
 
 Lcapy can convert s-domain products to time domain convolutions, for example::
 
    >>> from lcapy import expr
    >>> expr('V(s) * Y(s)')(t, causal=True)
-   t                 
-   ⌠                 
+   t
+   ⌠
    ⎮ v(t - τ)⋅y(τ) dτ
-   ⌡                 
-   0                 
+   ⌡
+   0
 
 Here the function expr converts a string argument to an Lcapy expression.
 
@@ -420,19 +420,19 @@ functions, for example::
 
    >>> from lcapy import s, t
    >>> (s * 'V(s)')(t, causal=True)
-   d       
+   d
    ──(v(t))
-   dt      
+   dt
 
-   >>> ('V(s)' / s)(t, causal=True)   
-   t        
-   ⌠        
+   >>> ('V(s)' / s)(t, causal=True)
+   t
+   ⌠
    ⎮ v(τ) dτ
-   ⌡        
-   0        
+   ⌡
+   0
 
 These expressions also be written as::
-   
+
    >>> from lcapy import expr, t
    >>> expr('s * V(s)')(t, causal=True)
    >>> expr('V(s) / s')(t, causal=True)
@@ -442,7 +442,7 @@ or more explicitly::
    >>> from lcapy import expr
    >>> expr('s * V(s)').ILT(causal=True)
    >>> expr('V(s) / s').ILT(causal=True)
-   
+
 
 Laplace transforms
 ------------------
@@ -454,16 +454,16 @@ Lcapy can also perform Laplace transforms.   Here's an example::
    >>> v.LT()
    3⋅s + 20
    ────────
-       3   
-      s   
+       3
+      s
 
 There is a short-hand notation for the Laplace transform::
-      
+
    >>> v(s)
    3⋅s + 20
    ────────
-       3   
-      s         
+       3
+      s
 
 Note, Lcapy uses the :math:`\mathcal{L}_{-}` unilateral Laplace transform
 whereas SymPy which uses the :math:`\mathcal{L}` unilateral Laplace
@@ -473,23 +473,23 @@ transform, see :ref:`laplace_transforms`.  The key difference is for Dirac delta
   1
 
 However, SymPy gives 0.5.
-  
+
 Phasors
 -------
 
 Phasors are created with the `phasor()` function::
-  
+
    >>> s = phasor(-2 * j)
    >>> s.time()
-   2⋅sin(ω⋅t)   
+   2⋅sin(ω⋅t)
 
-The default angular frequency is `omega` but this can be specified::   
-   
+The default angular frequency is `omega` but this can be specified::
+
    >>> p = phasor(-j, omega=1)
    sin(t)
 
 Phasors can also be inferred from an AC signal::
-   
+
    >>> q = phasor(2 * sin(3 * t))
    >>> q
    -2⋅ⅉ
@@ -507,7 +507,7 @@ domain by substituting :math:`\mathrm{j} \omega` for :math:`s`
    ───────
    j⋅ω - 4
 
-The symbol `jw` can be used instead of `j * omega`.   
+The symbol `jw` can be used instead of `j * omega`.
 
 For more information on phasors see :ref:`phasors`.
 
@@ -628,20 +628,20 @@ Let's consider a series R-L-C network::
    R(4) + L(10) + C(20)
 
 The phasor impedance can be determined as a function of angular frequency using::
-   
+
    >>> n.Z(jomega)
-                 ⅉ  
+                 ⅉ
    10⋅ⅉ⋅ω + 4 - ────
                 20⋅ω
 
 Similarly, the generalized (s-domain) impedance can be determined using::
-                
+
    >>> n.Z(s)
-       2         1 
+       2         1
    10⋅s  + 4⋅s + ──
                  20
    ────────────────
-          s        
+          s
 
 Impedance expressions are rational functions (of :math:`\omega` or :math:`s`) and can be formatted in a number of different ways, for example::
 
@@ -651,10 +651,10 @@ Impedance expressions are rational functions (of :math:`\omega` or :math:`s`) an
    10⋅⎜s - ────── + ─⎟⋅⎜s + ────── + ─⎟
       ⎝      20     5⎠ ⎝      20     5⎠
    ────────────────────────────────────
-                    s                 
+                    s
 
    >>> n.Z(s).standard()
-               1  
+               1
    10⋅s + 4 + ────
               20⋅s
 
@@ -669,29 +669,29 @@ The corresponding parallel R-L-C network yields::
    >>> n
    R(5) | L(20) | C(10)
    >>> n.Z(s)
-           s         
+           s
    ──────────────────
       ⎛ 2   s     1 ⎞
    10⋅⎜s  + ── + ───⎟
       ⎝     50   200⎠
 
    >>> n.Z(s).ZPK()
-                   s                 
+                   s
    ──────────────────────────────────
       ⎛     1    7⋅j⎞ ⎛     1    7⋅j⎞
    10⋅⎜s + ─── - ───⎟⋅⎜s + ─── + ───⎟
       ⎝    100   100⎠ ⎝    100   100⎠
    >>> n.Z(s).canonical()
-           s         
+           s
    ──────────────────
       ⎛ 2   s     1 ⎞
    10⋅⎜s  + ── + ───⎟
       ⎝     50   200⎠
    >>> n.Y(s)
-        2          
+        2
    200⋅s  + 4⋅s + 1
    ────────────────
-         20⋅s      
+         20⋅s
 
 Notice how `n.Y(s)` returns the s-domain admittance of the network, the reciprocal of the impedance `n.Z(s)`.
 
@@ -750,15 +750,15 @@ Let's consider a series R-C network in series with a DC voltage source
    >>> Voc
    20
    ──
-   s 
+   s
    >>> n.Isc(s)
-      4   
+      4
    ────────
    s + 1/50
    >>> isc = n.Isc(t)
-      -t      
-      ───     
-       50     
+      -t
+      ───
+       50
    4⋅ℯ   ⋅u(t)
 
 
@@ -766,7 +766,7 @@ Here `n` is network formed by the components in series, and `n.Voc(s)`
 is the open-circuit s-domain voltage across the network.  Note, this
 is the same as the s-domain value of the voltage source.  `n.Isc(s)`
 is the short-circuit s-domain voltage through the network and
-`n.Isc(t)` is the the time-domain response.  
+`n.Isc(t)` is the the time-domain response.
 
 Of course, the previous example can be performed symbolically,
 
@@ -778,21 +778,21 @@ Of course, the previous example can be performed symbolically,
    >>> Voc
    V₁
    ──
-   s 
+   s
    >>> n.Isc(s)
-         V₁      
+         V₁
    ──────────────
       ⎛      1  ⎞
    R₁⋅⎜s + ─────⎟
       ⎝    C₁⋅R₁⎠
    >>> isc = n.Isc(t)
    >>> isc
-        -t       
-       ─────     
-       C₁⋅R₁     
+        -t
+       ─────
+       C₁⋅R₁
    V₁⋅ℯ     ⋅u(t)
    ──────────────
-         R₁      
+         R₁
 
 The transient response can be evaluated numerically by specifying a
 vector of time values to the `evaluate()` method::
@@ -857,30 +857,30 @@ combined to create a two-port network.  The simplest two-port is a
 shunt::
 
          -----+----
-              |    
-            +-+-+  
-            |   |  
-            |OP |  
-            |   |  
-            +-+-+  
-              |    
+              |
+            +-+-+
+            |   |
+            |OP |
+            |   |
+            +-+-+
+              |
          -----+----
 
 A more interesting two-port network is an L section (voltage divider)::
 
-           +---------+       
+           +---------+
          --+   OP1   +---+----
-           +---------+   |   
-                       +-+-+ 
-                       |   | 
-                       |OP2| 
-                       |   | 
-                       +-+-+ 
-                         |   
+           +---------+   |
+                       +-+-+
+                       |   |
+                       |OP2|
+                       |   |
+                       +-+-+
+                         |
          ----------------+----
 
 This is comprised from any two one-port networks.  For example::
-  
+
    >>> from lcapy import *
    >>> R1 = R('R_1')
    >>> R2 = R('R_2')
@@ -892,28 +892,28 @@ Here `n.Vtransfer` determines the forward voltage transfer function
 `V_2(s) / V_1(s)`.
 
 The open-circuit input impedance can be found using::
-  
+
    >>> n.Z1oc
    R₁ + R₂
 
 The open-circuit output impedance can be found using::
-  
+
    >>> n.Z2oc
    R₂
 
 The short-circuit input admittance can be found using::
-  
+
    >>> n.Y1sc
-   1 
+   1
    ──
    R₁
 
 The short-circuit output admittance can be found using::
-  
+
    >>> n.Y2sc
    R₁ + R₂
    ───────
-    R₁⋅R₂ 
+    R₁⋅R₂
 
 
 Two-port combinations
@@ -943,12 +943,12 @@ matrices, A, B, G, H, S, T, Y, Z.  Each has their own merits (see
 http://en.wikipedia.org/wiki/Two-port_network).
 
 Consider an L section comprised of two resistors::
-  
+
    >>> from lcapy import *
    >>> n = LSection(R('R_1'), R('R_2'))
 
 The different matrix representations can be shown using::
-  
+
    >>> n.Aparams
    ⎡R₁ + R₂    ⎤
    ⎢───────  R₁⎥
@@ -1021,11 +1021,11 @@ Transfer functions can be created from netlists using the `transfer()` method.  
    ... C 2 0""")
    >>> H = cct.transfer(1, 0, 2, 0)
    >>> H
-    ⎛ 1 ⎞ 
-    ⎜───⎟ 
-    ⎝C⋅R⎠ 
+    ⎛ 1 ⎞
+    ⎜───⎟
+    ⎝C⋅R⎠
    ───────
-        1 
+        1
    s + ───
        C⋅R
 
@@ -1033,7 +1033,7 @@ Transfer functions are defined in the Laplace domain but can be
 converted to the phasor domain::
 
    >>> H(jw)
-            1       
+            1
    ───────────────
        ⎛       1 ⎞
    C⋅R⋅⎜ⅉ⋅ω + ───⎟
@@ -1048,7 +1048,7 @@ the components that the voltages are measured over, for example::
 
 Furthermore, a component and a tuple of nodes can be used instead::
 
-   >>> H = cct.transfer('R', (2, 0))  
+   >>> H = cct.transfer('R', (2, 0))
 
 Transfer functions can also be created in a similar manner to Matlab,
 either using lists of numerator and denominator coefficients::
@@ -1056,9 +1056,9 @@ either using lists of numerator and denominator coefficients::
    >>> from lcapy import *
    >>> H1 = tf(0.001, [1, 0.05, 0])
    >>> H1
-       0.001     
+       0.001
    ───────────────
-        2         
+        2
    1.0⋅s  + 0.05⋅s
 
 from lists of poles and zeros (and optional gain)::
@@ -1066,9 +1066,9 @@ from lists of poles and zeros (and optional gain)::
    >>> from lcapy import *
    >>> H2 = zp2tf([], [0, -0.05])
    >>> H2
-        0.001     
+        0.001
    ───────────────
-        2         
+        2
    1.0⋅s  + 0.05⋅s
 
 or symbolically::
@@ -1076,9 +1076,9 @@ or symbolically::
    >>> from lcapy import *
    >>> H3 = 0.001 / (s**2 + 0.05 * s)
    >>> H3
-        0.001     
+        0.001
    ───────────────
-        2         
+        2
    1.0⋅s  + 0.05⋅s
 
 
@@ -1088,7 +1088,7 @@ for example::
    >>> from lcapy import *
    >>> H4 = zp2tf(['z_1'], ['p_1', 'p_2'])
    >>> H4
-          s - z₁      
+          s - z₁
    ───────────────────
    (-p₁ + s)⋅(-p₂ + s)
 
@@ -1104,9 +1104,9 @@ read from a file or created dynamically, for example::
 
    >>> from lcapy import Circuit
    >>> cct = Circuit()
-   >>> cct.add('V1 1 0 step 10') 
-   >>> cct.add('Ra 1 2 3e3') 
-   >>> cct.add('Rb 2 0 1e3') 
+   >>> cct.add('V1 1 0 step 10')
+   >>> cct.add('Ra 1 2 3e3')
+   >>> cct.add('Rb 2 0 1e3')
 
 This creates a circuit comprised of a 10 V step voltage source
 connected to two resistors in series.  The node named 0 denotes the
@@ -1143,14 +1143,14 @@ The superposition can be converted into a Laplace domain expression using::
    ──
    s
 
-or into a time domain expression using::   
+or into a time domain expression using::
 
    >>> cct.V1.V(t)
    10
 
 The current through a component is obtained with the `I` attribute.  For a source the current is assumed to flow out of the positive node, however, for a passive device (R, L, C) it is assumed to flow into the positive node.
 
-   
+
 The voltage between a node and ground can be determined with the node
 name as an index, for example::
 
@@ -1171,20 +1171,20 @@ use the component name for its value.  For example::
    ... R1 1 2
    ... C1 2 0""")
    >>> cct[2].V(s)
-           V_s        
+           V_s
     ──────────────────
           ⎛ 2     s  ⎞
     C₁⋅R₁⋅⎜s  + ─────⎟
           ⎝     C₁⋅R₁⎠
 
    >>> : cct[2].V(t)
-   ⎛            -t  ⎞             
-   ⎜           ─────⎟             
-   ⎜           C₁⋅R₁⎟             
+   ⎛            -t  ⎞
+   ⎜           ─────⎟
+   ⎜           C₁⋅R₁⎟
    ⎝V_s - V_s⋅e     ⎠⋅Heaviside(t)
 
 
-   
+
 Transform domains
 -----------------
 
@@ -1207,13 +1207,14 @@ a dictionary).  The DC component is keyed by 'dc', the transient
 component is keyed by 's' (since this is analysed in the Laplace or
 s-domain), the noise components are keyed by noise identifiers of the
 form 'nx' (where x is an integer), and the ac components are keyed by
-the angular frequency.  The different parts of a decomposition can
-also be accessed using attributes, for example::
+the angular frequency (the default is `omega0`).  The different parts
+of a decomposition can also be accessed using attributes, for
+example::
 
    >>> Voc.s
    30
    ──
-   s    
+   s
 
 Note, this only returns the Laplace transform of the transient
 component of the decomposition.  The full Laplace transform of the
@@ -1224,7 +1225,7 @@ open-circuit voltage (ignoring the noise component) can be obtained using::
       ⎛    2      2⎞
    20⋅⎝2⋅ω₀  + 3⋅s ⎠
    ─────────────────
-        ⎛  2    2⎞  
+        ⎛  2    2⎞
       s⋅⎝ω₀  + s ⎠
 
 Similarly, the time-domain representation (ignoring the noise component) can be determined using::
@@ -1243,26 +1244,26 @@ For example::
 
    >>> cct = Circuit("""
    ... V1 1 0 step Vs
-   ... C1 2 1 C1 v0 
+   ... C1 2 1 C1 v0
    ... L1 2 0 L1 i0""")
    >>> cct[2].V(s)
               ⎛        i₀          ⎞
    (V_s + v₀)⋅⎜- ────────────── + s⎟
               ⎝  C₁⋅V_s + C₁⋅v₀    ⎠
    ─────────────────────────────────
-                2     1             
-               s  + ─────           
-                    C₁⋅L₁  
+                2     1
+               s  + ─────
+                    C₁⋅L₁
 
 Note, the component values need to be specified as well as the initial
 value; thus `C1 2 1 C1 v0` and not `C1 2 1 v0` since the latter
 specifies the capacitance to be `v0`.
-                    
+
 When an initial condition is detected, the circuit is analysed in the
 s-domain as an initial value problem.  The values of sources are
 ignored for :math:`t<0` and the result is only defined for :math:`t\ge 0`.
 
-                    
+
 Transfer functions
 ------------------
 
@@ -1276,46 +1277,46 @@ Here's an example using an arbitrary input voltage `V(s)`::
    ... R1 1 2
    ... C1 2 0 C1 0""")
    >>> cct[2].V(s)
-       V(s)   
+       V(s)
    ───────────
    C₁⋅R₁⋅s + 1
 
    >>> H = cct[2].V(s) / cct[1].V(s)
    >>> H
-        1     
+        1
    ───────────
    C₁⋅R₁⋅s + 1
 
 The corresponding impulse response can found from an inverse Laplace transform::
 
    >>> H.ILT(causal=True)
-     -t               
-    ─────             
-    C₁⋅R₁             
+     -t
+    ─────
+    C₁⋅R₁
    e     ⋅Heaviside(t)
    ───────────────────
-          C₁⋅R₁ 
+          C₁⋅R₁
 
 or more simply using::
 
    >>> H(t, causal=True)
-     -t               
-    ─────             
-    C₁⋅R₁             
+     -t
+    ─────
+    C₁⋅R₁
    e     ⋅Heaviside(t)
    ───────────────────
-          C₁⋅R₁           
-          
+          C₁⋅R₁
+
 Transfer functions can also be created using the `transfer()` method of a
 circuit.  For example::
 
    >>> from lcapy import Circuit
    >>> cct = Circuit("""
-   ... R1 1 2 
+   ... R1 1 2
    ... C1 2 0""")
    >>> H = cct.transfer(1, 0, 2, 0)
    >>> H
-        1     
+        1
    ───────────
    C₁⋅R₁⋅s + 1
 
@@ -1324,12 +1325,12 @@ V[0])`.  In general, all independent sources are killed and so the
 response is causal.
 
    >>> H(t)
-     -t               
-    ─────             
-    C₁⋅R₁             
+     -t
+    ─────
+    C₁⋅R₁
    e     ⋅Heaviside(t)
    ───────────────────
-          C₁⋅R₁       
+          C₁⋅R₁
 
 
 Mesh analysis
@@ -1350,7 +1351,7 @@ Modified nodal analysis
 
 Lcapy uses modified nodal analysis for its calculations.  For reactive circuits it does this independently for the DC, AC, and transient components and uses superposition to combine the results.  For resistive circuits, it can perform this in the time-domain.   For more details see :ref:`modified-nodal-analysis`.
 
-          
+
 State-space analysis
 --------------------
 
@@ -1379,29 +1380,29 @@ variables; the current through `L` and the voltage across `C`.
 The state equations are shown using the `state_equations()` method::
 
    >>> ss.state_equations()
-   ⎡d         ⎤   ⎡-R₁  -1  ⎤                      
-   ⎢──(i_L(t))⎥   ⎢───  ─── ⎥            ⎡1⎤       
-   ⎢dt        ⎥   ⎢ L    L  ⎥ ⎡i_L(t)⎤   ⎢─⎥       
+   ⎡d         ⎤   ⎡-R₁  -1  ⎤
+   ⎢──(i_L(t))⎥   ⎢───  ─── ⎥            ⎡1⎤
+   ⎢dt        ⎥   ⎢ L    L  ⎥ ⎡i_L(t)⎤   ⎢─⎥
    ⎢          ⎥ = ⎢         ⎥⋅⎢      ⎥ + ⎢L⎥⋅[v(t)]
-   ⎢d         ⎥   ⎢-1   -1  ⎥ ⎣v_C(t)⎦   ⎢ ⎥       
-   ⎢──(v_C(t))⎥   ⎢───  ────⎥            ⎣0⎦       
-   ⎣dt        ⎦   ⎣ C   C⋅R₂⎦                      
+   ⎢d         ⎥   ⎢-1   -1  ⎥ ⎣v_C(t)⎦   ⎢ ⎥
+   ⎢──(v_C(t))⎥   ⎢───  ────⎥            ⎣0⎦
+   ⎣dt        ⎦   ⎣ C   C⋅R₂⎦
 
 The output equations are shown using the `output_equations()` method::
 
    >>> ss.output_equations()
-   ⎡v₁(t)⎤   ⎡0    0⎤            ⎡1⎤       
-   ⎢     ⎥   ⎢      ⎥ ⎡i_L(t)⎤   ⎢ ⎥       
+   ⎡v₁(t)⎤   ⎡0    0⎤            ⎡1⎤
+   ⎢     ⎥   ⎢      ⎥ ⎡i_L(t)⎤   ⎢ ⎥
    ⎢v₂(t)⎥ = ⎢-R₁  0⎥⋅⎢      ⎥ + ⎢1⎥⋅[v(t)]
-   ⎢     ⎥   ⎢      ⎥ ⎣v_C(t)⎦   ⎢ ⎥       
-   ⎣v₃(t)⎦   ⎣0    1⎦            ⎣0⎦       
+   ⎢     ⎥   ⎢      ⎥ ⎣v_C(t)⎦   ⎢ ⎥
+   ⎣v₃(t)⎦   ⎣0    1⎦            ⎣0⎦
 
 For further details see :ref:`state-space-analysis`.
 
 
 
 Other circuit methods
----------------------     
+---------------------
 
 - `Isc(Np, Nm)`      Short-circuit current between nodes Np and Nm.
 
@@ -1410,9 +1411,9 @@ Other circuit methods
 - `isc(Np, Nm)`      Short-circuit t-domain current between nodes Np and Nm.
 
 - `voc(Np, Nm)`      Open-circuit t-domain voltage between nodes Np and Nm.
-   
+
 - `admittance(Np, Nm)`        s-domain admittance between nodes Np and Nm.
-  
+
 - `impedance(Np, Nm)`         s-domain impedance between nodes Np and Nm.
 
 - `kill()`           Remove independent sources.
@@ -1428,7 +1429,7 @@ Other circuit methods
 - `twoport(self, N1p, N1m, N2p, N2m)` Create two-port component where I1 is the current flowing into N1p and out of N1m, I2 is the current flowing into N2p and out of N2m, V1 = V[N1p] - V[N1m], V2 = V[N2p] - V[N2m].
 
 - `add(component)` Add component from net list.
-        
+
 - `remove(component)` Remove component from net list.
 
 - `netfile_add(filename)` Add netlist from file.
@@ -1460,7 +1461,7 @@ produces a pole-zero plot.  Here's an example:
 
 
 The `plot()` method for f-domain and :math:`\omega`-domain expressions
-produce spectral plots, for example, 
+produce spectral plots, for example,
 
 .. literalinclude:: examples/netlists/tf1-bode-plot.py
 
@@ -1485,7 +1486,7 @@ wires are required to link nodes of the same potential but with
 different coordinates.  For more details see :ref:`schematics`.
 
 Here's an example::
-  
+
    >>> from lcapy import Circuit
    >>> cct = Circuit("""
    ... V1 1 0 {V(s)}; down
@@ -1591,24 +1592,24 @@ Bells and whistles
 
 Parameterization
 ----------------
-   
+
 Transfer functions (or any s-domain expression) can be parameterized with the `parameterize()` method (see :ref:`parameterization`).  This returns a tuple.  The first element is the parameterized expression and the second element is a dictionary of substitutions.
 
 Here's a second order example::
 
    >>> H2 = 3 / (s**2 + 2*s + 4)
    >>> H2
-        3      
+        3
    ────────────
-    2          
+    2
    s  + 2⋅s + 4
    >>> H2p, defs = H2.parameterize()
    >>> H2p
-              K         
+              K
    ───────────────────
      2               2
-   ω₀  + 2⋅ω₀⋅s⋅ζ + s 
- 
+   ω₀  + 2⋅ω₀⋅s⋅ζ + s
+
    >>> defs
    {K: 3, omega_0: 2, zeta: 1/2}
 
@@ -1630,15 +1631,15 @@ Lcapy supports discrete-time signals and provides z-transforms, discrete Fourier
    >>> x.expr
    δ[n] + 3⋅δ[n - 2] + 2⋅δ[n - 1]
    >>> x.expr(z)
-       2   3 
+       2   3
    1 + ─ + ──
        z    2
-           z 
+           z
 
   >>> H = (z + 2) / z**2
   >>> H.difference_equation('x', 'y')
   y(n) = 2⋅x(n - 2) + x(n - 1)
-           
+
 
 Jupyter (IPython) notebooks
 ===========================
@@ -1648,7 +1649,7 @@ number of examples are provided in the `lcapy/doc/examples/notebooks`
 directory.  Before these notebooks can be viewed in a browser you need to start a Jupyter notebook server.
 
 .. code-block:: console
-                
+
    $ cd lcapy/doc/examples/notebooks
    $ jupyter notebook
 
