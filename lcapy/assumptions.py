@@ -142,10 +142,29 @@ class Assumptions(dict):
 
         # The assumptions refer to the time-domain signal or
         # impulse-response.  Thus we want to propagate the assumptions
-        # for the voltage or current signal.  The ac, dc, and causal
-        # assumptions are only required for s-domain expressions.  For
-        # other signals they can be determined from the time-domain
-        # response.
+        # for the voltage or current signal.  The causal assumptions
+        # are only required for s-domain expressions.
+        #
+        # The ac and dc assumptions were used for inverse Laplace
+        # transforms but this sometimes gave bogus results.  For
+        # example, when applying the eigenfunction for convolution,
+        # `exp(q * t)`, to an LTI system, an additional transient
+        # response is produced.  The transient response was not
+        # removed and thus the result was not ac.
+
+        # A similar error occured when DC was applied to an LTI system
+        # since the inverse Laplace transform also produces a
+        # transient response.  For example, let `x(t) = c` and `H(s) =
+        # a / (s + a)`.  In this example, `X(s) = c / s$` and `ILT(X *
+        # H)` yields `c - c * exp(-a * t)` for `t >= 0`.  Here the
+        # second term is an artefact of the unilateral Laplace
+        # transform since `x(t)` is treated as `x(t) u(t)`.  The true
+        # result using time-domain convolution assuming `H(s)` is
+        # causal is `c`.
+
+        # The original signal can only be recovered from an inverse
+        # unilateral Laplace transform if we have the region of
+        # convergence.
 
         assumptions = self.copy()
 
@@ -155,13 +174,7 @@ class Assumptions(dict):
 
         assumptions.set('unknown', True)
 
-        if self.is_unknown or x.is_unknown:
-            assumptions.set('unknown', True)
-        elif self.is_ac or x.is_ac:
-            assumptions.set('ac', True)
-        elif self.is_dc or x.is_dc:
-            assumptions.set('dc', True)
-        elif self.is_causal or x.is_causal:
+        if self.is_causal and x.is_causal:
             assumptions.set('causal', True)
         return assumptions
 
@@ -174,6 +187,7 @@ class Assumptions(dict):
             assumptions.set('causal', True)
         elif self.is_dc and x.is_dc:
             assumptions.set('dc', True)
-        elif self.is_ac and x.is_ac:
+        elif False and self.is_ac and x.is_ac:
+            # Hmmm, need to check if same frequency.
             assumptions.set('ac', True)
         return assumptions

@@ -458,8 +458,6 @@ class LcapyCoreTester(unittest.TestCase):
                           DiracDelta(t).laplace()).is_causal, True)
         self.assertEqual((Heaviside(t).laplace() *
                           cos(t).laplace()).is_causal, False)
-        self.assertEqual((Heaviside(t).laplace() *
-                          cos(t).laplace()).is_ac, True)
         self.assertEqual(Heaviside(2 * t).is_causal, True,
                          "Heaviside(2 * t).is_causal")
         self.assertEqual(Heaviside(t - 1).is_causal, True,
