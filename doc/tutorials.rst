@@ -591,14 +591,14 @@ Non-inverting amplifier
 The output voltage (at node 1) is found using::
 
    >>> Vo = a[1].V(t)
-   >>> Vo.pprint()
+   >>> Vo
    Vₛ⋅(A_d⋅R₁ + A_d⋅R₂)
    ────────────────────
       A_d⋅R₁ + R₁ + R₂
 
 When the open-loop differential gain is infinite, the gain just depends on the resistor values::
 
-   >>> Vo.limit('Ad', oo).pprint()
+   >>> Vo.limit('Ad', oo)
    Vₛ⋅(R₁ + R₂)
    ────────────
         R₁
@@ -611,14 +611,14 @@ Let's now add some common-mode gain to the opamp by overriding the `E` component
 The output voltage (at node 1) is now::
 
    >>> Vo = b[1].V(t)
-   >>> Vo.pprint()
+   >>> Vo
    Vₛ⋅(A_c⋅R₁ + A_c⋅R₂ + 2⋅A_d⋅R₁ + 2⋅A_d⋅R₂)
    ──────────────────────────────────────────
         -A_c⋅R₁ + 2⋅A_d⋅R₁ + 2⋅R₁ + 2⋅R₂
 
 Setting the open-loop common-mode gain to zero gives the same result as before::
 
-   >>> Vo.limit('Ac', 0).pprint()
+   >>> Vo.limit('Ac', 0)
    A_d⋅R₁⋅Vₛ + A_d⋅R₂⋅Vₛ
    ─────────────────────
       A_d⋅R₁ + R₁ + R₂
@@ -627,21 +627,21 @@ When the open-loop differential gain is infinite, the common-mode gain
 of the opamp is insignificant and the gain of the amplifier just
 depends on the resistor values::
 
-   >>> Vo.limit('Ad', oo).pprint()
+   >>> Vo.limit('Ad', oo)
    Vₛ⋅(R₁ + R₂)
    ────────────
         R₁
 
 Let's now consider the input impedance of the amplifier::
 
-   >>> a.impedance(3, 0).pprint()
+   >>> a.impedance(3, 0)
    0
 
 This is not the desired answer since node 3 is shorted to node 0 by the voltage source `Vs`.  If we try to remove this, we get::
 
    >>> c = a.copy()
    >>> c.remove('Vs')
-   >>> c.impedance(3, 0).pprint()
+   >>> c.impedance(3, 0)
    ValueError: The MNA A matrix is not invertible for time analysis because:
    1. there may be capacitors in series;
    2. a voltage source might be short-circuited;
@@ -652,11 +652,11 @@ This is not the desired answer since node 3 is shorted to node 0 by the voltage 
 In this case it is reason 3.  This is because Lcapy connects a 1 A current source across nodes 3 and 0 and tries to measure the voltage to determine the impedance.   However, node 3 is floating since an ideal opamp has infinite input impedance.  To keep Lcapy happy, we can explicitly add a resistor between nodes 3 and 0,
 
    >>> c.add('Rin 3 0')
-   >>> c.impedance(3, 0).pprint()
+   >>> c.impedance(3, 0)
 
 Now, not surprisingly,
 
-   >>> c.impedance(3, 0).pprint()
+   >>> c.impedance(3, 0)
    Rᵢₙ
 
 
@@ -687,7 +687,7 @@ Inverting amplifier
 The output voltage (at node 1) is found using::
 
   >>> Vo = a[1].V(t)
-  >>> Vo.pprint()
+  >>> Vo
     -A_d⋅R₂⋅vₛ(t)
    ────────────────
    A_d⋅R₁ + R₁ + R₂
@@ -695,7 +695,7 @@ The output voltage (at node 1) is found using::
 In the limit when the open-loop differential gain is infinite, the gain of
 the amplifier just depends on the resistor values::
 
-   >>> Vo.limit('Ad', oo).pprint()
+   >>> Vo.limit('Ad', oo)
    -R₂⋅vₛ(t)
    ──────────
        R₁
@@ -748,7 +748,7 @@ Transimpedance amplifier
 The output voltage (at node 1) is found using::
 
   >>> Vo = a[1].V(t)
-  >>> Vo.pprint()
+  >>> Vo
   -A_d⋅R⋅iₛ(t)
   ─────────────
      A_d + 1
@@ -756,7 +756,7 @@ The output voltage (at node 1) is found using::
 In the limit when the open-loop differential gain is infinite gain, the gain of
 the amplifier just depends on the resistor value::
 
-   >>> Vo.limit('Ad', oo).pprint()
+   >>> Vo.limit('Ad', oo)
    -R⋅iₛ(t)
 
 Note, the output voltage is inverted compared to the source current.
@@ -776,6 +776,158 @@ However, in practice, the open-loop gain decreases with frequency and so at high
 
    >>> a.impedance(4,0).limit('Ad', 0)
    R
+
+
+Displacement current sensor
+---------------------------
+
+This example looks at a displacement current sensor with an opamp
+configured as a transimpedance amplifier.  In this example, the opamp
+is configured as an inverting differentiator, Cs models the source
+capacitance, Vs models the AC source voltage, R is the feedback
+resistor, and A is the opne-loop gain of the opamp.  The displacement
+current flows through Cs.
+
+.. image:: examples/tutorials/opamps/opamp-displacement-current-sensor1.png
+   :width: 12cm
+
+This circuit is described by:
+
+   >>> from lcapy import Circuit, t, oo
+   >>> a = Circuit("""
+   ... Vs 3 0_3 ac; down=2
+   ... Cs 3 2_1; right
+   ... W 0_3 0; right
+   ... E1 1 0 opamp 0_4 2 A; right, mirror
+   ... W 1 1_2; right=0.5
+   ... P 1_2 0_1; down, v=V_o
+   ... W 2_1 2; right=0.5
+   ... W 0_4 0_2; down
+   ... W 0 0_2; right
+   ... W 0_2 0_1; right=0.5
+   ... W 2 2_2; up
+   ... R 2_2 1_1; right
+   ... W 1_1 1; down
+   ... ; draw_nodes=connections, label_nodes=primary
+   ... """)
+
+
+The output voltage (at node 1) is found using::
+
+   >>> a[1].V
+   ⎧     -A⋅Vₛ⋅ω₀   ⎫
+   ⎪ω₀: ────────────⎪
+   ⎨         ⅉ⋅A + ⅉ ⎬
+   ⎪    ω₀ - ───────⎪
+   ⎩           Cₛ⋅R ⎭
+
+This indicates a single AC component with angular frequency
+:math:`\omega_0` (this is the default frequency of an AC source).
+
+The AC component is extracted using:
+
+   >>> Vo = a[1].V[omega0]
+   >>> Vo
+    -A⋅Vₛ⋅ω₀
+   ────────────
+        ⅉ⋅A + ⅉ
+   ω₀ - ───────
+          Cₛ⋅R
+
+This expression can be simplified:
+
+   >>> Vo.simplify()
+      A⋅Cₛ⋅R⋅Vₛ⋅ω₀
+   ─────────────────
+   ⅉ⋅A - Cₛ⋅R⋅ω₀ + ⅉ
+
+With an ideal opamp having infinite open-loop gain, the expression
+further simplifies:
+
+   >>> Vo.limit('A', oo)
+   -ⅉ⋅Cₛ⋅R⋅Vₛ⋅ω₀
+
+The AC gain is found by dividing by the source voltage:
+
+   >>> Vo.limit('A', oo) / voltage('Vs')
+   -ⅉ⋅Cₛ⋅R⋅ω₀
+
+Lcapy can create a noise model from a netlist (using the `noise_model()` method) but this only works for resistors; the noise components for an opamp need to be explicitly modelled.
+
+Here's an example netlist where Vn models the opamp's noise voltage,
+In models the opamp's noise current (note the other opamp noise source
+has no contribution since it is shorted), and VnR models the Johnson
+noise of the feedback resistor R where :math:`k_b=1.38\times 10^{-23}`
+is Boltzmann's constant and :math:`T` is the temperature in Kelvin.
+
+   >>> from lcapy import Circuit, t, oo
+   >>> a = Circuit("""
+   ... Vs 6 0_3 ac; down=2
+   ... Cs 6 4; right
+   ... W 0_3 0; right
+   ... E1 1 0 opamp 0_4 2_1 A; right, mirror
+   ... W 1 1_2; right=0.5
+   ... P 1_2 0_6; down
+   ... Ci 4_3 0_5; down
+   ... W 4_1 4; right
+   ... W 4 4_3; right
+   ... Vn 4_3 2 noise; right
+   ... W 2 2_1; right=0.5
+   ... In 2 0_1 noise; down
+   ... W 0_4 0_2; down
+   ... W 0 0_5; right
+   ... W 0_5 0_1; right
+   ... W 0_1 0_2; right
+   ... W 0_2 0_6; right=0.5
+   ... W 4 4_2; up
+   ... VnR 4_2 3 noise; right
+   ... R 3 1_1; right
+   ... W 1_1 1; down
+   ... ; draw_nodes=connections
+   ... """)
+
+.. image:: examples/tutorials/opamps/opamp-displacement-current-sensor-noise-model1.png
+   :width: 20cm
+
+
+The output voltage (at node 1) is found using::
+
+   >>> a[1].V
+
+This time there are four components: an AC component due to Vs and three noise
+components, one for each noise source.
+
+The total noise at the output can be found using::
+
+   >>> Vneq = a[1].V.n
+   >>> Vneq
+        __________________________________________
+       ╱   2  2                 2 ⎛  2  2  2    ⎞
+   A⋅╲╱  Iₙ ⋅R  + 4⋅R⋅T⋅k_b + Vₙ ⋅⎝Cₛ ⋅R ⋅ω  + 1⎠
+   ───────────────────────────────────────────────
+               __________________________
+              ╱  2           2  2  2
+            ╲╱  A  + 2⋅A + Cₛ ⋅R ⋅ω  + 1
+
+
+With an ideal opamp having infinite open-loop gain, the expression
+simplifies::
+
+   >>> Vneq.limit('A', oo)
+      __________________________________________
+     ╱   2  2   2  2     2  2                 2
+   ╲╱  Cₛ ⋅R ⋅Vₙ ⋅ω  + Iₙ ⋅R  + 4⋅R⋅T⋅k_b + Vₙ
+
+Note, there is a contribution due to the Johnson noise of the feedback
+resistor, the voltage noise of the opamp filtered by the RC network,
+and the current noise of the opamp flowing through the feedback
+resistor, R.  For low frequencies it is best to choose an opamp with a
+low current noise and to use the largest feedback resistor as
+possible.  In this case the noise is dominated by Johnson noise of R.
+While the noise increases with the square root of R, the gain of the
+circuit increases with R.
+
+
 
 Piezo transducer amplifier
 --------------------------

@@ -1206,7 +1206,7 @@ Here the open-circuit voltage is decomposed into four parts (stored in
 a dictionary).  The DC component is keyed by 'dc', the transient
 component is keyed by 's' (since this is analysed in the Laplace or
 s-domain), the noise components are keyed by noise identifiers of the
-form 'nx' (where x is an integer), and the ac components are keyed by
+form 'nx' (where x is an integer), and the AC components are keyed by
 the angular frequency (the default is `omega0`).  The different parts
 of a decomposition can also be accessed using attributes, for
 example::
