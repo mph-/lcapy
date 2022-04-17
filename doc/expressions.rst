@@ -1624,13 +1624,12 @@ The domain is inferred from the domain variable in the expression (see :ref:`dom
 
 The results from circuit analysis are represented by a superposition of different domains.
 
+.. _superpositions:
 
 Voltage and current superpositions
 ----------------------------------
 
-Superpositions of voltages and/or current are represented using the `SuperpositionVoltage` and `SuperpositionCurrent` classes.  These classes have similar behaviour; they
-represent an arbitrary voltage or current signal as a superposition of
-DC, AC, transient, and noise signals.
+Superpositions of voltages and/or current are represented using the `SuperpositionVoltage` and `SuperpositionCurrent` classes.  These classes have similar behaviour; they represent an arbitrary voltage or current signal as a superposition of DC, AC (phasor), transient, and noise signals.
 
 For example, the following expression is a superposition of a DC
 component, an AC component, and a transient component::

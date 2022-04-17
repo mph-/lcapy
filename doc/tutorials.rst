@@ -198,12 +198,24 @@ The voltage across the voltage source is given using::
     >>> a.V.V
     {ω₀: 6}
 
-This indicates a phasor of angular frequency :math:`\omega_0` with an amplitude 6 V.  The time domain representation is::
+This indicates a superposition result (see :ref:`superpositions`)
+containing a single phasor of angular frequency :math:`\omega_0` with
+an amplitude 6 V.  The time domain representation is::
 
     >>> a.V.V(t)
     6⋅cos(ω₀⋅t)
 
-The voltage across the capacitor is also a phasor::
+The phasor can be extracted from the superposition by specifying the angular frequency::
+
+  >>> a.V.V[omega0]
+  6
+
+In cases where the superposition consists of a single phasor it can be extracted with the `phasor()` method::
+
+  >>> a.V.V.phasor()
+  6
+
+The voltage across the capacitor is also a superposition result containing a single phasor::
 
     >>> a.C.V
    ⎧    ⎛-3⋅ⅉ ⎞⎫
