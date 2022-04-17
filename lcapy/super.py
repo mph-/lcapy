@@ -632,7 +632,7 @@ class Superposition(SuperpositionDomain, ExprDict):
     def magnitude(self):
         """Return the magnitude if phasor."""
 
-        phasor = self.phasor
+        phasor = self.phasor()
         return phasor.magnitude
 
     @property
@@ -649,7 +649,7 @@ class Superposition(SuperpositionDomain, ExprDict):
     def phase(self):
         """Return the phase if phasor."""
 
-        phasor = self.phasor
+        phasor = self.phasor()
         return phasor.phase
 
     @property

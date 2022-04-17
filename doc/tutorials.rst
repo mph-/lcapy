@@ -172,8 +172,7 @@ The general result can be obtained by evaluating this circuit symbolically::
     ───────
     R₁ + R₂
 
-Note, the keyword dc is required here for the voltage source otherwise an arbitrary voltage
-source is assumed.
+Note, the keyword dc is required here for the voltage source otherwise an arbitrary voltage source is assumed.
 
 
 AC (phasor) analysis of RC circuit
@@ -204,7 +203,7 @@ This indicates a phasor of angular frequency :math:`\omega_0` with an amplitude 
     >>> a.V.V(t)
     6⋅cos(ω₀⋅t)
 
-The voltage across the capacitor is::
+The voltage across the capacitor is also a phasor::
 
     >>> a.C.V
    ⎧    ⎛-3⋅ⅉ ⎞⎫
