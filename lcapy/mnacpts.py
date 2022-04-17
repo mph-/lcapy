@@ -1081,7 +1081,7 @@ class GY(Dummy):
     def _stamp(self, mna):
 
         n1, n2, n3, n4 = mna._cpt_node_indexes(self)
-        m1 = self.mna._branch_index(self.defname + 'X')
+        m1 = mna._branch_index(self.defname + 'X')
         m2 = mna._cpt_branch_index(self)
 
         # m1 is the input branch
