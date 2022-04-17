@@ -129,7 +129,7 @@ class TimeDomainExpression(TimeDomain, Expr):
 
         if self.has(omega):
             raise ValueError(
-                'Time-domain expression has omega.  Substitute with another symbol')
+                'Time-domain expression has omega.  Substitute with another symbol, say omega0')
 
         return self.FT(omega, evaluate, **assumptions)
 

@@ -765,7 +765,8 @@ expression.""")
         """Convert to angular Fourier domain."""
 
         # TODO, could optimise.
-        return self.time(**assumptions).angular_fourier(**assumptions)
+        tresult = self.time(**assumptions)
+        return tresult.angular_fourier(**assumptions)
 
     def canonical(self):
         new = self.__class__()
