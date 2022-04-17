@@ -164,8 +164,6 @@ def omegaexpr(arg, **assumptions):
 
     if arg is omegasym:
         return omega
-    if arg is omega0sym:
-        return omega0
     return expr_make('angular fourier', arg, **assumptions)
 
 
@@ -176,7 +174,3 @@ classes = expressionclasses.register('angular fourier',
 
 omega = AngularFourierDomainExpression('omega')
 omega.units = uu.rad / uu.s
-
-# This represents a specific angular frequency and is assumed to be positive
-omega0 = AngularFourierDomainExpression('omega_0', positive=True)
-omega0.units = uu.rad / uu.s

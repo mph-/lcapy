@@ -9,7 +9,7 @@ Copyright 2014--2021 Michael Hayes, UCECE
 from .fexpr import f
 from .texpr import t
 from .sexpr import s
-from .omegaexpr import omega, omega0
+from .omegaexpr import omega
 from .normomegaexpr import Omega
 from .normfexpr import F
 from .nexpr import n
@@ -17,7 +17,10 @@ from .kexpr import k
 from .zexpr import z
 
 # Import common SymPy symbols.
-from .sym import pi, j, oo, inf, one
+from .sym import pi, j, oo, inf, one, omega0sym
+
+# Perhaps have class for domainconstants such as omega0, t0, f0, etc.
+omega0 = omega0sym
 
 jomega = j * omega
 jw = jomega
@@ -29,8 +32,6 @@ jw0 = jomega0
 w = omega
 # This represents a specific angular frequency and is assumed to be positive
 w0 = omega0
-
-# Omega = omega * dt
 
 W = Omega
 
