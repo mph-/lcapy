@@ -127,6 +127,10 @@ class TimeDomainExpression(TimeDomain, Expr):
 
         from .symbols import omega
 
+        if self.has(omega):
+            raise ValueError(
+                'Time-domain expression has omega.  Substitute with another symbol')
+
         return self.FT(omega, evaluate, **assumptions)
 
     def norm_angular_fourier(self, evaluate=True, **assumptions):
