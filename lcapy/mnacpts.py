@@ -300,6 +300,12 @@ class Cpt(ImmittanceMixin):
         name = self.namespace + newtype + self.relname + suffix
         return self._netmake1(name, nodes, args, opts)
 
+    def _netmake_expand(self, name, nodes=None, args=None, opts=None):
+        """This is used for expanding a component into multiple components"""
+
+        name = self.namespace + name + '@' + self.relname
+        return self._netmake1(name, nodes, args, opts)
+
     def _select(self, kind=None):
         """Select domain kind for component."""
         raise ValueError('Component not a source: %s' % self)
@@ -1033,16 +1039,16 @@ class Efdopamp(DependentSource):
         Ad = self.args[0]
         args = ('{%s / 2}' % Ad, ) + self.args[1:]
 
-        opampp = self._netmake_variant('', suffix='p',
-                                       nodes=(self.relnodes[0], self.relnodes[4],
-                                              'opamp',
-                                              self.relnodes[2], self.relnodes[3]),
-                                       args=args)
-        opampm = self._netmake_variant('', suffix='m',
-                                       nodes=(self.relnodes[4], self.relnodes[1],
-                                              'opamp',
-                                              self.relnodes[2], self.relnodes[3]),
-                                       args=args)
+        opampp = self._netmake_expand('E1p',
+                                      nodes=(self.relnodes[0], self.relnodes[4],
+                                             'opamp',
+                                             self.relnodes[2], self.relnodes[3]),
+                                      args=args)
+        opampm = self._netmake_expand('E1m',
+                                      nodes=(self.relnodes[4], self.relnodes[1],
+                                             'opamp',
+                                             self.relnodes[2], self.relnodes[3]),
+                                      args=args)
 
         return opampp + '\n' + opampm + '\n'
 
