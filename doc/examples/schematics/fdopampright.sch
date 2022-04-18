@@ -1,1 +1,1 @@
-E1 1 2 fdopamp 3 4 A; right
+E1 1 2 fdopamp 3 4 5 A; right
