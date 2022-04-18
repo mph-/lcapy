@@ -1,4 +1,4 @@
-E1 3 0 fdopamp 1 2; right
+E1 3 0 fdopamp 1 2 6; right
 W 3 4; right
 W 0 5; right
 R1 1 2; down

@@ -215,6 +215,10 @@ simulation (additional components can be drawn, see
 
    `Ename Np Nm opamp Nip Nim Ad Ac`
 
+- Fully differential opamp of differential gain Ad and common-mode gain Ac (default 0) with controlling nodes Nip and Nim and common-mode output voltage Nocm.   The common-mode voltage is with respect to node Nm:
+
+   `Ename Np Nm fdopamp Nip Nim Nocm Ad Ac`
+
 - Current-controlled current source (CCVS) of current gain F.  The control current is defined as the current flowing through the voltage source Vcontrol.
 
    `Fname Np Nm Vcontrol F`

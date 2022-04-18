@@ -120,11 +120,12 @@ class Netlist(NetlistMixin, NetfileMixin):
         if hasattr(self, '_sub'):
             return self._sub
 
-        groups = self._groups()
+        cct = self.expand()
+        groups = cct._groups()
         sub = Transformdomains()
 
         for kind, sources in groups.items():
-            sub[kind] = SubNetlist(self, kind)
+            sub[kind] = SubNetlist(cct, kind)
 
         if sub == {} and not nowarn:
             warn('Netlist has no sources')

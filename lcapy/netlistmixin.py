@@ -241,6 +241,16 @@ class NetlistMixin(object):
             new._add(cpt._copy())
         return new
 
+    def expand(self):
+        """Expand the netlist, replacing complicated components with simpler
+        components."""
+
+        new = self._new()
+
+        for cpt in self._elements.values():
+            new._add(cpt._expand())
+        return new
+
     def _new(self):
 
         from .circuit import Circuit

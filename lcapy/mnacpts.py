@@ -140,6 +140,11 @@ class Cpt(ImmittanceMixin):
 
         return str(self)
 
+    def _expand(self):
+        """Make copy of net."""
+
+        return str(self)
+
     def _arg_format(self, value):
         """Place value string inside curly braces if it contains a delimiter."""
 
@@ -1020,6 +1025,31 @@ class VCVS(DependentSource):
         return self._netmake_W(opts=newopts)
 
 
+class Efdopamp(DependentSource):
+    """Fully differential opamp"""
+
+    def _expand(self):
+
+        Ad = self.args[0]
+        args = ('{%s / 2}' % Ad, ) + self.args[1:]
+
+        opampp = self._netmake_variant('', suffix='p',
+                                       nodes=(self.relnodes[0], self.relnodes[4],
+                                              'opamp',
+                                              self.relnodes[2], self.relnodes[3]),
+                                       args=args)
+        opampm = self._netmake_variant('', suffix='m',
+                                       nodes=(self.relnodes[4], self.relnodes[1],
+                                              'opamp',
+                                              self.relnodes[2], self.relnodes[3]),
+                                       args=args)
+
+        return opampp + '\n' + opampm + '\n'
+
+    def _stamp(self, mna):
+        raise RuntimeError('Internal error, component not expanded')
+
+
 class CCCS(DependentSource):
     """CCCS"""
 
@@ -1895,7 +1925,6 @@ defcpt('Dzener', 'D', 'Zener diode')
 
 defcpt('E', VCVS, 'VCVS')
 defcpt('Eopamp', VCVS, 'Opamp')
-defcpt('Efdopamp', VCVS, 'Fully differential opamp')
 defcpt('Eamp', VCVS, 'Amplifier')
 
 defcpt('F', CCCS, 'CCCS')

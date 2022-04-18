@@ -2888,7 +2888,7 @@ class Efdopamp(Chip):
     do_transpose = False
     default_width = 1.0
 
-    node_pinnames = ('out+', 'out-', 'in+', 'in-')
+    node_pinnames = ('out+', 'out-', 'in+', 'in-', 'vocm')
 
     ppins = {'out+': ('r', 0.85, -0.5),
              'out-': ('r', 0.85, 0.5),

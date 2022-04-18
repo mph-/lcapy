@@ -32,9 +32,9 @@ Dtunnel: Dname Np Nm tunnel; Tunnel diode
 Dschottky: Dname Np Nm schottky; Schottky diode
 E: Ename Np Nm Ncp Ncm [Value] [Ac]; Voltage controlled voltage source
 VCVS: VCVSname Np Nm Ncp Ncm [Value]; Voltage controlled voltage source
-Eopamp: Ename Np Nm opamp Ncp Ncm [Value] [Ac]; Opamp
-Efdopamp: Ename Np Nm fdopamp Ncp Ncm [Value] [Ac]; Fully differential opamp
-Eamp: Ename Np Nm amp Ncp Ncm [Value] [Ac]; Amplifier
+Eopamp: Ename Np Nm opamp Ncp Ncm [Ad] [Ac]; Opamp
+Efdopamp: Ename Np Nm fdopamp Ncp Ncm Nocm Ad [Ac]; Fully differential opamp
+Eamp: Ename Np Nm amp Ncp Ncm [Ad] [Ac]; Amplifier
 F: Fname Np Nm Vcontrol [Value]; Current controlled current source (note the control current is specified through a voltage source)
 CCCS: CCCSname Np Nm Vcontrol [Value]; Current controlled current source (note the control current is specified through a voltage source)
 FB: FBname Np Nm; Ferrite bead
@@ -233,6 +233,7 @@ Nb: node; Base node
 Nc: node; Collector node
 Ncp: node; Positive control node
 Ncm: node; Negative control node
+Nocm: node; Output common-mode node
 Nd: node; Drain node
 Ne: node; Emitter node
 Ng: node; Gate node
@@ -263,6 +264,7 @@ Z0: value; Characteristic impedance
 Gamma: value; Propagation constant
 Length: value; Transmission line length
 Ac: value; Common-mode gain
+Ad: value; Differential gain
 A11: value; A11
 A12: value; A12
 A21: value; A21
