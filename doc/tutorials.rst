@@ -567,9 +567,9 @@ However, the result is too long to show.
 Opamps
 ======
 
-An ideal opamp is represented by a voltage controlled voltage source,  The netlist has the form
+An ideal opamp is represented by a voltage controlled voltage source.  The netlist has the form::
 
-   >>> E out+ gnd opamp in+ in-  Ad  Ac
+   E out+ gnd opamp in+ in-  Ad Ac
 
 Here `Ad` is the open-loop differential gain and `Ac` is the open-loop common-mode gain (zero default).
 
@@ -592,8 +592,9 @@ Non-inverting amplifier
    ... W 1 1_2; right
    ... P 1_2 0; down
    ... W 0_1 0_2; right
-   ... W 0_2 0; right""")
+   ... W 0_2 0; right
    ... ; draw_nodes=connections, label_ids=none, label_nodes=primary
+   ... """)
    >>> a.draw()
 
 .. image:: examples/tutorials/opamps/opamp-noninverting-amplifier1.png
@@ -689,7 +690,8 @@ Inverting amplifier
    ... P 1_2 0; down
    ... W 0_1 0_2; right
    ... W 0_2 0; right
-   ... ; draw_nodes=connections, label_ids=none, label_nodes=primary""")
+   ... ; draw_nodes=connections, label_ids=none, label_nodes=primary
+   ... """)
    >>> a.draw()
 
 .. image:: examples/tutorials/opamps/opamp-inverting-amplifier1.png
@@ -737,20 +739,21 @@ Transimpedance amplifier
 
    >>> from lcapy import Circuit, t, oo
    >>> a = Circuit("""
-   ...E 1 0 opamp 3 2 Ad; right, flipud
-   ...W 4 2; right
-   ...R 2_2 1_1; right
-   ...W 2 2_2; up
-   ...W 1 1_1; up
-   ...W 4 4_2; down=0.5
-   ...Is 4_2 0_3; down
-   ...W 0_3 0_1; down=0.5
-   ...W 3 0_2; down
-   ...W 1 1_2; right
-   ...P 1_2 0; down
-   ...W 0_1 0_2; right
-   ...W 0_2 0; right
-   ... ; draw_nodes=connections, label_ids=none, label_nodes=primary""")
+   ... E 1 0 opamp 3 2 Ad; right, flipud
+   ... W 4 2; right
+   ... R 2_2 1_1; right
+   ... W 2 2_2; up
+   ... W 1 1_1; up
+   ... W 4 4_2; down=0.5
+   ... Is 4_2 0_3; down
+   ... W 0_3 0_1; down=0.5
+   ... W 3 0_2; down
+   ... W 1 1_2; right
+   ... P 1_2 0; down
+   ... W 0_1 0_2; right
+   ... W 0_2 0; right
+   ... ; draw_nodes=connections, label_ids=none, label_nodes=primary
+   ... """)
    >>> a.draw()
 
 .. image:: examples/tutorials/opamps/opamp-transimpedance-amplifier1.png
@@ -973,7 +976,8 @@ the thermal noise of the resistors is ignored):
    ... W 5_1 5; right
    ... Po 5 0_5; down, v=v_o
    ... W 0_4 0_5; right
-   ... ; draw_nodes=connections, label_ids=none, label_nodes=primary""")
+   ... ; draw_nodes=connections, label_ids=none, label_nodes=primary
+   ... """)
    >>> a.draw()
 
 .. image:: examples/tutorials/opamps/opamp-piezo-amplifier1.png
@@ -1096,7 +1100,8 @@ Multiple feedback low-pass filter
    ... W 0_3 0_1; left=1
    ... P1 1 0_1; down
    ... P2 7 0_7; down
-   ... ; draw_nodes=connections, label_ids=none, label_nodes=primary""")
+   ... ; draw_nodes=connections, label_ids=none, label_nodes=primary
+   ... """)
    >>> a.draw()
 
 .. image:: examples/tutorials/opamps/multiple-feedback-lpf.png
@@ -1189,7 +1194,7 @@ Electrostatic shields are important to avoid capacitive coupling of interference
    ... W 18 0; down=0.2, sground
    ... Rin 11 17; down
    ... ; label_nodes=none, draw_nodes=connections
-   ... ; draw_nodes=connections, label_ids=none, label_nodes=primary""")
+   ... ; label_ids=none, label_nodes=primary""")
    >>> a.draw()
 
 .. image:: examples/tutorials/shield-guard/shield-ground.png
@@ -1239,6 +1244,7 @@ Shield guard circuits are used to mitigate the capacitance between a cable signa
    ... W 18 0; down=0.2, sground
    ... Rin 11 17; down
    ... ; draw_nodes=connections, label_ids=none, label_nodes=primary
+   ... """)
    >>> a.draw()
 
 .. image:: examples/tutorials/shield-guard/shield-guard.png
@@ -1263,9 +1269,95 @@ The impedance seen across `Rin` can be then found using:
 However, when the open-loop gain, A2, of the shield-guard amplifier is large then
 
     >>> Z.limit('A_2', oo)
-     Rᵢₙ
+    Rᵢₙ
 
 Thus the input impedance does not depend on Cc.  In practice, the open-loop gain is not infinite and reduces with frequency and so the guarding does not help at very high frequencies.
+
+
+Fully-differential opamps
+=========================
+
+Fully differential opamps are useful for converting differential
+signals to single ended signals and vice-versa.  They are also useful
+for amplifiying differential signals and changing the common-mode
+voltage.
+
+In Lcapy a fully differential opamp is defined using the notation of a
+voltage controlled voltage source (although it is functionally
+equivalent to two VCVSs).  The netlist has the form::
+
+   E vout+ vout- fdopamp vin+ vin- vocm Ad Ac
+
+Here `Ad` is the open-loop differential gain and `Ac` is the open-loop common-mode gain (zero default).  The node `vocm` sets the common-mode output voltage.  Internally it expands to::
+
+   Ep vout+ vocm opamp vin+ vin- Ad Ac
+   Em vocm vout- opamp vin+ vin- Ad Ac
+
+.. image:: examples/tutorials/opamps/fdopamp1.png
+   :width: 8cm
+
+
+
+Fully-differential amplifier
+----------------------------
+
+   >>> from lcapy import Circuit, t, oo
+   >>> a = Circuit("""
+   ... Vsp 1 0_1 ; down
+   ... W 0_1 0; down=0.1, implicit, l={0\,\mathrm{V}}
+   ... W 1 1_1; right
+   ... R1 1_1 6; right
+   ... Vsm 2 0_3 ; down
+   ... W 0_3 0; down=0.1, implicit, l={0\,\mathrm{V}}
+   ... R3 2 3; right
+   ... E1 5_2 4_2 fdopamp 3 6 0_4 Ad; right, mirror, l
+   ... W 5_2 5; right
+   ... W 4_2 4; right
+   ... P2 5 4; down
+   ... W 5_1 5_2; down
+   ... W 6_1 6; down
+   ... W 3 3_1; down
+   ... R2 6_1 5_1; right
+   ... W 4_2 4_1; down
+   ... R4 3_1 4_1; right
+   ... W 0 0_4; right=0.4
+   ... W 0 0_2; down=0.1, implicit, l={0\,\mathrm{V}}
+   ... ; draw_nodes=connections, label_ids=none, label_nodes=primary
+   ... """)
+   >>> a.draw()
+
+
+.. image:: examples/tutorials/opamps/fdopamp-amplifier1.png
+   :width: 12cm
+
+Let's modify the circuit values so it is symmetrical with `R4 = R2`
+and `R3 = R1`::
+
+   >>> b = a.subs({'R4': 'R2', 'R3': 'R1'})
+
+The differential output voltage is found using::
+
+   >>> Vod = (b[5].V(t) - b[4].V(t)).simplify()
+   >>> Vod
+   A⋅R₂⋅(Vₛₘ - Vₛₚ)
+   ────────────────
+    A⋅R₁ + R₁ + R₂
+
+Assuming infinite open-loop differential gain this simplifies to::
+
+   >>> Vod.limit('Ad', oo)
+   R₂⋅(Vₛₘ - Vₛₚ)
+   ──────────────
+         R₁
+
+Thus this is an inverting amplifier with gain :math:`R_2 / R_1`.
+
+The common-mode output voltage is found using::
+
+   >>> Voc = ((b[5].V(t) + b[4].V(t)) / 2).simplify()
+   0
+
+As expected, this is zero since the common-mode output voltage pin of the fully differential amplifier is connected to ground and the amplifier is assumed to have zero common-mode gain.
 
 
 
@@ -1422,7 +1514,8 @@ current noise.
    ... W 8 9; right
    ... W 0_6 0_9; right
    ... P 9 0_9; down
-   ... ; draw_nodes=connections, label_nodes=none""")
+   ... ; draw_nodes=connections, label_nodes=none
+   ... """)
    >>> a.draw()
 
 .. image:: examples/tutorials/opampnoise/opamp-noninverting-amplifier.png
