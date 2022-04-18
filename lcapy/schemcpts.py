@@ -2939,6 +2939,21 @@ class Efdopamp(Chip):
         return s
 
 
+class Einamp(Eopamp):
+    """Instrumentation amplifier created with E netlist type."""
+
+    can_scale = True
+    can_mirror = True
+    do_transpose = False
+    default_width = 1.0
+
+    node_pinnames = ('out', 'ref', 'in+', 'in-', 'r+', 'r-')
+
+    auxiliary = {'lin+': ('c', -0.375, 0.3),
+                 'lin-': ('c', -0.375, -0.3)}
+    auxiliary.update(Chip.auxiliary)
+
+
 class Eamp(Chip):
     """Amplifier."""
 
