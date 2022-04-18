@@ -2888,12 +2888,12 @@ class Efdopamp(Chip):
     do_transpose = False
     default_width = 1.0
 
-    node_pinnames = ('out+', 'out-', 'in+', 'in-', 'vocm')
+    node_pinnames = ('out+', 'out-', 'in+', 'in-', 'ocm')
 
     ppins = {'out+': ('r', 0.85, -0.5),
              'out-': ('r', 0.85, 0.5),
              'in+': ('l', -1.25, 0.5),
-             'vocm': ('l', -0.85, 0),
+             'ocm': ('l', -0.85, 0),
              'in-': ('l', -1.25, -0.5),
              'vdd': ('t', -0.25, 0.645),
              'vss': ('b', -0.25, -0.645),
@@ -2903,7 +2903,7 @@ class Efdopamp(Chip):
     npins = {'out-': ('r', 0.85, -0.5),
              'out+': ('r', 0.85, 0.5),
              'in-': ('l', -1.25, 0.5),
-             'vocm': ('l', -0.85, 0),
+             'ocm': ('l', -0.85, 0),
              'in+': ('l', -1.25, -0.5),
              'vdd': ('t', -0.25, 0.645),
              'vss': ('b', -0.25, -0.645),
@@ -3060,7 +3060,7 @@ class Ufdopamp(Chip):
              'in-': ('l', -0.5, -0.2),
              'vdd': ('t', -0.1, 0.3),
              'vss': ('b', -0.1, -0.3),
-             'vocm': ('l', -0.5, 0)}
+             'ocm': ('l', -0.5, 0)}
 
     npins = {'out+': ('r', 0.1, +0.2),
              'out-': ('r', 0.1, -0.2),
@@ -3068,7 +3068,7 @@ class Ufdopamp(Chip):
              'in+': ('l', -0.5, -0.2),
              'vdd': ('t', -0.1, 0.3),
              'vss': ('b', -0.1, -0.3),
-             'vocm': ('l', -0.5, 0)}
+             'ocm': ('l', -0.5, 0)}
 
     pinlabels = {'vdd': 'VDD', 'vss': 'VSS'}
 
