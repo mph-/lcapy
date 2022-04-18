@@ -75,7 +75,7 @@ class Cpt(ImmittanceMixin):
                 self.relnodes.append(node)
 
         self._string = string
-        #self.net = string.split(';')[0]
+        # self.net = string.split(';')[0]
         self.args = args
         self.explicit_args = args
         self.classname = self.__class__.__name__
@@ -1036,21 +1036,66 @@ class Efdopamp(DependentSource):
 
     def _expand(self):
 
-        Ad = self.args[0]
-        args = ('{%s / 2}' % Ad, ) + self.args[1:]
+        if self.args == ():
+            # TODO: check if Ad defined already
+            Ad = 'Ad'
+            args = ('{%s / 2}' % Ad, )
+        else:
+            Ad = self.args[0]
+            args = ('{%s / 2}' % Ad, ) + self.args[1:]
 
-        opampp = self._netmake_expand('E1p',
+        opampp = self._netmake_expand('Ep',
                                       nodes=(self.relnodes[0], self.relnodes[4],
                                              'opamp',
                                              self.relnodes[2], self.relnodes[3]),
                                       args=args)
-        opampm = self._netmake_expand('E1m',
+        opampm = self._netmake_expand('Em',
                                       nodes=(self.relnodes[4], self.relnodes[1],
                                              'opamp',
                                              self.relnodes[2], self.relnodes[3]),
                                       args=args)
 
         return opampp + '\n' + opampm + '\n'
+
+    def _stamp(self, mna):
+        raise RuntimeError('Internal error, component not expanded')
+
+
+class Einamp(DependentSource):
+    """Instrumentation amplifier"""
+
+    def _expand(self):
+
+        if self.args == ():\
+                # TODO: check if Rf defined already
+            Rf = 'Rf'
+            args2 = ()
+        else:
+            Rf = self.args[0]
+            args2 = self.args[1:]
+
+        cpts = []
+        node7 = self._dummy_node()
+        node8 = self._dummy_node()
+
+        cpts.append(self._netmake_expand('Ep',
+                                         nodes=(node7, '0', 'opamp',
+                                                self.relnodes[2], self.relnodes[4]),
+                                         args=args2))
+        cpts.append(self._netmake_expand('Em',
+                                         nodes=(node8, '0', 'opamp',
+                                                self.relnodes[3], self.relnodes[5]),
+                                         args=args2))
+        cpts.append(self._netmake_expand('Ed',
+                                         nodes=(self.relnodes[0], self.relnodes[1],
+                                                node7, node8), args=('1', )))
+        cpts.append(self._netmake_expand('Rfp',
+                                         nodes=(self.relnodes[4], node7), args=(Rf, )))
+        cpts.append(self._netmake_expand('Rfm',
+                                         nodes=(self.relnodes[5], node8), args=(Rf, )))
+        cpts.append(self._netmake_expand('Rp', nodes=(node7, '0'), args=()))
+        cpts.append(self._netmake_expand('Rm', nodes=(node8, '0'), args=()))
+        return '\n'.join(cpts)
 
     def _stamp(self, mna):
         raise RuntimeError('Internal error, component not expanded')
@@ -1330,7 +1375,7 @@ class L(RLC):
 
         return rnet + '\n' + vnet
 
-    @property
+    @ property
     def I0(self):
         """Initial current (for capacitors only)."""
 
@@ -1338,7 +1383,7 @@ class L(RLC):
             return current(self.cpt.i0 / s)
         return current(0)
 
-    @property
+    @ property
     def L(self):
         return self.cpt.L
 
@@ -1391,11 +1436,11 @@ class O(Dummy):
     def _stamp(self, mna):
         pass
 
-    @property
+    @ property
     def I(self):
         return SuperpositionCurrent(0)
 
-    @property
+    @ property
     def i(self):
         return SuperpositionCurrent(0)(t)
 
@@ -1858,12 +1903,12 @@ class W(Dummy):
     def _stamp(self, mna):
         pass
 
-    @property
+    @ property
     def I(self):
         raise ValueError(
             'Cannot determine current through wire, use a 0 V voltage source')
 
-    @property
+    @ property
     def i(self):
         raise ValueError(
             'Cannot determine current through wire, use a 0 V voltage source')

@@ -33,7 +33,8 @@ Dschottky: Dname Np Nm schottky; Schottky diode
 E: Ename Np Nm Ncp Ncm [Value] [Ac]; Voltage controlled voltage source
 VCVS: VCVSname Np Nm Ncp Ncm [Value]; Voltage controlled voltage source
 Eopamp: Ename Np Nm opamp Ncp Ncm [Ad] [Ac]; Opamp
-Efdopamp: Ename Np Nm fdopamp Ncp Ncm Nocm Ad [Ac]; Fully differential opamp
+Efdopamp: Ename Np Nm fdopamp Ncp Ncm Nocm [Ad] [Ac]; Fully differential opamp
+Einamp: Ename Np Nm inamp Ncp Ncm NRp NRm [Rf] [Ad] [Ac]; Instrumentation opamp
 Eamp: Ename Np Nm amp Ncp Ncm [Ad] [Ac]; Amplifier
 F: Fname Np Nm Vcontrol [Value]; Current controlled current source (note the control current is specified through a voltage source)
 CCCS: CCCSname Np Nm Vcontrol [Value]; Current controlled current source (note the control current is specified through a voltage source)
@@ -241,6 +242,8 @@ Ni: node; Input node
 Nm: node; Negative node
 No: node; Output node
 Np: node; Positive node
+NRp: node; Gain resistor positive node
+NRm: node; Gain resistor negative node
 Ns: node; Source node
 Nt: node; Tap node
 Nodelist: nodelist; List of nodes
@@ -265,6 +268,7 @@ Gamma: value; Propagation constant
 Length: value; Transmission line length
 Ac: value; Common-mode gain
 Ad: value; Differential gain
+Rf: value; Feedback resistance
 A11: value; A11
 A12: value; A12
 A21: value; A21
