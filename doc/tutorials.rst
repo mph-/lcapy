@@ -1274,6 +1274,8 @@ However, when the open-loop gain, A2, of the shield-guard amplifier is large the
 Thus the input impedance does not depend on Cc.  In practice, the open-loop gain is not infinite and reduces with frequency and so the guarding does not help at very high frequencies.
 
 
+.. _fdopamps:
+
 Fully-differential opamps
 =========================
 
@@ -1358,6 +1360,86 @@ The common-mode output voltage is found using::
    0
 
 As expected, this is zero since the common-mode output voltage pin of the fully differential amplifier is connected to ground and the amplifier is assumed to have zero common-mode gain.
+
+
+.. _inamps:
+
+Instrumentation amplifiers
+==========================
+
+Instrumentation amplifiers have a large input resistance and a high
+common-mode rejection ratio (CMRR).
+
+In Lcapy an instrumentation amplifier is defined using the notation of a
+voltage controlled voltage source (although it is functionally
+equivalent to two or three VCVSs).  The netlist has the form::
+
+   E vout ref inamp vin+ vin- rin+ rin- Ad Ac Rf
+
+Here `Ad` is the open-loop differential gain, `Ac` is the open-loop common-mode gain (zero default), and `Rf` is the internal feedback resistance.   Internally it expands to::
+
+   Ep int+ 0 opamp vin+ vin- Ad 0
+   Em int- 0 opamp vin+ vin- Ad 0
+   Ed vout ref opamp int+ int- 1 Ac
+   Rfp rin+ int+ Rf
+   Rfm rin- int- Rf
+
+where `int+` and `int-` are internal nodes.
+
+Here's an example netlist and the resulting schematic::
+
+   >>> from lcapy import Circuit, t, oo
+   >>> a = Circuit("""
+   ... E 1 2 inamp 3 4 5 6 Ad Ac Rf; right, l=
+   ... W 5_1 5; right=0.5
+   ... W 6_1 6; right=0.5
+   ... Rg 5_1 6_1; down=0.5, scale=0.5
+   ... W 2 0; down=0.1, implicit, l={0\,\mathrm{V}}
+   ... Vs1 3_2 0_3; down
+   ... W 0_3 0; down=0.1, implicit, l={0\,\mathrm{V}}
+   ... W 3_2 3; right
+   ... Vs2 4 0_4; down
+   ... W 0_4 0; down=0.1, implicit, l={0\,\mathrm{V}}
+   ; draw_nodes=connected""")
+
+
+.. image:: examples/tutorials/opamps/inamp-amplifier1.png
+   :width: 8cm
+
+The output voltage can be found using::
+
+   >>> Vo = a[1].V(t)
+
+Assuming infinite open-loop differential gain,
+
+   >>> Vo.limit('Ad', oo)
+   A_c⋅R_g⋅Vₛ₁ + A_c⋅R_g⋅Vₛ₂ + 4⋅R_f⋅Vₛ₁ - 4⋅R_f⋅Vₛ₂ + 2⋅R_g⋅Vₛ₁ - 2⋅R_g⋅Vₛ₂
+   ─────────────────────────────────────────────────────────────────────────
+                                     2⋅R_g
+
+Let's now express the input voltages in terms of the input
+differential and common-mode voltages :math:`V_{s1} = V_{ic} - V_{id}
+/ 2` and :math:`V_{s2} = V_{ic} + V_{id} / 2`::
+
+   >>> Vo1 = Vo.subs({'Vs2':'Vic + Vid / 2', 'Vs1':'Vic - Vid / 2'}).simplify()
+   >>> Vo1
+              2⋅R_f⋅V_id
+   A_c⋅V_ic - ────────── - V_id
+                 R_g
+
+The differential gain can be found by setting :math:`Vic` to zero::
+
+   >>> Gd = (Vo1.subs('Vic', 0) / voltage('Vid')).simplify()
+   >>> Gd
+   -(2⋅R_f + R_g)
+   ───────────────
+         R_g
+
+Similarly, the common-mode gain can be found by setting :math:`Vid` to zero::
+
+   >>> Gc = (Vo1.subs('Vid', 0) / voltage('Vic')).simplify()
+   >>> Gc
+   A_c
 
 
 

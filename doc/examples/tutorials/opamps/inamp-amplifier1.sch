@@ -1,4 +1,4 @@
-E 1 2 inamp 3 4 5 6 Rf Ad Ac; right, l=
+E 1 2 inamp 3 4 5 6 Ad Ac Rf; right, l=
 W 5_1 5; right=0.5
 W 6_1 6; right=0.5
 Rg 5_1 6_1; down=0.5, scale=0.5

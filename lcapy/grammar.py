@@ -34,7 +34,7 @@ E: Ename Np Nm Ncp Ncm [Value] [Ac]; Voltage controlled voltage source
 VCVS: VCVSname Np Nm Ncp Ncm [Value]; Voltage controlled voltage source
 Eopamp: Ename Np Nm opamp Ncp Ncm [Ad] [Ac]; Opamp
 Efdopamp: Ename Np Nm fdopamp Ncp Ncm Nocm [Ad] [Ac]; Fully differential opamp
-Einamp: Ename Np Nm inamp Ncp Ncm NRp NRm [Rf] [Ad] [Ac]; Instrumentation opamp
+Einamp: Ename Np Nm inamp Ncp Ncm NRp NRm [Ad] [Ac] [Rf]; Instrumentation opamp
 Eamp: Ename Np Nm amp Ncp Ncm [Ad] [Ac]; Amplifier
 F: Fname Np Nm Vcontrol [Value]; Current controlled current source (note the control current is specified through a voltage source)
 CCCS: CCCSname Np Nm Vcontrol [Value]; Current controlled current source (note the control current is specified through a voltage source)

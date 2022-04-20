@@ -36,6 +36,7 @@ Contents:
    netlists.rst
    systems.rst
    schematics.rst
+   gallery.rst
    tutorials.rst
    novice.rst
    advanced.rst

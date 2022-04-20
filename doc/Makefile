@@ -173,7 +173,7 @@ figs:
 	cd examples/tutorials/discretetime; make
 	cd examples/tutorials/nonlinear; make
 
-extra: fourier_transforms.rst laplace_transforms.rst ztransforms.rst DTFTs.rst DFTs.rst ODTFTs.rst
+extra: fourier_transforms.rst laplace_transforms.rst ztransforms.rst DTFTs.rst DFTs.rst ODTFTs.rst gallery.rst
 
 %.rst: %.py
 	python3 $< > $@

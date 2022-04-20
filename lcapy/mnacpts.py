@@ -1066,13 +1066,27 @@ class Einamp(DependentSource):
 
     def _expand(self):
 
-        if self.args == ():\
-                # TODO: check if Rf defined already
+        args = list(self.args)
+
+        try:
+            Ad = args.pop(0)
+        except IndexError:
+            # TODO: check if Ad defined already
+            Ad = 'Ad'
+            warn('Setting differential open-loop gain to Ad')
+
+        try:
+            Ac = args.pop(0)
+        except IndexError:
+            Ac = '0'
+            warn('Setting common-mode gain to 0')
+
+        try:
+            Rf = args.pop(0)
+        except IndexError:
+            # TODO: check if Rf defined already
             Rf = 'Rf'
-            args2 = ()
-        else:
-            Rf = self.args[0]
-            args2 = self.args[1:]
+            warn('Setting feedback resistor to Rf')
 
         cpts = []
         node7 = self._dummy_node()
@@ -1081,20 +1095,18 @@ class Einamp(DependentSource):
         cpts.append(self._netmake_expand('Ep',
                                          nodes=(node7, '0', 'opamp',
                                                 self.relnodes[2], self.relnodes[4]),
-                                         args=args2))
+                                         args=(Ad, )))
         cpts.append(self._netmake_expand('Em',
                                          nodes=(node8, '0', 'opamp',
                                                 self.relnodes[3], self.relnodes[5]),
-                                         args=args2))
+                                         args=(Ad, )))
         cpts.append(self._netmake_expand('Ed',
-                                         nodes=(self.relnodes[0], self.relnodes[1],
-                                                node7, node8), args=('1', )))
+                                         nodes=(self.relnodes[0], self.relnodes[1], 'opamp',
+                                                node7, node8), args=('1', Ac)))
         cpts.append(self._netmake_expand('Rfp',
                                          nodes=(self.relnodes[4], node7), args=(Rf, )))
         cpts.append(self._netmake_expand('Rfm',
                                          nodes=(self.relnodes[5], node8), args=(Rf, )))
-        cpts.append(self._netmake_expand('Rp', nodes=(node7, '0'), args=()))
-        cpts.append(self._netmake_expand('Rm', nodes=(node8, '0'), args=()))
         return '\n'.join(cpts)
 
     def _stamp(self, mna):

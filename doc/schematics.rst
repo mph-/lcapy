@@ -526,12 +526,19 @@ with the `mirror` option.
 .. image:: examples/schematics/opamp4.png
    :width: 5cm
 
-Fully differential opamps can be drawn in a similar manner using the
-fdopamp argument to a VCCS.  For example:
+Fully differential opamps and instrumentation amplifiers can be drawn
+in a similar manner using the fdopamp or inamp argument to a VCCS.  For
+example:
 
 .. literalinclude:: examples/schematics/fdopamp1.sch
 
 .. image:: examples/schematics/fdopamp1.png
+   :width: 5cm
+
+
+.. literalinclude:: examples/schematics/inamp1.sch
+
+.. image:: examples/schematics/inamp1.png
    :width: 5cm
 
 
@@ -543,9 +550,9 @@ Opamps and fully differential opamps have additional pins that can be connected:
 .. image:: examples/schematics/fdopamps.png
    :width: 10cm
 
-Opamps and fully differential opamps can also be drawn without the
-wires using the integrated circuit syntax.  However, these cannot be
-analysed electrically.  For example:
+Opamps, fully differential opamps, and instrumentation amplifiers can
+also be drawn without the wires using the integrated circuit syntax.
+However, these cannot be analysed electrically.  For example:
 
 
 .. literalinclude:: examples/schematics/Uopamp1.sch

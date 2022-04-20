@@ -215,9 +215,22 @@ simulation (additional components can be drawn, see
 
    `Ename Np Nm opamp Nip Nim Ad Ac`
 
-- Fully differential opamp of differential gain Ad and common-mode gain Ac (default 0) with controlling nodes Nip and Nim and common-mode output voltage Nocm.   The common-mode voltage is with respect to node Nm:
+- Fully differential opamp with controlling nodes Nip and Nim, node
+  Nocm to set the common-mode output voltage, differential open-loop
+  gain Ad and common-mode gain Ac (default 0).  The common-mode
+  voltage is with respect to node Nm.  See also :ref:`fdopamps`.
 
    `Ename Np Nm fdopamp Nip Nim Nocm Ad Ac`
+
+- Instrumentation amplifier with controlling nodes Nip and Nim, gain
+  resistor nodes Nrp and Nrm, open-loop differential gain Ad,
+  common-mode gain Ac (default 0), and internal feedback resistance
+  Rf.  The closed-loop gain (assuming infinite open-loop gain) is
+  :math:`G = 1 + 2 R_f / R_g` where :math:`R_f` is the internal
+  feedback resistance and :math:`R_g` is the external gain setting
+  resistance.  See also :ref:`inamps`.
+
+   `Ename Np Nm inamp Nip Nim Nrp Nrm Ad Ac Rf`
 
 - Current-controlled current source (CCVS) of current gain F.  The control current is defined as the current flowing through the voltage source Vcontrol.
 
