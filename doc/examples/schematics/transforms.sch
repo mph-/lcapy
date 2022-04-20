@@ -15,4 +15,3 @@ W S6.s S3.n; down=0.4, startarrow=tri, endarrow=tri, color=purple
 W S3.e S8.w; right=0.4, dashed, color=purple
 W S8.e S5.w; right=0.4, dashed, color=green
 ; label_nodes=alpha, draw_nodes=none, label_ids=false
-

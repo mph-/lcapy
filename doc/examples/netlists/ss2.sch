@@ -7,4 +7,3 @@ W 3 3_a; right
 C 3_a 4; down, i={i_C}, v={v_C}
 R3 4 0_4; down
 W 0_3 0_4; right
-

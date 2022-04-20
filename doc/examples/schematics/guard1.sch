@@ -14,4 +14,3 @@ W 7 10; up=0.5
 R 10 8; right
 E 8 0 opamp 4 5 A; left=0.5, mirror, scale=0.5
 ; label_nodes=none, draw_nodes=connections
-

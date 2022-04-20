@@ -26,4 +26,3 @@ W S11.s 5; down=0.4, color=green
 W 5 S5.e; left, endarrow=tri, color=green
 
 ; label_nodes=alpha, draw_nodes=none, label_ids=false
-

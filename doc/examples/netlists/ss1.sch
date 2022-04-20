@@ -6,4 +6,3 @@ W 0 0_3; right
 W 3 3_a; right
 C 3_a 0_4; down, i=i_C, v=v_C
 W 0_3 0_4; right
-

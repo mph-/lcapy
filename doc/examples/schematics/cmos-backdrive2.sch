@@ -18,4 +18,3 @@ W 5 5_1; down=0.0
 W 5_1 U1.vss; right=0.2, dashed
 W 1 U1.out; right, dashed, color=red
 ;draw_nodes=connections,label_nodes=false,thickness=2
-

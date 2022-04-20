@@ -6,4 +6,3 @@ W 3 2; left, i=I_2
 W 0_2 0_3; right
 P2 3 0_3; down, v^=V_2
 ;label_nodes=False, draw_nodes=connections
-

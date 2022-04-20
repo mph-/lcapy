@@ -6,5 +6,3 @@ O 1 3; right
 O 3 5; right
 O 5 7; right
 ; label_nodes=none
-
-

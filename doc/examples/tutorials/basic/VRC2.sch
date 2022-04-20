@@ -5,6 +5,3 @@ W 0 0_2; right
 W 2 3; right
 W 0_2 0_3; right
 P2 3 0_3; down, v^=v_o(t)
-
-
-

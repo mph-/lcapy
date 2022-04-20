@@ -6,4 +6,3 @@ Q4 9 10 11; right, mirror, invert
 O 0 3; right
 O 3 6; right
 O 6 9; right
-

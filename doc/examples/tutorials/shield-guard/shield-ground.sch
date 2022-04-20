@@ -14,4 +14,3 @@ W 7 18; right
 W 18 0; down=0.2, sground
 Rin 11 17; down
 ; label_nodes=none, draw_nodes=connections
-

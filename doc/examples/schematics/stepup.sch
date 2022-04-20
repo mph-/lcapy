@@ -16,6 +16,3 @@ W U1.vdd _17; up=0.2, implicit, l=3.3V
 W 1 1_1; right=0.5
 W 2 2_1; right=0.5
 ; draw_nodes=connections, label_nodes=none
-
-
-
