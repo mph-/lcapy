@@ -18,39 +18,48 @@ def get_image_size(filename):
     return width, height
 
 
-def show_image(filename):
+def show_image(sch_filename):
 
-    width, height = get_image_size(filename)
+    png_filename = sch_filename.replace('.sch', '.png')
+    try:
+        width, height = get_image_size(png_filename)
+    except:
+        return
+
     width_cm = width / 60
 
-    sch_filename = filename.replace('.png', '.sch')
     label = basename(sch_filename)
 
     url = r'https://github.com/mph-/lcapy/tree/master/doc/' + sch_filename
 
+    link = '`%s <%s>`_' % (label, url)
+
+    underline = '=' * len(link)
+
     print(
         """
-
-`%s <%s>`_
-==========
+%s
+%s
 
 .. literalinclude:: %s
 
 .. image:: %s
    :width: %.1fcm
-        """ % (label, url, sch_filename, filename, width_cm))
+        """ % (link, underline, sch_filename, png_filename, width_cm))
 
 
 print("""
 .. _schematic gallery:
 
-=================
+==================
 Schematic gallery
-=================
+==================
 """)
 
 
 # TODO: add some curation...
-filenames = sorted(glob('./examples/schematics/*.png'))
+filenames = glob('examples/**/*.sch', recursive=True)
+filenames.sort(key=lambda x: basename(x))
+
 for filename in filenames:
     show_image(filename)
