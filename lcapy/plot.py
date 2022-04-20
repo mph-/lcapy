@@ -512,6 +512,8 @@ def plot_angular_frequency(obj, omega, plot_type=None, **kwargs):
 
     npoints = kwargs.pop('npoints', 400)
     norm = kwargs.pop('norm', False)
+    log_frequency = kwargs.pop(
+        'log_frequency', False) or kwargs.pop('log_scale', False)
 
     # FIXME, determine useful frequency range...
     if omega is None:
@@ -522,14 +524,18 @@ def plot_angular_frequency(obj, omega, plot_type=None, **kwargs):
     if isinstance(omega, (int, float)):
         omega = (0, omega)
     if isinstance(omega, tuple):
-        wmin, wmax = parse_range(omega, 1e-1, positive=False)
-        omega = np.linspace(wmin, wmax, npoints)
+        if log_frequency:
+            wmin, wmax = parse_range(omega, 1e-1, positive=True)
+            omega = np.geomspace(wmin, wmax, npoints)
+        else:
+            wmin, wmax = parse_range(omega, 1e-1, positive=False)
+            omega = np.linspace(wmin, wmax, npoints)
 
     if norm and 'xlabel' not in kwargs:
         kwargs['xlabel'] = 'Normalized angular frequency'
 
     return plot_frequency(obj, omega, plot_type=plot_type,
-                          norm=norm, **kwargs)
+                          norm=norm, log_frequency=log_frequency, **kwargs)
 
 
 def plot_time(obj, t, plot_type=None, **kwargs):
