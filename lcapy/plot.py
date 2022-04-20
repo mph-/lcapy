@@ -210,7 +210,7 @@ def plot_pole_zero(obj, **kwargs):
 
 
 def plotit(ax, obj, f, V, plot_type=None, deltas=None, log_magnitude=False,
-           log_frequency=False, norm=False, dbmin=-120, **kwargs):
+           log_frequency=False, norm=False, dbmin=-120, unwrap=False, **kwargs):
 
     plots = {(True, True): ax.loglog,
              (True, False): ax.semilogy,
@@ -243,10 +243,14 @@ def plotit(ax, obj, f, V, plot_type=None, deltas=None, log_magnitude=False,
         units = 'dB'
     elif plot_type == 'radians':
         V = np.angle(V)
+        if unwrap:
+            V = np.unwrap(V)
         part = 'phase'
         units = 'radians'
     elif plot_type == 'degrees':
-        V = np.degrees(np.angle(V))
+        if unwrap:
+            V = np.unwrap(V)
+        V = np.degrees(V)
         part = 'phase'
         units = 'degrees'
 
@@ -315,6 +319,7 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
     nyticks = kwargs.pop('nyticks', None)
     color2 = kwargs.pop('color2', None)
     linestyle2 = kwargs.pop('linestyle2', '--')
+    unwrap = kwargs.pop('unwrap', False)
 
     # FIXME, determine useful frequency range...
     if f is None:
@@ -341,10 +346,11 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
 
     V = obj.evaluate(f)
 
-    types = ['dB-phase', 'dB-radians', 'dB-phase-degrees', 'dB-degrees',
-             'mag-phase', 'magnitude-phase', 'mag-phase-degrees', 'magnitude-phase-degrees',
-             'real-imag', 'mag', 'magnitude', 'phase', 'radians', 'phase-degrees',
-             'degrees', 'real', 'imag', 'dB', 'abs']
+    types = ['dB-phase', 'dB-radians', 'dB-phase-degrees',
+             'dB-degrees', 'mag-phase', 'magnitude-phase',
+             'mag-phase-degrees', 'magnitude-phase-degrees',
+             'real-imag', 'mag', 'magnitude', 'phase', 'radians',
+             'phase-degrees', 'degrees', 'real', 'imag', 'dB', 'abs']
     if plot_type is not None and plot_type not in types:
         raise ValueError('Unknown plot type %s, expecting: %s ' %
                          (plot_type, ', '.join(types)))
@@ -405,9 +411,10 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
     if label is None:
         label = plot1_type
 
-    lines = plotit(ax, obj, f, V, plot1_type, deltas, log_frequency=log_frequency,
-                   log_magnitude=log_magnitude, norm=norm, label=label,
-                   dbmin=dbmin, **kwargs)
+    lines = plotit(ax, obj, f, V, plot1_type, deltas,
+                   log_frequency=log_frequency,
+                   log_magnitude=log_magnitude, norm=norm,
+                   label=label, dbmin=dbmin, unwrap=unwrap, **kwargs)
 
     if plot2_type is None:
         return ax
@@ -429,11 +436,11 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
 
     plotit(ax2, obj, f, V, plot2_type, deltas, log_frequency=log_frequency,
            log_magnitude=log_magnitude, norm=norm, second=True, color=color2,
-           linestyle=linestyle2, **kwargs)
+           linestyle=linestyle2, unwrap=unwrap, **kwargs)
 
-    if plot2_type in ('phase', 'radians'):
+    if plot2_type in ('phase', 'radians') and not unwrap:
         ax2.set_ylim(-np.pi, np.pi)
-    elif plot2_type in ('phase-degrees', 'degrees'):
+    elif plot2_type in ('phase-degrees', 'degrees') and not unwrap:
         ax2.set_ylim(-180, 180)
 
     if plot1_type == 'dB':
@@ -487,6 +494,8 @@ def plot_bode(obj, f, **kwargs):
 
     if 'log_frequency' not in kwargs:
         kwargs['log_frequency'] = True
+    if 'unwrap' not in kwargs:
+        kwargs['unwrap'] = True
 
     return plot_frequency(obj, f, **kwargs)
 

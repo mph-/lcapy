@@ -2200,16 +2200,19 @@ Here's an example of the `plot()` method for Fourier-domain expressions:
    :width: 12cm
 
 The type of plot for complex frequency-domain expressions is
-controlled by the `plot_type` argument.  By default this is
-`dB-phase` for complex expressions which plots both the magnitude as dB and the phase.
-Other choices are `real`, `imag`, `magnitude`, `phase`, `real-imag`, `magnitude-phase`, `dB`,
-`degrees`, and `radians`.
+controlled by the `plot_type` argument.  By default this is `dB-phase`
+for complex expressions which plots both the magnitude as dB and the
+phase.  Other choices are `real`, `imag`, `magnitude`, `phase`,
+`real-imag`, `magnitude-phase`, `dB`, `degrees`, and `radians`.
 
 Frequencies are shown on a linear scale by default.  A logarithmic
 scale is used if `log_frequency=True` is specified.
 
 Magnitudes are shown on a linear scale by default.  A logarithmic
 scale is used if `log_magnitude=True` is specified.
+
+Phases are wrapped unless `unwrap=True` is specified to avoid
+discontinuites of math:`\pi`.
 
 The frequency domain `plot()` method returns the axes used in the plot.
 If there are two sets of axes, such as for a magnitude/phase or
@@ -2225,7 +2228,7 @@ real/imaginary plot, these are returned as a tuple.  For example::
 Bode plots
 ----------
 
-Bode plots are similar to frequency domain plots but plot both the magnitude (in dB) and the phase (in radians) as a function of logarithmic frequency.
+Bode plots are similar to frequency domain plots but plot both the magnitude (in dB) and the phase (in radians) as a function of logarithmic frequency.  The phase is unwrapped by default to avoid discontinuites of :math:`\pi`.
 
 .. literalinclude:: examples/plotting/bode1.py
 
