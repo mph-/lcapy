@@ -150,18 +150,23 @@ class NormAngularFourierDomainExpression(NormAngularFourierDomain, Expr):
         return plot_angular_frequency(self, Wvector, plot_type=plot_type,
                                       norm=True, **kwargs)
 
-    def bode_plot(self, Wvector=None, **kwargs):
+    def bode_plot(self, Wvector=None, unwrap=True, **kwargs):
         """Plot frequency response for a frequency-domain phasor as a Bode
         plot (but without the straight line approximations).  Wvector
-        specifies the normalised angular frequencies.  If it is a tuple (f1, f2), it sets
-        the frequency limits.   Since a logarithmic frequency scale is used,
-        f1 must be greater than 0.
+        specifies the normalised angular frequencies.  If it is a
+        tuple (f1, f2), it sets the frequency limits.  Since a
+        logarithmic frequency scale is used, f1 must be greater than
+        0.
+
+        `unwrap` controls phase unwrapping (default True).
 
         For more info, see `plot`.
+
         """
 
         from .plot import plot_angular_bode
-        return plot_angular_bode(self, Wvector, norm=True, **kwargs)
+        return plot_angular_bode(self, Wvector, norm=True, unwrap=unwrap,
+                                 **kwargs)
 
     def nyquist_plot(self, Wvector=None, log_frequency=False, **kwargs):
         """Plot frequency response as a Nyquist plot (imaginary part versus

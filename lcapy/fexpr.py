@@ -141,18 +141,20 @@ class FourierDomainExpression(FourierDomain, Expr):
         from .plot import plot_frequency
         return plot_frequency(self, fvector, plot_type=plot_type, **kwargs)
 
-    def bode_plot(self, fvector=None, **kwargs):
+    def bode_plot(self, fvector=None, unwrap=True, **kwargs):
         """Plot frequency response for a frequency-domain phasor as a Bode
         plot (but without the straight line approximations).  fvector
         specifies the frequencies.  If it is a tuple (f1, f2), it sets
         the frequency limits.   Since a logarithmic frequency scale is used,
         f1 must be greater than 0.
 
+        `unwrap` controls phase unwrapping (default True).
+
         For more info, see `plot`.
         """
 
         from .plot import plot_bode
-        return plot_bode(self, fvector, **kwargs)
+        return plot_bode(self, fvector, unwrap=unwrap, **kwargs)
 
     def nyquist_plot(self, fvector=None, log_frequency=True, **kwargs):
         """Plot frequency response as a Nyquist plot (imaginary part versus

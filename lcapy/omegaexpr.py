@@ -120,27 +120,31 @@ class AngularFourierDomainExpression(AngularFourierDomain, Expr):
         from .plot import plot_angular_frequency
         return plot_angular_frequency(self, wvector, **kwargs)
 
-    def bode_plot(self, wvector=None, **kwargs):
+    def bode_plot(self, wvector=None, unwrap=True, **kwargs):
         """Plot frequency response for a frequency-domain phasor as a Bode
         plot (but without the straight line approximations).  wvector
         specifies the angular frequencies.  If it is a tuple (f1, f2), it sets
         the frequency limits.   Since a logarithmic frequency scale is used,
         f1 must be greater than 0.
 
+        `unwrap` controls phase unwrapping (default True).
+
         For more info, see `plot`.
         """
 
         from .plot import plot_angular_bode
-        return plot_angular_bode(self, wvector, **kwargs)
+        return plot_angular_bode(self, wvector, unwrap=unwrap, **kwargs)
 
     def nyquist_plot(self, wvector=None, log_frequency=True, **kwargs):
         """Plot frequency response as a Nyquist plot (imaginary part versus
-        real part).  wvector specifies the angular frequencies.  If it is
-        a tuple (f1, f2), it sets the frequency limits as (f1, f2).
+        real part).  wvector specifies the angular frequencies.  If it
+        is a tuple (f1, f2), it sets the frequency limits as (f1, f2).
 
         `npoints` set the number of plotted points.
 
-        The unit circle is shown by default.  This can be disabled with `unitcircle=False`.
+        The unit circle is shown by default.  This can be disabled
+        with `unitcircle=False`.
+
         """
 
         from .plot import plot_nyquist

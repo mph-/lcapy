@@ -475,7 +475,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         return self.plot(**kwargs)
 
-    def bode_plot(self, fvector=None, **kwargs):
+    def bode_plot(self, fvector=None, unwrap=True, **kwargs):
         """Plot frequency response for a frequency-domain phasor as a Bode
         plot (but without the straight line approximations).  fvector
         specifies the frequencies.  If it is a tuple (f1, f2), it sets
@@ -484,9 +484,12 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         This method makes the assumption that the expression is causal.
 
+        `unwrap` controls phase unwrapping (default True).
+
         """
 
-        return self.fourier(causal=True).bode_plot(fvector, **kwargs)
+        return self.fourier(causal=True).bode_plot(fvector, unwrap=unwrap,
+                                                   **kwargs)
 
     def nyquist_plot(self, fvector=None, **kwargs):
         """Plot frequency response for a frequency-domain phasor as a Nyquist
