@@ -482,10 +482,11 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         the frequency limits.   Since a logarithmic frequency scale is used,
         f1 must be greater than 0.
 
-        This method makes the assumption that the expression is causal.
-
         `unwrap` controls phase unwrapping (default True).
 
+        This method makes the assumption that the expression is causal.
+        Note, the Bode plot does not exist for marginally stable and unstable
+        systems since `jw` is outside the region of convergence.
         """
 
         return self.fourier(causal=True).bode_plot(fvector, unwrap=unwrap,
@@ -502,7 +503,6 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         The unit circle is shown by default.  This can be disabled with `unitcircle=False`.
 
         This method makes the assumption that the expression is causal.
-
         """
 
         return self.fourier(causal=True).nyquist_plot(fvector, **kwargs)
