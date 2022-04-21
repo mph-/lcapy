@@ -1929,9 +1929,23 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
            in limit as s -> oo.  This is equivalent to the Laplace
            transform being strictly proper.
 
-        Note, with this definition cos(t) is considered realizable."""
+        Note, with this definition `cos(t)` is considered realizable."""
 
         return self.laplace().is_strictly_proper
+
+    @property
+    def is_stable(self):
+        """Return True if all the poles of the signal's Laplace transform
+        are in the LH plane.
+
+        Note, `exp(-alpha * t)` is considered stable since the
+        unilateral Laplace transform ignores the region where `t < 0`."""
+
+        poles = self.laplace().poles(aslist=True)
+        for pole in poles:
+            if pole.real >= 0:
+                return False
+        return True
 
     @property
     def is_unchanging(self):

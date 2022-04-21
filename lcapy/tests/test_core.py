@@ -497,6 +497,9 @@ class LcapyCoreTester(unittest.TestCase):
         #self.assertEqual(a.symbols[1].is_positive, True, "a is positive")
         self.assertEqual(a.is_constant, False, "is_constant")
         self.assertEqual(a.is_unchanging, False, "is_unchanging")
+        self.assertEqual(a.is_realizable, True, "is_realizable")
+        # LT ignore results for t < 0
+        self.assertEqual(a.is_stable, True, "is_stable")
 
         a = expr('3')
         self.assertEqual(a.is_constant, True, "3 is_constant")

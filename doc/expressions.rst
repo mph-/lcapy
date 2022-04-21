@@ -672,9 +672,13 @@ All Lcapy expressions have the following attributes (see :ref:`expressionsration
 
 - `is_rational_function` returns True if expression is a rational function
 
+- `is_realizable` returns True if the Laplace transform of the expression is 0 in the limit as :math:`s` tends to infinity.  This is equivalent to the Laplace transform of the expression being strictly proper (the degree of the numerator being greater than the degree of the numerator).  Note, by this definition `cos(t)` is considered realizable
+
+- `is_stable` returns True if the Laplace transform of the expression has all its poles in the LH plane
+
 - `is_strictly_proper` returns True if degree of denominator greater than degree of numerator
 
-- `is_unchanging` returns True if expression does not have a domain variable (compare with `is_constant`), e.g., 3 * x is unchanging but 3 * t is not
+- `is_unchanging` returns True if expression does not have a domain variable (compare with `is_constant`), e.g., `3 * x` is unchanging but `3 * t` is not
 
 - `label` returns string describing expression to use as a plot label
 
