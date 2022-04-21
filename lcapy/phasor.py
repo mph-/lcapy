@@ -80,19 +80,6 @@ class PhasorExpression(Expr):
 
         return var
 
-    def fourier(self, **assumptions):
-        """Fourier transform."""
-
-        return self.time().fourier()
-
-    def angular_fourier(self, **assumptions):
-        """Angular Fourier transform."""
-
-        if self.has(omega):
-            warn('Expression contains omega, should substitute with a different symbol.')
-
-        return self.time().angular_fourier()
-
     def phasor(self, **assumptions):
         """Convert to phasor representation."""
 
@@ -257,6 +244,19 @@ class PhasorTimeDomainExpression(PhasorTimeDomain, PhasorExpression):
 
         return self.time().laplace()
 
+    def angular_fourier(self, **assumptions):
+        """Angular Fourier transform."""
+
+        if self.has(omega):
+            warn('Expression contains omega, should substitute with a different symbol.')
+
+        return self.time().angular_fourier()
+
+    def fourier(self, **assumptions):
+        """Fourier transform."""
+
+        return self.time().fourier()
+
 
 class PhasorFrequencyDomainExpression(PhasorFrequencyDomain, PhasorExpression):
     """This represents the ratio of two-phasors; for example
@@ -335,6 +335,20 @@ class PhasorFrequencyDomainExpression(PhasorFrequencyDomain, PhasorExpression):
         omega = self.omega
         result = self.expr.replace(omega, ssym / j)
         return LaplaceDomainExpression(result, **assumptions).as_quantity(self.quantity)
+
+    def angular_fourier(self, **assumptions):
+        """Angular Fourier transform."""
+
+        if self.var is omega:
+            # TODO, add warning.
+            pass
+
+        return self.time().angular_fourier()
+
+    def fourier(self, **assumptions):
+        """Fourier transform."""
+
+        return self.time().fourier()
 
     def as_expr(self):
         return PhasorFrequencyDomainExpression(self)
