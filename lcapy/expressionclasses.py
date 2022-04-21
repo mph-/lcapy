@@ -2,7 +2,7 @@
 creating expression classes, and a factory to select the appropriate
 class for a domain and quantity.
 
-Copyright 2021 Michael Hayes, UCECE
+Copyright 2021--2022 Michael Hayes, UCECE
 
 """
 
@@ -17,8 +17,7 @@ from .admittancesquaredmixin import AdmittanceSquaredMixin
 from .impedancesquaredmixin import ImpedanceSquaredMixin
 from .powermixin import PowerMixin
 from .units import units, u as uu
-from sympy import sqrt
-from sympy import S
+from sympy import sqrt, S
 
 
 quantityclasses = {'voltage': VoltageMixin,
