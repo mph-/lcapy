@@ -56,6 +56,13 @@ def transform(expr, arg, **assumptions):
         elif arg is F:
             return expr.norm_fourier(**assumptions)
         elif arg.has(j):
+            # Note, substituting s = jw is valid for the phasor domain
+            # but does not always produce the frequency response since
+            # the evaluation point can be outside the region of
+            # convergence.  For example, the LT for u(t), t * u(t),
+            # and exp(a * t) for positive a, i.e., the impulse
+            # responses for marginally stable and unstable systems.
+            # For the frequency response use omega.
             return expr.phasor(omega=arg / j, **assumptions)
         elif arg is n:
             return expr.discrete_time(**assumptions)
