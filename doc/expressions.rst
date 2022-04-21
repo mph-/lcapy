@@ -1117,7 +1117,7 @@ This behaviour can be explicitly controlled using the `subs()` and
 Domain transformation
 ---------------------
 
-Expressions can be transformed to a different domain (see :ref:`domains` and :ref:`transformation`), for example.  This can be done with an explicit method, for example::
+Expressions can be transformed to a different domain (see :ref:`domains` and :ref:`transformation`), for example.  This can be done with an explicit method, for example, the Fourier transform can be determined with::
 
    >>> cos(4 * pi * t).FT(f)
     δ(f - 2)   δ(f + 2)
@@ -1163,9 +1163,8 @@ For example::
 
 
 
-
-Phasor and angular Fourier domains
-----------------------------------
+Phasor and angular Fourier domains (jomega or omega)
+----------------------------------------------------
 
 The transformation `V(omega)` produces a result in the angular Fourier
 domain, however, the transformation `V(jomega)` produces a result in
@@ -1200,10 +1199,16 @@ Here's an example, showing a subtle difference between the angular Fourier and p
     ───
      ω
 
-In this case, substitution of `s` with `j omega` is not valid.
-However, when dealing with phasors, there is no DC component and thus
-the same result is obtained using the phasor or angular Fourier
-domains.
+In this case, substitution of `s` with `jomega` is not valid to obtain
+the frequency response.  This is because the poles of `Z` are not in
+the RH plane and thus the evaluation of `Z(s)` at `s = jomega` is
+outside the region of convergence.  In practice, this is not a problem
+for circuit analysis provided the circuit contains some rsistance.
+
+The evaluation of a Laplace domain impedance `Z(s)` at `s = jomega` to
+obtain a phasor domain impedance is always valid.  When dealing with
+phasors, there is no DC component and thus the same result is obtained
+using the phasor or angular Fourier domains.
 
 If you have a cunning idea of how to resolve this notational
 gnarliness, or make it less confusing, please report an issue.  Note,
@@ -1217,7 +1222,8 @@ domain::
     'angular fourier'
 
 The following diagram demonstrates transformations between the domains.
-Note, the unilateral Laplace transform denoted by :math:`\mathcal{L}\{.\}` is not reversible without some prior information (such as known to represent an AC signal or a causal signal).   In general, the result is only known for :math:`t\ge 0` since the result for :math:`t < 0` is not unique.   The Fourier transform, denoted by :math:`\mathcal{F}\{.\},` and the angular Fourier transform, denoted by :math:`\mathcal{F}_{\omega}\{.\}`, are reversible.  If :math:`h(t)` is an AC signal, it is possible to go between the time and phasor domains.  If :math:`H(s)` represents the transfer function of a causal and lossy system, then it is possible to go between the Laplace and angular Fourier domains via the phasor domain.   Note, the capitalized expressions denote a transform domain and are not equivalent.
+Note, the unilateral Laplace transform denoted by :math:`\mathcal{L}\{.\}` is not reversible without some prior information (the region of convergence).
+In general, the result is only known for :math:`t\ge 0` since the result for :math:`t < 0` is not unique.   The Fourier transform, denoted by :math:`\mathcal{F}\{.\},` and the angular Fourier transform, denoted by :math:`\mathcal{F}_{\omega}\{.\}`, are reversible.  If :math:`h(t)` is an AC signal, it is possible to go between the time and phasor domains.  If :math:`H(s)` represents the transfer function of a causal system with all its poles in the LH plane, then it is possible to go between the Laplace and angular Fourier domains via the phasor domain.   Note, the capitalized expressions denote a transform domain and are not equivalent.
 
 .. image:: examples/schematics/domains.png
    :width: 25cm
