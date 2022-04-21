@@ -1919,9 +1919,19 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
     @property
     def is_constant(self):
-        """Returns True if expression does not have any free symbols  (compare with `is_unchanging`)."""
+        """Returns True if expression does not have any free symbols (compare with `is_unchanging`)."""
 
         return self.expr.free_symbols == set()
+
+    @property
+    def is_realizable(self):
+        """Return True if the signal's Laplace transform = 0
+           in limit as s -> oo.  This is equivalent to the Laplace
+           transform being strictly proper.
+
+        Note, with this definition cos(t) is considered realizable."""
+
+        return self.laplace().is_strictly_proper
 
     @property
     def is_unchanging(self):
