@@ -1115,6 +1115,24 @@ This behaviour can be explicitly controlled using the `subs()` and
    >>> V1.subs(2).evaluate()
    0.054946916666202536
 
+Here's another example::
+
+   >>> Hf = 1e6 / (j * f / 10 + 1)
+   1000000
+   ───────
+   ⅉ⋅f
+   ─── + 1
+    10
+   >>> Hs = Hf.subs(f, s / (j * 2 * pi)).canonical()
+   20000000⋅π
+   ──────────
+    s + 20⋅π
+
+If you know what you are doing you can coerce the domain of the result
+with the domain argument, for example::
+
+   >>> H.subs(f, w / (2 * pi)).subs(jw, s, domain=s)
+
 
 .. _transformation:
 
@@ -1164,7 +1182,6 @@ For example::
      3
    ─────
    s + 2
-
 
 
 Phasor and angular Fourier domains (jomega or omega)
