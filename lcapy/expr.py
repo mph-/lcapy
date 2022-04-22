@@ -2277,38 +2277,38 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         # also need to handle s-> jw in select() and transform().
 
         # Allow domain=s as well as domain=`laplace`
-        if domain is not None and not isinstance(domain, str)):
-            domain=domain.domain
+        if domain is not None and not isinstance(domain, str):
+            domain = domain.domain
 
         if new is old:
             return self
 
-        expr=new
+        expr = new
         if isinstance(new, Expr):
             if old == self.var or self.var is None:
                 if domain is None:
-                    domain=new.domain
+                    domain = new.domain
             else:
                 if domain is None:
-                    domain=self.domain
-            expr=new.expr
+                    domain = self.domain
+            expr = new.expr
         else:
-            domain=self.domain
-            expr=sympify(expr)
+            domain = self.domain
+            expr = sympify(expr)
 
-        old=symbol_map(old)
+        old = symbol_map(old)
         if isinstance(old, Expr):
-            old=old.expr
+            old = old.expr
 
         if isinstance(expr, list):
             # Get lists from solve.  These stymie sympy's subs.
             if len(expr) == 1:
-                expr=expr[0]
+                expr = expr[0]
             else:
                 warn('Substituting a list...')
 
         if isinstance(old, str):
-            result=self.sympy
+            result = self.sympy
         else:
             if state.warn_subs and not self.sympy.has(old):
                 warn('Expression %s does not have %s' % (self.sympy, old))
@@ -2316,15 +2316,15 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 import pdb
                 pdb.set_trace()
 
-            result=self.sympy.subs(old, expr, **kwargs)
+            result = self.sympy.subs(old, expr, **kwargs)
 
         # If get empty Piecewise, then result unknowable.  TODO: sympy
         # 1.2 requires Piecewise constructor to have at least one
         # pair.
         if False and result.is_Piecewise and result == sym.Piecewise():
-            result=sym.nan
+            result = sym.nan
 
-        return self.change(result, domain = domain, **self.assumptions)
+        return self.change(result, domain=domain, **self.assumptions)
 
     def transform(self, arg, **assumptions):
         """Transform into a different domain.
@@ -2368,7 +2368,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         from .transform import select
         return select(self, kind)
 
-    def limit(self, var, value, dir = '+'):
+    def limit(self, var, value, dir='+'):
         """Determine limit of expression(var) at var = value.
         If `dir == '+'` search from right else if `dir == '-'`
         search from left."""
@@ -2376,17 +2376,17 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         # Need to use lcapy sympify otherwise could use
         # getattr to call sym.limit.
 
-        var=sympify(var)
-        value=sympify(value)
+        var = sympify(var)
+        value = sympify(value)
 
         # Experimental.  Compare symbols by names.
-        symbols=list(self.expr.free_symbols)
-        symbolnames=[str(symbol) for symbol in symbols]
+        symbols = list(self.expr.free_symbols)
+        symbolnames = [str(symbol) for symbol in symbols]
         if str(var) not in symbolnames:
             return self
-        var=symbols[symbolnames.index(str(var))]
+        var = symbols[symbolnames.index(str(var))]
 
-        ret=sym.limit(self.expr, var, value, dir = dir)
+        ret = sym.limit(self.expr, var, value, dir=dir)
         return self.__class__(ret, **self.assumptions)
 
     def simplify(self, **kwargs):
@@ -2398,29 +2398,29 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         # This might be dodgy...
         if self.has(AppliedUndef) and not self.has(sym.Integral):
-            new, defs=self.remove_undefs(return_mappings = True)
+            new, defs = self.remove_undefs(return_mappings=True)
             return new.simplify(**kwargs).subs(defs)
 
-        ret=symsimplify(self.expr, **kwargs)
+        ret = symsimplify(self.expr, **kwargs)
         return self.__class__(ret, **self.assumptions)
 
     def simplify_units(self):
         """Simplify units into canonical form."""
 
-        ret=self.__class__(self, **self.assumptions)
-        ret.units=units.simplify_units(self.units)
+        ret = self.__class__(self, **self.assumptions)
+        ret.units = units.simplify_units(self.units)
         return ret
 
     def simplify_conjugates(self, **kwargs):
         """Combine complex conjugate terms."""
 
-        result=simplify_conjugates(self.expr)
+        result = simplify_conjugates(self.expr)
         return self.__class__(result, **self.assumptions)
 
     def simplify_factors(self, **kwargs):
         """Simplify factors in expression individually."""
 
-        result=0
+        result = 0
         for factor in self.expr.as_ordered_factors():
             result *= symsimplify(factor, **kwargs)
         return self.__class__(result, **self.assumptions)
@@ -2428,63 +2428,63 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     def simplify_terms(self, **kwargs):
         """Simplify terms in expression individually."""
 
-        result=0
+        result = 0
         for term in self.expr.as_ordered_terms():
             result += symsimplify(term, **kwargs)
         return self.__class__(result, **self.assumptions)
 
-    def simplify_sin_cos(self, as_cos = False, as_sin = False):
+    def simplify_sin_cos(self, as_cos=False, as_sin=False):
         """Simplify c * cos(theta) - s * sin(theta) as A * cos(theta - phi)."""
 
-        result=simplify_sin_cos(self.expr, as_cos, as_sin)
+        result = simplify_sin_cos(self.expr, as_cos, as_sin)
         return self.__class__(result, **self.assumptions)
 
     def simplify_dirac_delta(self):
         """Simplify DiracDelta(4 * t + 2) to DiracDelta(t + 0.5) / 4
         and DiracDelta(t) * x(t) to DiracDelta * x(0)."""
 
-        result=simplify_dirac_delta(self.expr, self.var)
+        result = simplify_dirac_delta(self.expr, self.var)
         return self.__class__(result, **self.assumptions)
 
     def simplify_heaviside(self):
         """Simplify Heaviside(4 * t + 2) to Heaviside(t + 0.5)
         and Heaviside(t)**2 to Heaviside(t), etc."""
 
-        result=simplify_heaviside(self.expr, self.var)
+        result = simplify_heaviside(self.expr, self.var)
         return self.__class__(result, **self.assumptions)
 
     def simplify_unit_impulse(self):
         """Simplify UnitImpulse(4 * k + 8) to UnitImpulse(k + 2), etc."""
 
-        result=simplify_unit_impulse(self.expr, self.var)
+        result = simplify_unit_impulse(self.expr, self.var)
         return self.__class__(result, **self.assumptions)
 
     def simplify_rect(self):
         """Simplify rect(4 * t + 2) to rect(t + 0.5)
         and rect(t)**2 to rect(t), etc."""
 
-        result=simplify_rect(self.expr, self.var)
+        result = simplify_rect(self.expr, self.var)
         return self.__class__(result, **self.assumptions)
 
     def expand_hyperbolic_trig(self):
         """Convert cosh(x) to exp(x) + exp(-x), etc."""
 
-        result=expand_hyperbolic_trig(self.expr)
+        result = expand_hyperbolic_trig(self.expr)
         return self.__class__(result, **self.assumptions)
 
-    def replace(self, query, value, map = False, simultaneous = True, exact = None):
+    def replace(self, query, value, map=False, simultaneous=True, exact=None):
 
         try:
-            query=query.expr
+            query = query.expr
         except:
             pass
 
         try:
-            value=value.expr
+            value = value.expr
         except:
             pass
 
-        ret=self.expr.replace(query, value, map, simultaneous, exact)
+        ret = self.expr.replace(query, value, map, simultaneous, exact)
         return self.__class__(ret, **self.assumptions)
 
     def subs(self, *args, **kwargs):
@@ -2501,9 +2501,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             return self._subs1(args[0], args[1], **kwargs)
 
         if isinstance(args[0], dict):
-            dst=self
+            dst = self
             for key, val in args[0].items():
-                dst=dst._subs1(key, val, **kwargs)
+                dst = dst._subs1(key, val, **kwargs)
 
             return dst
 
@@ -2512,7 +2512,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     @ property
     def label(self):
 
-        label=''
+        label = ''
         if hasattr(self, 'quantity_label'):
             label += self.quantity_label
             if self.part != '':
@@ -2525,7 +2525,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     @ property
     def label_with_units(self):
 
-        label=self.label
+        label = self.label
         if hasattr(self, 'units') and self.units != '' and self.units != 1:
             label += ' (%s)' % self.units
         return label
@@ -2533,7 +2533,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     @ property
     def domain_label_with_units(self):
 
-        label=''
+        label = ''
         if hasattr(self, 'domain_label'):
             label += '%s' % self.domain_label
         if hasattr(self, 'domain_units'):
@@ -2541,24 +2541,24 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 label += ' (%s)' % self.domain_units
         return label
 
-    def differentiate(self, arg = None):
+    def differentiate(self, arg=None):
         """Differentiate expression."""
 
         if arg is None:
-            arg=self.var
-        arg=self._tweak_arg(arg)
+            arg = self.var
+        arg = self._tweak_arg(arg)
 
         return self.__class__(sym.diff(self.expr, arg), **self.assumptions)
 
-    def diff(self, arg = None):
+    def diff(self, arg=None):
 
         return self.differentiate(arg)
 
     def doit(self, **hints):
         """Evaluate unevaluated functions such as integrals and sums."""
 
-        result=self.__class__(self.expr.doit(**hints), **self.assumptions)
-        result.part=self.part
+        result = self.__class__(self.expr.doit(**hints), **self.assumptions)
+        result.part = self.part
         return result
 
     def _tweak_arg(self, arg):
@@ -2574,7 +2574,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         return arg
 
-    def integrate(self, arg = None, **kwargs):
+    def integrate(self, arg=None, **kwargs):
         """Integrate expression.
 
         For example `exp(-3 * t).integrate((t, 0, oo))` gives `1 / 3`.
@@ -2582,9 +2582,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         """
 
         if arg is None:
-            arg=self.var
+            arg = self.var
 
-        arg=self._tweak_arg(arg)
+        arg = self._tweak_arg(arg)
         return self.__class__(sym.integrate(self.expr, arg, **kwargs),
                               **self.assumptions)
 
@@ -2595,7 +2595,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         cos(4⋅t)`.  Similarly, `cos(2 * t).rewrite(exp)` will expand
         the cosine as two complex exponentials."""
 
-        args=self._tweak_arg(args)
+        args = self._tweak_arg(args)
         return self.__class__(self.sympy.rewrite(*args, **hints),
                               **self.assumptions)
 
@@ -2616,10 +2616,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
          [-3]`"""
 
         if self.has(AppliedUndef):
-            new, defs=self.remove_undefs(return_mappings = True)
+            new, defs = self.remove_undefs(return_mappings=True)
             return new.solve(*symbols, **flags).subs(defs)
 
-        symbols=[symbol_map(symbol) for symbol in symbols]
+        symbols = [symbol_map(symbol) for symbol in symbols]
         return expr(sym.solve(self.expr, *symbols, **flags))
 
     def split_dirac_delta(self):
@@ -2639,11 +2639,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     def symbols(self):
         """Return dictionary of symbols in the expression keyed by name."""
 
-        expr=self.sympy
-        symdict={sym.name: sym for sym in expr.free_symbols}
+        expr = self.sympy
+        symdict = {sym.name: sym for sym in expr.free_symbols}
 
         # Look for V(s), etc.
-        funcdict={
+        funcdict = {
             atom.func.__name__: atom for atom in expr.atoms(AppliedUndef)}
 
         symdict.update(funcdict)
