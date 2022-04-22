@@ -19,6 +19,15 @@ from .powermixin import PowerMixin
 from .units import units, u as uu
 from sympy import sqrt, S
 
+# It might be useful to subdivide expressions into signal expressions
+# and system expressions.   For example, Voltage and Current expressions
+# would subclass Signal (or use a mixin) and ImpulseResponse, TransferFunction,
+# FrequencyResponse, Impedance, Admittance, etc. would subclass System.
+# Classes such as LaplaceDomainExpression could be separated into
+# LaplaceDomainGenericSignal and LaplaceDomainGenericSystem.
+
+# The Transfer class could be split into VoltageRatio, CurrentRatio,
+# and GenericRatio.
 
 quantityclasses = {'voltage': VoltageMixin,
                    'current': CurrentMixin,
