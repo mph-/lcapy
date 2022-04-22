@@ -262,11 +262,12 @@ class FourierTransformer(BilateralForwardTransformer):
             # Sympy incorrectly gives exp(-a * t) instead of exp(-a * t) * Heaviside(t)
             elif other.is_Pow and other.args[1] == -1 and other.args[0].has(t):
                 foo = other.args[0]
-                if foo.is_Add:
-                    bar = foo.args[1] / t
-                    if not bar.has(t) and bar.has(I):
-                        a = -(foo.args[0] * 2 * pi * I) / bar
-                        return const1 * exp(-a * sf) * Heaviside(sf * sign(a))
+
+                if foo.as_poly(t).is_linear and foo.is_complex:
+                    c0 = foo.coeff(t, 0)
+                    c1 = foo.coeff(t, 1)
+                    s = (2 * pi * I) / c1
+                    return const1 * s * exp(c0 * sf * s) * Heaviside(-sf)
                 elif foo.is_Function and foo.func == cosh and foo.args[0] == t:
                     return const * pi / cosh(pi**2 * sf)
                 elif foo.is_Function and foo.func == sinh and foo.args[0] == t:
