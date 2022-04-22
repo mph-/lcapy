@@ -248,6 +248,7 @@ def plotit(ax, obj, f, V, plot_type=None, deltas=None, log_magnitude=False,
         part = 'phase'
         units = 'radians'
     elif plot_type == 'degrees':
+        V = np.angle(V)
         if unwrap:
             V = np.unwrap(V)
         V = np.degrees(V)
