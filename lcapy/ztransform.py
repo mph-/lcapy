@@ -98,7 +98,8 @@ def is_multiplied_with(expr, n, cmp, ret):
           ((expr.args[0]).as_poly(n)).is_linear and expr.func == sym.sin):
         ret += [expr]
         ret_flag = True
-    elif cmp == 'sin(n)' and expr.is_Pow and expr.args[0].func == sym.sin and (expr.args[0].args[0]).as_poly(n).is_linear:
+    elif (cmp == 'sin(n)' and expr.is_Pow and expr.args[0].func == sym.sin and
+          (expr.args[0].args[0]).as_poly(n).is_linear):
         ret += [expr.args[0]]
         ret_flag = True
     elif cmp == 'sin(n)' and expr.is_Mul:

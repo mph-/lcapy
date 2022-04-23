@@ -228,6 +228,18 @@ class FourierTransformer(BilateralForwardTransformer):
                   other.args[1].func == Heaviside and other.args[1].args[0] == t):
                 e = exp(I * 2 * pi * sf)
                 return I * DiracDelta(sf, 1) / (4 * pi) * e - 1 / (4 * pi**2 * f**2) * e
+            # exp(c1 * t + c0) * u(t)
+            elif (other.is_Mul and len(other.args) == 2 and
+                  other.args[1].is_Function and other.args[1].func == exp and
+                  other.args[1].args[0].is_polynomial(t) and
+                  other.args[1].args[0].as_poly(t).is_linear and
+                  other.args[0].is_Function and
+                  other.args[0].func == Heaviside and
+                  other.args[0].args[0] == t):
+                foo = other.args[1].args[0]
+                c0 = foo.coeff(t, 0)
+                c1 = foo.coeff(t, 1)
+                return const1 * exp(c0) / (I * 2 * pi * sf - c1)
             elif other.is_Function and other.func == sincn and other.args[0] == t:
                 return const1 * rect(f)
             elif other.is_Function and other.func == sincu and other.args[0] == t:
@@ -263,7 +275,8 @@ class FourierTransformer(BilateralForwardTransformer):
             elif other.is_Pow and other.args[1] == -1 and other.args[0].has(t):
                 foo = other.args[0]
 
-                if foo.as_poly(t).is_linear and foo.is_complex:
+                if (foo.is_polynomial(t) and foo.as_poly(t).is_linear and
+                        foo.is_complex):
                     c0 = foo.coeff(t, 0)
                     c1 = foo.coeff(t, 1)
                     s = (2 * pi * I) / c1
