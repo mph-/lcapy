@@ -1921,3 +1921,273 @@ These coefficients can now be used in the SciPy `lfilter` function.
 Note, the symbolic response can also be found using the `response()`
 method of a `DLTIFilter` object.  However, the output soons becomes
 tedious for this filter.
+
+
+Opamp stability
+===============
+
+
+
+Voltage follower with load capacitor
+------------------------------------
+
+Let's consider an opamp configured as a voltage follower driving a
+capacitive load::
+
+
+   >>> from lcapy import *
+   >>> a = Circuit("""
+   ... E1 1 0 opamp 2 3 A; right, mirror
+   ... W 1 1_1; right
+   ... C 1_1 0_1; down
+   ... W 3 3_1; up=0.75
+   ... W 3_1 3_2; right
+   ... W 3_2 1; down
+   ... W 2_1 2; right
+   ... P1 2_1 0; down""")
+   >>> a.draw()
+
+.. image:: examples/tutorials/opamps/opamp-voltage-follower-C-load1.png
+   :width: 11cm
+
+This circuit can be unstable due to the unity feedback ratio and the pole formed by the load capacitor with the opamp's output resistance.   Lcapy does not model an opamp's output resistance, so this needs to be done explicitly.
+
+   >>> a = Circuit("""
+   ... E1 4 0 2 1 A; down
+   ... Ro 4 1; right
+   ... W 1 1_1; right
+   ... C 1_1 0_1; down
+   ... W 0 0_1; right""")
+
+
+.. image:: examples/tutorials/opamps/opamp-voltage-follower-C-load-model1.png
+   :width: 7cm
+
+
+The closed-loop transfer function is::
+
+  >>> H = a.transfer(2, 0, 1, 0)
+  >>> H.general()
+         A
+   ──────────────
+   A + C⋅Rₒ⋅s + 1
+
+
+The open-loop transfer function can be found by cutting the connection
+between the opamp output and inverting input is cut and connecting the
+inverting input to ground.
+
+   >>> b = Circuit("""
+   ... E1 1 0 2 4 A; down
+   ... Ro 1 3; right
+   ... W 4 0; down
+   ... C 3 0_3; down
+   ... W 0 0_3; right""")
+   >>> G = b.transfer(2, 0, 3, 0)
+   >>> G.general()
+        A
+   ──────────
+   C⋅Rₒ⋅s + 1
+
+The relationship between the closed-loop and open-loop gains for a negative feedback system is
+
+:math:`H(s) = \frac{\beta(s) G(s)}{1 + \beta(s) G(s)}`
+
+With a voltage-follower, :math:`\beta(s) = 1` and thus::
+
+  >>> (G / (1 + G)).general()
+         A
+   ──────────────
+   A + C⋅Rₒ⋅s + 1
+
+as derived for the closed-loop gain.
+
+Let's now assume that the opamp's open-loop response has two poles.  The Bode plot can be obtained as follows::
+
+   >>> from lcapy import j, f, degrees, pi
+   >>> f1 = 10
+   >>> f2 = 1e6
+   >>> A0 = 1e6
+   >>> A = A0 * (1 / (1 + j * f / f1)) * (1 / (1 + j * f / f2))
+   >>> ax = A.bode_plot((1, 10e6), plot_type='dB-degrees')
+   >>> ax[0].set_ylim(-30, 130)
+   >>> ax[1].set_ylim(-180, 0)
+
+.. image:: examples/tutorials/opamps/opamp-open-loop1.png
+   :width: 15cm
+
+Assuming an opamp output resistance of 40 ohms and a load capacitance of 100 nF,
+the overall open-loop response has a Bode plot given by::
+
+   >>> f1 = 10
+   >>> f2 = 1e6
+   >>> A0 = 1e6
+   >>> A = A0 * (1 / (1 + j * f / f1)) * (1 / (1 + j * f / f2))
+   >>> Ro = 40
+   >>> C = 100e-9
+   >>> G = G.subs({'A': A, 'Ro': Ro, 'C': C})
+   >>> ax = G.bode_plot((1, 10e6), plot_type='dB-degrees')
+   >>> ax[0].set_ylim(-30, 130)
+   >>> ax[1].set_ylim(-240, 0)
+
+
+.. image:: examples/tutorials/opamps/opamp-voltage-follower-C-load-open-loop1.png
+   :width: 15cm
+
+
+The open-loop response has three poles: two due to the opamp and one
+due to the RC circuit formed by the opamp output resistance and the load capacitance::
+
+   >>> G.poles()
+   {-250000: 1, -2000000⋅π: 1, -20⋅π: 1}
+
+The gain crossing frequency (the frequency :math:`f_g` where :math:`|L(j 2\pi f_g)|=1` and where :math:`L(j 2\pi f) = \beta(j 2\pi f) G(j 2\pi f)`) can be found using::
+
+   >>> L = 1 * G
+   >>> Labs = abs(L.subs(s, j * 2 * pi * f))
+   >>> fg = (Labs**2 - 1).canonical().solve().fval[1]
+   >>> fg
+   585319.4316569561
+
+There are two solutions; the negative frequency can be ignored.  Note,
+the solver can be slow and a better approach is to do a numerical search::
+
+   >>> fg = (Labs - 1).nsolve().fval
+   >>> fg
+   585319.4316569561
+
+Given the gain crossing frequency the phase margin can be found,
+
+:math:`\phi = \arg{\{L(j2\pi f_g)\}} + \pi`.
+
+The tricky aspect here is that the phase may need unwrapping to remove
+:math:`2\pi` jumps.  For this example::
+
+   >>> Larg = L.subs(s, j * 2 * pi * f).phase
+   >>> degrees(Larg).fval
+   137.27909768641712
+
+As can be seen from the Bode plot for the open-loop response, this
+requires 360 degrees to be removed to unwrap the phase::
+
+   >>> degrees(Larg).fval - 360
+   -222.72090231358288
+
+The phase margin in degrees is thus::
+
+   >>> degrees(Larg).fval - 360 + 180
+   -42.72090231358288
+
+Ideally for stability the phase margin should be greater than 30
+degrees.  In this case the phase margin is negative and the system is
+unstable.
+
+
+The phase crossing frequency (the frequency :math:`f_p` where :math:`\arg{\{L(j 2\pi f_p)\}}=-\pi`) can be found using::
+
+   >>> fp = (Larg + pi).nsolve().fval
+   199497.2021366
+
+The gain margin is defined as
+
+:math:`g = \frac{1}{|L(j 2\pi f_p)|}`
+
+and for this example::
+
+   >>> g = 1 / Labs(fp)
+   0.10400604636858898
+
+This corresponds to a gain margin of close to -20 dB.  Again this indicates the system is unstable.
+
+Another approach to assess the stability of the system is to consider
+the poles of the closed-loop transfer function :ref:`H(s)`.  These can
+be plotted using::
+
+   >>> H.plot()
+
+.. image:: examples/tutorials/opamps/opamp-voltage-follower-C-load-closed-loop-pole-plot1.png
+   :width: 15cm
+
+
+This shows a conjugate pair of poles in the right-hand plane and thus the system is unstable.
+
+   >>> H.poles(aslist=True).cval
+   [(-7911479.419503895+0j),
+    (689115.6402356182-3464126.854501947j),
+    (689115.6402356182+3464126.854501947j)]
+
+   >>> H.is_stable
+   False
+
+
+Voltage follower with load resistor and load capacitor
+------------------------------------------------------
+
+The voltage follower with a capacitor load can be made stable by reducing the feedback ratio or adding a load resistor.  Let's consider the latter approach::
+
+
+   >>> from lcapy import *
+   >>> a = Circuit("""
+   ... E1 1 0 opamp 2 3 A; right, mirror
+   ... R 1 1_1; right
+   ... C 1_1 0_1; down
+   ... W 3 3_1; up=0.75
+   ... W 3_1 3_2; right
+   ... W 3_2 1; down
+   ... W 2_1 2; right
+   ... P1 2_1 0; down""")
+   >>> a.draw()
+
+.. image:: examples/tutorials/opamps/opamp-voltage-follower-RC-load1.png
+   :width: 11cm
+
+The equivalent circuit model including the opamp output resistance is::
+
+   >>> a = Circuit("""
+   ... E1 4 0 2 1 A; down
+   ... Ro 4 1; right
+   ... R 1 1_1; right
+   ... C 1_1 0_1; down
+   ... W 0 0_1; right""")
+
+
+.. image:: examples/tutorials/opamps/opamp-voltage-follower-RC-load-model1.png
+   :width: 7cm
+
+
+The closed-loop transfer function is::
+
+   >>> H = a.transfer(2, 0, 1, 0)
+         A⋅C⋅R⋅s + A
+   ──────────────────────────────
+   A + s⋅(A⋅C⋅R + C⋅R + C⋅Rₒ) + 1
+
+Assuming an opamp output resistance of 40 ohms, a load resistor of 20
+ohms, and a load capacitance of 100 nF, the closed-loop transfer
+function becomes::
+
+   >>> H = H.subs({'A': A, 'Ro': 40, 'R': 20, 'C': 100e-9})
+   >>> H.plot()
+
+.. image:: examples/tutorials/opamps/opamp-voltage-follower-RC-load-closed-loop-pole-plot1.png
+   :width: 15cm
+
+
+This shows all the poles in the left-hand plane and thus the system is
+stable.
+
+   >>> H.poles(aslist=True).cval
+   [(-507594.2161786653+0j),
+    (-2971160.29476033+10990825.587558284j),
+    (-2971160.29476033-10990825.587558284j)]
+
+   >>> H.is_stable
+   True
+
+
+The Bode plot for the open-loop response is:
+
+.. image:: examples/tutorials/opamps/opamp-voltage-follower-RC-load-open-loop1.png
+   :width: 15cm
+
+The addition of a load resistor can be seen to have improved the phase and gain margins.
