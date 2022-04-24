@@ -796,6 +796,8 @@ Miscellaneous
 
 - `multiply_top_and_bottom(expr)` multiplies numerator and denominator by `expr`.
 
+- `nsolve(x0, **kwargs)` returns numerical solution with `x0` as the starting poit close to the solution.
+
 - `parameterize()` parameterizes first, second, and third order rational functions into common forms.   For example::
 
    >>> H, defs = (1 / (5 * s**2 + 10 * s + 20)).parameterize()
@@ -848,6 +850,7 @@ Miscellaneous
 
    >>> (s**2 - 4).solve()
    [-2, 2]
+
 
 - `term_const()` splits expression into constant part and the rest.
 

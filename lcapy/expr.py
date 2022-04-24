@@ -2613,7 +2613,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
          >>> x = symbols('x', positive=False)
          >>> y = x + 3
          >>> y.solve(x)
-         [-3]`"""
+         [-3]`
+
+        See also `nsolve()` for a numerical solver.
+        """
 
         if self.has(AppliedUndef):
             new, defs = self.remove_undefs(return_mappings=True)
@@ -2621,6 +2624,21 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         symbols = [symbol_map(symbol) for symbol in symbols]
         return expr(sym.solve(self.expr, *symbols, **flags))
+
+    def nsolve(self, x0=0, **kwargs):
+        """Solve expression numerically.  This returns a list of solutions.
+        An empty list is returned if no solutions are found.
+
+        `x0` is starting point close to the solution.
+
+        See sympy.solvers.solvers.nsolve for details.
+
+        See also `.solve()` for a symbolic solver.
+
+        """
+        from sympy.solvers.solvers import nsolve
+
+        return expr(nsolve(self.expr, x0, **kwargs))
 
     def split_dirac_delta(self):
         """Return expression as a list of terms.  The first term has no
