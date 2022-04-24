@@ -38,8 +38,11 @@ from warnings import warn
 
 __all__ = ('Schematic', )
 
+# Default dots per inch for png files
+PNG_DPI = 300
 
-def display_matplotlib(filename, dpi=150, scale=2):
+
+def display_matplotlib(filename, dpi=PNG_DPI, scale=2):
 
     from matplotlib.pyplot import figure
     from matplotlib.image import imread
@@ -81,7 +84,7 @@ class SchematicOpts(Opts):
              'annotate_values': False,
              'label_nodes': 'primary',
              'scale': 1.0,
-             'dpi': 150,
+             'dpi': PNG_DPI,
              'cpt_size': 1.5,
              'node_spacing': 2.0,
              'help_lines': 0.0,
@@ -534,7 +537,7 @@ class Schematic(NetfileMixin):
 
         self.debug = kwargs.pop('debug', 0)
         style = kwargs.pop('style', 'american')
-        self.dpi = float(kwargs.pop('dpi', 150))
+        self.dpi = float(kwargs.pop('dpi', PNG_DPI))
         self.cpt_size = float(kwargs.pop('cpt_size', 1.2))
         self.node_spacing = float(kwargs.pop('node_spacing', 2.0))
         self.scale = float(kwargs.pop('scale', 1.0))
@@ -647,7 +650,7 @@ class Schematic(NetfileMixin):
              'all' to show all nodes
            'label_nodes': True to label all nodes,
              False or 'none' to label no nodes,
-             'primary' to label primary nodes,
+             'primary' to label primary nodes (nodes without an underscore),
              'alpha' to label nodes starting with a letter,
              'pins' to label nodes that are pins on a chip,
              'all' to label all nodes,
@@ -657,12 +660,12 @@ class Schematic(NetfileMixin):
            'scale': schematic scale factor, default 1.0
            'node_spacing': spacing between component nodes, default 2.0
            'cpt_size': size of a component, default 1.5
-           'dpi': dots per inch for png files
-           'help_lines': distance between lines in grid, default 0.0 (disabled)
-           'debug': Non-zero to display debug information
+           'dpi': dots per inch for png files, default 300
+           'help_lines': distance between lines in grid, default 0 (disabled)
+           'debug': non-zero to display debug information
         """
 
-        # None means don't care, so remove.
+        # None means don't care, so remove
         for key in list(kwargs.keys()):
             if kwargs[key] is None:
                 kwargs.pop(key)
