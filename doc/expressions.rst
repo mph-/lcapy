@@ -796,7 +796,7 @@ Miscellaneous
 
 - `multiply_top_and_bottom(expr)` multiplies numerator and denominator by `expr`.
 
-- `nsolve(x0, **kwargs)` returns numerical solution with `x0` as the starting poit close to the solution.
+- `nsolve(x0, **kwargs)` returns numerical solution with `x0` as the starting poit close to the solution.  See sympy.solvers.solvers.nsolve for details.
 
 - `parameterize()` parameterizes first, second, and third order rational functions into common forms.   For example::
 
