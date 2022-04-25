@@ -42,8 +42,8 @@ from collections import OrderedDict
 from warnings import warn
 
 
-__all__ = ('expr', 'symbol', 'symbols', 'deg', 'rad', 'degrees',
-           'radians', 'equation', 'difference_equation')
+__all__ = ('expr', 'symbol', 'symbols', 'deg', 'rad',
+           'equation', 'difference_equation')
 
 
 class ExprPrint(object):
@@ -3798,24 +3798,6 @@ def symbols(names, **assumptions):
     if len(symbols) == 1:
         return symbols[0]
     return symbols
-
-
-def radians(arg, **assumptions):
-    """Convert degrees to radians and set units to radians.  See also rad()
-    that sets units as radians."""
-
-    expr1 = expr(arg / 180 * sym.pi, **assumptions)
-    expr1.units = uu.rad
-    return expr1
-
-
-def degrees(arg, **assumptions):
-    """Convert radians to degrees and set units to degrees.  See also deg()
-    that sets units as degrees."""
-
-    expr1 = expr(arg * 180 / sym.pi, **assumptions)
-    expr1.units = uu.deg
-    return expr1
 
 
 def rad(arg, **assumptions):

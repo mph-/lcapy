@@ -12,6 +12,28 @@ from sympy.core.logic import fuzzy_not
 from .config import unitstep_zero
 
 
+class Degrees(sym.Function):
+
+    @classmethod
+    def eval(cls, nval):
+        """
+        Conver radians to degrees.
+        """
+
+        return nval / sym.pi * 180
+
+
+class Radians(sym.Function):
+
+    @classmethod
+    def eval(cls, nval):
+        """
+        Conver degrees to radians.
+        """
+
+        return nval / 180 * sym.pi
+
+
 class UnitImpulse(sym.Function):
 
     is_integer = True

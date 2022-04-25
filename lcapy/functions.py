@@ -16,8 +16,11 @@ __all__ = ('conjugate', 'sqrt', 'exp', 'log', 'log10', 'sin', 'cos',
            'rect', 'sinc', 'sincn', 'sincu', 'psinc', 'tri', 'trap',
            'ramp', 'rampstep', 'Sum', 'dtrect', 'dtsign', 'Piecewise',
            'Eq', 'Ne', 'Lt', 'Le', 'Gt', 'Ge', 'Derivative',
-           'Integral', 'Max', 'Min', 're', 'im', 'MatMul', 'MatAdd')
+           'Integral', 'Max', 'Min', 're', 'im', 'MatMul', 'MatAdd',
+           'degrees', 'radians')
 
+from .extrafunctions import Degrees as Degrees1
+from .extrafunctions import Radians as Radians1
 from .extrafunctions import UnitImpulse as UnitImpulse1
 from .extrafunctions import UnitStep as UnitStep1
 from .extrafunctions import sincn as sincn1
@@ -93,6 +96,10 @@ class Function(object):
             result.units = uu.rad
         elif self.expr == sym.diff and isinstance(e_args[1], Expr):
             result.units = e_args[0].units / e_args[1].units
+        elif self.expr == Degrees1:
+            result.units = uu.deg
+        elif self.expr == Radians1:
+            result.units = uu.rad
         elif self.expr == sym.integrate:
             if isinstance(e_args[1], Expr):
                 result.units = e_args[0].units * e_args[1].units
@@ -178,6 +185,10 @@ acoth = Function(sym.acoth)
 gcd = Function(sym.gcd)
 
 sign = Function(sym.sign)
+
+degrees = Function(Degrees1)
+
+radians = Function(Radians1)
 
 diff = Function(sym.diff)
 
