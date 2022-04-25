@@ -3433,7 +3433,7 @@ def defcpt(name, base, docstring, cpt=None):
     classes[name] = newclass
 
 
-def make(classname, parent, name, cpt_type, cpt_id,
+def make(rule, classname, parent, name, cpt_type, cpt_id,
          string, opts_string, node_names, *args):
 
     # Create instance of component object

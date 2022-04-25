@@ -1959,14 +1959,14 @@ def defcpt(name, base, docstring):
     classes[name] = newclass
 
 
-def make(classname, parent, name, cpt_type, cpt_id,
-         string, opts_string, nodes, *args):
+def make(rule, classname, parent, namespace, defname, name, cpt_type, cpt_id,
+         string, opts_string, nodes, keyword, *args):
 
     # Create instance of component object
     newclass = classes[classname]
 
-    cpt = newclass(parent, name, cpt_type, cpt_id, string, opts_string,
-                   nodes, *args)
+    cpt = newclass(parent, namespace, defname, name, cpt_type, cpt_id, string,
+                   opts_string, nodes, keyword, *args)
 
     return cpt
 

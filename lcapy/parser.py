@@ -214,7 +214,7 @@ class Parser(object):
             else:
                 opts_string = ''
 
-            return self.cpts.make('XX', parent, '', defname, name,
+            return self.cpts.make(None, 'XX', parent, '', defname, name,
                                   cpt_type, cpt_id, string, opts_string, (), '')
 
         net = namespace + net
@@ -278,7 +278,7 @@ class Parser(object):
         keyword = (pos, keyword)
 
         # self.cpts is either the mnacpts or schematic module
-        return self.cpts.make(rule.classname, parent, namespace,
+        return self.cpts.make(rule, rule.classname, parent, namespace,
                               defname, name, cpt_type, cpt_id, net,
                               opts_string, tuple(nodes), keyword,
                               *args)
