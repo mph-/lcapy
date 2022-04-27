@@ -2041,7 +2041,7 @@ due to the RC circuit formed by the opamp output resistance and the load capacit
    >>> G.poles()
    {-250000: 1, -2000000⋅π: 1, -20⋅π: 1}
 
-The gain crossing frequency (the frequency :math:`f_g` where :math:`|L(j 2\pi f_g)|=1` and where :math:`L(j 2\pi f) = \beta(j 2\pi f) G(j 2\pi f)`) can be found using::
+The gain crossover frequency (the frequency :math:`f_g` where :math:`|L(j 2\pi f_g)|=1` and where :math:`L(j 2\pi f) = \beta(j 2\pi f) G(j 2\pi f)`) can be found using::
 
    >>> L = 1 * G
    >>> Labs = abs(L.subs(s, j * 2 * pi * f))
@@ -2056,7 +2056,7 @@ the solver can be slow and a better approach is to do a numerical search::
    >>> fg
    585319.4316569561
 
-Given the gain crossing frequency the phase margin can be found,
+Given the gain crossover frequency the phase margin can be found,
 
 :math:`\phi = \arg{\{L(j2\pi f_g)\}} + \pi`.
 
@@ -2083,7 +2083,7 @@ degrees.  In this case the phase margin is negative and the system is
 unstable.
 
 
-The phase crossing frequency (the frequency :math:`f_p` where :math:`\arg{\{L(j 2\pi f_p)\}}=-\pi`) can be found using::
+The phase crossover frequency (the frequency :math:`f_p` where :math:`\arg{\{L(j 2\pi f_p)\}}=-\pi`) can be found using::
 
    >>> fp = (Larg + pi).nsolve().fval
    199497.2021366

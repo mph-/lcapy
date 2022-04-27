@@ -1,7 +1,7 @@
 """This module performs parsing of SPICE-like netlists.  It uses a
 custom parser rather than lex/yacc to give better error messages.
 
-Copyright 2015--2020 Michael Hayes, UCECE
+Copyright 2015--2022 Michael Hayes, UCECE
 
 """
 
@@ -9,6 +9,18 @@ import re
 
 # Could use a script to generate parser and parsing tables if speed
 # was important.
+
+# Each line of a netlist (called net here) has a name followed by a
+# number of required parameters (params), a number of optional
+# parameters, an optional semicolon, and optional comma separated
+# key-value pairs.
+#
+# Each param can be a node, keyword, name, or value.
+#
+# Here's an example: I1 4 5 {Piecewise((V/L, t >= 0))}; right
+# The name is I1; 4, 5 are nodes; the expression is brackets is a value.
+#
+# The name or value params are referred to as args.
 
 
 def split(s, delimiters):
@@ -39,7 +51,7 @@ def split(s, delimiters):
     return parts
 
 
-class Param(object):
+class Param:
 
     def __init__(self, name, base, comment):
 
@@ -55,7 +67,37 @@ class Param(object):
         return self.baseclass.is_valid(string)
 
 
-class Rule(object):
+class Value:
+
+    def __init__(self, valuestr):
+
+        if valuestr.startswith('['):
+            valuestr = valuestr[1:-1]
+
+        parts = valuestr.split('=')
+        self.name = parts[0]
+        if len(parts) == 1:
+            self.default = None
+        else:
+            self.default = parts[1]
+        self.value = self.default
+        self.assigned = False
+
+
+class Arg:
+
+    def __init__(self, arg):
+
+        if arg[0] in '{"':
+            arg = arg[1:-1]
+        self.value = arg
+
+
+class Args(dict):
+    pass
+
+
+class Rule:
 
     def __init__(self, cpt_type, classname, params, comment, pos):
 
@@ -95,6 +137,7 @@ class Rule(object):
 
             if param[0] == '[':
                 param = param[1:-1]
+            param = param.split('=')[0]
 
             field = fields[m]
 
@@ -110,8 +153,66 @@ class Rule(object):
 
         return tuple(nodes), args
 
+    def parse_args(self, paramdict, net, args):
 
-class Parser(object):
+        args_dict = Args()
+
+        values = []
+        names = []
+
+        # Determine parameters and default values
+        for param in self.params:
+            value = Value(param)
+            if (paramdict[value.name].base != 'value' and
+                    paramdict[value.name].base != 'name'):
+                continue
+            values.append(value)
+            names.append(value.name)
+            args_dict[value.name] = value.default
+
+        args_list = []
+
+        # Handle unnamed params
+        m = 0
+        for arg in args:
+            parts = split(arg, '=')
+            if len(parts) > 1:
+                break
+            args_list.append(arg)
+            values[m].assigned = True
+            value = Arg(arg).value
+            values[m].value = value
+            args_dict[values[m].name] = value
+            m += 1
+
+        # Handle named params
+        for arg in args[m:]:
+            parts = split(arg, '=')
+            if len(parts) < 2:
+                self.syntax_error(
+                    'Cannot have value %s after named param' % arg, net)
+            parts = split(arg, '=')
+            index = names.index(parts[0])
+            if index < 0:
+                self.syntax_error('Unknown param ' + parts[0], net)
+            if values[index].assigned:
+                self.syntax_error('Value %s already assigned' % parts[0], net)
+            values[index].assigned = True
+            arg = parts[1]
+            args_dict[parts[0]] = Arg(arg).value
+
+        args_list = []
+        ignore = True
+        for value in values[::-1]:
+            if ignore and not value.assigned:
+                continue
+            ignore = False
+            args_list.insert(0, value.value)
+
+        return args_dict, args_list
+
+
+class Parser:
 
     def __init__(self, cpts, grammar, allow_anon=False):
         """cpts is a module containing a class for each component
@@ -177,6 +278,8 @@ class Parser(object):
         for m, param in enumerate(params):
             if param[0] == '[':
                 param = param[1:-1]
+            # Ignore default value
+            param = param.split('=')[0]
             if param not in self.paramdict:
                 raise ValueError('Unknown parameter %s for %s' %
                                  (param, string))
@@ -214,18 +317,14 @@ class Parser(object):
             else:
                 opts_string = ''
 
-            return self.cpts.make(None, 'XX', parent, '', defname, name,
-                                  cpt_type, cpt_id, string, opts_string, (), '')
+            return self.cpts.make('XX', parent, '', defname, name,
+                                  cpt_type, cpt_id, string, opts_string, (), '',
+                                  Args())
 
         net = namespace + net
         parts = net.split(';', 1)
 
         fields = split(parts[0], self.delimiters)
-
-        # Strip {} and "".
-        for m, field in enumerate(fields):
-            if field[0] in '{"':
-                fields[m] = fields[m][1:-1]
 
         name = fields.pop(0)
         parts = name.split('.')
@@ -272,13 +371,15 @@ class Parser(object):
         nodes, args = rule.process(self.paramdict, net, fields, name,
                                    namespace)
 
+        args_dict, args_list = rule.parse_args(self.paramdict, net, args)
+
         parts = net.split(';', 1)
         opts_string = parts[1].strip() if len(parts) > 1 else ''
 
         keyword = (pos, keyword)
 
         # self.cpts is either the mnacpts or schematic module
-        return self.cpts.make(rule, rule.classname, parent, namespace,
+        return self.cpts.make(rule.classname, parent, namespace,
                               defname, name, cpt_type, cpt_id, net,
                               opts_string, tuple(nodes), keyword,
-                              *args)
+                              args_dict, *args_list)

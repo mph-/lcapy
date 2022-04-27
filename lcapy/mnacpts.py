@@ -52,7 +52,7 @@ class Cpt(ImmittanceMixin):
     is_transformer = False
 
     def __init__(self, cct, namespace, defname, name, cpt_type, cpt_id, string,
-                 opts_string, nodes, keyword, *args):
+                 opts_string, nodes, keyword, args_dict, *args):
 
         self.cct = cct
         self.type = cpt_type
@@ -81,6 +81,7 @@ class Cpt(ImmittanceMixin):
         self.classname = self.__class__.__name__
         self.keyword = keyword
         self.opts = Opts(opts_string)
+        self.args_dict = args_dict
 
         self.nosim = 'nosim' in self.opts
 
@@ -94,11 +95,6 @@ class Cpt(ImmittanceMixin):
                 or (self.type == 'K' and len(args) == 2)):
             # Default value is the component name
             value = self.type + self.id
-
-            if False and self.type in ('V', 'I') and keyword[1] == '':
-                # This is too subtle and creates havoc with
-                # the expected behaviour of subs.
-                value = value[0].lower() + value[1:] + '(t)'
 
             args += (value, )
             self.args = args
@@ -1317,13 +1313,13 @@ class I(IndependentSource):
 class K(Dummy):
 
     def __init__(self, cct, namespace, defname, name, cpt_type, cpt_id, string,
-                 opts_string, nodes, keyword, *args):
+                 opts_string, nodes, keyword, args_dict, *args):
 
         self.Lname1 = args[0]
         self.Lname2 = args[1]
         super(K, self).__init__(cct, namespace, defname, name,
                                 cpt_type, cpt_id, string,
-                                opts_string, nodes, keyword, *args)
+                                opts_string, nodes, keyword, args_dict, *args)
 
     def _stamp(self, mna):
         from .sym import ssym
@@ -1959,14 +1955,14 @@ def defcpt(name, base, docstring):
     classes[name] = newclass
 
 
-def make(rule, classname, parent, namespace, defname, name, cpt_type, cpt_id,
-         string, opts_string, nodes, keyword, *args):
+def make(classname, parent, namespace, defname, name, cpt_type, cpt_id,
+         string, opts_string, nodes, keyword, args_dict, *args):
 
     # Create instance of component object
     newclass = classes[classname]
 
     cpt = newclass(parent, namespace, defname, name, cpt_type, cpt_id, string,
-                   opts_string, nodes, keyword, *args)
+                   opts_string, nodes, keyword, args_dict, *args)
 
     return cpt
 
