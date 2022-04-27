@@ -19,10 +19,10 @@ rules = r"""
 A: Aname Np; Annotation
 ADC: ADCname Np Nm; ADC
 AM: AMname Np Nm; Ammeter
-BAT: BATname Np Nm [Value]; Battery
-C: Cname Np Nm [Value] [IC]; Capacitor
+BAT: BATname Np Nm [Value=name]; Battery
+C: Cname Np Nm [Value=name] [IC]; Capacitor
 Cable: Cablename; Cable
-CPE: CPEname Np Nm [Value] [Power]; Constant phase element
+CPE: CPEname Np Nm [Value=name] [Power]; Constant phase element
 D: Dname Np Nm; Diode
 DAC: DACname Np Nm; DAC
 Dled: Dname Np Nm led; Light emitting diode
@@ -30,50 +30,50 @@ Dzener: Dname Np Nm zener; Zener diode
 Dphoto: Dname Np Nm photo; Photo diode
 Dtunnel: Dname Np Nm tunnel; Tunnel diode
 Dschottky: Dname Np Nm schottky; Schottky diode
-E: Ename Np Nm Ncp Ncm [Value] [Ac=0]; Voltage controlled voltage source
-VCVS: VCVSname Np Nm Ncp Ncm [Value]; Voltage controlled voltage source
-Eopamp: Ename Np Nm opamp Ncp Ncm [Ad] [Ac=0]; Opamp
-Efdopamp: Ename Np Nm fdopamp Ncp Ncm Nocm [Ad] [Ac=0]; Fully differential opamp
-Einamp: Ename Np Nm inamp Ncp Ncm NRp NRm [Ad] [Ac=0] [Rf]; Instrumentation opamp
-Eamp: Ename Np Nm amp Ncp Ncm [Ad] [Ac=0]; Amplifier
-F: Fname Np Nm Vcontrol [Value]; Current controlled current source (note the control current is specified through a voltage source)
-CCCS: CCCSname Np Nm Vcontrol [Value]; Current controlled current source (note the control current is specified through a voltage source)
+E: Ename Np Nm Ncp Ncm [Value=name] [Ac=0]; Voltage controlled voltage source
+VCVS: VCVSname Np Nm Ncp Ncm [Value=name]; Voltage controlled voltage source
+Eopamp: Ename Np Nm opamp Ncp Ncm [Ad=name] [Ac=0]; Opamp
+Efdopamp: Ename Np Nm fdopamp Ncp Ncm Nocm [Ad=name] [Ac=0]; Fully differential opamp
+Einamp: Ename Np Nm inamp Ncp Ncm NRp NRm [Ad=name] [Ac=0] [Rf]; Instrumentation opamp
+Eamp: Ename Np Nm amp Ncp Ncm [Ad=name] [Ac=0]; Amplifier
+F: Fname Np Nm Vcontrol [Value=name]; Current controlled current source (note the control current is specified through a voltage source)
+CCCS: CCCSname Np Nm Vcontrol [Value=name]; Current controlled current source (note the control current is specified through a voltage source)
 FB: FBname Np Nm; Ferrite bead
 FS: FSname Np Nm; Fuse
-G: Gname Np Nm Ncp Ncm [Value]; Voltage controlled current source
-VCCS: VCCSname Np Nm Ncp Ncm [Value]; Voltage controlled current source
-GY: GYname Np Nm Ncp Ncm [Value]; Gyrator
-H: Hname Np Nm Vcontrol [Value]; Current controlled voltage source (note the control current is specified through a voltage source)
-CCVS: CCVSname Np Nm Vcontrol [Value]; Current controlled voltage source (note the control current is specified through a voltage source)
-I: Iname Np Nm [Value]; Current source
-sI: Iname Np Nm s [Value]; s-domain current source
-Idc: Iname Np Nm dc [Value]; DC current source
-Istep: Iname Np Nm step [Value]; Step current source
-Iac: Iname Np Nm ac [Value] [Phase] [Freq]; AC current source
+G: Gname Np Nm Ncp Ncm [Value=name]; Voltage controlled current source
+VCCS: VCCSname Np Nm Ncp Ncm [Value=name]; Voltage controlled current source
+GY: GYname Np Nm Ncp Ncm [Value=name]; Gyrator
+H: Hname Np Nm Vcontrol [Value=name]; Current controlled voltage source (note the control current is specified through a voltage source)
+CCVS: CCVSname Np Nm Vcontrol [Value=name]; Current controlled voltage source (note the control current is specified through a voltage source)
+I: Iname Np Nm [Value=name]; Current source
+sI: Iname Np Nm s [Value=name]; s-domain current source
+Idc: Iname Np Nm dc [Value=name]; DC current source
+Istep: Iname Np Nm step [Value=name]; Step current source
+Iac: Iname Np Nm ac [Value=name] [Phase] [Freq]; AC current source
 Isin: Iname Np Nm sin Io Ia fo [td] [alpha] [Phase]; Sinusoidal current source
-Inoise: Iname Np Nm noise [Value] [NID]; Noise current source
-J: Jname Nd Ng Ns [Value]; N channel JFET
-Jnjf: Jname Nd Ng Ns njf [Value]; N channel JFET
-Jpjf: Jname Nd Ng Ns pjf [Value]; P channel JFET
-k: kname Np Nm [Value] [IC]; Spring
-K: Kname Lname1 Lname2 [Value]; Mutual inductance (L1 on left, L2 on right)
-L: Lname Np Nm [Value] [IC]; Inductance
-m: mname Np Nm [Value] [IC]; Mass
-M: Mname Nd Ng Ns [Value]; N channel MOSFET
-Mnmos: Mname Nd Ng Ns nmos [Value]; N channel MOSFET
-Mpmos: Mname Nd Ng Ns pmos [Value]; P channel MOSFET
+Inoise: Iname Np Nm noise [Value=name] [NID]; Noise current source
+J: Jname Nd Ng Ns [Value=name]; N channel JFET
+Jnjf: Jname Nd Ng Ns njf [Value=name]; N channel JFET
+Jpjf: Jname Nd Ng Ns pjf [Value=name]; P channel JFET
+k: kname Np Nm [Value=name] [IC]; Spring
+K: Kname Lname1 Lname2 [Value=name]; Mutual inductance (L1 on left, L2 on right)
+L: Lname Np Nm [Value=name] [IC]; Inductance
+m: mname Np Nm [Value=name] [IC]; Mass
+M: Mname Nd Ng Ns [Value=name]; N channel MOSFET
+Mnmos: Mname Nd Ng Ns nmos [Value=name]; N channel MOSFET
+Mpmos: Mname Nd Ng Ns pmos [Value=name]; P channel MOSFET
 MISC: MISCname Np Nm; Miscellaneous circuitikz bipole
 MT: MTname Np Nm; Motor
 MX: MXname P P P; Mixer
-NR: NRname Np Nm [Value]; Noiseless resistor
+NR: NRname Np Nm [Value=name]; Noiseless resistor
 O: Oname Np Np; Open circuit
 P: Pname Np Np; Port
-Q: Qname Nc Nb Ne [Value]; NPN transistor
-Qnpn: Qname Nc Nb Ne npn [Value]; NPN transistor
-Qpnp: Qname Nc Nb Ne pnp [Value]; PNP transistor
-r: rname Np Nm [Value]; Damper
-R: Rname Np Nm [Value]; Resistor
-RV: RVname Np Nm No [Value] [Value]; Potentiometer
+Q: Qname Nc Nb Ne [Value=name]; NPN transistor
+Qnpn: Qname Nc Nb Ne npn [Value=name]; NPN transistor
+Qpnp: Qname Nc Nb Ne pnp [Value=name]; PNP transistor
+r: rname Np Nm [Value=name]; Damper
+R: Rname Np Nm [Value=name]; Resistor
+RV: RVname Np Nm No [Value=name] [Value=name]; Potentiometer
 Sbox: Sname box; Box
 Scircle: Sname circle; Circle
 Sellipse: Sname ellipse; Ellipse
@@ -87,10 +87,10 @@ SWnc: SWname Np Nm nc; Switch normally closed
 SWno: SWname Np Nm no; Switch normally open
 SWpush: SWname Np Nm push; Pushbutton switch
 SWspdt: SWname Nc Np Nm spdt; SPDT switch
-TF: TFname Np Nm Ncp Ncm [Value]; Ideal transformer (works to DC!)
-TFcore: TFname Np Nm Ncp Ncm core [Value]; Transformer with core (works to DC!)
-TFtap: TFname Np Nm Ncp Ncm tap Nt Nt [Value]; Tapped transformer (works to DC!)
-TFtapcore: TFname Np Nm Ncp Ncm tapcore Nt Nt [Value]; Tapped transformer with core (works to DC!)
+TF: TFname Np Nm Ncp Ncm [Value=name]; Ideal transformer (works to DC!)
+TFcore: TFname Np Nm Ncp Ncm core [Value=name]; Transformer with core (works to DC!)
+TFtap: TFname Np Nm Ncp Ncm tap Nt Nt [Value=name]; Tapped transformer (works to DC!)
+TFtapcore: TFname Np Nm Ncp Ncm tapcore Nt Nt [Value=name]; Tapped transformer with core (works to DC!)
 TL: TLname Np Nm Ncp Ncm [Z0] [Gamma] [Length]; Transmission line
 TLlossless: TLname Np Nm Ncp Ncm lossless [Z0] [Gamma] [Length]; Lossless transmission line
 TP: TPname Np Nm Ncp Ncm; Generic two-port
@@ -100,7 +100,7 @@ TPG: TPname Np Nm Ncp Ncm G G11 G12 G21 G22 [I1] [V2]; G-parameter two-port
 TPH: TPname Np Nm Ncp Ncm H H11 H12 H21 H22 [V1] [I2]; H-parameter two-port
 TPY: TPname Np Nm Ncp Ncm Y Y11 Y12 Y21 Y22 [I1] [I2]; Y-parameter two-port
 TPZ: TPname Np Nm Ncp Ncm Z Z11 Z12 Z21 Z22 [V1] [V2]; Z-parameter two-port
-TR: TRname Pi Po [Value]; Transfer function
+TR: TRname Pi Po [Value=name]; Transfer function
 TVtriode: TVname Nanode Ngrid Ncathode [mu] [gm] [Cgk] [Cga]; Thermionic valve triode
 Ubuffer: Uname buffer; Buffer
 Uinverter: Uname inverter; Inverter
@@ -133,18 +133,18 @@ Umux42: Uname mux42; 4-2 multiplexer
 Udff: Uname dff; D flip/flop
 Ujkff: Uname jkff; D flip/flop
 Urslatch: Uname rslatch; RS latch
-V: Vname Np Nm [Value]; Voltage source
-sV: Vname Np Nm s [Value]; s-domain voltage source
-Vdc: Vname Np Nm dc [Value]; DC voltage source
-Vstep: Vname Np Nm step [Value]; Step voltage source
-Vac: Vname Np Nm ac [Value] [Phase] [Freq]; AC voltage source
+V: Vname Np Nm [Value=name]; Voltage source
+sV: Vname Np Nm s [Value=name]; s-domain voltage source
+Vdc: Vname Np Nm dc [Value=name]; DC voltage source
+Vstep: Vname Np Nm step [Value=name]; Step voltage source
+Vac: Vname Np Nm ac [Value=name] [Phase] [Freq]; AC voltage source
 Vsin: Vname Np Nm sin Vo Va fo [td] [alpha] [Phase]; Sinusoidal voltage source
-Vnoise: Vname Np Nm noise [Value] [NID]; Noise voltage source
+Vnoise: Vname Np Nm noise [Value=name] [NID]; Noise voltage source
 VM: VMname Np Nm; Voltmeter
 W: Wname Np Np; Wire
 XT: XTname Np Nm; Crystal
-Y: Yname Np Np [Value]; Admittance
-Z: Zname Np Np [Value]; Impedance
+Y: Yname Np Np [Value=name]; Admittance
+Z: Zname Np Np [Value=name]; Impedance
 """
 
 params = r"""

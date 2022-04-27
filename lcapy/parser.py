@@ -51,7 +51,7 @@ def split(s, delimiters):
     return parts
 
 
-class Param:
+class ParamDef:
 
     def __init__(self, name, base, comment):
 
@@ -67,21 +67,44 @@ class Param:
         return self.baseclass.is_valid(string)
 
 
-class Value:
+class Param:
 
-    def __init__(self, valuestr):
+    def __init__(self, paramstr, paramdict):
 
-        if valuestr.startswith('['):
-            valuestr = valuestr[1:-1]
+        self.optional = paramstr[0] == '['
 
-        parts = valuestr.split('=')
+        if self.optional:
+            paramstr = paramstr[1:-1]
+
+        parts = paramstr.split('=')
         self.name = parts[0]
+
+        if self.name not in paramdict:
+            raise ValueError('Unknown parameter ' + self.name)
+        self.kind = paramdict[self.name].base
+
         if len(parts) == 1:
             self.default = None
         else:
             self.default = parts[1]
-        self.value = self.default
+
+        self.lowercase_name = self.name.lower()
+
+
+class Value:
+
+    def __init__(self, param, name):
+        """Set default value."""
+
+        self.name = param.name
         self.assigned = False
+
+        if param.default == 'name':
+            default = name
+        else:
+            default = param.default
+        self.default = default
+        self.value = default
 
 
 class Arg:
@@ -99,61 +122,75 @@ class Args(dict):
 
 class Rule:
 
-    def __init__(self, cpt_type, classname, params, comment, pos):
+    def __init__(self, cpt_type, classname, fields, params, comment, pos):
 
         self.type = cpt_type
         self.classname = classname
+        self.fields = fields
         self.params = params
         self.comment = comment
         self.pos = pos
 
     def __repr__(self):
 
-        return self.type + 'name ' + ' '.join(self.params)
+        return self.type + 'name ' + ' '.join(self.fields[1:])
 
     def syntax_error(self, error, string):
 
         raise ValueError('Syntax error: %s when parsing %s\nExpected format: %s' % (
             error, string, repr(self)))
 
-    def process(self, paramdict, string, fields, name, namespace):
+    def extract_nodes(self, string, fields, name, namespace):
 
-        params = self.params
-        if len(fields) > len(params):
+        ruleparams = self.params
+        nodes = []
+
+        for m, ruleparam in enumerate(ruleparams):
+
+            if ruleparam.kind not in ('pin', 'node'):
+                continue
+
+            if m >= len(fields):
+                self.syntax_error('Missing node %s' % ruleparam.name, string)
+
+            field = fields[m]
+            if field[0] == '.':
+                # Note, name contains namespace
+                field = name + field
+            else:
+                field = namespace + field
+            nodes.append(field)
+
+        return tuple(nodes)
+
+    def process(self, string, fields, name, namespace):
+
+        ruleparams = self.params
+        if len(fields) > len(ruleparams):
             extra = ''
             if '(' in string:
                 extra = ' (perhaps enclose expressions with parentheses in {})'
             self.syntax_error('Too many args' + extra, string)
 
-        nodes = []
+        nodes = self.extract_nodes(string, fields, name, namespace)
+
         args = []
-        for m, param in enumerate(params):
+        for m, ruleparam in enumerate(ruleparams):
+
+            if ruleparam.kind not in ('name', 'value'):
+                continue
 
             if m >= len(fields):
-                # Optional argument
-                if param[0] == '[':
+                if ruleparam.optional:
                     break
-                self.syntax_error('Missing arg %s' % param, string)
-
-            if param[0] == '[':
-                param = param[1:-1]
-            param = param.split('=')[0]
+                self.syntax_error('Missing arg %s' % ruleparam, string)
 
             field = fields[m]
+            args.append(field)
 
-            if paramdict[param].base in ('pin', 'node'):
-                if field[0] == '.':
-                    # Note, name contains namespace
-                    field = name + field
-                else:
-                    field = namespace + field
-                nodes.append(field)
-            elif paramdict[param].base != 'keyword':
-                args.append(field)
+        return nodes, args
 
-        return tuple(nodes), args
-
-    def parse_args(self, paramdict, net, args):
+    def parse_args(self, net, name, args):
 
         args_dict = Args()
 
@@ -162,10 +199,10 @@ class Rule:
 
         # Determine parameters and default values
         for param in self.params:
-            value = Value(param)
-            if (paramdict[value.name].base != 'value' and
-                    paramdict[value.name].base != 'name'):
+            if (param.kind != 'value' and param.kind != 'name'):
                 continue
+            value = Value(param, name)
+
             values.append(value)
             names.append(value.name)
             args_dict[value.name] = value.default
@@ -255,7 +292,7 @@ class Parser:
         parambase = fields[0].strip()
         comment = fields[1].strip()
 
-        self.paramdict[paramname] = Param(paramname, parambase, comment)
+        self.paramdict[paramname] = ParamDef(paramname, parambase, comment)
 
     def _add_rule(self, string):
 
@@ -269,26 +306,22 @@ class Parser:
         comment = fields[1].strip()
 
         fields = string.split(' ')
-        params = fields[1:]
 
         # Skip the name part in the rule, e.g., only consider D from Dname.
         cpt_type = fields[0][0:-4]
 
         pos = None
-        for m, param in enumerate(params):
-            if param[0] == '[':
-                param = param[1:-1]
-            # Ignore default value
-            param = param.split('=')[0]
-            if param not in self.paramdict:
-                raise ValueError('Unknown parameter %s for %s' %
-                                 (param, string))
-            if pos is None and self.paramdict[param].base == 'keyword':
+        params = []
+        for m, paramstr in enumerate(fields[1:]):
+
+            param = Param(paramstr, self.paramdict)
+            params.append(param)
+            if pos is None and param.kind == 'keyword':
                 pos = m
 
         if cpt_type not in self.ruledict:
             self.ruledict[cpt_type] = ()
-        self.ruledict[cpt_type] += (Rule(cpt_type, cpt_classname,
+        self.ruledict[cpt_type] += (Rule(cpt_type, cpt_classname, fields,
                                          params, comment, pos), )
 
     def parse(self, string, namespace='', parent=None):
@@ -354,7 +387,7 @@ class Parser:
             pos = rule1.pos
             if pos is None:
                 continue
-            if len(fields) > pos and fields[pos].lower() == rule1.params[pos].lower():
+            if len(fields) > pos and fields[pos].lower() == rule1.params[pos].lowercase_name:
                 rule = rule1
                 keyword = rule1.params[pos]
                 break
@@ -368,10 +401,10 @@ class Parser:
             # Automatically name cpts to ensure they are unique
             name = name[:-1] + parent._make_anon_cpt_id(cpt_type)
 
-        nodes, args = rule.process(self.paramdict, net, fields, name,
-                                   namespace)
+        nodes, args = rule.process(net, fields, name, namespace)
 
-        args_dict, args_list = rule.parse_args(self.paramdict, net, args)
+        default_value = cpt_type + cpt_id
+        args_dict, args_list = rule.parse_args(net, default_value, args)
 
         parts = net.split(';', 1)
         opts_string = parts[1].strip() if len(parts) > 1 else ''

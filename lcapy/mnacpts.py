@@ -77,7 +77,6 @@ class Cpt(ImmittanceMixin):
         self._string = string
         # self.net = string.split(';')[0]
         self.args = args
-        self.explicit_args = args
         self.classname = self.__class__.__name__
         self.keyword = keyword
         self.opts = Opts(opts_string)
@@ -210,12 +209,7 @@ class Cpt(ImmittanceMixin):
                 string += ' ' + self.keyword[1]
                 field += 1
 
-        if subs_dict is None:
-            args = self.explicit_args
-        else:
-            args = self.args
-
-        for arg in args:
+        for arg in self.args:
             if zero:
                 arg = 0
             elif subs_dict is not None:
@@ -227,7 +221,7 @@ class Cpt(ImmittanceMixin):
             if field == self.keyword[0]:
                 string += ' ' + self.keyword[1]
 
-        if len(args) == 0 and self.keyword[0] == 0:
+        if len(self.args) == 0 and self.keyword[0] == 0:
             string += ' ' + self.keyword[1]
 
         opts_str = str(self.opts).strip()
@@ -1383,7 +1377,7 @@ class L(RLC):
 
         return rnet + '\n' + vnet
 
-    @ property
+    @property
     def I0(self):
         """Initial current (for capacitors only)."""
 
@@ -1391,7 +1385,7 @@ class L(RLC):
             return current(self.cpt.i0 / s)
         return current(0)
 
-    @ property
+    @property
     def L(self):
         return self.cpt.L
 
@@ -1444,11 +1438,11 @@ class O(Dummy):
     def _stamp(self, mna):
         pass
 
-    @ property
+    @property
     def I(self):
         return SuperpositionCurrent(0)
 
-    @ property
+    @property
     def i(self):
         return SuperpositionCurrent(0)(t)
 
@@ -1911,12 +1905,12 @@ class W(Dummy):
     def _stamp(self, mna):
         pass
 
-    @ property
+    @property
     def I(self):
         raise ValueError(
             'Cannot determine current through wire, use a 0 V voltage source')
 
-    @ property
+    @property
     def i(self):
         raise ValueError(
             'Cannot determine current through wire, use a 0 V voltage source')
