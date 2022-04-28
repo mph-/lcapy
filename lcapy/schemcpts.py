@@ -113,7 +113,7 @@ class Cpt(object):
         return self.name.replace('.', '@')
 
     def __init__(self, sch, namespace, defname, name, cpt_type, cpt_id, string,
-                 opts_string, node_names, keyword, args_dict, *args):
+                 opts_string, node_names, keyword, *args):
 
         self.sch = sch
         self.type = cpt_type
@@ -3434,7 +3434,7 @@ def defcpt(name, base, docstring, cpt=None):
 
 
 def make(classname, parent, name, cpt_type, cpt_id,
-         string, opts_string, node_names, args_dict, *args):
+         string, opts_string, node_names, *args):
 
     # Create instance of component object
     try:
@@ -3443,7 +3443,7 @@ def make(classname, parent, name, cpt_type, cpt_id,
         newclass = classes[classname]
 
     cpt = newclass(parent, name, cpt_type, cpt_id, string, opts_string,
-                   node_names, args_dict, *args)
+                   node_names, *args)
     # Add named attributes for the args?   Lname1, etc.
 
     return cpt

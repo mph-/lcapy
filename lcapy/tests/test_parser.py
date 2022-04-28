@@ -35,7 +35,21 @@ def test_Exception3():
 def test_Exception4():
     '''Test unknown component'''
 
-    parse('A1 1 2')
+    parse('B1 1 2')
+
+
+@raises(ValueError)
+def test_Exception5():
+    '''Test arg reassignment'''
+
+    parse('E1 1 2 opamp 3 4 A Ad=10')
+
+
+@raises(ValueError)
+def test_Exception6():
+    '''Test unknown arg'''
+
+    parse('V1 1 2 foo=3')
 
 
 def test_V1():

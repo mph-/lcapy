@@ -91,7 +91,7 @@ class Param:
         self.lowercase_name = self.name.lower()
 
 
-class Value:
+class Arg:
 
     def __init__(self, param, name):
         """Set default value."""
@@ -103,21 +103,28 @@ class Value:
             default = name
         else:
             default = param.default
-        self.default = default
         self.value = default
 
+    def assign(self, value):
 
-class Arg:
+        if self.assigned:
+            raise ValueError('Param %s already assigned' % self.name)
 
-    def __init__(self, arg):
+        if value[0] in '{"':
+            value = value[1:-1]
+        self.value = value
+        self.assigned = True
 
-        if arg[0] in '{"':
-            arg = arg[1:-1]
-        self.value = arg
 
+class Args(list):
 
-class Args(dict):
-    pass
+    def index(self, name):
+
+        name = name.lower()
+        for m, arg in enumerate(self):
+            if arg.name.lower() == name:
+                return m
+        return -1
 
 
 class Rule:
@@ -163,7 +170,50 @@ class Rule:
 
         return tuple(nodes)
 
-    def process(self, string, fields, name, namespace):
+    def extract_args(self, string, fields, name, namespace, default_value):
+
+        args = Args()
+        m2 = 0
+        for m, ruleparam in enumerate(self.params):
+
+            if ruleparam.kind not in ('name', 'value'):
+                m2 = m + 1
+                continue
+
+            if m >= len(fields):
+                if not ruleparam.optional:
+                    self.syntax_error('Missing arg %s' % ruleparam, string)
+
+            args.append(Arg(ruleparam, default_value))
+
+        # Handle unnamed params
+        m = 0
+        for field in fields[m2:]:
+            parts = split(field, '=')
+            if len(parts) > 1:
+                break
+            args[m].assign(field)
+            m += 1
+
+        # Handle named params
+        for field in fields[m2 + m:]:
+            parts = split(field, '=')
+            if len(parts) < 2:
+                self.syntax_error(
+                    'Cannot have value %s after named param' % field, string)
+            parts = split(field, '=')
+
+            index = args.index(parts[0])
+            if index < 0:
+                self.syntax_error('Unknown param ' + parts[0], string)
+
+            args[index].assign(parts[1])
+
+        args = [arg.value for arg in args]
+
+        return args
+
+    def process(self, string, fields, name, namespace, default_value):
 
         ruleparams = self.params
         if len(fields) > len(ruleparams):
@@ -174,79 +224,10 @@ class Rule:
 
         nodes = self.extract_nodes(string, fields, name, namespace)
 
-        args = []
-        for m, ruleparam in enumerate(ruleparams):
-
-            if ruleparam.kind not in ('name', 'value'):
-                continue
-
-            if m >= len(fields):
-                if ruleparam.optional:
-                    break
-                self.syntax_error('Missing arg %s' % ruleparam, string)
-
-            field = fields[m]
-            args.append(field)
+        args = self.extract_args(string, fields, name,
+                                 namespace, default_value)
 
         return nodes, args
-
-    def parse_args(self, net, name, args):
-
-        args_dict = Args()
-
-        values = []
-        names = []
-
-        # Determine parameters and default values
-        for param in self.params:
-            if (param.kind != 'value' and param.kind != 'name'):
-                continue
-            value = Value(param, name)
-
-            values.append(value)
-            names.append(value.name)
-            args_dict[value.name] = value.default
-
-        args_list = []
-
-        # Handle unnamed params
-        m = 0
-        for arg in args:
-            parts = split(arg, '=')
-            if len(parts) > 1:
-                break
-            args_list.append(arg)
-            values[m].assigned = True
-            value = Arg(arg).value
-            values[m].value = value
-            args_dict[values[m].name] = value
-            m += 1
-
-        # Handle named params
-        for arg in args[m:]:
-            parts = split(arg, '=')
-            if len(parts) < 2:
-                self.syntax_error(
-                    'Cannot have value %s after named param' % arg, net)
-            parts = split(arg, '=')
-            index = names.index(parts[0])
-            if index < 0:
-                self.syntax_error('Unknown param ' + parts[0], net)
-            if values[index].assigned:
-                self.syntax_error('Value %s already assigned' % parts[0], net)
-            values[index].assigned = True
-            arg = parts[1]
-            args_dict[parts[0]] = Arg(arg).value
-
-        args_list = []
-        ignore = True
-        for value in values[::-1]:
-            if ignore and not value.assigned:
-                continue
-            ignore = False
-            args_list.insert(0, value.value)
-
-        return args_dict, args_list
 
 
 class Parser:
@@ -401,10 +382,8 @@ class Parser:
             # Automatically name cpts to ensure they are unique
             name = name[:-1] + parent._make_anon_cpt_id(cpt_type)
 
-        nodes, args = rule.process(net, fields, name, namespace)
-
         default_value = cpt_type + cpt_id
-        args_dict, args_list = rule.parse_args(net, default_value, args)
+        nodes, args = rule.process(net, fields, name, namespace, default_value)
 
         parts = net.split(';', 1)
         opts_string = parts[1].strip() if len(parts) > 1 else ''
@@ -415,4 +394,4 @@ class Parser:
         return self.cpts.make(rule.classname, parent, namespace,
                               defname, name, cpt_type, cpt_id, net,
                               opts_string, tuple(nodes), keyword,
-                              args_dict, *args_list)
+                              *args)

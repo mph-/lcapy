@@ -29,7 +29,7 @@ __all__ = ()
 
 module = sys.modules[__name__]
 
-cptaliases = {'E': 'VCVS', 'F': 'CCCS',
+cptaliases = {'F': 'CCCS',
               'G': 'VCCS',  'H': 'CCVS',
               'r': 'Damper', 'm': 'Mass',
               'k': 'Spring'}
@@ -52,7 +52,7 @@ class Cpt(ImmittanceMixin):
     is_transformer = False
 
     def __init__(self, cct, namespace, defname, name, cpt_type, cpt_id, string,
-                 opts_string, nodes, keyword, args_dict, *args):
+                 opts_string, nodes, keyword, *args):
 
         self.cct = cct
         self.type = cpt_type
@@ -80,7 +80,6 @@ class Cpt(ImmittanceMixin):
         self.classname = self.__class__.__name__
         self.keyword = keyword
         self.opts = Opts(opts_string)
-        self.args_dict = args_dict
 
         self.nosim = 'nosim' in self.opts
 
@@ -88,15 +87,6 @@ class Cpt(ImmittanceMixin):
         if self.type in ('XX', 'Cable') or self.nosim:
             self._cpt = lcapy.oneport.Dummy()
             return
-
-        if ((args == () and not self.type in ('W', 'O', 'P', 'TP', 'TL'))
-            or (self.type in ('F', 'H', 'CCCS', 'CCVS') and len(args) == 1)
-                or (self.type == 'K' and len(args) == 2)):
-            # Default value is the component name
-            value = self.type + self.id
-
-            args += (value, )
-            self.args = args
 
         classname = self.classname
         # Handle aliases.
@@ -1021,6 +1011,10 @@ class VCVS(DependentSource):
         return self._netmake_W(opts=newopts)
 
 
+class E(VCVS):
+    pass
+
+
 class Efdopamp(DependentSource):
     """Fully differential opamp"""
 
@@ -1307,13 +1301,13 @@ class I(IndependentSource):
 class K(Dummy):
 
     def __init__(self, cct, namespace, defname, name, cpt_type, cpt_id, string,
-                 opts_string, nodes, keyword, args_dict, *args):
+                 opts_string, nodes, keyword, *args):
 
         self.Lname1 = args[0]
         self.Lname2 = args[1]
         super(K, self).__init__(cct, namespace, defname, name,
                                 cpt_type, cpt_id, string,
-                                opts_string, nodes, keyword, args_dict, *args)
+                                opts_string, nodes, keyword, *args)
 
     def _stamp(self, mna):
         from .sym import ssym
@@ -1950,13 +1944,13 @@ def defcpt(name, base, docstring):
 
 
 def make(classname, parent, namespace, defname, name, cpt_type, cpt_id,
-         string, opts_string, nodes, keyword, args_dict, *args):
+         string, opts_string, nodes, keyword, *args):
 
     # Create instance of component object
     newclass = classes[classname]
 
     cpt = newclass(parent, namespace, defname, name, cpt_type, cpt_id, string,
-                   opts_string, nodes, keyword, args_dict, *args)
+                   opts_string, nodes, keyword, *args)
 
     return cpt
 
@@ -1976,7 +1970,6 @@ defcpt('Dschottky', 'D', 'Schottky diode')
 defcpt('Dtunnel', 'D', 'Tunnel diode')
 defcpt('Dzener', 'D', 'Zener diode')
 
-defcpt('E', VCVS, 'VCVS')
 defcpt('Eopamp', VCVS, 'Opamp')
 defcpt('Eamp', VCVS, 'Amplifier')
 
