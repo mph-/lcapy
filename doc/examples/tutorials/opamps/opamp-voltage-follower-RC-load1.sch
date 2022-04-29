@@ -1,4 +1,4 @@
-E1 1 0 opamp 2 3 A; right, mirror
+E1 1 0 opamp 2 3 A Ro=Ro; right, mirror
 R 1 1_1; right
 C 1_1 0_1; down
 W 3 3_1; up=0.75

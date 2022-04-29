@@ -1944,27 +1944,33 @@ capacitive load::
    ... W 3_1 3_2; right
    ... W 3_2 1; down
    ... W 2_1 2; right
+   ... W 0 0_1; right
    ... P1 2_1 0; down""")
    >>> a.draw()
 
 .. image:: examples/tutorials/opamps/opamp-voltage-follower-C-load1.png
    :width: 11cm
 
-This circuit can be unstable due to the unity feedback ratio and the pole formed by the load capacitor with the opamp's output resistance.   Lcapy does not model an opamp's output resistance, so this needs to be done explicitly.
+This circuit can be unstable due to the unity feedback ratio and the
+pole formed by the load capacitor with the opamp's output resistance.
+By default, Lcapy assumes that the opamp's output resistance is zero
+but this can be modelled using the `Ro` parameter::
 
+   >>> from lcapy import *
    >>> a = Circuit("""
-   ... E1 4 0 2 1 A; down
-   ... Ro 4 1; right
+   ... E1 1 0 opamp 2 3 A Ro=Ro; right, mirror
    ... W 1 1_1; right
    ... C 1_1 0_1; down
-   ... W 0 0_1; right""")
+   ... W 3 3_1; up=0.75
+   ... W 3_1 3_2; right
+   ... W 3_2 1; down
+   ... W 2_1 2; right
+   ... W 0 0_1; right
+   ... P1 2_1 0; down""")
+   >>> a.draw()
 
 
-.. image:: examples/tutorials/opamps/opamp-voltage-follower-C-load-model1.png
-   :width: 7cm
-
-
-The closed-loop transfer function is::
+The closed-loop transfer function of this circuit is::
 
   >>> H = a.transfer(2, 0, 1, 0)
   >>> H.general()
@@ -1974,15 +1980,17 @@ The closed-loop transfer function is::
 
 
 The open-loop transfer function can be found by cutting the connection
-between the opamp output and inverting input is cut and connecting the
-inverting input to ground.
+between the opamp output and inverting input and connecting the
+inverting input to ground::
 
    >>> b = Circuit("""
-   ... E1 1 0 2 4 A; down
-   ... Ro 1 3; right
-   ... W 4 0; down
-   ... C 3 0_3; down
-   ... W 0 0_3; right""")
+   ... E1 1 0 opamp 2 3 A Ro=Ro; right, mirror
+   ... W 1 1_1; right
+   ... C 1_1 0_1; down
+   ... W 3 0; down=0.25, implicit, l={0\,\mathrm{V}}
+   ... W 2_1 2; right
+   ... W 0 0_1; right
+   ... P1 2_1 0; down""")
    >>> G = b.transfer(2, 0, 3, 0)
    >>> G.general()
         A
