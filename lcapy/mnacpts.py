@@ -1022,7 +1022,9 @@ class Eopamp(DependentSource):
 
         Ad, Ac, Ro = self.args
 
-        if Ro == 0:
+        Roval = expr(Ro)
+
+        if Roval == 0:
             onode = self.relnodes[0]
         else:
             onode = self._dummy_node()
@@ -1031,7 +1033,7 @@ class Eopamp(DependentSource):
                                     nodes=(onode, self.relnodes[1],
                                            self.relnodes[2], self.relnodes[3]),
                                     args=(Ad, Ac))
-        if Ro == 0:
+        if Roval == 0:
             return vcvs
 
         rout = self._netmake_expand('R', nodes=(onode, self.relnodes[0]),
