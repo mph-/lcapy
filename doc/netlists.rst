@@ -76,12 +76,17 @@ The component type is specified by the first letter(s) of the
 `component-name`.  For example, the following line defines a voltage
 source called V1 connected btween nodes 1 and 0::
 
-   V1 1 0
+   `V1 1 0`
 
 Here's another example defining a resistor R between nodes 1 and 2::
 
-   R 1 2
+   `R 1 2`
 
+The value parameters can be named, for example,
+
+   `E 1 0 opamp 2 3 Ro=20`
+
+In this case the Ad and Ac parameters are assigned default values.
 
 Here's a list of the known components that can be used for circuit
 simulation (additional components can be drawn, see
@@ -211,9 +216,11 @@ simulation (additional components can be drawn, see
 
    `Ename Np Nm Nip Nim E`
 
-- Opamp of differential gain Ad and common-mode gain Ac (default 0) with controlling nodes Nip and Nim.   The common-mode voltage is with respect to node Nm:
+- Opamp of differential gain Ad, common-mode gain Ac (default 0), and
+  output resistance Ro (default 0) with controlling nodes Nip and Nim.
+  The common-mode voltage is with respect to node Nm:
 
-   `Ename Np Nm opamp Nip Nim Ad Ac`
+   `Ename Np Nm opamp Nip Nim Ad Ac Ro`
 
 - Fully differential opamp with controlling nodes Nip and Nim, node
   Nocm to set the common-mode output voltage, differential open-loop

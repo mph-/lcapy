@@ -1015,29 +1015,52 @@ class E(VCVS):
     pass
 
 
+class Eopamp(DependentSource):
+    """Operational amplifier"""
+
+    def _expand(self):
+
+        Ad, Ac, Ro = self.args
+
+        if Ro == 0:
+            onode = self.relnodes[0]
+        else:
+            onode = self._dummy_node()
+
+        vcvs = self._netmake_expand('E',
+                                    nodes=(onode, self.relnodes[1],
+                                           self.relnodes[2], self.relnodes[3]),
+                                    args=(Ad, Ac))
+        if Ro == 0:
+            return vcvs
+
+        rout = self._netmake_expand('R', nodes=(onode, self.relnodes[0]),
+                                    args=(Ro, ))
+
+        return vcvs + '\n' + rout + '\n'
+
+    def _stamp(self, mna):
+        raise RuntimeError('Internal error, component not expanded')
+
+
 class Efdopamp(DependentSource):
     """Fully differential opamp"""
 
     def _expand(self):
 
-        if self.args == ():
-            # TODO: check if Ad defined already
-            Ad = 'Ad'
-            args = ('{%s / 2}' % Ad, )
-        else:
-            Ad = self.args[0]
-            args = ('{%s / 2}' % Ad, ) + self.args[1:]
+        Ad, Ac = self.args
+        Ad = '{%s / 2}' % Ad
 
         opampp = self._netmake_expand('Ep',
                                       nodes=(self.relnodes[0], self.relnodes[4],
                                              'opamp',
                                              self.relnodes[2], self.relnodes[3]),
-                                      args=args)
+                                      args=(Ad, Ac))
         opampm = self._netmake_expand('Em',
                                       nodes=(self.relnodes[4], self.relnodes[1],
                                              'opamp',
                                              self.relnodes[2], self.relnodes[3]),
-                                      args=args)
+                                      args=(Ad, Ac))
 
         return opampp + '\n' + opampm + '\n'
 
@@ -1050,27 +1073,7 @@ class Einamp(DependentSource):
 
     def _expand(self):
 
-        args = list(self.args)
-
-        try:
-            Ad = args.pop(0)
-        except IndexError:
-            # TODO: check if Ad defined already
-            Ad = 'Ad'
-            warn('Setting differential open-loop gain to Ad')
-
-        try:
-            Ac = args.pop(0)
-        except IndexError:
-            Ac = '0'
-            warn('Setting common-mode gain to 0')
-
-        try:
-            Rf = args.pop(0)
-        except IndexError:
-            # TODO: check if Rf defined already
-            Rf = 'Rf'
-            warn('Setting feedback resistor to Rf')
+        Ad, Ac, Rf = self.args
 
         cpts = []
         node7 = self._dummy_node()
@@ -1970,7 +1973,6 @@ defcpt('Dschottky', 'D', 'Schottky diode')
 defcpt('Dtunnel', 'D', 'Tunnel diode')
 defcpt('Dzener', 'D', 'Zener diode')
 
-defcpt('Eopamp', VCVS, 'Opamp')
 defcpt('Eamp', VCVS, 'Amplifier')
 
 defcpt('F', CCCS, 'CCCS')

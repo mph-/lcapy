@@ -32,9 +32,9 @@ Dtunnel: Dname Np Nm tunnel; Tunnel diode
 Dschottky: Dname Np Nm schottky; Schottky diode
 E: Ename Np Nm Ncp Ncm [Value=name] [Ac=0]; Voltage controlled voltage source
 VCVS: VCVSname Np Nm Ncp Ncm [Value=name]; Voltage controlled voltage source
-Eopamp: Ename Np Nm opamp Ncp Ncm [Ad=name] [Ac=0]; Opamp
+Eopamp: Ename Np Nm opamp Ncp Ncm [Ad=name] [Ac=0] [Ro=0]; Opamp
 Efdopamp: Ename Np Nm fdopamp Ncp Ncm Nocm [Ad=name] [Ac=0]; Fully differential opamp
-Einamp: Ename Np Nm inamp Ncp Ncm NRp NRm [Ad=name] [Ac=0] [Rf]; Instrumentation opamp
+Einamp: Ename Np Nm inamp Ncp Ncm NRp NRm [Ad=name] [Ac=0] [Rf=Rf]; Instrumentation opamp
 Eamp: Ename Np Nm amp Ncp Ncm [Ad=name] [Ac=0]; Amplifier
 F: Fname Np Nm Vcontrol [Value=name]; Current controlled current source (note the control current is specified through a voltage source)
 CCCS: CCCSname Np Nm Vcontrol [Value=name]; Current controlled current source (note the control current is specified through a voltage source)
@@ -269,6 +269,7 @@ Length: value; Transmission line length
 Ac: value; Common-mode gain
 Ad: value; Differential gain
 Rf: value; Feedback resistance
+Ro: value; Output resistance
 A11: value; A11
 A12: value; A12
 A21: value; A21
