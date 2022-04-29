@@ -9,7 +9,10 @@ all: $(PNGFILES)
 	cd $(dir $@); ipython --matplotlib=gtk3 $(notdir $<)
 
 %.png: %.sch
-	cd $(dir $@); schtex $(notdir $<) $(notdir $@) 
+	cd $(dir $@); schtex $(notdir $<) $(notdir $@)
 
 %-noisy.sch: %.sch
 	schtex --noisy-model $< $@
+
+clean:
+	rm $(PNGFILES)
