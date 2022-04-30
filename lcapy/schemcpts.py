@@ -1567,8 +1567,8 @@ class Transistor(FixedCpt):
         n1, n2, n3 = self.nodes
         centre = (n1.pos + n3.pos) * 0.5
 
-        xscale = self.scale * 2
-        yscale = self.scale * 2
+        xscale = self.scale
+        yscale = self.scale
         if self.mirror:
             yscale = -yscale
         if self.invert:
@@ -1605,17 +1605,17 @@ class BJT(Transistor):
     """BJT"""
 
     node_pinnames = ('e', 'b', 'c')
-    ppins = {'e': ('lx', 1, 0),
-             'b': ('lx', 0, 0.8),
-             'c': ('lx', 1, 1.6)}
-    npins = {'e': ('lx', 1, 1.6),
-             'b': ('lx', 0, 0.8),
-             'c': ('lx', 1, 0)}
+    ppins = {'e': ('lx', 0.5, 0),
+             'b': ('lx', 0, 0.5),
+             'c': ('lx', 0.5, 1)}
+    npins = {'e': ('lx', 0.5, 1),
+             'b': ('lx', 0, 0.5),
+             'c': ('lx', 0.5, 0)}
     ippins = {'e': ('lx', 0, 0),
-              'b': ('lx', 1, 0.8),
-              'c': ('lx', 0, 1.6)}
-    inpins = {'e': ('lx', 0, 1.6),
-              'b': ('lx', 1, 0.8),
+              'b': ('lx', 0.5, 0.5),
+              'c': ('lx', 0, 1)}
+    inpins = {'e': ('lx', 0, 1),
+              'b': ('lx', 0.5, 0.5),
               'c': ('lx', 0, 0)}
     kinds = {'nigbt': 'nigbt', 'pigbt': 'pigbt', 'Lnigbt': 'Lnigbt',
              'Lpigbt': 'Lpigbt'}
@@ -1625,17 +1625,17 @@ class JFET(Transistor):
     """JFET"""
 
     node_pinnames = ('d', 'g', 's')
-    ppins = {'d': ('lx', 1, 0),
-             'g': ('lx', 0, 1.04),
-             's': ('lx', 1, 1.5)}
-    npins = {'d': ('lx', 1, 1.5),
-             'g': ('lx', 0, 0.46),
-             's': ('lx', 1, 0)}
+    ppins = {'d': ('lx', 0.5, 0),
+             'g': ('lx', 0, 0.65),
+             's': ('lx', 0.5, 1)}
+    npins = {'d': ('lx', 0.5, 1),
+             'g': ('lx', 0, 0.35),
+             's': ('lx', 0.5, 0)}
     ippins = {'d': ('lx', 0, 0),
-              'g': ('lx', 1, 1.04),
-              's': ('lx', 0, 1.5)}
-    inpins = {'d': ('lx', 0, 1.5),
-              'g': ('lx', 1, 0.46),
+              'g': ('lx', 0.5, 0.65),
+              's': ('lx', 0, 1)}
+    inpins = {'d': ('lx', 0, 1),
+              'g': ('lx', 0.5, 0.35),
               's': ('lx', 0, 0)}
 
 
@@ -1643,18 +1643,18 @@ class MOSFET(Transistor):
     """MOSFET"""
 
     node_pinnames = ('d', 'g', 's')
-    ppins = {'d': ('lx', 0.85, 0),
-             'g': ('lx', -0.25, 0.82),
-             's': ('lx', 0.85, 1.64)}
-    npins = {'d': ('lx', 0.85, 1.64),
-             'g': ('lx', -0.25, 0.82),
-             's': ('lx', 0.85, 0)}
-    ippins = {'d': ('lx', -0.25, 0),
-              'g': ('lx', 0.85, 0.82),
-              's': ('lx', -0.25, 1.64)}
-    inpins = {'d': ('lx', -0.25, 1.64),
-              'g': ('lx', 0.85, 0.82),
-              's': ('lx', -0.25, 0)}
+    ppins = {'d': ('lx', 0.5, 0),
+             'g': ('lx', 0, 0.5),
+             's': ('lx', 0.5, 1)}
+    npins = {'d': ('lx', 0.5, 1),
+             'g': ('lx', 0, 0.5),
+             's': ('lx', 0.5, 0)}
+    ippins = {'d': ('lx', 0, 0),
+              'g': ('lx', 0.5, 0.5),
+              's': ('lx', 0, 1)}
+    inpins = {'d': ('lx', 0, 1),
+              'g': ('lx', 0.5, 0.5),
+              's': ('lx', 0, 0)}
     kinds = {'nmos': 'nmos', 'pmos': 'pmos', 'nmosd': 'nmosd', 'pmosd': 'pmosd',
              'nfet': 'nfet', 'pfet': 'pfet', 'nfetd': 'nfetd', 'pfetd': 'pfetd',
              'nigfet': 'nigfet', 'pigfet': 'pigfet',
