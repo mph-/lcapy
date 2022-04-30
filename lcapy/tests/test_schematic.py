@@ -60,7 +60,7 @@ C 1 3 3; right""")
   \draw[] (2) to [R,l_={$R_{2}$}{=$2\,\mbox{$\Omega$}$},,,,*-*,n=R2] (3);
   \draw (2) node[circ] {};
   \draw (3) node[circ] {};
-  \draw[] (1) to [C,l_={C}{=$3\,\mbox{F}$},,,,*-*,n=C] (3);
+  \draw[] (1) to [C,l_={$C$}{=$3\,\mbox{F}$},,,,*-*,n=C] (3);
   \draw (1) node[circ] {};
   \draw (3) node[circ] {};
   \draw[anchor=south east] (1) node {1};
