@@ -370,7 +370,7 @@ class Parser:
                 continue
             if len(fields) > pos and fields[pos].lower() == rule1.params[pos].lowercase_name:
                 rule = rule1
-                keyword = rule1.params[pos]
+                keyword = rule1.params[pos].name
                 break
 
         defname = namespace + cpt_type + cpt_id
