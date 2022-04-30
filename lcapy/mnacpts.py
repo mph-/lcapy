@@ -201,8 +201,12 @@ class Cpt(ImmittanceMixin):
 
         for arg in self.args:
             if zero:
+                # FIXME: zeroing all args doesn't make much sense.
+                # Perhaps only zero first arg?
                 arg = 0
             elif subs_dict is not None:
+                if arg is None:
+                    continue
                 # Perform substitutions
                 arg = str(expr(arg).subs(subs_dict))
 
