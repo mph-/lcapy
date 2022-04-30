@@ -1584,10 +1584,14 @@ class Transistor(FixedCpt):
                      (self.kind, ', '.join(self.kinds)))
             cpt = self.kind
 
+        # Circuitikz rotates the label text so we add the rotatebox so the
+        # text remains horizontal.
+        label_tweak = r'\scalebox{%s}[%s]{%s}' % (1 / xscale, 1 / yscale,
+                                                  self.label(**kwargs))
+
         s = r'  \draw (%s) node[%s, %s, xscale=%s, yscale=%s, rotate=%d] (%s) {%s};''\n' % (
             centre, cpt, self.args_str(**kwargs), xscale, yscale,
-            self.angle, self.s, self.label(**kwargs))
-        # s += self.draw_label(centre, **kwargs)
+            self.angle, self.s, label_tweak)
 
         # Add additional wires.  These help to compensate for the
         # slight differences in sizes of the different transistors.
@@ -1605,17 +1609,17 @@ class BJT(Transistor):
     """BJT"""
 
     node_pinnames = ('e', 'b', 'c')
-    ppins = {'e': ('lx', 0.5, 0),
+    ppins = {'e': ('lx', 0.75, 0),
              'b': ('lx', 0, 0.5),
-             'c': ('lx', 0.5, 1)}
-    npins = {'e': ('lx', 0.5, 1),
+             'c': ('lx', 0.75, 1)}
+    npins = {'e': ('lx', 0.75, 1),
              'b': ('lx', 0, 0.5),
-             'c': ('lx', 0.5, 0)}
+             'c': ('lx', 0.75, 0)}
     ippins = {'e': ('lx', 0, 0),
-              'b': ('lx', 0.5, 0.5),
+              'b': ('lx', 0.75, 0.5),
               'c': ('lx', 0, 1)}
     inpins = {'e': ('lx', 0, 1),
-              'b': ('lx', 0.5, 0.5),
+              'b': ('lx', 0.75, 0.5),
               'c': ('lx', 0, 0)}
     kinds = {'nigbt': 'nigbt', 'pigbt': 'pigbt', 'Lnigbt': 'Lnigbt',
              'Lpigbt': 'Lpigbt'}
@@ -1625,17 +1629,17 @@ class JFET(Transistor):
     """JFET"""
 
     node_pinnames = ('d', 'g', 's')
-    ppins = {'d': ('lx', 0.5, 0),
+    ppins = {'d': ('lx', 0.75, 0),
              'g': ('lx', 0, 0.65),
-             's': ('lx', 0.5, 1)}
-    npins = {'d': ('lx', 0.5, 1),
+             's': ('lx', 0.75, 1)}
+    npins = {'d': ('lx', 0.75, 1),
              'g': ('lx', 0, 0.35),
-             's': ('lx', 0.5, 0)}
+             's': ('lx', 0.75, 0)}
     ippins = {'d': ('lx', 0, 0),
-              'g': ('lx', 0.5, 0.65),
+              'g': ('lx', 0.75, 0.65),
               's': ('lx', 0, 1)}
     inpins = {'d': ('lx', 0, 1),
-              'g': ('lx', 0.5, 0.35),
+              'g': ('lx', 0.75, 0.35),
               's': ('lx', 0, 0)}
 
 
@@ -1643,17 +1647,17 @@ class MOSFET(Transistor):
     """MOSFET"""
 
     node_pinnames = ('d', 'g', 's')
-    ppins = {'d': ('lx', 0.5, 0),
+    ppins = {'d': ('lx', 0.75, 0),
              'g': ('lx', 0, 0.5),
-             's': ('lx', 0.5, 1)}
-    npins = {'d': ('lx', 0.5, 1),
+             's': ('lx', 0.75, 1)}
+    npins = {'d': ('lx', 0.75, 1),
              'g': ('lx', 0, 0.5),
-             's': ('lx', 0.5, 0)}
+             's': ('lx', 0.75, 0)}
     ippins = {'d': ('lx', 0, 0),
-              'g': ('lx', 0.5, 0.5),
+              'g': ('lx', 0.75, 0.5),
               's': ('lx', 0, 1)}
     inpins = {'d': ('lx', 0, 1),
-              'g': ('lx', 0.5, 0.5),
+              'g': ('lx', 0.75, 0.5),
               's': ('lx', 0, 0)}
     kinds = {'nmos': 'nmos', 'pmos': 'pmos', 'nmosd': 'nmosd', 'pmosd': 'pmosd',
              'nfet': 'nfet', 'pfet': 'pfet', 'nfetd': 'nfetd', 'pfetd': 'pfetd',
