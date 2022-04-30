@@ -346,14 +346,16 @@ class Schematic(NetfileMixin):
                 name = r'\mathrm{%s}' % name
             if len(subscript) > 1:
                 subscript = r'\mathrm{%s}' % subscript
-            if len(subscript) == 0:
-                return name
 
-            return '%s_{%s}' % (name, subscript)
+            if len(subscript) == 0:
+                return '$' + name + '$'
+
+            return '$%s_{%s}$' % (name, subscript)
 
         # There are two possible labels for a component:
         # 1. Component identifier, e.g., R1
         # 2. Component value, expression, or symbol
+
         id_label = tex_name(cpt.type, cpt.id)
         value_label = None
 
@@ -402,7 +404,7 @@ class Schematic(NetfileMixin):
                     # This catches non numeric arg.
                     value_label = Expr(expr, cache=False).latex_math()
 
-        # Currently, we only annnotated the component with the value,
+        # Currently, we only annnotate the component with the value,
         # expression, or symbol.  If this is not specified, it
         # defaults to the component identifier.  Note, some objects
         # we do not want to label, such as wires and ports.
