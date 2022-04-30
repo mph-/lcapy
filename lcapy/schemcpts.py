@@ -815,10 +815,8 @@ class Cpt(object):
         if keys is None:
             keys = self.label_keys
 
-        label_values = kwargs.get('label_values', True)
-        label_values = check_boolean(label_values)
-        label_ids = kwargs.get('label_ids', True)
-        label_ids = check_boolean(label_ids)
+        label_values = check_boolean(kwargs.get('label_values', True))
+        label_ids = check_boolean(kwargs.get('label_ids', True))
 
         label_str = ''
         if label_ids is True:
@@ -1008,12 +1006,9 @@ class Bipole(StretchyCpt):
 
         # TODO merge with label
 
-        label_values = kwargs.get('label_values', True)
-        label_values = check_boolean(label_values)
-        label_ids = kwargs.get('label_ids', True)
-        label_ids = check_boolean(label_ids)
-        annotate_values = kwargs.get('annotate_values', False)
-        annotate_values = check_boolean(annotate_values)
+        label_values = check_boolean(kwargs.get('label_values', True))
+        label_ids = check_boolean(kwargs.get('label_ids', True))
+        annotate_values = check_boolean(kwargs.get('annotate_values', False))
 
         # Generate default label.
         if (label_ids and label_values and self.id_label != ''
