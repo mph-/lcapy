@@ -2136,7 +2136,7 @@ and for this example::
 This corresponds to a gain margin of close to -20 dB.  Again this indicates the system is unstable.
 
 Another approach to assess the stability of the system is to consider
-the poles of the closed-loop transfer function :ref:`H(s)`.  These can
+the poles of the closed-loop transfer function `H(s)`.  These can
 be plotted using::
 
    >>> H.plot()
@@ -2164,7 +2164,7 @@ The voltage follower with a capacitor load can be made stable by reducing the fe
 
    >>> from lcapy import *
    >>> a = Circuit("""
-   ... E1 1 0 opamp 2 3 A; right, mirror
+   ... E1 1 0 opamp 2 3 A Ro=Ro; right, mirror
    ... R 1 1_1; right
    ... C 1_1 0_1; down
    ... W 3 3_1; up=0.75
@@ -2176,19 +2176,6 @@ The voltage follower with a capacitor load can be made stable by reducing the fe
 
 .. image:: examples/tutorials/opamps/opamp-voltage-follower-RC-load1.png
    :width: 11cm
-
-The equivalent circuit model including the opamp output resistance is::
-
-   >>> a = Circuit("""
-   ... E1 4 0 2 1 A; down
-   ... Ro 4 1; right
-   ... R 1 1_1; right
-   ... C 1_1 0_1; down
-   ... W 0 0_1; right""")
-
-
-.. image:: examples/tutorials/opamps/opamp-voltage-follower-RC-load-model1.png
-   :width: 7cm
 
 
 The closed-loop transfer function is::
