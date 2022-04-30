@@ -791,6 +791,34 @@ However, in practice, the open-loop gain decreases with frequency and so at high
    >>> a.impedance(4,0).limit('Ad', 0)
    R
 
+To obtain a high transimpedance the resistor value `R` needs to be large.  However, this can be impractically large.  An alternative is to use a transimpedance amplifier with voltage gain as shown below::
+
+   >>> from lcapy import Circuit, t, oo
+   >>> a = Circuit("""
+   ... E 1 0 opamp 3 2 Ad; right
+   ... W 2_1 2; right
+   ... W 2 2_2; down
+   ... R1 2_2 4; right
+   ... R2 1 4; down
+   ... R3 4 0; down, implicit
+   ... W 1 1_1; right
+   ... W 3 0; down=0.25, implicit
+   ... ; draw_nodes=connections, label_ids=none, label_nodes=primary
+   ... ; draw_nodes=connections, label_ids=none, label_nodes=primary
+   ... """)
+   >>> a.draw()
+
+.. image:: examples/tutorials/opamps/opamp-transimpedance-amplifier-with-voltage-gain1.png
+   :width: 10cm
+
+
+The transimpedance for this circuit can be found using the `transimpedance()` method::
+
+   >>> a.transimpedance(2, 0, 1, 0).limit('Ad', oo).simplify()
+     R₁⋅R₂
+   - ───── - R₁ - R₂
+       R₃
+
 
 Displacement current sensor
 ---------------------------
