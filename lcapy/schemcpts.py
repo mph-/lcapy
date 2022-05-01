@@ -1584,14 +1584,18 @@ class Transistor(FixedCpt):
                      (self.kind, ', '.join(self.kinds)))
             cpt = self.kind
 
-        # Circuitikz rotates the label text so we add the rotatebox so the
-        # text remains horizontal.
-        label_tweak = r'\scalebox{%s}[%s]{%s}' % (1 / xscale, 1 / yscale,
-                                                  self.label(**kwargs))
+        label = self.label(**kwargs)
+
+        # Circuitikz scales the label text so we undo this.
+        if xscale != 1 or yscale != 1:
+            label = r'\scalebox{%s}[%s]{%s}' % (1 / xscale, 1 / yscale, label)
+        # Circuitikz rotates the label text so we undo this.
+        if self.angle != 0:
+            label = r'\rotatebox{%s}{%s}' % (-self.angle, label)
 
         s = r'  \draw (%s) node[%s, %s, xscale=%s, yscale=%s, rotate=%d] (%s) {%s};''\n' % (
             centre, cpt, self.args_str(**kwargs), xscale, yscale,
-            self.angle, self.s, label_tweak)
+            self.angle, self.s, label)
 
         # Add additional wires.  These help to compensate for the
         # slight differences in sizes of the different transistors.
