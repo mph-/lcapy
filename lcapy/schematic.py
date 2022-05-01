@@ -420,7 +420,7 @@ class Schematic(NetfileMixin):
             value_label)
 
         if unify:
-            cpt.id_label = cpt.value_label
+            cpt.value_label = cpt.id_label
 
         if cpt.opts_string != '':
             self.hints = True
