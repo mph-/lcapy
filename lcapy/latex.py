@@ -80,13 +80,19 @@ def latex_format_label(s):
 
     s = latex_str(s)
 
-    # If have _, ^, \frac, etc.  need to be in math-mode.
-    # Should prevent lcapy generating such strings and
-    # warn user to explicity use math mode.  The tricky part is that
-    # arbitrary signals may have math symbols, say sqrt.
+    s2 = s
+    for macro in (r'\hspace', r'\vspace', r'\,', r'\;', r'\!', r'\tiny',
+                  r'\footnotesize', r'\scriptsize', r'\normalsize', r'\large',
+                  r'\Large', r'\huge'):
+        s2 = s2.replace(macro, '')
+
+    # If have _, ^, \frac, etc.  need to be in math-mode.  Should
+    # prevent lcapy generating such strings and warn user to explicity
+    # use math mode.  The tricky part is that arbitrary signals may
+    # have math symbols, say sqrt.
     math_symbols = ('_',  '^', '\\')
     for math_symbol in math_symbols:
-        if math_symbol in s:
+        if math_symbol in s2:
             return '$' + s + '$'
     return s
 
