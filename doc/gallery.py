@@ -32,20 +32,17 @@ def show_image(sch_filename):
 
     url = r'https://github.com/mph-/lcapy/tree/master/doc/' + sch_filename
 
-    link = '`%s <%s>`_' % (label, url)
-
-    underline = '=' * len(link)
+    link = "`%s <%s>`_" % (label, url)
 
     print(
         """
-%s
 %s
 
 .. literalinclude:: %s
 
 .. image:: %s
    :width: %.1fcm
-        """ % (link, underline, sch_filename, png_filename, width_cm))
+        """ % (link, sch_filename, png_filename, width_cm))
 
 
 print("""

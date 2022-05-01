@@ -7,7 +7,6 @@ Schematic gallery
 
 
 `ADC1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/ADC1.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/ADC1.sch
 
@@ -16,7 +15,6 @@ Schematic gallery
         
 
 `ADC2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/ADC2.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/ADC2.sch
 
@@ -25,7 +23,6 @@ Schematic gallery
         
 
 `ADC3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/ADC3.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/ADC3.sch
 
@@ -34,7 +31,6 @@ Schematic gallery
         
 
 `Btwoport1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Btwoport1.sch>`_
-==================================================================================================
 
 .. literalinclude:: examples/schematics/Btwoport1.sch
 
@@ -43,7 +39,6 @@ Schematic gallery
         
 
 `CPE1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/CPE1.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/CPE1.sch
 
@@ -52,7 +47,6 @@ Schematic gallery
         
 
 `D1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/D1.sch>`_
-====================================================================================
 
 .. literalinclude:: examples/schematics/D1.sch
 
@@ -61,7 +55,6 @@ Schematic gallery
         
 
 `D2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/D2.sch>`_
-====================================================================================
 
 .. literalinclude:: examples/schematics/D2.sch
 
@@ -70,7 +63,6 @@ Schematic gallery
         
 
 `D3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/D3.sch>`_
-====================================================================================
 
 .. literalinclude:: examples/schematics/D3.sch
 
@@ -79,7 +71,6 @@ Schematic gallery
         
 
 `D4.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/D4.sch>`_
-====================================================================================
 
 .. literalinclude:: examples/schematics/D4.sch
 
@@ -88,7 +79,6 @@ Schematic gallery
         
 
 `D5.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/D5.sch>`_
-====================================================================================
 
 .. literalinclude:: examples/schematics/D5.sch
 
@@ -97,7 +87,6 @@ Schematic gallery
         
 
 `DAC1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/DAC1.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/DAC1.sch
 
@@ -106,7 +95,6 @@ Schematic gallery
         
 
 `DAC3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/DAC3.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/DAC3.sch
 
@@ -115,7 +103,6 @@ Schematic gallery
         
 
 `DFF1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/DFF1.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/DFF1.sch
 
@@ -124,7 +111,6 @@ Schematic gallery
         
 
 `DFF1b.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/DFF1b.sch>`_
-==========================================================================================
 
 .. literalinclude:: examples/schematics/DFF1b.sch
 
@@ -133,7 +119,6 @@ Schematic gallery
         
 
 `DFF2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/DFF2.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/DFF2.sch
 
@@ -142,7 +127,6 @@ Schematic gallery
         
 
 `Dbridge.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Dbridge.sch>`_
-==============================================================================================
 
 .. literalinclude:: examples/schematics/Dbridge.sch
 
@@ -151,7 +135,6 @@ Schematic gallery
         
 
 `Ddown.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Ddown.sch>`_
-==========================================================================================
 
 .. literalinclude:: examples/schematics/Ddown.sch
 
@@ -160,7 +143,6 @@ Schematic gallery
         
 
 `Dleft.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Dleft.sch>`_
-==========================================================================================
 
 .. literalinclude:: examples/schematics/Dleft.sch
 
@@ -169,7 +151,6 @@ Schematic gallery
         
 
 `Dright.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Dright.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/Dright.sch
 
@@ -178,7 +159,6 @@ Schematic gallery
         
 
 `Dup.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Dup.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/Dup.sch
 
@@ -187,7 +167,6 @@ Schematic gallery
         
 
 `E1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/E1.sch>`_
-====================================================================================
 
 .. literalinclude:: examples/schematics/E1.sch
 
@@ -196,7 +175,6 @@ Schematic gallery
         
 
 `Eopamp_Uopamp.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Eopamp_Uopamp.sch>`_
-==========================================================================================================
 
 .. literalinclude:: examples/schematics/Eopamp_Uopamp.sch
 
@@ -205,7 +183,6 @@ Schematic gallery
         
 
 `Eopamp_mirror.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Eopamp_mirror.sch>`_
-==========================================================================================================
 
 .. literalinclude:: examples/schematics/Eopamp_mirror.sch
 
@@ -214,7 +191,6 @@ Schematic gallery
         
 
 `F1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/F1.sch>`_
-====================================================================================
 
 .. literalinclude:: examples/schematics/F1.sch
 
@@ -223,7 +199,6 @@ Schematic gallery
         
 
 `FB1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/FB1.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/FB1.sch
 
@@ -232,7 +207,6 @@ Schematic gallery
         
 
 `FB2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/FB2.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/FB2.sch
 
@@ -241,7 +215,6 @@ Schematic gallery
         
 
 `G1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/G1.sch>`_
-====================================================================================
 
 .. literalinclude:: examples/schematics/G1.sch
 
@@ -250,7 +223,6 @@ Schematic gallery
         
 
 `GY1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/GY1.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/GY1.sch
 
@@ -259,7 +231,6 @@ Schematic gallery
         
 
 `H1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/H1.sch>`_
-====================================================================================
 
 .. literalinclude:: examples/schematics/H1.sch
 
@@ -268,7 +239,6 @@ Schematic gallery
         
 
 `I2C2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/I2C2.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/I2C2.sch
 
@@ -277,7 +247,6 @@ Schematic gallery
         
 
 `J1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/J1.sch>`_
-====================================================================================
 
 .. literalinclude:: examples/schematics/J1.sch
 
@@ -286,7 +255,6 @@ Schematic gallery
         
 
 `J2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/J2.sch>`_
-====================================================================================
 
 .. literalinclude:: examples/schematics/J2.sch
 
@@ -295,7 +263,6 @@ Schematic gallery
         
 
 `J3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/J3.sch>`_
-====================================================================================
 
 .. literalinclude:: examples/schematics/J3.sch
 
@@ -304,7 +271,6 @@ Schematic gallery
         
 
 `K1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/K1.sch>`_
-====================================================================================
 
 .. literalinclude:: examples/schematics/K1.sch
 
@@ -313,7 +279,6 @@ Schematic gallery
         
 
 `K2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/K2.sch>`_
-====================================================================================
 
 .. literalinclude:: examples/schematics/K2.sch
 
@@ -322,7 +287,6 @@ Schematic gallery
         
 
 `KLM2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/transducers/KLM2.sch>`_
-===================================================================================================
 
 .. literalinclude:: examples/tutorials/transducers/KLM2.sch
 
@@ -331,7 +295,6 @@ Schematic gallery
         
 
 `KLM3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/transducers/KLM3.sch>`_
-===================================================================================================
 
 .. literalinclude:: examples/tutorials/transducers/KLM3.sch
 
@@ -340,7 +303,6 @@ Schematic gallery
         
 
 `L1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/L1.sch>`_
-====================================================================================
 
 .. literalinclude:: examples/schematics/L1.sch
 
@@ -349,7 +311,6 @@ Schematic gallery
         
 
 `LC1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/LC1.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/LC1.sch
 
@@ -358,7 +319,6 @@ Schematic gallery
         
 
 `LTFT.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/LTFT.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/LTFT.sch
 
@@ -367,7 +327,6 @@ Schematic gallery
         
 
 `M1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/M1.sch>`_
-====================================================================================
 
 .. literalinclude:: examples/schematics/M1.sch
 
@@ -376,7 +335,6 @@ Schematic gallery
         
 
 `M1b.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/M1b.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/M1b.sch
 
@@ -385,7 +343,6 @@ Schematic gallery
         
 
 `M1c.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/M1c.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/M1c.sch
 
@@ -394,7 +351,6 @@ Schematic gallery
         
 
 `M2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/M2.sch>`_
-====================================================================================
 
 .. literalinclude:: examples/schematics/M2.sch
 
@@ -403,7 +359,6 @@ Schematic gallery
         
 
 `M3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/M3.sch>`_
-====================================================================================
 
 .. literalinclude:: examples/schematics/M3.sch
 
@@ -412,7 +367,6 @@ Schematic gallery
         
 
 `M6.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/M6.sch>`_
-====================================================================================
 
 .. literalinclude:: examples/schematics/M6.sch
 
@@ -421,7 +375,6 @@ Schematic gallery
         
 
 `MX1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/MX1.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/MX1.sch
 
@@ -430,7 +383,6 @@ Schematic gallery
         
 
 `Q1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Q1.sch>`_
-====================================================================================
 
 .. literalinclude:: examples/schematics/Q1.sch
 
@@ -439,7 +391,6 @@ Schematic gallery
         
 
 `Q1b.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Q1b.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/Q1b.sch
 
@@ -448,7 +399,6 @@ Schematic gallery
         
 
 `Q1c.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Q1c.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/Q1c.sch
 
@@ -457,7 +407,6 @@ Schematic gallery
         
 
 `Q2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Q2.sch>`_
-====================================================================================
 
 .. literalinclude:: examples/schematics/Q2.sch
 
@@ -466,7 +415,6 @@ Schematic gallery
         
 
 `Q3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Q3.sch>`_
-====================================================================================
 
 .. literalinclude:: examples/schematics/Q3.sch
 
@@ -475,7 +423,6 @@ Schematic gallery
         
 
 `Qnpndown.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Qnpndown.sch>`_
-================================================================================================
 
 .. literalinclude:: examples/schematics/Qnpndown.sch
 
@@ -484,7 +431,6 @@ Schematic gallery
         
 
 `Qnpnleft.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Qnpnleft.sch>`_
-================================================================================================
 
 .. literalinclude:: examples/schematics/Qnpnleft.sch
 
@@ -493,7 +439,6 @@ Schematic gallery
         
 
 `Qnpnright.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Qnpnright.sch>`_
-==================================================================================================
 
 .. literalinclude:: examples/schematics/Qnpnright.sch
 
@@ -502,7 +447,6 @@ Schematic gallery
         
 
 `Qnpnrot45.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Qnpnrot45.sch>`_
-==================================================================================================
 
 .. literalinclude:: examples/schematics/Qnpnrot45.sch
 
@@ -511,7 +455,6 @@ Schematic gallery
         
 
 `Qnpnup.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Qnpnup.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/Qnpnup.sch
 
@@ -520,7 +463,6 @@ Schematic gallery
         
 
 `Qnpright.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Qnpright.sch>`_
-================================================================================================
 
 .. literalinclude:: examples/schematics/Qnpright.sch
 
@@ -529,7 +471,6 @@ Schematic gallery
         
 
 `Qpnpdown.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Qpnpdown.sch>`_
-================================================================================================
 
 .. literalinclude:: examples/schematics/Qpnpdown.sch
 
@@ -538,7 +479,6 @@ Schematic gallery
         
 
 `Qpnpleft.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Qpnpleft.sch>`_
-================================================================================================
 
 .. literalinclude:: examples/schematics/Qpnpleft.sch
 
@@ -547,7 +487,6 @@ Schematic gallery
         
 
 `Qpnpright.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Qpnpright.sch>`_
-==================================================================================================
 
 .. literalinclude:: examples/schematics/Qpnpright.sch
 
@@ -556,7 +495,6 @@ Schematic gallery
         
 
 `Qpnpup.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Qpnpup.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/Qpnpup.sch
 
@@ -565,7 +503,6 @@ Schematic gallery
         
 
 `RC1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/RC1.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/RC1.sch
 
@@ -574,7 +511,6 @@ Schematic gallery
         
 
 `RC2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/RC2.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/RC2.sch
 
@@ -583,7 +519,6 @@ Schematic gallery
         
 
 `RCparallel1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/RCnoise/RCparallel1.sch>`_
-=============================================================================================================
 
 .. literalinclude:: examples/tutorials/RCnoise/RCparallel1.sch
 
@@ -592,7 +527,6 @@ Schematic gallery
         
 
 `RCparallel1noisy.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/RCnoise/RCparallel1noisy.sch>`_
-=======================================================================================================================
 
 .. literalinclude:: examples/tutorials/RCnoise/RCparallel1noisy.sch
 
@@ -601,7 +535,6 @@ Schematic gallery
         
 
 `RV1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/RV1.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/RV1.sch
 
@@ -610,7 +543,6 @@ Schematic gallery
         
 
 `RV2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/RV2.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/RV2.sch
 
@@ -619,7 +551,6 @@ Schematic gallery
         
 
 `Rlabels.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Rlabels.sch>`_
-==============================================================================================
 
 .. literalinclude:: examples/schematics/Rlabels.sch
 
@@ -628,7 +559,6 @@ Schematic gallery
         
 
 `Rright.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Rright.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/Rright.sch
 
@@ -637,7 +567,6 @@ Schematic gallery
         
 
 `Rright2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Rright2.sch>`_
-==============================================================================================
 
 .. literalinclude:: examples/schematics/Rright2.sch
 
@@ -646,7 +575,6 @@ Schematic gallery
         
 
 `SP1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/SP1.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/SP1.sch
 
@@ -655,7 +583,6 @@ Schematic gallery
         
 
 `SP2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/SP2.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/SP2.sch
 
@@ -664,7 +591,6 @@ Schematic gallery
         
 
 `SP3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/SP3.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/SP3.sch
 
@@ -673,7 +599,6 @@ Schematic gallery
         
 
 `SP4.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/SP4.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/SP4.sch
 
@@ -682,7 +607,6 @@ Schematic gallery
         
 
 `SP5.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/SP5.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/SP5.sch
 
@@ -691,7 +615,6 @@ Schematic gallery
         
 
 `Sbox1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Sbox1.sch>`_
-==========================================================================================
 
 .. literalinclude:: examples/schematics/Sbox1.sch
 
@@ -700,7 +623,6 @@ Schematic gallery
         
 
 `Sbox2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Sbox2.sch>`_
-==========================================================================================
 
 .. literalinclude:: examples/schematics/Sbox2.sch
 
@@ -709,7 +631,6 @@ Schematic gallery
         
 
 `Sbox3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Sbox3.sch>`_
-==========================================================================================
 
 .. literalinclude:: examples/schematics/Sbox3.sch
 
@@ -718,7 +639,6 @@ Schematic gallery
         
 
 `Scircle1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Scircle1.sch>`_
-================================================================================================
 
 .. literalinclude:: examples/schematics/Scircle1.sch
 
@@ -727,7 +647,6 @@ Schematic gallery
         
 
 `Scircle2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Scircle2.sch>`_
-================================================================================================
 
 .. literalinclude:: examples/schematics/Scircle2.sch
 
@@ -736,7 +655,6 @@ Schematic gallery
         
 
 `Striangle2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Striangle2.sch>`_
-====================================================================================================
 
 .. literalinclude:: examples/schematics/Striangle2.sch
 
@@ -745,7 +663,6 @@ Schematic gallery
         
 
 `Striangle3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Striangle3.sch>`_
-====================================================================================================
 
 .. literalinclude:: examples/schematics/Striangle3.sch
 
@@ -754,7 +671,6 @@ Schematic gallery
         
 
 `Striangle4.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Striangle4.sch>`_
-====================================================================================================
 
 .. literalinclude:: examples/schematics/Striangle4.sch
 
@@ -763,7 +679,6 @@ Schematic gallery
         
 
 `TF1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/TF1.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/TF1.sch
 
@@ -772,7 +687,6 @@ Schematic gallery
         
 
 `TF2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/TF2.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/TF2.sch
 
@@ -781,7 +695,6 @@ Schematic gallery
         
 
 `TF3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/TF3.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/TF3.sch
 
@@ -790,7 +703,6 @@ Schematic gallery
         
 
 `TFcore1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/TFcore1.sch>`_
-==============================================================================================
 
 .. literalinclude:: examples/schematics/TFcore1.sch
 
@@ -799,7 +711,6 @@ Schematic gallery
         
 
 `TFcore2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/TFcore2.sch>`_
-==============================================================================================
 
 .. literalinclude:: examples/schematics/TFcore2.sch
 
@@ -808,7 +719,6 @@ Schematic gallery
         
 
 `TFtap1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/TFtap1.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/TFtap1.sch
 
@@ -817,7 +727,6 @@ Schematic gallery
         
 
 `TFtapcore1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/TFtapcore1.sch>`_
-====================================================================================================
 
 .. literalinclude:: examples/schematics/TFtapcore1.sch
 
@@ -826,7 +735,6 @@ Schematic gallery
         
 
 `TFup.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/TFup.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/TFup.sch
 
@@ -835,7 +743,6 @@ Schematic gallery
         
 
 `TP1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/TP1.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/TP1.sch
 
@@ -844,7 +751,6 @@ Schematic gallery
         
 
 `TPA.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/TPA.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/TPA.sch
 
@@ -853,7 +759,6 @@ Schematic gallery
         
 
 `TPB.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/TPB.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/TPB.sch
 
@@ -862,7 +767,6 @@ Schematic gallery
         
 
 `TPG.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/TPG.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/TPG.sch
 
@@ -871,7 +775,6 @@ Schematic gallery
         
 
 `TPH.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/TPH.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/TPH.sch
 
@@ -880,7 +783,6 @@ Schematic gallery
         
 
 `TPY.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/TPY.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/TPY.sch
 
@@ -889,7 +791,6 @@ Schematic gallery
         
 
 `TPZ.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/TPZ.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/TPZ.sch
 
@@ -898,7 +799,6 @@ Schematic gallery
         
 
 `TR1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/TR1.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/TR1.sch
 
@@ -907,7 +807,6 @@ Schematic gallery
         
 
 `Uadc.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Uadc.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/Uadc.sch
 
@@ -916,7 +815,6 @@ Schematic gallery
         
 
 `Ubuffer.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Ubuffer.sch>`_
-==============================================================================================
 
 .. literalinclude:: examples/schematics/Ubuffer.sch
 
@@ -925,7 +823,6 @@ Schematic gallery
         
 
 `Ubuffer1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Ubuffer1.sch>`_
-================================================================================================
 
 .. literalinclude:: examples/schematics/Ubuffer1.sch
 
@@ -934,7 +831,6 @@ Schematic gallery
         
 
 `Ubuffer2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Ubuffer2.sch>`_
-================================================================================================
 
 .. literalinclude:: examples/schematics/Ubuffer2.sch
 
@@ -943,7 +839,6 @@ Schematic gallery
         
 
 `Uchip1313.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Uchip1313.sch>`_
-==================================================================================================
 
 .. literalinclude:: examples/schematics/Uchip1313.sch
 
@@ -952,7 +847,6 @@ Schematic gallery
         
 
 `Uchip2121.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Uchip2121.sch>`_
-==================================================================================================
 
 .. literalinclude:: examples/schematics/Uchip2121.sch
 
@@ -961,7 +855,6 @@ Schematic gallery
         
 
 `Uchip2222.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Uchip2222.sch>`_
-==================================================================================================
 
 .. literalinclude:: examples/schematics/Uchip2222.sch
 
@@ -970,7 +863,6 @@ Schematic gallery
         
 
 `Uchip3131.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Uchip3131.sch>`_
-==================================================================================================
 
 .. literalinclude:: examples/schematics/Uchip3131.sch
 
@@ -979,7 +871,6 @@ Schematic gallery
         
 
 `Uchip3333.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Uchip3333.sch>`_
-==================================================================================================
 
 .. literalinclude:: examples/schematics/Uchip3333.sch
 
@@ -988,7 +879,6 @@ Schematic gallery
         
 
 `Uchip4141.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Uchip4141.sch>`_
-==================================================================================================
 
 .. literalinclude:: examples/schematics/Uchip4141.sch
 
@@ -997,7 +887,6 @@ Schematic gallery
         
 
 `Udac.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Udac.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/Udac.sch
 
@@ -1006,7 +895,6 @@ Schematic gallery
         
 
 `Udff.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Udff.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/Udff.sch
 
@@ -1015,7 +903,6 @@ Schematic gallery
         
 
 `Ufdopamp.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Ufdopamp.sch>`_
-================================================================================================
 
 .. literalinclude:: examples/schematics/Ufdopamp.sch
 
@@ -1024,7 +911,6 @@ Schematic gallery
         
 
 `Ufdopamps.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Ufdopamps.sch>`_
-==================================================================================================
 
 .. literalinclude:: examples/schematics/Ufdopamps.sch
 
@@ -1033,7 +919,6 @@ Schematic gallery
         
 
 `Uinamp.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Uinamp.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/Uinamp.sch
 
@@ -1042,7 +927,6 @@ Schematic gallery
         
 
 `Uinverter.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Uinverter.sch>`_
-==================================================================================================
 
 .. literalinclude:: examples/schematics/Uinverter.sch
 
@@ -1051,7 +935,6 @@ Schematic gallery
         
 
 `Uinverter1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Uinverter1.sch>`_
-====================================================================================================
 
 .. literalinclude:: examples/schematics/Uinverter1.sch
 
@@ -1060,7 +943,6 @@ Schematic gallery
         
 
 `Uinverter2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Uinverter2.sch>`_
-====================================================================================================
 
 .. literalinclude:: examples/schematics/Uinverter2.sch
 
@@ -1069,7 +951,6 @@ Schematic gallery
         
 
 `Uisoamp.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Uisoamp.sch>`_
-==============================================================================================
 
 .. literalinclude:: examples/schematics/Uisoamp.sch
 
@@ -1078,7 +959,6 @@ Schematic gallery
         
 
 `Ujkff.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Ujkff.sch>`_
-==========================================================================================
 
 .. literalinclude:: examples/schematics/Ujkff.sch
 
@@ -1087,7 +967,6 @@ Schematic gallery
         
 
 `Umux21.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Umux21.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/Umux21.sch
 
@@ -1096,7 +975,6 @@ Schematic gallery
         
 
 `Umux41.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Umux41.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/Umux41.sch
 
@@ -1105,7 +983,6 @@ Schematic gallery
         
 
 `Umux42.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Umux42.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/Umux42.sch
 
@@ -1114,7 +991,6 @@ Schematic gallery
         
 
 `Uopamp.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Uopamp.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/Uopamp.sch
 
@@ -1123,7 +999,6 @@ Schematic gallery
         
 
 `Uopamp1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Uopamp1.sch>`_
-==============================================================================================
 
 .. literalinclude:: examples/schematics/Uopamp1.sch
 
@@ -1132,7 +1007,6 @@ Schematic gallery
         
 
 `Uopamp_comparison.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Uopamp_comparison.sch>`_
-==================================================================================================================
 
 .. literalinclude:: examples/schematics/Uopamp_comparison.sch
 
@@ -1141,7 +1015,6 @@ Schematic gallery
         
 
 `Uopamp_mirror.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Uopamp_mirror.sch>`_
-==========================================================================================================
 
 .. literalinclude:: examples/schematics/Uopamp_mirror.sch
 
@@ -1150,7 +1023,6 @@ Schematic gallery
         
 
 `Uopamps.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Uopamps.sch>`_
-==============================================================================================
 
 .. literalinclude:: examples/schematics/Uopamps.sch
 
@@ -1159,7 +1031,6 @@ Schematic gallery
         
 
 `Uregulator.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Uregulator.sch>`_
-====================================================================================================
 
 .. literalinclude:: examples/schematics/Uregulator.sch
 
@@ -1168,7 +1039,6 @@ Schematic gallery
         
 
 `Urslatch.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Urslatch.sch>`_
-================================================================================================
 
 .. literalinclude:: examples/schematics/Urslatch.sch
 
@@ -1177,7 +1047,6 @@ Schematic gallery
         
 
 `V5.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/V5.sch>`_
-====================================================================================
 
 .. literalinclude:: examples/schematics/V5.sch
 
@@ -1186,7 +1055,6 @@ Schematic gallery
         
 
 `VILRC.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/netlists/VILRC.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/netlists/VILRC.sch
 
@@ -1195,7 +1063,6 @@ Schematic gallery
         
 
 `VIRLC.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/netlists/VIRLC.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/netlists/VIRLC.sch
 
@@ -1204,7 +1071,6 @@ Schematic gallery
         
 
 `VRC1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/simulation/VRC1.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/simulation/VRC1.sch
 
@@ -1213,7 +1079,6 @@ Schematic gallery
         
 
 `VRC1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/basic/VRC1.sch>`_
-=============================================================================================
 
 .. literalinclude:: examples/tutorials/basic/VRC1.sch
 
@@ -1222,7 +1087,6 @@ Schematic gallery
         
 
 `VRC1step.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/basic/VRC1step.sch>`_
-=====================================================================================================
 
 .. literalinclude:: examples/tutorials/basic/VRC1step.sch
 
@@ -1231,7 +1095,6 @@ Schematic gallery
         
 
 `VRC2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/basic/VRC2.sch>`_
-=============================================================================================
 
 .. literalinclude:: examples/tutorials/basic/VRC2.sch
 
@@ -1240,7 +1103,6 @@ Schematic gallery
         
 
 `VRL1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/simulation/VRL1.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/simulation/VRL1.sch
 
@@ -1249,7 +1111,6 @@ Schematic gallery
         
 
 `VRL1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/VRL1.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/VRL1.sch
 
@@ -1258,7 +1119,6 @@ Schematic gallery
         
 
 `VRL2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/VRL2.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/VRL2.sch
 
@@ -1267,7 +1127,6 @@ Schematic gallery
         
 
 `VRL3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/VRL3.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/VRL3.sch
 
@@ -1276,7 +1135,6 @@ Schematic gallery
         
 
 `VRL4.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/VRL4.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/VRL4.sch
 
@@ -1285,7 +1143,6 @@ Schematic gallery
         
 
 `VRR1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/basic/VRR1.sch>`_
-=============================================================================================
 
 .. literalinclude:: examples/tutorials/basic/VRR1.sch
 
@@ -1294,7 +1151,6 @@ Schematic gallery
         
 
 `VRmesh1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/VRmesh1.sch>`_
-==============================================================================================
 
 .. literalinclude:: examples/schematics/VRmesh1.sch
 
@@ -1303,7 +1159,6 @@ Schematic gallery
         
 
 `VacRL1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/VacRL1.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/VacRL1.sch
 
@@ -1312,7 +1167,6 @@ Schematic gallery
         
 
 `Vacsup2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/basic/Vacsup2.sch>`_
-===================================================================================================
 
 .. literalinclude:: examples/tutorials/basic/Vacsup2.sch
 
@@ -1321,7 +1175,6 @@ Schematic gallery
         
 
 `Vsup3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/basic/Vsup3.sch>`_
-===============================================================================================
 
 .. literalinclude:: examples/tutorials/basic/Vsup3.sch
 
@@ -1330,7 +1183,6 @@ Schematic gallery
         
 
 `XT1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/XT1.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/XT1.sch
 
@@ -1339,7 +1191,6 @@ Schematic gallery
         
 
 `XT2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/XT2.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/XT2.sch
 
@@ -1348,7 +1199,6 @@ Schematic gallery
         
 
 `XT3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/XT3.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/XT3.sch
 
@@ -1357,7 +1207,6 @@ Schematic gallery
         
 
 `accelerometer1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/accelerometer1.sch>`_
-============================================================================================================
 
 .. literalinclude:: examples/schematics/accelerometer1.sch
 
@@ -1366,7 +1215,6 @@ Schematic gallery
         
 
 `amp.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/amp.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/amp.sch
 
@@ -1375,7 +1223,6 @@ Schematic gallery
         
 
 `annotate1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/annotate1.sch>`_
-==================================================================================================
 
 .. literalinclude:: examples/schematics/annotate1.sch
 
@@ -1384,7 +1231,6 @@ Schematic gallery
         
 
 `antenna.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/antenna.sch>`_
-==============================================================================================
 
 .. literalinclude:: examples/schematics/antenna.sch
 
@@ -1393,7 +1239,6 @@ Schematic gallery
         
 
 `antennas.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/antennas.sch>`_
-================================================================================================
 
 .. literalinclude:: examples/schematics/antennas.sch
 
@@ -1402,7 +1247,6 @@ Schematic gallery
         
 
 `arrows.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/arrows.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/arrows.sch
 
@@ -1411,7 +1255,6 @@ Schematic gallery
         
 
 `arrows2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/arrows2.sch>`_
-==============================================================================================
 
 .. literalinclude:: examples/schematics/arrows2.sch
 
@@ -1420,7 +1263,6 @@ Schematic gallery
         
 
 `attr1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/attr1.sch>`_
-==========================================================================================
 
 .. literalinclude:: examples/schematics/attr1.sch
 
@@ -1429,7 +1271,6 @@ Schematic gallery
         
 
 `batteries.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/batteries.sch>`_
-==================================================================================================
 
 .. literalinclude:: examples/schematics/batteries.sch
 
@@ -1438,7 +1279,6 @@ Schematic gallery
         
 
 `buffer1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/buffer1.sch>`_
-==============================================================================================
 
 .. literalinclude:: examples/schematics/buffer1.sch
 
@@ -1447,7 +1287,6 @@ Schematic gallery
         
 
 `buffer2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/buffer2.sch>`_
-==============================================================================================
 
 .. literalinclude:: examples/schematics/buffer2.sch
 
@@ -1456,7 +1295,6 @@ Schematic gallery
         
 
 `buffers.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/buffers.sch>`_
-==============================================================================================
 
 .. literalinclude:: examples/schematics/buffers.sch
 
@@ -1465,7 +1303,6 @@ Schematic gallery
         
 
 `cable-coax.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cable-coax.sch>`_
-====================================================================================================
 
 .. literalinclude:: examples/schematics/cable-coax.sch
 
@@ -1474,7 +1311,6 @@ Schematic gallery
         
 
 `cable-tline.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cable-tline.sch>`_
-======================================================================================================
 
 .. literalinclude:: examples/schematics/cable-tline.sch
 
@@ -1483,7 +1319,6 @@ Schematic gallery
         
 
 `cable-tline2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cable-tline2.sch>`_
-========================================================================================================
 
 .. literalinclude:: examples/schematics/cable-tline2.sch
 
@@ -1492,7 +1327,6 @@ Schematic gallery
         
 
 `cable-tline3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cable-tline3.sch>`_
-========================================================================================================
 
 .. literalinclude:: examples/schematics/cable-tline3.sch
 
@@ -1501,7 +1335,6 @@ Schematic gallery
         
 
 `cable-tp.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cable-tp.sch>`_
-================================================================================================
 
 .. literalinclude:: examples/schematics/cable-tp.sch
 
@@ -1510,7 +1343,6 @@ Schematic gallery
         
 
 `cable-twinax.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cable-twinax.sch>`_
-========================================================================================================
 
 .. literalinclude:: examples/schematics/cable-twinax.sch
 
@@ -1519,7 +1351,6 @@ Schematic gallery
         
 
 `cable-utp.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cable-utp.sch>`_
-==================================================================================================
 
 .. literalinclude:: examples/schematics/cable-utp.sch
 
@@ -1528,7 +1359,6 @@ Schematic gallery
         
 
 `cable.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cable.sch>`_
-==========================================================================================
 
 .. literalinclude:: examples/schematics/cable.sch
 
@@ -1537,7 +1367,6 @@ Schematic gallery
         
 
 `cable4.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cable4.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/cable4.sch
 
@@ -1546,7 +1375,6 @@ Schematic gallery
         
 
 `capacitors.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/capacitors.sch>`_
-====================================================================================================
 
 .. literalinclude:: examples/schematics/capacitors.sch
 
@@ -1555,7 +1383,6 @@ Schematic gallery
         
 
 `chips.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/chips.sch>`_
-==========================================================================================
 
 .. literalinclude:: examples/schematics/chips.sch
 
@@ -1564,7 +1391,6 @@ Schematic gallery
         
 
 `chips2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/chips2.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/chips2.sch
 
@@ -1573,7 +1399,6 @@ Schematic gallery
         
 
 `chips3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/chips3.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/chips3.sch
 
@@ -1582,7 +1407,6 @@ Schematic gallery
         
 
 `circles.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/circles.sch>`_
-==============================================================================================
 
 .. literalinclude:: examples/schematics/circles.sch
 
@@ -1591,7 +1415,6 @@ Schematic gallery
         
 
 `circuit-RLC-ivp1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/ivp/circuit-RLC-ivp1.sch>`_
-===================================================================================================================
 
 .. literalinclude:: examples/tutorials/ivp/circuit-RLC-ivp1.sch
 
@@ -1600,7 +1423,6 @@ Schematic gallery
         
 
 `circuit-VRC1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/netlists/circuit-VRC1.sch>`_
-======================================================================================================
 
 .. literalinclude:: examples/netlists/circuit-VRC1.sch
 
@@ -1609,7 +1431,6 @@ Schematic gallery
         
 
 `circuit-VRLC1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/netlists/circuit-VRLC1.sch>`_
-========================================================================================================
 
 .. literalinclude:: examples/netlists/circuit-VRLC1.sch
 
@@ -1618,7 +1439,6 @@ Schematic gallery
         
 
 `circuit-VRLC2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/netlists/circuit-VRLC2.sch>`_
-========================================================================================================
 
 .. literalinclude:: examples/netlists/circuit-VRLC2.sch
 
@@ -1627,7 +1447,6 @@ Schematic gallery
         
 
 `circuit-simplify1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/netlists/circuit-simplify1.sch>`_
-================================================================================================================
 
 .. literalinclude:: examples/netlists/circuit-simplify1.sch
 
@@ -1636,7 +1455,6 @@ Schematic gallery
         
 
 `circuit-simplify2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/netlists/circuit-simplify2.sch>`_
-================================================================================================================
 
 .. literalinclude:: examples/netlists/circuit-simplify2.sch
 
@@ -1645,7 +1463,6 @@ Schematic gallery
         
 
 `circuit-simplify3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/netlists/circuit-simplify3.sch>`_
-================================================================================================================
 
 .. literalinclude:: examples/netlists/circuit-simplify3.sch
 
@@ -1654,7 +1471,6 @@ Schematic gallery
         
 
 `circuit-simplify4.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/netlists/circuit-simplify4.sch>`_
-================================================================================================================
 
 .. literalinclude:: examples/netlists/circuit-simplify4.sch
 
@@ -1663,7 +1479,6 @@ Schematic gallery
         
 
 `circuit.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/annotations/circuit.sch>`_
-=========================================================================================================
 
 .. literalinclude:: examples/tutorials/annotations/circuit.sch
 
@@ -1672,7 +1487,6 @@ Schematic gallery
         
 
 `circuit1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/annotations/circuit1.sch>`_
-===========================================================================================================
 
 .. literalinclude:: examples/tutorials/annotations/circuit1.sch
 
@@ -1681,7 +1495,6 @@ Schematic gallery
         
 
 `cmos-backdrive1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-backdrive1.sch>`_
-==============================================================================================================
 
 .. literalinclude:: examples/schematics/cmos-backdrive1.sch
 
@@ -1690,7 +1503,6 @@ Schematic gallery
         
 
 `cmos-backdrive2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-backdrive2.sch>`_
-==============================================================================================================
 
 .. literalinclude:: examples/schematics/cmos-backdrive2.sch
 
@@ -1699,7 +1511,6 @@ Schematic gallery
         
 
 `cmos-backdrive3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-backdrive3.sch>`_
-==============================================================================================================
 
 .. literalinclude:: examples/schematics/cmos-backdrive3.sch
 
@@ -1708,7 +1519,6 @@ Schematic gallery
         
 
 `cmos-esd-damage.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-esd-damage.sch>`_
-==============================================================================================================
 
 .. literalinclude:: examples/schematics/cmos-esd-damage.sch
 
@@ -1717,7 +1527,6 @@ Schematic gallery
         
 
 `cmos-high-low-simple.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-high-low-simple.sch>`_
-========================================================================================================================
 
 .. literalinclude:: examples/schematics/cmos-high-low-simple.sch
 
@@ -1726,7 +1535,6 @@ Schematic gallery
         
 
 `cmos-high-low.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-high-low.sch>`_
-==========================================================================================================
 
 .. literalinclude:: examples/schematics/cmos-high-low.sch
 
@@ -1735,7 +1543,6 @@ Schematic gallery
         
 
 `cmos-input-model-thevenin.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-input-model-thevenin.sch>`_
-==================================================================================================================================
 
 .. literalinclude:: examples/schematics/cmos-input-model-thevenin.sch
 
@@ -1744,7 +1551,6 @@ Schematic gallery
         
 
 `cmos-input-model.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-input-model.sch>`_
-================================================================================================================
 
 .. literalinclude:: examples/schematics/cmos-input-model.sch
 
@@ -1753,7 +1559,6 @@ Schematic gallery
         
 
 `cmos-input-model1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-input-model1.sch>`_
-==================================================================================================================
 
 .. literalinclude:: examples/schematics/cmos-input-model1.sch
 
@@ -1762,7 +1567,6 @@ Schematic gallery
         
 
 `cmos-input-model2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-input-model2.sch>`_
-==================================================================================================================
 
 .. literalinclude:: examples/schematics/cmos-input-model2.sch
 
@@ -1771,7 +1575,6 @@ Schematic gallery
         
 
 `cmos-input-model3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-input-model3.sch>`_
-==================================================================================================================
 
 .. literalinclude:: examples/schematics/cmos-input-model3.sch
 
@@ -1780,7 +1583,6 @@ Schematic gallery
         
 
 `cmos-input-model4.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-input-model4.sch>`_
-==================================================================================================================
 
 .. literalinclude:: examples/schematics/cmos-input-model4.sch
 
@@ -1789,7 +1591,6 @@ Schematic gallery
         
 
 `cmos-input-model5.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-input-model5.sch>`_
-==================================================================================================================
 
 .. literalinclude:: examples/schematics/cmos-input-model5.sch
 
@@ -1798,7 +1599,6 @@ Schematic gallery
         
 
 `cmos-input-model6.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-input-model6.sch>`_
-==================================================================================================================
 
 .. literalinclude:: examples/schematics/cmos-input-model6.sch
 
@@ -1807,7 +1607,6 @@ Schematic gallery
         
 
 `cmos-led-model1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-led-model1.sch>`_
-==============================================================================================================
 
 .. literalinclude:: examples/schematics/cmos-led-model1.sch
 
@@ -1816,7 +1615,6 @@ Schematic gallery
         
 
 `cmos-led1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-led1.sch>`_
-==================================================================================================
 
 .. literalinclude:: examples/schematics/cmos-led1.sch
 
@@ -1825,7 +1623,6 @@ Schematic gallery
         
 
 `cmos-low-high-simple.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-low-high-simple.sch>`_
-========================================================================================================================
 
 .. literalinclude:: examples/schematics/cmos-low-high-simple.sch
 
@@ -1834,7 +1631,6 @@ Schematic gallery
         
 
 `cmos-low-high.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-low-high.sch>`_
-==========================================================================================================
 
 .. literalinclude:: examples/schematics/cmos-low-high.sch
 
@@ -1843,7 +1639,6 @@ Schematic gallery
         
 
 `cmos-open-drain.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-open-drain.sch>`_
-==============================================================================================================
 
 .. literalinclude:: examples/schematics/cmos-open-drain.sch
 
@@ -1852,7 +1647,6 @@ Schematic gallery
         
 
 `cmos-protection1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-protection1.sch>`_
-================================================================================================================
 
 .. literalinclude:: examples/schematics/cmos-protection1.sch
 
@@ -1861,7 +1655,6 @@ Schematic gallery
         
 
 `cmos-protection2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-protection2.sch>`_
-================================================================================================================
 
 .. literalinclude:: examples/schematics/cmos-protection2.sch
 
@@ -1870,7 +1663,6 @@ Schematic gallery
         
 
 `cmos-simple-output-model.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-simple-output-model.sch>`_
-================================================================================================================================
 
 .. literalinclude:: examples/schematics/cmos-simple-output-model.sch
 
@@ -1879,7 +1671,6 @@ Schematic gallery
         
 
 `cmos-totem.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-totem.sch>`_
-====================================================================================================
 
 .. literalinclude:: examples/schematics/cmos-totem.sch
 
@@ -1888,7 +1679,6 @@ Schematic gallery
         
 
 `cmos-totem2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-totem2.sch>`_
-======================================================================================================
 
 .. literalinclude:: examples/schematics/cmos-totem2.sch
 
@@ -1897,7 +1687,6 @@ Schematic gallery
         
 
 `cmos1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos1.sch>`_
-==========================================================================================
 
 .. literalinclude:: examples/schematics/cmos1.sch
 
@@ -1906,7 +1695,6 @@ Schematic gallery
         
 
 `cmos_C_load_thevenin.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/nonlinear/cmos_C_load_thevenin.sch>`_
-=================================================================================================================================
 
 .. literalinclude:: examples/tutorials/nonlinear/cmos_C_load_thevenin.sch
 
@@ -1915,7 +1703,6 @@ Schematic gallery
         
 
 `cmos_R_series_C_load_thevenin.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/nonlinear/cmos_R_series_C_load_thevenin.sch>`_
-===================================================================================================================================================
 
 .. literalinclude:: examples/tutorials/nonlinear/cmos_R_series_C_load_thevenin.sch
 
@@ -1924,7 +1711,6 @@ Schematic gallery
         
 
 `cmos_ibis_R_series_C_load_thevenin.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/nonlinear/cmos_ibis_R_series_C_load_thevenin.sch>`_
-=============================================================================================================================================================
 
 .. literalinclude:: examples/tutorials/nonlinear/cmos_ibis_R_series_C_load_thevenin.sch
 
@@ -1933,7 +1719,6 @@ Schematic gallery
         
 
 `colors1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/colors1.sch>`_
-==============================================================================================
 
 .. literalinclude:: examples/schematics/colors1.sch
 
@@ -1942,7 +1727,6 @@ Schematic gallery
         
 
 `common-base.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/common-base.sch>`_
-======================================================================================================
 
 .. literalinclude:: examples/schematics/common-base.sch
 
@@ -1951,7 +1735,6 @@ Schematic gallery
         
 
 `connections1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/connections1.sch>`_
-========================================================================================================
 
 .. literalinclude:: examples/schematics/connections1.sch
 
@@ -1960,7 +1743,6 @@ Schematic gallery
         
 
 `connections2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/connections2.sch>`_
-========================================================================================================
 
 .. literalinclude:: examples/schematics/connections2.sch
 
@@ -1969,7 +1751,6 @@ Schematic gallery
         
 
 `current_labels1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/current_labels1.sch>`_
-==============================================================================================================
 
 .. literalinclude:: examples/schematics/current_labels1.sch
 
@@ -1978,7 +1759,6 @@ Schematic gallery
         
 
 `current_labels2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/current_labels2.sch>`_
-==============================================================================================================
 
 .. literalinclude:: examples/schematics/current_labels2.sch
 
@@ -1987,7 +1767,6 @@ Schematic gallery
         
 
 `currents.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/currents.sch>`_
-================================================================================================
 
 .. literalinclude:: examples/schematics/currents.sch
 
@@ -1996,7 +1775,6 @@ Schematic gallery
         
 
 `dff.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/dff.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/dff.sch
 
@@ -2005,7 +1783,6 @@ Schematic gallery
         
 
 `diffamp1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/diffamp1.sch>`_
-================================================================================================
 
 .. literalinclude:: examples/schematics/diffamp1.sch
 
@@ -2014,7 +1791,6 @@ Schematic gallery
         
 
 `diodes.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/diodes.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/diodes.sch
 
@@ -2023,7 +1799,6 @@ Schematic gallery
         
 
 `diodes2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/diodes2.sch>`_
-==============================================================================================
 
 .. literalinclude:: examples/schematics/diodes2.sch
 
@@ -2032,7 +1807,6 @@ Schematic gallery
         
 
 `domains.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/domains.sch>`_
-==============================================================================================
 
 .. literalinclude:: examples/schematics/domains.sch
 
@@ -2041,7 +1815,6 @@ Schematic gallery
         
 
 `fdopamp-amplifier1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/fdopamp-amplifier1.sch>`_
-====================================================================================================================
 
 .. literalinclude:: examples/schematics/fdopamp-amplifier1.sch
 
@@ -2050,7 +1823,6 @@ Schematic gallery
         
 
 `fdopamp-amplifier1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/fdopamp-amplifier1.sch>`_
-==========================================================================================================================
 
 .. literalinclude:: examples/tutorials/opamps/fdopamp-amplifier1.sch
 
@@ -2059,7 +1831,6 @@ Schematic gallery
         
 
 `fdopamp-test1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/fdopamp-test1.sch>`_
-==========================================================================================================
 
 .. literalinclude:: examples/schematics/fdopamp-test1.sch
 
@@ -2068,7 +1839,6 @@ Schematic gallery
         
 
 `fdopamp1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/fdopamp1.sch>`_
-================================================================================================
 
 .. literalinclude:: examples/schematics/fdopamp1.sch
 
@@ -2077,7 +1847,6 @@ Schematic gallery
         
 
 `fdopamp1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/fdopamp1.sch>`_
-======================================================================================================
 
 .. literalinclude:: examples/tutorials/opamps/fdopamp1.sch
 
@@ -2086,7 +1855,6 @@ Schematic gallery
         
 
 `fdopamp2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/fdopamp2.sch>`_
-================================================================================================
 
 .. literalinclude:: examples/schematics/fdopamp2.sch
 
@@ -2095,7 +1863,6 @@ Schematic gallery
         
 
 `fdopamp3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/fdopamp3.sch>`_
-================================================================================================
 
 .. literalinclude:: examples/schematics/fdopamp3.sch
 
@@ -2104,7 +1871,6 @@ Schematic gallery
         
 
 `fdopamp4.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/fdopamp4.sch>`_
-================================================================================================
 
 .. literalinclude:: examples/schematics/fdopamp4.sch
 
@@ -2113,7 +1879,6 @@ Schematic gallery
         
 
 `fdopampright.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/fdopampright.sch>`_
-========================================================================================================
 
 .. literalinclude:: examples/schematics/fdopampright.sch
 
@@ -2122,7 +1887,6 @@ Schematic gallery
         
 
 `fdopamps.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/fdopamps.sch>`_
-================================================================================================
 
 .. literalinclude:: examples/schematics/fdopamps.sch
 
@@ -2131,7 +1895,6 @@ Schematic gallery
         
 
 `ferrite-choke1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/ferrite-choke1.sch>`_
-============================================================================================================
 
 .. literalinclude:: examples/schematics/ferrite-choke1.sch
 
@@ -2140,7 +1903,6 @@ Schematic gallery
         
 
 `ferrite-choke2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/ferrite-choke2.sch>`_
-============================================================================================================
 
 .. literalinclude:: examples/schematics/ferrite-choke2.sch
 
@@ -2149,7 +1911,6 @@ Schematic gallery
         
 
 `filter1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/discretetime/filter1.sch>`_
-==========================================================================================================
 
 .. literalinclude:: examples/tutorials/discretetime/filter1.sch
 
@@ -2158,7 +1919,6 @@ Schematic gallery
         
 
 `filter2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/discretetime/filter2.sch>`_
-==========================================================================================================
 
 .. literalinclude:: examples/tutorials/discretetime/filter2.sch
 
@@ -2167,7 +1927,6 @@ Schematic gallery
         
 
 `fir1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/fir1.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/fir1.sch
 
@@ -2176,7 +1935,6 @@ Schematic gallery
         
 
 `fir2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/fir2.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/fir2.sch
 
@@ -2185,7 +1943,6 @@ Schematic gallery
         
 
 `fir3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/fir3.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/fir3.sch
 
@@ -2194,7 +1951,6 @@ Schematic gallery
         
 
 `fir4.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/fir4.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/fir4.sch
 
@@ -2203,7 +1959,6 @@ Schematic gallery
         
 
 `fir5.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/fir5.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/fir5.sch
 
@@ -2212,7 +1967,6 @@ Schematic gallery
         
 
 `fit1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/fit1.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/fit1.sch
 
@@ -2221,7 +1975,6 @@ Schematic gallery
         
 
 `fit2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/fit2.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/fit2.sch
 
@@ -2230,7 +1983,6 @@ Schematic gallery
         
 
 `fit3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/fit3.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/fit3.sch
 
@@ -2239,7 +1991,6 @@ Schematic gallery
         
 
 `fliplr1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/fliplr1.sch>`_
-==============================================================================================
 
 .. literalinclude:: examples/schematics/fliplr1.sch
 
@@ -2248,7 +1999,6 @@ Schematic gallery
         
 
 `flow_labels1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/flow_labels1.sch>`_
-========================================================================================================
 
 .. literalinclude:: examples/schematics/flow_labels1.sch
 
@@ -2257,7 +2007,6 @@ Schematic gallery
         
 
 `graph1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/netlists/graph1.sch>`_
-==========================================================================================
 
 .. literalinclude:: examples/netlists/graph1.sch
 
@@ -2266,7 +2015,6 @@ Schematic gallery
         
 
 `graph2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/netlists/graph2.sch>`_
-==========================================================================================
 
 .. literalinclude:: examples/netlists/graph2.sch
 
@@ -2275,7 +2023,6 @@ Schematic gallery
         
 
 `graph4.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/netlists/graph4.sch>`_
-==========================================================================================
 
 .. literalinclude:: examples/netlists/graph4.sch
 
@@ -2284,7 +2031,6 @@ Schematic gallery
         
 
 `ground1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/ground1.sch>`_
-==============================================================================================
 
 .. literalinclude:: examples/schematics/ground1.sch
 
@@ -2293,7 +2039,6 @@ Schematic gallery
         
 
 `grounddown1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/grounddown1.sch>`_
-======================================================================================================
 
 .. literalinclude:: examples/schematics/grounddown1.sch
 
@@ -2302,7 +2047,6 @@ Schematic gallery
         
 
 `groundloop1-break.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/groundloop1-break.sch>`_
-==================================================================================================================
 
 .. literalinclude:: examples/schematics/groundloop1-break.sch
 
@@ -2311,7 +2055,6 @@ Schematic gallery
         
 
 `groundloop1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/groundloop1.sch>`_
-======================================================================================================
 
 .. literalinclude:: examples/schematics/groundloop1.sch
 
@@ -2320,7 +2063,6 @@ Schematic gallery
         
 
 `grounds.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/grounds.sch>`_
-==============================================================================================
 
 .. literalinclude:: examples/schematics/grounds.sch
 
@@ -2329,7 +2071,6 @@ Schematic gallery
         
 
 `guard1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/guard1.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/guard1.sch
 
@@ -2338,7 +2079,6 @@ Schematic gallery
         
 
 `hsources.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/hsources.sch>`_
-================================================================================================
 
 .. literalinclude:: examples/schematics/hsources.sch
 
@@ -2347,7 +2087,6 @@ Schematic gallery
         
 
 `ic1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/ic1.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/ic1.sch
 
@@ -2356,7 +2095,6 @@ Schematic gallery
         
 
 `ic1b.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/ic1b.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/ic1b.sch
 
@@ -2365,7 +2103,6 @@ Schematic gallery
         
 
 `ic1c.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/ic1c.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/ic1c.sch
 
@@ -2374,7 +2111,6 @@ Schematic gallery
         
 
 `ic2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/ic2.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/ic2.sch
 
@@ -2383,7 +2119,6 @@ Schematic gallery
         
 
 `ic2b.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/ic2b.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/ic2b.sch
 
@@ -2392,7 +2127,6 @@ Schematic gallery
         
 
 `ic3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/ic3.sch>`_
-======================================================================================
 
 .. literalinclude:: examples/schematics/ic3.sch
 
@@ -2401,7 +2135,6 @@ Schematic gallery
         
 
 `image1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/image1.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/image1.sch
 
@@ -2410,7 +2143,6 @@ Schematic gallery
         
 
 `image2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/image2.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/image2.sch
 
@@ -2419,7 +2151,6 @@ Schematic gallery
         
 
 `implicit_wire1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/implicit_wire1.sch>`_
-============================================================================================================
 
 .. literalinclude:: examples/schematics/implicit_wire1.sch
 
@@ -2428,7 +2159,6 @@ Schematic gallery
         
 
 `inamp-amplifier1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/inamp-amplifier1.sch>`_
-======================================================================================================================
 
 .. literalinclude:: examples/tutorials/opamps/inamp-amplifier1.sch
 
@@ -2437,7 +2167,6 @@ Schematic gallery
         
 
 `inamp1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/inamp1.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/inamp1.sch
 
@@ -2446,7 +2175,6 @@ Schematic gallery
         
 
 `inamp1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/inamp1.sch>`_
-==================================================================================================
 
 .. literalinclude:: examples/tutorials/opamps/inamp1.sch
 
@@ -2455,7 +2183,6 @@ Schematic gallery
         
 
 `include1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/include1.sch>`_
-================================================================================================
 
 .. literalinclude:: examples/schematics/include1.sch
 
@@ -2464,7 +2191,6 @@ Schematic gallery
         
 
 `include2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/include2.sch>`_
-================================================================================================
 
 .. literalinclude:: examples/schematics/include2.sch
 
@@ -2473,7 +2199,6 @@ Schematic gallery
         
 
 `inseries1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/netlists/inseries1.sch>`_
-================================================================================================
 
 .. literalinclude:: examples/netlists/inseries1.sch
 
@@ -2482,7 +2207,6 @@ Schematic gallery
         
 
 `integrator.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/integrator.sch>`_
-====================================================================================================
 
 .. literalinclude:: examples/schematics/integrator.sch
 
@@ -2491,7 +2215,6 @@ Schematic gallery
         
 
 `labels1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/labels1.sch>`_
-==============================================================================================
 
 .. literalinclude:: examples/schematics/labels1.sch
 
@@ -2500,7 +2223,6 @@ Schematic gallery
         
 
 `lpf1-buffer-loaded.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/lpf1-buffer-loaded.sch>`_
-====================================================================================================================
 
 .. literalinclude:: examples/schematics/lpf1-buffer-loaded.sch
 
@@ -2509,7 +2231,6 @@ Schematic gallery
         
 
 `lpf1-buffer-loaded2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/lpf1-buffer-loaded2.sch>`_
-======================================================================================================================
 
 .. literalinclude:: examples/schematics/lpf1-buffer-loaded2.sch
 
@@ -2518,7 +2239,6 @@ Schematic gallery
         
 
 `lpf1-buffer-loaded3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/lpf1-buffer-loaded3.sch>`_
-======================================================================================================================
 
 .. literalinclude:: examples/schematics/lpf1-buffer-loaded3.sch
 
@@ -2527,7 +2247,6 @@ Schematic gallery
         
 
 `lsection.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/lsection.sch>`_
-================================================================================================
 
 .. literalinclude:: examples/schematics/lsection.sch
 
@@ -2536,7 +2255,6 @@ Schematic gallery
         
 
 `massspringdamper1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/massspringdamper1.sch>`_
-==================================================================================================================
 
 .. literalinclude:: examples/schematics/massspringdamper1.sch
 
@@ -2545,7 +2263,6 @@ Schematic gallery
         
 
 `mcu-bt.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/mcu-bt.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/mcu-bt.sch
 
@@ -2554,7 +2271,6 @@ Schematic gallery
         
 
 `mesh2R.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/netlists/mesh2R.sch>`_
-==========================================================================================
 
 .. literalinclude:: examples/netlists/mesh2R.sch
 
@@ -2563,7 +2279,6 @@ Schematic gallery
         
 
 `meters1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/meters1.sch>`_
-==============================================================================================
 
 .. literalinclude:: examples/schematics/meters1.sch
 
@@ -2572,7 +2287,6 @@ Schematic gallery
         
 
 `meters2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/meters2.sch>`_
-==============================================================================================
 
 .. literalinclude:: examples/schematics/meters2.sch
 
@@ -2581,7 +2295,6 @@ Schematic gallery
         
 
 `misc.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/misc.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/misc.sch
 
@@ -2590,7 +2303,6 @@ Schematic gallery
         
 
 `multiple-feedback-lpf.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/multiple-feedback-lpf.sch>`_
-================================================================================================================================
 
 .. literalinclude:: examples/tutorials/opamps/multiple-feedback-lpf.sch
 
@@ -2599,7 +2311,6 @@ Schematic gallery
         
 
 `mutual1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/netlists/mutual1.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/netlists/mutual1.sch
 
@@ -2608,7 +2319,6 @@ Schematic gallery
         
 
 `mutual2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/netlists/mutual2.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/netlists/mutual2.sch
 
@@ -2617,7 +2327,6 @@ Schematic gallery
         
 
 `mutualinductances1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/transformers/mutualinductances1.sch>`_
-================================================================================================================================
 
 .. literalinclude:: examples/tutorials/transformers/mutualinductances1.sch
 
@@ -2626,7 +2335,6 @@ Schematic gallery
         
 
 `mutualinductances2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/transformers/mutualinductances2.sch>`_
-================================================================================================================================
 
 .. literalinclude:: examples/tutorials/transformers/mutualinductances2.sch
 
@@ -2635,7 +2343,6 @@ Schematic gallery
         
 
 `mutualinductances3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/transformers/mutualinductances3.sch>`_
-================================================================================================================================
 
 .. literalinclude:: examples/tutorials/transformers/mutualinductances3.sch
 
@@ -2644,7 +2351,6 @@ Schematic gallery
         
 
 `negative-feedback1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/negative-feedback1.sch>`_
-====================================================================================================================
 
 .. literalinclude:: examples/schematics/negative-feedback1.sch
 
@@ -2653,7 +2359,6 @@ Schematic gallery
         
 
 `negative-feedback2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/negative-feedback2.sch>`_
-====================================================================================================================
 
 .. literalinclude:: examples/schematics/negative-feedback2.sch
 
@@ -2662,7 +2367,6 @@ Schematic gallery
         
 
 `negative-feedback3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/negative-feedback3.sch>`_
-====================================================================================================================
 
 .. literalinclude:: examples/schematics/negative-feedback3.sch
 
@@ -2671,7 +2375,6 @@ Schematic gallery
         
 
 `net1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/net1.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/net1.sch
 
@@ -2680,7 +2383,6 @@ Schematic gallery
         
 
 `net2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/net2.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/net2.sch
 
@@ -2689,25 +2391,22 @@ Schematic gallery
         
 
 `non-ideal-transformer-primary.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/transformers/non-ideal-transformer-primary.sch>`_
-======================================================================================================================================================
 
 .. literalinclude:: examples/tutorials/transformers/non-ideal-transformer-primary.sch
 
 .. image:: examples/tutorials/transformers/non-ideal-transformer-primary.png
-   :width: 14.8cm
+   :width: 15.4cm
         
 
 `non-ideal-transformer.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/transformers/non-ideal-transformer.sch>`_
-======================================================================================================================================
 
 .. literalinclude:: examples/tutorials/transformers/non-ideal-transformer.sch
 
 .. image:: examples/tutorials/transformers/non-ideal-transformer.png
-   :width: 12.8cm
+   :width: 13.5cm
         
 
 `non-ideal-transformer1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/transformers/non-ideal-transformer1.sch>`_
-========================================================================================================================================
 
 .. literalinclude:: examples/tutorials/transformers/non-ideal-transformer1.sch
 
@@ -2716,7 +2415,6 @@ Schematic gallery
         
 
 `opamp-differential-amplifier1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/opamp-differential-amplifier1.sch>`_
-==========================================================================================================================================
 
 .. literalinclude:: examples/schematics/opamp-differential-amplifier1.sch
 
@@ -2725,7 +2423,6 @@ Schematic gallery
         
 
 `opamp-displacement-current-sensor-noise-model1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-displacement-current-sensor-noise-model1.sch>`_
-==================================================================================================================================================================================
 
 .. literalinclude:: examples/tutorials/opamps/opamp-displacement-current-sensor-noise-model1.sch
 
@@ -2734,7 +2431,6 @@ Schematic gallery
         
 
 `opamp-displacement-current-sensor1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-displacement-current-sensor1.sch>`_
-==========================================================================================================================================================
 
 .. literalinclude:: examples/tutorials/opamps/opamp-displacement-current-sensor1.sch
 
@@ -2743,7 +2439,6 @@ Schematic gallery
         
 
 `opamp-inverting-amplifier.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/opamp-inverting-amplifier.sch>`_
-==================================================================================================================================
 
 .. literalinclude:: examples/schematics/opamp-inverting-amplifier.sch
 
@@ -2752,7 +2447,6 @@ Schematic gallery
         
 
 `opamp-inverting-amplifier1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-inverting-amplifier1.sch>`_
-==========================================================================================================================================
 
 .. literalinclude:: examples/tutorials/opamps/opamp-inverting-amplifier1.sch
 
@@ -2761,7 +2455,6 @@ Schematic gallery
         
 
 `opamp-inverting-amplifier2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/opamp-inverting-amplifier2.sch>`_
-====================================================================================================================================
 
 .. literalinclude:: examples/schematics/opamp-inverting-amplifier2.sch
 
@@ -2770,7 +2463,6 @@ Schematic gallery
         
 
 `opamp-inverting-amplifier3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/opamp-inverting-amplifier3.sch>`_
-====================================================================================================================================
 
 .. literalinclude:: examples/schematics/opamp-inverting-amplifier3.sch
 
@@ -2779,7 +2471,6 @@ Schematic gallery
         
 
 `opamp-inverting-integrator.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/opamp-inverting-integrator.sch>`_
-====================================================================================================================================
 
 .. literalinclude:: examples/schematics/opamp-inverting-integrator.sch
 
@@ -2788,7 +2479,6 @@ Schematic gallery
         
 
 `opamp-inverting2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/opamp-inverting2.sch>`_
-================================================================================================================
 
 .. literalinclude:: examples/schematics/opamp-inverting2.sch
 
@@ -2797,7 +2487,6 @@ Schematic gallery
         
 
 `opamp-noninverting-amplifier-noisy.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opampnoise/opamp-noninverting-amplifier-noisy.sch>`_
-==============================================================================================================================================================
 
 .. literalinclude:: examples/tutorials/opampnoise/opamp-noninverting-amplifier-noisy.sch
 
@@ -2806,7 +2495,6 @@ Schematic gallery
         
 
 `opamp-noninverting-amplifier.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/opamp-noninverting-amplifier.sch>`_
-========================================================================================================================================
 
 .. literalinclude:: examples/schematics/opamp-noninverting-amplifier.sch
 
@@ -2815,7 +2503,6 @@ Schematic gallery
         
 
 `opamp-noninverting-amplifier.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opampnoise/opamp-noninverting-amplifier.sch>`_
-==================================================================================================================================================
 
 .. literalinclude:: examples/tutorials/opampnoise/opamp-noninverting-amplifier.sch
 
@@ -2824,7 +2511,6 @@ Schematic gallery
         
 
 `opamp-noninverting-amplifier1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-noninverting-amplifier1.sch>`_
-================================================================================================================================================
 
 .. literalinclude:: examples/tutorials/opamps/opamp-noninverting-amplifier1.sch
 
@@ -2833,7 +2519,6 @@ Schematic gallery
         
 
 `opamp-noninverting-amplifier2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-noninverting-amplifier2.sch>`_
-================================================================================================================================================
 
 .. literalinclude:: examples/tutorials/opamps/opamp-noninverting-amplifier2.sch
 
@@ -2842,7 +2527,6 @@ Schematic gallery
         
 
 `opamp-piezo-amplifier1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-piezo-amplifier1.sch>`_
-==================================================================================================================================
 
 .. literalinclude:: examples/tutorials/opamps/opamp-piezo-amplifier1.sch
 
@@ -2851,7 +2535,6 @@ Schematic gallery
         
 
 `opamp-piezo-amplifier2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-piezo-amplifier2.sch>`_
-==================================================================================================================================
 
 .. literalinclude:: examples/tutorials/opamps/opamp-piezo-amplifier2.sch
 
@@ -2860,7 +2543,6 @@ Schematic gallery
         
 
 `opamp-test1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/opamp-test1.sch>`_
-======================================================================================================
 
 .. literalinclude:: examples/schematics/opamp-test1.sch
 
@@ -2869,7 +2551,6 @@ Schematic gallery
         
 
 `opamp-transimpedance-amplifier-with-voltage-gain1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-transimpedance-amplifier-with-voltage-gain1.sch>`_
-========================================================================================================================================================================================
 
 .. literalinclude:: examples/tutorials/opamps/opamp-transimpedance-amplifier-with-voltage-gain1.sch
 
@@ -2878,7 +2559,6 @@ Schematic gallery
         
 
 `opamp-transimpedance-amplifier1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-transimpedance-amplifier1.sch>`_
-====================================================================================================================================================
 
 .. literalinclude:: examples/tutorials/opamps/opamp-transimpedance-amplifier1.sch
 
@@ -2887,7 +2567,6 @@ Schematic gallery
         
 
 `opamp-transimpedance-amplifier2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-transimpedance-amplifier2.sch>`_
-====================================================================================================================================================
 
 .. literalinclude:: examples/tutorials/opamps/opamp-transimpedance-amplifier2.sch
 
@@ -2896,7 +2575,6 @@ Schematic gallery
         
 
 `opamp-voltage-follower-C-load-model1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-voltage-follower-C-load-model1.sch>`_
-==============================================================================================================================================================
 
 .. literalinclude:: examples/tutorials/opamps/opamp-voltage-follower-C-load-model1.sch
 
@@ -2905,7 +2583,6 @@ Schematic gallery
         
 
 `opamp-voltage-follower-C-load1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-voltage-follower-C-load1.sch>`_
-==================================================================================================================================================
 
 .. literalinclude:: examples/tutorials/opamps/opamp-voltage-follower-C-load1.sch
 
@@ -2914,7 +2591,6 @@ Schematic gallery
         
 
 `opamp-voltage-follower-C-load2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-voltage-follower-C-load2.sch>`_
-==================================================================================================================================================
 
 .. literalinclude:: examples/tutorials/opamps/opamp-voltage-follower-C-load2.sch
 
@@ -2923,7 +2599,6 @@ Schematic gallery
         
 
 `opamp-voltage-follower-RC-load-model1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-voltage-follower-RC-load-model1.sch>`_
-================================================================================================================================================================
 
 .. literalinclude:: examples/tutorials/opamps/opamp-voltage-follower-RC-load-model1.sch
 
@@ -2932,7 +2607,6 @@ Schematic gallery
         
 
 `opamp-voltage-follower-RC-load1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-voltage-follower-RC-load1.sch>`_
-====================================================================================================================================================
 
 .. literalinclude:: examples/tutorials/opamps/opamp-voltage-follower-RC-load1.sch
 
@@ -2941,7 +2615,6 @@ Schematic gallery
         
 
 `opamp-voltage-follower-RC-load2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-voltage-follower-RC-load2.sch>`_
-====================================================================================================================================================
 
 .. literalinclude:: examples/tutorials/opamps/opamp-voltage-follower-RC-load2.sch
 
@@ -2950,7 +2623,6 @@ Schematic gallery
         
 
 `opamp1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/opamp1.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/opamp1.sch
 
@@ -2959,7 +2631,6 @@ Schematic gallery
         
 
 `opamp2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/opamp2.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/opamp2.sch
 
@@ -2968,7 +2639,6 @@ Schematic gallery
         
 
 `opamp3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/opamp3.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/opamp3.sch
 
@@ -2977,7 +2647,6 @@ Schematic gallery
         
 
 `opamp4.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/opamp4.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/opamp4.sch
 
@@ -2986,7 +2655,6 @@ Schematic gallery
         
 
 `opamp5.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/opamp5.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/opamp5.sch
 
@@ -2995,7 +2663,6 @@ Schematic gallery
         
 
 `opamp6.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/opamp6.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/opamp6.sch
 
@@ -3004,7 +2671,6 @@ Schematic gallery
         
 
 `opamp7.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/opamp7.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/opamp7.sch
 
@@ -3013,7 +2679,6 @@ Schematic gallery
         
 
 `opamp8.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/opamp8.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/opamp8.sch
 
@@ -3022,7 +2687,6 @@ Schematic gallery
         
 
 `opamp9.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/opamp9.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/opamp9.sch
 
@@ -3031,7 +2695,6 @@ Schematic gallery
         
 
 `opamps.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/opamps.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/opamps.sch
 
@@ -3040,7 +2703,6 @@ Schematic gallery
         
 
 `opampup.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/opampup.sch>`_
-==============================================================================================
 
 .. literalinclude:: examples/schematics/opampup.sch
 
@@ -3049,7 +2711,6 @@ Schematic gallery
         
 
 `parallel.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/parallel.sch>`_
-================================================================================================
 
 .. literalinclude:: examples/schematics/parallel.sch
 
@@ -3058,7 +2719,6 @@ Schematic gallery
         
 
 `pic1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/pic1.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/pic1.sch
 
@@ -3067,7 +2727,6 @@ Schematic gallery
         
 
 `pic2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/pic2.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/pic2.sch
 
@@ -3076,7 +2735,6 @@ Schematic gallery
         
 
 `pic3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/pic3.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/pic3.sch
 
@@ -3085,7 +2743,6 @@ Schematic gallery
         
 
 `pic4.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/pic4.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/pic4.sch
 
@@ -3094,7 +2751,6 @@ Schematic gallery
         
 
 `pic5.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/pic5.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/pic5.sch
 
@@ -3103,7 +2759,6 @@ Schematic gallery
         
 
 `pic6.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/pic6.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/pic6.sch
 
@@ -3112,7 +2767,6 @@ Schematic gallery
         
 
 `pic7.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/pic7.sch>`_
-========================================================================================
 
 .. literalinclude:: examples/schematics/pic7.sch
 
@@ -3121,7 +2775,6 @@ Schematic gallery
         
 
 `pierce-oscillator.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/pierce-oscillator.sch>`_
-==================================================================================================================
 
 .. literalinclude:: examples/schematics/pierce-oscillator.sch
 
@@ -3130,7 +2783,6 @@ Schematic gallery
         
 
 `pindefs1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/pindefs1.sch>`_
-================================================================================================
 
 .. literalinclude:: examples/schematics/pindefs1.sch
 
@@ -3139,16 +2791,14 @@ Schematic gallery
         
 
 `pisection.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/pisection.sch>`_
-==================================================================================================
 
 .. literalinclude:: examples/schematics/pisection.sch
 
 .. image:: examples/schematics/pisection.png
-   :width: 6.7cm
+   :width: 7.4cm
         
 
 `resistors1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/resistors1.sch>`_
-====================================================================================================
 
 .. literalinclude:: examples/schematics/resistors1.sch
 
@@ -3157,7 +2807,6 @@ Schematic gallery
         
 
 `resistors2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/resistors2.sch>`_
-====================================================================================================
 
 .. literalinclude:: examples/schematics/resistors2.sch
 
@@ -3166,7 +2815,6 @@ Schematic gallery
         
 
 `resistors3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/resistors3.sch>`_
-====================================================================================================
 
 .. literalinclude:: examples/schematics/resistors3.sch
 
@@ -3175,7 +2823,6 @@ Schematic gallery
         
 
 `resistors4.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/resistors4.sch>`_
-====================================================================================================
 
 .. literalinclude:: examples/schematics/resistors4.sch
 
@@ -3184,7 +2831,6 @@ Schematic gallery
         
 
 `resistors5.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/resistors5.sch>`_
-====================================================================================================
 
 .. literalinclude:: examples/schematics/resistors5.sch
 
@@ -3193,7 +2839,6 @@ Schematic gallery
         
 
 `resistors6.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/resistors6.sch>`_
-====================================================================================================
 
 .. literalinclude:: examples/schematics/resistors6.sch
 
@@ -3202,7 +2847,6 @@ Schematic gallery
         
 
 `resistors7.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/resistors7.sch>`_
-====================================================================================================
 
 .. literalinclude:: examples/schematics/resistors7.sch
 
@@ -3211,7 +2855,6 @@ Schematic gallery
         
 
 `rnet1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/rnet1.sch>`_
-==========================================================================================
 
 .. literalinclude:: examples/schematics/rnet1.sch
 
@@ -3220,7 +2863,6 @@ Schematic gallery
         
 
 `rnet2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/rnet2.sch>`_
-==========================================================================================
 
 .. literalinclude:: examples/schematics/rnet2.sch
 
@@ -3229,7 +2871,6 @@ Schematic gallery
         
 
 `rnet3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/rnet3.sch>`_
-==========================================================================================
 
 .. literalinclude:: examples/schematics/rnet3.sch
 
@@ -3238,7 +2879,6 @@ Schematic gallery
         
 
 `rnet4.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/rnet4.sch>`_
-==========================================================================================
 
 .. literalinclude:: examples/schematics/rnet4.sch
 
@@ -3247,25 +2887,22 @@ Schematic gallery
         
 
 `sallen-key-lpf1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/sallen-key-lpf1.sch>`_
-==============================================================================================================
 
 .. literalinclude:: examples/schematics/sallen-key-lpf1.sch
 
 .. image:: examples/schematics/sallen-key-lpf1.png
-   :width: 10.9cm
+   :width: 11.2cm
         
 
 `sallen-key-lpf2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/sallen-key-lpf2.sch>`_
-==============================================================================================================
 
 .. literalinclude:: examples/schematics/sallen-key-lpf2.sch
 
 .. image:: examples/schematics/sallen-key-lpf2.png
-   :width: 12.2cm
+   :width: 12.4cm
         
 
 `schematic.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/schematic.sch>`_
-==================================================================================================
 
 .. literalinclude:: examples/schematics/schematic.sch
 
@@ -3274,16 +2911,14 @@ Schematic gallery
         
 
 `series.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/series.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/series.sch
 
 .. image:: examples/schematics/series.png
-   :width: 4.7cm
+   :width: 5.4cm
         
 
 `shield-ground.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/shield-guard/shield-ground.sch>`_
-======================================================================================================================
 
 .. literalinclude:: examples/tutorials/shield-guard/shield-ground.sch
 
@@ -3292,7 +2927,6 @@ Schematic gallery
         
 
 `shield-guard.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/shield-guard/shield-guard.sch>`_
-====================================================================================================================
 
 .. literalinclude:: examples/tutorials/shield-guard/shield-guard.sch
 
@@ -3301,16 +2935,14 @@ Schematic gallery
         
 
 `shunt.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/shunt.sch>`_
-==========================================================================================
 
 .. literalinclude:: examples/schematics/shunt.sch
 
 .. image:: examples/schematics/shunt.png
-   :width: 4.7cm
+   :width: 5.4cm
         
 
 `ss1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/netlists/ss1.sch>`_
-====================================================================================
 
 .. literalinclude:: examples/netlists/ss1.sch
 
@@ -3319,7 +2951,6 @@ Schematic gallery
         
 
 `ss2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/netlists/ss2.sch>`_
-====================================================================================
 
 .. literalinclude:: examples/netlists/ss2.sch
 
@@ -3328,7 +2959,6 @@ Schematic gallery
         
 
 `steppedwire0.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/steppedwire0.sch>`_
-========================================================================================================
 
 .. literalinclude:: examples/schematics/steppedwire0.sch
 
@@ -3337,7 +2967,6 @@ Schematic gallery
         
 
 `steppedwire1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/steppedwire1.sch>`_
-========================================================================================================
 
 .. literalinclude:: examples/schematics/steppedwire1.sch
 
@@ -3346,7 +2975,6 @@ Schematic gallery
         
 
 `steppedwire2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/steppedwire2.sch>`_
-========================================================================================================
 
 .. literalinclude:: examples/schematics/steppedwire2.sch
 
@@ -3355,7 +2983,6 @@ Schematic gallery
         
 
 `steppedwire4.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/steppedwire4.sch>`_
-========================================================================================================
 
 .. literalinclude:: examples/schematics/steppedwire4.sch
 
@@ -3364,7 +2991,6 @@ Schematic gallery
         
 
 `stepup.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/stepup.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/stepup.sch
 
@@ -3373,7 +2999,6 @@ Schematic gallery
         
 
 `supplies.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/supplies.sch>`_
-================================================================================================
 
 .. literalinclude:: examples/schematics/supplies.sch
 
@@ -3382,7 +3007,6 @@ Schematic gallery
         
 
 `switches.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/switches.sch>`_
-================================================================================================
 
 .. literalinclude:: examples/schematics/switches.sch
 
@@ -3391,7 +3015,6 @@ Schematic gallery
         
 
 `switches2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/switches2.sch>`_
-==================================================================================================
 
 .. literalinclude:: examples/schematics/switches2.sch
 
@@ -3400,7 +3023,6 @@ Schematic gallery
         
 
 `tee-model-transformer1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/transformers/tee-model-transformer1.sch>`_
-========================================================================================================================================
 
 .. literalinclude:: examples/tutorials/transformers/tee-model-transformer1.sch
 
@@ -3409,7 +3031,6 @@ Schematic gallery
         
 
 `tee-model-transformer2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/transformers/tee-model-transformer2.sch>`_
-========================================================================================================================================
 
 .. literalinclude:: examples/tutorials/transformers/tee-model-transformer2.sch
 
@@ -3418,7 +3039,6 @@ Schematic gallery
         
 
 `tee-model-transformer3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/transformers/tee-model-transformer3.sch>`_
-========================================================================================================================================
 
 .. literalinclude:: examples/tutorials/transformers/tee-model-transformer3.sch
 
@@ -3427,7 +3047,6 @@ Schematic gallery
         
 
 `test1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/test1.sch>`_
-==========================================================================================
 
 .. literalinclude:: examples/schematics/test1.sch
 
@@ -3436,7 +3055,6 @@ Schematic gallery
         
 
 `tline1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/tline1.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/tline1.sch
 
@@ -3445,7 +3063,6 @@ Schematic gallery
         
 
 `tline2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/tline2.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/tline2.sch
 
@@ -3454,7 +3071,6 @@ Schematic gallery
         
 
 `tline3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/tline3.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/tline3.sch
 
@@ -3463,7 +3079,6 @@ Schematic gallery
         
 
 `tline4.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/tline4.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/tline4.sch
 
@@ -3472,7 +3087,6 @@ Schematic gallery
         
 
 `tline5.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/tline5.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/tline5.sch
 
@@ -3481,7 +3095,6 @@ Schematic gallery
         
 
 `tofix1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/tofix1.sch>`_
-============================================================================================
 
 .. literalinclude:: examples/schematics/tofix1.sch
 
@@ -3490,7 +3103,6 @@ Schematic gallery
         
 
 `totem.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/totem.sch>`_
-==========================================================================================
 
 .. literalinclude:: examples/schematics/totem.sch
 
@@ -3499,7 +3111,6 @@ Schematic gallery
         
 
 `transfer1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/netlists/transfer1.sch>`_
-================================================================================================
 
 .. literalinclude:: examples/netlists/transfer1.sch
 
@@ -3508,7 +3119,6 @@ Schematic gallery
         
 
 `transforms.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/transforms.sch>`_
-====================================================================================================
 
 .. literalinclude:: examples/schematics/transforms.sch
 
@@ -3517,7 +3127,6 @@ Schematic gallery
         
 
 `transistors.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/transistors.sch>`_
-======================================================================================================
 
 .. literalinclude:: examples/schematics/transistors.sch
 
@@ -3526,7 +3135,6 @@ Schematic gallery
         
 
 `transistors1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/transistors1.sch>`_
-========================================================================================================
 
 .. literalinclude:: examples/schematics/transistors1.sch
 
@@ -3535,7 +3143,6 @@ Schematic gallery
         
 
 `transistors2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/transistors2.sch>`_
-========================================================================================================
 
 .. literalinclude:: examples/schematics/transistors2.sch
 
@@ -3544,7 +3151,6 @@ Schematic gallery
         
 
 `transistors3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/transistors3.sch>`_
-========================================================================================================
 
 .. literalinclude:: examples/schematics/transistors3.sch
 
@@ -3553,7 +3159,6 @@ Schematic gallery
         
 
 `tricky1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/tricky1.sch>`_
-==============================================================================================
 
 .. literalinclude:: examples/schematics/tricky1.sch
 
@@ -3562,7 +3167,6 @@ Schematic gallery
         
 
 `tsection.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/tsection.sch>`_
-================================================================================================
 
 .. literalinclude:: examples/schematics/tsection.sch
 
@@ -3571,7 +3175,6 @@ Schematic gallery
         
 
 `twoport1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/twoport1.sch>`_
-================================================================================================
 
 .. literalinclude:: examples/schematics/twoport1.sch
 
@@ -3580,7 +3183,6 @@ Schematic gallery
         
 
 `txline1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/txline/txline1.sch>`_
-====================================================================================================
 
 .. literalinclude:: examples/tutorials/txline/txline1.sch
 
@@ -3589,7 +3191,6 @@ Schematic gallery
         
 
 `variable1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/variable1.sch>`_
-==================================================================================================
 
 .. literalinclude:: examples/schematics/variable1.sch
 
@@ -3598,7 +3199,6 @@ Schematic gallery
         
 
 `voltage-divider.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/voltage-divider.sch>`_
-==============================================================================================================
 
 .. literalinclude:: examples/schematics/voltage-divider.sch
 
@@ -3607,7 +3207,6 @@ Schematic gallery
         
 
 `voltage_labels1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/voltage_labels1.sch>`_
-==============================================================================================================
 
 .. literalinclude:: examples/schematics/voltage_labels1.sch
 
@@ -3616,7 +3215,6 @@ Schematic gallery
         
 
 `voltage_sources.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/voltage_sources.sch>`_
-==============================================================================================================
 
 .. literalinclude:: examples/schematics/voltage_sources.sch
 
@@ -3625,7 +3223,6 @@ Schematic gallery
         
 
 `vsources.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/vsources.sch>`_
-================================================================================================
 
 .. literalinclude:: examples/schematics/vsources.sch
 
@@ -3634,7 +3231,6 @@ Schematic gallery
         
 
 `wirestyles.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/wirestyles.sch>`_
-====================================================================================================
 
 .. literalinclude:: examples/schematics/wirestyles.sch
 
