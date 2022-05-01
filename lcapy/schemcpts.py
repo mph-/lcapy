@@ -1613,17 +1613,17 @@ class BJT(Transistor):
     """BJT"""
 
     node_pinnames = ('e', 'b', 'c')
-    ppins = {'e': ('lx', 0.75, 0),
+    ppins = {'e': ('lx', 0.55, 0),
              'b': ('lx', 0, 0.5),
-             'c': ('lx', 0.75, 1)}
-    npins = {'e': ('lx', 0.75, 1),
+             'c': ('lx', 0.55, 1)}
+    npins = {'e': ('lx', 0.55, 1),
              'b': ('lx', 0, 0.5),
-             'c': ('lx', 0.75, 0)}
+             'c': ('lx', 0.55, 0)}
     ippins = {'e': ('lx', 0, 0),
-              'b': ('lx', 0.75, 0.5),
+              'b': ('lx', 0.55, 0.5),
               'c': ('lx', 0, 1)}
     inpins = {'e': ('lx', 0, 1),
-              'b': ('lx', 0.75, 0.5),
+              'b': ('lx', 0.55, 0.5),
               'c': ('lx', 0, 0)}
     kinds = {'nigbt': 'nigbt', 'pigbt': 'pigbt', 'Lnigbt': 'Lnigbt',
              'Lpigbt': 'Lpigbt'}
@@ -1633,17 +1633,17 @@ class JFET(Transistor):
     """JFET"""
 
     node_pinnames = ('d', 'g', 's')
-    ppins = {'d': ('lx', 0.75, 0),
+    ppins = {'d': ('lx', 0.55, 0),
              'g': ('lx', 0, 0.645),
-             's': ('lx', 0.75, 1)}
-    npins = {'d': ('lx', 0.75, 1),
+             's': ('lx', 0.55, 1)}
+    npins = {'d': ('lx', 0.55, 1),
              'g': ('lx', 0, 0.355),
-             's': ('lx', 0.75, 0)}
+             's': ('lx', 0.55, 0)}
     ippins = {'d': ('lx', 0, 0),
-              'g': ('lx', 0.75, 0.645),
+              'g': ('lx', 0.55, 0.645),
               's': ('lx', 0, 1)}
     inpins = {'d': ('lx', 0, 1),
-              'g': ('lx', 0.75, 0.355),
+              'g': ('lx', 0.55, 0.355),
               's': ('lx', 0, 0)}
 
 
@@ -1651,17 +1651,17 @@ class MOSFET(Transistor):
     """MOSFET"""
 
     node_pinnames = ('d', 'g', 's')
-    ppins = {'d': ('lx', 0.75, 0),
+    ppins = {'d': ('lx', 0.55, 0),
              'g': ('lx', 0, 0.5),
-             's': ('lx', 0.75, 1)}
-    npins = {'d': ('lx', 0.75, 1),
+             's': ('lx', 0.55, 1)}
+    npins = {'d': ('lx', 0.55, 1),
              'g': ('lx', 0, 0.5),
-             's': ('lx', 0.75, 0)}
+             's': ('lx', 0.55, 0)}
     ippins = {'d': ('lx', 0, 0),
-              'g': ('lx', 0.75, 0.5),
+              'g': ('lx', 0.55, 0.5),
               's': ('lx', 0, 1)}
     inpins = {'d': ('lx', 0, 1),
-              'g': ('lx', 0.75, 0.5),
+              'g': ('lx', 0.55, 0.5),
               's': ('lx', 0, 0)}
     kinds = {'nmos': 'nmos', 'pmos': 'pmos', 'nmosd': 'nmosd', 'pmosd': 'pmosd',
              'nfet': 'nfet', 'pfet': 'pfet', 'nfetd': 'nfetd', 'pfetd': 'pfetd',
