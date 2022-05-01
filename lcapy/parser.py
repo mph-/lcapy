@@ -390,7 +390,7 @@ class Parser:
 
         keyword = (pos, keyword)
 
-        # self.cpts is either the mnacpts or schematic module
+        # self.cpts is either the mnacpts or schemcpts module
         return self.cpts.make(rule.classname, parent, namespace,
                               defname, name, cpt_type, cpt_id, net,
                               opts_string, tuple(nodes), keyword,
