@@ -10,7 +10,7 @@ M1 7 5 8 pmos; right
 M2 7 6 9 nmos; right
 W 3 9; right
 W 2 8; right
-W 7 10; right, size=0.5
+W 7 10; right, size=0.25
 W 8 11; right
 W 9 12; right
 VDD 11 12;down

@@ -26,7 +26,7 @@ def show_image(sch_filename):
     except:
         return
 
-    width_cm = width / 60
+    width_cm = width / 120
 
     label = basename(sch_filename)
 

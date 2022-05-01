@@ -5,7 +5,7 @@ S4 box; right, l={$\mathcal{L}\left\{.\right\}$}
 S5 box; right=1.9, aspect=2.1, draw=white, l={Angular Fourier domain\\$H(\omega)$}
 S6 box; right, l={$s=\mathrm{j}\omega$}
 S7 box; right, l={$\mathcal{F}_{\omega}\left\{.\right\}$}
-S8 box; right=1.9, aspect=2.1, draw=white, l={Equivalent if lossy and causal}
+S8 box; right=1.9, aspect=2.1, draw=white, l={Equivalent if causal and poles in LHS}
 S9 box; right, l={$\mathcal{F}\left\{.\right\}$}
 S10 box; right=1.9, aspect=2.1, draw=white, l={Fourier domain\\$H(f)$}
 S11 box; right, l={$f=\frac{\omega}{2\pi}$}

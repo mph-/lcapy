@@ -12,7 +12,7 @@ W 0_1 0_10; right
 W 0_10 0_6; right, free
 W 0_6 0_2; right
 
-Pe 7 0_7; down, v=v
+Pe 7 0_7; down, v_=v
 W 7 8; right=0.5, i=i
 W 0_7 0_8; right=0.5
 W 8 9; right

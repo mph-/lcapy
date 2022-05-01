@@ -10,8 +10,8 @@ D1 7_1 6_1; up=0.25, scale=0.5, l=, color=red
 D2 6_2 7_1; up=0.25, scale=0.5, l=
 W 6_1 U2.vdd; right=0.6, dashed, color=red
 W 6_2 U2.vss; right=0.6, dashed
-M1 1 2 3 pmos; right=0.25, scale=0.25, l={}, color=red
-M2 1 4 5 nmos; right=0.25, scale=0.25, l={}
+M1 1 2 3 pmos; right=0.4, scale=0.4, l={}, color=red
+M2 1 4 5 nmos; right=0.4, scale=0.4, l={}
 W 3 3_1; up=0.0, color=red
 W 3_1 U1.vdd; right=0.2, dashed, color=red
 W 5 5_1; down=0.0

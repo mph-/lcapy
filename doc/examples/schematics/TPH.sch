@@ -1,4 +1,4 @@
-P 1 2; down, v=V_1
+P 1 2; down, v_=V_1
 W 1 11; right=0.5, i=I_1
 W 2 12; right=0.5, i<=I_1
 V1h 11 5; right

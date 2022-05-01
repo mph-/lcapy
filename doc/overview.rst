@@ -1529,7 +1529,7 @@ varying components such as switches.  For example, here's a common
 base amplifier,
 
 .. image:: examples/schematics/common-base.png
-   :width: 7cm
+   :width: 6cm
 
 This is described by the netlist::
 

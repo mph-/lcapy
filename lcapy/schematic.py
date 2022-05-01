@@ -300,10 +300,13 @@ class Schematic(NetfileMixin):
     def _format_name(self, cpt_type, cpt_id):
 
         name = cpt_type
+        subscript = cpt_id
         if len(name) > 1:
             name = r'\mathrm{%s}' % name
-        if cpt_id != '':
-            name = name + '_{%s}' % cpt_id
+        if subscript != '':
+            if len(subscript) > 1:
+                subscript = r'\mathrm{%s}' % subscript
+            name = name + '_{%s}' % subscript
         return latex_format_label('$' + name + '$')
 
     def _format_expr(self, expr):

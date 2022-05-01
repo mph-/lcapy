@@ -1,7 +1,7 @@
 R1 1 2; right
 L1 2 3 {L_1 - a * M}; right
 L3 4 0_4 {a * M}; down
-P1 1 0; down, v=v_1
+P1 1 0; down, v_=v_1
 W 0 0_3; right
 W 3 4; right=0.5
 W 0_3 0_4; right=0.5

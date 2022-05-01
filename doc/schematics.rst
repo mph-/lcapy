@@ -1695,3 +1695,11 @@ The node labels can be removed with::
 
 The drawing quality depends on the installed version of Circuitikz due
 to slight tweakings of component sizes.
+
+
+Problems
+========
+
+- Circuitikz is a moving target and the components are often tweaked.   This causes slight alignment problems.
+
+- Circuitikz does not correctly determine the bounding box for transistor text labels.  A workaround is to draw a dummy component to extend the bounding box.

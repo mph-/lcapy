@@ -39,7 +39,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/Btwoport1.sch
 
 .. image:: examples/schematics/Btwoport1.png
-   :width: 7.4cm
+   :width: 6.7cm
         
 
 `CPE1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/CPE1.sch>`_
@@ -48,7 +48,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/CPE1.sch
 
 .. image:: examples/schematics/CPE1.png
-   :width: 2.5cm
+   :width: 2.4cm
         
 
 `D1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/D1.sch>`_
@@ -57,7 +57,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/D1.sch
 
 .. image:: examples/schematics/D1.png
-   :width: 1.4cm
+   :width: 1.3cm
         
 
 `D2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/D2.sch>`_
@@ -66,7 +66,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/D2.sch
 
 .. image:: examples/schematics/D2.png
-   :width: 1.4cm
+   :width: 1.3cm
         
 
 `D3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/D3.sch>`_
@@ -84,7 +84,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/D4.sch
 
 .. image:: examples/schematics/D4.png
-   :width: 4.3cm
+   :width: 3.8cm
         
 
 `D5.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/D5.sch>`_
@@ -93,7 +93,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/D5.sch
 
 .. image:: examples/schematics/D5.png
-   :width: 3.3cm
+   :width: 3.9cm
         
 
 `DAC1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/DAC1.sch>`_
@@ -120,7 +120,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/DFF1.sch
 
 .. image:: examples/schematics/DFF1.png
-   :width: 4.0cm
+   :width: 3.9cm
         
 
 `DFF1b.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/DFF1b.sch>`_
@@ -156,7 +156,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/Ddown.sch
 
 .. image:: examples/schematics/Ddown.png
-   :width: 1.4cm
+   :width: 1.3cm
         
 
 `Dleft.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Dleft.sch>`_
@@ -165,7 +165,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/Dleft.sch
 
 .. image:: examples/schematics/Dleft.png
-   :width: 2.5cm
+   :width: 2.4cm
         
 
 `Dright.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Dright.sch>`_
@@ -174,7 +174,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/Dright.sch
 
 .. image:: examples/schematics/Dright.png
-   :width: 2.5cm
+   :width: 2.4cm
         
 
 `Dup.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Dup.sch>`_
@@ -192,7 +192,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/E1.sch
 
 .. image:: examples/schematics/E1.png
-   :width: 11.5cm
+   :width: 11.4cm
         
 
 `Eopamp_Uopamp.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Eopamp_Uopamp.sch>`_
@@ -219,7 +219,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/F1.sch
 
 .. image:: examples/schematics/F1.png
-   :width: 11.5cm
+   :width: 11.4cm
         
 
 `FB1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/FB1.sch>`_
@@ -228,7 +228,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/FB1.sch
 
 .. image:: examples/schematics/FB1.png
-   :width: 2.5cm
+   :width: 2.4cm
         
 
 `FB2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/FB2.sch>`_
@@ -237,7 +237,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/FB2.sch
 
 .. image:: examples/schematics/FB2.png
-   :width: 3.4cm
+   :width: 2.8cm
         
 
 `G1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/G1.sch>`_
@@ -246,7 +246,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/G1.sch
 
 .. image:: examples/schematics/G1.png
-   :width: 11.5cm
+   :width: 11.4cm
         
 
 `GY1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/GY1.sch>`_
@@ -264,7 +264,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/H1.sch
 
 .. image:: examples/schematics/H1.png
-   :width: 11.5cm
+   :width: 11.4cm
         
 
 `I2C2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/I2C2.sch>`_
@@ -282,7 +282,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/J1.sch
 
 .. image:: examples/schematics/J1.png
-   :width: 5.1cm
+   :width: 4.1cm
         
 
 `J2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/J2.sch>`_
@@ -291,7 +291,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/J2.sch
 
 .. image:: examples/schematics/J2.png
-   :width: 5.1cm
+   :width: 4.1cm
         
 
 `J3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/J3.sch>`_
@@ -300,7 +300,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/J3.sch
 
 .. image:: examples/schematics/J3.png
-   :width: 5.1cm
+   :width: 4.1cm
         
 
 `K1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/K1.sch>`_
@@ -318,7 +318,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/K2.sch
 
 .. image:: examples/schematics/K2.png
-   :width: 6.4cm
+   :width: 6.5cm
         
 
 `KLM2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/transducers/KLM2.sch>`_
@@ -354,7 +354,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/LC1.sch
 
 .. image:: examples/schematics/LC1.png
-   :width: 3.2cm
+   :width: 2.8cm
         
 
 `LTFT.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/LTFT.sch>`_
@@ -372,7 +372,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/M1.sch
 
 .. image:: examples/schematics/M1.png
-   :width: 5.3cm
+   :width: 4.1cm
         
 
 `M1b.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/M1b.sch>`_
@@ -381,7 +381,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/M1b.sch
 
 .. image:: examples/schematics/M1b.png
-   :width: 2.9cm
+   :width: 1.9cm
         
 
 `M1c.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/M1c.sch>`_
@@ -390,7 +390,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/M1c.sch
 
 .. image:: examples/schematics/M1c.png
-   :width: 2.9cm
+   :width: 1.9cm
         
 
 `M2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/M2.sch>`_
@@ -399,7 +399,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/M2.sch
 
 .. image:: examples/schematics/M2.png
-   :width: 5.3cm
+   :width: 4.1cm
         
 
 `M3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/M3.sch>`_
@@ -408,7 +408,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/M3.sch
 
 .. image:: examples/schematics/M3.png
-   :width: 5.3cm
+   :width: 4.1cm
         
 
 `M6.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/M6.sch>`_
@@ -417,7 +417,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/M6.sch
 
 .. image:: examples/schematics/M6.png
-   :width: 4.6cm
+   :width: 4.3cm
         
 
 `MX1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/MX1.sch>`_
@@ -435,7 +435,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/Q1.sch
 
 .. image:: examples/schematics/Q1.png
-   :width: 5.1cm
+   :width: 4.1cm
         
 
 `Q1b.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Q1b.sch>`_
@@ -444,7 +444,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/Q1b.sch
 
 .. image:: examples/schematics/Q1b.png
-   :width: 2.7cm
+   :width: 1.9cm
         
 
 `Q1c.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Q1c.sch>`_
@@ -453,7 +453,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/Q1c.sch
 
 .. image:: examples/schematics/Q1c.png
-   :width: 2.7cm
+   :width: 1.9cm
         
 
 `Q2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Q2.sch>`_
@@ -462,7 +462,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/Q2.sch
 
 .. image:: examples/schematics/Q2.png
-   :width: 5.1cm
+   :width: 4.1cm
         
 
 `Q3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Q3.sch>`_
@@ -471,7 +471,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/Q3.sch
 
 .. image:: examples/schematics/Q3.png
-   :width: 3.6cm
+   :width: 2.4cm
         
 
 `Qnpndown.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Qnpndown.sch>`_
@@ -480,7 +480,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/Qnpndown.sch
 
 .. image:: examples/schematics/Qnpndown.png
-   :width: 3.6cm
+   :width: 2.4cm
         
 
 `Qnpnleft.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Qnpnleft.sch>`_
@@ -489,7 +489,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/Qnpnleft.sch
 
 .. image:: examples/schematics/Qnpnleft.png
-   :width: 2.5cm
+   :width: 1.9cm
         
 
 `Qnpnright.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Qnpnright.sch>`_
@@ -498,7 +498,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/Qnpnright.sch
 
 .. image:: examples/schematics/Qnpnright.png
-   :width: 2.7cm
+   :width: 1.9cm
         
 
 `Qnpnrot45.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Qnpnrot45.sch>`_
@@ -507,7 +507,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/Qnpnrot45.sch
 
 .. image:: examples/schematics/Qnpnrot45.png
-   :width: 3.0cm
+   :width: 2.2cm
         
 
 `Qnpnup.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Qnpnup.sch>`_
@@ -516,7 +516,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/Qnpnup.sch
 
 .. image:: examples/schematics/Qnpnup.png
-   :width: 3.6cm
+   :width: 2.4cm
         
 
 `Qnpright.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Qnpright.sch>`_
@@ -525,7 +525,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/Qnpright.sch
 
 .. image:: examples/schematics/Qnpright.png
-   :width: 2.7cm
+   :width: 1.9cm
         
 
 `Qpnpdown.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Qpnpdown.sch>`_
@@ -534,7 +534,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/Qpnpdown.sch
 
 .. image:: examples/schematics/Qpnpdown.png
-   :width: 3.6cm
+   :width: 2.4cm
         
 
 `Qpnpleft.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Qpnpleft.sch>`_
@@ -543,7 +543,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/Qpnpleft.sch
 
 .. image:: examples/schematics/Qpnpleft.png
-   :width: 2.5cm
+   :width: 1.9cm
         
 
 `Qpnpright.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Qpnpright.sch>`_
@@ -552,7 +552,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/Qpnpright.sch
 
 .. image:: examples/schematics/Qpnpright.png
-   :width: 2.7cm
+   :width: 1.9cm
         
 
 `Qpnpup.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Qpnpup.sch>`_
@@ -561,7 +561,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/Qpnpup.sch
 
 .. image:: examples/schematics/Qpnpup.png
-   :width: 3.6cm
+   :width: 2.4cm
         
 
 `RC1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/RC1.sch>`_
@@ -579,7 +579,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/RC2.sch
 
 .. image:: examples/schematics/RC2.png
-   :width: 3.4cm
+   :width: 3.2cm
         
 
 `RCparallel1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/RCnoise/RCparallel1.sch>`_
@@ -588,7 +588,7 @@ Schematic gallery
 .. literalinclude:: examples/tutorials/RCnoise/RCparallel1.sch
 
 .. image:: examples/tutorials/RCnoise/RCparallel1.png
-   :width: 3.2cm
+   :width: 3.0cm
         
 
 `RCparallel1noisy.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/RCnoise/RCparallel1noisy.sch>`_
@@ -597,7 +597,7 @@ Schematic gallery
 .. literalinclude:: examples/tutorials/RCnoise/RCparallel1noisy.sch
 
 .. image:: examples/tutorials/RCnoise/RCparallel1noisy.png
-   :width: 3.3cm
+   :width: 5.8cm
         
 
 `RV1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/RV1.sch>`_
@@ -606,7 +606,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/RV1.sch
 
 .. image:: examples/schematics/RV1.png
-   :width: 2.5cm
+   :width: 2.4cm
         
 
 `RV2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/RV2.sch>`_
@@ -615,7 +615,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/RV2.sch
 
 .. image:: examples/schematics/RV2.png
-   :width: 2.5cm
+   :width: 2.4cm
         
 
 `Rlabels.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Rlabels.sch>`_
@@ -633,7 +633,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/Rright.sch
 
 .. image:: examples/schematics/Rright.png
-   :width: 2.5cm
+   :width: 2.4cm
         
 
 `Rright2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Rright2.sch>`_
@@ -687,7 +687,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/SP5.sch
 
 .. image:: examples/schematics/SP5.png
-   :width: 4.0cm
+   :width: 4.5cm
         
 
 `Sbox1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Sbox1.sch>`_
@@ -723,7 +723,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/Scircle1.sch
 
 .. image:: examples/schematics/Scircle1.png
-   :width: 4.0cm
+   :width: 3.9cm
         
 
 `Scircle2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Scircle2.sch>`_
@@ -777,7 +777,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/TF2.sch
 
 .. image:: examples/schematics/TF2.png
-   :width: 7.3cm
+   :width: 7.0cm
         
 
 `TF3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/TF3.sch>`_
@@ -786,7 +786,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/TF3.sch
 
 .. image:: examples/schematics/TF3.png
-   :width: 7.3cm
+   :width: 7.0cm
         
 
 `TFcore1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/TFcore1.sch>`_
@@ -804,7 +804,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/TFcore2.sch
 
 .. image:: examples/schematics/TFcore2.png
-   :width: 7.3cm
+   :width: 7.0cm
         
 
 `TFtap1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/TFtap1.sch>`_
@@ -831,7 +831,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/TFup.sch
 
 .. image:: examples/schematics/TFup.png
-   :width: 2.5cm
+   :width: 2.4cm
         
 
 `TP1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/TP1.sch>`_
@@ -921,7 +921,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/Ubuffer.sch
 
 .. image:: examples/schematics/Ubuffer.png
-   :width: 4.0cm
+   :width: 3.9cm
         
 
 `Ubuffer1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Ubuffer1.sch>`_
@@ -930,7 +930,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/Ubuffer1.sch
 
 .. image:: examples/schematics/Ubuffer1.png
-   :width: 4.0cm
+   :width: 3.9cm
         
 
 `Ubuffer2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Ubuffer2.sch>`_
@@ -1011,7 +1011,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/Udff.sch
 
 .. image:: examples/schematics/Udff.png
-   :width: 4.0cm
+   :width: 3.9cm
         
 
 `Ufdopamp.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Ufdopamp.sch>`_
@@ -1020,7 +1020,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/Ufdopamp.sch
 
 .. image:: examples/schematics/Ufdopamp.png
-   :width: 5.0cm
+   :width: 4.9cm
         
 
 `Ufdopamps.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Ufdopamps.sch>`_
@@ -1029,7 +1029,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/Ufdopamps.sch
 
 .. image:: examples/schematics/Ufdopamps.png
-   :width: 9.9cm
+   :width: 9.7cm
         
 
 `Uinamp.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Uinamp.sch>`_
@@ -1047,7 +1047,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/Uinverter.sch
 
 .. image:: examples/schematics/Uinverter.png
-   :width: 4.0cm
+   :width: 3.9cm
         
 
 `Uinverter1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Uinverter1.sch>`_
@@ -1056,7 +1056,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/Uinverter1.sch
 
 .. image:: examples/schematics/Uinverter1.png
-   :width: 4.0cm
+   :width: 3.9cm
         
 
 `Uinverter2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Uinverter2.sch>`_
@@ -1083,7 +1083,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/Ujkff.sch
 
 .. image:: examples/schematics/Ujkff.png
-   :width: 4.0cm
+   :width: 3.9cm
         
 
 `Umux21.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/Umux21.sch>`_
@@ -1173,7 +1173,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/Urslatch.sch
 
 .. image:: examples/schematics/Urslatch.png
-   :width: 4.0cm
+   :width: 3.9cm
         
 
 `V5.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/V5.sch>`_
@@ -1209,7 +1209,7 @@ Schematic gallery
 .. literalinclude:: examples/simulation/VRC1.sch
 
 .. image:: examples/simulation/VRC1.png
-   :width: 4.9cm
+   :width: 5.0cm
         
 
 `VRC1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/basic/VRC1.sch>`_
@@ -1227,7 +1227,7 @@ Schematic gallery
 .. literalinclude:: examples/tutorials/basic/VRC1step.sch
 
 .. image:: examples/tutorials/basic/VRC1step.png
-   :width: 5.0cm
+   :width: 5.4cm
         
 
 `VRC2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/basic/VRC2.sch>`_
@@ -1236,7 +1236,7 @@ Schematic gallery
 .. literalinclude:: examples/tutorials/basic/VRC2.sch
 
 .. image:: examples/tutorials/basic/VRC2.png
-   :width: 7.1cm
+   :width: 6.4cm
         
 
 `VRL1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/simulation/VRL1.sch>`_
@@ -1245,7 +1245,7 @@ Schematic gallery
 .. literalinclude:: examples/simulation/VRL1.sch
 
 .. image:: examples/simulation/VRL1.png
-   :width: 4.2cm
+   :width: 4.8cm
         
 
 `VRL1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/VRL1.sch>`_
@@ -1254,7 +1254,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/VRL1.sch
 
 .. image:: examples/schematics/VRL1.png
-   :width: 4.3cm
+   :width: 4.8cm
         
 
 `VRL2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/VRL2.sch>`_
@@ -1263,7 +1263,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/VRL2.sch
 
 .. image:: examples/schematics/VRL2.png
-   :width: 9.5cm
+   :width: 9.4cm
         
 
 `VRL3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/VRL3.sch>`_
@@ -1272,7 +1272,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/VRL3.sch
 
 .. image:: examples/schematics/VRL3.png
-   :width: 9.5cm
+   :width: 9.4cm
         
 
 `VRL4.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/VRL4.sch>`_
@@ -1281,7 +1281,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/VRL4.sch
 
 .. image:: examples/schematics/VRL4.png
-   :width: 10.3cm
+   :width: 10.2cm
         
 
 `VRR1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/basic/VRR1.sch>`_
@@ -1290,7 +1290,7 @@ Schematic gallery
 .. literalinclude:: examples/tutorials/basic/VRR1.sch
 
 .. image:: examples/tutorials/basic/VRR1.png
-   :width: 4.9cm
+   :width: 4.8cm
         
 
 `VRmesh1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/VRmesh1.sch>`_
@@ -1299,7 +1299,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/VRmesh1.sch
 
 .. image:: examples/schematics/VRmesh1.png
-   :width: 9.3cm
+   :width: 9.4cm
         
 
 `VacRL1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/VacRL1.sch>`_
@@ -1308,7 +1308,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/VacRL1.sch
 
 .. image:: examples/schematics/VacRL1.png
-   :width: 3.2cm
+   :width: 3.7cm
         
 
 `Vacsup2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/basic/Vacsup2.sch>`_
@@ -1317,7 +1317,7 @@ Schematic gallery
 .. literalinclude:: examples/tutorials/basic/Vacsup2.sch
 
 .. image:: examples/tutorials/basic/Vacsup2.png
-   :width: 4.2cm
+   :width: 5.9cm
         
 
 `Vsup3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/basic/Vsup3.sch>`_
@@ -1326,7 +1326,7 @@ Schematic gallery
 .. literalinclude:: examples/tutorials/basic/Vsup3.sch
 
 .. image:: examples/tutorials/basic/Vsup3.png
-   :width: 7.0cm
+   :width: 8.6cm
         
 
 `XT1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/XT1.sch>`_
@@ -1335,7 +1335,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/XT1.sch
 
 .. image:: examples/schematics/XT1.png
-   :width: 2.5cm
+   :width: 2.4cm
         
 
 `XT2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/XT2.sch>`_
@@ -1533,7 +1533,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/cable.sch
 
 .. image:: examples/schematics/cable.png
-   :width: 5.8cm
+   :width: 5.7cm
         
 
 `cable4.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cable4.sch>`_
@@ -1596,7 +1596,7 @@ Schematic gallery
 .. literalinclude:: examples/tutorials/ivp/circuit-RLC-ivp1.sch
 
 .. image:: examples/tutorials/ivp/circuit-RLC-ivp1.png
-   :width: 4.4cm
+   :width: 4.1cm
         
 
 `circuit-VRC1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/netlists/circuit-VRC1.sch>`_
@@ -1614,7 +1614,7 @@ Schematic gallery
 .. literalinclude:: examples/netlists/circuit-VRLC1.sch
 
 .. image:: examples/netlists/circuit-VRLC1.png
-   :width: 7.9cm
+   :width: 8.3cm
         
 
 `circuit-VRLC2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/netlists/circuit-VRLC2.sch>`_
@@ -1623,7 +1623,7 @@ Schematic gallery
 .. literalinclude:: examples/netlists/circuit-VRLC2.sch
 
 .. image:: examples/netlists/circuit-VRLC2.png
-   :width: 7.7cm
+   :width: 8.3cm
         
 
 `circuit-simplify1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/netlists/circuit-simplify1.sch>`_
@@ -1632,7 +1632,7 @@ Schematic gallery
 .. literalinclude:: examples/netlists/circuit-simplify1.sch
 
 .. image:: examples/netlists/circuit-simplify1.png
-   :width: 7.1cm
+   :width: 7.0cm
         
 
 `circuit-simplify2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/netlists/circuit-simplify2.sch>`_
@@ -1641,7 +1641,7 @@ Schematic gallery
 .. literalinclude:: examples/netlists/circuit-simplify2.sch
 
 .. image:: examples/netlists/circuit-simplify2.png
-   :width: 9.1cm
+   :width: 9.0cm
         
 
 `circuit-simplify3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/netlists/circuit-simplify3.sch>`_
@@ -1650,7 +1650,7 @@ Schematic gallery
 .. literalinclude:: examples/netlists/circuit-simplify3.sch
 
 .. image:: examples/netlists/circuit-simplify3.png
-   :width: 9.1cm
+   :width: 9.0cm
         
 
 `circuit-simplify4.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/netlists/circuit-simplify4.sch>`_
@@ -1659,7 +1659,7 @@ Schematic gallery
 .. literalinclude:: examples/netlists/circuit-simplify4.sch
 
 .. image:: examples/netlists/circuit-simplify4.png
-   :width: 11.1cm
+   :width: 10.9cm
         
 
 `circuit.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/annotations/circuit.sch>`_
@@ -1668,7 +1668,7 @@ Schematic gallery
 .. literalinclude:: examples/tutorials/annotations/circuit.sch
 
 .. image:: examples/tutorials/annotations/circuit.png
-   :width: 11.0cm
+   :width: 10.9cm
         
 
 `circuit1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/annotations/circuit1.sch>`_
@@ -1677,7 +1677,7 @@ Schematic gallery
 .. literalinclude:: examples/tutorials/annotations/circuit1.sch
 
 .. image:: examples/tutorials/annotations/circuit1.png
-   :width: 11.0cm
+   :width: 10.7cm
         
 
 `cmos-backdrive1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-backdrive1.sch>`_
@@ -1713,7 +1713,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/cmos-esd-damage.sch
 
 .. image:: examples/schematics/cmos-esd-damage.png
-   :width: 9.3cm
+   :width: 9.0cm
         
 
 `cmos-high-low-simple.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-high-low-simple.sch>`_
@@ -1722,7 +1722,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/cmos-high-low-simple.sch
 
 .. image:: examples/schematics/cmos-high-low-simple.png
-   :width: 8.8cm
+   :width: 9.0cm
         
 
 `cmos-high-low.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-high-low.sch>`_
@@ -1731,7 +1731,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/cmos-high-low.sch
 
 .. image:: examples/schematics/cmos-high-low.png
-   :width: 9.1cm
+   :width: 8.3cm
         
 
 `cmos-input-model-thevenin.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-input-model-thevenin.sch>`_
@@ -1740,7 +1740,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/cmos-input-model-thevenin.sch
 
 .. image:: examples/schematics/cmos-input-model-thevenin.png
-   :width: 7.2cm
+   :width: 6.4cm
         
 
 `cmos-input-model.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-input-model.sch>`_
@@ -1749,7 +1749,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/cmos-input-model.sch
 
 .. image:: examples/schematics/cmos-input-model.png
-   :width: 7.2cm
+   :width: 6.4cm
         
 
 `cmos-input-model1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-input-model1.sch>`_
@@ -1758,7 +1758,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/cmos-input-model1.sch
 
 .. image:: examples/schematics/cmos-input-model1.png
-   :width: 10.3cm
+   :width: 8.9cm
         
 
 `cmos-input-model2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-input-model2.sch>`_
@@ -1767,7 +1767,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/cmos-input-model2.sch
 
 .. image:: examples/schematics/cmos-input-model2.png
-   :width: 8.2cm
+   :width: 7.4cm
         
 
 `cmos-input-model3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-input-model3.sch>`_
@@ -1776,7 +1776,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/cmos-input-model3.sch
 
 .. image:: examples/schematics/cmos-input-model3.png
-   :width: 7.2cm
+   :width: 6.4cm
         
 
 `cmos-input-model4.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-input-model4.sch>`_
@@ -1785,7 +1785,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/cmos-input-model4.sch
 
 .. image:: examples/schematics/cmos-input-model4.png
-   :width: 4.8cm
+   :width: 4.4cm
         
 
 `cmos-input-model5.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-input-model5.sch>`_
@@ -1794,7 +1794,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/cmos-input-model5.sch
 
 .. image:: examples/schematics/cmos-input-model5.png
-   :width: 4.8cm
+   :width: 4.4cm
         
 
 `cmos-input-model6.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-input-model6.sch>`_
@@ -1803,7 +1803,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/cmos-input-model6.sch
 
 .. image:: examples/schematics/cmos-input-model6.png
-   :width: 7.8cm
+   :width: 8.0cm
         
 
 `cmos-led-model1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-led-model1.sch>`_
@@ -1812,7 +1812,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/cmos-led-model1.sch
 
 .. image:: examples/schematics/cmos-led-model1.png
-   :width: 9.1cm
+   :width: 10.1cm
         
 
 `cmos-led1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-led1.sch>`_
@@ -1821,7 +1821,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/cmos-led1.sch
 
 .. image:: examples/schematics/cmos-led1.png
-   :width: 7.7cm
+   :width: 7.9cm
         
 
 `cmos-low-high-simple.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-low-high-simple.sch>`_
@@ -1830,7 +1830,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/cmos-low-high-simple.sch
 
 .. image:: examples/schematics/cmos-low-high-simple.png
-   :width: 9.2cm
+   :width: 9.8cm
         
 
 `cmos-low-high.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-low-high.sch>`_
@@ -1839,7 +1839,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/cmos-low-high.sch
 
 .. image:: examples/schematics/cmos-low-high.png
-   :width: 9.5cm
+   :width: 9.6cm
         
 
 `cmos-open-drain.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-open-drain.sch>`_
@@ -1848,7 +1848,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/cmos-open-drain.sch
 
 .. image:: examples/schematics/cmos-open-drain.png
-   :width: 7.4cm
+   :width: 6.4cm
         
 
 `cmos-protection1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-protection1.sch>`_
@@ -1875,7 +1875,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/cmos-simple-output-model.sch
 
 .. image:: examples/schematics/cmos-simple-output-model.png
-   :width: 4.7cm
+   :width: 5.5cm
         
 
 `cmos-totem.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-totem.sch>`_
@@ -1884,7 +1884,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/cmos-totem.sch
 
 .. image:: examples/schematics/cmos-totem.png
-   :width: 5.2cm
+   :width: 4.7cm
         
 
 `cmos-totem2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-totem2.sch>`_
@@ -1893,7 +1893,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/cmos-totem2.sch
 
 .. image:: examples/schematics/cmos-totem2.png
-   :width: 6.6cm
+   :width: 8.6cm
         
 
 `cmos1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos1.sch>`_
@@ -1902,7 +1902,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/cmos1.sch
 
 .. image:: examples/schematics/cmos1.png
-   :width: 6.7cm
+   :width: 6.0cm
         
 
 `cmos_C_load_thevenin.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/nonlinear/cmos_C_load_thevenin.sch>`_
@@ -1947,7 +1947,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/common-base.sch
 
 .. image:: examples/schematics/common-base.png
-   :width: 8.3cm
+   :width: 6.5cm
         
 
 `connections1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/connections1.sch>`_
@@ -2010,7 +2010,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/diffamp1.sch
 
 .. image:: examples/schematics/diffamp1.png
-   :width: 4.0cm
+   :width: 3.9cm
         
 
 `diodes.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/diodes.sch>`_
@@ -2019,7 +2019,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/diodes.sch
 
 .. image:: examples/schematics/diodes.png
-   :width: 14.2cm
+   :width: 14.3cm
         
 
 `diodes2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/diodes2.sch>`_
@@ -2217,7 +2217,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/fit1.sch
 
 .. image:: examples/schematics/fit1.png
-   :width: 7.8cm
+   :width: 8.0cm
         
 
 `fit2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/fit2.sch>`_
@@ -2226,7 +2226,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/fit2.sch
 
 .. image:: examples/schematics/fit2.png
-   :width: 8.2cm
+   :width: 8.4cm
         
 
 `fit3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/fit3.sch>`_
@@ -2280,7 +2280,7 @@ Schematic gallery
 .. literalinclude:: examples/netlists/graph4.sch
 
 .. image:: examples/netlists/graph4.png
-   :width: 8.2cm
+   :width: 9.5cm
         
 
 `ground1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/ground1.sch>`_
@@ -2289,7 +2289,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/ground1.sch
 
 .. image:: examples/schematics/ground1.png
-   :width: 1.2cm
+   :width: 1.0cm
         
 
 `grounddown1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/grounddown1.sch>`_
@@ -2298,7 +2298,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/grounddown1.sch
 
 .. image:: examples/schematics/grounddown1.png
-   :width: 1.2cm
+   :width: 1.0cm
         
 
 `groundloop1-break.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/groundloop1-break.sch>`_
@@ -2307,7 +2307,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/groundloop1-break.sch
 
 .. image:: examples/schematics/groundloop1-break.png
-   :width: 4.4cm
+   :width: 4.2cm
         
 
 `groundloop1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/groundloop1.sch>`_
@@ -2316,7 +2316,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/groundloop1.sch
 
 .. image:: examples/schematics/groundloop1.png
-   :width: 5.4cm
+   :width: 5.2cm
         
 
 `grounds.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/grounds.sch>`_
@@ -2325,7 +2325,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/grounds.sch
 
 .. image:: examples/schematics/grounds.png
-   :width: 10.4cm
+   :width: 13.2cm
         
 
 `guard1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/guard1.sch>`_
@@ -2415,7 +2415,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/image2.sch
 
 .. image:: examples/schematics/image2.png
-   :width: 11.3cm
+   :width: 11.2cm
         
 
 `implicit_wire1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/implicit_wire1.sch>`_
@@ -2424,7 +2424,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/implicit_wire1.sch
 
 .. image:: examples/schematics/implicit_wire1.png
-   :width: 2.5cm
+   :width: 3.0cm
         
 
 `inamp-amplifier1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/inamp-amplifier1.sch>`_
@@ -2469,7 +2469,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/include2.sch
 
 .. image:: examples/schematics/include2.png
-   :width: 10.1cm
+   :width: 9.7cm
         
 
 `inseries1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/netlists/inseries1.sch>`_
@@ -2505,7 +2505,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/lpf1-buffer-loaded.sch
 
 .. image:: examples/schematics/lpf1-buffer-loaded.png
-   :width: 11.5cm
+   :width: 11.4cm
         
 
 `lpf1-buffer-loaded2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/lpf1-buffer-loaded2.sch>`_
@@ -2514,7 +2514,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/lpf1-buffer-loaded2.sch
 
 .. image:: examples/schematics/lpf1-buffer-loaded2.png
-   :width: 11.5cm
+   :width: 11.9cm
         
 
 `lpf1-buffer-loaded3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/lpf1-buffer-loaded3.sch>`_
@@ -2523,7 +2523,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/lpf1-buffer-loaded3.sch
 
 .. image:: examples/schematics/lpf1-buffer-loaded3.png
-   :width: 11.5cm
+   :width: 12.3cm
         
 
 `lsection.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/lsection.sch>`_
@@ -2532,7 +2532,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/lsection.sch
 
 .. image:: examples/schematics/lsection.png
-   :width: 6.4cm
+   :width: 5.7cm
         
 
 `massspringdamper1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/massspringdamper1.sch>`_
@@ -2559,7 +2559,7 @@ Schematic gallery
 .. literalinclude:: examples/netlists/mesh2R.sch
 
 .. image:: examples/netlists/mesh2R.png
-   :width: 5.2cm
+   :width: 5.0cm
         
 
 `meters1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/meters1.sch>`_
@@ -2568,7 +2568,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/meters1.sch
 
 .. image:: examples/schematics/meters1.png
-   :width: 6.5cm
+   :width: 6.2cm
         
 
 `meters2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/meters2.sch>`_
@@ -2577,7 +2577,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/meters2.sch
 
 .. image:: examples/schematics/meters2.png
-   :width: 6.5cm
+   :width: 6.7cm
         
 
 `misc.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/misc.sch>`_
@@ -2604,7 +2604,7 @@ Schematic gallery
 .. literalinclude:: examples/netlists/mutual1.sch
 
 .. image:: examples/netlists/mutual1.png
-   :width: 6.2cm
+   :width: 6.6cm
         
 
 `mutual2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/netlists/mutual2.sch>`_
@@ -2613,7 +2613,7 @@ Schematic gallery
 .. literalinclude:: examples/netlists/mutual2.sch
 
 .. image:: examples/netlists/mutual2.png
-   :width: 5.0cm
+   :width: 5.4cm
         
 
 `mutualinductances1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/transformers/mutualinductances1.sch>`_
@@ -2649,7 +2649,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/negative-feedback1.sch
 
 .. image:: examples/schematics/negative-feedback1.png
-   :width: 9.8cm
+   :width: 9.9cm
         
 
 `negative-feedback2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/negative-feedback2.sch>`_
@@ -2658,7 +2658,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/negative-feedback2.sch
 
 .. image:: examples/schematics/negative-feedback2.png
-   :width: 9.8cm
+   :width: 9.9cm
         
 
 `negative-feedback3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/negative-feedback3.sch>`_
@@ -2667,7 +2667,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/negative-feedback3.sch
 
 .. image:: examples/schematics/negative-feedback3.png
-   :width: 9.8cm
+   :width: 9.9cm
         
 
 `net1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/net1.sch>`_
@@ -2712,7 +2712,7 @@ Schematic gallery
 .. literalinclude:: examples/tutorials/transformers/non-ideal-transformer1.sch
 
 .. image:: examples/tutorials/transformers/non-ideal-transformer1.png
-   :width: 8.9cm
+   :width: 9.5cm
         
 
 `opamp-differential-amplifier1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/opamp-differential-amplifier1.sch>`_
@@ -2757,7 +2757,7 @@ Schematic gallery
 .. literalinclude:: examples/tutorials/opamps/opamp-inverting-amplifier1.sch
 
 .. image:: examples/tutorials/opamps/opamp-inverting-amplifier1.png
-   :width: 9.4cm
+   :width: 9.9cm
         
 
 `opamp-inverting-amplifier2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/opamp-inverting-amplifier2.sch>`_
@@ -2802,7 +2802,7 @@ Schematic gallery
 .. literalinclude:: examples/tutorials/opampnoise/opamp-noninverting-amplifier-noisy.sch
 
 .. image:: examples/tutorials/opampnoise/opamp-noninverting-amplifier-noisy.png
-   :width: 13.3cm
+   :width: 16.5cm
         
 
 `opamp-noninverting-amplifier.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/opamp-noninverting-amplifier.sch>`_
@@ -2820,7 +2820,7 @@ Schematic gallery
 .. literalinclude:: examples/tutorials/opampnoise/opamp-noninverting-amplifier.sch
 
 .. image:: examples/tutorials/opampnoise/opamp-noninverting-amplifier.png
-   :width: 13.1cm
+   :width: 13.6cm
         
 
 `opamp-noninverting-amplifier1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-noninverting-amplifier1.sch>`_
@@ -2829,7 +2829,7 @@ Schematic gallery
 .. literalinclude:: examples/tutorials/opamps/opamp-noninverting-amplifier1.sch
 
 .. image:: examples/tutorials/opamps/opamp-noninverting-amplifier1.png
-   :width: 11.3cm
+   :width: 11.8cm
         
 
 `opamp-noninverting-amplifier2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-noninverting-amplifier2.sch>`_
@@ -2838,7 +2838,7 @@ Schematic gallery
 .. literalinclude:: examples/tutorials/opamps/opamp-noninverting-amplifier2.sch
 
 .. image:: examples/tutorials/opamps/opamp-noninverting-amplifier2.png
-   :width: 11.3cm
+   :width: 11.8cm
         
 
 `opamp-piezo-amplifier1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-piezo-amplifier1.sch>`_
@@ -2847,7 +2847,7 @@ Schematic gallery
 .. literalinclude:: examples/tutorials/opamps/opamp-piezo-amplifier1.sch
 
 .. image:: examples/tutorials/opamps/opamp-piezo-amplifier1.png
-   :width: 15.3cm
+   :width: 16.4cm
         
 
 `opamp-piezo-amplifier2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-piezo-amplifier2.sch>`_
@@ -2856,7 +2856,7 @@ Schematic gallery
 .. literalinclude:: examples/tutorials/opamps/opamp-piezo-amplifier2.sch
 
 .. image:: examples/tutorials/opamps/opamp-piezo-amplifier2.png
-   :width: 15.3cm
+   :width: 16.4cm
         
 
 `opamp-test1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/opamp-test1.sch>`_
@@ -2868,13 +2868,22 @@ Schematic gallery
    :width: 6.9cm
         
 
+`opamp-transimpedance-amplifier-with-voltage-gain1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-transimpedance-amplifier-with-voltage-gain1.sch>`_
+========================================================================================================================================================================================
+
+.. literalinclude:: examples/tutorials/opamps/opamp-transimpedance-amplifier-with-voltage-gain1.sch
+
+.. image:: examples/tutorials/opamps/opamp-transimpedance-amplifier-with-voltage-gain1.png
+   :width: 9.0cm
+        
+
 `opamp-transimpedance-amplifier1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-transimpedance-amplifier1.sch>`_
 ====================================================================================================================================================
 
 .. literalinclude:: examples/tutorials/opamps/opamp-transimpedance-amplifier1.sch
 
 .. image:: examples/tutorials/opamps/opamp-transimpedance-amplifier1.png
-   :width: 9.4cm
+   :width: 9.8cm
         
 
 `opamp-transimpedance-amplifier2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-transimpedance-amplifier2.sch>`_
@@ -2883,7 +2892,61 @@ Schematic gallery
 .. literalinclude:: examples/tutorials/opamps/opamp-transimpedance-amplifier2.sch
 
 .. image:: examples/tutorials/opamps/opamp-transimpedance-amplifier2.png
-   :width: 14.8cm
+   :width: 14.7cm
+        
+
+`opamp-voltage-follower-C-load-model1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-voltage-follower-C-load-model1.sch>`_
+==============================================================================================================================================================
+
+.. literalinclude:: examples/tutorials/opamps/opamp-voltage-follower-C-load-model1.sch
+
+.. image:: examples/tutorials/opamps/opamp-voltage-follower-C-load-model1.png
+   :width: 6.0cm
+        
+
+`opamp-voltage-follower-C-load1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-voltage-follower-C-load1.sch>`_
+==================================================================================================================================================
+
+.. literalinclude:: examples/tutorials/opamps/opamp-voltage-follower-C-load1.sch
+
+.. image:: examples/tutorials/opamps/opamp-voltage-follower-C-load1.png
+   :width: 9.7cm
+        
+
+`opamp-voltage-follower-C-load2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-voltage-follower-C-load2.sch>`_
+==================================================================================================================================================
+
+.. literalinclude:: examples/tutorials/opamps/opamp-voltage-follower-C-load2.sch
+
+.. image:: examples/tutorials/opamps/opamp-voltage-follower-C-load2.png
+   :width: 4.0cm
+        
+
+`opamp-voltage-follower-RC-load-model1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-voltage-follower-RC-load-model1.sch>`_
+================================================================================================================================================================
+
+.. literalinclude:: examples/tutorials/opamps/opamp-voltage-follower-RC-load-model1.sch
+
+.. image:: examples/tutorials/opamps/opamp-voltage-follower-RC-load-model1.png
+   :width: 6.0cm
+        
+
+`opamp-voltage-follower-RC-load1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-voltage-follower-RC-load1.sch>`_
+====================================================================================================================================================
+
+.. literalinclude:: examples/tutorials/opamps/opamp-voltage-follower-RC-load1.sch
+
+.. image:: examples/tutorials/opamps/opamp-voltage-follower-RC-load1.png
+   :width: 9.7cm
+        
+
+`opamp-voltage-follower-RC-load2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-voltage-follower-RC-load2.sch>`_
+====================================================================================================================================================
+
+.. literalinclude:: examples/tutorials/opamps/opamp-voltage-follower-RC-load2.sch
+
+.. image:: examples/tutorials/opamps/opamp-voltage-follower-RC-load2.png
+   :width: 6.0cm
         
 
 `opamp1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/opamp1.sch>`_
@@ -3063,7 +3126,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/pierce-oscillator.sch
 
 .. image:: examples/schematics/pierce-oscillator.png
-   :width: 5.5cm
+   :width: 6.0cm
         
 
 `pindefs1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/pindefs1.sch>`_
@@ -3081,7 +3144,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/pisection.sch
 
 .. image:: examples/schematics/pisection.png
-   :width: 7.4cm
+   :width: 6.7cm
         
 
 `resistors1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/resistors1.sch>`_
@@ -3189,7 +3252,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/sallen-key-lpf1.sch
 
 .. image:: examples/schematics/sallen-key-lpf1.png
-   :width: 11.2cm
+   :width: 10.9cm
         
 
 `sallen-key-lpf2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/sallen-key-lpf2.sch>`_
@@ -3198,7 +3261,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/sallen-key-lpf2.sch
 
 .. image:: examples/schematics/sallen-key-lpf2.png
-   :width: 12.0cm
+   :width: 12.2cm
         
 
 `schematic.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/schematic.sch>`_
@@ -3207,7 +3270,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/schematic.sch
 
 .. image:: examples/schematics/schematic.png
-   :width: 4.2cm
+   :width: 5.3cm
         
 
 `series.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/series.sch>`_
@@ -3216,7 +3279,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/series.sch
 
 .. image:: examples/schematics/series.png
-   :width: 5.4cm
+   :width: 4.7cm
         
 
 `shield-ground.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/shield-guard/shield-ground.sch>`_
@@ -3225,7 +3288,7 @@ Schematic gallery
 .. literalinclude:: examples/tutorials/shield-guard/shield-ground.sch
 
 .. image:: examples/tutorials/shield-guard/shield-ground.png
-   :width: 18.7cm
+   :width: 19.2cm
         
 
 `shield-guard.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/shield-guard/shield-guard.sch>`_
@@ -3234,7 +3297,7 @@ Schematic gallery
 .. literalinclude:: examples/tutorials/shield-guard/shield-guard.sch
 
 .. image:: examples/tutorials/shield-guard/shield-guard.png
-   :width: 22.0cm
+   :width: 22.5cm
         
 
 `shunt.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/shunt.sch>`_
@@ -3243,7 +3306,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/shunt.sch
 
 .. image:: examples/schematics/shunt.png
-   :width: 5.4cm
+   :width: 4.7cm
         
 
 `ss1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/netlists/ss1.sch>`_
@@ -3252,7 +3315,7 @@ Schematic gallery
 .. literalinclude:: examples/netlists/ss1.sch
 
 .. image:: examples/netlists/ss1.png
-   :width: 8.2cm
+   :width: 9.5cm
         
 
 `ss2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/netlists/ss2.sch>`_
@@ -3261,7 +3324,7 @@ Schematic gallery
 .. literalinclude:: examples/netlists/ss2.sch
 
 .. image:: examples/netlists/ss2.png
-   :width: 8.2cm
+   :width: 9.5cm
         
 
 `steppedwire0.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/steppedwire0.sch>`_
@@ -3306,7 +3369,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/stepup.sch
 
 .. image:: examples/schematics/stepup.png
-   :width: 10.6cm
+   :width: 9.9cm
         
 
 `supplies.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/supplies.sch>`_
@@ -3351,7 +3414,7 @@ Schematic gallery
 .. literalinclude:: examples/tutorials/transformers/tee-model-transformer2.sch
 
 .. image:: examples/tutorials/transformers/tee-model-transformer2.png
-   :width: 9.6cm
+   :width: 9.5cm
         
 
 `tee-model-transformer3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/transformers/tee-model-transformer3.sch>`_
@@ -3369,7 +3432,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/test1.sch
 
 .. image:: examples/schematics/test1.png
-   :width: 2.5cm
+   :width: 2.4cm
         
 
 `tline1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/tline1.sch>`_
@@ -3378,7 +3441,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/tline1.sch
 
 .. image:: examples/schematics/tline1.png
-   :width: 4.0cm
+   :width: 3.9cm
         
 
 `tline2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/tline2.sch>`_
@@ -3387,7 +3450,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/tline2.sch
 
 .. image:: examples/schematics/tline2.png
-   :width: 7.9cm
+   :width: 7.5cm
         
 
 `tline3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/tline3.sch>`_
@@ -3396,7 +3459,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/tline3.sch
 
 .. image:: examples/schematics/tline3.png
-   :width: 7.9cm
+   :width: 7.5cm
         
 
 `tline4.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/tline4.sch>`_
@@ -3432,7 +3495,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/totem.sch
 
 .. image:: examples/schematics/totem.png
-   :width: 2.7cm
+   :width: 1.9cm
         
 
 `transfer1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/netlists/transfer1.sch>`_
@@ -3459,7 +3522,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/transistors.sch
 
 .. image:: examples/schematics/transistors.png
-   :width: 19.2cm
+   :width: 13.8cm
         
 
 `transistors1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/transistors1.sch>`_
@@ -3468,7 +3531,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/transistors1.sch
 
 .. image:: examples/schematics/transistors1.png
-   :width: 2.7cm
+   :width: 1.9cm
         
 
 `transistors2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/transistors2.sch>`_
@@ -3477,7 +3540,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/transistors2.sch
 
 .. image:: examples/schematics/transistors2.png
-   :width: 10.3cm
+   :width: 9.3cm
         
 
 `transistors3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/transistors3.sch>`_
@@ -3486,7 +3549,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/transistors3.sch
 
 .. image:: examples/schematics/transistors3.png
-   :width: 3.4cm
+   :width: 2.3cm
         
 
 `tricky1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/tricky1.sch>`_
@@ -3504,7 +3567,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/tsection.sch
 
 .. image:: examples/schematics/tsection.png
-   :width: 8.3cm
+   :width: 7.7cm
         
 
 `twoport1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/twoport1.sch>`_
@@ -3513,7 +3576,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/twoport1.sch
 
 .. image:: examples/schematics/twoport1.png
-   :width: 7.4cm
+   :width: 6.7cm
         
 
 `txline1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/txline/txline1.sch>`_
@@ -3522,7 +3585,7 @@ Schematic gallery
 .. literalinclude:: examples/tutorials/txline/txline1.sch
 
 .. image:: examples/tutorials/txline/txline1.png
-   :width: 8.1cm
+   :width: 9.3cm
         
 
 `variable1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/variable1.sch>`_
@@ -3531,7 +3594,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/variable1.sch
 
 .. image:: examples/schematics/variable1.png
-   :width: 6.2cm
+   :width: 6.3cm
         
 
 `voltage-divider.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/voltage-divider.sch>`_
@@ -3540,7 +3603,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/voltage-divider.sch
 
 .. image:: examples/schematics/voltage-divider.png
-   :width: 5.5cm
+   :width: 6.6cm
         
 
 `voltage_labels1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/voltage_labels1.sch>`_
@@ -3567,7 +3630,7 @@ Schematic gallery
 .. literalinclude:: examples/schematics/vsources.sch
 
 .. image:: examples/schematics/vsources.png
-   :width: 14.2cm
+   :width: 14.3cm
         
 
 `wirestyles.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/wirestyles.sch>`_

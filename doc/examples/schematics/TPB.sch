@@ -1,4 +1,4 @@
-P 1 2; down, v=V_1
+P 1 2; down, v_=V_1
 W 1 5; right=0.5, i=I_1
 W 2 6; right=0.5, i<=I_1
 TPB 7 8 5 6; right, l={Source-free B-parameters two-port}

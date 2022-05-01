@@ -1,3 +1,4 @@
+# This illustrates a problem with the component placer algorithm.
 R1 1 b {Rs / 2}; right
 W b 2; right=0.5
 W 2 2_1; up=0.5

@@ -1,6 +1,6 @@
 L1 1 3 {L_1 - M * a}; right
 L3 3 0_3 {M * a}; down=1.5
-P1 1 0; down, v=v_1
+P1 1 0; down, v_=v_1
 W 0 0_3; right
 W 3 4; right
 W 0_3 0_4; right

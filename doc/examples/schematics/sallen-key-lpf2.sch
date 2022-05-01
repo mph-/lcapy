@@ -1,4 +1,4 @@
-P 1 0; down, v=v_{in}(t)
+P 1 0; down, v_=v_{in}(t)
 R1 1 2; right
 R2 2 3; right
 C1 2 4; up
