@@ -71,7 +71,7 @@ class Cpt(object):
     implicit_keys = ('implicit', 'ground', 'sground', 'rground',
                      'cground', 'nground', 'pground', 'vss', 'vdd',
                      'vee', 'vcc', 'input', 'output', 'bidir', 'pad',
-                     'antenna', 'rxantenna', 'txantenna')
+                     'antenna', 'rxantenna', 'txantenna', '0V')
     # The following keys do not get passed through to circuitikz.
     misc_keys = ('left', 'right', 'up', 'down', 'rotate', 'size',
                  'mirror', 'invert', 'scale', 'invisible', 'variable', 'fixed',
@@ -3213,9 +3213,13 @@ class Wire(Bipole):
                 kind = key
                 break
 
+        label = None
+        if kind == '0V':
+            label = r'0\,\mathrm{V}'
+
         # I like the sground symbol for power supplies but rground symbol
         # is also common.
-        if (kind is None) or (kind == 'implicit'):
+        if kind is None or kind == 'implicit' or kind == '0V':
             kind = 'sground'
         anchor = 'south west'
         if self.down:
@@ -3279,10 +3283,14 @@ class Wire(Bipole):
 
         s += r'  \draw (%s) node[%s, %s] {};''\n' % (n2.s, kind, args_str)
 
-        if 'l' in self.opts:
+        if 'l' in self.opts or label is not None:
+
+            if label is None:
+                label = self.label(**kwargs)
+
             lpos = self.tf(n2.pos, (0.125, 0), scale=1)
             s += r'  \draw[anchor=%s] (%s) node {%s};''\n' % (
-                anchor, lpos, self.label(**kwargs))
+                anchor, lpos, label)
         return s
 
     def setup(self):

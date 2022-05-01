@@ -826,11 +826,12 @@ connections.  They have one of the following attributes:
 
 - `implicit` equivalent to signal ground
 - `sground`  signal ground
-- `ground`  earth ground
+- `ground`   earth ground
 - `cground`  chassis ground
 - `nground`  noiseless ground
 - `pground`  protected ground
 - `rground`  reference ground
+- `0V`       ground
 - `vcc`      positive power supply (voltage to collectors)
 - `vdd`      positive power supply (voltage to drains ;-)
 - `vee`      negative power supply (voltage to emitters)
