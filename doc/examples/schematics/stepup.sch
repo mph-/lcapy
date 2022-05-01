@@ -8,10 +8,10 @@ W 9 8; up=0.1
 W 8 3; right
 W 7 5; right=0.5
 W 12 4; up=0.1
-W 14 14_1; down=0.1, implicit, l=0V
-W 11 11_1; down=1.1, implicit, l=0V
+W 14 14_1; down=0.1, 0V
+W 11 11_1; down=1.1, 0V
 W 7 7_1; up=0.8, implicit, l=3.9V
-W U1.vss _16; down=0.4, implicit, l=0V
+W U1.vss _16; down=0.4, 0V
 W U1.vdd _17; up=0.2, implicit, l=3.3V
 W 1 1_1; right=0.5
 W 2 2_1; right=0.5

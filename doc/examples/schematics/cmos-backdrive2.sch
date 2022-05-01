@@ -1,8 +1,8 @@
 U1 inverter; right=2, l={}
 U2 inverter; right=2, l={}
 W U1.out U2.in; right=1, color=red
-W U1.vss 4_2; down=0.3, implicit, l=0V
-W U2.vss 4_3; down=0.3, implicit, l=0V
+W U1.vss 4_2; down=0.3, 0V
+W U2.vss 4_3; down=0.3, 0V
 W U1.vdd 3_2; up=0.3, implicit, l=V_{DD1}, color=red
 W U2.vdd 3_3; up=0.3, implicit, l=V_{DD2}, color=red
 W U2.in 7_1; right=0.25, dashed, fixed, color=red

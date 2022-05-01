@@ -16,10 +16,10 @@ W 5 U4.in; right=0.5
 W 5 _5; up=0.4, implicit, l=V_{bat}
 W 6 U3.in; right=0.5
 W 6 _6; up=0.4, implicit, l=V_{bat}
-W U1.vss 0_5; down=0.1, implicit, l=0V
-W U2.vss 0_6; down=0.1, implicit, l=0V
-W U4.gnd 0_7; down=0.1, implicit, l=0V
-W U3.gnd 0_8; down=0.1, implicit, l=0V
+W U1.vss 0_5; down=0.1, 0V
+W U2.vss 0_6; down=0.1, 0V
+W U4.gnd 0_7; down=0.1, 0V
+W U3.gnd 0_8; down=0.1, 0V
 R 1 7; right
-W 7 0_9; down=0.1, implicit, l=0V
+W 7 0_9; down=0.1, 0V
 ; draw_nodes=connections, label_nodes=none, node_spacing=2
