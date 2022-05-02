@@ -1237,6 +1237,7 @@ source, for example,
 The impedance seen across `Rin` can be then found using:
 
     >>> Z = a.impedance('Rin')
+    >>> Z
         1
     ─────────────────
         ⎛       1   ⎞
@@ -1944,7 +1945,7 @@ Note, the coefficients are stored as SymPy rational numbers.  To convert them to
    >>> filv.b.fval
    (948742.2997703095, 0.0, -948742.2997703095)
 
-These coefficients can now be used in the SciPy `lfilter` function.
+These coefficients can now be used in the SciPy `lfilter()` function.
 
 Note, the symbolic response can also be found using the `response()`
 method of a `DLTIFilter` object.  However, the output soons becomes
@@ -1976,7 +1977,7 @@ capacitive load::
    ... P1 2_1 0; down""")
    >>> a.draw()
 
-.. image:: examples/tutorials/opamps/opamp-voltage-follower-C-load1.png
+.. image:: examples/tutorials/opamps/opamp-voltage-follower-C-load.png
    :width: 11cm
 
 This circuit can be unstable due to the unity feedback ratio and the
@@ -2009,7 +2010,7 @@ The closed-loop transfer function of this circuit is::
 
 The open-loop transfer function can be found by cutting the connection
 between the opamp output and inverting input and connecting the
-inverting input to ground::
+inverting input to ground.  This has a netlist::
 
    >>> b = Circuit("""
    ... E1 1 0 opamp 2 3 A Ro=Ro; right, mirror
@@ -2019,6 +2020,15 @@ inverting input to ground::
    ... W 2_1 2; right
    ... W 0 0_1; right
    ... P1 2_1 0; down""")
+   >>> b.draw()
+
+
+.. image:: /examples/tutorials/opamps/opamp-voltage-follower-C-load-open-loop.png
+   :width: 11cm
+
+
+and a transfer function::
+
    >>> G = b.transfer(2, 0, 4, 0)
    >>> G.general()
         A
@@ -2175,7 +2185,7 @@ The voltage follower with a capacitor load can be made stable by reducing the fe
    ... P1 2_1 0; down""")
    >>> a.draw()
 
-.. image:: examples/tutorials/opamps/opamp-voltage-follower-RC-load1.png
+.. image:: examples/tutorials/opamps/opamp-voltage-follower-RC-load.png
    :width: 11cm
 
 

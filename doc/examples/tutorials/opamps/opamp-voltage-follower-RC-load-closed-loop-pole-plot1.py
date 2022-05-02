@@ -1,7 +1,7 @@
 from matplotlib.pyplot import savefig
 from lcapy import Circuit, j, f, s, degrees, pi
 
-a = Circuit('opamp-voltage-follower-RC-load-model1.sch')
+a = Circuit('opamp-voltage-follower-RC-load.sch')
 H = a.transfer(2, 0, 1, 0)
 
 f1 = 10
