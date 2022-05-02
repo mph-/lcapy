@@ -1216,10 +1216,7 @@ class Shape(FixedCpt):
 
         prefix = self.name + '.'
 
-        # For backwards compatibility, check pins option.
-        pinlabels = self.opts.get('pins', self.default_pins)
-        if pinlabels is None:
-            pinlabels = self.opts.get('pinlabels', 'none')
+        pinlabels = self.opts.get('pinlabels', 'none')
 
         if pinlabels == 'none':
             return {}
@@ -1227,6 +1224,8 @@ class Shape(FixedCpt):
             return {name: pinlabel(name) for name in self.ref_node_names if pinlabel(name) != ''}
         elif pinlabels == 'all':
             return {name: pinlabel(name) for name in self.pin_node_names if pinlabel(name) != ''}
+        elif pinlabels == 'default':
+            return {name: pinlabel(name) for name in self.default_pins if pinlabel(name) != ''}
         else:
             if pinlabels[0] != '{':
                 raise ValueError('Expecting { for pinlabels in %s' % self)
