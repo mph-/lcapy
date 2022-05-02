@@ -71,6 +71,15 @@ class DLTIFilter(object):
         H = self.transfer_function()
         return H(n)
 
+    def step_response(self):
+        """Return discrete-time step response in time domain."""
+
+        H = self.transfer_function()
+        G = (H * z) / (z - 1)
+        G.is_causal = H.is_causal
+
+        return G(n)
+
     def difference_equation(self, inputsym='x', outputsym='y'):
         """Return difference equation."""
 

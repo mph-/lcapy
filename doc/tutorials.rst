@@ -1966,8 +1966,8 @@ capacitive load::
    >>> from lcapy import *
    >>> a = Circuit("""
    ... E1 1 0 opamp 2 3 A; right, mirror
-   ... W 1 1_1; right
-   ... C 1_1 0_1; down
+   ... W 1 4; right
+   ... C 4 0_1; down
    ... W 3 3_1; up=0.75
    ... W 3_1 3_2; right
    ... W 3_2 1; down
@@ -1987,8 +1987,8 @@ but this can be modelled using the `Ro` parameter::
    >>> from lcapy import *
    >>> a = Circuit("""
    ... E1 1 0 opamp 2 3 A Ro=Ro; right, mirror
-   ... W 1 1_1; right
-   ... C 1_1 0_1; down
+   ... W 1 4; right
+   ... C 4 0_1; down
    ... W 3 3_1; up=0.75
    ... W 3_1 3_2; right
    ... W 3_2 1; down
@@ -2013,13 +2013,13 @@ inverting input to ground::
 
    >>> b = Circuit("""
    ... E1 1 0 opamp 2 3 A Ro=Ro; right, mirror
-   ... W 1 1_1; right
-   ... C 1_1 0_1; down
+   ... W 1 4; right
+   ... C 4 0_1; down
    ... W 3 0; down=0.25, implicit, l={0\,\mathrm{V}}
    ... W 2_1 2; right
    ... W 0 0_1; right
    ... P1 2_1 0; down""")
-   >>> G = b.transfer(2, 0, 3, 0)
+   >>> G = b.transfer(2, 0, 4, 0)
    >>> G.general()
         A
    ──────────
@@ -2165,12 +2165,13 @@ The voltage follower with a capacitor load can be made stable by reducing the fe
    >>> from lcapy import *
    >>> a = Circuit("""
    ... E1 1 0 opamp 2 3 A Ro=Ro; right, mirror
-   ... R 1 1_1; right
-   ... C 1_1 0_1; down
+   ... R 1 4; right
+   ... C 4 0_1; down
    ... W 3 3_1; up=0.75
    ... W 3_1 3_2; right
    ... W 3_2 1; down
    ... W 2_1 2; right
+   ... W 0 0_1; right
    ... P1 2_1 0; down""")
    >>> a.draw()
 
@@ -2180,8 +2181,9 @@ The voltage follower with a capacitor load can be made stable by reducing the fe
 
 The closed-loop transfer function is::
 
-   >>> H = a.transfer(2, 0, 1, 0)
-         A⋅C⋅R⋅s + A
+   >>> H = a.transfer(2, 0, 4, 0)
+   >>> H.general()
+                A
    ──────────────────────────────
    A + s⋅(A⋅C⋅R + C⋅R + C⋅Rₒ) + 1
 

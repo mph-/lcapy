@@ -1,8 +1,8 @@
 from matplotlib.pyplot import savefig
 from lcapy import Circuit, j, f, s, degrees, pi
 
-b = Circuit('opamp-voltage-follower-RC-load2.sch')
-G = b.transfer(2, 0, 3, 0)
+b = Circuit('opamp-voltage-follower-RC-load-open-loop1.sch')
+G = b.transfer(2, 0, 4, 0)
 
 f1 = 10
 f2 = 1e6
