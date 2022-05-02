@@ -1600,8 +1600,8 @@ class Transistor(FixedCpt):
         # Add additional wires.  These help to compensate for the
         # slight differences in sizes of the different transistors.
         if self.tikz_cpt in ('pnp', 'npn'):
-            s += r'  \draw (%s.C) -- (%s) (%s.B) -- (%s) (%s.E) -- (%s);''\n' % (
-                self.s, n1.s, self.s, n2.s, self.s, n3.s)
+            s += r'  \draw[%s] (%s.C) -- (%s) (%s.B) -- (%s) (%s.E) -- (%s);''\n' % (
+                self.args_str(**kwargs), self.s, n1.s, self.s, n2.s, self.s, n3.s)
         else:
             s += r'  \draw (%s.D) -- (%s) (%s.G) -- (%s) (%s.S) -- (%s);''\n' % (
                 self.s, n1.s, self.s, n2.s, self.s, n3.s)
