@@ -287,7 +287,7 @@ class Cpt(ImmittanceMixin):
     def _netmake_expand(self, name, nodes=None, args=None, opts=None):
         """This is used for expanding a component into multiple components"""
 
-        name = self.namespace + name + '@' + self.relname
+        name = self.namespace + name + '__' + self.relname
         return self._netmake1(name, nodes, args, opts)
 
     def _select(self, kind=None):
