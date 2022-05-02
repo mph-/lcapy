@@ -81,30 +81,42 @@ categories.append(Category('Circuits', (
     'opamp-displacement-current-sensor1', 'opamp-inverting-amplifier1',
     'opamp-inverting-integrator', 'opamp-noninverting-amplifier-noisy',
     'opamp-piezo-amplifier1',
-    'opamp-transimpedance-amplifier-with-voltage-gain1',
     'opamp-transimpedance-amplifier1',
-    'opamp-transimpedance-amplifier2', 'pierce-oscillator',
+    'opamp-transimpedance-amplifier2',
+    'opamp-transimpedance-amplifier-with-voltage-gain1',
+    'pierce-oscillator',
     'sallen-key-lpf1', 'shield-ground', 'shield-guard', 'stepup')))
 
 categories.append(Category('Block diagrams', ('LTFT', 'domains',
                   'fir5', 'negative-feedback2', 'transforms')))
 
-categories.append(Category('Two port networks', ('TPA', 'TPB', 'TPG',
-                  'TPH', 'TPY', 'TPZ', 'series', 'shunt')))
+categories.append(Category('Two port networks', (
+    'TPA', 'TPB', 'TPG', 'TPH', 'TPY', 'TPZ', 'series', 'shunt',
+    'pisection', 'tsection')))
 
 categories.append(Category('Components', (
-    'cable-tp', 'cable-twinax', 'cable-utp', 'connections1', 'diodes',
-    'diodes2', 'fdopamps', 'grounds', 'hsources', 'massspringdamper1',
-    'misc', 'opamps', 'resistors1', 'resistors2', 'resistors3', 'resistors4',
+    'ADC1', 'arrows', 'antennas', 'batteries', 'buffers',
+    'cable-coax', 'cable-tp', 'cable-twinax', 'cable-utp', 'capacitors',
+    'connections1', 'connections2', 'CPE1', 'DAC3', 'diodes', 'diodes2',
+    'FB1', 'fdopamps', 'flipflops', 'grounds', 'GY1',
+    'hsources', 'massspringdamper1', 'meters1',
+    'misc', 'multiplexers', 'opamps',
+    'resistors1', 'resistors2', 'resistors3', 'resistors4',
     'resistors5', 'resistors6', 'resistors7', 'switches', 'switches2',
-    'transistors', 'transistors2', 'variable1', 'vsources', 'wirestyles')))
+    'transformers', 'transistors', 'transistors2',
+    'Uinamp', 'Uisoamp', 'Ufdopamp', 'Uopamp',
+    'variable1', 'vsources', 'wirestyles', 'XT1')))
 
 categories.append(Category('Chips', ('chips', 'chips2', 'chips3')))
 
-categories.append(Category('Labels', ('current_labels1',
-                  'current_labels2', 'flow_labels1', 'voltage_labels1')))
+categories.append(
+    Category('Shapes', ('Striangle2', 'Sbox1', 'Scircle2', 'circles')))
 
-categories.append(Category('Miscellaneous', ('circles', 'colors1')))
+categories.append(Category('Labels', (
+    'annotate1', 'current_labels1', 'current_labels2', 'flow_labels1', 'labels1',
+    'voltage_labels1', 'Rlabels')))
+
+categories.append(Category('Miscellaneous', ('colors1', )))
 
 filename_dict = {}
 filenames = glob('examples/**/*.sch', recursive=True)
@@ -119,6 +131,9 @@ print("""
 ==================
 Schematic gallery
 ==================
+
+The images in this section are bit-mapped PNG images with DPI=300.  Higher quality images can be generated using PDF or PGF formats.
+
 """)
 
 for category in categories:

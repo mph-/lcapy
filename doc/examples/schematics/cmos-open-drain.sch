@@ -1,4 +1,4 @@
-M 1 2 3; right, l=\hspace{2cm}Pull-down (NMOS)
+M 1 2 3; right, l=Pull-down (NMOS)
 W 3 0; down=0.1, sground, l=$V_{SS}
 W 1 4; right
 W 4 5; right

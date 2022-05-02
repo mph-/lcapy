@@ -5,7 +5,7 @@ Y1 1_1 0_1 Y; down, l=OP1
 W 0_1 0_3; right=0.5
 Z 1_1 2_1 Z; right=1.5, l=OP2
 Y2 2_1 0_3 Y; down, l=OP3
-W 2 2_1; left, i=I_2
-W 0_3 0_2; right
+W 2 2_1; left=0.5, i=I_2
+W 0_3 0_2; right=0.5
 P2 2 0_2; down, v^=V_2
 ;label_nodes=False, draw_nodes=connections
