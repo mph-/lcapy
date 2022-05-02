@@ -230,6 +230,11 @@ class LcapyLatexPrinter(LatexPrinter):
         expr = sym.Symbol(parts[0])
         s = super(LcapyLatexPrinter, self)._print_Symbol(expr)
 
+        if '_' in s:
+            parts2 = s.split('_')
+            s = parts[0]
+            parts = parts2[1:] + parts[1:]
+
         if len(parts) == 1:
             return latex_str(s)
 
