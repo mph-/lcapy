@@ -1,7 +1,7 @@
 """This module provides the EquipotentialNodes class.  This is used to
 find nodes connected by wires.
 
-Copyright 2020 Michael Hayes, UCECE
+Copyright 2020--2022 Michael Hayes, UCECE
 
 """
 
@@ -28,8 +28,12 @@ class EquipotentialNodes(dict):
             return
 
         if key1 != key2:
-            # Merge equipotential nodes.
-            self[key1].extend(self.pop(key2))
+            # Merge equipotential nodes.  Try to use
+            # primary nodes as the key.
+            if '_' in key2:
+                self[key1].extend(self.pop(key2))
+            else:
+                self[key2].extend(self.pop(key1))
 
     def add_wires(self, nodes):
 

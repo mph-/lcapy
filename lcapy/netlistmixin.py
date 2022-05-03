@@ -300,7 +300,10 @@ class NetlistMixin(object):
     def equipotential_nodes(self):
         """Determine nodes connected by wires that are of the same potential.
         This returns a dictionary keyed by the unique node names with
-        values being lists of nodes of the same potential."""
+        values being lists of nodes of the same potential.
+
+        Primary nodes (without underscore) are chosen for the key
+        if possible."""
 
         enodes = EquipotentialNodes()
         enodes.add(self.nodes.keys())
@@ -324,7 +327,8 @@ class NetlistMixin(object):
         # key if possible.
         enodes2 = {}
         for key, nodes in enodes.items():
-            nodes = sorted(nodes)
+            # Sort so that lowest primary nodes come first
+            nodes = sorted(nodes, key=lambda item: ('_' in item, item))
             if '0' in nodes:
                 newkey = '0'
             else:
