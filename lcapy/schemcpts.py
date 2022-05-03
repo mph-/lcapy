@@ -68,6 +68,8 @@ class Cpt(object):
     label_keys = ('l', 'l_', 'l^')
     annotation_keys = ('a', 'a_', 'a^')
     inner_label_keys = ('t', )
+    grounds = ('ground', 'sground', 'rground',
+               'cground', 'nground', 'pground', '0V')
     implicit_keys = ('implicit', 'ground', 'sground', 'rground',
                      'cground', 'nground', 'pground', 'vss', 'vdd',
                      'vee', 'vcc', 'input', 'output', 'bidir', 'pad',
@@ -80,7 +82,7 @@ class Cpt(object):
                  'pinmap', 'kind', 'wire', 'ignore', 'style', 'nosim',
                  'nowires', 'nolabels', 'steps', 'free', 'fliplr', 'flipud',
                  'nodots', 'draw_nodes', 'label_nodes', 'nodraw',
-                 'mirrorinputs')
+                 'mirrorinputs', 'autoground')
     label_opt_keys = ('label_values', 'label_ids', 'annotate_values')
 
     special_keys = voltage_keys + current_keys + flow_keys + label_keys + \
@@ -375,6 +377,10 @@ class Cpt(object):
         return self.opts.get('label_nodes', None)
 
     @property
+    def autoground_opt(self):
+        return self.opts.get('autoground', None)
+
+    @property
     def style(self):
         return self.opts.get('style', None)
 
@@ -544,8 +550,8 @@ class Cpt(object):
             draw_nodes = kwargs.get('draw_nodes', True)
 
         s = ''
-        if node1.visible(draw_nodes) and not node1.pin:
-            s = 'o' if node1.port else '*'
+        if False and node1.visible(draw_nodes) and not node1.pin:
+            s = 'o' if node1.is_port else '*'
         return s
 
     def _node_pair_str(self, node1, node2, **kwargs):
@@ -560,16 +566,12 @@ class Cpt(object):
 
         return s
 
-    def draw_node(self, n, **kwargs):
+    def draw_node(self, n, draw_nodes, autoground):
 
         # Don't draw nodes for open-circuits.  Use port
         # if want nodes drawn.
         if self.type == 'O':
             return ''
-
-        draw_nodes = self.draw_nodes_opt
-        if draw_nodes is None:
-            draw_nodes = kwargs.get('draw_nodes', True)
 
         s = ''
         if not draw_nodes:
@@ -578,7 +580,11 @@ class Cpt(object):
         if not n.visible(draw_nodes) or n.pin:
             return s
 
-        if n.port:
+        if n.is_ground and autoground not in (None, 'none'):
+            s = r'  \draw (%s) node[%s] {};''\n' % (n.s, autoground)
+            return s
+
+        if n.is_port:
             s = r'  \draw (%s) node[ocirc] {};''\n' % n.s
         else:
             s = r'  \draw (%s) node[circ] {};''\n' % n.s
@@ -587,9 +593,24 @@ class Cpt(object):
 
     def draw_nodes(self, **kwargs):
 
+        autoground = self.autoground_opt
+        if autoground is None:
+            autoground = kwargs.get('autoground', None)
+
+        if (autoground not in (None, 'none') and
+                autoground not in self.grounds):
+            raise ValueError('Invalid autoground % s.  Choices are % s' %
+                             (autoground, ', '.join(self.grounds)))
+
+        draw_nodes = self.draw_nodes_opt
+        if draw_nodes is None:
+            draw_nodes = kwargs.get('draw_nodes', True)
+
         s = ''
         for n in self.drawn_nodes:
-            s += self.draw_node(n, **kwargs)
+            s += self.draw_node(n, draw_nodes=draw_nodes,
+                                autoground=autoground)
+
         return s
 
     def draw_pins(self):

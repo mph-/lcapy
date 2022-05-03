@@ -113,10 +113,16 @@ class Node:
         raise ValueError('Unknown argument %s for draw_nodes' % draw_nodes)
 
     @property
-    def port(self):
+    def is_port(self):
         """Return true if node is a port"""
 
         return self._port or self.count == 1
+
+    @property
+    def is_ground(self):
+        """Return true if node is a ground"""
+
+        return self.name.startswith('0')
 
     def show_label(self, label_nodes):
 

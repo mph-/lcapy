@@ -84,12 +84,14 @@ class SchematicOpts(Opts):
              'label_ids': True,
              'annotate_values': False,
              'label_nodes': 'primary',
+             'autoground': 'none',
              'scale': 1.0,
              'dpi': PNG_DPI,
              'cpt_size': 1.5,
              'node_spacing': 2.0,
              'help_lines': 0.0,
              'style': 'american',
+             'autoground': 'none',
              'voltage_dir': 'RP'})
 
 

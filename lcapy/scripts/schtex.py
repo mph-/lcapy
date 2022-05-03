@@ -75,6 +75,10 @@ def main(argv=None):
                         dest='label_values', default=None,
                         help="label values")
 
+    parser.add_argument('--autoground', type=str,
+                        dest='autoground', default=None,
+                        help='autoground, choice: none, cground, ground, nground, pground, rground, sground')
+
     parser.add_argument('--noannotate-values', action='store_false',
                         dest='annotate_values', default=None,
                         help="don't annotate values separately from label")
@@ -262,6 +266,7 @@ def main(argv=None):
                  draw_nodes=args.draw_nodes,
                  label_ids=args.label_ids,
                  label_values=args.label_values,
+                 autoground=args.autoground,
                  annotate_values=args.annotate_values,
                  filename=outfilename, scale=args.scale,
                  node_spacing=args.node_spacing, cpt_size=args.cpt_size,
