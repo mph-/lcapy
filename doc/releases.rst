@@ -2,6 +2,54 @@
 Release notes
 =============
 
+V1.5
+====
+
+- Adds autoground for schematics
+
+- Improves choice of node names for nodal analysis
+
+- Avoids double subscripts for LaTeX output
+
+- Adds named parameters for netlists, such as `E1 1 0 opamp 2 3 Ro=Ro`
+
+- Models fully differential and instrumentation amplifiers
+
+- Modifies transistor sizes and improve transistor labelling to work around ircuitikz changes
+
+- Improves math-mode detection for labels
+
+- Adds `0V` implicit connection
+
+- Tidies naming on schematics if the value is the same
+
+- Adds `degrees` and `radians` functions
+
+- Adds `nsolve()` method for numerical solving
+
+- Increases dpi for schematics to 300
+
+- Adds more Fourier transforms for functions of exponentials
+
+- Adds `is_stable` and `is_realizable` attributes
+
+- Unwraps phase for Bode plots
+
+- Removes `omega0` from domain variables
+
+- Ignores `ac` and `dc` assumptions for inverse Laplace transforms
+
+- Adds `kill_noise()` method
+
+- Ignores small imaginary part for `fval`
+
+- Fixes phasor decomposition
+
+- Ensures real symbols are positive by default
+
+- Adds `kind` attribute to voltage/current sources
+
+
 V1.4
 ====
 
