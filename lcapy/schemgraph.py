@@ -31,7 +31,7 @@ from .cnodes import Cnodes
 # W 10 11; right
 # W 11 12; right=2
 
-# For the hotizontal graph, the critical path is through nodes 1 and
+# For the horizontal graph, the critical path is through nodes 1 and
 # 12 but this not found due to the loop for nodes 2, 4, 6, and 8.
 
 

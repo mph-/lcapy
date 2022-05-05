@@ -1,16 +1,16 @@
 """
-This module performs schematic drawing using circuitikz from a netlist.
+This module performs schematic drawing using circuitikz from a netlist::
 
->>> from lcapy import Schematic
->>> sch = Schematic()
->>> sch.add('P1 1 0.1; down')
->>> sch.add('R1 3 1; right')
->>> sch.add('L1 2 3; right')
->>> sch.add('C1 3 0; down')
->>> sch.add('P2 2 0.2; down')
->>> sch.add('W 0 0.1; right')
->>> sch.add('W 0.2 0.2; right')
->>> sch.draw()
+    >>> from lcapy import Schematic
+    >>> sch = Schematic('''
+    ... P1 1 0.1; down
+    ... R1 3 1; right
+    ... L1 2 3; right
+    ... C1 3 0; down
+    ... P2 2 0.2; down
+    ... W 0 0.1; right
+    ... W 0.2 0.2; right''')
+    >>> sch.draw()
 
 Copyright 2014--2022 Michael Hayes, UCECE
 """
