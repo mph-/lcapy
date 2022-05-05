@@ -543,29 +543,6 @@ class Cpt(object):
     def midpoint(self, node1, node2):
         return (node1.pos + node2.pos) * 0.5
 
-    def _node_str(self, node1, **kwargs):
-
-        draw_nodes = self.draw_nodes_opt
-        if draw_nodes is None:
-            draw_nodes = kwargs.get('draw_nodes', True)
-
-        s = ''
-        if False and node1.visible(draw_nodes) and not node1.pin:
-            s = 'o' if node1.is_port else '*'
-        return s
-
-    def _node_pair_str(self, node1, node2, **kwargs):
-
-        # Create o-o o-* *-* etc.
-        s = self._node_str(node1, **kwargs)
-        s += '-'
-        s += self._node_str(node2, **kwargs)
-
-        if s == '-':
-            s = ''
-
-        return s
-
     def draw_node(self, n, draw_nodes, autoground):
 
         # Don't draw nodes for open-circuits.  Use port
@@ -1150,7 +1127,7 @@ class Bipole(StretchyCpt):
         if self.type == 'O':
             node_pair_str = ''
         else:
-            node_pair_str = self._node_pair_str(n1, n2, **kwargs)
+            node_pair_str = '-'
 
         args_str = self.args_str(**kwargs)
         args_str2 = ','.join(
