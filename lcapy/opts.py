@@ -21,7 +21,7 @@ class Opts(dict):
     def add(self, string):
 
         def split(s):
-            """Split a string by , except if in braces"""
+            """Split a string by ',' except if in braces"""
             parts = []
             bracket_level = 0
             current = []

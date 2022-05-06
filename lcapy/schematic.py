@@ -21,6 +21,7 @@ Copyright 2014--2022 Michael Hayes, UCECE
 
 
 from __future__ import print_function
+from .config import autoground_default
 from .latex import latex_format_label
 from .expr import Expr
 from . import schemcpts
@@ -311,7 +312,12 @@ class Schematic(NetfileMixin):
     def _setup(self, autoground):
         # This is called before node positions are assigned.
 
-        if autoground not in (None, 'none'):
+        if autoground in ('true', 'True', True):
+            autoground = autoground_default
+        elif autoground in (False, None, 'false', 'none'):
+            autoground = False
+
+        if autoground:
             for elt in self.elements.values():
                 elt.autoground(autoground)
 
@@ -343,7 +349,7 @@ class Schematic(NetfileMixin):
     def _tikz_draw(self, style_args='', **kwargs):
 
         method = kwargs.pop('method', 'graph')
-        autoground = kwargs.get('autoground', 'none')
+        autoground = kwargs.get('autoground', False)
 
         self._setup(autoground)
 

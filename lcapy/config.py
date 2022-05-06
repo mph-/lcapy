@@ -82,3 +82,5 @@ colours = {'startnode': 'green', 'endnode': 'green',
 heaviside_zero = 0.5
 # This is the common convention.
 unitstep_zero = 1
+
+autoground_default = 'sground'

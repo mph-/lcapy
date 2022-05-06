@@ -553,14 +553,17 @@ class Cpt(object):
         if not n.visible(draw_nodes) or n.pin:
             return s
 
-        if n.is_ground and n.autoground not in (None, 'none'):
-            s = r'  \draw (%s) node[%s] {};''\n' % (n.s, n.autoground)
-            return s
-
-        if n.is_port:
-            s = r'  \draw (%s) node[ocirc] {};''\n' % n.s
+        if n.is_ground and n.autoground is not None:
+            s += r'  \draw (%s) node[%s] {};''\n' % (n.s, n.autoground)
+            if n.is_port:
+                s += r'  \draw (%s) node[ocirc] {};''\n' % n.s
+            elif draw_nodes == 'all':
+                s += r'  \draw (%s) node[circ] {};''\n' % n.s
         else:
-            s = r'  \draw (%s) node[circ] {};''\n' % n.s
+            if n.is_port or n.is_dangling:
+                s += r'  \draw (%s) node[ocirc] {};''\n' % n.s
+            else:
+                s += r'  \draw (%s) node[circ] {};''\n' % n.s
 
         return s
 
@@ -715,15 +718,20 @@ class Cpt(object):
         for m, node_name in enumerate(self.node_names):
             if node_name != '0':
                 continue
+
+            is_port = self.type == 'P'
+
             if sch.autoground_node == 0:
                 sch.autoground_node += 1
                 self.nodes[m].autoground = autoground
+                self.nodes[m]._port = is_port
                 continue
             new_node_name = '0_autoground%d' % sch.autoground_node
             sch.autoground_node += 1
             self.node_names[m] = new_node_name
             node = self.nodes[m].split(new_node_name)
             node.autoground = autoground
+            node._port = is_port
             self.nodes[m] = node
             sch.nodes[new_node_name] = node
 

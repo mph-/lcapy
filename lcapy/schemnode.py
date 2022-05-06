@@ -117,7 +117,13 @@ class Node:
     def is_port(self):
         """Return true if node is a port"""
 
-        return self._port or self._count == 1
+        return self._port
+
+    @property
+    def is_dangling(self):
+        """Return true if node has a single connection"""
+
+        return self._count == 1
 
     @property
     def is_ground(self):
@@ -157,4 +163,6 @@ class Node:
         new_node = Node(name)
         self._count -= 1
         new_node._count = 1
+        new_node._port = self._port
+        new_node.label = self.label
         return new_node
