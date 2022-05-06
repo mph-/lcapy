@@ -726,6 +726,7 @@ class Cpt(object):
             node = Node(new_node_name)
             node._count = 1
             node.autoground = autoground
+            node.label = self.nodes[m].label
             self.nodes[m] = node
             sch.nodes[new_node_name] = node
 
