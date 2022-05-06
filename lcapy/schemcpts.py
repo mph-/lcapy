@@ -9,6 +9,7 @@ Copyright 2015--2022 Michael Hayes, UCECE
 from __future__ import print_function
 from .latex import latex_format_label
 from .schemmisc import Pos, Steps
+from .schemnode import Node
 from .opts import Opts
 import numpy as np
 import sys
@@ -136,7 +137,7 @@ class Cpt(object):
         self.opts = Opts(opts_string)
 
         # The ordering of this list is important.
-        self.node_names = node_names
+        self.node_names = list(node_names)
 
         # The relative node names start with a .
         self.relative_node_names = []
@@ -377,10 +378,6 @@ class Cpt(object):
         return self.opts.get('label_nodes', None)
 
     @property
-    def autoground_opt(self):
-        return self.opts.get('autoground', None)
-
-    @property
     def style(self):
         return self.opts.get('style', None)
 
@@ -570,9 +567,7 @@ class Cpt(object):
 
     def draw_nodes(self, **kwargs):
 
-        autoground = self.autoground_opt
-        if autoground is None:
-            autoground = kwargs.get('autoground', None)
+        autoground = kwargs.get('autoground', None)
 
         if (autoground not in (None, 'none') and
                 autoground not in self.grounds):
@@ -717,6 +712,26 @@ class Cpt(object):
                 node.ref = self
 
         return ref_node_names
+
+    def autoground(self):
+
+        sch = self.sch
+        for m, node_name in enumerate(self.node_names):
+            if node_name != '0':
+                continue
+            if sch.autoground_node == 0:
+                sch.autoground_node += 1
+                continue
+            new_node_name = '0_a%d' % sch.autoground_node
+            sch.autoground_node += 1
+            self.node_names[m] = new_node_name
+            node = Node(new_node_name)
+            node._count = 1
+            self.nodes[m] = node
+            sch.nodes[new_node_name] = node
+
+            index = self.all_node_names.index(node_name)
+            self.all_node_names[index] = new_node_name
 
     def setup(self):
         self.ref_node_names = self.find_ref_node_names()
@@ -1124,10 +1139,7 @@ class Bipole(StretchyCpt):
         if 'a' in self.opts:
             self.opts['a' + annotation_pos] = self.opts.pop('a')
 
-        if self.type == 'O':
-            node_pair_str = ''
-        else:
-            node_pair_str = '-'
+        node_pair_str = ''
 
         args_str = self.args_str(**kwargs)
         args_str2 = ','.join(

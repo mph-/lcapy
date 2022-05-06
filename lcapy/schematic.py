@@ -91,7 +91,6 @@ class SchematicOpts(Opts):
              'node_spacing': 2.0,
              'help_lines': 0.0,
              'style': 'american',
-             'autoground': 'none',
              'voltage_dir': 'RP'})
 
 
@@ -109,6 +108,7 @@ class Schematic(NetfileMixin):
         self.dummy_node = 0
         self.context = None
         self.debug = 0
+        self.autoground_node = 0
 
         if filename is not None:
             self.netfile_add(filename)
@@ -274,7 +274,7 @@ class Schematic(NetfileMixin):
                     # This catches non numeric arg.
                     value_label = self._format_expr(expr)
 
-            # Enssure labels are the same when the value is not specified.
+            # Ensure labels are the same when the value is not specified.
             # This will prevent printing the name and value.
             unify = expr == cpt.type + cpt.id
 
@@ -308,8 +308,12 @@ class Schematic(NetfileMixin):
             for node in cpt.required_node_names:
                 self._node_add(node, cpt, auxiliary=False)
 
-    def _setup(self):
+    def _setup(self, autoground):
         # This is called before node positions are assigned.
+
+        if autoground not in (None, 'none'):
+            for elt in self.elements.values():
+                elt.autoground()
 
         for elt in self.elements.values():
             elt.setup()
@@ -339,8 +343,9 @@ class Schematic(NetfileMixin):
     def _tikz_draw(self, style_args='', **kwargs):
 
         method = kwargs.pop('method', 'graph')
+        autoground = kwargs.get('autoground', 'none')
 
-        self._setup()
+        self._setup(autoground)
 
         self._positions_calculate(method, self.debug)
 
