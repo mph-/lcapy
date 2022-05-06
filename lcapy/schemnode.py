@@ -102,11 +102,11 @@ class Node:
             return False
 
         # Implied port
-        if self.count == 1:
+        if self._count == 1:
             return True
 
         if draw_nodes in ('connections', 'connected'):
-            return self.count > 2
+            return self._count > 2
 
         if draw_nodes == 'primary':
             return self.primary
@@ -117,7 +117,7 @@ class Node:
     def is_port(self):
         """Return true if node is a port"""
 
-        return self._port or self.count == 1
+        return self._port or self._count == 1
 
     @property
     def is_ground(self):
@@ -150,4 +150,11 @@ class Node:
 
     def debug(self):
         print(' %s @ (%s), count=%d, pin=%s' % (self.name, self.pos,
-                                                self.count, self.pin))
+                                                self._count, self.pin))
+
+    def split(self, name):
+
+        new_node = Node(name)
+        self._count -= 1
+        new_node._count = 1
+        return new_node

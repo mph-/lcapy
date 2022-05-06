@@ -9,7 +9,6 @@ Copyright 2015--2022 Michael Hayes, UCECE
 from __future__ import print_function
 from .latex import latex_format_label
 from .schemmisc import Pos, Steps
-from .schemnode import Node
 from .opts import Opts
 import numpy as np
 import sys
@@ -723,10 +722,8 @@ class Cpt(object):
             new_node_name = '0_autoground%d' % sch.autoground_node
             sch.autoground_node += 1
             self.node_names[m] = new_node_name
-            node = Node(new_node_name)
-            node._count = 1
+            node = self.nodes[m].split(new_node_name)
             node.autoground = autoground
-            node.label = self.nodes[m].label
             self.nodes[m] = node
             sch.nodes[new_node_name] = node
 
