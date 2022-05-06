@@ -38,9 +38,10 @@ class Node:
         self.auxiliary = None
         # Reference to node that defines the pin
         self.ref = None
-        # Node is connected to a ground, etc. (an implicit power
-        # supply connection)
+        # Node has an implicit connection, say to ground.
         self.implicit = False
+        # Symbol to use if node is an autoground
+        self.autoground = None
 
     @property
     def basename(self):

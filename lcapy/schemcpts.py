@@ -540,7 +540,7 @@ class Cpt(object):
     def midpoint(self, node1, node2):
         return (node1.pos + node2.pos) * 0.5
 
-    def draw_node(self, n, draw_nodes, autoground):
+    def draw_node(self, n, draw_nodes):
 
         # Don't draw nodes for open-circuits.  Use port
         # if want nodes drawn.
@@ -554,8 +554,8 @@ class Cpt(object):
         if not n.visible(draw_nodes) or n.pin:
             return s
 
-        if n.is_ground and autoground not in (None, 'none'):
-            s = r'  \draw (%s) node[%s] {};''\n' % (n.s, autoground)
+        if n.is_ground and n.autoground not in (None, 'none'):
+            s = r'  \draw (%s) node[%s] {};''\n' % (n.s, n.autoground)
             return s
 
         if n.is_port:
@@ -567,21 +567,13 @@ class Cpt(object):
 
     def draw_nodes(self, **kwargs):
 
-        autoground = kwargs.get('autoground', None)
-
-        if (autoground not in (None, 'none') and
-                autoground not in self.grounds):
-            raise ValueError('Invalid autoground % s.  Choices are % s' %
-                             (autoground, ', '.join(self.grounds)))
-
         draw_nodes = self.draw_nodes_opt
         if draw_nodes is None:
             draw_nodes = kwargs.get('draw_nodes', True)
 
         s = ''
         for n in self.drawn_nodes:
-            s += self.draw_node(n, draw_nodes=draw_nodes,
-                                autoground=autoground)
+            s += self.draw_node(n, draw_nodes=draw_nodes)
 
         return s
 
@@ -713,7 +705,12 @@ class Cpt(object):
 
         return ref_node_names
 
-    def autoground(self):
+    def autoground(self, autoground):
+
+        if (autoground not in (None, 'none') and
+                autoground not in self.grounds):
+            raise ValueError('Invalid autoground % s.  Choices are % s' %
+                             (autoground, ', '.join(self.grounds)))
 
         sch = self.sch
         for m, node_name in enumerate(self.node_names):
@@ -721,12 +718,14 @@ class Cpt(object):
                 continue
             if sch.autoground_node == 0:
                 sch.autoground_node += 1
+                self.nodes[m].autoground = autoground
                 continue
-            new_node_name = '0_a%d' % sch.autoground_node
+            new_node_name = '0_autoground%d' % sch.autoground_node
             sch.autoground_node += 1
             self.node_names[m] = new_node_name
             node = Node(new_node_name)
             node._count = 1
+            node.autoground = autoground
             self.nodes[m] = node
             sch.nodes[new_node_name] = node
 

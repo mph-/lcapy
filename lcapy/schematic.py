@@ -313,7 +313,7 @@ class Schematic(NetfileMixin):
 
         if autoground not in (None, 'none'):
             for elt in self.elements.values():
-                elt.autoground()
+                elt.autoground(autoground)
 
         for elt in self.elements.values():
             elt.setup()
