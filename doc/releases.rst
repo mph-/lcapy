@@ -5,7 +5,9 @@ Release notes
 V1.5
 ====
 
-- Adds autoground for schematics
+- Adds implicit connections for oneport components in netlists, see :ref:`implicit_connections`
+
+- Adds autoground for schematics, see :ref:`autoground`
 
 - Improves choice of node names for nodal analysis
 
@@ -15,7 +17,7 @@ V1.5
 
 - Models fully differential and instrumentation amplifiers
 
-- Modifies transistor sizes and improve transistor labelling to work around ircuitikz changes
+- Modifies transistor sizes and improve transistor labelling to work around Circuitikz changes
 
 - Improves math-mode detection for labels
 
@@ -41,7 +43,7 @@ V1.5
 
 - Adds `kill_noise()` method
 
-- Ignores small imaginary part for `fval`
+- Ignores small imaginary part for `fval` and warns about larger imaginary parts
 
 - Fixes phasor decomposition
 

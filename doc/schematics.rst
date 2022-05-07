@@ -818,10 +818,27 @@ There are many arrow styles, see the `Tikz manual <https://pgf-tikz.github.io/pg
    :width: 10cm
 
 
-Implicit wires
---------------
+.. _autoground:
 
-Implicit wires are commonly employed for power supply and ground
+Autoground
+----------
+
+If `autoground` set to `True` then implicit ground connections are
+automatically added for all the ground, `0`, nodes.  The type of
+ground connection can be specified, for example:
+
+.. literalinclude:: examples/schematics/autoground1.sch
+
+.. image:: examples/schematics/autoground1.png
+    :width: 9cm
+
+
+.. _implicit_connections:
+
+Implicit connections
+--------------------
+
+Implicit connections are commonly employed for power supply and ground
 connections.  They have one of the following attributes:
 
 - `implicit` equivalent to signal ground
@@ -837,16 +854,7 @@ connections.  They have one of the following attributes:
 - `vee`      negative power supply (voltage to emitters)
 - `vss`      negative power supply (voltage to sources)
 
-If `autoground` set to `True` then implicit ground connections are
-automatically added for all the ground, `0`, nodes.  The type of
-ground connection can be specified, for example:
-
-.. literalinclude:: examples/schematics/autoground1.sch
-
-.. image:: examples/schematics/autoground1.png
-    :width: 9cm
-
-Implicit wires can be added to any bipole component (resistor,
+Implicit connections can be added to any oneport netlist component (resistor,
 capacitor, wire, etc.), for example:
 
 .. literalinclude:: examples/schematics/implicit2.sch
@@ -856,7 +864,7 @@ capacitor, wire, etc.), for example:
 
 The first node is considered the implict wire for `vcc` and `vdd` otherwise it is the second node.
 
-The implicit wire functionality is currently best for wires.  Here are
+The implicit connection functionality is currently best for wires.  Here are
 some ground examples:
 
 .. literalinclude:: examples/schematics/grounds.sch

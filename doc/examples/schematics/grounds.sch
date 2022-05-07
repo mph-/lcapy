@@ -8,7 +8,7 @@ A 2; l=ground, anchor=s
 W 2 3; right
 # chassis ground
 W 3 03; down=0.2, cground
-A 3; l=cround, anchor=s
+A 3; l=cground, anchor=s
 W 3 4; right
 # noiseless ground
 W 4 04; down=0.2, nground
