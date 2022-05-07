@@ -83,4 +83,5 @@ heaviside_zero = 0.5
 # This is the common convention.
 unitstep_zero = 1
 
+implicit_default = 'sground'
 autoground_default = 'sground'

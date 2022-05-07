@@ -7,6 +7,7 @@ Copyright 2015--2022 Michael Hayes, UCECE
 
 
 from __future__ import print_function
+from .config import implicit_default
 from .latex import latex_format_label
 from .schemmisc import Pos, Steps
 from .opts import Opts
@@ -3259,10 +3260,8 @@ class Wire(Bipole):
         if kind == '0V':
             label = r'0\,\mathrm{V}'
 
-        # I like the sground symbol for power supplies but rground symbol
-        # is also common.
         if kind is None or kind == 'implicit' or kind == '0V':
-            kind = 'sground'
+            kind = implicit_default
         anchor = 'south west'
         if self.down:
             anchor = 'north west'
