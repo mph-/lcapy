@@ -555,8 +555,8 @@ class Cpt(object):
         if not n.visible(draw_nodes) or n.pin:
             return s
 
-        if n.is_ground and n.autoground is not None:
-            s += r'  \draw (%s) node[%s] {};''\n' % (n.s, n.autoground)
+        if n.symbol is not None:
+            s += r'  \draw (%s) node[%s] {};''\n' % (n.s, n.symbol)
             if n.is_port:
                 s += r'  \draw (%s) node[ocirc] {};''\n' % n.s
             elif draw_nodes == 'all':
@@ -722,7 +722,7 @@ class Cpt(object):
 
             node = self.nodes[m]
             new_node = node.split(self)
-            new_node.autoground = autoground
+            new_node.symbol = autoground
 
             self.node_names[m] = new_node.name
             self.nodes[m] = new_node
@@ -1055,23 +1055,34 @@ class Bipole(StretchyCpt):
 
     def split_nodes(self):
 
-        n1, n2 = self.nodes[0:2]
+        def split_nodes1(kind):
+            n1, n2 = self.nodes[0:2]
 
-        kind = None
-        implicit_node = None
+            m = 0
+            node = n1
+            if kind in self.grounds or kind in self.supply_negative:
+                node = n2
+                m = 1
+
+            new_node = node.split(self)
+            new_node.symbol = kind
+
+            self.node_names[m] = new_node.name
+            self.nodes[m] = new_node
+            self.sch.nodes[new_node.name] = new_node
+
+            index = self.all_node_names.index(node.name)
+            self.all_node_names[index] = new_node.name
+
+        prevkey = None
         for key in self.implicit_keys:
             if key in self.opts:
-                kind = key
-                break
-        if kind in self.grounds:
-            implicit_node = n2
-            print('gound ' + kind)
-        elif kind in self.supply_positive:
-            implicit_node = n1
-            print('+ve ' + kind)
-        elif kind in self.supply_negative:
-            implicit_node = n2
-            print('-ve ' + kind)
+                if prevkey is not None:
+                    raise ValueError(
+                        'Multiple implicit node options %s and %s for %s: ' %
+                        (prevkey, key, self))
+                prevkey = key
+                split_nodes1(key)
 
     def draw(self, **kwargs):
 

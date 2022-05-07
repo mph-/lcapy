@@ -41,7 +41,7 @@ class Node:
         # Node has an implicit connection, say to ground.
         self.implicit = False
         # Symbol to use if node is an autoground
-        self.autoground = None
+        self._symbol = None
         self.split_count = 0
 
     @property
@@ -175,3 +175,18 @@ class Node:
         new_node._port = elt.type == 'P'
 
         return new_node
+
+    @property
+    def symbol(self):
+        """Return node symbol"""
+
+        return self._symbol
+
+    @symbol.setter
+    def symbol(self, value):
+        """Set node symbol."""
+
+        if self._symbol != None:
+            raise ValueError('Conflicting symbols %s and %s' %
+                             (self._symbol, value))
+        self._symbol = value
