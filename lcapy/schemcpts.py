@@ -68,12 +68,14 @@ class Cpt(object):
     label_keys = ('l', 'l_', 'l^')
     annotation_keys = ('a', 'a_', 'a^')
     inner_label_keys = ('t', )
+    connections = ('input', 'output', 'bidir', 'pad',
+                   'antenna', 'rxantenna', 'txantenna')
     grounds = ('ground', 'sground', 'rground',
                'cground', 'nground', 'pground', '0V')
-    implicit_keys = ('implicit', 'ground', 'sground', 'rground',
-                     'cground', 'nground', 'pground', 'vss', 'vdd',
-                     'vee', 'vcc', 'input', 'output', 'bidir', 'pad',
-                     'antenna', 'rxantenna', 'txantenna', '0V')
+    supply_positive = ('vcc', 'vdd')
+    supply_negative = ('vee', 'vss')
+    implicit_keys = ('implicit', ) + grounds + supply_positive + \
+        supply_negative + connections
     # The following keys do not get passed through to circuitikz.
     misc_keys = ('left', 'right', 'up', 'down', 'rotate', 'size',
                  'mirror', 'invert', 'scale', 'invisible', 'variable', 'fixed',
@@ -719,19 +721,15 @@ class Cpt(object):
             if node_name != '0':
                 continue
 
-            is_port = self.type == 'P'
-
             if sch.autoground_node == 0:
                 sch.autoground_node += 1
                 self.nodes[m].autoground = autoground
-                self.nodes[m]._port = is_port
                 continue
             new_node_name = '0_autoground%d' % sch.autoground_node
             sch.autoground_node += 1
             self.node_names[m] = new_node_name
-            node = self.nodes[m].split(new_node_name)
+            node = self.nodes[m].split(new_node_name, self)
             node.autoground = autoground
-            node._port = is_port
             self.nodes[m] = node
             sch.nodes[new_node_name] = node
 
@@ -740,6 +738,9 @@ class Cpt(object):
 
     def setup(self):
         self.ref_node_names = self.find_ref_node_names()
+
+    def split_nodes(self):
+        pass
 
     def parse_pindefs(self):
         return {}
@@ -1057,6 +1058,26 @@ class Bipole(StretchyCpt):
 
         return label_str
 
+    def split_nodes(self):
+
+        n1, n2 = self.nodes[0:2]
+
+        kind = None
+        implicit_node = None
+        for key in self.implicit_keys:
+            if key in self.opts:
+                kind = key
+                break
+        if kind in self.grounds:
+            implicit_node = n2
+            print('gound ' + kind)
+        elif kind in self.supply_positive:
+            implicit_node = n1
+            print('+ve ' + kind)
+        elif kind in self.supply_negative:
+            implicit_node = n2
+            print('-ve ' + kind)
+
     def draw(self, **kwargs):
 
         if not self.check():
@@ -1067,7 +1088,7 @@ class Bipole(StretchyCpt):
         if self.wire:
             # With this option, draw component as a piece of wire.
             # This is useful for hiding the control voltage source
-            # required for a CCVS and a CCCS.
+            # required for a CCVS or a CCCS.
             s = r'  \draw[-, %s] (%s) to (%s);''\n' % (
                 self.args_str(**kwargs), n1.s, n2.s)
             return s
@@ -1144,8 +1165,6 @@ class Bipole(StretchyCpt):
         if 'a' in self.opts:
             self.opts['a' + annotation_pos] = self.opts.pop('a')
 
-        node_pair_str = ''
-
         args_str = self.args_str(**kwargs)
         args_str2 = ','.join(
             [self.voltage_str, self.current_str, self.flow_str])
@@ -1161,9 +1180,9 @@ class Bipole(StretchyCpt):
 
         label_str = self.label_make(label_pos, **kwargs)
 
-        s = r'  \draw[%s] (%s) to [%s,%s,%s,%s,n=%s] (%s);''\n' % (
+        s = r'  \draw[%s] (%s) to [%s,%s,%s,n=%s] (%s);''\n' % (
             args_str, n1.s, tikz_cpt, label_str, args_str2,
-            node_pair_str, self.s, n2.s)
+            self.s, n2.s)
         return s
 
 

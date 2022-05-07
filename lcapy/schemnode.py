@@ -158,11 +158,15 @@ class Node:
         print(' %s @ (%s), count=%d, pin=%s' % (self.name, self.pos,
                                                 self._count, self.pin))
 
-    def split(self, name):
+    def split(self, name, elt):
+
+        is_port = elt.type == 'P'
 
         new_node = Node(name)
         self._count -= 1
         new_node._count = 1
         new_node._port = self._port
         new_node.label = self.label
+        new_node._port = is_port
+
         return new_node
