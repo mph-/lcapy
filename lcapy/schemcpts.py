@@ -3228,7 +3228,7 @@ class Wire(Bipole):
         opts = Opts(opts_string)
 
         implicit = False
-        for key in self.implicit_keys or key in self.connection_keys:
+        for key in self.implicit_keys + self.connection_keys:
             if key in opts:
                 implicit = True
                 break
