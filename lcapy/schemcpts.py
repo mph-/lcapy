@@ -1055,6 +1055,9 @@ class Bipole(StretchyCpt):
 
     def split_nodes(self):
 
+        if self.type == 'W':
+            return
+
         def split_nodes1(kind):
             n1, n2 = self.nodes[0:2]
 
