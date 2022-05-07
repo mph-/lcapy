@@ -109,7 +109,6 @@ class Schematic(NetfileMixin):
         self.dummy_node = 0
         self.context = None
         self.debug = 0
-        self.autoground_node = 0
 
         if filename is not None:
             self.netfile_add(filename)
@@ -320,6 +319,9 @@ class Schematic(NetfileMixin):
         if autoground:
             for elt in self.elements.values():
                 elt.autoground(autoground)
+
+        for elt in self.elements.values():
+            elt.split_nodes()
 
         for elt in self.elements.values():
             elt.setup()

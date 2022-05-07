@@ -721,21 +721,15 @@ class Cpt(object):
                 continue
 
             node = self.nodes[m]
+            new_node = node.split(self)
+            new_node.autoground = autoground
 
-            if node.split_count == 0:
-                node.split_count += 1
-                self.nodes[m].autoground = autoground
-                continue
-            new_node_name = '0_autoground%d' % node.split_count
-            node.split_count += 1
-            self.node_names[m] = new_node_name
-            node = self.nodes[m].split(new_node_name, self)
-            node.autoground = autoground
-            self.nodes[m] = node
-            self.sch.nodes[new_node_name] = node
+            self.node_names[m] = new_node.name
+            self.nodes[m] = new_node
+            self.sch.nodes[new_node.name] = new_node
 
-            index = self.all_node_names.index(node_name)
-            self.all_node_names[index] = new_node_name
+            index = self.all_node_names.index(node.name)
+            self.all_node_names[index] = new_node.name
 
     def setup(self):
         self.ref_node_names = self.find_ref_node_names()
