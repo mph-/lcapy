@@ -42,6 +42,7 @@ class Node:
         self.implicit = False
         # Symbol to use if node is an autoground
         self.autoground = None
+        self.split_count = 0
 
     @property
     def basename(self):

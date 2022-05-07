@@ -716,22 +716,23 @@ class Cpt(object):
             raise ValueError('Invalid autoground % s.  Choices are % s' %
                              (autoground, ', '.join(self.grounds)))
 
-        sch = self.sch
         for m, node_name in enumerate(self.node_names):
             if node_name != '0':
                 continue
 
-            if sch.autoground_node == 0:
-                sch.autoground_node += 1
+            node = self.nodes[m]
+
+            if node.split_count == 0:
+                node.split_count += 1
                 self.nodes[m].autoground = autoground
                 continue
-            new_node_name = '0_autoground%d' % sch.autoground_node
-            sch.autoground_node += 1
+            new_node_name = '0_autoground%d' % node.split_count
+            node.split_count += 1
             self.node_names[m] = new_node_name
             node = self.nodes[m].split(new_node_name, self)
             node.autoground = autoground
             self.nodes[m] = node
-            sch.nodes[new_node_name] = node
+            self.sch.nodes[new_node_name] = node
 
             index = self.all_node_names.index(node_name)
             self.all_node_names[index] = new_node_name
