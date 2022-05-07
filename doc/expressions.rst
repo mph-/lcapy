@@ -796,7 +796,7 @@ Miscellaneous
 
 - `multiply_top_and_bottom(expr)` multiplies numerator and denominator by `expr`.
 
-- `nsolve(x0, **kwargs)` returns numerical solution with `x0` as the starting poit close to the solution.  See sympy.solvers.solvers.nsolve for details.
+- `nsolve(x0, **kwargs)` returns numerical solution with `x0` as the starting point close to the solution.  See sympy.solvers.solvers.nsolve for details.
 
 - `parameterize()` parameterizes first, second, and third order rational functions into common forms.   For example::
 
@@ -1227,7 +1227,7 @@ In this case, substitution of `s` with `jomega` is not valid to obtain
 the frequency response.  This is because the poles of `Z` are not in
 the RH plane and thus the evaluation of `Z(s)` at `s = jomega` is
 outside the region of convergence.  In practice, this is not a problem
-for circuit analysis provided the circuit contains some rsistance.
+for circuit analysis provided the circuit contains some resistance.
 
 The evaluation of a Laplace domain impedance `Z(s)` at `s = jomega` to
 obtain a phasor domain impedance is always valid.  When dealing with
@@ -2242,7 +2242,7 @@ Magnitudes are shown on a linear scale by default.  A logarithmic
 scale is used if `log_magnitude=True` is specified.
 
 Phases are wrapped unless `unwrap=True` is specified to avoid
-discontinuites of math:`\pi`.
+discontinuities of math:`\pi`.
 
 The frequency domain `plot()` method returns the axes used in the plot.
 If there are two sets of axes, such as for a magnitude/phase or
@@ -2258,7 +2258,7 @@ real/imaginary plot, these are returned as a tuple.  For example::
 Bode plots
 ----------
 
-Bode plots are similar to frequency domain plots but plot both the magnitude (in dB) and the phase (in radians) as a function of logarithmic frequency.  The phase is unwrapped by default to avoid discontinuites of :math:`\pi`.
+Bode plots are similar to frequency domain plots but plot both the magnitude (in dB) and the phase (in radians) as a function of logarithmic frequency.  The phase is unwrapped by default to avoid discontinuities of :math:`\pi`.
 
 .. literalinclude:: examples/plotting/bode1.py
 

@@ -692,7 +692,7 @@ There are many kinds of MOSFET:
 
 - `nmos`, `pmos` simplified form of n- and p-channel enhancement mode MOSFETS
 
-- `nmosd`, `pmosd` siplified form of n- and p-channel depletion mode MOSFETS
+- `nmosd`, `pmosd` simplified form of n- and p-channel depletion mode MOSFETS
 
 - `nfet`, `pfet` n- and p-channel enhancement mode MOSFETS
 
@@ -862,10 +862,11 @@ capacitor, wire, etc.), for example:
 .. image:: examples/schematics/implicit2.png
     :width: 3cm
 
-The first node is considered the implict wire for `vcc` and `vdd` otherwise it is the second node.
+The first node is considered the implicit wire for `vcc` and `vdd` otherwise it is the second node.
 
-The implicit connection functionality is currently best for wires.  Here are
-some ground examples:
+The implicit connection functionality is currently best for wires.
+This allows the nodes to be labelled.  For example, here are some
+ground examples:
 
 .. literalinclude:: examples/schematics/grounds.sch
 

@@ -183,7 +183,7 @@ and
 
 :math:`C_0 = \frac{\epsilon^{S} A}{d}`,
 
-where :math:`Z_0` is the characteristic impedance of the pizeoelectric
+where :math:`Z_0` is the characteristic impedance of the piezoelectric
 crystal, :math:`h` is the pressure constant of the crystal, :math:`d`
 is the thickness of the crystal, and :math:`\epsilon^{S}` is the
 clamped (zero strain,high frequency) permittivity of the crystal.
@@ -276,7 +276,7 @@ secondary share a common ground as in the figure below:
    :width: 8cm
 
 
-A transformer with a common ground for the primary and seconday can be
+A transformer with a common ground for the primary and secondary can be
 represented by a tee-model without having to use a coupling `K`
 component.  In this case, the voltages can be expressed in terms of
 the currents using:
@@ -318,7 +318,7 @@ comprise a Thevenin load, say due to a pull-up resistor.
 .. image:: examples/tutorials/nonlinear/cmos_R_series_C_load_thevenin.png
    :width: 9cm
 
-Using an IBIS output model to model the parastic components, the
+Using an IBIS output model to model the parasitic components, the
 equivalent circuit is:
 
 .. image:: examples/tutorials/nonlinear/cmos_ibis_R_series_C_load_thevenin.png

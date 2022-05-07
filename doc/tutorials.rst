@@ -51,7 +51,7 @@ This can be converted into many different forms.  For example, the partial fract
           s + α + ⅉ⋅ω₀             s + α - ⅉ⋅ω₀
 
 
-In principle, this can be simplified by the `simplify()` method.  However, this is too agressive and collapses the partial fraction expansion!  For example::
+In principle, this can be simplified by the `simplify()` method.  However, this is too aggressive and collapses the partial fraction expansion!  For example::
 
    >>> X.partfrac().simplify()
      A⋅(α⋅cos(θ) - ω₀⋅sin(θ) + s⋅cos(θ))
@@ -343,7 +343,7 @@ This can be simplified, however, SymPy has trouble with this as a whole.  Instea
    ─────────────── - ─────────────── + ────────────
           13                13              13
 
-The first two terms represent the steady-state reponse and the third
+The first two terms represent the steady-state response and the third
 term represents the transient response due to the sinewave switching
 'on' at :math:`t=0`.  The steady-state response is the sum of a
 sinewave and cosinewave of the same frequency; this is equivalent to a
@@ -827,7 +827,7 @@ This example looks at a displacement current sensor with an opamp
 configured as a transimpedance amplifier.  In this example, the opamp
 is configured as an inverting differentiator, Cs models the source
 capacitance, Vs models the AC source voltage, R is the feedback
-resistor, and A is the opne-loop gain of the opamp.  The displacement
+resistor, and A is the open-loop gain of the opamp.  The displacement
 current flows through Cs.
 
 .. image:: examples/tutorials/opamps/opamp-displacement-current-sensor1.png
@@ -1031,7 +1031,7 @@ The output noise voltage amplitude spectral density (ASD) can be found using::
 
   >>> Von = a.Po.V.n(f)
 
-This can be simplfied by assuming an opamp with infinite open-loop gain::
+This can be simplified by assuming an opamp with infinite open-loop gain::
 
   >>> Von = Von.limit('A', oo)
 
@@ -1310,7 +1310,7 @@ Fully-differential opamps
 
 Fully differential opamps are useful for converting differential
 signals to single ended signals and vice-versa.  They are also useful
-for amplifiying differential signals and changing the common-mode
+for amplifying differential signals and changing the common-mode
 voltage.
 
 In Lcapy a fully differential opamp is defined using the notation of a
@@ -1859,7 +1859,7 @@ Consider the analog filter:
 .. image:: examples/tutorials/discretetime/filter1.png
    :width: 9cm
 
-This can be described by the nestlist:
+This can be described by the netlist:
 
 .. literalinclude:: examples/tutorials/discretetime/filter1.sch
 
@@ -1948,7 +1948,7 @@ Note, the coefficients are stored as SymPy rational numbers.  To convert them to
 These coefficients can now be used in the SciPy `lfilter()` function.
 
 Note, the symbolic response can also be found using the `response()`
-method of a `DLTIFilter` object.  However, the output soons becomes
+method of a `DLTIFilter` object.  However, the output soon becomes
 tedious for this filter.
 
 

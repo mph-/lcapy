@@ -74,7 +74,7 @@ example:
 
 The component type is specified by the first letter(s) of the
 `component-name`.  For example, the following line defines a voltage
-source called V1 connected btween nodes 1 and 0::
+source called V1 connected between nodes 1 and 0::
 
    `V1 1 0`
 
@@ -627,7 +627,7 @@ A Component object is obtained from a Circuit object using member notation.  For
 
    >>> cpt = cct.R1
 
-Alternatively, a Component object can be obtained using array notation.  For rxample,
+Alternatively, a Component object can be obtained using array notation.  For example,
 
    >>> cpt = cct['R1']
 
@@ -799,7 +799,7 @@ Component methods
 
 - `thevenin()` Creates Thevenin oneport object viewed from nodes of the component.
 
-- `oneport()` Creates Thevenin or Noton oneport object as appropriate when viewed from nodes of the component.
+- `oneport()` Creates Thevenin or Norton oneport object as appropriate when viewed from nodes of the component.
 
 - `transfer(cpt)` Creates transfer function for the voltage across `cpt` divided by the voltage across the component.
 
@@ -1011,7 +1011,7 @@ iterations is controlled by the `passes` argument.
 
 Each of the netlist simplification methods have an `explain` argument,
 If this is `True`, the simplification steps are printed.  There is
-also a `modiy` argument.  If this is `False`, the modifications are
+also a `modify` argument.  If this is `False`, the modifications are
 not performed.
 
 

@@ -15,7 +15,7 @@ State-space
 Lcapy has two state-space representations: `StateSpace` for
 continuous-time linear time-invariant systems and `DTStateSpace` for
 discrete-time linear time-invariant systems.  Both representations
-share many methods and attibutes.
+share many methods and attributes.
 
 
 Continuous-time state-space representation
@@ -54,7 +54,7 @@ to a state-space representation.  Here's an example::
    
 State-space representation are not unique; Lcapy uses the controllable
 canonical form (CCF), the observable canonical form (OCF), and the
-diagoncal canonical form (DCF).  The CCF form of the state-space
+diagonal canonical form (DCF).  The CCF form of the state-space
 matrices are::
 
    >>> ss.A

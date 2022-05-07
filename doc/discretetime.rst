@@ -139,7 +139,7 @@ Similarly, the `*` operator repeats sequences a specified number of times, for e
    >>> seq((1, 2, 3)) * 2
    {_1, 2, 3, 1, 2, 3}
 
-To add sequences element by element, it is necessary to explicitly convert each sequence to ann array, add the arrays assuming they are equal length, and convert back to a sequence, for example::
+To add sequences element by element, it is necessary to explicitly convert each sequence to an array, add the arrays assuming they are equal length, and convert back to a sequence, for example::
   
    >>> seq(seq((1, 2, 3)).as_array() + seq('{4, _5, 6}').as_array())
    {_5, 7, 9}
