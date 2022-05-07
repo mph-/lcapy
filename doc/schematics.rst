@@ -837,7 +837,27 @@ connections.  They have one of the following attributes:
 - `vee`      negative power supply (voltage to emitters)
 - `vss`      negative power supply (voltage to sources)
 
-Here are some ground examples:
+If `autoground` set to `True` then implicit ground connections are
+automatically added for all the ground, `0`, nodes.  The type of
+ground connection can be specified, for example:
+
+.. literalinclude:: examples/schematics/autoground1.sch
+
+.. image:: examples/schematics/autoground1.png
+    :width: 9cm
+
+Implicit wires can be added to any bipole component (resistor,
+capacitor, wire, etc.), for example:
+
+.. literalinclude:: examples/schematics/implicit2.sch
+
+.. image:: examples/schematics/implicit2.png
+    :width: 3cm
+
+The first node is considered the implict wire for `vcc` and `vdd` otherwise it is the second node.
+
+The implicit wire functionality is currently best for wires.  Here are
+some ground examples:
 
 .. literalinclude:: examples/schematics/grounds.sch
 
