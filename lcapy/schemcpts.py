@@ -69,14 +69,14 @@ class Cpt(object):
     label_keys = ('l', 'l_', 'l^')
     annotation_keys = ('a', 'a_', 'a^')
     inner_label_keys = ('t', )
-    connections = ('input', 'output', 'bidir', 'pad',
-                   'antenna', 'rxantenna', 'txantenna')
-    grounds = ('ground', 'sground', 'rground',
-               'cground', 'nground', 'pground', '0V')
-    supply_positive = ('vcc', 'vdd')
-    supply_negative = ('vee', 'vss')
-    implicit_keys = ('implicit', ) + grounds + supply_positive + \
-        supply_negative + connections
+    connection_keys = ('input', 'output', 'bidir', 'pad',
+                       'antenna', 'rxantenna', 'txantenna')
+    ground_keys = ('ground', 'sground', 'rground',
+                   'cground', 'nground', 'pground', '0V')
+    supply_positive_keys = ('vcc', 'vdd')
+    supply_negative_keys = ('vee', 'vss')
+    implicit_keys = ('implicit', ) + ground_keys + supply_positive_keys + \
+        supply_negative_keys
     # The following keys do not get passed through to circuitikz.
     misc_keys = ('left', 'right', 'up', 'down', 'rotate', 'size',
                  'mirror', 'invert', 'scale', 'invisible', 'variable', 'fixed',
@@ -89,7 +89,8 @@ class Cpt(object):
     label_opt_keys = ('label_values', 'label_ids', 'annotate_values')
 
     special_keys = voltage_keys + current_keys + flow_keys + label_keys + \
-        inner_label_keys + annotation_keys + misc_keys + implicit_keys + label_opt_keys
+        inner_label_keys + annotation_keys + misc_keys + \
+        implicit_keys + label_opt_keys + connection_keys
 
     can_rotate = True
     can_scale = False
@@ -713,9 +714,9 @@ class Cpt(object):
     def autoground(self, autoground):
 
         if (autoground not in (None, 'none') and
-                autoground not in self.grounds):
+                autoground not in self.ground_keys):
             raise ValueError('Invalid autoground % s.  Choices are % s' %
-                             (autoground, ', '.join(self.grounds)))
+                             (autoground, ', '.join(self.ground_keys)))
 
         for m, node_name in enumerate(self.node_names):
             if node_name != '0':
@@ -1064,7 +1065,7 @@ class Bipole(StretchyCpt):
 
             m = 0
             node = n1
-            if kind in self.grounds or kind in self.supply_negative:
+            if kind in self.ground_keys or kind in self.supply_negative_keys:
                 node = n2
                 m = 1
 
@@ -3227,7 +3228,7 @@ class Wire(Bipole):
         opts = Opts(opts_string)
 
         implicit = False
-        for key in self.implicit_keys:
+        for key in self.implicit_keys or key in self.connection_keys:
             if key in opts:
                 implicit = True
                 break
