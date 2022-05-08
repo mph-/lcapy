@@ -79,9 +79,10 @@ def latex_format_label(s):
     s = latex_str(s)
 
     s2 = s
-    for macro in (r'\hspace', r'\vspace', r'\,', r'\;', r'\!', r'\tiny',
-                  r'\footnotesize', r'\scriptsize', r'\normalsize', r'\large',
-                  r'\Large', r'\huge'):
+    for macro in (r'\hspace', r'\vspace', r'\ ', r'\,', r'\;', r'\!',
+                  r'\tiny', r'\scriptsize', r'\footnotesize', r'\small',
+                  r'\normalsize', r'\large', '\Large',
+                  r'\LARGE', r'\huge', r'\Huge'):
         s2 = s2.replace(macro, '')
 
     # If have _, ^, \frac, etc.  need to be in math-mode.  Should
