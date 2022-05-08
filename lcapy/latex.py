@@ -10,7 +10,7 @@ from .config import subscripts, greek_letter_names
 
 sub_super_pattern = re.compile(r"([_\^]){([a-zA-Z]+)([0-9]*)}")
 greek_letter_name_pattern = re.compile(
-    r"([^a-zA-Z]?)(%s)([^a-zA-Z]?)" % '|'.join(greek_letter_names))
+    r"([^a-zA-Z]*)(%s)([^a-zA-Z]|$)" % '|'.join(greek_letter_names))
 math_symbols_pattern = re.compile(
     '|'.join(['_',  r'\^', r'\\left', r'\\math', r'\\frac', r'\\sqrt']))
 
@@ -44,9 +44,7 @@ class Latex(object):
         """Replace alpha with \alpha, etc."""
 
         def foo(match):
-            if match.group(1) != '\\':
-                return match.group(1) + '\\' + match.group(2)
-            return match.group(1) + match.group(2)
+            return match.group(1) + '\\' + match.group(2) + match.group(3)
 
         return greek_letter_name_pattern.sub(foo, s)
 
