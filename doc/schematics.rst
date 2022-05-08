@@ -1089,7 +1089,12 @@ Nodes can be annotated using the `A` net.   For example,
 .. image:: examples/schematics/annotate1.png
    :width: 7cm
 
-The annotation is positioned with respect to the node using the anchor attribute.  This can be north, north east, east, south east, south, south west, west, and north west.
+The annotation is positioned with respect to the node using the anchor attribute.  This can be `north`, `north east`, `east`, `south east`, `south`, `south west`, `west`, and `north west` or the abbreviations `n`, `ne`, `e`, `se`, `s`, `sw`, `w` and `nw`.   The annotation point can be shifted with the `xoffset` and `yoffset` attributes and rotated with the `rotate` attribute.  For example,
+
+.. literalinclude:: examples/schematics/annotate2.sch
+
+.. image:: examples/schematics/annotate2.png
+   :width: 3cm
 
 Schematics can be annotated using additional tikz commands in the
 netlist.  These are delimited by a line starting with two semicolons,

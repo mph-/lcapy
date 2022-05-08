@@ -85,7 +85,7 @@ class Cpt(object):
                  'pinmap', 'kind', 'wire', 'ignore', 'style', 'nosim',
                  'nowires', 'nolabels', 'steps', 'free', 'fliplr', 'flipud',
                  'nodots', 'draw_nodes', 'label_nodes', 'nodraw',
-                 'mirrorinputs', 'autoground')
+                 'mirrorinputs', 'autoground', 'xoffset', 'yoffset')
     label_opt_keys = ('label_values', 'label_ids', 'annotate_values')
 
     special_keys = voltage_keys + current_keys + flow_keys + label_keys + \
@@ -255,6 +255,14 @@ class Cpt(object):
     @property
     def vertical(self):
         return self.up or self.down
+
+    @property
+    def xoffset(self):
+        return float(self.opts.get('xoffset', 0))
+
+    @property
+    def yoffset(self):
+        return float(self.opts.get('yoffset', 0))
 
     def boolattr(self, opt):
 
@@ -881,9 +889,23 @@ class Cpt(object):
         return not self.invisible
 
     def tf(self, centre, offset, angle_offset=0.0, scale=None):
-        """Transform coordinate"""
+        """Transform coordinate."""
 
-        raise NotImplementedError('tf method not implemented for %s' % self)
+        # Note the size attribute is not used.
+        if hasattr(offset[0], '__iter__'):
+            return [self.tf(centre, offset1, angle_offset, scale) for offset1 in offset]
+        x, y = offset
+
+        if self.do_transpose:
+            if self.mirror:
+                y = -y
+            if self.invert:
+                x = -x
+
+        if scale is None:
+            scale = self.scale * self.sch.node_spacing
+
+        return centre + np.dot((x * self.w, y * self.h), self.R(angle_offset)) * scale
 
     def draw_path(self, points, style='', join='--', closed=False):
 
@@ -907,8 +929,8 @@ class Cpt(object):
 
         if bold:
             if label.startswith('$') and label.endswith('$'):
-                # bolsymbol but requires amssym or amsmath.
-                label = r'$\Large \bolsymbol{%s}$' % label[1:-1]
+                # boldsymbol but requires amssym or amsmath.
+                label = r'$\Large \boldsymbol{%s}$' % label[1:-1]
             else:
                 label = r'\textbf{%s}' % label
 
@@ -933,7 +955,9 @@ class A(Cpt):
     def draw(self, **kwargs):
 
         n = self.nodes[0]
-        s = r'  \draw[%s] (%s) node {%s};''\n' % (self.args_str(**kwargs), n.s,
+        q = self.tf(n.pos, ((self.xoffset, self.yoffset)))
+
+        s = r'  \draw[%s] (%s) node {%s};''\n' % (self.args_str(**kwargs), q,
                                                   self.label(**kwargs))
         return s
 
@@ -950,25 +974,6 @@ class StretchyCpt(Cpt):
             return [self.xtf(centre, offset1, angle_offset) for offset1 in offset]
 
         return centre + np.dot((offset[0] * self.w * self.scale, offset[1] * self.h), self.R(angle_offset)) * self.sch.node_spacing
-
-    def tf(self, centre, offset, angle_offset=0.0, scale=None):
-        """Transform coordinate."""
-
-        # Note the size attribute is not used.
-        if hasattr(offset[0], '__iter__'):
-            return [self.tf(centre, offset1, angle_offset, scale) for offset1 in offset]
-        x, y = offset
-
-        if self.do_transpose:
-            if self.mirror:
-                y = -y
-            if self.invert:
-                x = -x
-
-        if scale is None:
-            scale = self.scale * self.sch.node_spacing
-
-        return centre + np.dot((x * self.w, y * self.h), self.R(angle_offset)) * scale
 
 
 class FixedCpt(Cpt):
