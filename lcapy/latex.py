@@ -1,7 +1,7 @@
 """This module provides the Latex class for formatting
 values and labels.
 
-Copyright 2020--2021 Michael Hayes, UCECE
+Copyright 2020--2022 Michael Hayes, UCECE
 
 """
 
@@ -10,7 +10,7 @@ from .config import subscripts, greek_letter_names
 
 sub_super_pattern = re.compile(r"([_\^]){([a-zA-Z]+)([0-9]*)}")
 greek_letter_name_pattern = re.compile(
-    r"(.?)(%s)" % '|'.join(greek_letter_names))
+    r"([^a-zA-Z]?)(%s)([^a-zA-Z]?)" % '|'.join(greek_letter_names))
 math_symbols_pattern = re.compile(
     '|'.join(['_',  r'\^', r'\\left', r'\\math', r'\\frac', r'\\sqrt']))
 
