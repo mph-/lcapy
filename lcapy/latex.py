@@ -44,7 +44,10 @@ class Latex(object):
         """Replace alpha with \alpha, etc."""
 
         def foo(match):
-            return match.group(1) + '\\' + match.group(2) + match.group(3)
+            if match.group(1).endswith('\\'):
+                return match.group(1) + match.group(2) + match.group(3)
+            else:
+                return match.group(1) + '\\' + match.group(2) + match.group(3)
 
         return greek_letter_name_pattern.sub(foo, s)
 
