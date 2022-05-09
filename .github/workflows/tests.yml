@@ -8,14 +8,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-18.04, ubuntu-20.04, macos-10.15, windows-2019]
+        os: [ubuntu-18.04, ubuntu-20.04, ubuntu-22.04, macos-10.15, windows-2019]
         python-version: [3.6, 3.7, 3.8, 3.9]
         exclude:
           # pdflatex not installed for some reason with 3.6 and 3.7.  FIXME
           - os: windows-2019
             python-version: 3.6
           - os: windows-2019
-            python-version: 3.7            
+            python-version: 3.7
     runs-on: ${{ matrix.os }}
     steps:
     - name: Check out
@@ -47,7 +47,7 @@ jobs:
       run: nosetests
 
   checks:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     steps:
     - name: Check out
       uses: actions/checkout@v2
@@ -59,4 +59,3 @@ jobs:
       run: pip3 install .[test]
     - name: Run Flake8
       run: flake8
-
