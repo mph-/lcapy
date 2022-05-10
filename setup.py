@@ -23,14 +23,14 @@ setup(name='lcapy',
       install_requires=['matplotlib',
                         'scipy',
                         'numpy',
-                        'sympy>=1.7.1',
+                        'sympy>=1.10.1',  # >=1.7.1 works
                         'networkx',
                         'IPython',
                         'setuptools',
                         'wheel',
                         'property_cached'
                         ],
-      python_requires='>=3.6',
+      python_requires='>=3.7',  # >=3.6 should still work but not tested
       extras_require={
           'test': tests_require,
           'doc': ['sphinx', 'ipython'],
