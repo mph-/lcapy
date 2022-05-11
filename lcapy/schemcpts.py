@@ -1462,8 +1462,8 @@ class Cable(Shape):
 
     default_aspect = 4
     a = 0.3
-    pins = {'ignd': ('l', -0.5, -0.45),
-            'ognd': ('r', 0.475, -0.45),
+    pins = {'ignd': ('l', -0.5, -0.5),
+            'ognd': ('r', 0.46, -0.5),
             't': ('c', 0, 0.5),
             'b': ('c', 0, -0.5)}
 
