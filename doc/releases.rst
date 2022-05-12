@@ -5,6 +5,8 @@ Release notes
 V1.5
 ====
 
+- Uses SymPy-1.10.1 with improved Laplace transform support
+
 - Adds implicit connections for oneport components in netlists, see :ref:`implicit_connections`
 
 - Adds autoground for schematics, see :ref:`autoground`
@@ -23,7 +25,7 @@ V1.5
 
 - Adds `0V` implicit connection
 
-- Tidies naming on schematics if the value is the same
+- Tidies naming on schematics if the value is the same as the name
 
 - Adds `degrees` and `radians` functions
 
