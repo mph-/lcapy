@@ -559,11 +559,6 @@ class Cpt(object):
             return ''
 
         s = ''
-        if not draw_nodes:
-            return s
-
-        if not n.visible(draw_nodes) or n.pin:
-            return s
 
         if n.symbol is not None:
             s += r'  \draw (%s) node[%s] {};''\n' % (n.s, n.symbol)
@@ -572,6 +567,12 @@ class Cpt(object):
             elif draw_nodes == 'all':
                 s += r'  \draw (%s) node[circ] {};''\n' % n.s
         else:
+            if not n.visible(draw_nodes) or n.pin:
+                return s
+
+            if not draw_nodes:
+                return s
+
             if n.is_port or n.is_dangling:
                 s += r'  \draw (%s) node[ocirc] {};''\n' % n.s
             else:
