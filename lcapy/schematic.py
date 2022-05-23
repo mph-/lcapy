@@ -85,6 +85,7 @@ class SchematicOpts(Opts):
              'label_ids': True,
              'annotate_values': False,
              'label_nodes': 'primary',
+             'node_label_anchor': 'south east',
              'autoground': 'none',
              'scale': 1.0,
              'dpi': PNG_DPI,
@@ -399,7 +400,7 @@ class Schematic(NetfileMixin):
                 continue
             if elt.directive:
                 for key, val in elt.opts.items():
-                    # Update kwargs
+                    # Directive overrides kwargs
                     kwargs[key] = val
 
             s += elt.draw(**kwargs)
@@ -547,6 +548,7 @@ class Schematic(NetfileMixin):
              'pins' to label nodes that are pins on a chip,
              'all' to label all nodes,
              'none' to label no nodes
+           'node_label_anchor': where to position node label (default south east)
            'include': name of file to include before \\begin{document}
            'style': 'american', 'british', or 'european'
            'scale': schematic scale factor, default 1.0
@@ -660,6 +662,13 @@ class Schematic(NetfileMixin):
             return
 
         self.tikz_draw(filename=filename, **kwargs)
+
+    def pdb(self):
+        """Enter the python debugger."""
+
+        import pdb
+        pdb.set_trace()
+        return self
 
 
 def test():

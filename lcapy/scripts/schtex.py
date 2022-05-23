@@ -1,8 +1,14 @@
 #!/usr/bin/env python
-"""schtex V0.4.1
+"""schtex V0.4.2
 Copyright (c) 2014--2022 Michael P. Hayes, UC ECE, NZ
 
 Usage: schtex infile.sch [outfile.tex|pdf|png|svg|sch|pgf]
+
+For example:
+
+schtex --show schematic.sch
+schtex schematic.sch schematic.png
+
 """
 
 from __future__ import print_function
@@ -74,6 +80,10 @@ def main(argv=None):
     parser.add_argument('--label-values', action='store_true',
                         dest='label_values', default=None,
                         help="label values")
+
+    parser.add_argument('--node_label_anchor', type=str,
+                        default=None,
+                        help='control the positioning of the node labels')
 
     parser.add_argument('--autoground', type=str,
                         dest='autoground', default=None,
@@ -272,7 +282,9 @@ def main(argv=None):
                  node_spacing=args.node_spacing, cpt_size=args.cpt_size,
                  help_lines=args.help_lines, debug=args.debug,
                  method=args.method, voltage_dir=args.voltage_dir,
-                 dpi=args.dpi, nosave=nosave, **kwargs)
+                 dpi=args.dpi, nosave=nosave,
+                 node_label_anchor=args.node_label_anchor,
+                 **kwargs)
 
     if args.xgraph:
         xgraph, ygraph = cct.sch.make_graphs(debug=args.debug)

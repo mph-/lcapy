@@ -28,7 +28,6 @@ class Node:
         # Sanitised name
         self.s = name.replace('.', '@')
         self.label = latex_format_node_label(self.name)
-        self.labelpos = None
         self.pin = False
         self.pinlabel = ''
         self.namepos = None

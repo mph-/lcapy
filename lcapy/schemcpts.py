@@ -85,7 +85,8 @@ class Cpt(object):
                  'pinmap', 'kind', 'wire', 'ignore', 'style', 'nosim',
                  'nowires', 'nolabels', 'steps', 'free', 'fliplr', 'flipud',
                  'nodots', 'draw_nodes', 'label_nodes', 'nodraw',
-                 'mirrorinputs', 'autoground', 'xoffset', 'yoffset')
+                 'mirrorinputs', 'autoground', 'xoffset', 'yoffset',
+                 'node_label_anchor')
     label_opt_keys = ('label_values', 'label_ids', 'annotate_values')
 
     special_keys = voltage_keys + current_keys + flow_keys + label_keys + \
@@ -389,6 +390,10 @@ class Cpt(object):
         return self.opts.get('label_nodes', None)
 
     @property
+    def node_label_anchor_opt(self):
+        return self.opts.get('node_label_anchor', None)
+
+    @property
     def style(self):
         return self.opts.get('style', None)
 
@@ -660,25 +665,23 @@ class Cpt(object):
         return r'  \draw[anchor=%s] (%s) node {%s};''\n' % (
             anchor, node.s, node.pinname.replace('_', r'\_'))
 
-    def draw_node_label(self, node, label_nodes):
+    def draw_node_label(self, node, label_nodes, node_label_anchor):
 
         if not node.show_label(label_nodes):
             return ''
 
-        anchors = {None: 'south east',
-                   'c': 'south east',
-                   'l': 'west', 'r': 'east',
-                   't': 'north', 'b': 'south'}
-        anchor = anchors[node.labelpos]
-
         return r'  \draw[anchor=%s] (%s) node {%s};''\n' % (
-            anchor, node.s, node.label)
+            node_label_anchor, node.s, node.label)
 
     def draw_node_labels(self, **kwargs):
 
         label_nodes = self.label_nodes_opt
         if label_nodes is None:
             label_nodes = kwargs.get('label_nodes', 'primary')
+
+        node_label_anchor = self.node_label_anchor_opt
+        if node_label_anchor is None:
+            node_label_anchor = kwargs.get('node_label_anchor', 'south east')
 
         s = ''
         for node in self.drawn_nodes:
@@ -692,7 +695,7 @@ class Cpt(object):
             else:
                 if node.auxiliary:
                     continue
-                s += self.draw_node_label(node, label_nodes)
+                s += self.draw_node_label(node, label_nodes, node_label_anchor)
 
         return s
 

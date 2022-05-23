@@ -1386,15 +1386,15 @@ See also the `Circuitikz manual <https://texdoc.org/serve/circuitikz/0>`_ for ot
 Schematic attributes
 ====================
 
-- `node_spacing`: scale factor for distance between component nodes (default 2).
+- `autoground`: enables automatically drawing of implicit ground connections.  Its argument can specify the type of connection (`ground`, `sground`, `rground`, etc).    If the argument is `False` this feature is disable.  If the argument is `True`, this feature is enabled using the the default symbol `sground`.
 
 - `cpt_size`: length of component (default 1.5).
 
-- `scale`: scale factor (default 1).
-
-- `help_lines`: spacing between help lines (default 0 to disable).
+- `dpi`: dots per inch (default 150) when converting to a PNG file (as used for displaying Jupyter notebooks).  This will change the displayed size of the schematic on the screen.
 
 - `draw_nodes`: specifies which nodes to draw (default `primary`). Its argument can either be `all`, `connections` (nodes that connect at least two components), `none`, or `primary` (node names not starting with an underscore).
+
+- `help_lines`: spacing between help lines (default 0 to disable).
 
 - `label_nodes`: specifies which nodes to label (default `primary`).  Its argument can either be `all`, `alpha` (node names starting with a letter), `none`, or `primary` (node names not starting with an underscore).
 
@@ -1402,9 +1402,13 @@ Schematic attributes
 
 - `label_values`: specifies whether component values are drawn (default `true`).
 
-- `style`: specifies the component style.  This is either `american`,  `british`, or `european` (default `american`).
+- `node_label_anchor`: specifies where the node is relative to the node label (default `south east`).
 
-- `dpi`: dots per inch (default 150) when converting to a PNG file (as used for displaying Jupyter notebooks).  This will change the displayed size of the schematic on the screen.
+- `node_spacing`: scale factor for distance between component nodes (default 2).
+
+- `scale`: scale factor (default 1).
+
+- `style`: specifies the component style.  This is either `american`,  `british`, or `european` (default `american`).
 
 Schematic attributes apply to the whole schematic.  They can be specified by starting a netlist with a semicolon, for example,
 
@@ -1648,15 +1652,31 @@ Customisation
 
 The drawing can be customised using the following options:
 
-- `style` can be 'american', 'british', or 'european'
-- `preamble` inserts a command at the start of the drawing commands
-- `postamble` inserts a command at the end of the drawing commands
-- `include` inserts a string at the start of the document (this is useful to switch to different fonts)
-- `includefile` insert the contents of a file at the start of the document  (this is useful to switch to different fonts)
-- `font` specify fonts(e.g., '\\small', '\\sffamily\\tiny')
-- `voltage-dir` can be `RP` (for rising potential) or `EF` (for electric field)
-- `draw-nodes` can be 'none', 'connections', 'primary', 'all'
-- `label-nodes` can be 'none', 'alpha', 'pins', 'primary', 'all', or a list of comma separated node names in braces
+- `autoground`: enables automatically drawing of implicit ground connections.  Its argument can specify the type of connection (`ground`, `sground`, `rground`, etc).    If the argument is `False` this feature is disable.  If the argument is `True`, this feature is enabled using the the default symbol `sground`.
+
+- `draw-nodes` enables node drawing.  The argument can be 'none', 'connections', 'primary', 'all'.
+
+- `font` specifies the font (e.g., '\\small', '\\sffamily\\tiny').
+
+- `include` inserts a string at the start of the document (this is useful to switch to different fonts).
+
+- `includefile` inserts the contents of a file at the start of the document (this is useful to switch to different fonts).
+
+- `label-ids` controls whether the component names are shown.
+
+- `label-nodes` controls whether the node names are shown.  The argument can be 'none', 'alpha', 'pins', 'primary', 'all', or a list of comma separated node names in braces.
+
+- `label-values` controls whether the component values are shown.
+
+- `node-label-anchor`: specifies where the node is relative to the node label (default `south east`).
+
+- `postamble` inserts a command at the end of the drawing commands.
+
+- `preamble` inserts a command at the start of the drawing commands.
+
+- `style` controls the schematic style.  The argument can be 'american', 'british', or 'european'.
+
+- `voltage-dir` specifies how voltage sources are annotated.  The argument  can be `RP` (for rising potential) or `EF` (for electric field).
 
 The `include` and `includefile` option are only used for creating a stand-alone file.  They are useful for customising the fonts to match the document they are to be embedded in.
 
