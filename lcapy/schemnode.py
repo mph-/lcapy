@@ -185,7 +185,7 @@ class Node:
     def symbol(self, value):
         """Set node symbol."""
 
-        if self._symbol != None:
+        if self._symbol != None and self._symbol != value:
             raise ValueError('Conflicting symbols %s and %s' %
                              (self._symbol, value))
         self._symbol = value
