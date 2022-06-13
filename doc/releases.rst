@@ -2,6 +2,14 @@
 Release notes
 =============
 
+V1.5.1
+======
+
+- Fixes drawing of implicit nodes
+
+- Adds node_label_anchor for repositioning of node labels
+
+
 V1.5
 ====
 
