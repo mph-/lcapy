@@ -10,6 +10,7 @@ from .cache import cached_property
 from .matrix import Matrix
 from .smatrix import LaplaceDomainMatrix
 from .tmatrix import TimeDomainMatrix
+from .nmatrix import DiscreteTimeDomainMatrix
 from .statespacebase import StateSpaceBase
 from .texpr import t, texpr
 from .expr import expr
@@ -250,7 +251,10 @@ class StateSpace(StateSpaceBase):
 
         # FIXME for u, y, x, x0.
         return DTStateSpace(Ad, Bd, Cd, Dd,
-                            self._u, self._y, self._x, self._x0)
+                            DiscreteTimeDomainMatrix(self._u),
+                            DiscreteTimeDomainMatrix(self._y),
+                            DiscreteTimeDomainMatrix(self._x),
+                            DiscreteTimeDomainMatrix(self._x0))
 
     def discretize(self, method='bilinear', alpha=0.5):
         """Convert to a discrete-time state space approximation.
