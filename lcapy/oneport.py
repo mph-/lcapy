@@ -918,12 +918,16 @@ class L(OnePort):
             u = tausym
             v = expr(v).subs(t, u)
             return SuperpositionCurrent(expr(Integral(v.expr, (u, -oo, tsym))) / self.L).select(kind)
+        elif kind in ('s', 'laplace'):
+            return SuperpositionCurrent((SuperpositionVoltage(v).select(kind) + self.L * self.i0) / self._Zkind(kind)).select(kind)
         return SuperpositionCurrent(SuperpositionVoltage(v).select(kind) / self._Zkind(kind)).select(kind)
 
     def v_equation(self, i, kind='t'):
 
         if kind in ('t', 'time', 'super'):
             return SuperpositionVoltage(self.L * expr(Derivative(i.expr, t))).select(kind)
+        elif kind in ('s', 'laplace'):
+            return SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Zkind(kind) - self.L * self.i0).select(kind)
         return SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Zkind(kind)).select(kind)
 
 
@@ -958,6 +962,9 @@ class C(OnePort):
 
         if kind in ('t', 'time', 'super'):
             return SuperpositionCurrent(self.C * expr(Derivative(v.expr, t))).select(kind)
+        elif kind in ('s', 'laplace'):
+            return SuperpositionCurrent((SuperpositionVoltage(v).select(kind) - s * self.v0) / self._Zkind(kind)).select(kind)
+
         return SuperpositionCurrent(SuperpositionVoltage(v).select(kind) / self._Zkind(kind)).select(kind)
 
     def v_equation(self, i, kind='t'):
@@ -968,6 +975,9 @@ class C(OnePort):
             u = tausym
             i = expr(i).subs(t, u)
             return SuperpositionVoltage(expr(Integral(i.expr, (u, -oo, tsym))) / self.C).select(kind)
+        elif kind in ('s', 'laplace'):
+            return SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Zkind(kind) + self.v0 / s).select(kind)
+
         return SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Zkind(kind)).select(kind)
 
 
