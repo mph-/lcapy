@@ -1,12 +1,13 @@
 """This module defines the StateSpace base class for representing a linear
 time-invariant system as a state-space model.
 
-Copyright 2019-2021 Michael Hayes, UCECE
+Copyright 2019-2022 Michael Hayes, UCECE
 
 """
 
 from .matrix import Matrix
 from .vector import Vector
+from .tmatrix import TimeDomainMatrix
 from .expr import expr
 from .cache import cached_property
 import sympy as sym
@@ -54,19 +55,15 @@ class StateSpaceBase(object):
         if x is not None:
             if x.shape[0] != Nx:
                 raise ValueError('x vector has wrong dimension')
-            x = Vector(x)
         if x0 is not None:
             if x0.shape[0] != Nx:
                 raise ValueError('x0 vector has wrong dimension')
-            x0 = Vector(x0)
         if u is not None:
             if u.shape[0] != Nu:
                 raise ValueError('u vector has wrong dimension')
-            u = Vector(u)
         if y is not None:
             if y.shape[0] != Ny:
                 raise ValueError('y vector has wrong dimension')
-            y = Vector(y)
 
         self._A = A
         self._B = B

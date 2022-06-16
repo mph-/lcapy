@@ -5,6 +5,7 @@ Copyright 2021--2022 Michael Hayes, UCECE
 
 """
 
+from .sexpr import LaplaceDomainExpression
 from .cache import cached_property
 from .matrix import Matrix
 from .smatrix import LaplaceDomainMatrix
@@ -62,17 +63,17 @@ class StateSpace(StateSpaceBase):
     @property
     def U(self):
         """Laplace transform of input vector."""
-        return LaplaceDomainMatrix(self.u.laplace())
+        return LaplaceDomainMatrix(self.u.LT())
 
     @property
     def X(self):
         """Laplace transform of state-variable vector."""
-        return LaplaceDomainMatrix(self.x.laplace())
+        return LaplaceDomainMatrix(self.x.LT())
 
     @property
     def Y(self):
         """Laplace transform of output vector."""
-        return LaplaceDomainMatrix(self.y.laplace())
+        return LaplaceDomainMatrix(self.y.LT())
 
     @cached_property
     def H(self):
@@ -275,6 +276,3 @@ class StateSpace(StateSpaceBase):
         from .statespacemaker import StateSpaceMaker
 
         return StateSpaceMaker.from_circuit(cct, node_voltages, branch_currents)
-
-
-from .sexpr import LaplaceDomainExpression
