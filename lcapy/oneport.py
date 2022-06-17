@@ -329,10 +329,14 @@ class OnePort(Network, ImmittanceMixin):
         return self
 
         def current_equation(self, v, kind='t'):
+            """Return expression for current through component given
+            applied voltage."""
 
             raise NotImplementedError('current_equation not defined')
 
         def voltage_equation(self, i, kind='t'):
+            """Return expression for voltage across component given
+            applied current."""
 
             raise NotImplementedError('voltage_equation not defined')
 
@@ -831,10 +835,14 @@ class R(OnePort):
         self._Z = impedance(self._R, causal=True)
 
     def current_equation(self, v, kind='t'):
+        """Return expression for current through component given
+        applied voltage."""
 
         return SuperpositionCurrent(SuperpositionVoltage(v).select(kind) / self._Z).select(kind)
 
     def voltage_equation(self, i, kind='t'):
+        """Return expression for voltage across component given
+        applied current."""
 
         return SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Z).select(kind)
 
@@ -868,10 +876,14 @@ class G(OnePort):
         return 'R? %s %s {%s}; %s' % (n1, n2, 1 / self._G, opts_str)
 
     def current_equation(self, v, kind='t'):
+        """Return expression for current through component given
+        applied voltage."""
 
         return SuperpositionCurrent(SuperpositionVoltage(v).select(kind) / self._Z).select(kind)
 
     def voltage_equation(self, i, kind='t'):
+        """Return expression for voltage across component given
+        applied current."""
 
         return SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Z).select(kind)
 
@@ -910,6 +922,8 @@ class L(OnePort):
         self.zeroic = self.i0 == 0
 
     def current_equation(self, v, kind='t'):
+        """Return expression for current through component given
+        applied voltage."""
 
         from .sym import tausym
 
@@ -922,6 +936,8 @@ class L(OnePort):
         return SuperpositionCurrent(SuperpositionVoltage(v).select(kind) / self._Zkind(kind)).select(kind)
 
     def voltage_equation(self, i, kind='t'):
+        """Return expression for voltage across component given
+        applied current."""
 
         if kind in ('t', 'time', 'super'):
             return SuperpositionVoltage(self.L * Derivative(i, t)).select(kind)
@@ -958,6 +974,8 @@ class C(OnePort):
         self.zeroic = self.v0 == 0
 
     def current_equation(self, v, kind='t'):
+        """Return expression for current through component given
+        applied voltage."""
 
         if kind in ('t', 'time', 'super'):
             return SuperpositionCurrent(self.C * Derivative(v, t)).select(kind)
@@ -967,6 +985,8 @@ class C(OnePort):
         return SuperpositionCurrent(SuperpositionVoltage(v).select(kind) / self._Zkind(kind)).select(kind)
 
     def voltage_equation(self, i, kind='t'):
+        """Return expression for voltage across component given
+        applied current."""
 
         from .sym import tausym
 
@@ -1036,6 +1056,8 @@ class VoltageSourceBase(OnePort):
     is_noisy = False
 
     def voltage_equation(self, i, kind='t'):
+        """Return expression for voltage across component given
+        applied current."""
 
         return SuperpositionVoltage(self.voc).select(kind)
 
@@ -1170,11 +1192,12 @@ class CurrentSourceBase(OnePort):
 
     @property
     def I(self):
-        """Open-circuit current of a current source.  To achieve this the
-        open-circuit voltage needs to be infinite."""
+        """Open-circuit current of a current source."""
         return self.Isc
 
     def current_equation(self, v, kind='t'):
+        """Return expression for current through component given
+        applied voltage."""
 
         return SuperpositionCurrent(self.isc).select(kind)
 
