@@ -305,3 +305,25 @@ class LcapyOneportTester(unittest.TestCase):
         self.assertEqual(type(admittance(2).cpt()), G, "-> G")
         self.assertEqual(type(admittance(2 * s).cpt()), C, "-> C")
         self.assertEqual(type(admittance(2 / s).cpt()), L, "-> L")
+
+    def test_C_equation(self):
+
+        a = C('C', 'v0')
+
+        self.assertEqual(a.v_equation('I(s)', 's'),
+                         voltage('I(s) / (s * C) + v0 / s'),
+                         "C v_equation in s-domain")
+        self.assertEqual(a.i_equation('V(s)', 's'),
+                         current('s * C * (V(s) - v0 / s)'),
+                         "C i_equation in s-domain")
+
+    def test_L_equation(self):
+
+        a = L('L', 'i0')
+
+        self.assertEqual(a.v_equation('I(s)', 's'),
+                         voltage('s * L * I(s) - L * i0'),
+                         "L v_equation in s-domain")
+        self.assertEqual(a.i_equation('V(s)', 's'),
+                         current('(V(s) + L * i0) / (s * L)'),
+                         "L i_equation in s-domain")
