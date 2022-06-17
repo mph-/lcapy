@@ -2396,8 +2396,13 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         See also simplify_terms and simplify_factors."""
 
-        # This might be dodgy...
-        if self.has(AppliedUndef) and not self.has(sym.Integral):
+        if self.has(AppliedUndef) and not \
+           (self.has(sym.Integral) or self.has(sym.Derivative)):
+            # This might be dodgy...  It replaces v(t) with v to help
+            # simplification and then replaces v with v(t) at the end.
+            # It cannot be used for Integral or Derivative since
+            # the dependence is lost.
+
             new, defs = self.remove_undefs(return_mappings=True)
             return new.simplify(**kwargs).subs(defs)
 
