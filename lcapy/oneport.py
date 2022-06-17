@@ -930,6 +930,9 @@ class L(OnePort):
         if kind in ('t', 'time', 'super'):
             u = tausym
             v = expr(v).subs(t, u)
+            if self.has_ic:
+                return SuperpositionCurrent(Integral(v, (u, 0, tsym)) / self.L).select(kind) + expr(self.i0)
+
             return SuperpositionCurrent(Integral(v, (u, -oo, tsym)) / self.L).select(kind)
         elif kind in ('s', 'laplace'):
             return SuperpositionCurrent((SuperpositionVoltage(v).select(kind) + self.L * self.i0) / self._Zkind(kind)).select(kind)
@@ -993,6 +996,9 @@ class C(OnePort):
         if kind in ('t', 'time', 'super'):
             u = tausym
             i = expr(i).subs(t, u)
+            if self.has_ic:
+                return SuperpositionVoltage(Integral(i, (u, 0, tsym)) / self.C).select(kind) + expr(self.v0)
+
             return SuperpositionVoltage(Integral(i, (u, -oo, tsym)) / self.C).select(kind)
         elif kind in ('s', 'laplace'):
             return SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Zkind(kind) + self.v0 / s).select(kind)

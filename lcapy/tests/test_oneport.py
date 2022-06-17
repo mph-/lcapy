@@ -317,6 +317,10 @@ class LcapyOneportTester(unittest.TestCase):
                          current('s * C * (V(s) - v0 / s)'),
                          "C current_equation in s-domain")
 
+        self.assertEqual(a.voltage_equation('I(s)', 's'),
+                         a.voltage_equation('i(t)', 't')(s),
+                         "C current_equation in t-domain")
+
     def test_L_equation(self):
 
         a = L('L', 'i0')
@@ -327,3 +331,7 @@ class LcapyOneportTester(unittest.TestCase):
         self.assertEqual(a.current_equation('V(s)', 's'),
                          current('(V(s) + L * i0) / (s * L)'),
                          "L current_equation in s-domain")
+
+        self.assertEqual(a.current_equation('V(s)', 's'),
+                         a.current_equation('v(t)', 't')(s),
+                         "L current_equation in t-domain")
