@@ -112,7 +112,7 @@ class NodalAnalysis(object):
                 n1 = self.cg.node_map[elt.nodenames[0]]
                 n2 = self.cg.node_map[elt.nodenames[1]]
 
-                V = elt.cpt.v_equation(0, self.kind)
+                V = elt.cpt.voltage_equation(0, self.kind)
 
                 lhs, rhs = self._unknowns[n1], self._unknowns[n2] + V
 
@@ -130,7 +130,7 @@ class NodalAnalysis(object):
                     else:
                         raise ValueError(
                             'Component %s does not have node %s' % (elt, node))
-                    result += elt.cpt.i_equation(
+                    result += elt.cpt.current_equation(
                         self._unknowns[n1] - self._unknowns[n2], self.kind)
                 lhs, rhs = result, expr(0)
 

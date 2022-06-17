@@ -328,13 +328,13 @@ class OnePort(Network, ImmittanceMixin):
             return self + Vn
         return self
 
-        def i_equation(self, v, kind='t'):
+        def current_equation(self, v, kind='t'):
 
-            raise NotImplementedError('i_equation not defined')
+            raise NotImplementedError('current_equation not defined')
 
-        def v_equation(self, i, kind='t'):
+        def voltage_equation(self, i, kind='t'):
 
-            raise NotImplementedError('v_equation not defined')
+            raise NotImplementedError('voltage_equation not defined')
 
     def _Zkind(self, kind):
 
@@ -830,11 +830,11 @@ class R(OnePort):
         self._R = cexpr(Rval)
         self._Z = impedance(self._R, causal=True)
 
-    def i_equation(self, v, kind='t'):
+    def current_equation(self, v, kind='t'):
 
         return SuperpositionCurrent(SuperpositionVoltage(v).select(kind) / self._Z).select(kind)
 
-    def v_equation(self, i, kind='t'):
+    def voltage_equation(self, i, kind='t'):
 
         return SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Z).select(kind)
 
@@ -867,11 +867,11 @@ class G(OnePort):
         opts_str = self._opts_str(dir)
         return 'R? %s %s {%s}; %s' % (n1, n2, 1 / self._G, opts_str)
 
-    def i_equation(self, v, kind='t'):
+    def current_equation(self, v, kind='t'):
 
         return SuperpositionCurrent(SuperpositionVoltage(v).select(kind) / self._Z).select(kind)
 
-    def v_equation(self, i, kind='t'):
+    def voltage_equation(self, i, kind='t'):
 
         return SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Z).select(kind)
 
@@ -909,7 +909,7 @@ class L(OnePort):
         self._Voc = SuperpositionVoltage(LaplaceDomainExpression(-i0 * Lval))
         self.zeroic = self.i0 == 0
 
-    def i_equation(self, v, kind='t'):
+    def current_equation(self, v, kind='t'):
 
         from .sym import tausym
 
@@ -921,7 +921,7 @@ class L(OnePort):
             return SuperpositionCurrent((SuperpositionVoltage(v).select(kind) + self.L * self.i0) / self._Zkind(kind)).select(kind)
         return SuperpositionCurrent(SuperpositionVoltage(v).select(kind) / self._Zkind(kind)).select(kind)
 
-    def v_equation(self, i, kind='t'):
+    def voltage_equation(self, i, kind='t'):
 
         if kind in ('t', 'time', 'super'):
             return SuperpositionVoltage(self.L * Derivative(i, t)).select(kind)
@@ -957,7 +957,7 @@ class C(OnePort):
         self._Voc = SuperpositionVoltage(LaplaceDomainExpression(v0 / s))
         self.zeroic = self.v0 == 0
 
-    def i_equation(self, v, kind='t'):
+    def current_equation(self, v, kind='t'):
 
         if kind in ('t', 'time', 'super'):
             return SuperpositionCurrent(self.C * Derivative(v, t)).select(kind)
@@ -966,7 +966,7 @@ class C(OnePort):
 
         return SuperpositionCurrent(SuperpositionVoltage(v).select(kind) / self._Zkind(kind)).select(kind)
 
-    def v_equation(self, i, kind='t'):
+    def voltage_equation(self, i, kind='t'):
 
         from .sym import tausym
 
@@ -1035,7 +1035,7 @@ class VoltageSourceBase(OnePort):
     cpt_type = 'V'
     is_noisy = False
 
-    def v_equation(self, i, kind='t'):
+    def voltage_equation(self, i, kind='t'):
 
         return SuperpositionVoltage(self.voc).select(kind)
 
@@ -1174,7 +1174,7 @@ class CurrentSourceBase(OnePort):
         open-circuit voltage needs to be infinite."""
         return self.Isc
 
-    def i_equation(self, v, kind='t'):
+    def current_equation(self, v, kind='t'):
 
         return SuperpositionCurrent(self.isc).select(kind)
 

@@ -153,7 +153,7 @@ class LoopAnalysis(object):
                             current += mesh_currents[n]
                             break
 
-                v = elt.cpt.v_equation(current, self.kind)
+                v = elt.cpt.voltage_equation(current, self.kind)
                 if elt.is_voltage_source and is_reversed:
                     v = -v
                 result += v
