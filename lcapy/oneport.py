@@ -963,7 +963,7 @@ class C(OnePort):
         if kind in ('t', 'time', 'super'):
             return SuperpositionCurrent(self.C * expr(Derivative(v.expr, t))).select(kind)
         elif kind in ('s', 'laplace'):
-            return SuperpositionCurrent((SuperpositionVoltage(v).select(kind) - s * self.v0) / self._Zkind(kind)).select(kind)
+            return SuperpositionCurrent((SuperpositionVoltage(v).select(kind) - self.v0 / s) / self._Zkind(kind)).select(kind)
 
         return SuperpositionCurrent(SuperpositionVoltage(v).select(kind) / self._Zkind(kind)).select(kind)
 
