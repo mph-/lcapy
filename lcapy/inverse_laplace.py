@@ -36,6 +36,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
     def key(self, expr, s, t, **kwargs):
         return (expr, s, t,
                 kwargs.get('causal', False),
+                kwargs.get('zero_initial_conditions', True),
                 kwargs.get('damped_sin', True),
                 kwargs.get('damping', None))
 
@@ -49,7 +50,6 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         # Convert V(s) to v(t), etc.
         name = expr.func.__name__
         undef = sym.Function(name[0].lower() + name[1:])(t)
-
         result = undef.subs(t, t / scale) / abs(scale)
 
         if shift != 0:
@@ -226,6 +226,10 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
                     # Convert s * V(s) to d v(t) / dt
                     result = self.func(factors[1], s, t)
                     result = sym.Derivative(result, t)
+                    if not kwargs.get('zero_initial_conditions', True):
+                        name = factors[1].func.__name__
+                        result += sym.Function(name[0].lower() +
+                                               name[1:])(0) * sym.DiracDelta(t)
                     continue
                 elif factors[0].is_Pow and factors[0].args[0] == s and factors[0].args[1] > 0:
                     # Handle higher order differentiation
