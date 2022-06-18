@@ -72,12 +72,14 @@ class TimeDomainExpression(TimeDomain, Expr):
 
         return self.laplace(evaluate, **assumptions)
 
-    def laplace(self, evaluate=True, **assumptions):
+    def laplace(self, evaluate=True, zero_initial_conditions=True,
+                **assumptions):
         """Determine one-sided Laplace transform with 0- as the lower limit."""
 
         assumptions = self.assumptions.merge_and_infer(self, **assumptions)
         result = laplace_transform(
-            self.expr, self.var, ssym, evaluate=evaluate)
+            self.expr, self.var, ssym, evaluate=evaluate,
+            zero_initial_conditions=zero_initial_conditions)
         return self.change(result, domain='laplace', units_scale=uu.s, **assumptions)
 
     def phasor(self, **assumptions):

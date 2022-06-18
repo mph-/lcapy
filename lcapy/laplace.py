@@ -50,6 +50,8 @@ class LaplaceTransformer(UnilateralForwardTransformer):
             self.error('Expression depends on s')
 
     def key(self, expr, t, s, **kwargs):
+        return (expr, t, s,
+                kwargs.get('zero_initial_conditions', True))
         return expr, t, s,
 
     def integrate(self, expr, t, s, tmin, tmax):
@@ -154,7 +156,7 @@ class LaplaceTransformer(UnilateralForwardTransformer):
 
         return const2 * F1 * F2
 
-    def derivative_undef(self, expr, t, s):
+    def derivative_undef(self, expr, t, s, zero_initial_conditions=True):
 
         if not isinstance(expr, sym.Derivative):
             self.error('Expecting derivative')
@@ -165,7 +167,18 @@ class LaplaceTransformer(UnilateralForwardTransformer):
 
         name = expr.args[0].func.__name__
         func1 = sym.Function(name[0].upper() + name[1:])
-        return func1(s) * s ** expr.args[1][1]
+        order = expr.args[1][1]
+        result = func1(s) * s ** order
+
+        if not zero_initial_conditions:
+            # Handle initial conditions.  FIXME  use 0^- for 0.
+            # Cannot use t since LaplaceDomain balks if have t in expression
+            u = self.dummy_var(func1, 'u', level=0, real=True)
+            v = sym.Function(name)(u)
+            for m in range(order):
+                result -= s**(order - m - 1) * \
+                    sym.Derivative(v, u, m).subs(u, 0)
+        return result
 
     def sin_cos(self, expr, t, s):
 
@@ -257,7 +270,7 @@ class LaplaceTransformer(UnilateralForwardTransformer):
 
         return None
 
-    def term(self, expr, t, s):
+    def term(self, expr, t, s, **kwargs):
 
         # Unilateral LT ignores expr for t < 0 so remove Piecewise.
         if expr.is_Piecewise and expr.args[0].args[1].has(t >= 0):
@@ -272,7 +285,7 @@ class LaplaceTransformer(UnilateralForwardTransformer):
         if len(terms) > 1:
             result = 0
             for term in terms:
-                result += self.term(term, t, s)
+                result += self.term(term, t, s, **kwargs)
             return const * result
 
         tsym = sympify(str(t))
@@ -290,7 +303,7 @@ class LaplaceTransformer(UnilateralForwardTransformer):
         if expr.has(AppliedUndef):
 
             if expr.has(sym.Derivative):
-                return self.derivative_undef(expr, t, s) * const
+                return self.derivative_undef(expr, t, s, **kwargs) * const
 
             factors = expr.as_ordered_factors()
             if len(factors) == 1:
