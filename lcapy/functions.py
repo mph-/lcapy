@@ -17,7 +17,7 @@ __all__ = ('conjugate', 'sqrt', 'exp', 'log', 'log10', 'sin', 'cos',
            'ramp', 'rampstep', 'Sum', 'dtrect', 'dtsign', 'Piecewise',
            'Eq', 'Ne', 'Lt', 'Le', 'Gt', 'Ge', 'Derivative',
            'Integral', 'Max', 'Min', 're', 'im', 'MatMul', 'MatAdd',
-           'degrees', 'radians')
+           'degrees', 'radians', 'limit')
 
 from .extrafunctions import Degrees as Degrees1
 from .extrafunctions import Radians as Radians1
@@ -193,6 +193,8 @@ radians = Function(Radians1)
 diff = Function(sym.diff)
 
 integrate = Function(sym.integrate)
+
+limit = Function(sym.limit)
 
 u = H = heaviside = Heaviside = Function(sym.Heaviside)
 
