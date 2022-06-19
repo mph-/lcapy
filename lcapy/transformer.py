@@ -114,7 +114,8 @@ class BilateralForwardTransformer(Transformer):
 
         for term in terms:
             sterm = self.simplify_term(term, var)
-            result += self.term(sterm, var, conjvar, **kwargs)
+            ret = self.term(sterm, var, conjvar, **kwargs)
+            result += ret
 
         self.cache[key] = result
         return const * result
@@ -167,7 +168,8 @@ class UnilateralForwardTransformer(Transformer):
 
         for term in terms:
             sterm = self.simplify_term(term, var)
-            result += self.term(sterm, var, conjvar, **kwargs)
+            ret = self.term(sterm, var, conjvar, **kwargs)
+            result += ret
 
         self.cache[key] = result
         return const * result
