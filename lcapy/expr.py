@@ -3603,10 +3603,16 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         terms = expr.as_ordered_terms()
         for term in terms:
             for factor in term.as_ordered_factors():
-                # TODO look for derivatives...
                 if isinstance(factor, AppliedUndef) and factor.args[0] == 0:
                     term = 0
                     break
+                elif isinstance(factor, sym.Subs) and factor.args[0].is_Derivative and \
+                        isinstance(factor.args[0].args[0], AppliedUndef) and \
+                        factor.args[2].args[0] == 0 and \
+                        factor.args[1].args[0] == factor.args[0].args[0].args[0]:
+                    term = 0
+                    break
+
             result += term
 
         return self.__class__(result)
