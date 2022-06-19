@@ -1409,22 +1409,31 @@ Alternatively, using call notation::
       2   2    2
    4⋅π ⋅f₀  + s
 
-By default initial conditions are assumed to be zero (this may change in a later release).  Thus::
+Derivatives of generic functions produce results with initial conditions.  For example::
 
-   >>> Derivative(expr('v(t)')(s)
-   s⋅V(s)
-
-If the initial conditions are non-zero::
-
-   >>> Derivative(expr('v(t)')(s, zero_initial_conditions=False)
+   >>> Derivative('v(t)')(s)
    s⋅V(s) - v(0)
 
-Similarly, for higher-order derivatives::
-
-  >>> Derivative(expr('v(t)'),t,2)(s, zero_initial_conditions=False)
+   >>> Derivative('v(t)', t, 2)(s)
     2                 ⎛d       ⎞│
    s ⋅V(s) - s⋅v(0) - ⎜──(v(t))⎟│
                       ⎝dt      ⎠│t=0
+
+If the initial conditions are zero::
+
+   >>> Derivative('v(t)')(s, zero_initial_conditions=True)
+   s⋅V(s)
+
+Alternatively, the initial conditions can be removed by the `zero_initial_conditions()` method::
+
+   >>> Derivative('v(t)')(s).zero_initial_conditions()
+   s⋅V(s)
+
+Versions of Lcapy prior to 1.5.3 assumed zero initial conditions.
+This behaviour can be restored using::
+
+  >>> from lcapy import state
+  >>> state.zero_initial_conditions = True
 
 
 .. _inverse_laplace_transforms:
@@ -1452,22 +1461,47 @@ If the result is known to be causal, use the `causal` argument::
     -4⋅t
    ℯ     u(t)
 
+Alternatively, the condition can be removed by the `remove_condition()` method::
 
-By default initial conditions are assumed to be zero (this may change in a later release).  Thus::
+  >>> (1 / (s + 4))(t).remove_condition()
+    -4⋅t
+   ℯ
+
+or the expression can be forced to be causal using the `force_causal()` method::
+
+  >>> (1 / (s + 4))(t).force_causal()
+    -4⋅t
+   ℯ     u(t)
+
+Inverse Laplace transforms of a generic function multiplied by a power
+of `s` produces a result with initial conditions::
 
    >>> (s * 'V(s)')(t)
-   d
-   ──(v(t))
-   dt
-
-If the initial conditions are non-zero::
-
-   >>> (s * 'V(s)')(t, zero_initial_conditions=False)
                d
    v(0)⋅δ(t) + ──(v(t))
                dt
 
-With second order systems, the form of the resul can be modified using the `damping` argument.  This can be `'under'`, `'over'`, or '`critical`', for example::
+If the initial conditions are known to be zero use::
+
+   >>> (s * 'V(s)')(t, zero_initial_conditions=True)
+   d
+   ──(v(t))
+   dt
+
+Alternatively, the initial conditions can be removed by the `zero_initial_conditions()` method::
+
+   >>> (s * 'V(s)')(t).zero_initial_conditions()
+   d
+   ──(v(t))
+   dt
+
+Versions of Lcapy prior to 1.5.3 assumed zero initial conditions.
+This behaviour can be restored using::
+
+  >>> from lcapy import state
+  >>> state.zero_initial_conditions = True
+
+With second order systems, the form of the result can be modified using the `damping` argument.  This can be `'under'`, `'over'`, or '`critical`', for example::
 
    >>> expr('1/(s**2 + a*s + b)')(t, damping='under', causal=True)
    ⎛         ⎛               ____________⎞        ⎛               ____________⎞⎞
