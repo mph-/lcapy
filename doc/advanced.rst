@@ -225,7 +225,7 @@ using the `voltage_gain()` method of the circuit:
    4⋅C₀⋅X₁⋅φ ⋅s⋅sinh ⎜───⎟ + 2⋅C₀⋅X₁⋅φ ⋅s - ⅉ⋅⎜C₀⋅Z₀⋅s⋅sinh⎜───⎟ + 4⋅φ ⋅sinh ⎜───⎟ + 2⋅φ ⎟
                      ⎝2⋅c⎠                    ⎝            ⎝ c ⎠             ⎝2⋅c⎠       ⎠
 
-The frequency response can be found by substituting :math:`2 \pi f` for :math:`s`.
+The frequency response can be found by substituting :math:`j 2 \pi f` for :math:`s`.
 
 
 Transformers
@@ -435,4 +435,4 @@ Since the CMOS device is non-linear, there is no analytic solution and a numeric
 In this snippet of code, the line `lookup_Io(Vo)` determines the output current for a specific output voltage, say by interpolating a lookup table.
 
 Note, `solve_ivp` can choose a poor initial step for this circuit.  A
-work-around is to scale the the capacitances, inductances, and time.
+work-around is to scale the capacitances, inductances, and time.
