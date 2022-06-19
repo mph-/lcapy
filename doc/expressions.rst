@@ -736,13 +736,13 @@ Poles and zeros
 Transforms
 ----------
 
-- `FT()` Fourier transform
+- `FT()` Fourier transform, see :ref:`fourier_transforms`
 
-- `IFT()` Inverse Fourier transform
+- `IFT()` Inverse Fourier transform, see :ref:`inverse_fourier_transforms`
 
-- `LT()` Laplace transform
+- `LT()` Laplace transform, see :ref:`laplace_transforms`
 
-- `ILT()` Inverse Laplace transform
+- `ILT()` Inverse Laplace transform, see :ref:`inverse_laplace_transforms`
 
 
 Miscellaneous
@@ -1264,12 +1264,6 @@ Lcapy uses the following definition of the forward Fourier transform:
 
     V(f) = \mathcal{F}\{v(t)\} = \int_{-\infty}^{\infty} v(t) \exp(-\mathrm{j} 2\pi f t) \mathrm{d}t
 
-and the following definition of the inverse Fourier transform:
-
-.. math::
-
-    v(t) = \mathcal{F}^{-1}\{V(f)\} = \int_{-\infty}^{\infty} V(f) \exp(\mathrm{j} 2\pi f t) \mathrm{d}f
-
 The Fourier transform can be performed with the explicit `FT()` method::
 
   >>> f0 = symbol('f0')
@@ -1278,7 +1272,7 @@ The Fourier transform can be performed with the explicit `FT()` method::
    ───────── + ─────────
        2           2
 
-Alternatively::
+Alternatively it can be performed using call notation::
 
   >>> f0 = symbol('f0')
   >>> cos(2 * pi * f0 * t)(f)
@@ -1290,6 +1284,31 @@ Alternatively::
    sinc(f - 1)   sinc(f + 1)
    ─────────── + ───────────
         2             2
+
+
+.. _inverse_fourier_transforms:
+
+Inverse Fourier transforms
+--------------------------
+
+Lcapy uses the following definition of the inverse Fourier transform:
+.. math::
+
+    v(t) = \mathcal{F}^{-1}\{V(f)\} = \int_{-\infty}^{\infty} V(f) \exp(\mathrm{j} 2\pi f t) \mathrm{d}f
+
+
+The inverse Fourier transform can be performed with the explicit
+`IFT()` method::
+
+  >>> DiracDelta(f - 4).IFT()
+    8⋅ⅉ⋅π⋅t
+   ℯ
+
+Alternatively it can be performed using call notation::
+
+  >>> DiracDelta(f - 4)(t)
+    8⋅ⅉ⋅π⋅t
+   ℯ
 
 
 .. _angular_fourier_transforms:
@@ -1372,7 +1391,7 @@ The time-derivative rule for the :math:`\mathcal{L}_{-}` Laplace transform is:
 where :math:`v(0^{-})` is the pre-initial value of :math:`v`.
 
 
-Here's an example of use::
+Laplace transforms are performed with the `LT()` method::
 
   >>> f0 = symbol('f0')
   >>> cos(2 * pi * f0 * t).LT()
@@ -1381,7 +1400,7 @@ Here's an example of use::
       2   2    2
    4⋅π ⋅f₀  + s
 
-Alternatively::
+Alternatively, using call notation::
 
   >>> f0 = symbol('f0')
   >>> cos(2 * pi * f0 * t)(s)
@@ -1389,6 +1408,92 @@ Alternatively::
    ─────────────
       2   2    2
    4⋅π ⋅f₀  + s
+
+By default initial conditions are assumed to be zero (this may change in a later release).  Thus::
+
+   >>> Derivative(expr('v(t)')(s)
+   s⋅V(s)
+
+If the initial conditions are non-zero::
+
+   >>> Derivative(expr('v(t)')(s, zero_initial_conditions=False)
+   s⋅V(s) - v(0)
+
+Similarly, for higher-order derivatives::
+
+  >>> Derivative(expr('v(t)'),t,2)(s, zero_initial_conditions=False)
+    2                 ⎛d       ⎞│
+   s ⋅V(s) - s⋅v(0) - ⎜──(v(u))⎟│
+                      ⎝du      ⎠│u=0
+
+
+.. _inverse_laplace_transforms:
+
+Inverse Laplace transforms
+--------------------------
+
+Inverse Laplace transforms are performed with the `ILT()` method::
+
+  >>> (1 / (s + 4)).ILT()
+    -4⋅t
+   ℯ      for t ≥ 0
+
+
+Alternatively, using call notation::
+
+  >>> (1 / (s + 4))(t)
+    -4⋅t
+   ℯ      for t ≥ 0
+
+
+If the result is known to be causal, use the `causal` argument::
+
+  >>> (1 / (s + 4))(t, causal=True)
+    -4⋅t
+   ℯ     u(t)
+
+
+By default initial conditions are assumed to be zero (this may change in a later release).  Thus::
+
+   >>> (s * 'V(s)')(t)
+   d
+   ──(v(t))
+   dt
+
+If the initial conditions are non-zero::
+
+   >>> (s * 'V(s)')(t, zero_initial_conditions=False)
+               d
+   v(0)⋅δ(t) + ──(v(t))
+               dt
+
+With second order systems, the form of the resul can be modified using the `damping` argument.  This can be `'under'`, `'over'`, or '`critical`', for example::
+
+   >>> expr('1/(s**2 + a*s + b)')(t, damping='under', causal=True)
+   ⎛         ⎛               ____________⎞        ⎛               ____________⎞⎞
+   ⎜         ⎜  a           ╱    2       ⎟        ⎜  a           ╱    2       ⎟⎟
+   ⎜       t⋅⎜- ─ - 0.5⋅ⅉ⋅╲╱  - a  + 4⋅b ⎟      t⋅⎜- ─ + 0.5⋅ⅉ⋅╲╱  - a  + 4⋅b  ⎟⎟
+   ⎜         ⎝  2                        ⎠        ⎝  2                        ⎠⎟
+   ⎜1.0⋅ⅉ⋅ℯ                                  ⅉ⋅ℯ                                ⎟
+   ⎜────────────────────────────────────── - ──────────────────────────────────⎟⋅ u(t)
+   ⎜              ____________                           ____________          ⎟
+   ⎜             ╱    2                                 ╱    2                 ⎟
+   ⎝           ╲╱  - a  + 4⋅b                         ╲╱  - a  + 4⋅b           ⎠
+
+
+Compare this with::
+
+   >>> expr('1/(s**2 + a*s + b)')(t, damping='over', causal=True)
+   ⎛     ⎛         __________⎞      ⎛         __________⎞⎞
+   ⎜     ⎜        ╱  2       ⎟      ⎜        ╱  2       ⎟⎟
+   ⎜     ⎜  a   ╲╱  a  - 4⋅b ⎟      ⎜  a   ╲╱  a  - 4⋅b ⎟⎟
+   ⎜   t⋅⎜- ─ - ─────────────⎟    t⋅⎜- ─ + ─────────────⎟⎟
+   ⎜     ⎝  2         2      ⎠      ⎝  2         2      ⎠⎟
+   ⎜  ℯ                          ℯ                       ⎟
+   ⎜- ──────────────────────── + ────────────────────────⎟⋅u(t)
+   ⎜          __________                 __________      ⎟
+   ⎜         ╱  2                       ╱  2             ⎟
+   ⎝       ╲╱  a  - 4⋅b               ╲╱  a  - 4⋅b       ⎠
 
 
 .. _substitution:
