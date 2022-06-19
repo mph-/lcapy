@@ -9,6 +9,7 @@ from __future__ import division
 from .domains import TimeDomain
 from .expr import Expr, expr_make
 from .functions import exp
+from .state import state
 from .sym import fsym, ssym, tsym, j, oo
 from .laplace import laplace_transform
 from .fourier import fourier_transform
@@ -65,7 +66,7 @@ class TimeDomainExpression(TimeDomain, Expr):
 
         self.assumptions.infer_from_expr(self)
 
-    def LT(self, evaluate=True, zero_initial_conditions=True, **assumptions):
+    def LT(self, evaluate=True, zero_initial_conditions=None, **assumptions):
         """Determine one-sided Laplace transform with 0- as the lower limit.
 
         By default initial conditions are assumed to be zero.  This
@@ -74,10 +75,16 @@ class TimeDomainExpression(TimeDomain, Expr):
         This is an alias for laplace.
 
         """
+        if zero_initial_conditions is None:
+            zero_initial_conditions = state.zero_initial_conditions
 
-        return self.laplace(evaluate, **assumptions)
+        assumptions = self.assumptions.merge_and_infer(self, **assumptions)
+        result = laplace_transform(
+            self.expr, self.var, ssym, evaluate=evaluate,
+            zero_initial_conditions=zero_initial_conditions)
+        return self.change(result, domain='laplace', units_scale=uu.s, **assumptions)
 
-    def laplace(self, evaluate=True, zero_initial_conditions=True,
+    def laplace(self, evaluate=True, zero_initial_conditions=None,
                 **assumptions):
         """Determine one-sided Laplace transform with 0- as the lower limit.
 
@@ -86,11 +93,8 @@ class TimeDomainExpression(TimeDomain, Expr):
 
         This is an alias for LT."""
 
-        assumptions = self.assumptions.merge_and_infer(self, **assumptions)
-        result = laplace_transform(
-            self.expr, self.var, ssym, evaluate=evaluate,
-            zero_initial_conditions=zero_initial_conditions)
-        return self.change(result, domain='laplace', units_scale=uu.s, **assumptions)
+        return self.LT(evaluate=evaluate, zero_initial_conditions=zero_initial_conditions,
+                       **assumptions)
 
     def phasor(self, **assumptions):
         """Convert to phasor domain."""

@@ -8,6 +8,7 @@ Copyright 2014--2022 Michael Hayes, UCECE
 from __future__ import division
 from .domains import LaplaceDomain
 from .inverse_laplace import inverse_laplace_transform
+from .state import state
 from .sym import ssym, tsym, j, pi, sympify
 from .ratfun import _zp2tf, _pr2tf, Ratfun
 from .expr import Expr, symbol, expr, ExprDict, exprcontainer, expr_make
@@ -98,7 +99,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         return self.__class__(limit(self.expr * self.var, self.var, 0))
 
-    def inverse_laplace(self, **assumptions):
+    def inverse_laplace(self, zero_initial_conditions=None, **assumptions):
         """Attempt inverse Laplace transform.
 
         If causal=True the response is zero for t < 0 and
@@ -110,27 +111,31 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         can be controlled by `zero_initial_conditions`.
 
         """
+
+        return self.ILT(zero_initial_conditions=zero_initial_conditions, **assumptions)
+
+    def ILT(self, zero_initial_conditions=None, **assumptions):
+        """Attempt inverse Laplace transform.
+
+        If causal=True the response is zero for t < 0 and
+        the result is multiplied by Heaviside(t)
+        If ac=True or dc=True the result is extrapolated for t < 0.
+        Otherwise the result is only known for t >= 0.
+
+        By default initial conditions are assumed to be zero.  This
+        can be controlled by `zero_initial_conditions`.
+
+        """
+        if zero_initial_conditions is None:
+            zero_initial_conditions = state.zero_initial_conditions
+
         assumptions = self.assumptions.merge(**assumptions)
         result = inverse_laplace_transform(self.expr, self.var, tsym,
+                                           zero_initial_conditions=zero_initial_conditions,
                                            **assumptions)
 
         return self.change(result, domain='time', units_scale=uu.Hz,
                            **assumptions)
-
-    def ILT(self, **assumptions):
-        """Attempt inverse Laplace transform.
-
-        If causal=True the response is zero for t < 0 and
-        the result is multiplied by Heaviside(t)
-        If ac=True or dc=True the result is extrapolated for t < 0.
-        Otherwise the result is only known for t >= 0.
-
-        By default initial conditions are assumed to be zero.  This
-        can be controlled by `zero_initial_conditions`.
-
-        """
-
-        return self.inverse_laplace(**assumptions)
 
     def time(self, **assumptions):
         """Convert to time domain.

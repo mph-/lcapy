@@ -49,6 +49,8 @@ class State(object):
         self.warn_unknown_symbol = False
         self.break_unknown_symbol = False
 
+        self.zero_initial_conditions = True
+
     def new_context(self):
 
         context = Context()
