@@ -1,15 +1,23 @@
 """This module provides transfer function support.
 
-Copyright 2020 Michael Hayes, UCECE
+Copyright 2020-2022 Michael Hayes, UCECE
 
 """
 from .expr import expr
 from .units import u as uu
 
 
-def transfer(arg, causal=True, **assumptions):
+def transfer(numer, denom=1, causal=True, **assumptions):
+    """Create transfer function assuming zero initial conditions
+    from the ratio `numer / denom`."""
 
-    expr1 = expr(arg, causal=True, **assumptions)
+    numer = expr(numer, causal=causal, **assumptions)
+    denom = expr(denom, causal=causal, **assumptions)
+
+    numer = numer.zero_initial_conditions()
+    denom = denom.zero_initial_conditions()
+    expr1 = numer / denom
+
     if expr1.is_admittance:
         return expr1.apply_unit(1 / uu.ohms)
 
