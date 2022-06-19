@@ -3593,6 +3593,24 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         return self._ratfun.as_QRPO()
 
+    def zero_initial_conditions(self):
+
+        if not self.has(AppliedUndef):
+            return self
+
+        result = 0
+        expr = self.sympy
+        terms = expr.as_ordered_terms()
+        for term in terms:
+            for factor in term.as_ordered_factors():
+                # TODO look for derivatives...
+                if isinstance(factor, AppliedUndef) and factor.args[0] == 0:
+                    term = 0
+                    break
+            result += term
+
+        return self.__class__(result)
+
 
 def exprcontainer(arg, **assumptions):
 
