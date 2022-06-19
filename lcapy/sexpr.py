@@ -106,12 +106,16 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         If ac=True or dc=True the result is extrapolated for t < 0.
         Otherwise the result is only known for t >= 0.
 
+        By default initial conditions are assumed to be zero.  This
+        can be controlled by `zero_initial_conditions`.
+
         """
         assumptions = self.assumptions.merge(**assumptions)
         result = inverse_laplace_transform(self.expr, self.var, tsym,
                                            **assumptions)
 
-        return self.change(result, domain='time', units_scale=uu.Hz, **assumptions)
+        return self.change(result, domain='time', units_scale=uu.Hz,
+                           **assumptions)
 
     def ILT(self, **assumptions):
         """Attempt inverse Laplace transform.
@@ -120,6 +124,9 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         the result is multiplied by Heaviside(t)
         If ac=True or dc=True the result is extrapolated for t < 0.
         Otherwise the result is only known for t >= 0.
+
+        By default initial conditions are assumed to be zero.  This
+        can be controlled by `zero_initial_conditions`.
 
         """
 

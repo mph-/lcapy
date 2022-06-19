@@ -65,16 +65,26 @@ class TimeDomainExpression(TimeDomain, Expr):
 
         self.assumptions.infer_from_expr(self)
 
-    def LT(self, evaluate=True, **assumptions):
+    def LT(self, evaluate=True, zero_initial_conditions=True, **assumptions):
         """Determine one-sided Laplace transform with 0- as the lower limit.
 
-        This is an alias for laplace."""
+        By default initial conditions are assumed to be zero.  This
+        can be controlled by `zero_initial_conditions`.
+
+        This is an alias for laplace.
+
+        """
 
         return self.laplace(evaluate, **assumptions)
 
     def laplace(self, evaluate=True, zero_initial_conditions=True,
                 **assumptions):
-        """Determine one-sided Laplace transform with 0- as the lower limit."""
+        """Determine one-sided Laplace transform with 0- as the lower limit.
+
+        By default initial conditions are assumed to be zero.  This
+        can be controlled by `zero_initial_conditions`.
+
+        This is an alias for LT."""
 
         assumptions = self.assumptions.merge_and_infer(self, **assumptions)
         result = laplace_transform(
@@ -92,7 +102,7 @@ class TimeDomainExpression(TimeDomain, Expr):
     def FT(self, var=None, evaluate=True, **assumptions):
         """Attempt Fourier transform.
 
-        X(f) = \int_{-\infty}^{\infty} x(t) exp(-j 2\pi f t) dt."""
+        X(f) = \int_{-\infty} ^ {\infty} x(t) exp(-j 2\pi f t) dt."""
 
         from .symbols import f, omega, Omega, F
 
@@ -147,7 +157,7 @@ class TimeDomainExpression(TimeDomain, Expr):
 
     def plot(self, t=None, **kwargs):
         """Plot the time waveform.  If t is not specified, it defaults to the
-        range (-0.2, 2).  t can be a vector of specified instants, a
+        range(-0.2, 2).  t can be a vector of specified instants, a
         tuple specifing the range, or a constant specifying the
         maximum value with the minimum value set to 0.
 
@@ -217,18 +227,18 @@ class TimeDomainExpression(TimeDomain, Expr):
     def discretize(self, method='bilinear', alpha=0.5):
         """Convert to a discrete-time approximation:
 
-        :math:`h[n] \approx h(t)`
+        : math: `h[n] \approx h(t)`
 
         With the impulse-invariance method, the discrete-time impulse response
         is related to the continuous-time impulse response by
 
-        :math:`h[n] = h_c(n \Delta t)`
+        : math: `h[n] = h_c(n \Delta t)`
 
         Note, when designing digital filters, it is often common to to
         scale the discrete-time impulse response by the sampling
         interval:
 
-        :math:`h[n] = \Delta t h_c(n \Delta t)`
+        : math: `h[n] = \Delta t h_c(n \Delta t)`
 
         The default method is 'bilinear'.  Other methods are:
         'impulse-invariance' 'bilinear', 'tustin', 'trapezoidal'

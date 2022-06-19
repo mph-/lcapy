@@ -100,7 +100,7 @@ class LcapyTester(unittest.TestCase):
 
     def test_derivative_undef(self):
 
-        H = s * 'I(s)'
+        H = s * 'I(s)' - 'i(0)'
         h = H(t)
         H2 = h(s)
 

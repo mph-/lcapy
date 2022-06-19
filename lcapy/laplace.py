@@ -172,7 +172,7 @@ class LaplaceTransformer(UnilateralForwardTransformer):
 
         if not zero_initial_conditions:
             # Handle initial conditions.  FIXME  use 0^- for 0.
-            # Cannot use t since LaplaceDomain balks if have t in expression
+            # Cannot use t since LaplaceDomain baulks if have t in expression
             u = self.dummy_var(func1, 'u', level=0, real=True)
             v = sym.Function(name)(u)
             for m in range(order):
