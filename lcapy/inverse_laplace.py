@@ -227,15 +227,27 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
                     result = self.func(factors[1], s, t)
                     result = sym.Derivative(result, t)
                     if not kwargs.get('zero_initial_conditions', True):
-                        name = factors[1].func.__name__
-                        result += sym.Function(name[0].lower() +
-                                               name[1:])(0) * sym.DiracDelta(t)
+                        fname = factors[1].func.__name__
+                        func = sym.Function(fname[0].lower() + fname[1:])
+                        result += func(0) * sym.DiracDelta(t)
                     continue
                 elif factors[0].is_Pow and factors[0].args[0] == s and factors[0].args[1] > 0:
                     # Handle higher order differentiation
                     # Convert s ** 2 * V(s) to d^2 v(t) / dt^2
                     result = self.func(factors[1], s, t)
                     result = sym.Derivative(result, t, factors[0].args[1])
+                    if not kwargs.get('zero_initial_conditions', True):
+                        fname = factors[1].func.__name__
+                        func = sym.Function(fname[0].lower() + fname[1:])
+                        u = self.dummy_var(func, 'u', level=0, real=True)
+                        v = func(u)
+                        order = factors[0].args[1]
+                        for m in range(order - 1):
+                            result += sym.Derivative(v, u, m).subs(u, 0) * \
+                                sym.DiracDelta(t, order - m - 1)
+                        result += sym.Derivative(v, u, order - 1).subs(u, 0) * \
+                            sym.DiracDelta(t)
+
                     continue
                 elif factors[0].is_Pow and factors[0].args[0] == s and factors[0].args[1] == -1:
                     # Handle integration  1 / s * V(s)
