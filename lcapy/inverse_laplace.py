@@ -31,7 +31,10 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
     def check(self, expr, s, t, **kwargs):
 
         if expr.has(t):
-            self.error('Expression depends on t')
+            for term in expr.as_ordered_terms():
+                # Allow Subs(Derivativee(undef, t), t, 0)
+                if term.has(t) and not term.is_constant:
+                    self.error('Expression depends on t')
 
     def key(self, expr, s, t, **kwargs):
         return (expr, s, t,
@@ -239,13 +242,12 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
                     if not kwargs.get('zero_initial_conditions', True):
                         fname = factors[1].func.__name__
                         func = sym.Function(fname[0].lower() + fname[1:])
-                        u = self.dummy_var(func, 'u', level=0, real=True)
-                        v = func(u)
+                        v = func(t)
                         order = factors[0].args[1]
                         for m in range(order - 1):
-                            result += sym.Derivative(v, u, m).subs(u, 0) * \
+                            result += sym.Derivative(v, t, m).subs(t, 0) * \
                                 sym.DiracDelta(t, order - m - 1)
-                        result += sym.Derivative(v, u, order - 1).subs(u, 0) * \
+                        result += sym.Derivative(v, t, order - 1).subs(t, 0) * \
                             sym.DiracDelta(t)
 
                     continue

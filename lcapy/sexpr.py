@@ -15,7 +15,7 @@ from .expr import Expr, symbol, expr, ExprDict, exprcontainer, expr_make
 from .units import u as uu
 from .functions import sqrt, DiracDelta
 from .sym import dt
-from sympy import limit, exp, Poly, Integral, div, oo, Eq, Expr as symExpr
+from sympy import limit, exp, Poly, Derivative, Integral, div, oo, Eq, Expr as symExpr
 from warnings import warn
 
 
@@ -33,7 +33,8 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         super(LaplaceDomainExpression, self).__init__(val, **assumptions)
 
         expr = self.expr
-        if check and expr.has(tsym) and not expr.has(Integral):
+        # Be more specific
+        if check and expr.has(tsym) and not expr.has(Derivative) and not expr.has(Integral):
             raise ValueError(
                 's-domain expression %s cannot depend on t' % expr)
 

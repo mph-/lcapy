@@ -14,7 +14,7 @@ from .sym import fsym, ssym, tsym, j, oo
 from .laplace import laplace_transform
 from .fourier import fourier_transform
 from .units import u as uu
-from sympy import Heaviside, Integral, limit, Expr as symExpr
+from sympy import Heaviside, Derivative, Integral, limit, Expr as symExpr
 
 
 __all__ = ('texpr', )
@@ -32,7 +32,8 @@ class TimeDomainExpression(TimeDomain, Expr):
         super(TimeDomainExpression, self).__init__(val, **assumptions)
 
         expr = self.expr
-        if check and expr.has(ssym) and not expr.has(Integral):
+        # Should be more specific...
+        if check and expr.has(ssym) and not expr.has(Integral) and not expr.has(Derivative):
             raise ValueError(
                 't-domain expression %s cannot depend on s' % expr)
         if check and expr.has(fsym) and not expr.has(Integral):

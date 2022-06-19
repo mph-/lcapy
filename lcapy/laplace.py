@@ -172,12 +172,10 @@ class LaplaceTransformer(UnilateralForwardTransformer):
 
         if not zero_initial_conditions:
             # Handle initial conditions.  FIXME  use 0^- for 0.
-            # Cannot use t since LaplaceDomain baulks if have t in expression
-            u = self.dummy_var(func1, 'u', level=0, real=True)
-            v = sym.Function(name)(u)
+            v = sym.Function(name)(t)
             for m in range(order):
                 result -= s**(order - m - 1) * \
-                    sym.Derivative(v, u, m).subs(u, 0)
+                    sym.Derivative(v, t, m).subs(t, 0)
         return result
 
     def sin_cos(self, expr, t, s):
@@ -301,6 +299,10 @@ class LaplaceTransformer(UnilateralForwardTransformer):
                 pass
 
         if expr.has(AppliedUndef):
+
+            if expr.is_Mul and len(expr.args) == 2 and expr.args[0] and \
+               isinstance(expr.args[0], sym.DiracDelta):
+                return expr.args[1]
 
             if expr.has(sym.Derivative):
                 return self.derivative_undef(expr, t, s, **kwargs) * const

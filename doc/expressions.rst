@@ -1423,8 +1423,8 @@ Similarly, for higher-order derivatives::
 
   >>> Derivative(expr('v(t)'),t,2)(s, zero_initial_conditions=False)
     2                 ⎛d       ⎞│
-   s ⋅V(s) - s⋅v(0) - ⎜──(v(u))⎟│
-                      ⎝du      ⎠│u=0
+   s ⋅V(s) - s⋅v(0) - ⎜──(v(t))⎟│
+                      ⎝dt      ⎠│t=0
 
 
 .. _inverse_laplace_transforms:
