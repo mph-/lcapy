@@ -730,7 +730,7 @@ class Cpt(object):
             raise ValueError('Invalid autoground % s.  Choices are % s' %
                              (autoground, ', '.join(self.ground_keys)))
 
-        for m, node_name in enumerate(self.node_names):
+        for m, node_name in enumerate(self.required_node_names):
             if node_name != '0':
                 continue
 
