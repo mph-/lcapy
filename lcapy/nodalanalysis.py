@@ -1,7 +1,7 @@
 """This module performs nodal analysis.  It is primarily for showing
 the equations rather than for evaluating them.
 
-Copyright 2019-2021 Michael Hayes, UCECE
+Copyright 2019-2022 Michael Hayes, UCECE
 
 """
 
@@ -222,16 +222,14 @@ class NodalAnalysis(object):
 
         return ExprTuple(self.y)
 
-    def solve_laplace(self, unknowns=None):
+    def solve_laplace(self):
         """Determine the unknown voltages using Laplace transforms and
         return as a dict"""
 
         from .sexpr import s
 
-        if unknowns is None:
-            unknowns = self.unknowns
-
-        return self.nodal_equations()(s).solve(unknowns(s))
+        unknowns = self.unknowns(s)
+        return self.nodal_equations()(s).solve(unknowns)
 
 
 from .expr import ExprDict, expr  # nopep8

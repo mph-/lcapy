@@ -248,16 +248,14 @@ class LoopAnalysis(object):
 
         return ExprTuple(self.y)
 
-    def solve_laplace(self, unknowns=None):
+    def solve_laplace(self):
         """Determine the unknown voltages using Laplace transforms and
         return as a dict"""
 
         from .sexpr import s
 
-        if unknowns is None:
-            unknowns = self.unknowns
-
-        return self.mesh_equations()(s).solve(unknowns(s))
+        unknowns = self.unknowns(s)
+        return self.mesh_equations()(s).solve(unknowns)
 
 
 from .expr import ExprList, ExprDict, expr  # nopep8

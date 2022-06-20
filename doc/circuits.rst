@@ -364,6 +364,10 @@ There are a number of forms that the system of equations can be shown: `y = Ainv
 
 The matrix is returned by the `A` attribute, the vector of unknowns by the `y` attribute, and the result vector by the `b` attribute.
 
+The mesh currents can be found with the `solve_laplace()` method.
+This solves the circuit using Laplace transform methods and returns a
+dictionary of results.
+
 .. _nodal-analysis:
 
 Nodal analysis
@@ -469,6 +473,10 @@ The system of equations can be formulated in matrix form as :math:`\mathbf{A} \m
 There are a number of forms that the system of equations can be shown: `y = Ainv b`, `Ainv b = y`, `A y = b`, and `b = A y`.  The `invert` argument calculates the inverse of the `A` matrix.
 
 The matrix is returned by the `A` attribute, the vector of unknowns by the `y` attribute, and the result vector by the `b` attribute.
+
+The node voltages can be found with the `solve_laplace()` method.
+This solves the circuit using Laplace transform methods and returns a
+dictionary of results.
 
 
 .. _modified-nodal-analysis:
