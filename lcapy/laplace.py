@@ -300,8 +300,9 @@ class LaplaceTransformer(UnilateralForwardTransformer):
 
         if expr.has(AppliedUndef):
 
-            if expr.is_Mul and len(expr.args) == 2 and expr.args[0] and \
-               isinstance(expr.args[0], sym.DiracDelta):
+            if (expr.is_Mul and len(expr.args) == 2 and
+                isinstance(expr.args[0], sym.DiracDelta) and
+                    isinstance(expr.args[1], (AppliedUndef, sym.Subs))):
                 return expr.args[1]
 
             if expr.has(sym.Derivative):
