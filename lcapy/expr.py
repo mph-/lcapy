@@ -232,17 +232,47 @@ class ExprDict(ExprPrint, ExprContainer, ExprMisc, OrderedDict):
             new[k] = simplify(v, **kwargs)
         return new
 
-    def solve(self, *symbols, **kwargs):
+    def has(self, *patterns):
+        """Test whether any subexpressions matches any of the patterns.  For example,
+         V.has(exp(t))
+         V.has(t)
+
+        """
+
+        for value in self.values():
+            if value.has(*patterns):
+                return True
+        return False
+
+    def remove_undefs(self, return_mappings=False):
+        """Remove applied undefined functions (undefs) with symbols.
+        For example, `V(s)` is replaced with `V`."""
+
+        mappings = {}
+        new = {}
+        for key, value in self.items():
+            new[key], mappings1 = expr(
+                value).remove_undefs(return_mappings=True)
+            mappings.update(mappings1)
+
+        new = self.__class__(new)
+        if return_mappings:
+            return new, mappings
+        else:
+            return new
+
+    def solve(self, *symbols, **flags):
         """Solve system of equations, and return as ExprDict.
         See sympy.solve for usage."""
 
+        if self.has(AppliedUndef):
+            new, defs = self.remove_undefs(return_mappings=True)
+            return new.solve(*symbols, **flags).subs(defs)
+
         symbols = delcapify(symbols)
         system = list(delcapify(self).values())
-        solutions = sym.solve(system, *symbols, **kwargs)
-        new = {}
-        for key, val in solutions.items():
-            new[key] = expr(val)
-        return ExprDict(new)
+        solutions = sym.solve(system, *symbols, **flags)
+        return expr(solutions)
 
     def evalf(self, n=15):
         """Evaluate each element to convert to floating point values.
@@ -333,17 +363,47 @@ class ExprList(ExprPrint, list, ExprContainer, ExprMisc):
 
         return expr([e.subs(*args, **kwargs) for e in self])
 
-    def solve(self, *symbols, **kwargs):
+    def has(self, *patterns):
+        """Test whether any subexpressions matches any of the patterns.  For example,
+         V.has(exp(t))
+         V.has(t)
+
+        """
+
+        for value in self:
+            if value.has(*patterns):
+                return True
+        return False
+
+    def remove_undefs(self, return_mappings=False):
+        """Remove applied undefined functions (undefs) with symbols.
+        For example, `V(s)` is replaced with `V`."""
+
+        mappings = {}
+        new = []
+        for value in self:
+            new1, mappings1 = value.remove_undefs(return_mappings=True)
+            new.append(new1)
+            mappings.update(mappings1)
+
+        new = self.__class__(new)
+        if return_mappings:
+            return new, mappings
+        else:
+            return new
+
+    def solve(self, *symbols, **flags):
         """Solve system of equations and return as ExprDict.
         See sympy.solve for usage."""
 
+        if self.has(AppliedUndef):
+            new, defs = self.remove_undefs(return_mappings=True)
+            return new.solve(*symbols, **flags).subs(defs)
+
         symbols = delcapify(symbols)
         system = delcapify(self)
-        solutions = sym.solve(system, *symbols, **kwargs)
-        new = {}
-        for key, val in solutions.items():
-            new[key] = expr(val)
-        return ExprDict(new)
+        solutions = sym.solve(system, *symbols, **flags)
+        return expr(solutions)
 
     @property
     def expr(self):
@@ -384,17 +444,47 @@ class ExprTuple(ExprPrint, tuple, ExprContainer, ExprMisc):
 
         return expr(tuple([e.subs(*args, **kwargs) for e in self]))
 
-    def solve(self, *symbols, **kwargs):
+    def has(self, *patterns):
+        """Test whether any subexpressions matches any of the patterns.  For example,
+         V.has(exp(t))
+         V.has(t)
+
+        """
+
+        for value in self:
+            if value.has(*patterns):
+                return True
+        return False
+
+    def remove_undefs(self, return_mappings=False):
+        """Remove applied undefined functions (undefs) with symbols.
+        For example, `V(s)` is replaced with `V`."""
+
+        mappings = {}
+        new = ()
+        for value in self:
+            new1, mappings1 = value.remove_undefs(return_mappings=True)
+            new = new + (new1, )
+            mappings.update(mappings1)
+
+        new = self.__class__(new)
+        if return_mappings:
+            return new, mappings
+        else:
+            return new
+
+    def solve(self, *symbols, **flags):
         """Solve system of equations, and return as ExprDict.
         See sympy.solve for usage."""
 
+        if self.has(AppliedUndef):
+            new, defs = self.remove_undefs(return_mappings=True)
+            return new.solve(*symbols, **flags).subs(defs)
+
         symbols = delcapify(symbols)
         system = delcapify(self)
-        solutions = sym.solve(system, *symbols, **kwargs)
-        new = {}
-        for key, val in solutions.items():
-            new[key] = expr(val)
-        return ExprDict(new)
+        solutions = sym.solve(system, *symbols, **flags)
+        return expr(solutions)
 
     @property
     def expr(self):
@@ -2620,6 +2710,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
          >>> y.solve(x)
          [-3]`
 
+        If no symbols are specified, all free symbols are solved for.
+
         See also `nsolve()` for a numerical solver.
         """
 
@@ -2628,7 +2720,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             return new.solve(*symbols, **flags).subs(defs)
 
         symbols = [symbol_map(symbol) for symbol in symbols]
-        return expr(sym.solve(self.expr, *symbols, **flags))
+        solutions = sym.solve(self.expr, *symbols, **flags)
+        return expr(solutions)
 
     def nsolve(self, x0=0, **kwargs):
         """Solve expression numerically.  This returns a list of solutions.
@@ -3499,8 +3592,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         return self
 
     def remove_undefs(self, return_mappings=False):
-        """Replace undefined functions with symbols, for example,
-        replace x(t) with x, etc.
+        """Replace applied undefined functions (undefs) with symbols, for
+        example, replace x(t) with x, etc.
 
         This is useful for simplifying and solving equations.
 
@@ -3514,7 +3607,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         The original expression can be obtained using:
 
-        new.subs(defs)"""
+        new.subs(defs)
+
+        """
 
         mappings = {}
         e = self.expr
@@ -3529,6 +3624,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                     # named symbols but these cannot conflict
                     # with other symbols in the expression.
                     break
+
+                if name == 'I':
+                    warn('Replacing %s with %s; this is interpreted as the imaginary number' % (
+                        item, name))
 
                 mappings[name] = item
                 # Need to propagate complex assumption, etc.
