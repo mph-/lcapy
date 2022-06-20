@@ -2,7 +2,7 @@
 This module performs loop analysis.  It is primarily for showing
 the equations rather than evaluating them.
 
-Copyright 2019--2021 Michael Hayes, UCECE
+Copyright 2019--2022 Michael Hayes, UCECE
 
 """
 
@@ -241,6 +241,23 @@ class LoopAnalysis(object):
         if not hasattr(self, '_sys'):
             self._sys = self._analyse()
         return self._sys.format(form, invert)
+
+    @property
+    def unknowns(self):
+        """Return tuple of the unknown voltages"""
+
+        return ExprTuple(self.y)
+
+    def solve_laplace(self, unknowns=None):
+        """Determine the unknown voltages using Laplace transforms and
+        return as a dict"""
+
+        from .sexpr import s
+
+        if unknowns is None:
+            unknowns = self.unknowns
+
+        return self.mesh_equations()(s).solve(unknowns(s))
 
 
 from .expr import ExprList, ExprDict, expr  # nopep8
