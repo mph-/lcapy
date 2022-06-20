@@ -269,7 +269,7 @@ class ExprDict(ExprPrint, ExprContainer, ExprMisc, OrderedDict):
             new, defs = self.remove_undefs(return_mappings=True)
             return new.solve(*symbols, **flags).subs(defs)
 
-        symbols = delcapify(symbols)
+        symbols = delcapify(ExprTuple(symbols).remove_undefs())
         system = list(delcapify(self).values())
         solutions = sym.solve(system, *symbols, **flags)
         return expr(solutions)
@@ -400,7 +400,7 @@ class ExprList(ExprPrint, list, ExprContainer, ExprMisc):
             new, defs = self.remove_undefs(return_mappings=True)
             return new.solve(*symbols, **flags).subs(defs)
 
-        symbols = delcapify(symbols)
+        symbols = delcapify(ExprTuple(symbols).remove_undefs())
         system = delcapify(self)
         solutions = sym.solve(system, *symbols, **flags)
         return expr(solutions)
@@ -481,7 +481,7 @@ class ExprTuple(ExprPrint, tuple, ExprContainer, ExprMisc):
             new, defs = self.remove_undefs(return_mappings=True)
             return new.solve(*symbols, **flags).subs(defs)
 
-        symbols = delcapify(symbols)
+        symbols = delcapify(ExprTuple(symbols).remove_undefs())
         system = delcapify(self)
         solutions = sym.solve(system, *symbols, **flags)
         return expr(solutions)
@@ -2719,6 +2719,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             new, defs = self.remove_undefs(return_mappings=True)
             return new.solve(*symbols, **flags).subs(defs)
 
+        symbols = delcapify(ExprTuple(symbols).remove_undefs())
         symbols = [symbol_map(symbol) for symbol in symbols]
         solutions = sym.solve(self.expr, *symbols, **flags)
         return expr(solutions)
