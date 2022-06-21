@@ -1483,8 +1483,11 @@ class NetlistMixin(object):
         self._cg = CircuitGraph.from_circuit(self)
         return self._cg
 
-    def loop_analysis(self):
-        """Perform loop analysis for this netlist.   This is cached."""
+    def mesh_analysis(self):
+        """Perform mesh analysis for this netlist.   This is cached.
+
+        This is only applicable for circuits with a planar topology.
+        """
 
         from .loopanalysis import LoopAnalysis
 
@@ -1493,6 +1496,15 @@ class NetlistMixin(object):
 
         self._la = LoopAnalysis.from_circuit(self)
         return self._la
+
+    def loop_analysis(self):
+        """Perform loop analysis for this netlist.   This is cached.
+
+        This is currently an alias for `mesh_analysis()` and so only works
+        for circuits with a planar topology.
+        """
+
+        return self.mesh_analysis()
 
     def nodal_analysis(self):
         """Perform nodal analysis for this netlist.   This is cached."""

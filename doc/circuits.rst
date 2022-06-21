@@ -312,7 +312,7 @@ law around each loop in a circuit.  For example, consider the netlist:
 
 The mesh equations are found using::
 
-   >>> l = cct.loop_analysis()
+   >>> l = cct.mesh_analysis()
    >>> l.mesh_equations()
    ⎧                                              t
    ⎪                                              ⌠
@@ -336,7 +336,7 @@ Note, the dictionary is keyed by the mesh current.
 
 The mesh equations can be formulated in the s-domain using:
 
-   >>> l = cct.laplace().loop_analysis()
+   >>> l = cct.laplace().mesh_analysis()
    >>> l.mesh_equations()
    ⎧                              I₁(s) - I₂(s)                                                  I₁(s) - I₂(s)                                               1    ⎫
    ⎨I₁(s): -R₂⋅I₁(s) - R₃⋅I₁(s) + ───────────── = 0, I₂(s): -L₁⋅s⋅I₂(s) + L₂⋅s⋅(I₂(s) - I₃(s)) + ───────────── = 0, I₃(s): L₂⋅s⋅(I₂(s) - I₃(s)) - R₁⋅I₃(s) + ─ = 0⎬
@@ -360,7 +360,7 @@ The system of equations can be formulated in matrix form as :math:`\mathbf{A} \m
    ⎢                    2                       2⎥
    ⎣                C₂⋅s                    C₂⋅s ⎦
 
-There are a number of forms that the system of equations can be shown: `y = Ainv b`, `Ainv b = y`, `A y = b`, and `b = A y`.  The `invert` argument calculates the inverse of the `A` matrix.
+The system of equations can be shown in a number of forms: `y = Ainv b`, `Ainv b = y`, `A y = b`, and `b = A y`.  The `invert` argument calculates the inverse of the `A` matrix.
 
 The matrix is returned by the `A` attribute, the vector of unknowns by the `y` attribute, and the result vector by the `b` attribute.
 
@@ -470,7 +470,7 @@ The system of equations can be formulated in matrix form as :math:`\mathbf{A} \m
    ⎢ 0             0                  ────         ──── + ────⎥
    ⎣                                  R₂⋅s         R₃⋅s   R₂⋅s⎦
 
-There are a number of forms that the system of equations can be shown: `y = Ainv b`, `Ainv b = y`, `A y = b`, and `b = A y`.  The `invert` argument calculates the inverse of the `A` matrix.
+The system of equations can be shown in a number of forms: `y = Ainv b`, `Ainv b = y`, `A y = b`, and `b = A y`.  The `invert` argument calculates the inverse of the `A` matrix.
 
 The matrix is returned by the `A` attribute, the vector of unknowns by the `y` attribute, and the result vector by the `b` attribute.
 

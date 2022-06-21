@@ -15,9 +15,12 @@ import sympy as sym
 
 
 class LoopAnalysis(object):
-    """
-    This is an experimental class for loop analysis.  The API
-    is likely to change since different invocations find different loops.
+    """This is an experimental class for loop analysis.  Currently,
+    it uses mesh analysis and so is only applicable to circuits with
+    a planar topology.
+
+    The API is likely to change since different invocations find
+    different current loops.
 
     >>> from lcapy import Circuit, LoopAnalysis
     >>> cct = Circuit('''
@@ -30,7 +33,7 @@ class LoopAnalysis(object):
     ... C1 5 6; right=2
     ...''')
 
-    To perform nodal analysis in the time domain:
+    To perform loop analysis in the time domain:
 
     >>> la = LoopAnalysis(cct)
 
