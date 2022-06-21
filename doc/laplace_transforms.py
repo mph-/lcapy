@@ -1,5 +1,5 @@
 from lcapy import (texpr, cos, sin, exp, delta, sign, t, H, ramp,
-                   rampstep, rect, tri, symbol, s, pi, j)
+                   rampstep, rect, tri, symbol, s, pi, j, Derivative)
 
 alpha = symbol('alpha')
 t0 = symbol('t0')
@@ -11,7 +11,8 @@ sigs = [texpr('x(t)'), texpr('x(a * t)'), texpr('x(t - tau)'),
         texpr(1), t, t**2, delta(t), delta(t - t0),
         H(t), t * H(t), sign(t),
         exp(-abs(t)), exp(-t) * H(t),
-        rect(t - 0.5), tri(t - 1), ramp(t), rampstep(t)]
+        rect(t - 0.5), tri(t - 1), ramp(t), rampstep(t),
+        Derivative('x(t)', t), Derivative('x(t)', t, 2)]
 
 for sig in sigs:
     print(':math:`%s \\longleftrightarrow %s`\n' %
