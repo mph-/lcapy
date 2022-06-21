@@ -42,3 +42,5 @@
 
 :math:`\frac{d^{2}}{d t^{2}} x(t) \longleftrightarrow s^{2} X(s) - s x(0) - \left. \frac{d}{d t} x(t) \right|_{\substack{ t=0 }}`
 
+:math:`\int\limits_{0}^{t} x(t)\, dt \longleftrightarrow \frac{X(s)}{s}`
+
