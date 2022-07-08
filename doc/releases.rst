@@ -2,6 +2,25 @@
 Release notes
 =============
 
+V1.6
+====
+
+- Fixes autoground for nodes that are not drawn (e.g., with opamp)
+
+- Fixes solving system of equations in Laplace domain
+
+- No longer assumes zero initial conditions for Laplace transforms of
+  derivatives
+
+- Adds `zero_initial_conditions` argument for Laplace transforms
+
+- Adds `limit` function
+
+- Fixes initial conditions for loop and nodal analysis
+
+- Fixes `U`, `X`, and `X0` attributes for state space analysis
+
+
 V1.5.1
 ======
 
