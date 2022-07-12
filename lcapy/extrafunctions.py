@@ -13,28 +13,31 @@ from .config import unitstep_zero
 
 
 class Degrees(sym.Function):
+    """Convert radians to degrees."""
 
     @classmethod
     def eval(cls, nval):
         """
-        Conver radians to degrees.
+        Convert radians to degrees.
         """
 
         return nval / sym.pi * 180
 
 
 class Radians(sym.Function):
+    """Convert degrees to radians."""
 
     @classmethod
     def eval(cls, nval):
         """
-        Conver degrees to radians.
+        Convert degrees to radians.
         """
 
         return nval / 180 * sym.pi
 
 
 class UnitImpulse(sym.Function):
+    """Discrete unit impulse function."""
 
     is_integer = True
 
@@ -51,6 +54,7 @@ class UnitImpulse(sym.Function):
 
 
 class UnitStep(sym.Function):
+    """Discrete unit step function."""
 
     is_integer = True
 
@@ -95,6 +99,7 @@ class rect(sym.Function):
 
 
 class dtrect(sym.Function):
+    """The discrete-time rectangle function."""
 
     @classmethod
     def eval(cls, val):
@@ -114,6 +119,7 @@ class dtrect(sym.Function):
 
 
 class dtsign(sym.Function):
+    """The discrete-time signum function."""
 
     @classmethod
     def eval(cls, val):
@@ -128,6 +134,7 @@ class dtsign(sym.Function):
 
 
 class sincn(sym.Function):
+    """The normalized sinc function."""
 
     @classmethod
     def eval(cls, val):
@@ -149,6 +156,7 @@ class sincn(sym.Function):
 
 
 class sincu(sym.Function):
+    """The unnormalized sinc function."""
 
     @classmethod
     def eval(cls, val):
@@ -169,6 +177,7 @@ class sincu(sym.Function):
 
 
 class psinc(sym.Function):
+    """The periodic sinc function."""
 
     @classmethod
     def eval(cls, M, val):
