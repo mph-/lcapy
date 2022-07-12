@@ -2813,8 +2813,7 @@ This definition is the same as NumPy but SymPy uses the unnormalized form
 
     \mathop{\mathrm{sinc}}(t) = \mathop{\mathrm{sincu}}(t) = \frac{\sin(t)}{t}.
 
-Note, Lcapy prints `sinc` as `sincn` due to a bug in SymPy.  This is likely to change in
-the future.
+Note, Lcapy prints `sinc` as `sincn` due to a bug in SymPy.  This is likely to change in the future.
 
 
 .. image:: examples/functions/sincn.png
@@ -2974,9 +2973,13 @@ The result can then be converted back to an Lcapy expression using the
 Functions
 ---------
 
+Lcapy functions are a wrapper around a SymPy function that converts
+Lcapy expression arguments into SymPy expressions and converts the
+result into an Lcapy expression.
+
 Lcapy does not explicitly support all the SymPy functions.  However, a
-SymPy function can be made into an Lcapy function using the `Function`
-class, for example::
+SymPy function can be made into an Lcapy function using the `function`
+function, for example::
 
    >>> import sympy
    >>> from lcapy import function
