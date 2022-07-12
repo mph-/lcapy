@@ -84,7 +84,8 @@ class Function(object):
         except:
             pass
 
-        result = func(*delcapify(e_args), **kwargs)
+        s_args = delcapify(e_args)
+        result = func(*s_args, **kwargs)
 
         result = cls(result)
 
@@ -124,18 +125,6 @@ class Log10(Function):
 
     def __call__(self, arg):
         return super(Log10, self).__call__(arg, 10)
-
-
-class SincnFunction(Function):
-    """Normalized sinc function :math:`\sin(\pi x)/(\pi x)`."""
-
-
-class SincuFunction(Function):
-    """Unnormalized sinc function :math:`\sin(x)/(x)`."""
-
-
-class PsincFunction(Function):
-    """Periodic sinc function :math:`\sin(M * x)/(M * sin(x))`."""
 
 
 def function(symfunc):
@@ -265,13 +254,11 @@ dtrect = function(dtrect1)
 
 dtsign = function(dtsign1)
 
-sinc = SincnFunction(sincn1)
+sinc = sincn = function(sincn1)
 
-sincn = SincnFunction(sincn1)
+sincu = function(sincu1)
 
-sincu = SincuFunction(sincu1)
-
-psinc = PsincFunction(psinc1)
+psinc = function(psinc1)
 
 tri = function(tri1)
 
