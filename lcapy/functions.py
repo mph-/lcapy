@@ -17,7 +17,7 @@ __all__ = ('conjugate', 'sqrt', 'exp', 'log', 'log10', 'sin', 'cos',
            'ramp', 'rampstep', 'Sum', 'dtrect', 'dtsign', 'Piecewise',
            'Eq', 'Ne', 'Lt', 'Le', 'Gt', 'Ge', 'Derivative',
            'Integral', 'Max', 'Min', 're', 'im', 'MatMul', 'MatAdd',
-           'degrees', 'radians', 'limit', 'function')
+           'degrees', 'radians', 'limit')
 
 from .extrafunctions import Degrees as Degrees1
 from .extrafunctions import Radians as Radians1
@@ -43,6 +43,10 @@ class Function(object):
             # Handled AppliedUndef
             arg = sym.Function(arg)
         self.expr = arg
+
+    def __repr__(self):
+
+        return repr(self.expr)
 
     @property
     def sympy(self):
@@ -127,7 +131,7 @@ class Log10(Function):
         return super(Log10, self).__call__(arg, 10)
 
 
-def function(symfunc):
+def function_wrap(symfunc):
     """Create an Lcapy function from a SymPy function.
 
     An Lcapy function works with Lcapy expressions and returns an
@@ -142,131 +146,131 @@ def function(symfunc):
     return newclass(symfunc)
 
 
-conjugate = function(sym.conjugate)
+conjugate = function_wrap(sym.conjugate)
 
-sqrt = function(sym.sqrt)
+sqrt = function_wrap(sym.sqrt)
 
-exp = function(sym.exp)
+exp = function_wrap(sym.exp)
 
-log = function(sym.log)
+log = function_wrap(sym.log)
 
 log10 = Log10(sym.log)
 
-sin = function(sym.sin)
+sin = function_wrap(sym.sin)
 
-cos = function(sym.cos)
+cos = function_wrap(sym.cos)
 
-tan = function(sym.tan)
+tan = function_wrap(sym.tan)
 
-cot = function(sym.cot)
+cot = function_wrap(sym.cot)
 
-asin = function(sym.asin)
+asin = function_wrap(sym.asin)
 
-acos = function(sym.acos)
+acos = function_wrap(sym.acos)
 
-atan = function(sym.atan)
+atan = function_wrap(sym.atan)
 
-atan2 = function(sym.atan2)
+atan2 = function_wrap(sym.atan2)
 
-acot = function(sym.acot)
+acot = function_wrap(sym.acot)
 
-sinh = function(sym.sinh)
+sinh = function_wrap(sym.sinh)
 
-cosh = function(sym.cosh)
+cosh = function_wrap(sym.cosh)
 
-tanh = function(sym.tanh)
+tanh = function_wrap(sym.tanh)
 
-coth = function(sym.coth)
+coth = function_wrap(sym.coth)
 
-asinh = function(sym.asinh)
+asinh = function_wrap(sym.asinh)
 
-acosh = function(sym.acosh)
+acosh = function_wrap(sym.acosh)
 
-atanh = function(sym.atanh)
+atanh = function_wrap(sym.atanh)
 
-acoth = function(sym.acoth)
+acoth = function_wrap(sym.acoth)
 
-gcd = function(sym.gcd)
+gcd = function_wrap(sym.gcd)
 
-sign = function(sym.sign)
+sign = function_wrap(sym.sign)
 
-degrees = function(Degrees1)
+degrees = function_wrap(Degrees1)
 
-radians = function(Radians1)
+radians = function_wrap(Radians1)
 
-diff = function(sym.diff)
+diff = function_wrap(sym.diff)
 
-integrate = function(sym.integrate)
+integrate = function_wrap(sym.integrate)
 
-limit = function(sym.limit)
+limit = function_wrap(sym.limit)
 
-u = H = heaviside = Heaviside = function(sym.Heaviside)
+u = H = heaviside = Heaviside = function_wrap(sym.Heaviside)
 
-delta = DiracDelta = function(sym.DiracDelta)
+delta = DiracDelta = function_wrap(sym.DiracDelta)
 
-Piecewise = function(sym.Piecewise)
+Piecewise = function_wrap(sym.Piecewise)
 
-Derivative = function(sym.Derivative)
+Derivative = function_wrap(sym.Derivative)
 
-Integral = function(sym.Integral)
+Integral = function_wrap(sym.Integral)
 
-Eq = function(sym.Eq)
+Eq = function_wrap(sym.Eq)
 
-Ne = function(sym.Ne)
+Ne = function_wrap(sym.Ne)
 
-Lt = function(sym.Lt)
+Lt = function_wrap(sym.Lt)
 
-Le = function(sym.Le)
+Le = function_wrap(sym.Le)
 
-Gt = function(sym.Gt)
+Gt = function_wrap(sym.Gt)
 
-Ge = function(sym.Ge)
+Ge = function_wrap(sym.Ge)
 
-Add = function(sym.Add)
+Add = function_wrap(sym.Add)
 
-Mul = function(sym.Mul)
+Mul = function_wrap(sym.Mul)
 
-MatAdd = function(sym.MatAdd)
+MatAdd = function_wrap(sym.MatAdd)
 
-MatMul = function(sym.MatMul)
+MatMul = function_wrap(sym.MatMul)
 
-Sum = function(sym.Sum)
+Sum = function_wrap(sym.Sum)
 
-Min = function(sym.Min)
+Min = function_wrap(sym.Min)
 
-Max = function(sym.Max)
+Max = function_wrap(sym.Max)
 
-re = function(sym.re)
+re = function_wrap(sym.re)
 
-im = function(sym.im)
+im = function_wrap(sym.im)
 
-MatMul = function(sym.MatMul)
+MatMul = function_wrap(sym.MatMul)
 
-MatAdd = function(sym.MatAdd)
+MatAdd = function_wrap(sym.MatAdd)
 
-ui = unitimpulse = UnitImpulse = function(UnitImpulse1)
+ui = unitimpulse = UnitImpulse = function_wrap(UnitImpulse1)
 
-us = unitstep = UnitStep = function(UnitStep1)
+us = unitstep = UnitStep = function_wrap(UnitStep1)
 
-rect = function(rect1)
+rect = function_wrap(rect1)
 
-dtrect = function(dtrect1)
+dtrect = function_wrap(dtrect1)
 
-dtsign = function(dtsign1)
+dtsign = function_wrap(dtsign1)
 
-sinc = sincn = function(sincn1)
+sinc = sincn = function_wrap(sincn1)
 
-sincu = function(sincu1)
+sincu = function_wrap(sincu1)
 
-psinc = function(psinc1)
+psinc = function_wrap(psinc1)
 
-tri = function(tri1)
+tri = function_wrap(tri1)
 
-trap = function(trap1)
+trap = function_wrap(trap1)
 
-ramp = function(ramp1)
+ramp = function_wrap(ramp1)
 
-rampstep = function(rampstep1)
+rampstep = function_wrap(rampstep1)
 
 function_mapping = {sym.Heaviside: UnitStep1,
                     sym.DiracDelta: UnitImpulse1,
