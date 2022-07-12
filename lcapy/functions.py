@@ -17,7 +17,7 @@ __all__ = ('conjugate', 'sqrt', 'exp', 'log', 'log10', 'sin', 'cos',
            'ramp', 'rampstep', 'Sum', 'dtrect', 'dtsign', 'Piecewise',
            'Eq', 'Ne', 'Lt', 'Le', 'Gt', 'Ge', 'Derivative',
            'Integral', 'Max', 'Min', 're', 'im', 'MatMul', 'MatAdd',
-           'degrees', 'radians', 'limit')
+           'degrees', 'radians', 'limit', 'function')
 
 from .extrafunctions import Degrees as Degrees1
 from .extrafunctions import Radians as Radians1
@@ -46,7 +46,7 @@ class Function(object):
 
     @property
     def sympy(self):
-        """Return SymPy expression."""
+        """Return SymPy function."""
 
         return self.expr
 
@@ -138,117 +138,132 @@ class PsincFunction(Function):
     """Periodic sinc function :math:`\sin(M * x)/(M * sin(x))`."""
 
 
-conjugate = Function(sym.conjugate)
+def function(symfunc):
+    """Create an Lcapy function from a SymPy function.
 
-sqrt = Function(sym.sqrt)
+    An Lcapy function works with Lcapy expressions and returns an
+    Lcapy expression.  It acquires the SymPy docstring.
 
-exp = Function(sym.exp)
+    """
 
-log = Function(sym.log)
+    name = symfunc.__name__
+    docstring = symfunc.__doc__.replace('sympy', 'lcapy')
+
+    newclass = type(name, (Function, ), {'__doc__': docstring})
+    return newclass(symfunc)
+
+
+conjugate = function(sym.conjugate)
+
+sqrt = function(sym.sqrt)
+
+exp = function(sym.exp)
+
+log = function(sym.log)
 
 log10 = Log10(sym.log)
 
-sin = Function(sym.sin)
+sin = function(sym.sin)
 
-cos = Function(sym.cos)
+cos = function(sym.cos)
 
-tan = Function(sym.tan)
+tan = function(sym.tan)
 
-cot = Function(sym.cot)
+cot = function(sym.cot)
 
-asin = Function(sym.asin)
+asin = function(sym.asin)
 
-acos = Function(sym.acos)
+acos = function(sym.acos)
 
-atan = Function(sym.atan)
+atan = function(sym.atan)
 
-atan2 = Function(sym.atan2)
+atan2 = function(sym.atan2)
 
-acot = Function(sym.acot)
+acot = function(sym.acot)
 
-sinh = Function(sym.sinh)
+sinh = function(sym.sinh)
 
-cosh = Function(sym.cosh)
+cosh = function(sym.cosh)
 
-tanh = Function(sym.tanh)
+tanh = function(sym.tanh)
 
-coth = Function(sym.coth)
+coth = function(sym.coth)
 
-asinh = Function(sym.asinh)
+asinh = function(sym.asinh)
 
-acosh = Function(sym.acosh)
+acosh = function(sym.acosh)
 
-atanh = Function(sym.atanh)
+atanh = function(sym.atanh)
 
-acoth = Function(sym.acoth)
+acoth = function(sym.acoth)
 
-gcd = Function(sym.gcd)
+gcd = function(sym.gcd)
 
-sign = Function(sym.sign)
+sign = function(sym.sign)
 
-degrees = Function(Degrees1)
+degrees = function(Degrees1)
 
-radians = Function(Radians1)
+radians = function(Radians1)
 
-diff = Function(sym.diff)
+diff = function(sym.diff)
 
-integrate = Function(sym.integrate)
+integrate = function(sym.integrate)
 
-limit = Function(sym.limit)
+limit = function(sym.limit)
 
-u = H = heaviside = Heaviside = Function(sym.Heaviside)
+u = H = heaviside = Heaviside = function(sym.Heaviside)
 
-delta = DiracDelta = Function(sym.DiracDelta)
+delta = DiracDelta = function(sym.DiracDelta)
 
-Piecewise = Function(sym.Piecewise)
+Piecewise = function(sym.Piecewise)
 
-Derivative = Function(sym.Derivative)
+Derivative = function(sym.Derivative)
 
-Integral = Function(sym.Integral)
+Integral = function(sym.Integral)
 
-Eq = Function(sym.Eq)
+Eq = function(sym.Eq)
 
-Ne = Function(sym.Ne)
+Ne = function(sym.Ne)
 
-Lt = Function(sym.Lt)
+Lt = function(sym.Lt)
 
-Le = Function(sym.Le)
+Le = function(sym.Le)
 
-Gt = Function(sym.Gt)
+Gt = function(sym.Gt)
 
-Ge = Function(sym.Ge)
+Ge = function(sym.Ge)
 
-Add = Function(sym.Add)
+Add = function(sym.Add)
 
-Mul = Function(sym.Mul)
+Mul = function(sym.Mul)
 
-MatAdd = Function(sym.MatAdd)
+MatAdd = function(sym.MatAdd)
 
-MatMul = Function(sym.MatMul)
+MatMul = function(sym.MatMul)
 
-Sum = Function(sym.Sum)
+Sum = function(sym.Sum)
 
-Min = Function(sym.Min)
+Min = function(sym.Min)
 
-Max = Function(sym.Max)
+Max = function(sym.Max)
 
-re = Function(sym.re)
+re = function(sym.re)
 
-im = Function(sym.im)
+im = function(sym.im)
 
-MatMul = Function(sym.MatMul)
+MatMul = function(sym.MatMul)
 
-MatAdd = Function(sym.MatAdd)
+MatAdd = function(sym.MatAdd)
 
-ui = unitimpulse = UnitImpulse = Function(UnitImpulse1)
+ui = unitimpulse = UnitImpulse = function(UnitImpulse1)
 
-us = unitstep = UnitStep = Function(UnitStep1)
+us = unitstep = UnitStep = function(UnitStep1)
 
-rect = Function(rect1)
+rect = function(rect1)
 
-dtrect = Function(dtrect1)
+dtrect = function(dtrect1)
 
-dtsign = Function(dtsign1)
+dtsign = function(dtsign1)
 
 sinc = SincnFunction(sincn1)
 
@@ -258,13 +273,13 @@ sincu = SincuFunction(sincu1)
 
 psinc = PsincFunction(psinc1)
 
-tri = Function(tri1)
+tri = function(tri1)
 
-trap = Function(trap1)
+trap = function(trap1)
 
-ramp = Function(ramp1)
+ramp = function(ramp1)
 
-rampstep = Function(rampstep1)
+rampstep = function(rampstep1)
 
 function_mapping = {sym.Heaviside: UnitStep1,
                     sym.DiracDelta: UnitImpulse1,

@@ -212,10 +212,10 @@ Lcapy has the following built-in functions: `sin`, `cos`, `tan`,
 `integrate`, `diff`, `Min`, and `Max` among others.
 
 Other SymPy functions can be converted to Lcapy functions using the
-`Function` class, for example:
+`function()` function, for example:
 
    >>> import sympy as sym
-   >>> gamma = Function(sym.gamma)
+   >>> gamma = function(sym.gamma)
    >>> gamma(4)
    6
 
@@ -2979,8 +2979,8 @@ SymPy function can be made into an Lcapy function using the `Function`
 class, for example::
 
    >>> import sympy
-   >>> from lcapy import Function
-   >>> gamma = Function(sympy.Gamma)
+   >>> from lcapy import function
+   >>> gamma = function(sympy.Gamma)
 
 The `Integral` and `Derivative` functions are not evaluated unlike the
 corresponding `integrate` and `diff` functions.  The evaluation can be
