@@ -10,6 +10,7 @@ from .diffeq import DifferenceEquation
 from .discretetime import n, z, seq
 from .sequence import Sequence
 from .utils import isiterable
+from .sym import oo
 import sympy as sym
 
 
@@ -79,6 +80,11 @@ class DLTIFilter(object):
         G.is_causal = H.is_causal
 
         return G(n)
+
+    def frequency_response(self, var=None, images=oo, **assumptions):
+        """Return frequency response."""
+
+        return self.transfer_function().DTFT(var, images, **assumptions)
 
     def difference_equation(self, inputsym='x', outputsym='y'):
         """Return difference equation."""
