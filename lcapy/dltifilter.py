@@ -225,3 +225,10 @@ class DLTIFilter(object):
         import pdb
         pdb.set_trace()
         return self
+
+    @property
+    def is_stable(self):
+        """Return True if all the poles of the filters transfer function
+        are within the unit circle."""
+
+        return self.transfer_function().is_stable

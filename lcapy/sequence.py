@@ -101,7 +101,7 @@ class Sequence(ExprList, ExprDomain):
         if ni is None:
             ni = range(len(seq))
 
-        # Perhaps enforce contiguous sequences and just store the origin.
+        # Perhaps enforce contiguous sequences and just store the origin?
         # This will simplify sequence comparison.
         self.n = list(ni)
 

@@ -15,7 +15,7 @@ There are a number of domain variables for discrete-time signals:
   - `Omega` for normalized angular frequency from a DTFT, `Omega = omega * dt`
 
 The `n`, `k`, and `z` variables share many of the attributes and methods of their continuous-time equivalents, `t`, `f`, and `s`, :ref:`expressions`.
-    
+
 The discrete-time signal can be plotted using the `plot()` method.
 For example:
 
@@ -24,10 +24,10 @@ For example:
 .. image:: examples/discretetime/dt1-plot1.png
    :width: 15cm
 
-           
+
 A complex discrete-time signal can be plotted in polar coordinates using the `plot()` method with the `polar` argument, for example:
 
-           
+
 .. literalinclude:: examples/discretetime/cdt1-plot1.py
 
 .. image:: examples/discretetime/cdt1-plot1.png
@@ -41,7 +41,7 @@ There are two special discrete time functions:
 
  - `delta(n)` or `ui(n)` or `UnitImpulse(n)`: the discrete unit impulse.  This is one when `n=0` and zero otherwise.
  - `u(n)` or `us(n)` or `UnitStep(n)`: the discrete unit step.   This is one when `n>=0` and zero otherwise.
-   
+
 
 Sequences
 =========
@@ -78,7 +78,7 @@ Sequences can have quantities, for example, a discrete-time voltage sequence is 
 
   >>> v = voltage(seq((1, 2, 3), domain=n))
 
-The extent of a sequence is given by the `extent` attribute.   
+The extent of a sequence is given by the `extent` attribute.
 
    >>> seq.extent
    >>> 3
@@ -96,22 +96,22 @@ The origin of a sequence is given by the `origin` attribute.  This indicates the
    1
    >>> x = seq('1, 2, _3, 4')
    >>> x.origin
-   2   
+   2
 
 The origin can be changed::
 
    >>> x = seq('1, 2, _3, 4')
    >>> x.origin = 1
    >>> x
-   {1, _2, 3, 4}  
-   
+   {1, _2, 3, 4}
+
 Specific elements in the sequence can be accessed using call notation:
 
    >>> x = seq('1, _2, 3, 4')
    >>> x(0)
    2
    >>> x(1)
-   3   
+   3
 
 Specific elements can also be accessed using array notation.  Note, the argument specifies the element sequence index, for example::
 
@@ -119,7 +119,7 @@ Specific elements can also be accessed using array notation.  Note, the argument
    >>> x[0]
    2
    >>> x[1]
-   3   
+   3
 
 If you want the first element convert the sequence to a list or
 ndarray, for example::
@@ -132,7 +132,7 @@ Sequences behave like lists and thus the `+` operator concatenates sequences::
    >>> seq((1, 2, 3)) + seq('{4, 5}')
    {_1, 2, 3, 4, 5}
 
-Note, this ignores the origins.   
+Note, this ignores the origins.
 
 Similarly, the `*` operator repeats sequences a specified number of times, for example::
 
@@ -140,12 +140,12 @@ Similarly, the `*` operator repeats sequences a specified number of times, for e
    {_1, 2, 3, 1, 2, 3}
 
 To add sequences element by element, it is necessary to explicitly convert each sequence to an array, add the arrays assuming they are equal length, and convert back to a sequence, for example::
-  
+
    >>> seq(seq((1, 2, 3)).as_array() + seq('{4, _5, 6}').as_array())
    {_5, 7, 9}
 
 Note, this ignores the origins.
-   
+
 Sequences can be convolved, for example::
 
    >>> seq((1, 2, 3)).convolve(seq((1, 1))
@@ -177,7 +177,7 @@ Alternatively, the `evaluate()` method can be used to access and convert a singl
    array([3., 4.])
 
 Sequences can be converted to discrete-time domain or discrete-frequency domain expressions, for example::
-   
+
    >>> seq((1, 2)).expr
    δ[n] + 2⋅δ[n - 2]
 
@@ -192,7 +192,7 @@ The discrete Fourier transform (DFT), inverse discrete Fourier transform (IDFT) 
 
   >>> seq((1, 2, 3, 4)).DFT()
   {_10, -2 + 2⋅ⅉ, -2, -2 - 2⋅ⅉ}
-   
+
 
 Sequence operators
 ------------------
@@ -203,9 +203,9 @@ Lcapy overloads the leftshift operator and the rightshift operator to shift sequ
   >>> a >> 2
   {_0, 0, 1, 2, 3}
   >>> a << 2
-  {1, 2, _3}  
+  {1, 2, _3}
 
-   
+
 Sequence attributes
 -------------------
 
@@ -214,7 +214,7 @@ Sequence attributes
 - `n` the sequence indices
 - `origin` the element index for `n = 0`
 - `vals` the sequence values as a list
-   
+
 
 Sequence methods
 ----------------
@@ -230,16 +230,16 @@ These methods do not modify the sequence but return a new sequence, NumPy ndarra
 - `evalf()` convert each element in sequence to a SymPy floating-point value with a specified number of digits
 - `evaluate()` evaluate sequence at specified indices and return as NumPy ndarray
 - `IDFT()` compute inverse discrete Fourier transform as a sequence
-- `IZT()` compute inverse z-transform as a sequence  
+- `IZT()` compute inverse z-transform as a sequence
 - `lfilter()`  filter by LTI filter
-- `simplify()` simplify each expression in sequence  
+- `simplify()` simplify each expression in sequence
 - `prune()` remove zeroes from the ends of the sequence
 - `plot()` plot sequence as a lollipop (stem) plot
 - `zeroextend()` add zeroes at either start or end so origin is included
 - `zeropad()` add zeroes to the end of the sequence
 - `ZT()` compute z-transform as a sequence
 
-  
+
 Discrete-time (n-domain) expressions
 ====================================
 
@@ -265,15 +265,15 @@ In this example the zero samples have been removed but the sequence has been tru
 The z-transform of a discrete-time expression can be found with the `ZT()` method:
 
    >>> (delta(n) + 2 * delta(n - 2)).ZT()
-       2 
+       2
    1 + ──
         2
-       z 
+       z
 
-A more compact notation is to pass `z` as an argument:       
+A more compact notation is to pass `z` as an argument:
 
    >>> (delta(n) + 2 * delta(n - 2))(z)
-       2 
+       2
    1 + ──
         2
        z
@@ -282,43 +282,43 @@ The discrete-time Fourier transform (DTFT) of a discrete-time expression can be 
 
    >>> (delta(n) + 2 * delta(n - 2)).DTFT()
           -4⋅ⅉ⋅π⋅Δₜ⋅f
-   1 + 2⋅ℯ           
+   1 + 2⋅ℯ
 
-A more compact notation is to pass `f` as an argument:       
+A more compact notation is to pass `f` as an argument:
 
    >>> (delta(n) + 2 * delta(n - 2))(f)
           -4⋅ⅉ⋅π⋅Δₜ⋅f
-   1 + 2⋅ℯ           
+   1 + 2⋅ℯ
 
 The discrete Fourier transform (DFT) converts a discrete-time expression to a discrete-frequency expression.  This is performed using the `DFT()` method or using a `k` argument.  For example::
 
    >>> (delta(n) + 2 * delta(n - 2))(k)
-          -4⋅ⅉ⋅π⋅k 
+          -4⋅ⅉ⋅π⋅k
           ─────────
-              N    
-   1 + 2⋅ℯ         
+              N
+   1 + 2⋅ℯ
 
 
 If `N` is known, it can be specified as an argument.  For example::
 
    >>> (delta(n) + 2 * delta(n - 2))(k, N=4)
           -ⅉ⋅π⋅k
-   1 + 2⋅ℯ      
-   
+   1 + 2⋅ℯ
+
 Evaluation of the DFT can be prevented by setting `evaluate=False`,
 
    >>> (delta(n) + 2 * delta(n - 2))(k, N=4, evaluate=False)
-     N                                   
-    ____                                 
-    ╲                                    
-     ╲                        -2⋅ⅉ⋅π⋅k⋅n 
+     N
+    ____
+    ╲
+     ╲                        -2⋅ⅉ⋅π⋅k⋅n
       ╲                       ───────────
-      ╱                            N     
-     ╱   (δ[n] + 2⋅δ[n - 2])⋅ℯ           
-    ╱                                    
-    ‾‾‾‾                                 
-   n = 0              
-   
+      ╱                            N
+     ╱   (δ[n] + 2⋅δ[n - 2])⋅ℯ
+    ╱
+    ‾‾‾‾
+   n = 0
+
 
 Discrete-frequency (k-domain) expressions
 =========================================
@@ -332,9 +332,9 @@ Lcapy refers to discrete-frequency expressions as k-domain expressions.  They ar
 Discrete-frequency expressions can be converted to sequences using the `seq()` method.  For example::
 
    >>> (delta(k) + 2 * delta(k - 1) + 3 * delta(k - 3)).seq()
-   {_1, 2, 0, 3}   
+   {_1, 2, 0, 3}
 
-   
+
 
 Z-domain expressions
 ====================
@@ -346,7 +346,7 @@ Z-domain expressions can be constructed using the z-domain variable `z`, for exa
    1 + ─
        z
 
-Alternatively, they can be generated using a z-transform of a discrete-time signal. 
+Alternatively, they can be generated using a z-transform of a discrete-time signal.
 
 Z-domain expressions are objects of the `ZDomainExpression` class.  They are functions of the complex variable `z` and are similar to `LaplaceDomainExpression` objects.   The general form of a z-domain expression is a rational function so all the s-domain formatting methods are applicable (see :ref:`expressionsprinting`).
 
@@ -365,15 +365,15 @@ Lcapy implements a number of transforms for converting between different domains
 
 - `DFT()` Discrete Fourier transform
 
-- `DTFT()` Discrete-time Fourier transform  
+- `DTFT()` Discrete-time Fourier transform
 
 - `ZT()` Z-transform
 
 - `IDFT()` Inverse discrete Fourier transform
 
-- `IDTFT()` Inverse discrete-time Fourier transform  
+- `IDTFT()` Inverse discrete-time Fourier transform
 
-- `IZT()` Inverse z-transform  
+- `IZT()` Inverse z-transform
 
 
 Z-transform (ZT)
@@ -389,15 +389,15 @@ The z-transform is performed explicitly with the `ZT()` method:
 
    >>> x = delta(n) + 2 * delta(n - 2)
    >>> x.ZT()
-   >>>      2 
+   >>>      2
        1 + ──
             2
            z
 
 It is also performed implicitly with `z` as an argument:
-      
+
    >>> x(z)
-   >>>     2 
+   >>>     2
       1 + ──
            2
           z
@@ -405,20 +405,20 @@ It is also performed implicitly with `z` as an argument:
 
 Inverse z-transform (IZT)
 -------------------------
-          
+
 The inverse unilateral z-transform is not unique and is only defined for :math:`n \ge 0`.  For example::
 
    >>> H = z / (z - 'a')
    >>> H(n)
-   ⎧ n           
+   ⎧ n
    ⎨a   for n ≥ 0
-   ⎩             
+   ⎩
 
-   
+
 If the result is known to be causal, then use:
 
    >>> H(n, causal=True)
-    n     
+    n
    a ⋅u(n)
 
 
@@ -436,18 +436,18 @@ If the signal :math:`x(n)` is causal, the DTFT can be found by substituting :mat
 Here is an example::
 
    >>> sign(n).DTFT()
-          2        
+          2
    ────────────────
         -2⋅ⅉ⋅π⋅Δₜ⋅f
-   1 - ℯ           
+   1 - ℯ
 
 Alternatively, the transform can be invoked using `f` as an argument::
 
    >>> sign(n)(f)
-          2        
+          2
    ────────────────
         -2⋅ⅉ⋅π⋅Δₜ⋅f
-   1 - ℯ           
+   1 - ℯ
 
 Here's an example of plotting the DTFT:
 
@@ -466,41 +466,41 @@ The DTFT can be confusing due to the number of definitions commonly used.  Due t
 Here is an example::
 
    >>> sign(n).DTFT(F)
-         2   
+         2
    ─────────────
         -2⋅ⅉ⋅π⋅F
-   1 - ℯ           
+   1 - ℯ
 
 Alternatively, the transform can be invoked using `F` as an argument::
 
    >>> sign(n)(F)
-         2        
+         2
    ─────────────
         -2⋅ⅉ⋅π⋅F
-   1 - ℯ           
-   
+   1 - ℯ
+
 Another option is to use normalized angular frequency :math:`\Omega = 2\pi f \Delta t`
 
 .. math::
-   
+
    X_{2\pi}(\Omega) = \sum_{n=-\infty}^{\infty} x(n) e^{-\mathrm{j} n \Omega}
 
 Here is an example::
 
    >>> sign(n).DTFT(Omega)
-         2        
+         2
    ────────────────
         -2⋅ⅉ⋅π⋅Δₜ⋅f
-   1 - ℯ           
+   1 - ℯ
 
 Alternatively, the transform can be invoked using `Omega` as an argument::
 
    >>> sign(n)(Omega)
-         2        
+         2
    ────────────────
         -2⋅ⅉ⋅π⋅Δₜ⋅f
-   1 - ℯ           
-   
+   1 - ℯ
+
 A normalized discrete-time angular Fourier transform of `x(n)` can be plotted as follows:
 
 >>> x.DTFT(Omega).plot()
@@ -513,7 +513,7 @@ The DTFT, :math:`X_{\frac{1}{\Delta t}}(f)`, is related to the Fourier transform
 
    X_{\frac{1}{\Delta t}}(f) = \frac{1}{\Delta t} \sum_{m=-\infty}^{\infty} X\left(f-\frac{m}{\Delta t}\right)
 
-   
+
 Note, some definitions do not include the scale factor :math:`1 / \Delta t` since it assumed that :math:`x(n) = \Delta t   x(n \Delta t)`.  However, this introduces units confusion.
 
 The DTFT is periodic in frequency with a period :math:`1 / \Delta t` and provided the signal is not aliased, all the information about the signal can be obtained from any frequency range of interval :math:`1 / \Delta t`.
@@ -521,32 +521,32 @@ The DTFT is periodic in frequency with a period :math:`1 / \Delta t` and provide
 By default Lcapy returns an expression showing the infinite number of spectral images.  For example,
 
    >>> nexpr(1).DTFT()
-      ∞             
-    ____           
-    ╲              
-     ╲             
+      ∞
+    ____
+    ╲
+     ╲
       ╲    ⎛    m ⎞
       ╱   δ⎜f - ──⎟
      ╱     ⎝    Δₜ⎠
-    ╱              
-    ‾‾‾‾           
-   m = -∞          
+    ╱
+    ‾‾‾‾
+   m = -∞
    ────────────────
-          Δₜ       
+          Δₜ
 
 All the images can be removed with the `remove_images()` method.  For example::
 
    >>> nexpr(1).DTFT().remove_images()
    δ(f)
    ────
-    Δₜ 
+    Δₜ
 
 Alternatively, the `images` argument can be used with the `DTFT()` method::
 
    >>> nexpr(1).DTFT(images=0)
    δ(f)
    ────
-    Δₜ    
+    Δₜ
 
 The number of images can be specified with the `m1` and `m2` arguments to the `remove_images()` method.   This is useful for plotting.   For example,
 
@@ -587,7 +587,7 @@ The DFT converts an n-domain expression to a k-domain expression.  The definitio
 .. math::
 
    X(k) = \sum_{k=0}^{N - 1} x(n) e^{\frac{-\mathrm{j} 2\pi k n}{N}}
-           
+
 
 Inverse discrete Fourier transform (IDFT)
 -----------------------------------------
@@ -598,7 +598,7 @@ The IDFT converts a k-domain expression to an n-domain expression.  The definiti
 
    x(n) = \frac{1}{N} \sum_{k=0}^{N - 1} X(k) e^{\frac{\mathrm{j} 2 \pi k n}{N}}
 
-           
+
 
 Bilinear transform
 ------------------
@@ -608,13 +608,13 @@ The bilinear transform can be used to approximate an s-domain expression with a 
    >>> H = s / (s - 'a')
    >>> Hz = H.bilinear_transform().simplify()
    >>> Hz
-         2⋅(1 - z)       
+         2⋅(1 - z)
    ──────────────────────
    Δₜ⋅a⋅(z + 1) - 2⋅z + 2
 
 The related method `inverse_bilinear_transform()` converts an s-domain expression to the z-domain using :math:`z \approx
 (1 + 0.5 \Delta t s) / (1 - 0.5 \Delta t s)`.
-   
+
 Here's an example of the bilinear transform applied for an RC low-pass filter.
 
    >>> from lcapy import Circuit, s, t
@@ -629,7 +629,7 @@ This has a transfer function:
 
    >>> H = net.transfer(1, 0, 3, 0)
    >>> H
-         1      
+         1
    ─────────────
        ⎛     1 ⎞
    C⋅R⋅⎜s + ───⎟
@@ -638,33 +638,33 @@ This has a transfer function:
 and an impulse response:
 
    >>> H(t)
-    -t      
-    ───     
-    C⋅R     
+    -t
+    ───
+    C⋅R
    e   ⋅u(t)
    ─────────
-      C⋅R   
+      C⋅R
 
 Using the bilinear transform, the discrete-time transfer function is
 
-   >>> H.bilinear_transform().canonical()                                      
-             Δₜ⋅(z + 1)          
+   >>> H.bilinear_transform().canonical()
+             Δₜ⋅(z + 1)
    ──────────────────────────────
-   ⎛    -2⋅C⋅R + Δₜ⎞             
+   ⎛    -2⋅C⋅R + Δₜ⎞
    ⎜z + ───────────⎟⋅(2⋅C⋅R + Δₜ)
-   ⎝     2⋅C⋅R + Δₜ⎠             
+   ⎝     2⋅C⋅R + Δₜ⎠
 
 with a discrete-time impulse response
-   
+
    >>> from lcapy.discretetime import n
-   >>> H.bilinear_transform()(n).simplify()                                   
+   >>> H.bilinear_transform()(n).simplify()
       ⎛                  n                         ⎞
       ⎜      ⎛2⋅C⋅R - Δₜ⎞                          ⎟
    Δₜ⋅⎜4⋅C⋅R⋅⎜──────────⎟ ⋅u(n) - (2⋅C⋅R + Δₜ)⋅δ[n]⎟
       ⎝      ⎝2⋅C⋅R + Δₜ⎠                          ⎠
    ─────────────────────────────────────────────────
-               (2⋅C⋅R - Δₜ)⋅(2⋅C⋅R + Δₜ)     
-               
+               (2⋅C⋅R - Δₜ)⋅(2⋅C⋅R + Δₜ)
+
 
 Difference equations
 ====================
@@ -695,16 +695,16 @@ Difference equation attributes
 - `lhs` left-hand-side of the equation
 - `rhs` right-hand-side of the equation
 - `inputsym` input symbol, usually 'x'
-- `outputsym` input symbol, usually 'y'  
+- `outputsym` input symbol, usually 'y'
 
- 
+
 Difference equation methods
 ---------------------------
 
-- `dlti_filter` create discrete-time linear time invariant filter (`DLTIFilter`) object
-- `separate` separate the input expressions from the output expressions.
-- `transfer_function` create z-domain transfer function  
-  
+- `dlti_filter()` creates discrete-time linear time invariant filter (`DLTIFilter`) object
+- `separate()` separates the input expressions from the output expressions.
+- `transfer_function()` creates z-domain transfer function
+
 
 Discrete-time transfer functions
 ================================
@@ -717,17 +717,17 @@ equation or a DLTI filter.  For example::
    >>> H
    z + 2
    ─────
-     2 
-    z  
+     2
+    z
 
 
 Discrete-time transfer function methods
 ---------------------------------------
 
-- `dlti_filter` create discrete-time linear time invariant filter (`DLTIFilter`) object
-- `difference_equation` create discrete-time difference equation
+- `dlti_filter()` creates discrete-time linear time invariant filter (`DLTIFilter`) object
+- `difference_equation()` creates discrete-time difference equation
 
-    
+
 Discrete-time linear time invariant filters
 ===========================================
 
@@ -739,23 +739,23 @@ recursive low-pass filter can be created with:
    >>> lpf = DLTIFilter((1 - a, ), (1, -a))
 
 The difference equation can be printed using::
-  
+
    >>> lpf.difference_equation()
    y(n) = a⋅y(n - 1) + (1 - a)⋅x(n)
 
-The transfer function can be printed using::   
+The transfer function can be printed using::
 
    >>> lpf.transfer_function()
    z⋅(a - 1)
    ─────────
-     a - z  
+     a - z
 
-The impulse response can be printed using::   
+The impulse response can be printed using::
 
    >>> lpf.impulse_response()
-    n             
+    n
    a ⋅(1 - a)⋅u[n]
-   
+
 The general response to an input `x(n)` can be printed using::
 
   >>> lpf.response(x, ni=(0, 5))
@@ -783,15 +783,16 @@ Discrete-time linear time invariant filter attributes
 -----------------------------------------------------
 
 - `a` denominator coefficients as a list
-- `b` numerator coefficients as a list  
+- `b` numerator coefficients as a list
+- `is_stable` True if impulse response stable
 
 
 Discrete-time linear time invariant filter methods
 --------------------------------------------------
 
-- `difference_equation()` create discrete-time difference equation
-- `impulse_response()` create discrete-time domain impulse response
-- `initial_response()` discrete time-domain response due to initial conditions  
-- `response()` discrete time-domain response due to input signal and initial conditions
-- `transfer_function()` create z-domain transfer function
-- `zdomain_initial_response()` z-domain response due to initial conditions
+- `difference_equation()` creates discrete-time difference equation
+- `impulse_response()` creates discrete-time domain impulse response
+- `initial_response()` returns discrete time-domain response due to initial conditions
+- `response()` returns discrete time-domain response due to input signal and initial conditions
+- `transfer_function()` creates z-domain transfer function
+- `zdomain_initial_response()` returns z-domain response due to initial conditions

@@ -112,3 +112,14 @@ class SequenceExpression(DiscreteExpression):
 
         return self.seqcls(v, ni, evaluate=evaluate,
                            start_trunc=start_trunc, end_trunc=end_trunc)
+
+    @property
+    def is_stable(self):
+        """Return True if all the poles of the signal's z-transform
+        are within the unit circle."""
+
+        poles = self.poles(aslist=True)
+        for pole in poles:
+            if abs(pole) >= 1:
+                return False
+        return True
