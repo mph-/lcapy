@@ -1,5 +1,5 @@
 """This module provides the ZDomainSequence class to represent
-Z-domain sequences.
+z-domain sequences.
 
 Copyright 2021 Michael Hayes, UCECE
 
@@ -13,7 +13,7 @@ __all__ = ('zseq', )
 
 
 class ZDomainSequence(ZDomain, Sequence):
-    """Z-domain sequence."""
+    """z-domain sequence."""
 
     var = zsym
     domain = 'Z sequence'

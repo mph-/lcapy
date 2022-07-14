@@ -1,5 +1,5 @@
 """This module implements the ZDomainMatrix class for a matrix of
-Z-domain expressions.
+z-domain expressions.
 
 Copyright 2021 Michael Hayes, UCECE
 

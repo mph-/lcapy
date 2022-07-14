@@ -37,7 +37,7 @@ def seq(arg, ni=None, origin=None, domain=None):
     This function creates a discrete-time domain sequence.  See also
     `nseq` to create a discrete-time domain sequence, `kseq` to create
     a discrete-Fourier domain sequence, and `zseq` to create a
-    Z-domain sequence.
+    z-domain sequence.
 
     """
 

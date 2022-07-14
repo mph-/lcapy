@@ -101,7 +101,7 @@ class DLTIFilter(object):
         return DifferenceEquation(lhs, rhs, inputsym, outputsym)
 
     def zdomain_initial_response(self, ic):
-        """Return Z-domain response due to initial conditions.
+        """Return z-domain response due to initial conditions.
            ic : list with initial values y[-1], y[-2], ...
         """
 
