@@ -12,16 +12,64 @@ For detailed documentation see http://lcapy.readthedocs.io/en/latest
 Copyright 2014--2022 Michael Hayes, UCECE
 """
 from __future__ import absolute_import, print_function
+from sympy import Symbol
+from sympy.core.sympify import converter
+from .units import volts, amperes, ohms, siemens, watts
+from .state import state
+from .inverse_dft import *
+from .dft import *
+from .differentialequation import *
+from .ltifilter import *
+from .differenceequation import *
+from .dltifilter import *
+from .discretetime import *
+from .phasor import phasor
+from .normfexpr import Fexpr
+from .normomegaexpr import Omegaexpr
+from .omegaexpr import omegaexpr
+from .cexpr import cexpr
+from .texpr import texpr
+from .sexpr import sexpr, zp2tf, tf, pr2tf
+from .fexpr import fexpr
+from .simulator import *
+from .randomnetwork import *
+from .nettransform import *
+from .laplace import *
+from .dtstatespace import *
+from .statespace import *
+from .vector import *
+from .tmatrix import *
+from .smatrix import *
+from .matrix import *
+from .sym import *
+from .printing import *
+from .susceptance import susceptance
+from .reactance import reactance
+from .inductance import inductance
+from .capacitance import capacitance
+from .conductance import conductance
+from .resistance import resistance
+from .transfer import transfer
+from .impedance import impedance
+from .admittance import admittance
+from .current import current, noisecurrent, phasorcurrent
+from .voltage import voltage, noisevoltage, phasorvoltage
+from .expr import *
+from .twoport import *
+from .oneport import *
+from .circuit import *
+from .symbols import *
+from .functions import *
+import sys
+import pkg_resources
 del absolute_import, print_function
 
 name = "lcapy"
 
-import pkg_resources
 
 __version__ = pkg_resources.require('lcapy')[0].version
 lcapy_version = __version__
 
-import sys
 if sys.version_info[0] == 2 and sys.version_info[1] < 6:
     raise ImportError("Python Version 2.6 or above is required for Lcapy.")
 else:  # Python 3
@@ -30,51 +78,8 @@ else:  # Python 3
 
 del sys
 
-from .functions import *
-from .symbols import *
-from .circuit import *
-from .oneport import *
-from .twoport import *
-from .expr import *
-from .voltage import voltage, noisevoltage, phasorvoltage
-from .current import current, noisecurrent, phasorcurrent
-from .admittance import admittance
-from .impedance import impedance
-from .transfer import transfer
-from .resistance import resistance
-from .conductance import conductance
-from .capacitance import capacitance
-from .inductance import inductance
-from .reactance import reactance
-from .susceptance import susceptance
-from .printing import *
-from .sym import *
-from .matrix import *
-from .smatrix import *
-from .tmatrix import *
-from .vector import *
-from .statespace import *
-from .dtstatespace import *
-from .laplace import *
-from .nettransform import *
-from .randomnetwork import *
-from .simulator import *
-from .fexpr import fexpr
-from .sexpr import sexpr, zp2tf, tf, pr2tf
-from .texpr import texpr
-from .cexpr import cexpr
-from .omegaexpr import omegaexpr
-from .normomegaexpr import Omegaexpr
-from .normfexpr import Fexpr
-from .phasor import phasor
-from .discretetime import *
-from .dltifilter import *
-from .diffeq import *
-from .dft import *
-from .inverse_dft import *
-from .state import state
 # Do not import units.u since this will conflict with unit step
-from .units import volts, amperes, ohms, siemens, watts
+
 
 def show_version():
     """Show versions of Lcapy, SymPy, NumPy, MatplotLib, SciPy, and Python."""
@@ -89,10 +94,9 @@ def show_version():
           (python_version, sympy_version, numpy_version,
            matplotlib_version, scipy_version, lcapy_version))
 
+
 # The following is to help sympify deal with j.
 # A better fix might be to define an Lcapy class for j and to
 # use the __sympy_ method.
-from sympy.core.sympify import converter
-from sympy import Symbol
 converter['j'] = j
 converter[Symbol('j')] = j

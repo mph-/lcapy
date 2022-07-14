@@ -12,7 +12,7 @@ from .sym import nsym, ksym, zsym, dt
 from .vector import Vector
 from .ratfun import _zp2tf, Ratfun
 from .expr import symbol, expr, ExprDict, ExprList
-from .diffeq import DifferenceEquation
+from .differenceequation import DifferenceEquation
 from .seqexpr import SequenceExpression
 from .zseq import ZDomainSequence
 from .functions import sqrt, exp

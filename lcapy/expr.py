@@ -3859,7 +3859,7 @@ def equation(lhs, rhs, inputsym='x', outputsym='y', **assumptions):
     The left hand side (lhs) and right hand side subexpressions
     can be obtained with the `lhs` and `rhs` attributes."""
 
-    from .diffeq import DifferenceEquation
+    from .differenceequation import DifferenceEquation
 
     lhs = expr(lhs)
     rhs = expr(rhs)
@@ -3884,7 +3884,7 @@ def difference_equation(lhs, rhs, inputsym='x', outputsym='y', **assumptions):
     The left hand side (lhs) and right hand side subexpressions
     can be obtained with the `lhs` and `rhs` attributes."""
 
-    from .diffeq import DifferenceEquation
+    from .differenceequation import DifferenceEquation
 
     lhs = expr(lhs)
     rhs = expr(rhs)
