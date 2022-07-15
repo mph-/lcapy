@@ -14,14 +14,16 @@ Copyright 2014--2022 Michael Hayes, UCECE
 from __future__ import absolute_import, print_function
 from sympy import Symbol
 from sympy.core.sympify import converter
+# This must be imported early to avoid circular import with expr
+from .functions import *
 from .units import volts, amperes, ohms, siemens, watts
 from .state import state
 from .inverse_dft import *
 from .dft import *
-from .differentialequation import *
-from .ltifilter import *
 from .differenceequation import *
 from .dltifilter import *
+from .differentialequation import *
+from .ltifilter import *
 from .discretetime import *
 from .phasor import phasor
 from .normfexpr import Fexpr
@@ -31,6 +33,7 @@ from .cexpr import cexpr
 from .texpr import texpr
 from .sexpr import sexpr, zp2tf, tf, pr2tf
 from .fexpr import fexpr
+from .expr import *
 from .simulator import *
 from .randomnetwork import *
 from .nettransform import *
@@ -54,12 +57,10 @@ from .impedance import impedance
 from .admittance import admittance
 from .current import current, noisecurrent, phasorcurrent
 from .voltage import voltage, noisevoltage, phasorvoltage
-from .expr import *
 from .twoport import *
 from .oneport import *
 from .circuit import *
 from .symbols import *
-from .functions import *
 import sys
 import pkg_resources
 del absolute_import, print_function
@@ -100,3 +101,4 @@ def show_version():
 # use the __sympy_ method.
 converter['j'] = j
 converter[Symbol('j')] = j
+del converter, Symbol
