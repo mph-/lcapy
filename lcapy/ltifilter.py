@@ -106,6 +106,8 @@ class LTIFilter(object):
 
         """
 
+        from .sym import ssym
+
         Nl = len(self.a)
 
         # Denominator for Yi(s)
@@ -121,8 +123,8 @@ class LTIFilter(object):
             num += aas * y0
 
         # Collect with respect to positive powers of the variable s
-        num = sym.collect(sym.expand(num * s**Nl), s)
-        denom = sym.collect(sym.expand(denom * s**Nl), s)
+        num = sym.collect(sym.expand(num * s**Nl), ssym)
+        denom = sym.collect(sym.expand(denom * s**Nl), ssym)
 
         Ysi = expr(-sym.simplify(num / denom))
         Ysi.is_causal = True
