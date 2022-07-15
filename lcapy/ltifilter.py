@@ -126,8 +126,11 @@ class LTIFilter(object):
             num += aas * y0
 
         # Collect with respect to positive powers of the variable s
-        num = sym.collect(sym.expand(num * s**Nl), ssym)
-        denom = sym.collect(sym.expand(denom * s**Nl), ssym)
+        num = num.sympy * ssym**Nl
+        denom = denom.sympy * ssym**Nl
+
+        num = sym.collect(sym.expand(num), ssym)
+        denom = sym.collect(sym.expand(denom), ssym)
 
         Ysi = expr(-sym.simplify(num / denom))
         Ysi.is_causal = True

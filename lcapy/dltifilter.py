@@ -125,8 +125,11 @@ class DLTIFilter(object):
             num += az * y0
 
         # Collect with respect to positive powers of the variable z
-        num = sym.collect(sym.expand(num * z**Nl), zsym)
-        denom = sym.collect(sym.expand(denom * z**Nl), zsym)
+        num = num.sympy * zsym**Nl
+        denom = denom.sympy * zsym**Nl
+
+        num = sym.collect(sym.expand(num), zsym)
+        denom = sym.collect(sym.expand(denom), zsym)
 
         Yzi = expr(-sym.simplify(num / denom))
         Yzi.is_causal = True
