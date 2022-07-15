@@ -109,6 +109,9 @@ class LTIFilter(object):
         from .sym import ssym
 
         Nl = len(self.a)
+        if len(ic) != Nl:
+            raise ValueError('Expecting %d initial conditions, got %d'
+                             % (Nl, len(ic)))
 
         # Denominator for Yi(s)
         denom = self.a[0] * s**0

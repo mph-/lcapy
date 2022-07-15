@@ -108,6 +108,9 @@ class DLTIFilter(object):
         from .sym import zsym
 
         Nl = len(self.a)
+        if len(ic) != Nl:
+            raise ValueError('Expecting %d initial conditions, got %d'
+                             % (Nl, len(ic)))
 
         # Denominator for Yi(z)
         denom = self.a[0] * z**0
