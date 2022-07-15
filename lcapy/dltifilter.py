@@ -6,7 +6,7 @@ Copyright 2021--2022 Michael Hayes, UCECE
 
 from .expr import expr, equation, ExprTuple
 from .nexpr import DiscreteTimeDomainExpression
-from .diffeq import DifferenceEquation
+from .differenceequation import DifferenceEquation
 from .discretetime import n, z, seq
 from .sequence import Sequence
 from .utils import isiterable
