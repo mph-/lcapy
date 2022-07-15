@@ -104,14 +104,11 @@ class ZDomainExpression(ZDomain, SequenceExpression):
         H = self.__class__(self * q, **self.assumptions)
         return H.transient_response(tvector)
 
-    def frequency_response(self, fvector=None):
-        """Convert to frequency domain and evaluate response if frequency
-        vector specified.
+    def frequency_response(self, fvector=None, var=None):
+        """Convert to frequency domain using DTFT and evaluate response if
+        frequency vector specified."""
 
-        """
-        from .symbols import f
-
-        X = self.subs(j * 2 * pi * f)
+        X = self.DTFT(var)
 
         if fvector is None:
             return X
