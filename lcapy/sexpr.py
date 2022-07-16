@@ -463,7 +463,8 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         """Create continuous-time linear time-invariant filter from
         continuous-time transfer function."""
 
-        # TODO, perhaps add only to TimeDomainTransfer?
+        # TODO, perhaps add only to TimeDomainTransfer
+        # or check that is_transfer, is_impedance, or is_admittance
 
         from .ltifilter import LTIFilter
 
@@ -472,14 +473,8 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         N = self.N
         D = self.D
-        nn = N.coeffs()
-        dn = D.coeffs()
-
-        if len(nn) > len(dn):
-            raise ValueError("System not causal")
-
-        bn = nn
-        an = dn
+        bn = N.coeffs()
+        an = D.coeffs()
 
         if normalize_a0:
             bn = [bx / an[0] for bx in bn]
