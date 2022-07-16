@@ -1550,6 +1550,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         # if self.expr == x.expr:
         #    return True
 
+        if isinstance(self.expr, sym.Eq):
+            return sym.simplify(self.expr.lhs - x.expr.lhs) == 0 and \
+                sym.simplify(self.expr.rhs - x.expr.rhs) == 0
+
         # This fails if one of the operands has the is_real attribute
         # and the other doesn't...
         return sym.simplify(self.expr - x.expr) == 0
