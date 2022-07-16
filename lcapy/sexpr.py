@@ -12,6 +12,7 @@ from .state import state
 from .sym import ssym, tsym, j, pi, sympify
 from .ratfun import _zp2tf, _pr2tf, Ratfun
 from .expr import Expr, symbol, expr, ExprDict, ExprList, exprcontainer, expr_make
+from .differentialequation import DifferentialEquation
 from .units import u as uu
 from .functions import sqrt, DiracDelta
 from .sym import dt
@@ -429,7 +430,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         return self.state_space()
 
-    def differential_equation(self, input='x', output='y',
+    def differential_equation(self, inputsym='x', outputsym='y',
                               zero_initial_conditions=False):
         """Create differential equation from transfer function.
 
@@ -443,8 +444,8 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         """
 
         H = self
-        x = texpr('%s(t)' % input)
-        y = texpr('%s(t)' % output)
+        x = texpr('%s(t)' % inputsym)
+        y = texpr('%s(t)' % outputsym)
 
         X = x.LT()
         Y = y.LT()
@@ -457,7 +458,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         rhs = (D * X).ILT(causal=True,
                           zero_initial_conditions=zero_initial_conditions)
 
-        return TimeDomainExpression(Eq(lhs.expr, rhs.expr))
+        return DifferentialEquation(lhs, rhs, inputsym, outputsym)
 
     def lti_filter(self, normalize_a0=True):
         """Create continuous-time linear time-invariant filter from
