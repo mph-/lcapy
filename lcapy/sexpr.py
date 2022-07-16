@@ -429,7 +429,8 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         return self.state_space()
 
-    def differential_equation(self, input='x', output='y'):
+    def differential_equation(self, input='x', output='y',
+                              zero_initial_conditions=False):
         """Create differential equation from transfer function.
 
         For example,
@@ -451,8 +452,10 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         N = self.N
         D = self.D
 
-        lhs = (N * Y).ILT(causal=True)
-        rhs = (D * X).ILT(causal=True)
+        lhs = (N * Y).ILT(causal=True,
+                          zero_initial_conditions=zero_initial_conditions)
+        rhs = (D * X).ILT(causal=True,
+                          zero_initial_conditions=zero_initial_conditions)
 
         return TimeDomainExpression(Eq(lhs.expr, rhs.expr))
 
