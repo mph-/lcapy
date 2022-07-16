@@ -49,17 +49,16 @@ class LTIFilter(object):
         # Numerator of H(s)
         num = sym.S.Zero
         for i in range(Nr):
-            num += b[i] * ssym**(-i)
+            num += b[i] * ssym**(Nr - i - 1)
 
         # Denominator for H(s)
-        denom = a[0] * ssym**0
-        for k in range(1, Nl):
-            az = a[k] * ssym**(-k)
-            denom += az
+        denom = sym.S.Zero
+        for k in range(Nl):
+            denom += a[k] * ssym**(Nl - k - 1)
 
         # Collect with respect to positive powers of the variable s
-        num = sym.collect(sym.expand(num * ssym**Nl), ssym)
-        denom = sym.collect(sym.expand(denom * ssym**Nl), ssym)
+        num = sym.collect(sym.expand(num), ssym)
+        denom = sym.collect(sym.expand(denom), ssym)
 
         Hs = expr(sym.simplify(num / denom))
         Hs.is_causal = True

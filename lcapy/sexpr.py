@@ -11,7 +11,7 @@ from .inverse_laplace import inverse_laplace_transform
 from .state import state
 from .sym import ssym, tsym, j, pi, sympify
 from .ratfun import _zp2tf, _pr2tf, Ratfun
-from .expr import Expr, symbol, expr, ExprDict, exprcontainer, expr_make
+from .expr import Expr, symbol, expr, ExprDict, ExprList, exprcontainer, expr_make
 from .units import u as uu
 from .functions import sqrt, DiracDelta
 from .sym import dt
@@ -455,6 +455,35 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         rhs = (D * X).ILT(causal=True)
 
         return TimeDomainExpression(Eq(lhs.expr, rhs.expr))
+
+    def lti_filter(self, normalize_a0=True):
+        """Create continuous-time linear time-invariant filter from
+        continuous-time transfer function."""
+
+        # TODO, perhaps add only to TimeDomainTransfer?
+
+        from .ltifilter import LTIFilter
+
+        if not self.is_rational_function:
+            raise ValueError("Not a rational function")
+
+        N = self.N
+        D = self.D
+        nn = N.coeffs()
+        dn = D.coeffs()
+
+        if len(nn) > len(dn):
+            raise ValueError("System not causal")
+
+        bn = nn
+        an = dn
+
+        if normalize_a0:
+            bn = [bx / an[0] for bx in bn]
+            an = [ax / an[0] for ax in an]
+
+        lpf = LTIFilter(bn, an)
+        return lpf
 
     def dlti_filter(self, method='bilinear'):
         """Create DLTI filter using bilinear transform."""
