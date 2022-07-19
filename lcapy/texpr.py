@@ -279,6 +279,13 @@ class TimeDomainExpression(TimeDomain, Expr):
 
         return self.discretize(**assumptions)
 
+    def differential_equation(self, inputsym='x', outputsym='y'):
+        """Create differential equation from impulse response.
+        """
+
+        H = self.LT(zero_initial_conditions=True)
+        return H.differential_equation(inputsym, outputsym)
+
 
 class TimeDomainImpulseResponse(TimeDomainExpression):
     """Time-domain impulse response."""
