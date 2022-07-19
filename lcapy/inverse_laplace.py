@@ -192,7 +192,9 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             t1 = Zero
             t2 = t
         else:
-            t1 = -sym.oo
+            # With unilateral Laplace transform need to set lower
+            # limit at 0 rather than -oo.
+            t1 = Zero
             t2 = sym.oo
 
         const, expr = factor_const(expr, s)
