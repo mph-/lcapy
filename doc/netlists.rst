@@ -294,9 +294,9 @@ simulation (additional components can be drawn, see
     The last two arguments default to zero.   Note, Lcapy assumes that the nodes Nm and Nim are at the same potential.
 
 
-Np denotes the positive node; Np denotes the negative node.  For
+Np denotes the positive node; Nm denotes the negative node.  For
 two-port devices, Nip denotes the positive input node and Nim denotes
-the negative input node.  Note, positive current flows from
+the negative input node.  Note, conventional current flows from
 `positive-node` to `negative-node`.  Node names can be numeric or
 symbolic.  The ground node is designated `0`.
 
