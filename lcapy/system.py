@@ -180,7 +180,7 @@ class PDFConverter(object):
                 pass
 
         raise RuntimeError(
-            """Could not convert pdf to png, tried: %s.  Check that one of these programs is installed.""" % ', '.join(methods))
+            """Could not convert pdf to png, tried: %s.  Check that one of these programs is installed.  See https://lcapy.readthedocs.io/en/latest/install.html""" % ', '.join(methods))
 
 
 def run_dot(dotfilename, filename):
