@@ -456,7 +456,7 @@ class Schematic(NetfileMixin):
         # For debugging when do not want to write to file
         nosave = kwargs.pop('nosave', False)
 
-        latexrunner = LatexRunner(self.debug & 2)
+        latexrunner = LatexRunner((self.debug & 2) != 0)
 
         content = self._tikz_draw(style_args=style_args, **kwargs)
 
@@ -510,14 +510,14 @@ class Schematic(NetfileMixin):
             return
 
         if ext == '.svg':
-            pdfconverter = PDFConverter(self.debug & 2)
+            pdfconverter = PDFConverter((self.debug & 2) != 0)
             pdfconverter.to_svg(pdf_filename, root + '.svg')
             if not (self.debug & 1):
                 remove(pdf_filename)
             return
 
         if ext == '.png':
-            pdfconverter = PDFConverter(self.debug & 2)
+            pdfconverter = PDFConverter((self.debug & 2) != 0)
             pdfconverter.to_png(pdf_filename, root + '.png', self.dpi)
             if not (self.debug & 1):
                 remove(pdf_filename)

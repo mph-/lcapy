@@ -55,7 +55,7 @@ def hasexe(program):
     return programs[program]
 
 
-def checkexe(command):
+def checkexe(command, debug=False):
 
     if isinstance(command, list):
         program = command[0]
@@ -63,15 +63,18 @@ def checkexe(command):
     else:
         program = command.split(' ')[0]
 
-    if False:
-        print('Trying to run: %s' % command)
-    if not hasexe(program):
+    if hasexe(program):
+        if debug:
+            print('Checking: %s found' % program)
+    else:
+        if debug:
+            print('Checking: %s not found' % program)
         raise RuntimeError('%s is not installed' % program)
 
 
 def run(command, stderr=DEVNULL, stdout=DEVNULL, shell=False, debug=False):
 
-    checkexe(command)
+    checkexe(command, debug=debug)
     if debug:
         print('Running: %s' % ' '.join(command))
     call(command, stderr=stderr, stdout=stdout, shell=shell)
@@ -183,7 +186,7 @@ class LatexRunner(object):
 
     def run(self, tex_filename):
 
-        checkexe('pdflatex')
+        checkexe('pdflatex', debug=self.debug)
 
         root, ext = path.splitext(tex_filename)
         dirname = path.dirname(tex_filename)

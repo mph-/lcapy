@@ -33,7 +33,7 @@ and denominator coefficients `b` and `a`::
 
 By default, the controllable canonical form CCF is created.  The
 observable canonical form OCF is created with::
-  
+
    >>> ss = StateSpace.from_ba(b, a, form='OCF')
 
 Similarly, the diagonal canonical form DCF is created with::
@@ -51,7 +51,7 @@ to a state-space representation.  Here's an example::
 
    >>> Z = (s**2 + a) / (s**3 + b * s + c)
    >>> ss = Z.state_space('CCF')
-   
+
 State-space representation are not unique; Lcapy uses the controllable
 canonical form (CCF), the observable canonical form (OCF), and the
 diagonal canonical form (DCF).  The CCF form of the state-space
@@ -86,7 +86,7 @@ is obtained with the `transfer_function()` method, for example::
 
    >>> ss = StateSpace(A, B, C, D)
    >>> G = ss.transfer_function
-   
+
 
 Discrete-time state-space representation
 ========================================
@@ -106,7 +106,7 @@ and denominator coefficients `b` and `a`::
 
 By default, the controllable canonical form CCF is created.  The
 observable canonical form OCF is created with::
-  
+
    >>> ss = DTStateSpace.from_ba(b, a, form='OCF')
 
 Similarly, the diagonal canonical form DCF is created with::
@@ -137,17 +137,17 @@ For example::
    [1]
 
    >>> ss.state_equations()
-   ⎡x₀(n + 1)⎤   ⎡0  1⎤ ⎡x₀(n)⎤   ⎡1⎤        
+   ⎡x₀(n + 1)⎤   ⎡0  1⎤ ⎡x₀(n)⎤   ⎡1⎤
    ⎢         ⎥ = ⎢    ⎥⋅⎢     ⎥ + ⎢ ⎥⋅[u₀(n)]
-   ⎣x₁(n + 1)⎦   ⎣1  0⎦ ⎣x₁(n)⎦   ⎣1⎦        
+   ⎣x₁(n + 1)⎦   ⎣1  0⎦ ⎣x₁(n)⎦   ⎣1⎦
 
    >>> ss.output_equations()
-                    ⎡x₀(n)⎤              
+                    ⎡x₀(n)⎤
    [y₀(n)] = [1  2]⋅⎢     ⎥ + [1]⋅[u₀(n)]
-                    ⎣x₁(n)⎦              
+                    ⎣x₁(n)⎦
 
 
-   
+
    >>> ss.controllability_matrix
    ⎡1  1⎤
    ⎢    ⎥
@@ -190,7 +190,7 @@ For example::
    True
 
    >>> ss.is_observable
-   True   
+   True
 
    >>> ss.state_transfer([[2], [3]], xinitial=[0, 0])
    ⎡5⎤
@@ -203,7 +203,7 @@ For example::
    ⎣3⎦
 
    >>> ss.minimum_energy(2, [5, 7], [0, 0])
-   
+
    >>> ss.minimum_energy_input(3, [5, 7], [0, 0])
    ⎡5/3⎤
    ⎢   ⎥
@@ -228,8 +228,8 @@ Hankel singular values on the diagonal.  For example::
 
    >>> ss2 = ss.balance()
 
-Note, this requires numerical A, B, C, D matrices.   
-   
+Note, this requires numerical A, B, C, D matrices.
+
 
 Model reduction
 ---------------
@@ -244,5 +244,3 @@ threshold.   Note, this requires numerical A, B, C, D matrices.
 Alternatively, specific states can be removed.  For example::
 
      >>> ss2 = ss.reduce(elim_states=[1, 3])
-
-     
