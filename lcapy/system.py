@@ -153,20 +153,34 @@ class PDFConverter(object):
             raise RuntimeError('Could not generate %s with pdftoppm' %
                                png_filename)
 
-    def to_png(self, pdf_filename, png_filename, dpi=300):
+    def to_png(self, pdf_filename, png_filename, dpi=300, method=None):
 
-        conversions = (('ghostscript', self.to_png_ghostscript),
-                       ('convert', self.to_png_convert),
-                       ('pdftoppm', self.to_png_pdftoppm))
+        converters = {'ghostscript': self.to_png_ghostscript,
+                      'convert': self.to_png_convert,
+                      'pdftoppm': self.to_png_pdftoppm}
 
-        for conversion, func in conversions:
+        # Ordered in preference
+        methods = ('ghostscript', 'convert', 'pdftoppm')
+
+        if method is not None:
+            if method not in methods:
+                raise KeyError('Unknown method %s, known methods: %s' %
+                               (method, ', '.join(methods)))
+
+            # Try the specified method then fall back to default methods
+            # if it does not work
+            func = converters[method]
+            return func(pdf_filename, png_filename, dpi)
+
+        for method in methods:
+            func = converters[method]
             try:
                 return func(pdf_filename, png_filename, dpi)
             except:
                 pass
 
-        raise RuntimeError("""Could not convert pdf to png, tried: %s.  Check that one of these programs is installed.""" % ', '.join(
-            [conversion for conversion, func in conversions]))
+        raise RuntimeError(
+            """Could not convert pdf to png, tried: %s.  Check that one of these programs is installed.""" % ', '.join(methods))
 
 
 def run_dot(dotfilename, filename):

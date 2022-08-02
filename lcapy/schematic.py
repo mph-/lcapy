@@ -434,6 +434,7 @@ class Schematic(NetfileMixin):
         self.cpt_size = float(kwargs.pop('cpt_size', 1.2))
         self.node_spacing = float(kwargs.pop('node_spacing', 2.0))
         self.scale = float(kwargs.pop('scale', 1.0))
+        png_converter = kwargs.pop('png_converter', None)
 
         include = ''
         if 'include' in kwargs:
@@ -518,7 +519,8 @@ class Schematic(NetfileMixin):
 
         if ext == '.png':
             pdfconverter = PDFConverter((self.debug & 2) != 0)
-            pdfconverter.to_png(pdf_filename, root + '.png', self.dpi)
+            pdfconverter.to_png(pdf_filename, root + '.png', dpi=self.dpi,
+                                method=png_converter)
             if not (self.debug & 1):
                 remove(pdf_filename)
             return
