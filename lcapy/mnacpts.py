@@ -164,6 +164,11 @@ class Cpt(ImmittanceMixin):
 
         return self._copy()
 
+    def _replace_switch(self, t):
+        """Replace switch with wire or open circuit at time t."""
+
+        return self._copy()
+
     def _subs(self, subs_dict):
         """Substitute values using dictionary of substitutions.
         If a scalar is passed, this is substituted for the component value.
@@ -1573,6 +1578,32 @@ class SPppm(Dummy):
             mna._C[m, n4] += 1
 
 
+class SW(TimeVarying):
+    """Switch"""
+
+    def _replace_switch(self, t):
+        """Replace switch with wire or open circuit at time t."""
+
+        kind = self.__class__.__name__
+
+        if kind in ('SW', 'SWno', 'SWpush'):
+            if t < 0:
+                return self._netmake_O()
+            return self._netmake_W()
+        elif kind in ('SWnc', ):
+            if t < 0:
+                return self._netmake_W()
+            return self._netmake_O()
+        elif kind in ('SWspdt', ):
+            if t < 0:
+                return self._netmake_W(nodes=self.relnodes[0:2]) + '\n' + \
+                    self._netmake_O(nodes=(self.relnodes[0], self.relnodes[2]))
+            return self._netmake_O(nodes=self.relnodes[0:2]) + '\n' + \
+                self._netmake_W(nodes=(self.relnodes[0], self.relnodes[2]))
+        else:
+            raise RuntimeError('Internal error, unhandled switch %s' % self)
+
+
 class TF(Cpt):
     """Transformer"""
 
@@ -1908,12 +1939,12 @@ class W(Dummy):
     def _stamp(self, mna):
         pass
 
-    @property
+    @ property
     def I(self):
         raise ValueError(
             'Cannot determine current through wire, use a 0 V voltage source')
 
-    @property
+    @ property
     def i(self):
         raise ValueError(
             'Cannot determine current through wire, use a 0 V voltage source')
@@ -2014,11 +2045,10 @@ defcpt('Sbox', Misc, 'Box shape')
 defcpt('Scircle', Misc, 'Circle shape')
 defcpt('Sellipse', Misc, 'Ellipse shape')
 defcpt('Striangle', Misc, 'Triangle shape')
-defcpt('SW', TimeVarying, 'Switch')
-defcpt('SWno', 'SW', 'Normally open switch')
-defcpt('SWnc', 'SW', 'Normally closed switch')
-defcpt('SWpush', 'SW', 'Pushbutton switch')
-defcpt('SWspdt', 'SW', 'SPDT switch')
+defcpt('SWno', SW, 'Normally open switch')
+defcpt('SWnc', SW, 'Normally closed switch')
+defcpt('SWpush', SW, 'Pushbutton switch')
+defcpt('SWspdt', SW, 'SPDT switch')
 
 defcpt('TFcore', TF, 'Transformer with core')
 defcpt('TFtapcore', TFtap, 'Transformer with core')

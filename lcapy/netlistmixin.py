@@ -1336,6 +1336,20 @@ class NetlistMixin(object):
             cpt = cpt.name
         return self.elements[cpt].short_circuit()
 
+    def replace_switches(self, switchnames=None, t=0):
+        """Replace specified switches with wire or open circuit
+        for time t."""
+
+        new = self._new()
+
+        for cpt in self._elements.values():
+            if switchnames is None or cpt.name in switchnames:
+                net = cpt._replace_switch(t)
+            else:
+                net = cpt._copy()
+            new._add(net)
+        return new
+
     def _kill(self, sourcenames):
 
         new = self._new()
