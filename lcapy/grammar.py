@@ -83,6 +83,7 @@ SPpm: SPname pm P P P; Summing point
 SPppp: SPname ppp P P P P; Summing point
 SPpmm: SPname pmm P P P P; Summing point
 SPppm: SPname ppm P P P P; Summing point
+SW: SWname Np Nm; Switch normally open
 SWnc: SWname Np Nm nc; Switch normally closed
 SWno: SWname Np Nm no; Switch normally open
 SWpush: SWname Np Nm push; Pushbutton switch
