@@ -83,11 +83,11 @@ SPpm: SPname pm P P P; Summing point
 SPppp: SPname ppp P P P P; Summing point
 SPpmm: SPname pmm P P P P; Summing point
 SPppm: SPname ppm P P P P; Summing point
-SW: SWname Np Nm; Switch normally open
-SWnc: SWname Np Nm nc; Switch normally closed
-SWno: SWname Np Nm no; Switch normally open
-SWpush: SWname Np Nm push; Pushbutton switch
-SWspdt: SWname Nc Np Nm spdt; SPDT switch
+SW: SWname Np Nm [Time=0]; Switch normally open
+SWnc: SWname Np Nm nc [Time=0]; Switch normally closed
+SWno: SWname Np Nm no [Time=0]; Switch normally open
+SWpush: SWname Np Nm push [Time=0]; Pushbutton switch
+SWspdt: SWname Nc Np Nm spdt [Time=0]; SPDT switch
 TF: TFname Np Nm Ncp Ncm [Value=name]; Ideal transformer (works to DC!)
 TFcore: TFname Np Nm Ncp Ncm core [Value=name]; Transformer with core (works to DC!)
 TFtap: TFname Np Nm Ncp Ncm tap Nt Nt [Value=name]; Tapped transformer (works to DC!)
@@ -257,6 +257,7 @@ Ia: value; Sinewave current amplitude
 fo: value; Sinewave frequency
 td: value; Time delay
 alpha: value; Damping factor
+Time: value; Time
 Value: value; Value
 IC: value; Initial condition
 NID: value; Noise identifier

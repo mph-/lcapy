@@ -1586,20 +1586,23 @@ class SW(TimeVarying):
 
         kind = self.__class__.__name__
 
+        active_time = expr(self.args[0])
+        active = expr(t) >= active_time
+
         if kind in ('SW', 'SWno', 'SWpush'):
-            if t < 0:
-                return self._netmake_O()
-            return self._netmake_W()
-        elif kind in ('SWnc', ):
-            if t < 0:
+            if active:
                 return self._netmake_W()
             return self._netmake_O()
+        elif kind in ('SWnc', ):
+            if active:
+                return self._netmake_O()
+            return self._netmake_W()
         elif kind in ('SWspdt', ):
-            if t < 0:
-                return self._netmake_W(nodes=self.relnodes[0:2]) + '\n' + \
-                    self._netmake_O(nodes=(self.relnodes[0], self.relnodes[2]))
-            return self._netmake_O(nodes=self.relnodes[0:2]) + '\n' + \
-                self._netmake_W(nodes=(self.relnodes[0], self.relnodes[2]))
+            if active:
+                return self._netmake_O(nodes=self.relnodes[0:2]) + '\n' + \
+                    self._netmake_W(nodes=(self.relnodes[0], self.relnodes[2]))
+            return self._netmake_W(nodes=self.relnodes[0:2]) + '\n' + \
+                self._netmake_O(nodes=(self.relnodes[0], self.relnodes[2]))
         else:
             raise RuntimeError('Internal error, unhandled switch %s' % self)
 
