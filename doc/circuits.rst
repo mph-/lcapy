@@ -280,20 +280,21 @@ Here's an example using the `replace_switches()` and `initialize()` methods to a
 
 This produces the schematic:
 
-.. image:: examples/netlists/SWRC2.png
+.. image:: examples/netlists/SWRC.png
    :width: 8cm
 
-Now two new circuits are created: one before the switch opening and
-the other after the switch opening.
+Now two new circuits are created: one before the switch opening:
 
    >>> before = a.replace_switches_before(0)
 
-.. image:: examples/netlists/SWRC2before.png
+.. image:: examples/netlists/SWRCbefore.png
    :width: 8cm
+
+and the other after the switch opening:
 
    >>> after = a.replace_switches(0).initialize(before, 0)
 
-.. image:: examples/netlists/SWRC2after.png
+.. image:: examples/netlists/SWRCafter.png
    :width: 8cm
 
 The after netlist can now be analysed as an initial value problem.
