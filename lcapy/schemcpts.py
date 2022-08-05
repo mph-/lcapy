@@ -2154,9 +2154,16 @@ class SPDT(FixedCpt):
     can_invert = True
 
     node_pinnames = ('1', '2', 'common')
-    pins = {'1': ('lx', 0, 0.169),
-            '2': ('rx', 0.632, 0.338),
-            'common': ('lx', 0.632, 0)}
+    ppins = {'1': ('lx', 0, 0.169),
+             '2': ('rx', 0.632, 0.338),
+             'common': ('lx', 0.632, 0)}
+    npins = {'1': ('lx', 0.632, 0.169),
+             '2': ('rx', 0, 0.338),
+             'common': ('lx', 0, 0)}
+
+    @property
+    def pins(self):
+        return self.npins if self.invert else self.ppins
 
     def draw(self, **kwargs):
 
@@ -2168,10 +2175,14 @@ class SPDT(FixedCpt):
 
         args_str = 'rotate=%d' % self.angle
 
+        xscale = self.scale
+        yscale = self.scale
         if self.mirror:
-            args_str += ', mirror'
+            yscale = -yscale
         if self.invert:
-            args_str += ', invert'
+            xscale = -xscale
+        args_str += ', xscale=%s' % xscale
+        args_str += ', yscale=%s' % yscale
 
         s = r'  \draw (%s) node[spdt, %s, %s] (%s) {};''\n' % (
             centre, self.args_str(**kwargs), args_str, self.s)
