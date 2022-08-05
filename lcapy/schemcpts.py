@@ -1119,14 +1119,14 @@ class Bipole(StretchyCpt):
                 tikz_cpt = 'v' + tikz_cpt
             else:
                 raise ValueError('Component %s not variable' % self.name)
-
         if self.type == 'C' and self.args[1] is not None and 'v' not in self.opts:
             # Have initial value
             self.opts['v'] = 'v0{=}%s' % self.args[1]
         elif self.type == 'L' and self.args[1] is not None and 'f' not in self.opts:
             # Have initial value
             self.opts['f'] = 'i0{=}%s' % self.args[1]
-
+        elif self.type in ('SW', 'SWno', 'SWnc') and 'l' not in self.opts:
+            self.opts['l'] = 't{=}%s' % self.args[0]
         elif self.type == 'MISC':
             if self.kind is None:
                 raise ValueError('Kind must be specified for %s' % self)
