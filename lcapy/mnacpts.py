@@ -157,7 +157,7 @@ class Cpt(ImmittanceMixin):
         opts = self.opts.copy()
         opts.add(s)
 
-        return self._netmake(opts=opts)
+        return self._netmake_opts(opts)
 
     def _kill(self):
         """Kill sources."""
@@ -255,12 +255,11 @@ class Cpt(ImmittanceMixin):
             fmtargs = []
 
         parts = [name]
-        parts.extend(nodes)
+        for m, node in enumerate(nodes):
+            parts.append(node)
+            if self.keyword[0] == m + 1:
+                parts.append(self.keyword[1])
         parts.extend(fmtargs)
-
-        # Insert keyword...
-        if self.keyword[0] == 0:
-            parts.append(self.keyword[1])
 
         net = ' '.join(parts)
         opts_str = str(opts).strip()
@@ -281,6 +280,10 @@ class Cpt(ImmittanceMixin):
         """This is used for changing cpt name from C1 to O"""
         return self._netmake1(self.namespace + 'O', nodes, args=(),
                               opts=opts)
+
+    def _netmake_opts(self, opts=None):
+        """This is used for changing the opts"""
+        return self._netmake1(self.namespace + self.relname, opts=opts)
 
     def _netmake_variant(self, newtype, nodes=None, args=None, opts=None,
                          suffix=''):
@@ -1598,11 +1601,25 @@ class SW(TimeVarying):
                 return self._netmake_O()
             return self._netmake_W()
         elif kind in ('SWspdt', ):
+
+            opts = self.opts.copy()
+            opts.add('nosim')
+            opts.add('l=')
+
+            wopts = self.opts.copy()
+            wopts.add('ignore')
+
             if active:
-                return self._netmake_O(nodes=self.relnodes[0:2]) + '\n' + \
-                    self._netmake_W(nodes=(self.relnodes[0], self.relnodes[2]))
-            return self._netmake_W(nodes=self.relnodes[0:2]) + '\n' + \
-                self._netmake_O(nodes=(self.relnodes[0], self.relnodes[2]))
+                if 'mirror' in opts:
+                    opts.remove('mirror')
+                else:
+                    opts.add('mirror')
+            net = self._netmake_opts(opts)
+
+            if active ^ ('mirror' in self.opts):
+                return net + '\n' + self._netmake_W(nodes=(self.relnodes[0], self.relnodes[2]), opts=wopts)
+            return net + '\n' + self._netmake_W(nodes=(self.relnodes[0], self.relnodes[1]), opts=wopts)
+
         else:
             raise RuntimeError('Internal error, unhandled switch %s' % self)
 
