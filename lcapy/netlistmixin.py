@@ -1336,9 +1336,10 @@ class NetlistMixin(object):
             cpt = cpt.name
         return self.elements[cpt].short_circuit()
 
-    def replace_switches(self, switchnames=None, t=0):
+    def replace_switches(self, t=0, switchnames=None):
         """Replace specified switches with wire or open circuit
-        for time t."""
+        for time `t`.   If `switchnames` is not specified, all switches
+        are replaced."""
 
         new = self._new()
 
@@ -1349,6 +1350,17 @@ class NetlistMixin(object):
                 net = cpt._copy()
             new._add(net)
         return new
+
+    def switching_times(self):
+        """Return sorted list of the times that switches activate."""
+
+        times = []
+        for cpt in self._elements.values():
+            if cpt.type.startswith('SW'):
+                active_time = float(cpt.args[0])
+                if active_time not in times:
+                    times.append(active_time)
+        return sorted(times)
 
     def _kill(self, sourcenames):
 
