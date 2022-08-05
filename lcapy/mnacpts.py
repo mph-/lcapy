@@ -298,7 +298,7 @@ class Cpt(ImmittanceMixin):
         """This is used for expanding a component into multiple components"""
 
         name = self.namespace + name + '__' + self.relname
-        return self._netmake1(name, nodes, args, opts)
+        return self._netmake1(name, nodes, args, opts, ignore_keyword=True)
 
     def _select(self, kind=None):
         """Select domain kind for component."""

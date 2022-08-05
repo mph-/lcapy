@@ -803,3 +803,11 @@ class LcapyTester(unittest.TestCase):
         Y = a.transadmittance('P1', 'P2')
         self.assertEqual2(Y, LaplaceDomainAdmittance('-R2 / (R1 * R2 + R1 * R3 + R2 * R3)'),
                           'transadmittance')
+
+    def test_expand(self):
+        """Test expand"""
+
+        a = Circuit('E1 3 0 opamp 1 2\n')
+        b = a.expand()
+
+        self.assertEqual(str(b), 'E__E1 3 0 1 2 E1 0', 'opamp expand')
