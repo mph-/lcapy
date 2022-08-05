@@ -486,7 +486,21 @@ Circuit methods
 - `r_model()` Creates a resistive equivalent model using companion
   circuits (this is used for time-stepping simulation)
 
-- `replace_switches(t)` Replaces switches with a wire or open circuit by considering the switch activation time with the specified time `t`.
+- `replace(name, net)` Replaces the named component.  For example,
+
+   >>> cct = Circuit("""
+   ... V1 1 0 Vs}
+   ... R1 1 2
+   ... L1 2 0""")
+   >>> cct2 = cct.replace('L1', 'C1 2 0')
+   >>> cct2
+   ... V1 1 0 Vs}
+   ... R1 1 2
+   ... C1 2 0""")
+
+- `replace_switches(t)` Replaces switches with a short-circuit or
+  open-circuit circuit by considering whether the specified time `t`
+  is at or after the switch activation time.
 
    >>> cct = Circuit("""
    ... SW1 1 2 no
@@ -501,17 +515,9 @@ Circuit methods
    W 2 3
    O 3 4
 
-- `replace(name, net)` Replaces the named component.  For example,
-
-   >>> cct = Circuit("""
-   ... V1 1 0 Vs}
-   ... R1 1 2
-   ... L1 2 0""")
-   >>> cct2 = cct.replace('L1', 'C1 2 0')
-   >>> cct2
-   ... V1 1 0 Vs}
-   ... R1 1 2
-   ... C1 2 0""")
+- `replace_switches)before(t)` Replaces switches with a short-circuit
+  or open-circuit circuit by considering whether the specified time
+  `t` is before the switch activation time.
 
 - `s_model()` Converts sources to the s-domain and represents
   reactive components as impedances

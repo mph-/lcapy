@@ -164,8 +164,8 @@ class Cpt(ImmittanceMixin):
 
         return self._copy()
 
-    def _replace_switch(self, t):
-        """Replace switch with wire or open circuit at time t."""
+    def _replace_switch(self, t, before=False):
+        """Replace switch with short-circuit or open-circuit at time t."""
 
         return self._copy()
 
@@ -1587,13 +1587,18 @@ class SPppm(Dummy):
 class SW(TimeVarying):
     """Switch"""
 
-    def _replace_switch(self, t):
-        """Replace switch with wire or open circuit at time t."""
+    def _replace_switch(self, t, before=False):
+        """Replace switch with open-circuit or short-circuit
+        using specified time `t`."""
 
         kind = self.__class__.__name__
 
         active_time = expr(self.args[0])
-        active = expr(t) >= active_time
+
+        if before:
+            active = expr(t) <= active_time
+        else:
+            active = expr(t) < active_time
 
         if kind in ('SW', 'SWno', 'SWpush'):
             if active:

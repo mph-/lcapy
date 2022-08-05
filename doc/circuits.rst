@@ -280,21 +280,42 @@ Here's an example using the `replace_switches()` and `initialize()` methods to a
 
 This produces the schematic:
 
-.. image:: examples/netlists/swrc2.png
+.. image:: examples/netlists/SWRC2.png
    :width: 8cm
 
 Now two new circuits are created: one before the switch opening and
 the other after the switch opening.
 
-   >>> before = a.replace_switches(-1)
+   >>> before = a.replace_switches_before(0)
+
+.. image:: examples/netlists/SWRC2before.png
+   :width: 8cm
+
    >>> after = a.replace_switches(0).initialize(before, 0)
-   >>> after.C.V(s)
+
+.. image:: examples/netlists/SWRC2after.png
+   :width: 8cm
+
+The after netlist can now be analysed as an initial value problem.
+
+   >>> after.C.V(t)
      ⎛           -t ⎞
      ⎜           ───⎟
      ⎜           C⋅R⎟
    V⋅⎝C⋅R - C⋅R⋅ℯ   ⎠
    ──────────────────  for t ≥ 0
           C⋅R
+
+Note, time `t` is relative to the when the initial values were
+evaluated.  If the circuit was evaluated at `t=2`, the correction can
+be made using something like:
+
+   >>> after.C.V(t).subs(t, t - 2)
+      -(t - 2)
+      ─────────
+         C⋅R
+   V⋅ℯ           for t ≥ 2
+
 
 
 Noise analysis
