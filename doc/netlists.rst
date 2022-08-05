@@ -443,6 +443,12 @@ Circuit methods
    the negative specified node is connected to ground.  The new
    netlist is returned.
 
+- `convert_IVP(t)` Returns a new circuit suitable for solving as an
+  initial value problem.  Any switches in the circuit are evaluated at
+  the specified time `t`.  Note, when solving the IVP, time is
+  referred to when the last switch activated prior to the time
+  specified for `t`.
+
 - `describe()` Prints message describing how netlist is solved
 
 - `has()` Returns True if component in netlist
@@ -481,6 +487,8 @@ Circuit methods
    >>> a.initialize({'L1': 7})
    L1 1 2 L1 7
 
+   See also `convert_IVP`.
+
 - `open_circuit(cpt)` Applies open circuit in series with the component.  The name of the open circuit component is returned.
 
 - `r_model()` Creates a resistive equivalent model using companion
@@ -500,7 +508,7 @@ Circuit methods
 
 - `replace_switches(t)` Replaces switches with a short-circuit or
   open-circuit circuit by considering whether the specified time `t`
-  is at or after the switch activation time.
+  is at or after the switch activation time.   See also `convert_IVP`.
 
    >>> cct = Circuit("""
    ... SW1 1 2 no
@@ -517,7 +525,7 @@ Circuit methods
 
 - `replace_switches)before(t)` Replaces switches with a short-circuit
   or open-circuit circuit by considering whether the specified time
-  `t` is before the switch activation time.
+  `t` is before the switch activation time.   See also `convert_IVP`.
 
 - `s_model()` Converts sources to the s-domain and represents
   reactive components as impedances
@@ -549,7 +557,7 @@ Circuit methods
    R1 1 2
    L1 2 0 3
 
-- `switching_times` Returns sorted list of times when switches become active.  For example,
+- `switching_times(tmax)` Returns sorted list of times when switches become active if they are before `tmax` (default 1e12).  For example,
 
    >>> cct = Circuit("""
    ... SW1 1 2 no

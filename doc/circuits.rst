@@ -194,19 +194,89 @@ Switching analysis
 
 Whenever a circuit has a switch it is time variant.  The opening or
 closing of the switch changes the circuit and can produce transients.
+Be careful with switching circuits since it easy to produce a circuit
+that cannot be analysed; for example, an inductor may be
+open-circuited when a switch opens.
 
-Lcapy can replace the switches with open-circuit or short-circuit
-components using the `replace_switches()` method.  This has a time
-argument that is compared with the activation time of each switch.
-The new circuit has no switches and so can be solved.  The switch
-activation times can be found with the `switching_times()` method;
-this returns a sorted list of activation times.
+Lcapy can solve circuits with switches by converting them to an
+initial value problem (IVP) with the `convert_IVP()` method.  This has
+a time argument that is used to determine the states of the switches.
+The circuit is solved prior to the moment when the last switch
+activates and this is used to provide initial values for the moment
+when the last switch activates.  If there are multiple switches with
+different activation times, the initial values are evaluated
+recursively.
 
-While a switch violates the time-invariance requirements for linear
-circuit analysis, the circuit prior to the switch changing can be
-analysed and used to determine the initial conditions for the circuit
-after the switched changed.  Lcapy can help automate this with the
-`initialize()` method.  For example,
+For example, the following netlist
+
+   >>> from lcapy import *
+   >>> a = Circuit("""
+   ... V 1 0; down
+   ... W 1 5; right
+   ... SW 2 5 4 spdt; right, mirror, invert
+   ... R 2 3; right
+   ... W 4 0_2; down
+   ... C 3 0_3; down
+   ... W 0 0_2; right=0.5
+   ... W 0_2 0_3; right
+   ... ; draw_nodes=connections""")
+   >>> a.draw()
+
+produces this schematic:
+
+.. image:: examples/netlists/SWRC.png
+   :width: 8cm
+
+The netlist can be converted to an initial value problem using:
+
+   >>> cct_ivp = cct.convert_IVP(0)
+
+The 0 argument to the `convert_IVP()` method says to analyse the
+circuit just after the switch has been activated at $t=0$.  The new
+netlist is::
+
+   V 1 0; down
+   W 1 5; right
+   SW 2 5 4 spdt 0; right, mirror, invert, nosim, l
+   W 2 4; right, mirror, invert, ignore
+   R 2 3; right
+   W 4 0_2; down
+   C 3 0_3 C V; down
+   W 0 0_2; right=0.5
+   W 0_2 0_3; right
+   ; draw_nodes=connections
+
+Notes:
+
+1. The switch component is retained for drawing purposes but has
+the `nosim` attribute so it is not considered in analysis.
+2. A wire is added across the switch but this has the `ignore`
+attribute to prevent drawing.
+3. The capacitor has an initial value added.
+
+The new netlist has a schematic:
+
+.. image:: examples/netlists/SWRCafter.png
+   :width: 8cm
+
+The time-domain voltage across the capacitor can now be found using:
+
+   >>> cct_ivp.C.V(t)
+     ⎛           -t ⎞
+     ⎜           ───⎟
+     ⎜           C⋅R⎟
+   V⋅⎝C⋅R - C⋅R⋅ℯ   ⎠
+   ──────────────────  for t ≥ 0
+          C⋅R
+
+Internally, the `convert_IVP()` method uses the `replace_switches()`
+method to replace switches with open-circuit or short-circuit
+components.  The switch activation times are then found with the
+`switching_times()` method; this returns a sorted list of activation
+times.  Finally, the `initialize()` method is used to set the initial
+values.
+
+Here's an example of using the `initialize()` method:
 
    >>> from lcapy import *
    >>> a1 = Circuit("""
@@ -263,7 +333,8 @@ This is a trivial case where the capacitor voltage is set to the DC
 voltage of the source.  Note, the `initialize()` method can also take
 a dictionary of initial values keyed by component name.
 
-Here's an example using the `replace_switches()` and `initialize()` methods to analyse a switching circuit:
+Here's an example using the `replace_switches()` and `initialize()`
+methods to analyse a switching circuit:
 
    >>> from lcapy import *
    >>> a = Circuit("""
@@ -307,16 +378,18 @@ The after netlist can now be analysed as an initial value problem.
    ──────────────────  for t ≥ 0
           C⋅R
 
+
 Note, time `t` is relative to the when the initial values were
 evaluated.  If the circuit was evaluated at `t=2`, the correction can
 be made using something like:
 
    >>> after.C.V(t).subs(t, t - 2)
-      -(t - 2)
-      ─────────
-         C⋅R
-   V⋅ℯ           for t ≥ 2
-
+     ⎛           -(t - 2) ⎞
+     ⎜           ─────────⎟
+     ⎜              C⋅R   ⎟
+   V⋅⎝C⋅R - C⋅R⋅ℯ         ⎠
+   ────────────────────────  for t ≥ 2
+             C⋅R
 
 
 Noise analysis
