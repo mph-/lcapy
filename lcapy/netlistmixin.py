@@ -1336,6 +1336,30 @@ class NetlistMixin(object):
             cpt = cpt.name
         return self.elements[cpt].short_circuit()
 
+    def convert_IVP(self, t=0):
+        """Remove switches from netlist and convert to an initial value
+        problem. `t` is used to determine the state of the switches."""
+
+        times = self.switching_times()
+        if times == ():
+            warn('Netlist has no switches')
+            return self
+
+        if t < times[0]:
+            return self.replace_switches(t)
+
+        cct = self
+        for m, time in enumerate(times):
+            if time > t:
+                break
+            before = cct.replace_switches_before(time)
+            cct = cct.replace_switches(time).initialize(before, time)
+
+        if time != 0:
+            warn('Note, the time t is relative to %s' % time)
+
+        return cct
+
     def _replace_switches(self, t=0, switchnames=None, before=False):
         """Replace specified switches with wire or open circuit
         for time `t`.   If `switchnames` is not specified, all switches
