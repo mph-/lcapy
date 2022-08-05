@@ -277,6 +277,22 @@ simulation (additional components can be drawn, see
 
    `rname Np Nm r`
 
+
+- Switch:
+
+  `SW Np Nm activation-time`    Normally open switch.
+
+  `SW Np Nm no activation-time`   Normally open switch.
+
+  `SW Np Nm nc activation-time`   Normally closed switch.
+
+  `SW Np Nm push activation-time`   Normally open push button switch.
+
+  `SW Nc Np Nm spdt activation-time`   Single-pole double-throw switch.
+
+The activation-time argument defaults to zero.
+
+
 - Two-port:
 
    `TPname Np Nm Nip Nim A A11 A12 A21 A22 V1a I1a`
@@ -470,6 +486,21 @@ Circuit methods
 - `r_model()` Creates a resistive equivalent model using companion
   circuits (this is used for time-stepping simulation)
 
+- `replace_switches(t)` Replaces switches with a wire or open circuit by considering the switch activation time with the specified time `t`.
+
+   >>> cct = Circuit("""
+   ... SW1 1 2 no
+   ... SW2 2 3 no 1
+   ... SW3 3 4 nc 2""")
+   >>> cct.replace_switches(1)
+   W 1 2
+   W 2 3
+   W 3 4
+   >>> cct.replace_switches(3)
+   W 1 2
+   W 2 3
+   O 3 4
+
 - `replace(name, net)` Replaces the named component.  For example,
 
    >>> cct = Circuit("""
@@ -503,7 +534,7 @@ Circuit methods
 - `subs(subs_dict)` Substitutes symbolic values in the netlist using a dictionary of symbols `subs_dict`.  For example,
 
    >>> cct = Circuit("""
-   ... V1 1 0 Vs}
+   ... V1 1 0 Vs
    ... R1 1 2
    ... L1 2 0""")
    >>> cct2 = cct.subs({'Vs': 10, 'L1': 3})
@@ -511,6 +542,15 @@ Circuit methods
    V1 1 0 10
    R1 1 2
    L1 2 0 3
+
+- `switching_times` Returns sorted list of times when switches become active.  For example,
+
+   >>> cct = Circuit("""
+   ... SW1 1 2 no
+   ... SW2 2 3 no 1
+   ... SW3 3 4 nc 2""")
+   >>> cct.switching_times()
+   [0.0, 1.0, 2.0]
 
 - `unconnected_nodes` Returns list of names of nodes that are unconnected
 

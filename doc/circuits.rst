@@ -127,7 +127,6 @@ The method that Lcapy uses can be found using the `describe()` method.   For exa
    Phasor analysis is used for source V2.
 
 
-
 DC analysis
 -----------
 
@@ -195,6 +194,14 @@ Switching analysis
 
 Whenever a circuit has a switch it is time variant.  The opening or
 closing of the switch changes the circuit and can produce transients.
+
+Lcapy can replace the switches with open-circuit or short-circuit
+components using the `replace_switches()` method.  This has a time
+argument that is compared with the activation time of each switch.
+The new circuit has no switches and so can be solved.  The switch
+activation times can be found with the `switching_times()` method;
+this returns a sorted list of activation times.
+
 While a switch violates the time-invariance requirements for linear
 circuit analysis, the circuit prior to the switch changing can be
 analysed and used to determine the initial conditions for the circuit
@@ -228,6 +235,7 @@ after the switched changed.  Lcapy can help automate this with the
    L 3 0_3; down
    W 0_2 0_3; right
 
+
 In this example, the circuit defined as `a1` changes to the circuit
 defined as `a2` at the instant `t1`.  The `initialize()` method adds
 the initial values for `a2` based on the values from `a1` at `t1`.  In
@@ -236,7 +244,7 @@ capacitor voltage for the circuit `a1` at time `t1`.  Note, it is
 assumed that `t1` is a valid time for the results of circuit `a1`.
 
 The `initialize()` method can be applied to update the initial values
-of a circuit.  For example,
+of a circuit.  For example:
 
    >>> from lcapy import *
    >>> a1 = Circuit("""
@@ -251,7 +259,42 @@ of a circuit.  For example,
    C 2 0_2 C V; down
    W 0 0_2; right
 
-This is a trivial case where the capacitor voltage is set to the DC voltage of the source.   Note, the `initialize()` method can also take a dictionary of initial values keyed by component name.
+This is a trivial case where the capacitor voltage is set to the DC
+voltage of the source.  Note, the `initialize()` method can also take
+a dictionary of initial values keyed by component name.
+
+Here's an example using the `replace_switches()` and `initialize()` methods to analyse a switching circuit:
+
+   >>> from lcapy import *
+   >>> a = Circuit("""
+   ... V 1 0; down
+   ... W 1 5; right
+   ... SW 2 5 4 spdt; right, mirror, invert
+   ... R 2 3; right
+   ... W 4 0_2; down
+   ... C 3 0_3; down
+   ... W 0 0_2; right=0.5
+   ... W 0_2 0_3; right
+   ... ; draw_nodes=connections""")
+   >>> a.draw()
+
+This produces the schematic:
+
+.. image:: examples/netlists/swrc2.png
+   :width: 8cm
+
+Now two new circuits are created: one before the switch opening and
+the other after the switch opening.
+
+   >>> before = a.replace_switches(-1)
+   >>> after = a.replace_switches(0).initialize(before, 0)
+   >>> after.C.V(s)
+     ⎛           -t ⎞
+     ⎜           ───⎟
+     ⎜           C⋅R⎟
+   V⋅⎝C⋅R - C⋅R⋅ℯ   ⎠
+   ──────────────────  for t ≥ 0
+          C⋅R
 
 
 Noise analysis

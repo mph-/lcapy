@@ -233,7 +233,8 @@ class Cpt(ImmittanceMixin):
 
         return self._netsubs(node_map)
 
-    def _netmake1(self, name, nodes=None, args=None, opts=None):
+    def _netmake1(self, name, nodes=None, args=None, opts=None,
+                  ignore_keyword=False):
 
         if nodes is None:
             nodes = self.relnodes
@@ -257,7 +258,7 @@ class Cpt(ImmittanceMixin):
         parts = [name]
         for m, node in enumerate(nodes):
             parts.append(node)
-            if self.keyword[0] == m + 1:
+            if not ignore_keyword and self.keyword[0] == m + 1:
                 parts.append(self.keyword[1])
         parts.extend(fmtargs)
 
@@ -267,19 +268,20 @@ class Cpt(ImmittanceMixin):
             net += '; ' + opts_str
         return net
 
-    def _netmake(self, nodes=None, args=None, opts=None):
+    def _netmake(self, nodes=None, args=None, opts=None, ignore_keyword=False):
         """This keeps the same cpt name"""
-        return self._netmake1(self.namespace + self.relname, nodes, args, opts)
+        return self._netmake1(self.namespace + self.relname, nodes, args, opts,
+                              ignore_keyword=ignore_keyword)
 
     def _netmake_W(self, nodes=None, opts=None):
         """This is used for changing cpt name from L1 to W"""
         return self._netmake1(self.namespace + 'W', nodes, args=(),
-                              opts=opts)
+                              opts=opts, ignore_keyword=True)
 
     def _netmake_O(self, nodes=None, opts=None):
         """This is used for changing cpt name from C1 to O"""
         return self._netmake1(self.namespace + 'O', nodes, args=(),
-                              opts=opts)
+                              opts=opts, ignore_keyword=True)
 
     def _netmake_opts(self, opts=None):
         """This is used for changing the opts"""
@@ -1284,7 +1286,8 @@ class I(IndependentSource):
 
     def _select(self, kind=None):
         """Select domain kind for component."""
-        return self._netmake(args=self.cpt.Isc.netval(kind))
+        return self._netmake(args=self.cpt.Isc.netval(kind),
+                             ignore_keyword=True)
 
     def _kill(self):
         newopts = self.opts.copy()
@@ -1918,7 +1921,8 @@ class V(IndependentSource):
 
     def _select(self, kind=None):
         """Select domain kind for component."""
-        return self._netmake(args=self.cpt.Voc.netval(kind))
+        return self._netmake(args=self.cpt.Voc.netval(kind),
+                             ignore_keyword=True)
 
     def _kill(self):
         newopts = self.opts.copy()
