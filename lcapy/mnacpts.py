@@ -757,7 +757,7 @@ class TimeVarying(Invalid):
 
     def _stamp(self, mna):
         raise NotImplementedError(
-            'Cannot analyse time-varying component: %s' % self)
+            'Cannot analyse time-varying component (use convert_IVP): %s' % self)
 
 
 class Logic(Invalid):
@@ -1612,7 +1612,9 @@ class SW(TimeVarying):
 
             opts = self.opts.copy()
             opts.add('nosim')
-            opts.add('l=')
+            if 'l' not in opts:
+                # Remove label
+                opts.add('l=')
 
             wopts = self.opts.copy()
             wopts.add('ignore')
