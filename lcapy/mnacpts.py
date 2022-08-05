@@ -1596,9 +1596,9 @@ class SW(TimeVarying):
         active_time = expr(self.args[0])
 
         if before:
-            active = expr(t) <= active_time
-        else:
             active = expr(t) < active_time
+        else:
+            active = expr(t) >= active_time
 
         if kind in ('SW', 'SWno', 'SWpush'):
             if active:

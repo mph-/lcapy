@@ -1389,14 +1389,15 @@ class NetlistMixin(object):
 
         return self._replace_switches(t, switchnames, before=True)
 
-    def switching_times(self):
-        """Return sorted list of the times that switches activate."""
+    def switching_times(self, tmax=1e12):
+        """Return sorted list of the times that switches activate prior to
+        `tmax`."""
 
         times = []
         for cpt in self._elements.values():
             if cpt.type.startswith('SW'):
                 active_time = float(cpt.args[0])
-                if active_time not in times:
+                if active_time < tmax and active_time not in times:
                     times.append(active_time)
         return sorted(times)
 
