@@ -564,6 +564,315 @@ Finally, the result in terms of R, L, and C can be found by substituting the par
 However, the result is too long to show.
 
 
+.. _switchingcircuits:
+
+Switching circuits
+==================
+
+Lcapy can solve circuits with switches by converting them to an
+initial value problem (IVP) with the `convert_IVP()` method.  This has
+a time argument that is used to determine the states of the switches.
+The circuit is solved prior to the moment when the last switch
+activates and this is used to provide initial values for the moment
+when the last switch activates.  If there are multiple switches with
+different activation times, the initial values are evaluated
+recursively.
+
+Be careful with switching circuits since it easy to produce a circuit
+that cannot be analysed; for example, an inductor may be
+open-circuited when a switch opens.
+
+Internally, the `convert_IVP()` method uses the `replace_switches()`
+method to replace switches with open-circuit or short-circuit
+components.  The switch activation times are then found with the
+`switching_times()` method; this returns a sorted list of activation
+times.  Finally, the `initialize()` method is used to set the initial
+values.
+
+RC circuit
+----------
+
+The following netlist
+
+   >>> from lcapy import *
+   >>> a = Circuit("""
+   ... V 1 0; down
+   ... W 1 5; right
+   ... SW 2 5 4 spdt; right, mirror, invert
+   ... R 2 3; right
+   ... W 4 0_2; down
+   ... C 3 0_3; down
+   ... W 0 0_2; right=0.5
+   ... W 0_2 0_3; right
+   ... ; draw_nodes=connections""")
+   >>> a.draw()
+
+produces this schematic:
+
+.. image:: examples/netlists/SWRC.png
+   :width: 8cm
+
+The netlist can be converted to an initial value problem using:
+
+   >>> cct_ivp = cct.convert_IVP(0)
+
+The 0 argument to the `convert_IVP()` method says to analyse the
+circuit just after the switch has been activated at :math:`t=0`.  The new
+netlist is::
+
+   V 1 0; down
+   W 1 5; right
+   SW 2 5 4 spdt 0; right, mirror, invert, nosim, l
+   W 2 4; right, mirror, invert, ignore
+   R 2 3; right
+   W 4 0_2; down
+   C 3 0_3 C 0; down
+   W 0 0_2; right=0.5
+   W 0_2 0_3; right
+   ; draw_nodes=connections
+
+Notes:
+
+1. The switch component is retained for drawing purposes but has
+the `nosim` attribute so it is not considered in analysis.
+2. A wire is added across the switch but this has the `ignore`
+attribute to prevent drawing.
+3. The capacitor has an initial value added.
+
+The new netlist has a schematic:
+
+.. image:: examples/netlists/SWRCivp.png
+   :width: 8cm
+
+The time-domain voltage across the capacitor can now be found using:
+
+   >>> cct_ivp.C.V(t)
+     ⎛           -t ⎞
+     ⎜           ───⎟
+     ⎜           C⋅R⎟
+   V⋅⎝C⋅R - C⋅R⋅ℯ   ⎠
+   ──────────────────  for t ≥ 0
+          C⋅R
+
+Note, time `t` is relative to the when the initial values were
+evaluated.  If the circuit was evaluated at `t=2`, the correction can
+be made using something like:
+
+   >>> after.C.V(t).subs(t, t - 2)
+     ⎛           -(t - 2) ⎞
+     ⎜           ─────────⎟
+     ⎜              C⋅R   ⎟
+   V⋅⎝C⋅R - C⋅R⋅ℯ         ⎠
+   ────────────────────────  for t ≥ 2
+             C⋅R
+
+RL circuit
+----------
+
+The following netlist
+
+   >>> from lcapy import *
+   >>> a = Circuit("""
+   ... V 1 0; down
+   ... SW 1 2 no; right
+   ... R 2 3; right
+   ... L 3 0_3; down
+   ... W 0 0_3; right
+   ... ; draw_nodes=connections""")
+   >>> a.draw()
+
+produces this schematic:
+
+.. image:: examples/netlists/SWRL.png
+   :width: 6cm
+
+The netlist can be converted to an initial value problem using:
+
+   >>> cct_ivp = cct.convert_IVP(0)
+
+The 0 argument to the `convert_IVP()` method says to analyse the
+circuit just after the switch has been activated at :math:`t=0`.  The new
+netlist is::
+
+  V 1 0; down
+  W 1 2; right
+  R 2 3; right
+  L 3 0_3 L 0; down
+  W 0 0_3; right
+  ; draw_nodes=connections
+
+The new netlist has a schematic:
+
+.. image:: examples/netlists/SWRLivp.png
+   :width: 7cm
+
+The time-domain voltage across the inductor can now be found using:
+
+   >>> cct_ivp.L.V(t)
+      -R⋅t
+      ─────
+        L
+   V⋅ℯ       for t ≥ 0
+
+
+RC circuit2
+-----------
+
+The following netlist
+
+   >>> from lcapy import *
+   >>> a = Circuit("""
+   ... V1 1 0; down
+   ... W 1 5; right
+   ... SW 2 5 4 spdt; right, mirror, invert
+   ... R 2 3; right
+   ... V2 4 0_2; down
+   ... C 3 0_3; down
+   ... W 0 0_2; right=0.5
+   ... W 0_2 0_3; right
+   ... ; draw_nodes=connections""")
+   >>> a.draw()
+
+produces this schematic:
+
+.. image:: examples/netlists/SWRC2.png
+   :width: 8cm
+
+The netlist can be converted to an initial value problem using:
+
+   >>> cct_ivp = cct.convert_IVP(0)
+
+The 0 argument to the `convert_IVP()` method says to analyse the
+circuit just after the switch has been activated at :math:`t=0`.  The new
+netlist is::
+
+   V1 1 0; down
+   W 1 5; right
+   SW 2 5 4 spdt 0; right, invert, nosim, l
+   W 2 5; right, mirror, invert, ignore
+   R 2 3; right
+   V2 4 0_2; down
+   C 3 0_3 C V2; down
+   W 0 0_2; right=0.5
+   W 0_2 0_3; right
+   ; draw_nodes=connections
+
+The new netlist has a schematic:
+
+.. image:: examples/netlists/SWRC2ivp.png
+   :width: 9cm
+
+The time-domain voltage across the inductor can now be found using:
+
+   >>> cct_ivp.C.V(t)
+                    -t
+                    ───
+                    C⋅R
+   V₁ + (-V₁ + V₂)⋅ℯ     for t ≥ 0
+
+
+Switch replacement
+------------------
+
+Switches can be replaced with open-circuits or short-circuits using
+the `replace_switches()` method.   For example:
+
+   >>> from lcapy import *
+   >>> a = Circuit("""
+   ... V 1 0; down
+   ... W 1 5; right
+   ... SW 2 5 4 spdt; right, mirror, invert
+   ... R 2 3; right
+   ... W 4 0_2; down
+   ... C 3 0_3; down
+   ... W 0 0_2; right=0.5
+   ... W 0_2 0_3; right
+   ... ; draw_nodes=connections""")
+   >>> a.draw()
+
+produces the schematic:
+
+.. image:: examples/netlists/SWRC.png
+   :width: 8cm
+
+
+From this two new circuits can be created: one before the switch opening:
+
+   >>> before = a.replace_switches_before(0)
+
+.. image:: examples/netlists/SWRCbefore.png
+   :width: 8cm
+
+and the other after the switch opening:
+
+   >>> after = a.replace_switches(0).initialize(before, 0)
+
+.. image:: examples/netlists/SWRCafter.png
+   :width: 8cm
+
+
+Setting initial values
+----------------------
+
+The initial values can be set by analyzing a related circuit.  This is
+performed by the `initialize()` method.  For example:
+
+   >>> from lcapy import *
+   >>> a1 = Circuit("""
+   ... V 1 0 dc; down
+   ... R 1 2; right
+   ... C 2 0_2; down
+   ... W 0 0_2; right
+   ... """)
+   >>> a2 = Circuit("""
+   ... V 1 0 step; down
+   ... R 1 2; right
+   ... C 2 0_2 C; down
+   ... W 0 0_2; right
+   ... W 2 3; right
+   ... L 3 0_3; down
+   ... W 0_2 0_3; right
+   ... """)
+   >>> t1 = expr('t1', positive=True)
+   >>> a2i = a2.initialize(a1, t1)
+   >>> a2i
+   V 1 0 dc; down
+   R 1 2; right
+   C 2 0_2 C {V*(C*R - C*R*exp(-t1/(C*R)))/(C*R)}; down
+   W 0 0_2; right
+   W 2 3; right
+   L 3 0_3; down
+   W 0_2 0_3; right
+
+
+In this example, the circuit defined as `a1` changes to the circuit
+defined as `a2` at the instant `t1`.  The `initialize()` method adds
+the initial values for `a2` based on the values from `a1` at `t1`.  In
+this case the capacitor `C` is initialized with the corresponding
+capacitor voltage for the circuit `a1` at time `t1`.  Note, it is
+assumed that `t1` is a valid time for the results of circuit `a1`.
+
+The `initialize()` method can be applied to update the initial values
+of a circuit.  For example:
+
+   >>> from lcapy import *
+   >>> a1 = Circuit("""
+   ... V 1 0 dc; down
+   ... R 1 2; right
+   ... C 2 0_2; down
+   ... W 0 0_2; right
+   ... """)
+   >>> a1.initialize(a1, 3)
+   V 1 0 dc; down
+   R 1 2; right
+   C 2 0_2 C V; down
+   W 0 0_2; right
+
+This is a trivial case where the capacitor voltage is set to the DC
+voltage of the source.  Note, the `initialize()` method can also take
+a dictionary of initial values keyed by component name.
+
+
 Opamps
 ======
 
