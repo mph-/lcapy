@@ -1313,10 +1313,7 @@ class NetlistMixin(object):
         new = self._new()
 
         for cpt in self._elements.values():
-            if cpt.independent_source:
-                net = cpt._select(kind)
-            else:
-                net = cpt._copy()
+            net = cpt._select(kind)
             new._add(net)
         return new
 

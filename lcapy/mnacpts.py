@@ -301,8 +301,7 @@ class Cpt(ImmittanceMixin):
         return self._netmake1(name, nodes, args, opts, ignore_keyword=True)
 
     def _select(self, kind=None):
-        """Select domain kind for component."""
-        raise ValueError('Component not a source: %s' % self)
+        return self._copy()
 
     def _new_value(self, value, ic=None):
 
@@ -926,6 +925,15 @@ class C(RC):
     @property
     def C(self):
         return self.cpt.C
+
+    # Replace C with open-circuit for DC but this loses branch current through C
+    # def _select(self, kind=None):
+    #     if kind != 'dc':
+    #         return self._copy()
+    #
+    #     copts = self.opts.copy()
+    #     copts.add('nosim')
+    #     return self._netmake_opts(copts) + '\n' + self._netmake_O()
 
     def _kill(self):
         """Kill implicit sources due to initial conditions."""
