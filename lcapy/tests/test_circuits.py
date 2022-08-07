@@ -79,7 +79,7 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual2(a.Voc(1, 0).s, V('V1 / s').Voc.s,
                           "Voc incorrect across V1")
-        self.assertEqual(a.is_ivp, False, "Initial value problem incorrect")
+        self.assertEqual(a.is_IVP, False, "Initial value problem incorrect")
         self.assertEqual(a.is_dc, False, "DC incorrect")
         self.assertEqual(a.is_ac, False, "AC incorrect")
 
@@ -119,7 +119,7 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual2(a.Voc(1, 0), V('V1' / s).Voc,
                           "Voc incorrect across V1")
-        self.assertEqual(a.is_ivp, True, "Initial value problem incorrect")
+        self.assertEqual(a.is_IVP, True, "Initial value problem incorrect")
         self.assertEqual(a.is_dc, False, "DC incorrect")
         self.assertEqual(a.is_ac, False, "AC incorrect")
 
@@ -214,7 +214,7 @@ class LcapyTester(unittest.TestCase):
         a.add('V1 1 0 dc')
         a.add('R1 1 2')
         a.add('L1 2 0')
-        self.assertEqual(a.is_ivp, False, "Initial value problem incorrect")
+        self.assertEqual(a.is_IVP, False, "Initial value problem incorrect")
         self.assertEqual(a.is_dc, True, "DC incorrect")
         self.assertEqual(a.is_ac, False, "AC incorrect")
 
@@ -236,7 +236,7 @@ class LcapyTester(unittest.TestCase):
         v = LaplaceDomainVoltage('(V1+1)/s', dc=False).inverse_laplace()
         self.assertEqual2(a.R1.v, v,
                           "Incorrect time domain voltage")
-        self.assertEqual(a.is_ivp, True, "Initial value problem incorrect")
+        self.assertEqual(a.is_IVP, True, "Initial value problem incorrect")
         self.assertEqual(a.is_dc, False, "DC incorrect")
         self.assertEqual(a.is_ac, False, "AC incorrect")
 
@@ -264,7 +264,7 @@ class LcapyTester(unittest.TestCase):
         a.add('V1 1 0 ac')
         a.add('R1 1 2')
         a.add('L1 2 0')
-        self.assertEqual(a.is_ivp, False, "Initial value problem incorrect")
+        self.assertEqual(a.is_IVP, False, "Initial value problem incorrect")
         self.assertEqual(a.is_dc, False, "DC incorrect")
         self.assertEqual(a.is_ac, True, "AC incorrect")
         self.assertEqual(a.R1.I, a.L1.I, "currents different")
@@ -305,7 +305,7 @@ class LcapyTester(unittest.TestCase):
         a = Circuit()
         a.add('V1 1 0 ac 5 0 1')
         a.add('R1 1 0 1')
-        self.assertEqual(a.is_ivp, False, "Initial value problem incorrect")
+        self.assertEqual(a.is_IVP, False, "Initial value problem incorrect")
         self.assertEqual(a.is_dc, False, "DC incorrect")
         self.assertEqual(a.is_ac, True, "AC incorrect")
         self.assertEqual(a.is_causal, False, "Causal incorrect")
@@ -328,7 +328,7 @@ class LcapyTester(unittest.TestCase):
         a.add('V1 1 0 ac 5 0 1')
         a.add('R1 1 2 3')
         a.add('L1 2 0 4')
-        self.assertEqual(a.is_ivp, False, "Initial value problem incorrect")
+        self.assertEqual(a.is_IVP, False, "Initial value problem incorrect")
         self.assertEqual(a.is_dc, False, "DC incorrect")
         self.assertEqual(a.is_ac, True, "AC incorrect")
         self.assertEqual(a.is_causal, False, "Causal incorrect")
@@ -347,7 +347,7 @@ class LcapyTester(unittest.TestCase):
         C 2 3 C V0; down
         W 0 3; right""")
 
-        self.assertEqual(a.is_ivp, True, "Initial value problem incorrect")
+        self.assertEqual(a.is_IVP, True, "Initial value problem incorrect")
         self.assertEqual(a.R.I, a.C.I, "R + C current different")
         self.assertEqual(a.V.I, a.C.I, "V + C current different")
         self.assertEqual(a.V.V,  a.R.V + a.C.V, "KVL fail")
@@ -358,7 +358,7 @@ class LcapyTester(unittest.TestCase):
         C 1 2 C V0; down
         W 0 3; right""")
 
-        self.assertEqual(a.is_ivp, True, "Initial value problem incorrect")
+        self.assertEqual(a.is_IVP, True, "Initial value problem incorrect")
         self.assertEqual(a.R.I, a.C.I, "R + C current different")
         self.assertEqual(a.V.I, a.C.I, "V + C current different")
         self.assertEqual(a.V.V,  a.R.V + a.C.V, "KVL fail")
@@ -372,7 +372,7 @@ class LcapyTester(unittest.TestCase):
         L 2 3 L I0; down
         W 0 3; right""")
 
-        self.assertEqual(a.is_ivp, True, "Initial value problem incorrect")
+        self.assertEqual(a.is_IVP, True, "Initial value problem incorrect")
         self.assertEqual(a.R.I, a.L.I, "R + L current different")
         self.assertEqual(a.V.I, a.L.I, "V + L current different")
         self.assertEqual(a.V.V,  a.R.V + a.L.V, "KVL fail")
@@ -383,7 +383,7 @@ class LcapyTester(unittest.TestCase):
         L 1 2 L I0; down
         W 0 3; right""")
 
-        self.assertEqual(a.is_ivp, True, "Initial value problem incorrect")
+        self.assertEqual(a.is_IVP, True, "Initial value problem incorrect")
         self.assertEqual(a.R.I, a.L.I, "R + L current different")
         self.assertEqual(a.V.I, a.L.I, "V + L current different")
         self.assertEqual(a.V.V,  a.R.V + a.L.V, "KVL fail")
@@ -395,7 +395,7 @@ class LcapyTester(unittest.TestCase):
         L 1 0 L i0
         R 1 0""")
 
-        self.assertEqual(a.is_ivp, True, "Initial value problem incorrect")
+        self.assertEqual(a.is_IVP, True, "Initial value problem incorrect")
         # Note, a positive current through an inductor is from the
         # positive node to the negative node.
         self.assertEqual(a.R.I, -a.L.I, "R + L current different")
@@ -410,7 +410,7 @@ class LcapyTester(unittest.TestCase):
         C 1 0 C v0
         R 1 0""")
 
-        self.assertEqual(a.is_ivp, True, "Initial value problem incorrect")
+        self.assertEqual(a.is_IVP, True, "Initial value problem incorrect")
         self.assertEqual(a.R.I, -a.C.I, "R + C current different")
         self.assertEqual(a.R.V, a.C.V, "R + C voltage different")
         self.assertEqual(a.C.I(s), current(

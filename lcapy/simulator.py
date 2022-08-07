@@ -286,7 +286,7 @@ class Simulator(object):
         # then substitute values.
 
         if n == 0:
-            if not self.cct.is_ivp:
+            if not self.cct.is_IVP:
                 # Initial voltages and currents all zero.
                 return
             p_model = self.cct.pre_initial_model()

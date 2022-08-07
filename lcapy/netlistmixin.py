@@ -2276,7 +2276,7 @@ class NetlistMixin(object):
         return self.analysis.zeroic
 
     @property
-    def is_ivp(self):
+    def is_IVP(self):
         """Return True for an initial value problem.  This is True if any
         component that allows initial conditions has them explicitly
         defined.
@@ -2437,9 +2437,7 @@ class NetlistMixin(object):
                                                     describe_sources(sources))
 
         if self.is_switching:
-            print(
-                '''This has switches and thus is time variant.  Use the convert_IVP(t) method
-to convert to an initial value problem, specifying the time when to evaluate the switches.''')
+            print('''This has switches and thus is time variant.  Use the convert_IVP(t) method to convert to an initial value problem, specifying the time when to evaluate the switches.''')
             return
 
         groups = self.independent_source_groups(
@@ -2449,7 +2447,7 @@ to convert to an initial value problem, specifying the time when to evaluate the
             print('There are no non-zero independent sources so everything is zero.')
             return
 
-        if self.is_ivp:
+        if self.is_IVP:
             print('This has initial conditions for %s so is an initial value '
                   'problem solved in the s-domain using Laplace transforms.' %
                   ', '.join(self.ics))

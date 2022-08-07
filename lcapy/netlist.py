@@ -83,7 +83,7 @@ class Netlist(NetlistMixin, NetfileMixin):
 
         """
 
-        if self.is_ivp:
+        if self.is_IVP:
 
             def namelist(elements):
                 return ', '.join([elt for elt in elements])

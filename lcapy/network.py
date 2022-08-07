@@ -264,8 +264,8 @@ class Network(object):
         return self.cct.initial_value_problem
 
     @property
-    def is_ivp(self):
-        return self.cct.is_ivp
+    def is_IVP(self):
+        return self.cct.is_IVP
 
     @property
     def is_dc(self):

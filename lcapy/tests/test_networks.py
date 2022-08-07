@@ -40,7 +40,7 @@ class LcapyNetworksTester(unittest.TestCase):
 
         a = Vdc(4) | R(2)
 
-        self.assertEqual(a.is_ivp, False, "is_ivp incorrect")
+        self.assertEqual(a.is_IVP, False, "is_IVP incorrect")
         self.assertEqual(a.is_ac, False, "AC incorrect")
         self.assertEqual(a.is_dc, True, "DC incorrect")
 
@@ -51,7 +51,7 @@ class LcapyNetworksTester(unittest.TestCase):
 
         a = Vdc(4) + C(2)
 
-        self.assertEqual(a.is_ivp, False, "is_ivp incorrect")
+        self.assertEqual(a.is_IVP, False, "is_IVP incorrect")
         self.assertEqual(a.is_ac, False, "AC incorrect")
         self.assertEqual(a.is_dc, True, "DC incorrect")
 
@@ -62,7 +62,7 @@ class LcapyNetworksTester(unittest.TestCase):
 
         a = Vdc(4) + C(2, 0)
 
-        self.assertEqual(a.is_ivp, True, "is_ivp incorrect")
+        self.assertEqual(a.is_IVP, True, "is_IVP incorrect")
         self.assertEqual(a.is_ac, False, "AC incorrect")
         self.assertEqual(a.is_dc, False, "DC incorrect")
 
@@ -98,7 +98,7 @@ class LcapyNetworksTester(unittest.TestCase):
         """Check network with initial values"""
 
         a = Vstep(10) + C('C1', 5)
-        self.assertEqual(a.is_ivp, True, "IVP fail")
+        self.assertEqual(a.is_IVP, True, "IVP fail")
         self.assertEqual2(a.Voc.s, voltage(15 / s), "Voc fail")
 
     def test_causal(self):

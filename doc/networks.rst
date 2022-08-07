@@ -138,7 +138,7 @@ Each network oneport has a number of attributes, including:
 
 - `is_ac` AC network
 
-- `is_ivp` initial value problem
+- `is_IVP` initial value problem
 
 - `is_causal` causal response
 

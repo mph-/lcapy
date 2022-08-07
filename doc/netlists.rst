@@ -745,7 +745,7 @@ circuit:
 
 - `is_ac` AC network
 
-- `is_ivp` initial value problem (at least one capacitor or inductor has an explicit initial condition)
+- `is_IVP` initial value problem (at least one capacitor or inductor has an explicit initial condition)
 
 - `is_causal` causal response
 
