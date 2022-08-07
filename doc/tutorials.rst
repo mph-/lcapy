@@ -762,13 +762,65 @@ The new netlist has a schematic:
 .. image:: examples/netlists/SWRC2ivp.png
    :width: 9cm
 
-The time-domain voltage across the inductor can now be found using:
+The time-domain voltage across the capacitor can now be found using:
 
    >>> cct_ivp.C.V(t)
                     -t
                     ───
                     C⋅R
    V₁ + (-V₁ + V₂)⋅ℯ     for t ≥ 0
+
+RC circuit3
+-----------
+
+The following netlist
+
+   >>> from lcapy import *
+   >>> a = Circuit("""
+   ... V 1 0; down
+   ... SW 1 2 no; right
+   ... R 2 3; right
+   ... C 3 0_3; down
+   ... W 0 0_3; right
+   ... ; draw_nodes=connections""")
+   >>> a.draw()
+
+produces this schematic:
+
+.. image:: examples/netlists/SWRC3.png
+   :width: 8cm
+
+The netlist can be converted to an initial value problem using:
+
+   >>> cct_ivp = cct.convert_IVP(0)
+
+The 0 argument to the `convert_IVP()` method says to analyse the
+circuit just after the switch has been activated at :math:`t=0`.  The new
+netlist is::
+
+   V 1 0; down
+   W 1 2; right
+   R 2 3; right
+   C 3 0_3 C 0; down
+   W 0 0_3; right
+   ; draw_nodes=connections
+
+Note, Lcapy assumes that the capacitor is initially uncharged.
+
+The new netlist has a schematic:
+
+.. image:: examples/netlists/SWRC3ivp.png
+   :width: 9cm
+
+The time-domain voltage across the capacitor can now be found using:
+
+   >>> cct_ivp.C.V(t)
+     ⎛           -t ⎞
+     ⎜           ───⎟
+     ⎜           C⋅R⎟
+   V⋅⎝C⋅R - C⋅R⋅ℯ   ⎠
+   ──────────────────  for t ≥ 0
+          C⋅R
 
 
 Switch replacement
