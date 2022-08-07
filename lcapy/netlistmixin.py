@@ -2285,6 +2285,15 @@ class NetlistMixin(object):
         return self.analysis.ivp
 
     @property
+    def is_ivp(self):
+        LcapyDeprecationWarning(
+            feature="is_ivp",
+            useinstead="is_IVP",
+            deprecated_since_version="1.7"
+        ).warn()
+        return self.is_IVP
+
+    @property
     def is_switching(self):
         """Return True for a switching circuit."""
         return self.analysis.switching
