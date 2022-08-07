@@ -13,7 +13,7 @@ V1.7
 
 - Adds `switching_times()` to determine the times when switches activate.
 
-- Fixes `mirror` and `invert` for SPDT switches.
+- Fixes `mirror` and `invert` attributes for SPDT switches.
 
 - Improves debugging for conversion of schematic to png.
 

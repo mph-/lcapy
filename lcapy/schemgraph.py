@@ -625,7 +625,10 @@ class Graph(dict):
             gnode.dist = None
             gnode.next = None
 
-        def traverse(gnode):
+        def traverse(gnode, depth=0):
+
+            if depth > 1000:
+                raise RuntimeError('Recursion depth exceeded')
 
             # If have visited this gnode before then know dist.
             if gnode.dist is not None:
@@ -645,7 +648,7 @@ class Graph(dict):
 
             edges = gnode.fedges
             for edge in edges:
-                dist = traverse(edge.to_gnode)
+                dist = traverse(edge.to_gnode, depth + 1)
                 if dist >= 0 and gnode.dist < dist + edge.size:
                     gnode.dist = dist + edge.size
                     # Mark current best edge
@@ -678,7 +681,9 @@ class Graph(dict):
     def path_to_closest_known(self, from_gnode, forward=True):
         """Find path through DAG to the closest node with a known pos."""
 
-        def traverse(gnode):
+        def traverse(gnode, depth=0):
+            if depth > 1000:
+                raise RuntimeError('Recursion depth exceeded')
 
             if gnode.name in ('start', 'end'):
                 # Choose as last resort
@@ -694,7 +699,7 @@ class Graph(dict):
             for edge in edges:
                 next_gnode = edge.to_gnode
                 # TODO, memoize
-                dist = traverse(next_gnode) - edge.size
+                dist = traverse(next_gnode, depth + 1) - edge.size
                 if dist < min_dist:
                     min_dist = dist
                     next_gnode.prev = edge
@@ -709,7 +714,10 @@ class Graph(dict):
             # W c d; right
             # W a c; down
             # W b d; up
-            msg = "The %s schematic graph has a loop.  For example, a node needs to be both above and below another node.  Probably a component is attached to the wrong nodes.\n" % self.name
+            above = 'above' if self.name == 'vertical' else 'left of'
+            below = 'below' if self.name == 'vertical' else 'right of'
+            msg = "The %s schematic graph has a loop.  For example, a node needs to be both %s and %s another node.  Probably a component is attached to the wrong nodes.\n" % \
+                (self.name, above, below)
             if self.debug:
                 msg += str(self)
             raise RuntimeError(msg)
