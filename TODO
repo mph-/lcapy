@@ -44,6 +44,8 @@ Circuit analysis
 2. Generalise two-port representation to avoid transformations from a
 singular matrix.
 
+3. Remove dangling sources
+
 
 Infrastructure
 ==============

@@ -448,6 +448,7 @@ zsym = domainsymbol('z', real=False)
 
 dt = miscsymbol('Delta_t', real=True, positive=True)
 df = miscsymbol('Delta_f', real=True, positive=True)
+eps = miscsymbol('epsilon42', real=True, positive=True)
 
 pi = sym.pi
 j = sym.I

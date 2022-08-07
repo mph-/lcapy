@@ -12,7 +12,7 @@ from .cexpr import ConstantDomainExpression
 from .omegaexpr import AngularFourierDomainExpression
 from .symbols import j, omega, jomega, s, t
 from .functions import sqrt
-from .sym import capitalize_name, omegasym
+from .sym import capitalize_name, omegasym, eps
 from .grammar import delimiters
 from .immittancemixin import ImmittanceMixin
 from .superpositioncurrent import SuperpositionCurrent
@@ -897,7 +897,10 @@ class RC(RLC):
         n1, n2 = mna._cpt_node_indexes(self)
 
         if self.type == 'C' and mna.kind == 'dc':
-            Y = 0
+            # Assume a conductance of eps in parallel with the
+            # capacitor.  After the matrix inversion, the limit
+            # will be calculated for eps=0.
+            Y = eps
         else:
             Y = self.Y.sympy
 

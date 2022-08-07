@@ -8,7 +8,7 @@ from __future__ import division
 from .assumptions import Assumptions
 from .vector import Vector
 from .matrix import Matrix, matrix_inverse
-from .sym import symsimplify
+from .sym import symsimplify, eps
 from .expr import ExprDict, expr
 from .voltage import Vtype
 from .current import Itype
@@ -183,6 +183,11 @@ class MNA(object):
         results = symsimplify(Ainv * self._Z)
 
         results = results.subs(self.cct.context.symbols)
+
+        # Handle capacitors at DC by assuming an infinite resistance
+        # in parallel.
+        if results.has(eps):
+            results = results.limit(eps, 0)
 
         branchdict = {}
         for elt in self.cct.elements.values():
