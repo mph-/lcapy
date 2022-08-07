@@ -135,9 +135,10 @@ idealised concept---it impossible to generate---but is a good
 approximation for very slowly changing sources.  With a DC independent
 source the dependent sources are also DC and thus no voltages or
 currents change.  Thus capacitors can be replaced with open-circuits
-and inductors can be replaced with short-circuits.  Note, each node
-must have a DC path to ground otherwise the circuit cannot be solved
-(for example, when capacitors are in series).
+and inductors can be replaced with short-circuits.  Note, Lcapy places
+a conductance in parallel with each capacitor and considers the limit
+as the conductance goes to zero.
+
 
 
 AC (phasor) analysis

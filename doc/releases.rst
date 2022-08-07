@@ -2,6 +2,36 @@
 Release notes
 =============
 
+V1.7
+====
+
+- Adds `convert_IVP()` method to convert a circuit with switches to an initial value problem.
+
+- Handles DC analysis for capacitors by adding a conductance in parallel and considering the limit as the conductance goes to zero.
+
+- Adds `replace_switches()` and `replace_switches_before()` to remove switches from a circuit.
+
+- Adds `switching_times()` to determine the times when switches activate.
+
+- Fixes `mirror` and `invert` for SPDT switches.
+
+- Improves debugging for conversion of schematic to png.
+
+- Fixes lower limit of convolution when using ILT.
+
+- Adds comparison for equations.
+
+- Fixes z-domain frequency response.
+
+- Adds `LTIFilter` and `DifferentialEquation` classes.
+
+- Fixes definition of `psinc()`.
+
+- Adds `abc` module to mimim SymPy.
+
+- Inherits functions docs from SymPy.
+
+
 V1.6
 ====
 
