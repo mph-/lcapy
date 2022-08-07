@@ -6,6 +6,7 @@ Copyright 2020--2022 Michael Hayes, UCECE
 """
 
 from .expr import expr
+from .analysis import Analysis
 from .mnacpts import Cpt
 from .impedance import impedance
 from .admittance import admittance
@@ -2225,20 +2226,20 @@ class NetlistMixin(object):
     def is_causal(self):
         """Return True if all independent sources are causal and not an
         initial value problem (unless all the initial values are zero)."""
-        return self.analysis['causal']
+        return self.analysis.causal
 
     @property
     def is_dc(self):
         """Return True if all independent sources are DC and not an
         initial value problem.  The initial value problem may collapse
         to a DC problem but we cannot prove this yet."""
-        return self.analysis['dc']
+        return self.analysis.dc
 
     @property
     def is_ac(self):
         """Return True if all independent sources are AC and not an
         initial value problem."""
-        return self.analysis['ac']
+        return self.analysis.ac
 
     @property
     def is_superposition(self):
@@ -2252,27 +2253,27 @@ class NetlistMixin(object):
     @property
     def has_dc(self):
         """Return True if any independent source has a DC component."""
-        return self.analysis['has_dc']
+        return self.analysis.has_dc
 
     @property
     def has_ac(self):
         """Return True if any independent source has an AC component."""
-        return self.analysis['has_ac']
+        return self.analysis.has_ac
 
     @property
     def has_s_transient(self):
         """Return True if any independent source has a transient component defined in s-domain."""
-        return self.analysis['has_s']
+        return self.analysis.has_s
 
     @property
     def has_transient(self):
         """Return True if any independent source has a transient component."""
-        return self.analysis['has_transient']
+        return self.analysis.has_transient
 
     @property
     def zeroic(self):
         """Return True if the initial conditions for all components are zero."""
-        return self.analysis['zeroic']
+        return self.analysis.zeroic
 
     @property
     def is_ivp(self):
@@ -2281,12 +2282,17 @@ class NetlistMixin(object):
         defined.
 
         """
-        return self.analysis['ivp']
+        return self.analysis.ivp
+
+    @property
+    def is_switching(self):
+        """Return True for a switching circuit."""
+        return self.analysis.switching
 
     @property
     def is_time_domain(self):
         """Return True if can analyse in time domain."""
-        return self.analysis['time_domain']
+        return self.analysis.time_domain
 
     @property
     def missing_ic(self):
@@ -2306,56 +2312,56 @@ class NetlistMixin(object):
     def reactances(self):
         """Return dictionary of reactances."""
 
-        return self.analysis['reactances']
+        return self.analysis.reactances
 
     @property
     def transformers(self):
         """Return dictionary of transformers."""
 
-        return self.analysis['transformers']
+        return self.analysis.transformers
 
     @property
     def capacitors(self):
         """Return dictionary of capacitors."""
 
-        return self.analysis['capacitors']
+        return self.analysis.capacitors
 
     @property
     def inductors(self):
         """Return dictionary of inductors."""
 
-        return self.analysis['inductors']
+        return self.analysis.inductors
 
     @property
     def voltage_sources(self):
         """Return dictionary of voltage_sources."""
 
-        return self.analysis['voltage_sources']
+        return self.analysis.voltage_sources
 
     @property
     def current_sources(self):
         """Return dictionary of current_sources."""
 
-        return self.analysis['current_sources']
+        return self.analysis.current_sources
 
     @property
     def ics(self):
         """Return dictionary of components with initial conditions."""
 
-        return self.analysis['ics']
+        return self.analysis.ics
 
     @property
     def independent_sources(self):
         """Return dictionary of independent sources (this does not include
         implicit sources due to initial conditions)."""
 
-        return self.analysis['independent_sources']
+        return self.analysis.independent_sources
 
     @property
     def dependent_sources(self):
         """Return dictionary of dependent sources."""
 
-        return self.analysis['dependent_sources']
+        return self.analysis.dependent_sources
 
     def independent_source_groups(self, transform=False):
         """Return dictionary of source groups.  Each group is a list of
@@ -2403,7 +2409,7 @@ class NetlistMixin(object):
     def control_sources(self):
         """Return list of voltage sources required to specify control
         current for CCVS and CCCS components."""
-        return self.analysis['control_sources']
+        return self.analysis.control_sources
 
     @property
     def analysis(self):
@@ -2415,92 +2421,7 @@ class NetlistMixin(object):
 
     def analyse(self):
 
-        has_ic = False
-        zeroic = True
-        has_s = False
-        has_transient = False
-        ac_count = 0
-        dc_count = 0
-        causal = True
-        reactive = False
-        independent_sources = []
-        dependent_sources = []
-        control_sources = []
-        reactances = []
-        transformers = []
-        capacitors = []
-        inductors = []
-        voltage_sources = []
-        current_sources = []
-        ics = []
-
-        for eltname, elt in self.elements.items():
-            if elt.need_control_current:
-                control_sources.append(elt.args[0])
-            if elt.has_ic is not None:
-                if elt.has_ic:
-                    has_ic = True
-                    ics.append(eltname)
-                if not elt.zeroic:
-                    zeroic = False
-            if elt.independent_source:
-                independent_sources.append(eltname)
-                if elt.has_s_transient:
-                    has_s = True
-                if elt.has_transient:
-                    has_transient = True
-                if elt.is_ac:
-                    ac_count += 1
-                if elt.is_dc:
-                    dc_count += 1
-                if not elt.is_causal:
-                    causal = False
-            if elt.dependent_source:
-                dependent_sources.append(eltname)
-            if elt.reactive:
-                reactive = True
-                reactances.append(eltname)
-            if elt.is_transformer:
-                transformers.append(eltname)
-            elif elt.is_capacitor:
-                capacitors.append(eltname)
-            elif elt.is_inductor:
-                inductors.append(eltname)
-            elif elt.is_voltage_source:
-                voltage_sources.append(eltname)
-            elif elt.is_current_source:
-                current_sources.append(eltname)
-
-        num_sources = len(independent_sources)
-
-        analysis = {}
-        analysis['zeroic'] = zeroic
-        analysis['has_ic'] = has_ic
-        analysis['ivp'] = has_ic
-        analysis['has_dc'] = dc_count > 0
-        analysis['has_ac'] = ac_count > 0
-        analysis['has_s'] = has_s
-        analysis['has_transient'] = has_transient
-        analysis['reactances'] = reactances
-        analysis['transformers'] = transformers
-        analysis['capacitors'] = capacitors
-        analysis['inductors'] = inductors
-        analysis['voltage_sources'] = voltage_sources
-        analysis['current_sources'] = current_sources
-        analysis['ics'] = ics
-        analysis['dependent_sources'] = dependent_sources
-        analysis['independent_sources'] = independent_sources
-        analysis['control_sources'] = control_sources
-        analysis['ac'] = ac_count > 0 and (
-            num_sources == ac_count) and not has_ic
-        analysis['dc'] = dc_count > 0 and (
-            num_sources == dc_count) and not has_ic
-        analysis['causal'] = causal and zeroic
-        analysis['time_domain'] = not reactive and not has_s
-
-        if not reactive and has_ic:
-            raise ValueError('Non-reactive component with initial conditions')
-        return analysis
+        return Analysis(self)
 
     def describe(self):
         """Print a message describing how circuit is solved."""
@@ -2515,8 +2436,14 @@ class NetlistMixin(object):
             return '%s analysis is used for %s.' % (method,
                                                     describe_sources(sources))
 
-        groups = self.independent_source_groups(transform=not
-                                                self.is_time_domain)
+        if self.is_switching:
+            print(
+                '''This has switches and thus is time variant.  Use the convert_IVP(t) method
+to convert to an initial value problem, specifying the time when to evaluate the switches.''')
+            return
+
+        groups = self.independent_source_groups(
+            transform=not self.is_time_domain)
 
         if groups == {}:
             print('There are no non-zero independent sources so everything is zero.')

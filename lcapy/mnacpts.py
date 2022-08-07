@@ -50,6 +50,7 @@ class Cpt(ImmittanceMixin):
     add_parallel = False
     equipotential_nodes = ()
     is_transformer = False
+    is_switch = False
 
     def __init__(self, cct, namespace, defname, name, cpt_type, cpt_id, string,
                  opts_string, nodes, keyword, *args):
@@ -1597,6 +1598,8 @@ class SPppm(Dummy):
 
 class SW(TimeVarying):
     """Switch"""
+
+    is_switch = True
 
     def _replace_switch(self, t, before=False):
         """Replace switch with open-circuit or short-circuit
