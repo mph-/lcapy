@@ -31,7 +31,7 @@ class NetfileMixin(object):
     def _make_anon_name(self, cpt_type):
         """Make name for anonymous component"""
 
-        return self.namer.name(cpt_type + 'anon')
+        return self.namer.name(cpt_type + 'anon', self.elements)
 
     def _include(self, string):
 

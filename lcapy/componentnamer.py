@@ -21,14 +21,21 @@ class ComponentNamer(object):
 
         return str(self.counts[cpt_type])
 
-    def name(self, cpt_type):
+    def name(self, cpt_type, names=None):
 
         cpt_id = self.cpt_id(cpt_type)
 
-        return cpt_type + cpt_id
+        newname = cpt_type + cpt_id
+        # Ensure that name is unique if list of names supplied.
+        if names is not None and newname in names:
+            return self.name(cpt_type, names)
 
-    def __call__(self, cpt_type):
+        return newname
+
+    def __call__(self, cpt_type, names=None):
         """Create component name based on `cpt_type` (`R`, `L`, etc.)
-        and the name_kind (`anon`, `t`, etc)."""
+        and the name_kind (`anon`, `t`, etc).
 
-        return self.name(cpt_type)
+        `names` is a list of known names to avoid."""
+
+        return self.name(cpt_type, names)

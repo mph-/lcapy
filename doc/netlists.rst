@@ -1058,7 +1058,7 @@ Simplification
 ==============
 
 Netlists have simplification methods : `simplify_series()`,
-`simplify_parallel()`, and `simplify()`, The latter is a generic
+`simplify_parallel()`, and `simplify()`.  The latter is a generic
 method; it repeatedly calls `simplify_series()` and
 `simplify_parallel()` until no changes can be made.  The number of
 iterations is controlled by the `passes` argument.
