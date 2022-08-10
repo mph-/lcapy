@@ -1068,6 +1068,52 @@ If this is `True`, the simplification steps are printed.  There is
 also a `modify` argument.  If this is `False`, the modifications are
 not performed.
 
+Here's an example netlist:
+
+   >>> a = Circuit("""
+   ... R1 1 2; right
+   ... R2 2 3; right
+   ... W 3 3a; up=0.5
+   ... W 3 3b; down=0.5
+   ... R4 3a 4a; right
+   ... R5 3b 4b; right
+   ... W 4 4a; up=0.5
+   ... W 4 4b; down=0.5
+   ... R6 4 5; right
+   ... ; draw_nodes=connections, label_nodes=none, label_ids=none""")
+
+with a schematic:
+
+.. image:: examples/netlists/simplify_R1a.png
+   :width: 10cm
+
+R1 and R2 can be combined in series using:
+
+   >>> b = a.simplify_series()
+
+with a schematic:
+
+.. image:: examples/netlists/simplify_R1b.png
+   :width: 10cm
+
+R3 and R4 can be combined in parallel using:
+
+   >>> c = b.simplify_parallel()
+
+with a schematic:
+
+.. image:: examples/netlists/simplify_R1c.png
+   :width: 10cm
+
+These operations can be repeatedly executed until no further series or parallel combinations can be found.  Alternatively, the `simplify()` method can be employed:
+
+   >>> d = a.simplify()
+
+with a schematic:
+
+.. image:: examples/netlists/simplify_R1d.png
+   :width: 10cm
+
 
 Netlist analysis examples
 =========================
