@@ -1284,6 +1284,9 @@ class Iac(CurrentSourceBase):
 
     def __init__(self, I, phi=0, omega=None, **kwargs):
 
+        if isinstance(Ival, str) and Ival == 'I':
+            warn('Current I is being considered as the imaginary number')
+
         self.kwargs = kwargs
         if phi is None and omega is None:
             self.args = (I, )
@@ -1323,6 +1326,9 @@ class Inoise(CurrentSourceBase):
 
     def __init__(self, I, nid=None, **kwargs):
 
+        if isinstance(Ival, str) and Ival == 'I':
+            warn('Current I is being considered as the imaginary number')
+
         self.kwargs = kwargs
         I1 = AngularFourierNoiseDomainCurrent(I, nid=nid)
         self._Isc = SuperpositionCurrent(I1)
@@ -1333,6 +1339,9 @@ class i(CurrentSourceBase):
     """Arbitrary t-domain current source"""
 
     def __init__(self, Ival, **kwargs):
+
+        if isinstance(Ival, str) and Ival == 'I':
+            warn('Current I is being considered as the imaginary number')
 
         self.kwargs = kwargs
         self.args = (Ival, )
