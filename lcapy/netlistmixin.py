@@ -149,7 +149,7 @@ class NetlistMixin(object):
 
     @property
     def params(self):
-        """Return list of symbols used as arguments in the circuit."""
+        """Return list of symbols used as arguments in the netlist."""
 
         symbols = self.symbols
         params = []
@@ -161,7 +161,7 @@ class NetlistMixin(object):
 
     @property
     def symbols(self):
-        """Return dictionary of symbols defined in the circuit."""
+        """Return dictionary of symbols defined in the netlist."""
 
         return self.context.symbols
 
@@ -1917,7 +1917,8 @@ class NetlistMixin(object):
         return net
 
     def check(self):
-        """Check if network contains a loop of voltage sources or a cut set of current sources."""
+        """Check if network contains a loop of voltage sources or a cut set of
+        current sources."""
 
         return self.simplify(explain=True, modify=False)
 
@@ -2071,8 +2072,7 @@ class NetlistMixin(object):
         return new
 
     def pre_initial_model(self):
-        """Generate circuit model for determining the pre-initial
-        conditions."""
+        """Generate model for determining the pre-initial conditions."""
 
         new = self._new()
 
@@ -2278,7 +2278,7 @@ class NetlistMixin(object):
     @property
     def is_IVP(self):
         """Return True for an initial value problem.  This is True if any
-        component that allows initial conditions has them explicitly
+        component (L, C) that allows initial conditions has them explicitly
         defined.
 
         """
@@ -2292,6 +2292,12 @@ class NetlistMixin(object):
             deprecated_since_version="1.7"
         ).warn()
         return self.is_IVP
+
+    @property
+    def is_passive(self):
+        """Return True for a passive network, i.e., there are no sources."""
+
+        return self.sources == {}
 
     @property
     def is_switching(self):

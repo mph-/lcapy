@@ -360,6 +360,8 @@ circuit elements (Components).  For example,
 
 - `is_dc` all independent sources are dc
 
+- `is_passive` no sources
+
 - `is_time_domain` netlist can be analysed in time domain
 
 - `is_superposition` netlist must be analysed as a superposition
