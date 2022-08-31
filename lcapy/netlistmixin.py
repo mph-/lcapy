@@ -159,13 +159,6 @@ class NetlistMixin(object):
                     params.append(arg)
         return params
 
-    def prune(self, passes=0, explain=False, modify=True):
-        """Remove dangling components."""
-
-        # Perhaps have an option to only remove wires.
-        return self.simplify(passes=passes, explain=explain, modify=modify,
-                             dangling=True, series=False, parallel=False)
-
     @property
     def symbols(self):
         """Return dictionary of symbols defined in the netlist."""
@@ -1878,7 +1871,7 @@ class NetlistMixin(object):
 
         return net, False
 
-    def _simplify_dangling(self, cptnames=None, explain=False):
+    def _remove_dangling(self, cptnames=None, explain=False):
 
         new = self._new()
         changed = False
@@ -1905,45 +1898,84 @@ class NetlistMixin(object):
         net, changed2 = net._simplify_combine_parallel(cptnames, explain)
         return net, changed or changed2
 
-    def simplify_dangling(self, cptnames=None, explain=False, modify=True):
+    def remove_dangling(self, cptnames=None, passes=0, explain=False,
+                        modify=True, keep_nodes=None):
+        """Simplify a circuit by removing dangling components.
 
-        net, changed = self._simplify_dangling(cptnames, explain)
-        if not modify:
-            return self
-        return net
+        This performs a number of passes specified by `passes`.  If zero,
+        this iterates until no more simplifications can be performed.
 
-    def simplify_series(self, cptnames=None, explain=False, modify=True):
+        If `explain` is True, the reason for a simplification is printed.
+        If `modify` is False, no modifications are performed."""
 
-        net, changed = self._simplify_series(cptnames, explain)
-        if not modify:
-            return self
-        return net
+        return self.simplify(passes=passes, explain=explain,
+                             modify=modify, series=False,
+                             parallel=False, dangling=True,
+                             keep_nodes=keep_nodes)
 
-    def simplify_parallel(self, cptnames=None, explain=False, modify=True):
+    def simplify_series(self, cptnames=None, passes=0, explain=False,
+                        modify=True, keep_nodes=None):
+        """Simplify a circuit by combining components in series.
 
-        net, changed = self._simplify_parallel(cptnames, explain)
-        if not modify:
-            return self
-        return net
+        This performs a number of passes specified by `passes`.  If zero,
+        this iterates until no more simplifications can be performed.
+
+        If `explain` is True, the reason for a simplification is printed.
+        If `modify` is False, no modifications are performed."""
+
+        return self.simplify(passes=passes, explain=explain,
+                             modify=modify, series=True,
+                             parallel=False, dangling=False,
+                             keep_nodes=keep_nodes)
+
+    def simplify_parallel(self, cptnames=None, passes=0, explain=False,
+                          modify=True, keep_nodes=None):
+        """Simplify a circuit by combining components in parallel.
+
+        This performs a number of passes specified by `passes`.  If zero,
+        this iterates until no more simplifications can be performed.
+
+        If `explain` is True, the reason for a simplification is printed.
+        If `modify` is False, no modifications are performed."""
+
+        return self.simplify(passes=passes, explain=explain,
+                             modify=modify, series=False,
+                             parallel=True, dangling=False,
+                             keep_nodes=keep_nodes)
 
     def simplify(self, cptnames=None, passes=0, series=True,
-                 parallel=True, dangling=False, explain=False, modify=True):
+                 parallel=True, dangling=False,
+                 explain=False, modify=True, keep_nodes=None):
+        """Simplify a circuit by combining components in series, combining
+        components in parallel, and removing dangling components.
+
+        This performs a number of passes specified by `passes`.  If zero,
+        this iterates until no more simplifications can be performed.
+
+        If `explain` is True, the reason for a simplification is printed.
+        If `modify` is False, no modifications are performed.
+
+        This method is still work in progress.
+        """
+
+        if keep_nodes is not None:
+            raise ValueError('keep_nodes not yet supported.')
 
         # Perhaps use num cpts?
         if passes == 0:
-            passes = 10
+            passes = 100
 
         net = self
         for m in range(passes):
             changed = False
+            if dangling:
+                net, changed1 = net._remove_dangling(cptnames, explain)
+                changed = changed or changed1
             if series:
                 net, changed1 = net._simplify_series(cptnames, explain)
                 changed = changed or changed1
             if parallel:
                 net, changed1 = net._simplify_parallel(cptnames, explain)
-                changed = changed or changed1
-            if dangling:
-                net, changed1 = net._simplify_dangling(cptnames, explain)
                 changed = changed or changed1
 
             if not changed:
