@@ -79,7 +79,7 @@ class Node:
         return self.cptname == cpt_name
 
     def visible(self, draw_nodes):
-        """Return true if node drawn.
+        """Return True if node drawn.
         `draw_nodes' can be `all', 'none', 'connections', 'primary', None,
         True, or False."""
 
@@ -115,19 +115,19 @@ class Node:
 
     @property
     def is_port(self):
-        """Return true if node is a port"""
+        """Return True if node is a port"""
 
         return self._port
 
     @property
     def is_dangling(self):
-        """Return true if node has a single connection"""
+        """Return True if node has a single connection"""
 
         return self._count == 1
 
     @property
     def is_ground(self):
-        """Return true if node is a ground"""
+        """Return True if node is a ground"""
 
         return self.name.startswith('0')
 

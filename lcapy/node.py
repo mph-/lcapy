@@ -117,3 +117,21 @@ class Node(ImmittanceMixin):
                 nodes.remove(self.name)
                 return nodes
         return []
+
+    @property
+    def is_port(self):
+        """Return True if node is a port"""
+
+        return self._port
+
+    @property
+    def is_dangling(self):
+        """Return True if node has a single connection"""
+
+        return self._count == 1
+
+    @property
+    def is_ground(self):
+        """Return True if node is a ground"""
+
+        return self.name.startswith('0')

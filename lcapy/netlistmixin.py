@@ -159,6 +159,13 @@ class NetlistMixin(object):
                     params.append(arg)
         return params
 
+    def prune(self, passes=0, explain=False, modify=True):
+        """Remove dangling components."""
+
+        # Perhaps have an option to only remove wires.
+        return self.simplify(passes=passes, explain=explain, modify=modify,
+                             dangling=True, series=False, parallel=False)
+
     @property
     def symbols(self):
         """Return dictionary of symbols defined in the netlist."""
@@ -1871,6 +1878,21 @@ class NetlistMixin(object):
 
         return net, False
 
+    def _simplify_dangling(self, cptnames=None, explain=False):
+
+        new = self._new()
+        changed = False
+
+        for cpt in self._elements.values():
+            if cpt.is_dangling:
+                if explain:
+                    print('%s is dangling' % cpt.name)
+                changed = True
+            else:
+                new._add(cpt._copy())
+
+        return new, changed
+
     def _simplify_series(self, cptnames=None, explain=False):
 
         net, changed = self._simplify_redundant_series(cptnames, explain)
@@ -1882,6 +1904,13 @@ class NetlistMixin(object):
         net, changed = self._simplify_redundant_parallel(cptnames, explain)
         net, changed2 = net._simplify_combine_parallel(cptnames, explain)
         return net, changed or changed2
+
+    def simplify_dangling(self, cptnames=None, explain=False, modify=True):
+
+        net, changed = self._simplify_dangling(cptnames, explain)
+        if not modify:
+            return self
+        return net
 
     def simplify_series(self, cptnames=None, explain=False, modify=True):
 
@@ -1898,7 +1927,7 @@ class NetlistMixin(object):
         return net
 
     def simplify(self, cptnames=None, passes=0, series=True,
-                 parallel=True, explain=False, modify=True):
+                 parallel=True, dangling=False, explain=False, modify=True):
 
         # Perhaps use num cpts?
         if passes == 0:
@@ -1906,10 +1935,18 @@ class NetlistMixin(object):
 
         net = self
         for m in range(passes):
+            changed = False
+            if series:
+                net, changed1 = net._simplify_series(cptnames, explain)
+                changed = changed or changed1
+            if parallel:
+                net, changed1 = net._simplify_parallel(cptnames, explain)
+                changed = changed or changed1
+            if dangling:
+                net, changed1 = net._simplify_dangling(cptnames, explain)
+                changed = changed or changed1
 
-            net, series_changed = net._simplify_series(cptnames, explain)
-            net, parallel_changed = net._simplify_parallel(cptnames, explain)
-            if not series_changed and not parallel_changed:
+            if not changed:
                 break
         if not modify:
             return self

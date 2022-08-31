@@ -337,21 +337,29 @@ class Cpt(ImmittanceMixin):
         return self._copy()
 
     @property
+    def is_dangling(self):
+        """Return True if component is dangling (i.e., has a node with a
+        single connection)."""
+
+        return len(self.nodes) == 2 and \
+            (self.nodes[0].is_dangling or self.nodes[1].is_dangling)
+
+    @ property
     def is_source(self):
         """Return True if component is a source (dependent or independent)"""
         return self.dependent_source or self.independent_source
 
-    @property
+    @ property
     def is_dependent_source(self):
         """Return True if component is a dependent source"""
         return self.dependent_source
 
-    @property
+    @ property
     def is_independent_source(self):
         """Return True if component is an independent source"""
         return self.independent_source
 
-    @property
+    @ property
     def _source_IV(self):
 
         if self.cpt.is_voltage_source:
@@ -374,7 +382,7 @@ class Cpt(ImmittanceMixin):
 
         return self.cct.in_series(self.name)
 
-    @property
+    @ property
     def is_causal(self):
         """Return True if causal component or if source produces
         a causal signal."""
@@ -383,55 +391,55 @@ class Cpt(ImmittanceMixin):
             return self._source_IV.is_causal
         return self.cpt.is_causal
 
-    @property
+    @ property
     def is_dc(self):
         """Return True if source is dc."""
 
         return self._source_IV.is_dc
 
-    @property
+    @ property
     def is_ac(self):
         """Return True if source is ac."""
 
         return self._source_IV.is_ac
 
-    @property
+    @ property
     def has_ac(self):
         """Return True if source has ac component."""
 
         return self._source_IV.has_ac
 
-    @property
+    @ property
     def has_dc(self):
         """Return True if source has dc component."""
 
         return self._source_IV.has_dc
 
-    @property
+    @ property
     def has_noisy(self):
         """Return True if source has noisy component."""
 
         return self._source_IV.has_noisy
 
-    @property
+    @ property
     def has_s_transient(self):
         """Return True if source has transient component defined in s-domain."""
 
         return self._source_IV.has_s_transient
 
-    @property
+    @ property
     def has_t_transient(self):
         """Return True if source has transient component defined in time domain."""
 
         return self._source_IV.has_t_transient
 
-    @property
+    @ property
     def has_transient(self):
         """Return True if source has a transient component."""
 
         return self._source_IV.has_transient
 
-    @property
+    @ property
     def is_noisy(self):
         """Return True if source is noisy."""
 
@@ -442,82 +450,82 @@ class Cpt(ImmittanceMixin):
         else:
             raise ValueError('%s is not a source' % self)
 
-    @property
+    @ property
     def is_noiseless(self):
         """Return True if component is noiseless."""
 
         return self.cpt.is_noiseless
 
-    @property
+    @ property
     def is_inductor(self):
         """Return True if component is an inductor."""
         return self.cpt.is_inductor
 
-    @property
+    @ property
     def is_capacitor(self):
         """Return True if component is a capacitor."""
         return self.cpt.is_capacitor
 
-    @property
+    @ property
     def is_reactance(self):
         """Return True if component is a capacitor or inductor."""
         return self.is_capacitor or self.is_inductor
 
-    @property
+    @ property
     def is_resistor(self):
         """Return True if component is a resistor."""
         return self.cpt.is_resistor
 
-    @property
+    @ property
     def is_conductor(self):
         """Return True if component is a conductor."""
         return self.cpt.is_conductor
 
-    @property
+    @ property
     def is_voltage_source(self):
         """Return True if component is a voltage source (dependent or
         independent)"""
         return self.cpt.is_voltage_source
 
-    @property
+    @ property
     def is_dependent_voltage_source(self):
         """Return True if component is a dependent voltage source."""
         return self.cpt.is_voltage_source and self.dependent_source
 
-    @property
+    @ property
     def is_independent_voltage_source(self):
         """Return True if component is a independent voltage source."""
         return self.cpt.is_voltage_source and self.independent_source
 
-    @property
+    @ property
     def is_current_source(self):
         """Return True if component is a current source (dependent or
         independent)"""
         return self.cpt.is_current_source
 
-    @property
+    @ property
     def is_dependent_current_source(self):
         """Return True if component is a dependent current source."""
         return self.cpt.is_current_source and self.dependent_source
 
-    @property
+    @ property
     def is_independent_current_source(self):
         """Return True if component is a independent current source."""
         return self.cpt.is_current_source and self.independent_source
 
-    @property
+    @ property
     def zeroic(self):
         """Return True if initial conditions are zero (or unspecified)."""
 
         return self.cpt.zeroic
 
-    @property
+    @ property
     def has_ic(self):
         """Return True if initial conditions are specified."""
 
         return self.cpt.has_ic
 
-    @property
+    @ property
     def I(self):
         """Current through component.  The current is defined to be into the
         positive node for passive devices and out of the positive node
@@ -525,7 +533,7 @@ class Cpt(ImmittanceMixin):
 
         return self.cct.get_I(self.name)
 
-    @property
+    @ property
     def i(self):
         """Time-domain current through component.  The current is
         defined to be into the positive node for passive devices and
@@ -533,57 +541,57 @@ class Cpt(ImmittanceMixin):
 
         return self.cct.get_i(self.name)
 
-    @property
+    @ property
     def V(self):
         """Voltage drop across component."""
 
         return self.cct.get_Vd(self.nodenames[0], self.nodenames[1])
 
-    @property
+    @ property
     def v(self):
         """Time-domain voltage drop across component."""
 
         return self.cct.get_vd(self.nodenames[0], self.nodenames[1])
 
-    @property
+    @ property
     def Isc(self):
         """Short-circuit current for component in isolation, i.e, current in
         wire connected across component."""
 
         return self.cpt.Isc.select(self.cct.kind)
 
-    @property
+    @ property
     def isc(self):
         """Short-circuit time-domain current for component in isolation, i.e,
         current in wire connected across component."""
 
         return self.Isc.time()
 
-    @property
+    @ property
     def Voc(self):
         """Open-circuit voltage for component in isolation."""
 
         return self.cpt.Voc.select(self.cct.kind)
 
-    @property
+    @ property
     def voc(self):
         """Open-circuit time-domain voltage for component in isolation."""
 
         return self.Voc.time()
 
-    @property
+    @ property
     def V0(self):
         """Initial voltage (for capacitors only)."""
 
         return voltage(0)
 
-    @property
+    @ property
     def I0(self):
         """Initial current (for inductors only)."""
 
         return current(0)
 
-    @property
+    @ property
     def admittance(self):
         """Self admittance of component.
 
@@ -595,7 +603,7 @@ class Cpt(ImmittanceMixin):
 
         return self.cpt.admittance._select(self.cct.kind)
 
-    @property
+    @ property
     def impedance(self):
         """Self impedance of component.
 
@@ -607,7 +615,7 @@ class Cpt(ImmittanceMixin):
 
         return self.cpt.impedance._select(self.cct.kind)
 
-    @property
+    @ property
     def dpIsc(self):
         """Driving-point short-circuit current, i.e, current in wire
         connected across component connected in-circuit.
@@ -615,34 +623,34 @@ class Cpt(ImmittanceMixin):
         """
         return self.oneport().Isc
 
-    @property
+    @ property
     def dpisc(self):
         """Driving-point short-circuit time-domain current i.e, current in
         wire connected across component in-circuit."""
 
         return self.dpIsc.time()
 
-    @property
+    @ property
     def dpVoc(self):
         """Driving-point open-circuit voltage across component in-circuit."""
 
         return self.oneport().V
 
-    @property
+    @ property
     def dpvoc(self):
         """Driving-point open-circuit time-domain voltage across component in
         circuit."""
 
         return self.dpVoc.time()
 
-    @property
+    @ property
     def dpY(self):
         """Driving-point admittance measured across component in-circuit.  For
         the admittance of the component in isolation use .Y"""
 
         return self.cct.admittance(self.nodenames[1], self.nodenames[0])
 
-    @property
+    @ property
     def dpZ(self):
         """Driving-point impedance measured across component in-circuit.  For
         the impedance of the component in isolation use .Z"""
@@ -678,7 +686,7 @@ class Cpt(ImmittanceMixin):
         return self.cct.transfer(self.nodenames[1], self.nodenames[0],
                                  cpt.nodenames[1], cpt.nodenames[0])
 
-    @property
+    @ property
     def nodes(self):
         """Return list of nodes for this component.   See also
         nodenames."""
