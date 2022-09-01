@@ -2606,6 +2606,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
             return dst
 
+        if self.var is None:
+            return self
         return self._subs1(self.var, args[0], **kwargs)
 
     @ property
