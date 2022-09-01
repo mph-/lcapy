@@ -1282,20 +1282,20 @@ class Iac(CurrentSourceBase):
 
     netkeyword = 'ac'
 
-    def __init__(self, I, phi=0, omega=None, **kwargs):
+    def __init__(self, Ival, phi=0, omega=None, **kwargs):
 
         if isinstance(Ival, str) and Ival == 'I':
             warn('Current I is being considered as the imaginary number')
 
         self.kwargs = kwargs
         if phi is None and omega is None:
-            self.args = (I, )
+            self.args = (Ival, )
         elif phi is not None and omega is None:
-            self.args = (I, phi)
+            self.args = (Ival, phi)
         elif phi is None and omega is not None:
-            self.args = (I, 0, omega)
+            self.args = (Ival, 0, omega)
         else:
-            self.args = (I, phi, omega)
+            self.args = (Ival, phi, omega)
 
         if phi is None:
             phi = 0
@@ -1304,11 +1304,11 @@ class Iac(CurrentSourceBase):
             omega = omega0sym
         omega = cexpr(omega)
 
-        I = cexpr(I)
+        Ival = cexpr(Ival)
         phi = cexpr(phi)
 
         self.omega = omega
-        self.i0 = I
+        self.i0 = Ival
         self.phi = phi
         self._Isc = SuperpositionCurrent(phasor(self.i0 * exp(j * self.phi),
                                                 omega=self.omega))
@@ -1324,15 +1324,15 @@ class Inoise(CurrentSourceBase):
     netkeyword = 'noise'
     is_noisy = True
 
-    def __init__(self, I, nid=None, **kwargs):
+    def __init__(self, Ival, nid=None, **kwargs):
 
         if isinstance(Ival, str) and Ival == 'I':
             warn('Current I is being considered as the imaginary number')
 
         self.kwargs = kwargs
-        I1 = AngularFourierNoiseDomainCurrent(I, nid=nid)
+        I1 = AngularFourierNoiseDomainCurrent(Ival, nid=nid)
         self._Isc = SuperpositionCurrent(I1)
-        self.args = (I, I1.nid)
+        self.args = (Ival, I1.nid)
 
 
 class i(CurrentSourceBase):
