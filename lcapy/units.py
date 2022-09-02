@@ -51,8 +51,13 @@ class Units(object):
     def _makekey(self, unit):
 
         deps = self._get_dependencies(unit)
-        key = tuple([deps.get(str(dim.name))
-                    for dim in self.dim_sys.base_dims])
+        try:
+            key = tuple([deps.get(u.Dimension(str(dim.name)))
+                         for dim in self.dim_sys.base_dims])
+        except AttributeError:
+            # Fall back for older SymPy
+            key = tuple([deps.get(str(dim.name))
+                         for dim in self.dim_sys.base_dims])
         return key
 
     def simplify_units(self, unit):
