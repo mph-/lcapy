@@ -1877,7 +1877,7 @@ class NetlistMixin(object):
         changed = False
 
         for cpt in self._elements.values():
-            if cpt.is_dangling:
+            if cpt.is_dangling and (cptnames is None or cpt.name in cptnames):
                 if explain:
                     print('%s is dangling' % cpt.name)
                 changed = True
@@ -1909,6 +1909,22 @@ class NetlistMixin(object):
         If `modify` is False, no modifications are performed."""
 
         return self.simplify(passes=passes, explain=explain,
+                             modify=modify, series=False,
+                             parallel=False, dangling=True,
+                             keep_nodes=keep_nodes)
+
+    def remove_dangling_wires(self, passes=0, explain=False,
+                              modify=True, keep_nodes=None):
+        """Simplify a circuit by removing dangling wires.
+
+        This performs a number of passes specified by `passes`.  If zero,
+        this iterates until no more simplifications can be performed.
+
+        If `explain` is True, the reason for a simplification is printed.
+        If `modify` is False, no modifications are performed."""
+
+        return self.simplify(cptnames=self.analysis.wires,
+                             passes=passes, explain=explain,
                              modify=modify, series=False,
                              parallel=False, dangling=True,
                              keep_nodes=keep_nodes)

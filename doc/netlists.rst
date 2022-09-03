@@ -494,7 +494,11 @@ Circuit methods
 - `open_circuit(cpt)` Applies open circuit in series with the component.  The name of the open circuit component is returned.
 
 - `r_model()` Creates a resistive equivalent model using companion
-  circuits (this is used for time-stepping simulation)
+  circuits (this is used for time-stepping simulation).
+
+- `remove_dangling()` Removes dangling components from the netlist.
+
+- `remove_dangling_wires()` Removes dangling wires from the netlist.
 
 - `replace(name, net)` Replaces the named component.  For example,
 
@@ -533,6 +537,10 @@ Circuit methods
   reactive components as impedances
 
 - `short_circuit(cpt)` Applies short circuit across the component using a 0 V voltage source.  The name of the voltage source is returned.
+
+- `simplify_series()` Simplifies netlist with components in series.
+
+- `simplify_parallel()` Simplifies netlist with components in parallel.
 
 - `state_space(node_voltages, branch_currents)` Generates a
   state-space representation (see :ref:`state-space-analysis`) where
@@ -1059,11 +1067,12 @@ The properties of each sub-circuit can be found with the `analysis` attribute:
 Simplification
 ==============
 
-Netlists have simplification methods : `simplify_series()`,
-`simplify_parallel()`, and `simplify()`.  The latter is a generic
-method; it repeatedly calls `simplify_series()` and
-`simplify_parallel()` until no changes can be made.  The number of
-iterations is controlled by the `passes` argument.
+Netlists have simplification methods : `remove_dangling`,
+`remove_dangling_wires`, `simplify_series()`, `simplify_parallel()`,
+and `simplify()`.  The latter is a generic method; it repeatedly calls
+`simplify_series()` and `simplify_parallel()` until no changes can be
+made.  The number of iterations is controlled by the `passes`
+argument.
 
 Each of the netlist simplification methods have an `explain` argument,
 If this is `True`, the simplification steps are printed.  There is
@@ -1115,6 +1124,8 @@ with a schematic:
 
 .. image:: examples/netlists/simplify_R1d.png
    :width: 10cm
+
+Note, the dangling wires can be removed using the `remove_dangling_wires()` method.
 
 
 Netlist analysis examples

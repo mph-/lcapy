@@ -51,6 +51,7 @@ class Cpt(ImmittanceMixin):
     equipotential_nodes = ()
     is_transformer = False
     is_switch = False
+    is_wire = False
 
     def __init__(self, cct, namespace, defname, name, cpt_type, cpt_id, string,
                  opts_string, nodes, keyword, *args):
@@ -1988,6 +1989,8 @@ class V(IndependentSource):
 
 class W(Dummy):
     """Wire"""
+
+    is_wire = True
 
     def _stamp(self, mna):
         pass
