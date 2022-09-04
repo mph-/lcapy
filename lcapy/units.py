@@ -10,7 +10,7 @@ import sympy.physics.units as u
 from sympy.physics.units.systems.si import dimsys_SI
 from sympy.physics.units.systems import SI
 from sympy.physics.units import UnitSystem, Quantity
-from sympy import S
+from sympy import S, __version__ as sympy_version
 
 
 dB = Quantity('dB', 'dB')
@@ -51,11 +51,11 @@ class Units(object):
     def _makekey(self, unit):
 
         deps = self._get_dependencies(unit)
-        try:
+
+        if sympy_version >= '1.11':
             key = tuple([deps.get(u.Dimension(str(dim.name)))
                          for dim in self.dim_sys.base_dims])
-        except AttributeError:
-            # Fall back for older SymPy
+        else:
             key = tuple([deps.get(str(dim.name))
                          for dim in self.dim_sys.base_dims])
         return key
