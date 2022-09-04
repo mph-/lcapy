@@ -1776,12 +1776,13 @@ class NetlistMixin(object):
             newelements[v.name] = v
         self._elements = newelements
 
-    def _simplify_combine_series(self, select=None, explain=False):
+    def _simplify_combine_series(self, skip, explain=False):
 
         net = self.copy()
         changed = False
 
         for aset in net.in_series():
+            aset -= skip
             subsets = net._find_combine_subsets(aset)
             for k, subset in subsets.items():
                 if k == 'I':
@@ -1802,12 +1803,13 @@ class NetlistMixin(object):
 
         return net, changed
 
-    def _simplify_combine_parallel(self, select=None, explain=False):
+    def _simplify_combine_parallel(self, skip, explain=False):
 
         net = self.copy()
         changed = False
 
         for aset in net.in_parallel():
+            aset -= skip
             subsets = net._find_combine_subsets(aset)
             for k, subset in subsets.items():
                 if k == 'V':
@@ -1829,7 +1831,7 @@ class NetlistMixin(object):
 
         return net, changed
 
-    def _simplify_redundant_series(self, select=None, explain=False):
+    def _simplify_redundant_series(self, skip, explain=False):
 
         net = self.copy()
         changed = False
@@ -1850,7 +1852,7 @@ class NetlistMixin(object):
 
         return net, False
 
-    def _simplify_redundant_parallel(self, select=None, explain=False):
+    def _simplify_redundant_parallel(self, skip, explain=False):
 
         net = self.copy()
         changed = False
@@ -1879,14 +1881,13 @@ class NetlistMixin(object):
 
         return False
 
-    def _remove_dangling(self, select=None, explain=False, keep_nodes=None):
+    def _remove_dangling(self, skip, explain=False, keep_nodes=None):
 
         new = self._new()
         changed = False
 
         for cpt in self._elements.values():
-            if (cpt.is_dangling
-                and (select is None or cpt.name in select)
+            if (cpt.is_dangling and cpt.name not in skip
                     and not self._keep_dangling(cpt, keep_nodes)):
                 if explain:
                     print('%s is dangling' % cpt.name)
@@ -1896,19 +1897,19 @@ class NetlistMixin(object):
 
         return new, changed
 
-    def _simplify_series(self, select=None, explain=False):
+    def _simplify_series(self, skip, explain=False):
 
-        net, changed = self._simplify_redundant_series(select, explain)
-        net, changed2 = net._simplify_combine_series(select, explain)
+        net, changed = self._simplify_redundant_series(skip, explain)
+        net, changed2 = net._simplify_combine_series(skip, explain)
         return net, changed or changed2
 
-    def _simplify_parallel(self, select=None, explain=False):
+    def _simplify_parallel(self, skip, explain=False):
 
-        net, changed = self._simplify_redundant_parallel(select, explain)
-        net, changed2 = net._simplify_combine_parallel(select, explain)
+        net, changed = self._simplify_redundant_parallel(skip, explain)
+        net, changed2 = net._simplify_combine_parallel(skip, explain)
         return net, changed or changed2
 
-    def remove_dangling(self, select=None, passes=0, explain=False,
+    def remove_dangling(self, select=None, ignore=None, passes=0, explain=False,
                         modify=True, keep_nodes=None):
         """Simplify a circuit by removing dangling components.
 
@@ -1921,7 +1922,7 @@ class NetlistMixin(object):
         If `explain` is True, the reason for a simplification is printed.
         If `modify` is False, no modifications are performed."""
 
-        return self.simplify(select=select, passes=passes,
+        return self.simplify(select=select, ignore=ignore, passes=passes,
                              explain=explain, modify=modify,
                              series=False, parallel=False, dangling=True,
                              keep_nodes=keep_nodes)
@@ -1942,8 +1943,8 @@ class NetlistMixin(object):
                              parallel=False, dangling=True,
                              keep_nodes=keep_nodes)
 
-    def simplify_series(self, select=None, passes=0, explain=False,
-                        modify=True, keep_nodes=None):
+    def simplify_series(self, select=None, ignore=None, passes=0,
+                        explain=False, modify=True, keep_nodes=None):
         """Simplify a circuit by combining components in series.
 
         This performs a number of passes specified by `passes`.  If zero,
@@ -1956,13 +1957,13 @@ class NetlistMixin(object):
         If `explain` is True, the reason for a simplification is printed.
         If `modify` is False, no modifications are performed."""
 
-        return self.simplify(select=select, passes=passes,
+        return self.simplify(select=select, ignore=ignore, passes=passes,
                              explain=explain, modify=modify,
                              series=True, parallel=False, dangling=False,
                              keep_nodes=keep_nodes)
 
-    def simplify_parallel(self, select=None, passes=0, explain=False,
-                          modify=True, keep_nodes=None):
+    def simplify_parallel(self, select=None, ignore=None, passes=0,
+                          explain=False, modify=True, keep_nodes=None):
         """Simplify a circuit by combining components in parallel.
 
         This performs a number of passes specified by `passes`.  If zero,
@@ -1975,12 +1976,12 @@ class NetlistMixin(object):
         If `explain` is True, the reason for a simplification is printed.
         If `modify` is False, no modifications are performed."""
 
-        return self.simplify(select=select, passes=passes,
+        return self.simplify(select=select, ignore=ignore, passes=passes,
                              explain=explain, modify=modify,
                              series=False, parallel=True, dangling=False,
                              keep_nodes=keep_nodes)
 
-    def simplify(self, select=None, passes=0, series=True,
+    def simplify(self, select=None, ignore=None, passes=0, series=True,
                  parallel=True, dangling=False,
                  explain=False, modify=True, keep_nodes=None):
         """Simplify a circuit by combining components in series, combining
@@ -2007,6 +2008,14 @@ class NetlistMixin(object):
 
         keep_nodes = [str(node) for node in keep_nodes]
 
+        skip = set()
+
+        if select is not None:
+            skip = set(self._elements) - set(select)
+
+        if ignore is not None:
+            skip = skip.union(set(ignore))
+
         # Perhaps use num cpts?
         if passes == 0:
             passes = 100
@@ -2015,14 +2024,13 @@ class NetlistMixin(object):
         for m in range(passes):
             changed = False
             if dangling:
-                net, changed1 = net._remove_dangling(
-                    select, explain, keep_nodes)
+                net, changed1 = net._remove_dangling(skip, explain, keep_nodes)
                 changed = changed or changed1
             if series:
-                net, changed1 = net._simplify_series(select, explain)
+                net, changed1 = net._simplify_series(skip, explain)
                 changed = changed or changed1
             if parallel:
-                net, changed1 = net._simplify_parallel(select, explain)
+                net, changed1 = net._simplify_parallel(skip, explain)
                 changed = changed or changed1
 
             if not changed:

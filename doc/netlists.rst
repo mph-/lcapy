@@ -496,9 +496,9 @@ Circuit methods
 - `r_model()` Creates a resistive equivalent model using companion
   circuits (this is used for time-stepping simulation).
 
-- `remove_dangling()` Removes dangling components from the netlist.
+- `remove_dangling(select, ignore, passes)` Removes dangling components from the netlist.   See `simplify` for a description of the arguments.
 
-- `remove_dangling_wires()` Removes dangling wires from the netlist.
+- `remove_dangling_wires(ignore, passes)` Removes dangling wires from the netlist.  See `simplify` for a description of the arguments.
 
 - `replace(name, net)` Replaces the named component.  For example,
 
@@ -529,18 +529,20 @@ Circuit methods
    W 2 3
    O 3 4
 
-- `replace_switches)before(t)` Replaces switches with a short-circuit
+- `replace_switches_before(t)` Replaces switches with a short-circuit
   or open-circuit circuit by considering whether the specified time
   `t` is before the switch activation time.   See also `convert_IVP`.
 
 - `s_model()` Converts sources to the s-domain and represents
-  reactive components as impedances
+  reactive components as impedances.
 
 - `short_circuit(cpt)` Applies short circuit across the component using a 0 V voltage source.  The name of the voltage source is returned.
 
-- `simplify_series()` Simplifies netlist with components in series.
+- `simplify(select, ignore, passes, series, parallel, dangling, explain, modify)` Simplifies netlist by combing components in series and parallel and by removing dangling components.  `select` is a list or set of the component names to consider; if `None` all the netlist components are considered for simplification.  `ignore` is a list or set of components to ignore in the simplification.  `passes` is the number of simplification iterations to perform.  If zero, iterations continue until no more simpliciations are found.   `series` enables series combination (default `True`). `parallel` enables parallel combination (default `True`). `dangling` enables dangling componet removal (default `False`).  If `explain` is `True`, a description of each simplification is printed.  If `modify` is False, the netlist is not modified.
 
-- `simplify_parallel()` Simplifies netlist with components in parallel.
+- `simplify_series(select, ignore, passes)` Simplifies netlist with components in series.  See `simplify` for a description of the arguments.
+
+- `simplify_parallel(select, ignore, passes)` Simplifies netlist with components in parallel.  See `simplify` for a description of the arguments.
 
 - `state_space(node_voltages, branch_currents)` Generates a
   state-space representation (see :ref:`state-space-analysis`) where
