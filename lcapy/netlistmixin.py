@@ -1871,11 +1871,12 @@ class NetlistMixin(object):
 
         return net, False
 
-    def _keep(self, cpt, keep_nodes):
+    def _keep_dangling(self, cpt, keep_nodes):
 
-        for nodename in cpt.nodenames:
-            if nodename in keep_nodes:
+        for node in cpt.nodes:
+            if node.is_dangling and node.name in keep_nodes:
                 return True
+
         return False
 
     def _remove_dangling(self, cptnames=None, explain=False, keep_nodes=None):
@@ -1886,7 +1887,7 @@ class NetlistMixin(object):
         for cpt in self._elements.values():
             if (cpt.is_dangling
                 and (cptnames is None or cpt.name in cptnames)
-                    and not self._keep(cpt, keep_nodes)):
+                    and not self._keep_dangling(cpt, keep_nodes)):
                 if explain:
                     print('%s is dangling' % cpt.name)
                 changed = True
@@ -1988,6 +1989,8 @@ class NetlistMixin(object):
                 keep_nodes = ['0']
             else:
                 keep_nodes = []
+
+        keep_nodes = [str(node) for node in keep_nodes]
 
         # Perhaps use num cpts?
         if passes == 0:
