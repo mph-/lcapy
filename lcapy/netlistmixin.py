@@ -1871,13 +1871,22 @@ class NetlistMixin(object):
 
         return net, False
 
-    def _remove_dangling(self, cptnames=None, explain=False):
+    def _keep(self, cpt, keep_nodes):
+
+        for nodename in cpt.nodenames:
+            if nodename in keep_nodes:
+                return True
+        return False
+
+    def _remove_dangling(self, cptnames=None, explain=False, keep_nodes=None):
 
         new = self._new()
         changed = False
 
         for cpt in self._elements.values():
-            if cpt.is_dangling and (cptnames is None or cpt.name in cptnames):
+            if (cpt.is_dangling
+                and (cptnames is None or cpt.name in cptnames)
+                    and not self._keep(cpt, keep_nodes)):
                 if explain:
                     print('%s is dangling' % cpt.name)
                 changed = True
@@ -1974,8 +1983,11 @@ class NetlistMixin(object):
         This method is still work in progress.
         """
 
-        if keep_nodes is not None:
-            raise ValueError('keep_nodes not yet supported.')
+        if keep_nodes is None:
+            if '0' in self.nodes:
+                keep_nodes = ['0']
+            else:
+                keep_nodes = []
 
         # Perhaps use num cpts?
         if passes == 0:
@@ -1985,13 +1997,16 @@ class NetlistMixin(object):
         for m in range(passes):
             changed = False
             if dangling:
-                net, changed1 = net._remove_dangling(cptnames, explain)
+                net, changed1 = net._remove_dangling(
+                    cptnames, explain, keep_nodes)
                 changed = changed or changed1
             if series:
-                net, changed1 = net._simplify_series(cptnames, explain)
+                net, changed1 = net._simplify_series(
+                    cptnames, explain, keep_nodes)
                 changed = changed or changed1
             if parallel:
-                net, changed1 = net._simplify_parallel(cptnames, explain)
+                net, changed1 = net._simplify_parallel(
+                    cptnames, explain, keep_nodes)
                 changed = changed or changed1
 
             if not changed:
