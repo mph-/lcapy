@@ -128,7 +128,7 @@ class Node(ImmittanceMixin):
     def is_dangling(self):
         """Return True if node has a single connection"""
 
-        return self._count == 1
+        return self._count <= 1
 
     @property
     def is_ground(self):

@@ -29,6 +29,7 @@ class Analysis:
         self.current_sources = []
         self.switches = []
         self.wires = []
+        self.open_circuits = []
         self.ics = []
 
         for eltname, elt in cct.elements.items():
@@ -71,6 +72,8 @@ class Analysis:
                 self.switches.append(eltname)
             elif elt.is_wire:
                 self.wires.append(eltname)
+            elif elt.is_open_circuit:
+                self.open_circuits.append(eltname)
 
         num_sources = len(self.independent_sources)
 

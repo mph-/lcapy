@@ -52,6 +52,7 @@ class Cpt(ImmittanceMixin):
     is_transformer = False
     is_switch = False
     is_wire = False
+    is_open_circuit = False
 
     def __init__(self, cct, namespace, defname, name, cpt_type, cpt_id, string,
                  opts_string, nodes, keyword, *args):
@@ -344,6 +345,19 @@ class Cpt(ImmittanceMixin):
 
         return len(self.nodes) == 2 and \
             (self.nodes[0].is_dangling or self.nodes[1].is_dangling)
+
+    @property
+    def is_disconnected(self):
+        """Return True if component is disconnected (i.e., all nodes have a
+        single connection)."""
+
+        if self.type == 'XX':
+            return False
+
+        for node in self.nodes:
+            if not node.is_dangling:
+                return False
+        return True
 
     @ property
     def is_source(self):
@@ -1469,6 +1483,8 @@ class L(RLC):
 
 class O(Dummy):
     """Open circuit"""
+
+    is_open_circuit = True
 
     def _stamp(self, mna):
         pass

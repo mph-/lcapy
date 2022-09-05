@@ -1890,7 +1890,23 @@ class NetlistMixin(object):
             if (cpt.is_dangling and cpt.name not in skip
                     and not self._keep_dangling(cpt, keep_nodes)):
                 if explain:
-                    print('%s is dangling' % cpt.name)
+                    print('Removing dangling component %s' % cpt.name)
+                changed = True
+            else:
+                new._add(cpt._copy())
+
+        return new, changed
+
+    def _remove_disconnected(self, skip, explain=False, keep_nodes=None):
+
+        new = self._new()
+        changed = False
+
+        for cpt in self._elements.values():
+            if (cpt.is_disconnected and cpt.name not in skip
+                    and not self._keep_dangling(cpt, keep_nodes)):
+                if explain:
+                    print('Removing disconnected component %s' % cpt.name)
                 changed = True
             else:
                 new._add(cpt._copy())
@@ -1931,17 +1947,45 @@ class NetlistMixin(object):
                               modify=True, keep_nodes=None):
         """Simplify a circuit by removing dangling wires.
 
+        This also removes disconnected open-circuit components
+        after dangling wires have been removed.
+
         This performs a number of passes specified by `passes`.  If zero,
         this iterates until no more simplifications can be performed.
 
         If `explain` is True, the reason for a simplification is printed.
         If `modify` is False, no modifications are performed."""
 
-        return self.simplify(select=self.analysis.wires,
-                             passes=passes, explain=explain,
-                             modify=modify, series=False,
-                             parallel=False, dangling=True,
-                             keep_nodes=keep_nodes)
+        new = self.simplify(select=self.analysis.wires,
+                            passes=passes, explain=explain,
+                            modify=modify, series=False,
+                            parallel=False, dangling=True, disconnected=False,
+                            keep_nodes=keep_nodes)
+
+        # Remove disconnected open-circuit components.
+        return new.simplify(select=self.analysis.open_circuits,
+                            passes=passes, explain=explain,
+                            modify=modify, series=False,
+                            parallel=False, dangling=False, disconnected=True,
+                            keep_nodes=keep_nodes)
+
+    def remove_disconnected(self, select=None, ignore=None, passes=0,
+                            explain=False, modify=True, keep_nodes=None):
+        """Simplify a circuit by removing disconnected components.
+
+        This performs a number of passes specified by `passes`.  If zero,
+        this iterates until no more simplifications can be performed.
+
+        `select` is a list of component names to consider for simplification.
+        If `None`, all components are considered.
+
+        If `explain` is True, the reason for a simplification is printed.
+        If `modify` is False, no modifications are performed."""
+
+        return self.simplify(select=select, ignore=ignore, passes=passes,
+                             explain=explain, modify=modify,
+                             series=False, parallel=False, dangling=False,
+                             disconnected=True, keep_nodes=keep_nodes)
 
     def simplify_series(self, select=None, ignore=None, passes=0,
                         explain=False, modify=True, keep_nodes=None):
@@ -1982,7 +2026,7 @@ class NetlistMixin(object):
                              keep_nodes=keep_nodes)
 
     def simplify(self, select=None, ignore=None, passes=0, series=True,
-                 parallel=True, dangling=False,
+                 parallel=True, dangling=False, disconnected=True,
                  explain=False, modify=True, keep_nodes=None):
         """Simplify a circuit by combining components in series, combining
         components in parallel, and removing dangling components.
@@ -2025,6 +2069,10 @@ class NetlistMixin(object):
             changed = False
             if dangling:
                 net, changed1 = net._remove_dangling(skip, explain, keep_nodes)
+                changed = changed or changed1
+            if disconnected:
+                net, changed1 = net._remove_disconnected(
+                    skip, explain, keep_nodes)
                 changed = changed or changed1
             if series:
                 net, changed1 = net._simplify_series(skip, explain)

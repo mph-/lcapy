@@ -500,6 +500,8 @@ Circuit methods
 
 - `remove_dangling_wires(ignore, passes)` Removes dangling wires from the netlist.  See `simplify` for a description of the arguments.
 
+- `remove_disconnected(select, ignore, passes)` Removes disconnected components from the netlist.   See `simplify` for a description of the arguments.
+
 - `replace(name, net)` Replaces the named component.  For example,
 
    >>> cct = Circuit("""
@@ -1069,12 +1071,12 @@ The properties of each sub-circuit can be found with the `analysis` attribute:
 Simplification
 ==============
 
-Netlists have simplification methods : `remove_dangling`,
-`remove_dangling_wires`, `simplify_series()`, `simplify_parallel()`,
-and `simplify()`.  The latter is a generic method; it repeatedly calls
-`simplify_series()` and `simplify_parallel()` until no changes can be
-made.  The number of iterations is controlled by the `passes`
-argument.
+Netlists have simplification methods : `remove_dangling()`,
+`remove_dangling_wires()`, `remove_disconnected()`, `simplify_series()`,
+`simplify_parallel()`, and `simplify()`.  The latter is a generic
+method; it repeatedly calls `simplify_series()` and
+`simplify_parallel()` until no changes can be made.  The number of
+iterations is controlled by the `passes` argument.
 
 Each of the netlist simplification methods have an `explain` argument,
 If this is `True`, the simplification steps are printed.  There is
@@ -1127,7 +1129,14 @@ with a schematic:
 .. image:: examples/netlists/simplify_R1d.png
    :width: 10cm
 
-Note, the dangling wires can be removed using the `remove_dangling_wires()` method.
+The dangling wires can be removed using the `remove_dangling_wires()` method:
+
+   >>> e = d.remove_dangling_wires()
+
+with a schematic:
+
+.. image:: examples/netlists/simplify_R1e.png
+   :width: 4cm
 
 
 Netlist analysis examples
