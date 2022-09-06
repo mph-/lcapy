@@ -847,5 +847,5 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(c.simplify().Rt1.R, 15,
                          'parallel R with disconnected')
 
-        self.assertEqual(len(c.simplify().remove_disconnected().elements),
-                         1, 'disconnected')
+        self.assertEqual(len(c.remove_disconnected().elements),
+                         2, 'disconnected')
