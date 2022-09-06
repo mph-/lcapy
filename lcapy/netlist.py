@@ -16,6 +16,7 @@ from .superpositionvoltage import SuperpositionVoltage
 from .superpositioncurrent import SuperpositionCurrent
 from .current import Iname
 from .netlistmixin import NetlistMixin
+from .netlistsimplifymixin import NetlistSimplifyMixin
 from .netfile import NetfileMixin
 from .expr import Expr, expr
 from .subnetlist import SubNetlist
@@ -42,7 +43,7 @@ class Transformdomains(dict):
         return super(Transformdomains, self).__getitem__(key)
 
 
-class Netlist(NetlistMixin, NetfileMixin):
+class Netlist(NetlistMixin, NetlistSimplifyMixin, NetfileMixin):
     """This class handles a generic netlist with multiple sources.
     During analysis, subnetlists are created for each source kind (dc,
     ac, transient, etc).  Since linearity is assumed, superposition is

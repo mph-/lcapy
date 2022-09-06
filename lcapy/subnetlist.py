@@ -1,16 +1,17 @@
 """This module provides the SubNetlist class.
 
-Copyright 2020 Michael Hayes, UCECE
+Copyright 2020-2022 Michael Hayes, UCECE
 
 """
 
 from .mna import MNA
 from .netlistmixin import NetlistMixin
+from .netlistsimplifymixin import NetlistSimplifyMixin
 from .state import state
 from .symbols import omega
 
 
-class SubNetlist(NetlistMixin):
+class SubNetlist(NetlistMixin, NetlistSimplifyMixin):
     """This is a representation of a netlist for a particular
     transformation domain, such as ac, dc, transient, or noise."""
 
