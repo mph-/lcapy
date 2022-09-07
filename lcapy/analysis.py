@@ -8,7 +8,7 @@ Copyright 2022 Michael Hayes, UCECE
 
 class Analysis:
 
-    def __init__(self, cct):
+    def __init__(self, cct, components):
 
         self.has_ic = False
         self.zeroic = True
@@ -22,14 +22,6 @@ class Analysis:
         self.dependent_sources = []
         self.control_sources = []
         self.reactances = []
-        self.transformers = []
-        self.capacitors = []
-        self.inductors = []
-        self.voltage_sources = []
-        self.current_sources = []
-        self.switches = []
-        self.wires = []
-        self.open_circuits = []
         self.ics = []
 
         for eltname, elt in cct.elements.items():
@@ -58,22 +50,6 @@ class Analysis:
             if elt.reactive:
                 self.reactive = True
                 self.reactances.append(eltname)
-            if elt.is_transformer:
-                self.transformers.append(eltname)
-            elif elt.is_capacitor:
-                self.capacitors.append(eltname)
-            elif elt.is_inductor:
-                self.inductors.append(eltname)
-            elif elt.is_voltage_source:
-                self.voltage_sources.append(eltname)
-            elif elt.is_current_source:
-                self.current_sources.append(eltname)
-            elif elt.is_switch:
-                self.switches.append(eltname)
-            elif elt.is_wire:
-                self.wires.append(eltname)
-            elif elt.is_open_circuit:
-                self.open_circuits.append(eltname)
 
         num_sources = len(self.independent_sources)
 
@@ -88,7 +64,7 @@ class Analysis:
         self.time_domain = not self.reactive and not self.has_s
 
         self.ivp = self.has_ic
-        self.switching = self.switches != []
+        self.switching = components.switches != []
 
         if not self.reactive and self.has_ic:
             raise ValueError('Non-reactive component with initial conditions')

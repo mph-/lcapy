@@ -7,6 +7,7 @@ Copyright 2020--2022 Michael Hayes, UCECE
 
 from .expr import expr
 from .analysis import Analysis
+from .components import Components
 from .mnacpts import Cpt
 from .impedance import impedance
 from .admittance import admittance
@@ -2107,31 +2108,31 @@ class NetlistMixin(object):
     def transformers(self):
         """Return dictionary of transformers."""
 
-        return self.analysis.transformers
+        return self.components.transformers
 
     @property
     def capacitors(self):
         """Return dictionary of capacitors."""
 
-        return self.analysis.capacitors
+        return self.components.capacitors
 
     @property
     def inductors(self):
         """Return dictionary of inductors."""
 
-        return self.analysis.inductors
+        return self.components.inductors
 
     @property
     def voltage_sources(self):
         """Return dictionary of voltage_sources."""
 
-        return self.analysis.voltage_sources
+        return self.components.voltage_sources
 
     @property
     def current_sources(self):
         """Return dictionary of current_sources."""
 
-        return self.analysis.current_sources
+        return self.components.current_sources
 
     @property
     def ics(self):
@@ -2210,7 +2211,15 @@ class NetlistMixin(object):
 
     def analyse(self):
 
-        return Analysis(self)
+        return Analysis(self, self.components)
+
+    @property
+    def components(self):
+
+        if not hasattr(self, '_components'):
+            self._components = Components(self)
+
+        return self._components
 
     def describe(self):
         """Print a message describing how circuit is solved."""

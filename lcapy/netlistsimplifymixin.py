@@ -277,14 +277,14 @@ class NetlistSimplifyMixin:
         If `explain` is True, the reason for a simplification is printed.
         If `modify` is False, no modifications are performed."""
 
-        new = self.simplify(select=self.analysis.wires,
+        new = self.simplify(select=self.components.wires,
                             passes=passes, explain=explain,
                             modify=modify, series=False,
                             parallel=False, dangling=True, disconnected=False,
                             keep_nodes=keep_nodes)
 
         # Remove disconnected open-circuit components.
-        return new.simplify(select=self.analysis.open_circuits,
+        return new.simplify(select=self.components.open_circuits,
                             passes=passes, explain=explain,
                             modify=modify, series=False,
                             parallel=False, dangling=False, disconnected=True,

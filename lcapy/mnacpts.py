@@ -49,10 +49,11 @@ class Cpt(ImmittanceMixin):
     add_series = False
     add_parallel = False
     equipotential_nodes = ()
-    is_transformer = False
-    is_switch = False
-    is_wire = False
     is_open_circuit = False
+    is_port = False
+    is_switch = False
+    is_transformer = False
+    is_wire = False
 
     def __init__(self, cct, namespace, defname, name, cpt_type, cpt_id, string,
                  opts_string, nodes, keyword, *args):
@@ -1498,9 +1499,21 @@ class O(Dummy):
         return SuperpositionCurrent(0)(t)
 
 
-class P(O):
+class P(Dummy):
     """Port"""
-    pass
+
+    is_port = True
+
+    def _stamp(self, mna):
+        pass
+
+    @property
+    def I(self):
+        return SuperpositionCurrent(0)
+
+    @property
+    def i(self):
+        return SuperpositionCurrent(0)(t)
 
 
 class R(RC):

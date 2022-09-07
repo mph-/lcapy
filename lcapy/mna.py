@@ -145,20 +145,21 @@ class MNA(object):
             return message + ' Not all nodes are connected.  Use cct.unconnected_nodes() to find them.'
 
         reasons = []
+        components = cct.components
         if cct.kind == 'dc':
             reasons.append('Check there is a DC path between all nodes.')
-        if cct.transformers != []:
+        if components.transformers != []:
             reasons.append(
                 'Check secondary of transformer is referenced to ground.')
-        if len(cct.capacitors) > 1:
+        if len(components.capacitors) > 1:
             reasons.append('Check capacitors are not in series.')
-        if cct.voltage_sources != []:
+        if components.voltage_sources != []:
             reasons.append('Check voltage source is not short-circuited.')
-        if len(cct.voltage_sources) > 1:
+        if len(components.voltage_sources) > 1:
             reasons.append('Check for loop of voltage sources.')
-        if cct.current_sources != []:
+        if components.current_sources != []:
             reasons.append('Check current source is not open-circuited.')
-        if len(cct.current_sources) > 1:
+        if len(components.current_sources) > 1:
             reasons.append('Check for current sources in series.')
 
         return message + '\n    ' + '\n    '.join(reasons)
