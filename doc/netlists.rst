@@ -809,11 +809,27 @@ The generalized s-domain driving point admittance and impedance can be found usi
 Note, this is the total impedance across `L1`, not just the impedance of the component as given by `cct.L1.Z(s)`.
 
 
-Here is the complete list of component attributes.
+Here is the complete list of component attributes:
+
+- `components` dictionary of component lists
 
 - `connected` list of components connected to the component
 
-- `is_ac` source is only ac
+- `has_ic` initial conditions are specified
+
+- `has_ac` component is a source with an ac component
+
+- `has_dc` component is a source with a dc component
+
+- `has_noisy` component is a source with a noisy component
+
+- `has_s_transient` component is a source with a transient component defined in s-domain
+
+- `has_t_transient` component is a source with a transient component defined in time domain
+
+- `has_transient` component is a source with a transient component
+
+- `is_ac` component is a source that is only ac
 
 - `is_causal`  source or component is causal
 
@@ -821,15 +837,21 @@ Here is the complete list of component attributes.
 
 - `is_current_source` component is a current source
 
+- `is_dangling` component has a node with fewer than 2 connections
+
 - `is_dependent_source` source is dependent
 
-- `is_dc` source is only dc
+- `is_dc` component is a source that is only dc
+
+- `is_disconnected` component has all nodes with fewer than 2 connections
 
 - `is_inductor` component is an inductor
 
 - `is_independent_source` source is independent
 
-- `is_noisy` source only has a noisy component
+- `is_noisy` component is a source that is only noisy
+
+- `is_open_circuit` component is an open-circuit
 
 - `is_resistor` component is a resistor
 
@@ -839,19 +861,7 @@ Here is the complete list of component attributes.
 
 - `is_voltage_source` component is a voltage source
 
-- `has_ic` initial conditions are specified
-
-- `has_ac` source has an ac component
-
-- `has_dc` source has a dc component
-
-- `has_noisy` source has a noisy component
-
-- `has_s_transient` source has a transient component defined in s-domain
-
-- `has_t_transient` source has a transient component defined in time domain
-
-- `has_transient` source has a transient component
+- `is_wire` component is a wire
 
 - `nodes` list of nodes
 
@@ -929,10 +939,14 @@ For example,
    s + ──
        L₁
 
-- `connected` list of components connected to node
+- `connected` returns list of components connected to node
 
-- `count` number of components connected to node (excluding
+- `count` returns number of components connected to node (excluding
   annotations and open-circuits)
+
+- `is_dangling` returns True if node count less than 2
+
+- `is_ground` returns True if node is a ground (starts with '0')
 
 
 Node methods
