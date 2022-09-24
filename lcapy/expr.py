@@ -758,7 +758,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
         return self.time()
 
     def as_laplace(self):
-        return self.laplace()
+        return self._cached_laplace()
 
     def as_phasor(self):
         return self.phasor()
@@ -1619,6 +1619,17 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         return self.expr <= x.expr
 
+    def _cached_laplace(self):
+
+        # The _laplace attribute stores a cached Laplace transform
+        # of the expression.  This object can then store the cached
+        # poles and zeros etc.
+        try:
+            return self._laplace
+        except AttributeError:
+            self._laplace = self.laplace()
+            return self._laplace
+
     def cancel_terms(self):
         """Simplify terms in expression individually by converting
         each to rational functions."""
@@ -2031,7 +2042,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         Note, with this definition `cos(t)` is considered realizable."""
 
-        return self.laplace().is_strictly_proper
+        return self._cached_laplace().is_strictly_proper
 
     @property
     def is_stable(self):
@@ -2044,7 +2055,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         See also is_marginally_stable.
         """
 
-        poles = self.laplace().poles(aslist=True)
+        poles = self._cached_laplace().poles(aslist=True)
         for pole in poles:
             if pole.real >= 0:
                 return False
@@ -2061,7 +2072,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         See also is_stable.
         """
 
-        poles = self.laplace().poles(aslist=True)
+        poles = self._cached_laplace().poles(aslist=True)
         for pole in poles:
             if pole.real > 0:
                 return False
@@ -2855,7 +2866,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if self._ratfun is None:
             return self.N.roots(aslist, pairs)
 
-        zeros = self._ratfun.zeros()
+        try:
+            zeros = self._zeros
+        except AttributeError:
+            zeros = self._ratfun.zeros()
+            self._zeros = zeros
+
         return self._fmt_roots(zeros, aslist, pairs)
 
     def poles(self, aslist=False, damping=None, pairs=False):
@@ -2875,7 +2891,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             # Handle expressions such as A(s) * (1 - exp(-s * T)) / B(s).
             return self.D.roots(aslist, pairs)
 
-        poles = self._ratfun.poles(damping=damping)
+        try:
+            poles = self._poles
+        except AttributeError:
+            poles = self._ratfun.poles(damping=damping)
+            self._poles = poles
 
         polesdict = {}
         for pole in poles:
