@@ -784,6 +784,7 @@ Discrete-time linear time invariant filter attributes
 
 - `a` denominator coefficients as a list
 - `b` numerator coefficients as a list
+- `is_marginally_stable` True if impulse response marginally stable
 - `is_stable` True if impulse response stable
 
 

@@ -237,6 +237,17 @@ class DLTIFilter(object):
     @property
     def is_stable(self):
         """Return True if all the poles of the filters transfer function
-        are within the unit circle."""
+        are within the unit circle.
+
+        See also is_marginally_stable."""
 
         return self.transfer_function().is_stable
+
+    @property
+    def is_marginally_stable(self):
+        """Return True if all the poles of the filters transfer function
+        are within or on the unit circle.
+
+        See also is_stable."""
+
+        return self.transfer_function().is_marginally_stable

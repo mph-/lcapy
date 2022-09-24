@@ -668,6 +668,8 @@ All Lcapy expressions have the following attributes (see :ref:`expressionsration
 
 - `is_dc` returns True if DC signal
 
+- `is_marginally_stable` returns True if the Laplace transform of the expression has all its poles in the LH plane or on the boundary
+
 - `is_number` returns True if expression is a number
 
 - `is_rational_function` returns True if expression is a rational function

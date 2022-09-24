@@ -116,10 +116,25 @@ class SequenceExpression(DiscreteExpression):
     @property
     def is_stable(self):
         """Return True if all the poles of the signal's z-transform
-        are within the unit circle."""
+        are within the unit circle.
+
+        See also is_marginally_stable."""
 
         poles = self.poles(aslist=True)
         for pole in poles:
             if abs(pole) >= 1:
+                return False
+        return True
+
+    @property
+    def is_marginally_stable(self):
+        """Return True if all the poles of the signal's z-transform
+        are within or on the unit circle.
+
+        See also is_stable."""
+
+        poles = self.poles(aslist=True)
+        for pole in poles:
+            if abs(pole) > 1:
                 return False
         return True

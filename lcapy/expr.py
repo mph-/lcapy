@@ -1174,7 +1174,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
         """Return the top-level function in the Sympy Expression.
 
         For example, this returns Mul for the expression `3 * s`.
-        See also .args(), to return the args, in this case `(3, s)`"""
+        See also args to return the args, in this case `(3, s)`"""
 
         return self.expr.func
 
@@ -1338,7 +1338,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             self._incompatible_domains(x, '*')
 
         if self.is_transform_domain:
-            assumptions = self.assumptions.convolve(x)
+            assumptions = self.assumptions.convolve(self, x)
         else:
             assumptions = Assumptions()
 
@@ -1395,7 +1395,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if not self._div_compatible_domains(x):
             self._incompatible_domains(x, '/')
 
-        assumptions = self.assumptions.convolve(x)
+        assumptions = self.assumptions.convolve(self, x)
 
         xquantity, yquantity = x.quantity, self.quantity
         # Maybe use undefined for voltage**2 etc.
@@ -2039,11 +2039,31 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         are in the LH plane.
 
         Note, `exp(-alpha * t)` is considered stable since the
-        unilateral Laplace transform ignores the region where `t < 0`."""
+        unilateral Laplace transform ignores the region where `t < 0`.
+
+        See also is_marginally_stable.
+        """
 
         poles = self.laplace().poles(aslist=True)
         for pole in poles:
             if pole.real >= 0:
+                return False
+        return True
+
+    @property
+    def is_marginally_stable(self):
+        """Return True if all the poles of the signal's Laplace transform
+        are in the LH plane or on the boundary.
+
+        Note, `exp(-alpha * t)` is considered stable since the
+        unilateral Laplace transform ignores the region where `t < 0`.
+
+        See also is_stable.
+        """
+
+        poles = self.laplace().poles(aslist=True)
+        for pole in poles:
+            if pole.real > 0:
                 return False
         return True
 
@@ -2718,7 +2738,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         If no symbols are specified, all free symbols are solved for.
 
-        See also `nsolve()` for a numerical solver.
+        See also `nsolve` for a numerical solver.
         """
 
         if self.has(AppliedUndef):
@@ -2738,7 +2758,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         See sympy.solvers.solvers.nsolve for details.
 
-        See also `.solve()` for a symbolic solver.
+        See also `solve` for a symbolic solver.
 
         """
         from sympy.solvers.solvers import nsolve
