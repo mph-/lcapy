@@ -7,6 +7,7 @@ Copyright 2014--2020 Michael Hayes, UCECE
 """
 
 from copy import copy
+from .sym import ssym
 from .acdc import is_dc, is_ac, is_causal
 
 
@@ -138,7 +139,7 @@ class Assumptions(dict):
 
         return self.get('unknown')
 
-    def convolve(self, x):
+    def convolve(self, expr, x):
 
         # The assumptions refer to the time-domain signal or
         # impulse-response.  Thus we want to propagate the assumptions
@@ -174,8 +175,14 @@ class Assumptions(dict):
 
         assumptions.set('unknown', True)
 
-        if self.is_causal and x.is_causal:
-            assumptions.set('causal', True)
+        if self.is_causal:
+            if x.is_causal:
+                assumptions.set('causal', True)
+            elif expr.var == ssym:
+                expr2 = x.sympy
+                # Assume H(s) * s**n is causal if H(s) is causal.
+                if expr2 == ssym or (expr2.is_Pow and expr2.args[0] == ssym):
+                    assumptions.set('causal', True)
         return assumptions
 
     def add(self, x):
