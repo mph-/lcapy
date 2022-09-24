@@ -80,6 +80,9 @@ def plot_deltas(ax, t, deltas, var, plot_type='real', color='k'):
         if t0 >= min(t) and t0 <= max(t):
             vals.append((t0, const))
 
+    if vals == []:
+        return
+
     vals = np.array(vals)
 
     tmin, tmax = ax.get_xlim()
