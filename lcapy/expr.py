@@ -2641,7 +2641,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             return self
         return self._subs1(self.var, args[0], **kwargs)
 
-    @ property
+    @property
     def label(self):
 
         label = ''
@@ -2654,7 +2654,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 label += capitalize_name(self.part)
         return label
 
-    @ property
+    @property
     def label_with_units(self):
 
         label = self.label
@@ -2662,7 +2662,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             label += ' (%s)' % self.units
         return label
 
-    @ property
+    @property
     def domain_label_with_units(self):
 
         label = ''
@@ -2789,7 +2789,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         # TODO: wrap return value as ExprList
         return split_dirac_delta(self)
 
-    @ property
+    @property
     def symbols(self):
         """Return dictionary of symbols in the expression keyed by name."""
 
