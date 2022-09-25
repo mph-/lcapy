@@ -164,12 +164,11 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         """Convert to Fourier domain."""
         from .symbols import f, jw, pi
 
-        if self.is_causal or assumptions.get('causal', False):
-            # Note, this does not apply for 1 / s.
+        if ((self.is_causal or assumptions.get('causal', False))
+                and self.is_stable):
             tmp = self.subs(jw)
-            if tmp.real != 0:
-                return self.change(tmp.subs(2 * pi * f, safe=True),
-                                   domain='fourier', **assumptions)
+            return self.change(tmp.subs(2 * pi * f, safe=True),
+                               domain='fourier', **assumptions)
 
         result = self.time(**assumptions).fourier(**assumptions)
         return result
@@ -178,12 +177,11 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         """Convert to angular Fourier domain."""
         from .symbols import jw
 
-        if self.is_causal:
-            # Note, this does not apply for 1 / s.
+        if ((self.is_causal or assumptions.get('causal', False))
+                and self.is_stable):
             tmp = self(jw)
-            if tmp.real != 0:
-                return self.change(tmp, domain='angular fourier',
-                                   **assumptions)
+            return self.change(tmp, domain='angular fourier',
+                               **assumptions)
 
         result = self.time(**assumptions).angular_fourier(**assumptions)
         return result
@@ -192,12 +190,11 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         """Convert to normalized angular Fourier domain."""
         from .symbols import jw, Omega
 
-        if self.is_causal:
-            # Note, this does not apply for 1 / s.
+        if ((self.is_causal or assumptions.get('causal', False))
+                and self.is_stable):
             tmp = self(j * Omega / dt)
-            if tmp.real != 0:
-                return self.change(tmp, domain='norm angular fourier',
-                                   **assumptions)
+            return self.change(tmp, domain='norm angular fourier',
+                               **assumptions)
 
         result = self.time(**assumptions).norm_angular_fourier(**assumptions)
         return result
@@ -206,12 +203,11 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         """Convert to normalized Fourier domain."""
         from .symbols import jw, F
 
-        if self.is_causal:
-            # Note, this does not apply for 1 / s.
+        if ((self.is_causal or assumptions.get('causal', False))
+                and self.is_stable):
             tmp = self(j * F / dt)
-            if tmp.real != 0:
-                return self.change(tmp, domain='norm fourier',
-                                   **assumptions)
+            return self.change(tmp, domain='norm fourier',
+                               **assumptions)
 
         result = self.time(**assumptions).norm_fourier(**assumptions)
         return result
