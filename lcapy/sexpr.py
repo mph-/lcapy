@@ -164,6 +164,9 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         """Convert to Fourier domain."""
         from .symbols import f, jw, pi
 
+        # Require f = 0 in the region of convergence.  This is
+        # achieved if the expression is the Laplace transform of a
+        # stable impulse response.
         if ((self.is_causal or assumptions.get('causal', False))
                 and self.is_stable):
             tmp = self.subs(jw)

@@ -908,7 +908,7 @@ class Ratfun(object):
         `expression = (Q + sum_n r_n / (var - p_n)**o_n) * exp(-delay * var) * undef`
 
         `method` can be 'sub' (substitution method, the default) or
-        'ec' (equating cofficients method).a
+        'ec' (equating cofficients method).
 
         """
 
