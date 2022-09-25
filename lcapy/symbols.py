@@ -25,6 +25,8 @@ omega0 = omega0sym
 jomega = j * omega
 jw = jomega
 
+j2pif = j * 2 * pi * f
+
 jomega0 = j * omega0
 jw0 = jomega0
 
