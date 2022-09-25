@@ -178,6 +178,7 @@ def factor_expr(expr, factor):
 
 
 def separate_dirac_delta(expr):
+    """Separate Dirac delta terms from expression."""
 
     terms = expr.as_ordered_terms()
     deltas = []

@@ -1926,6 +1926,15 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     def magnitude(self):
         """Return magnitude."""
 
+        from sympy import DiracDelta
+
+        if self.has(DiracDelta):
+            # Convert abs(X(f) + DiracDelta(f)) to abs(X(f)) + DiracDelta(f)
+            rest, deltas = self.separate_dirac_delta()
+            if not rest.has(DiracDelta):
+                return rest.magnitude + deltas
+            warn('Magnitude of expression with Dirac delta may be invalid: ', self)
+
         if self.is_real:
             dst = expr(abs(self.expr))
             dst.part = 'magnitude'
@@ -2513,6 +2522,18 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         ret = sym.limit(self.expr, var, value, dir=dir)
         return self.__class__(ret, **self.assumptions)
+
+    def separate_dirac_delta(self):
+        """Separate Dirac delta terms from expression."""
+
+        from .utils import separate_dirac_delta
+
+        rest, deltas = separate_dirac_delta(self.sympy)
+        deltaexpr = 0
+        for delta in deltas:
+            deltaexpr += delta
+
+        return self.__class__(rest), self.__class__(deltaexpr)
 
     def simplify(self, **kwargs):
         """Simplify expression.
