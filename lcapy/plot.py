@@ -108,6 +108,8 @@ def plot_deltas(ax, t, deltas, var, plot_type='real', color='k'):
 
 
 def plot_pole_zero(obj, **kwargs):
+    """This is a helper function for a pole zero plot.  It is better
+    to use the `plot()` method of a LaplaceDomainExpression."""
 
     from matplotlib.pyplot import Circle, rcParams
 
@@ -302,6 +304,8 @@ def plotit(ax, obj, f, V, plot_type=None, deltas=None, log_magnitude=False,
 
 
 def plot_frequency(obj, f, plot_type=None, **kwargs):
+    """This is a helper function for a frequency response plot.  It is
+    better to use the `plot()` method of a FourierDomainExpression."""
 
     obj = obj.doit()
 
@@ -495,6 +499,8 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
 
 
 def plot_bode(obj, f, **kwargs):
+    """This is a helper function for a Bode plot.  It is
+    better to use the `bode_plot()` method of a FourierDomainExpression."""
 
     if 'log_frequency' not in kwargs:
         kwargs['log_frequency'] = True
@@ -505,6 +511,8 @@ def plot_bode(obj, f, **kwargs):
 
 
 def plot_angular_bode(obj, f, **kwargs):
+    """This is a helper function for a Bode plot.  It is better to use the
+    `bode_plot()` method of an AngularFourierDomainExpression."""
 
     if 'log_frequency' not in kwargs:
         kwargs['log_frequency'] = True
@@ -513,6 +521,8 @@ def plot_angular_bode(obj, f, **kwargs):
 
 
 def plot_angular_frequency(obj, omega, plot_type=None, **kwargs):
+    """This is a helper function for a frequency response plot.  It is
+    better to use the `plot()` method of an AngularFourierDomainExpression."""
 
     npoints = kwargs.pop('npoints', 400)
     norm = kwargs.pop('norm', False)
@@ -543,6 +553,8 @@ def plot_angular_frequency(obj, omega, plot_type=None, **kwargs):
 
 
 def plot_time(obj, t, plot_type=None, **kwargs):
+    """This is a helper function for a time plot.  It is
+    better to use the `plot()` method of a TimeDomainExpression."""
 
     obj = obj.doit()
     npoints = kwargs.pop('npoints', 400)
@@ -639,6 +651,8 @@ def plot_sequence_polar(obj, ni=(-10, 10), **kwargs):
 
 
 def plot_sequence(obj, ni, plot_type=None, polar=False, **kwargs):
+    """This is a helper function for a stem (lollipop) plot.  It is
+    better to use the `plot()` method of a DiscreteTimeDomainExpression."""
 
     from matplotlib.ticker import MaxNLocator
 
@@ -714,6 +728,8 @@ def plot_sequence(obj, ni, plot_type=None, polar=False, **kwargs):
 
 
 def plot_phasor(obj, **kwargs):
+    """This is a helper function for a phasor plot.  It is
+    better to use the `plot()` method of a PhasorDomainExpression."""
 
     obj = obj.doit()
 
@@ -729,6 +745,8 @@ def plot_phasor(obj, **kwargs):
 
 
 def plot_nyquist(obj, f, norm=False, **kwargs):
+    """This is a helper function for a Nyquist plot.  It is better to use
+    the `nyquist_plot()` method of a LaplaceDomainExpression."""
 
     from matplotlib.pyplot import Circle, rcParams
 
@@ -827,6 +845,8 @@ def plot_nyquist(obj, f, norm=False, **kwargs):
 
 
 def plot_nichols(obj, f, norm=False, **kwargs):
+    """This is a helper function for a Nichols plot.  It is better to use
+    the `nichols_plot()` method of a LaplaceDomainExpression."""
 
     from matplotlib.pyplot import Circle, rcParams
 

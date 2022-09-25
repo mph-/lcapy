@@ -2,6 +2,30 @@
 Release notes
 =============
 
+V1.8
+====
+
+- Compatible with SymPy-1.11.
+
+- Fixes plotting of expressions with Dirac deltas outside desired region.
+
+- Fixes Laplace to Fourier shortcut.
+
+- Adds `is_marginally_stable` attribute to expressions.
+
+- Adds `remove_disconnected()`, `remove_dangling()`, `remove_dangling_wires()`.
+
+- Adds `select` and `ignore` argument to `simplify()`, `simplify_series()`, `simplify_parallel()`.
+
+- Adds `is_dangling` and `is_disconnected` attributes to components.
+
+- Warns if using `I` for current source value (this is considered the imaginary operator by SymPy).
+
+- Ensures unique names chosen.
+
+- Reduces recursion depth when trying to draw bogus schematics.
+
+
 V1.7
 ====
 
