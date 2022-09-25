@@ -2406,6 +2406,11 @@ Bode plots are similar to frequency domain plots but plot both the magnitude (in
 .. image:: examples/plotting/bode1.png
    :width: 12cm
 
+By default, a Bode plot of a Laplace domain expression is shown with
+linear frequencies (in hertz).  This can be changed to angular
+frequencies (in radians) using the `angular` argument to the
+`bode_plot()` method.
+
 
 Nyquist plots
 -------------

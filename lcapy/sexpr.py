@@ -513,22 +513,32 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         return self.plot(**kwargs)
 
-    def bode_plot(self, fvector=None, unwrap=True, **kwargs):
+    def bode_plot(self, fvector=None, unwrap=True, angular=False, **kwargs):
         """Plot frequency response for a frequency-domain phasor as a Bode
-        plot (but without the straight line approximations).  fvector
-        specifies the frequencies.  If it is a tuple (f1, f2), it sets
-        the frequency limits.   Since a logarithmic frequency scale is used,
-        f1 must be greater than 0.
+        plot (but without the straight line approximations).
+
+        If `angular` is False, `fvector` specifies the (linear)
+        frequencies (in hertz) otherwise `fvector` specifies the
+        angular frequencies (in radians).
+
+         If `fvector` is a tuple (f1, f2), it sets the frequency
+        limits.  Since a logarithmic frequency scale is used, f1 must
+        be greater than 0.
 
         `unwrap` controls phase unwrapping (default True).
 
         This method makes the assumption that the expression is causal.
         Note, the Bode plot does not exist for marginally stable and unstable
         systems since `jw` is outside the region of convergence.
+
         """
 
-        return self.fourier(causal=True).bode_plot(fvector, unwrap=unwrap,
-                                                   **kwargs)
+        if angular:
+            E = self.angular_fourier(causal=True)
+        else:
+            E = self.fourier(causal=True)
+
+        return E.bode_plot(fvector, unwrap=unwrap, **kwargs)
 
     def nyquist_plot(self, fvector=None, **kwargs):
         """Plot frequency response for a frequency-domain phasor as a Nyquist
