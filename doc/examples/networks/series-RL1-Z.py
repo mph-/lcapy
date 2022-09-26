@@ -5,7 +5,7 @@ from matplotlib.pyplot import figure, savefig
 N = R(10) + L(1e-2)
 
 vf = logspace(0, 5, 400)
-Z = N.Z(f).evaluate(vf)
+Z = N.Z(j2pif).evaluate(vf)
 
 fig = figure()
 ax = fig.add_subplot(111)
@@ -15,4 +15,3 @@ ax.set_ylabel('Impedance (ohms)')
 ax.grid(True)
 
 savefig('series-RL1-Z.png')
-

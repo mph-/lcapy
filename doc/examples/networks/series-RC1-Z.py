@@ -5,7 +5,7 @@ from matplotlib.pyplot import figure, savefig
 N = R(10) + C(1e-4)
 
 vf = logspace(0, 5, 400)
-Z = N.Z(f).evaluate(vf)
+Z = N.Z(j2pif).evaluate(vf)
 
 fig = figure()
 ax = fig.add_subplot(111)

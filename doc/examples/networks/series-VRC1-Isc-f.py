@@ -8,4 +8,3 @@ vf = logspace(0, 5, 400)
 N.Isc(f).plot(vf, log_scale=True)
 
 savefig('series-VRC1-Isc-f.png')
-
