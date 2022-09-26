@@ -241,30 +241,44 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         H = self.__class__(self / self.var, **self.assumptions)
         return H.transient_response(tvector)
 
-    def angular_frequency_response(self, wvector=None):
+    def angular_frequency_response(self, wvector=None, strict=False):
         """Convert to angular frequency domain and evaluate response if
         angular frequency vector specified.
 
         """
         from .symbols import omega
 
-        return self.frequency_response(wvector, var=omega)
+        return self.frequency_response(wvector, var=omega, strict=strict)
 
-    def frequency_response(self, fvector=None, var=None):
+    def frequency_response(self, fvector=None, var=None, strict=False):
         """Convert to frequency domain and evaluate response if frequency
-        vector specified."""
+        vector specified.
+
+        If `var` is None or `f` use linear frequency otherwise if
+        `var` is `omega` use angular frequency.
+
+        If `strict` is True, evaluate frequency response via Fourier
+        transform.
+
+        """
         from .symbols import f, omega
 
-        # Perhaps have a strict argument to warn if the expression is
+        # Perhaps if strict is False warn if the expression is
         # not a Laplace transform of a stable impulse response?
 
         if var is None:
             var = f
 
         if id(var) == id(f):
-            X = self.subs(j * 2 * pi * f)
+            if strict:
+                X = self(f)
+            else:
+                X = self.subs(j * 2 * pi * f)
         elif id(var) == id(omega):
-            X = self.subs(j * omega)
+            if strict:
+                X = self(omega)
+            else:
+                X = self.subs(j * omega)
         else:
             raise ValueError('var not f or omega: ' % var)
 
@@ -516,7 +530,8 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         return self.plot(**kwargs)
 
-    def bode_plot(self, fvector=None, unwrap=True, var=None, **kwargs):
+    def bode_plot(self, fvector=None, unwrap=True, var=None, strict=False,
+                  **kwargs):
         """Plot frequency response for a frequency-domain phasor as a Bode
         plot (but without the straight line approximations).
 
@@ -536,7 +551,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         """
 
-        H = self.frequency_response(var=var)
+        H = self.frequency_response(var=var, strict=strict)
         return H.bode_plot(fvector, unwrap=unwrap, **kwargs)
 
     def nyquist_plot(self, fvector=None, var=None, **kwargs):
