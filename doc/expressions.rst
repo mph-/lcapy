@@ -2408,14 +2408,19 @@ Bode plots are similar to frequency domain plots but plot both the magnitude (in
 
 By default, a Bode plot of a Laplace domain expression is shown with
 linear frequencies (in hertz).  This can be changed to angular
-frequencies (in radians) using the `angular` argument to the
+frequencies (in radians) using the `var=omega` argument to the
 `bode_plot()` method.
+
+The frequency response of Laplace domain expressions is calculated
+using the substitution :math:`s = j \omega`.  Note, this does not
+correctly calculate the DC component for expressions that have an
+unstable impulse response.
 
 
 Nyquist plots
 -------------
 
-Nyquist plots plot the imaginary part of a frequency domain expression against the real part.  By default, the unit circle is also plotted.
+Nyquist plots plot the imaginary part of a frequency response expression against the real part.
 
 .. literalinclude:: examples/plotting/nyquist1.py
 
@@ -2426,6 +2431,22 @@ Nyquist plots plot the imaginary part of a frequency domain expression against t
 By default, the points on the plot are geometrically spaced; this can be disabled with `log_frequency=False`.
 
 The unit circle is shown by default.  This can be disabled with `unitcircle=False`.
+
+
+Nichols plots
+-------------
+
+Nichols plots plot the magnitude of the frequency response in dB versus the phase of the frequency response in radians.
+
+
+.. literalinclude:: examples/plotting/nichols1.py
+
+.. image:: examples/plotting/nichols1.png
+   :width: 12cm
+
+
+By default, the points on the plot are geometrically spaced; this can be disabled with `log_frequency=False`.
+
 
 
 Phasor plots
