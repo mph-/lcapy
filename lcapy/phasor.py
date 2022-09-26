@@ -69,16 +69,15 @@ class PhasorExpression(Expr):
     def var(self):
         """Return underlying variable as sympy expression."""
 
-        # TODO, think this through...
-        var = self.omega
-        if hasattr(var, 'expr'):
-            raise ValueError('FIXME, omega is Lcapy symbol')
+        from .sym import fsym, omegasym, pi
 
-        # Handle things like 2 * pi * f
-        if isinstance(var, symExpr) and var.is_Mul:
-            return None
+        if self.omega == omegasym:
+            return omegasym
 
-        return var
+        if self.omega == 2 * pi * fsym:
+            return fsym
+
+        return None
 
     def phasor(self, **assumptions):
         """Convert to phasor representation."""
@@ -281,7 +280,7 @@ class PhasorFrequencyDomainExpression(PhasorFrequencyDomain, PhasorExpression):
 
         # Substitute jw for s
         result = expr.laplace(**ass)
-        result2 = result.expr.replace(ssym, j * omegasym)
+        result2 = result.expr.replace(ssym, j * omega)
 
         quantity = expr.quantity
         if quantity == 'undefined':
@@ -327,17 +326,29 @@ class PhasorFrequencyDomainExpression(PhasorFrequencyDomain, PhasorExpression):
     def as_expr(self):
         return PhasorFrequencyDomainExpression(self)
 
-    def plot(self, wvector=None, **kwargs):
-        """Plot frequency response.  wvector specifies the angular
+    def plot(self, fvector=None, **kwargs):
+        """Plot frequency response.
+
+        If the dependent variable is omega, fvector specifies the angular
         frequencies.  If it is a tuple, it sets the angular frequency
+        limits.
+
+        If the dependent variable is f, fvector specifies the linear
+        frequencies.  If it is a tuple, it sets the linear frequency
         limits."""
 
-        from .plot import plot_angular_frequency
+        from .plot import plot_angular_frequency, plot_frequency
+        from .sym import fsym
 
         if self.omega.is_constant():
             raise ValueError('Cannot plot at single frequency')
 
-        return plot_angular_frequency(self, wvector, **kwargs)
+        if self.var == fsym:
+            # FIXME, remove xlabel hack
+            return plot_frequency(self, fvector, xlabel='Frequency (Hz)',
+                                  **kwargs)
+
+        return plot_angular_frequency(self, fvector, **kwargs)
 
     def bode_plot(self, fvector=None, unwrap=True, **kwargs):
         """Plot frequency response for a frequency-domain phasor as a Bode

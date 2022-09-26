@@ -61,6 +61,8 @@ class LcapyTester(unittest.TestCase):
 
     def test_phasor_transform(self):
 
+        from lcapy.sym import fsym
+
         H = 1 / s
         P = H(jw)
 
@@ -70,4 +72,4 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(
             type(P), PhasorFrequencyDomainExpression, 'H(j * 2 * pi * f)')
 
-        self.assertEqual(P.var, None, 'P.var')
+        self.assertEqual(P.var, fsym, 'P.var')

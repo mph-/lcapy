@@ -1223,6 +1223,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if (self.is_phasor_domain and x.is_angular_fourier_domain and
                 self.omega == x.var):
             return True
+        if (self.is_phasor_domain and x.is_fourier_domain and
+                self.omega == 2 * pi * x.var):
+            return True
 
         return False
 
