@@ -853,7 +853,6 @@ def plot_nichols(obj, f, norm=False, **kwargs):
     npoints = kwargs.pop('npoints', 400)
     # Default to True to get better plots.
     log_frequency = kwargs.pop('log_frequency', False)
-    unitcircle = kwargs.pop('unitcircle', True)
 
     fn = None
 
