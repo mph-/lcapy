@@ -93,39 +93,6 @@ class PhasorExpression(Expr):
 
         return abs(self) * sqrt(2) / 2
 
-    def plot(self, wvector=None, **kwargs):
-        """Plot polar diagram for a time-domain phasor or frequency response
-        for a frequency-domain phasor.  For the latter, wvector
-        specifies the angular frequencies.  If it is a tuple, it sets
-        the angular frequency limits."""
-
-        from .plot import plot_phasor, plot_angular_frequency
-
-        if self.is_phasor_time_domain:
-            return plot_phasor(self, **kwargs)
-
-        if self.omega.is_constant():
-            raise ValueError('Cannot plot at single frequency')
-
-        return plot_angular_frequency(self, wvector, **kwargs)
-
-    def bode_plot(self, fvector=None, unwrap=True, **kwargs):
-        """Plot frequency response for a frequency-domain phasor as a Bode
-        plot (but without the straight line approximations).  fvector
-        specifies the frequencies.  If it is a tuple (m1, m2), it sets the
-        frequency limits as (10**m1, 10**m2).
-
-        `unwrap` controls phase unwrapping (default True).
-        """
-
-        from .plot import plot_bode
-
-        if not self.is_phasor_frequency_domain:
-            raise ValueError('Not frequency domain phasor: use plot()')
-
-        result = self.fourier()
-        return plot_bode(result, fvector, unwrap=unwrap, **kwargs)
-
     def _mul_compatible(self, x):
 
         if not hasattr(x, 'omega'):
@@ -257,6 +224,13 @@ class PhasorTimeDomainExpression(PhasorTimeDomain, PhasorExpression):
 
         return self.time().fourier()
 
+    def plot(self, **kwargs):
+        """Plot polar diagram."""
+
+        from .plot import plot_phasor
+
+        return plot_phasor(self, **kwargs)
+
 
 class PhasorFrequencyDomainExpression(PhasorFrequencyDomain, PhasorExpression):
     """This represents the ratio of two-phasors; for example
@@ -352,6 +326,35 @@ class PhasorFrequencyDomainExpression(PhasorFrequencyDomain, PhasorExpression):
 
     def as_expr(self):
         return PhasorFrequencyDomainExpression(self)
+
+    def plot(self, wvector=None, **kwargs):
+        """Plot frequency response.  wvector specifies the angular
+        frequencies.  If it is a tuple, it sets the angular frequency
+        limits."""
+
+        from .plot import plot_angular_frequency
+
+        if self.omega.is_constant():
+            raise ValueError('Cannot plot at single frequency')
+
+        return plot_angular_frequency(self, wvector, **kwargs)
+
+    def bode_plot(self, fvector=None, unwrap=True, **kwargs):
+        """Plot frequency response for a frequency-domain phasor as a Bode
+        plot (but without the straight line approximations).  fvector
+        specifies the frequencies.  If it is a tuple (m1, m2), it sets the
+        frequency limits as (10**m1, 10**m2).
+
+        `unwrap` controls phase unwrapping (default True).
+        """
+
+        from .plot import plot_bode
+
+        if not self.is_phasor_frequency_domain:
+            raise ValueError('Not frequency domain phasor: use plot()')
+
+        result = self.fourier()
+        return plot_bode(result, fvector, unwrap=unwrap, **kwargs)
 
 
 def phasor(arg, omega=None, **assumptions):
