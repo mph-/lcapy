@@ -291,6 +291,33 @@ class PhasorFrequencyDomainExpression(PhasorFrequencyDomain, PhasorExpression):
         ret = cls(result2, omega=omega, **ass)
         return ret
 
+    @property
+    def domain_label(self):
+
+        from .sym import fsym
+
+        # TODO, remove this say by having PhasorFrequencyDomainExpression
+        # and PhasorAngularFrequencyDomainExpression classes.
+
+        if self.var == fsym:
+            return 'Frequency'
+        else:
+            return 'Angular frequency'
+
+    @property
+    def domain_units(self):
+
+        from .sym import fsym
+        from .units import u as uu
+
+        # TODO, remove this say by having PhasorFrequencyDomainExpression
+        # and PhasorAngularFrequencyDomainExpression classes.
+
+        if self.var == fsym:
+            return uu.Hz
+        else:
+            return uu.rad / uu.s
+
     def time(self, **assumptions):
         """Convert to time domain representation."""
 
@@ -344,9 +371,7 @@ class PhasorFrequencyDomainExpression(PhasorFrequencyDomain, PhasorExpression):
             raise ValueError('Cannot plot at single frequency')
 
         if self.var == fsym:
-            # FIXME, remove xlabel hack
-            return plot_frequency(self, fvector, xlabel='Frequency (Hz)',
-                                  **kwargs)
+            return plot_frequency(self, fvector, **kwargs)
 
         return plot_angular_frequency(self, fvector, **kwargs)
 
@@ -361,11 +386,7 @@ class PhasorFrequencyDomainExpression(PhasorFrequencyDomain, PhasorExpression):
 
         from .plot import plot_bode
 
-        if not self.is_phasor_frequency_domain:
-            raise ValueError('Not frequency domain phasor: use plot()')
-
-        result = self.fourier()
-        return plot_bode(result, fvector, unwrap=unwrap, **kwargs)
+        return plot_bode(self, fvector, unwrap=unwrap, **kwargs)
 
 
 def phasor(arg, omega=None, **assumptions):
