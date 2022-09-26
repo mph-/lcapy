@@ -409,7 +409,7 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
     deltas = None
     if kwargs.pop('plot_deltas', True) and obj.has(DiracDelta):
         cls = obj.__class__
-        rest, deltas = separate_dirac_delta(obj.expr)
+        rest, deltas = separate_dirac_delta(obj.sympy.expand())
         obj = cls(rest, **obj.assumptions)
         V = obj.evaluate(f)
 
