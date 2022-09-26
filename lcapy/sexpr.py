@@ -248,21 +248,25 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         """
         from .symbols import omega
 
-        X = self.subs(j * omega)
+        return self.frequency_response(wvector, var=omega)
 
-        if wvector is None:
-            return X
-
-        return X.evaluate(wvector)
-
-    def frequency_response(self, fvector=None):
+    def frequency_response(self, fvector=None, var=None):
         """Convert to frequency domain and evaluate response if frequency
-        vector specified.
+        vector specified."""
+        from .symbols import f, omega
 
-        """
-        from .symbols import f
+        # Perhaps have a strict argument to warn if the expression is
+        # not a Laplace transform of a stable impulse response?
 
-        X = self.subs(j * 2 * pi * f)
+        if var is None:
+            var = f
+
+        if id(var) == id(f):
+            X = self.subs(j * 2 * pi * f)
+        elif id(var) == id(omega):
+            X = self.subs(j * omega)
+        else:
+            raise ValueError('var not f or omega: ' % var)
 
         if fvector is None:
             return X
@@ -512,13 +516,13 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         return self.plot(**kwargs)
 
-    def bode_plot(self, fvector=None, unwrap=True, angular=False, **kwargs):
+    def bode_plot(self, fvector=None, unwrap=True, var=None, **kwargs):
         """Plot frequency response for a frequency-domain phasor as a Bode
         plot (but without the straight line approximations).
 
-        If `angular` is False, `fvector` specifies the (linear)
-        frequencies (in hertz) otherwise `fvector` specifies the
-        angular frequencies (in radians).
+        If `var` is None or `f`, `fvector` specifies the (linear)
+        frequencies (in hertz) otherwise if `var` is `omega`,
+        `fvector` specifies the angular frequencies (in radians).
 
          If `fvector` is a tuple (f1, f2), it sets the frequency
         limits.  Since a logarithmic frequency scale is used, f1 must
@@ -532,14 +536,10 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         """
 
-        if angular:
-            E = self.angular_fourier(causal=True)
-        else:
-            E = self.fourier(causal=True)
+        H = self.frequency_response(var=var)
+        return H.bode_plot(fvector, unwrap=unwrap, **kwargs)
 
-        return E.bode_plot(fvector, unwrap=unwrap, **kwargs)
-
-    def nyquist_plot(self, fvector=None, **kwargs):
+    def nyquist_plot(self, fvector=None, var=None, **kwargs):
         """Plot frequency response for a frequency-domain phasor as a Nyquist
         plot (imaginary part versus real part).  fvector specifies the
         frequencies.  If it is a tuple (f1, f2), it sets the frequency
@@ -552,9 +552,10 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         This method makes the assumption that the expression is causal.
         """
 
-        return self.fourier(causal=True).nyquist_plot(fvector, **kwargs)
+        H = self.frequency_response(var=var)
+        return H.nyquist_plot(fvector, **kwargs)
 
-    def nichols_plot(self, fvector=None, **kwargs):
+    def nichols_plot(self, fvector=None, var=None, **kwargs):
         """Plot frequency response for a frequency-domain phasor as a Nichols
         plot (dB versus phase).  fvector specifies the frequencies.
         If it is a tuple (f1, f2), it sets the frequency limits.
@@ -565,7 +566,8 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         """
 
-        return self.fourier(causal=True).nichols_plot(fvector, **kwargs)
+        H = self.frequency_response(var=var)
+        return H.nichols_plot(fvector, **kwargs)
 
     def generalized_bilinear_transform(self, alpha=0.5):
 
