@@ -3505,7 +3505,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         # Strip quantity and assumptions
         cls = self._class_by_quantity('undefined')
-        return cls(N), cls(D)
+        return cls(N, **self.assumptions), cls(D, **self.assumptions)
 
     def as_sum(self):
         """Responses due to a sum of delayed transient responses

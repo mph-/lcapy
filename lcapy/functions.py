@@ -91,7 +91,7 @@ class Function(object):
         s_args = delcapify(e_args)
         result = func(*s_args, **kwargs)
 
-        result = cls(result)
+        result = cls(result, **e_args[0].assumptions)
 
         if (self.expr in (sym.sin, sym.cos, sym.tan, sym.cot, sym.exp,
                           sym.sinh, sym.cosh, sym.tanh, sym.coth)
