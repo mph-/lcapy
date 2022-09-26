@@ -2526,9 +2526,17 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     def separate_dirac_delta(self):
         """Separate Dirac delta terms from expression."""
 
+        from sympy import DiracDelta
         from .utils import separate_dirac_delta
 
         rest, deltas = separate_dirac_delta(self.sympy)
+
+        if rest == 0 or rest.has(DiracDelta):
+            rest, deltas = separate_dirac_delta(self.sympy.expand())
+
+        if rest == 0 or rest.has(DiracDelta):
+            warn('Could not separate all the Dirac deltas: ', self)
+
         deltaexpr = 0
         for delta in deltas:
             deltaexpr += delta
