@@ -1418,6 +1418,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         if self.is_constant_domain:
             cls = x._class_by_quantity(quantity)
+        elif self.is_phasor_time_domain and x.is_phasor_time_domain:
+            # Ratio of phasors.
+            cls = PhasorFrequencyDomainExpression(
+                0, **self.assumptions)._class_by_quantity(quantity)
         else:
             cls = self._class_by_quantity(quantity)
 
@@ -4056,6 +4060,7 @@ from .fexpr import f, fexpr, FourierDomainExpression  # nopep8
 from .omegaexpr import omega, omegaexpr, AngularFourierDomainExpression  # nopep8
 from .normfexpr import Fexpr  # nopep8
 from .normomegaexpr import Omegaexpr  # nopep8
+from .phasor import PhasorFrequencyDomainExpression  # nopep8
 from .texpr import t, texpr, TimeDomainExpression  # nopep8
 from .sexpr import s, sexpr, LaplaceDomainExpression  # nopep8
 from .nexpr import nexpr  # nopep8
