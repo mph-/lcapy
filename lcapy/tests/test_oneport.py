@@ -133,9 +133,9 @@ class LcapyOneportTester(unittest.TestCase):
         a = Vac(10) + R(5)
         self.assertEqual2(a.voc, Vac(10).voc, "voc incorrect.")
         self.assertEqual(a.Voc.ac[omega0sym],
-                         phasorvoltage(10), "Voc incorrect.")
+                         phasorvoltage(10, omega=omega0), "Voc incorrect.")
         self.assertEqual(a.V.ac[omega0sym],
-                         phasorvoltage(10), "Voc incorrect.")
+                         phasorvoltage(10, omega=omega0), "Voc incorrect.")
         self.assertEqual(a.I, 0, "I incorrect.")
         self.assertEqual(a.v(0), voltage(10), "Voc incorrect.")
         self.assertEqual(a.i(0), 0, "I incorrect.")
@@ -143,9 +143,9 @@ class LcapyOneportTester(unittest.TestCase):
         b = a.norton()
         self.assertEqual2(b.voc, Vac(10).voc, "voc incorrect.")
         self.assertEqual(b.Voc.ac[omega0sym],
-                         phasorvoltage(10), "Voc incorrect.")
+                         phasorvoltage(10, omega=omega0), "Voc incorrect.")
         self.assertEqual(b.V.ac[omega0sym],
-                         phasorvoltage(10), "Voc incorrect.")
+                         phasorvoltage(10, omega=omega0), "Voc incorrect.")
         self.assertEqual(b.I, 0, "I incorrect.")
         self.assertEqual(b.v(0), voltage(10), "Voc incorrect.")
         self.assertEqual(b.i(0), 0, "I incorrect.")

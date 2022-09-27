@@ -1200,7 +1200,8 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
 
     def _incompatible_quantities(self, x, op):
 
-        self._incompatible(x, op, """ since the units of the result are unsupported.
+        self._incompatible(x, op,
+                           """ since the units of the result are unsupported.
 As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
     def _dubious_quantities(self, x, op):
@@ -1217,14 +1218,6 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             return True
 
         if (self.is_constant_domain or x.is_constant_domain):
-            return True
-
-        # Allow phasor(x) * omega, etc.
-        if (self.is_phasor_domain and x.is_angular_fourier_domain and
-                self.omega == x.var):
-            return True
-        if (self.is_phasor_domain and x.is_fourier_domain and
-                self.omega == 2 * pi * x.var):
             return True
 
         return False
@@ -1278,7 +1271,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 return xcls, self, x, assumptions
             if x.is_constant_domain:
                 return cls, self, x, assumptions
-            if self.domain == x.domain:
+            if self._add_compatible_domains(x):
                 return cls, self, x, assumptions
 
         # For phasor comparisons...

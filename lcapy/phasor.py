@@ -92,7 +92,13 @@ class PhasorExpression(Expr):
 
         return abs(self) * sqrt(2) / 2
 
-    def _mul_compatible(self, x):
+    def _compatible_phasors(self, x):
+
+        if self.domain != x.domain:
+            return False
+
+        if False and self.is_phasor_time_domain ^ x.is_phasor_time_domain:
+            return False
 
         if not hasattr(x, 'omega'):
             return True
@@ -102,6 +108,37 @@ class PhasorExpression(Expr):
 
         raise ValueError('Incompatible phasor angular frequencies %s and %s' %
                          (self.omega, x.omega))
+
+    def _add_compatible_domains(self, x):
+
+        return self._compatible_phasors(x)
+
+    def _div_compatible_domains(self, x):
+
+        if (self.is_constant_domain or x.is_constant_domain):
+            return True
+
+        return self._compatible_phasors(x)
+
+    def _mul_compatible_domains(self, x):
+
+        from .sym import pi
+
+        if (self.is_constant_domain or x.is_constant_domain):
+            return True
+
+        if self._compatible_phasors(x):
+            return True
+
+        # Allow phasor(x) * omega, etc.
+        if (self.is_phasor_domain and x.is_angular_fourier_domain and
+                self.omega == x.var):
+            return True
+        if (self.is_phasor_domain and x.is_fourier_domain and
+                self.omega == 2 * pi * x.var):
+            return True
+
+        return False
 
     def subs(self, *args, safe=False, **kwargs):
         """Substitute variables in expression, see sympy.subs for usage."""
@@ -408,13 +445,9 @@ def phasor(arg, omega=None, **assumptions):
     if arg.is_time_domain:
         # Expecting AC signal.
         return PhasorTimeDomainExpression.from_time(arg, omega=omega, **assumptions)
-    elif arg.is_unchanging:
+    else:
         # Expecting phasor (complex amplitude)
         return PhasorTimeDomainExpression(arg, omega=omega, **assumptions)
-    else:
-        # Is this sensible?  It is probably better to have
-        # a phasorratio function.  TODO add deprecation warning.
-        return PhasorFrequencyDomainExpression(arg, omega=omega, **assumptions)
 
 
 expressionclasses.register('phasor', PhasorTimeDomainExpression,

@@ -94,6 +94,7 @@ class PhasorTimeDomain(Domain):
     domain_label = ''
     domain_units = 1
     is_phasor_domain = True
+    is_phasor_time_domain = True
     is_transform_domain = True
 
 
@@ -102,6 +103,7 @@ class PhasorFrequencyDomain(Domain):
     domain_label = 'Angular Frequency'
     domain_units = uu.rad / uu.s
     is_phasor_domain = True
+    is_phasor_frequency_domain = True
     is_transform_domain = True
 
 
