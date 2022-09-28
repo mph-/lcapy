@@ -9,6 +9,7 @@ from __future__ import division
 from .domains import AngularFourierDomain
 from .inverse_fourier import inverse_fourier_transform
 from .expr import Expr, expr, expr_make
+from .state import state, validate
 from .sym import fsym, ssym, tsym, omegasym, omega0sym, j, pi
 from .units import u as uu
 from sympy import Expr as symExpr
@@ -23,15 +24,23 @@ class AngularFourierDomainExpression(AngularFourierDomain, Expr):
 
     def __init__(self, val, **assumptions):
 
+        check = assumptions.pop('check', True)
+
         super(AngularFourierDomainExpression,
               self).__init__(val, **assumptions)
 
-        if self.expr.has(ssym):
-            raise ValueError(
-                'omega-domain expression %s cannot depend on s' % self.expr)
-        if self.expr.has(tsym):
-            raise ValueError(
-                'omega-domain expression %s cannot depend on t' % self.expr)
+        expr = self.expr
+
+        if check and not expr.has(omegasym):
+            if expr.has(fsym):
+                validate(state.t_in_w,
+                         'omega-domain expression %s depends on t' % expr)
+            if expr.has(ssym):
+                validate(state.s_in_w,
+                         'omega-domain expression % s depends on s' % expr)
+            if expr.has(omegasym):
+                validate(state.f_in_w,
+                         'omega-domain expression %s depends on f' % expr)
 
     def as_expr(self):
         return AngularFourierDomainExpression(self)

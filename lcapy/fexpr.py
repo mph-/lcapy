@@ -10,7 +10,8 @@ from .domains import FourierDomain
 from .inverse_fourier import inverse_fourier_transform
 from .inverse_dtft import IDTFT
 from .expr import Expr, expr, expr_make
-from .sym import fsym, ssym, tsym, pi
+from .state import state, validate
+from .sym import fsym, ssym, tsym, omegasym, pi
 from .sym import nsym, dt
 from .units import u as uu
 from .utils import factor_const
@@ -30,12 +31,17 @@ class FourierDomainExpression(FourierDomain, Expr):
         super(FourierDomainExpression, self).__init__(val, **assumptions)
 
         expr = self.expr
-        if check and expr.has(ssym) and not expr.has(Integral):
-            raise ValueError(
-                'f-domain expression %s cannot depend on s' % expr)
-        if check and expr.has(tsym) and not expr.has(Integral):
-            raise ValueError(
-                'f-domain expression %s cannot depend on t' % expr)
+
+        if check and not expr.has(fsym):
+            if expr.has(ssym):
+                validate(state.s_in_f,
+                         'f-domain expression % s depends on s' % expr)
+            if expr.has(fsym):
+                validate(state.t_in_f,
+                         'f-domain expression %s depends on t' % expr)
+            if expr.has(omegasym):
+                validate(state.w_in_f,
+                         'f-domain expression %s depends on omega' % expr)
 
     def as_expr(self):
         return FourierDomainExpression(self)

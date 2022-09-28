@@ -13,6 +13,7 @@ from .config import canonical_units, printing_order
 from .printing_config import PrintingConfig
 from .symbolregistry import SymbolRegistry
 from copy import copy
+from warnings import warn
 
 
 class State(object):
@@ -60,6 +61,24 @@ class State(object):
         self.w_times_t = 'warn'
         self.t_times_w = 'warn'
 
+        # The following can either be `allow`, `warn`, or `error`.
+        # They are used in the expression class constructors.
+        self.f_in_t = 'warn'
+        self.s_in_t = 'warn'
+        self.w_in_t = 'warn'
+
+        self.f_in_s = 'warn'
+        self.t_in_s = 'warn'
+        self.w_in_s = 'warn'
+
+        self.s_in_f = 'warn'
+        self.t_in_f = 'warn'
+        self.w_in_f = 'warn'
+
+        self.f_in_w = 'warn'
+        self.s_in_w = 'warn'
+        self.t_in_w = 'warn'
+
     def new_context(self):
 
         context = Context()
@@ -93,6 +112,18 @@ class State(object):
         """Enable/disable printing of units in abbreviated form."""
 
         self.printing.abbreviate_units = val
+
+
+def validate(value, message):
+
+    if value == 'allow':
+        pass
+    elif value == 'warn':
+        warn(message)
+    elif value == 'error':
+        raise ValueError(message)
+    else:
+        raise RuntimeError('Unexpected option ' + value)
 
 
 state = State()

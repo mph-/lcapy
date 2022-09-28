@@ -8,8 +8,8 @@ Copyright 2014--2022 Michael Hayes, UCECE
 from __future__ import division
 from .domains import LaplaceDomain
 from .inverse_laplace import inverse_laplace_transform
-from .state import state
-from .sym import ssym, tsym, j, pi, sympify
+from .state import state, validate
+from .sym import ssym, tsym, fsym, omegasym, j, pi, sympify
 from .ratfun import _zp2tf, _pr2tf, Ratfun
 from .expr import Expr, symbol, expr, ExprDict, ExprList, exprcontainer, expr_make
 from .differentialequation import DifferentialEquation
@@ -34,10 +34,17 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         super(LaplaceDomainExpression, self).__init__(val, **assumptions)
 
         expr = self.expr
-        # Be more specific
-        if check and expr.has(tsym) and not expr.has(Derivative) and not expr.has(Integral):
-            raise ValueError(
-                's-domain expression %s cannot depend on t' % expr)
+
+        if check and not expr.has(ssym):
+            if expr.has(fsym):
+                validate(state.f_in_s,
+                         's-domain expression %s depends on f' % expr)
+            if expr.has(tsym):
+                validate(state.t_in_s,
+                         's-domain expression % s depends on t' % expr)
+            if expr.has(omegasym):
+                validate(state.w_in_s,
+                         's-domain expression %s depends on omega' % expr)
 
     def as_expr(self):
         return LaplaceDomainExpression(self)

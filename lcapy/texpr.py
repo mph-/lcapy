@@ -9,7 +9,7 @@ from __future__ import division
 from .domains import TimeDomain
 from .expr import Expr, expr_make
 from .functions import exp
-from .state import state
+from .state import state, validate
 from .sym import fsym, omegasym, ssym, tsym, j, oo
 from .laplace import laplace_transform
 from .fourier import fourier_transform
@@ -32,18 +32,17 @@ class TimeDomainExpression(TimeDomain, Expr):
         super(TimeDomainExpression, self).__init__(val, **assumptions)
 
         expr = self.expr
-        # Should be more specific...
-        if False and check and expr.has(ssym) and not expr.has(Integral) and not expr.has(Derivative):
-            raise ValueError(
-                't-domain expression %s cannot depend on s' % expr)
-        # Allow f * t
-        if False and check and expr.has(fsym) and not expr.has(Integral):
-            raise ValueError(
-                't-domain expression %s cannot depend on f' % expr)
-        # Allow omega * t
-        if False and check and expr.has(omegasym) and not expr.has(Integral):
-            raise ValueError(
-                't-domain expression %s cannot depend on f' % expr)
+
+        if check and not expr.has(tsym):
+            if expr.has(fsym):
+                validate(state.f_in_t,
+                         't-domain expression %s depends on f' % expr)
+            if expr.has(ssym):
+                validate(state.s_in_t,
+                         't-domain expression %s depends on s' % expr)
+            if expr.has(omegasym):
+                validate(state.w_in_t,
+                         't-domain expression %s depends on omega' % expr)
 
     def _mul_compatible_domains(self, x):
 

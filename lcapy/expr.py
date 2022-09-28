@@ -23,12 +23,12 @@ from .sym import sympify, symsimplify, j, omegasym, symdebug, AppliedUndef
 from .sym import capitalize_name, tsym, miscsymbol, usersymbol, symbol_map, tausym, nusym, oo
 from .sym import fsym, ssym, Fsym, Omegasym, symbol_delete, pi
 from .sym import nsym, ksym, zsym
-from .state import state
+from .state import state, validate
 from .printing import pprint, pretty, print_str, latex
 from .functions import sqrt, log10, atan2, gcd, exp, Function, Eq
 from .units import units, u as uu, dB
 from .utils import (as_N_D, as_sum, remove_images, pair_conjugates,
-                    split_dirac_delta, expand_functions, check)
+                    split_dirac_delta, expand_functions)
 import sympy as sym
 from sympy.utilities.lambdify import lambdify
 from .sym import simplify
@@ -1312,33 +1312,33 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         # The following only applies to the generic expression classes.
         if (self.__class__ == FourierDomainExpression and
                 x.__class__ == TimeDomainExpression):
-            check(state.f_times_t,
-                  'Converting %s times %s to t-domain' % (self, x))
+            validate(state.f_times_t,
+                     'Converting %s times %s to t-domain' % (self, x))
             return TimeDomainExpression(self.expr * x.expr)
         elif (x.__class__ == FourierDomainExpression and
               self.__class__ == TimeDomainExpression):
-            check(state.t_times_f,
-                  'Converting %s times %s to t-domain' % (self, x))
+            validate(state.t_times_f,
+                     'Converting %s times %s to t-domain' % (self, x))
             return TimeDomainExpression(self.expr * x.expr)
         elif (self.__class__ == AngularFourierDomainExpression and
                 x.__class__ == TimeDomainExpression):
-            check(state.w_times_t,
-                  'Converting %s times %s to t-domain' % (self, x))
+            validate(state.w_times_t,
+                     'Converting %s times %s to t-domain' % (self, x))
             return TimeDomainExpression(self.expr * x.expr)
         elif (x.__class__ == AngularFourierDomainExpression and
               self.__class__ == TimeDomainExpression):
-            check(state.t_times_w,
-                  'Converting %s times %s to t-domain' % (self, x))
+            validate(state.t_times_w,
+                     'Converting %s times %s to t-domain' % (self, x))
             return TimeDomainExpression(self.expr * x.expr)
         elif (self.__class__ == LaplaceDomainExpression and
                 x.__class__ == TimeDomainExpression):
-            check(state.s_times_t,
-                  'Converting %s times %s to t-domain' % (self, x))
+            validate(state.s_times_t,
+                     'Converting %s times %s to t-domain' % (self, x))
             return TimeDomainExpression(self.expr * x.expr)
         elif (x.__class__ == LaplaceDomainExpression and
               self.__class__ == TimeDomainExpression):
-            check(state.t_times_s,
-                  'Converting %s times %s to t-domain' % (self, x))
+            validate(state.t_times_s,
+                     'Converting %s times %s to t-domain' % (self, x))
             return TimeDomainExpression(self.expr * x.expr)
 
         # Try to convert immittance to a constant so that can handle I(t) * Z
