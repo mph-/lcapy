@@ -3,6 +3,7 @@
 Copyright 2021--2022 Michael Hayes, UCECE
 """
 
+from warnings import warn
 import sympy as sym
 
 
@@ -376,3 +377,15 @@ def expand_functions(expr, var):
         expr += expand_functions(term, var)
 
     return const * expr
+
+
+def check(value, message):
+
+    if value == 'allow':
+        pass
+    elif value == 'warn':
+        warn(message)
+    elif value == 'error':
+        raise ValueError(message)
+    else:
+        raise RuntimeError('Unexpected option ' + value)

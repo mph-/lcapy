@@ -51,6 +51,14 @@ class State(object):
 
         self.zero_initial_conditions = False
 
+        # The following can either be `allow`, `warn`, or `error`
+        self.s_times_t = 'warn'
+        self.t_times_s = 'warn'
+        self.f_times_t = 'warn'
+        self.t_times_f = 'warn'
+        self.w_times_t = 'warn'
+        self.t_times_w = 'warn'
+
     def new_context(self):
 
         context = Context()

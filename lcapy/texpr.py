@@ -10,7 +10,7 @@ from .domains import TimeDomain
 from .expr import Expr, expr_make
 from .functions import exp
 from .state import state
-from .sym import fsym, ssym, tsym, j, oo
+from .sym import fsym, omegasym, ssym, tsym, j, oo
 from .laplace import laplace_transform
 from .fourier import fourier_transform
 from .units import u as uu
@@ -33,10 +33,15 @@ class TimeDomainExpression(TimeDomain, Expr):
 
         expr = self.expr
         # Should be more specific...
-        if check and expr.has(ssym) and not expr.has(Integral) and not expr.has(Derivative):
+        if False and check and expr.has(ssym) and not expr.has(Integral) and not expr.has(Derivative):
             raise ValueError(
                 't-domain expression %s cannot depend on s' % expr)
-        if check and expr.has(fsym) and not expr.has(Integral):
+        # Allow f * t
+        if False and check and expr.has(fsym) and not expr.has(Integral):
+            raise ValueError(
+                't-domain expression %s cannot depend on f' % expr)
+        # Allow omega * t
+        if False and check and expr.has(omegasym) and not expr.has(Integral):
             raise ValueError(
                 't-domain expression %s cannot depend on f' % expr)
 
@@ -79,6 +84,10 @@ class TimeDomainExpression(TimeDomain, Expr):
         if zero_initial_conditions is None:
             zero_initial_conditions = state.zero_initial_conditions
 
+        if self.has(ssym):
+            raise ValueError(
+                'Time-domain expression has s.  Substitute with another symbol, say p')
+
         assumptions = self.assumptions.merge_and_infer(self, **assumptions)
         result = laplace_transform(
             self.expr, self.var, ssym, evaluate=evaluate,
@@ -117,6 +126,10 @@ class TimeDomainExpression(TimeDomain, Expr):
             raise ValueError(
                 'FT requires var to be f, F, omega, or Omega`, not %s' % var)
 
+        if self.has(var):
+            raise ValueError(
+                'Time-domain expression has %s.  Substitute with another symbol, say %s0' % (var, var))
+
         assumptions = self.assumptions.merge_and_infer(self, **assumptions)
         result = fourier_transform(
             self.expr, self.var, fsym, evaluate=evaluate)
@@ -143,10 +156,6 @@ class TimeDomainExpression(TimeDomain, Expr):
         """Attempt angular Fourier transform."""
 
         from .symbols import omega
-
-        if self.has(omega):
-            raise ValueError(
-                'Time-domain expression has omega.  Substitute with another symbol, say omega0')
 
         return self.FT(omega, evaluate, **assumptions)
 

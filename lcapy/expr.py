@@ -28,7 +28,7 @@ from .printing import pprint, pretty, print_str, latex
 from .functions import sqrt, log10, atan2, gcd, exp, Function, Eq
 from .units import units, u as uu, dB
 from .utils import (as_N_D, as_sum, remove_images, pair_conjugates,
-                    split_dirac_delta, expand_functions)
+                    split_dirac_delta, expand_functions, check)
 import sympy as sym
 from sympy.utilities.lambdify import lambdify
 from .sym import simplify
@@ -1309,12 +1309,36 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                     'Cannot multiply %s by a tuple, list, or dict %s' % (self, x))
             x = expr(x)
 
-        # Handle omega * t
-        if (self.__class__ == AngularFourierDomainExpression and
+        # The following only applies to the generic expression classes.
+        if (self.__class__ == FourierDomainExpression and
                 x.__class__ == TimeDomainExpression):
+            check(state.f_times_t,
+                  'Converting %s times %s to t-domain' % (self, x))
             return TimeDomainExpression(self.expr * x.expr)
-        if (x.__class__ == AngularFourierDomainExpression and
-                self.__class__ == TimeDomainExpression):
+        elif (x.__class__ == FourierDomainExpression and
+              self.__class__ == TimeDomainExpression):
+            check(state.t_times_f,
+                  'Converting %s times %s to t-domain' % (self, x))
+            return TimeDomainExpression(self.expr * x.expr)
+        elif (self.__class__ == AngularFourierDomainExpression and
+                x.__class__ == TimeDomainExpression):
+            check(state.w_times_t,
+                  'Converting %s times %s to t-domain' % (self, x))
+            return TimeDomainExpression(self.expr * x.expr)
+        elif (x.__class__ == AngularFourierDomainExpression and
+              self.__class__ == TimeDomainExpression):
+            check(state.t_times_w,
+                  'Converting %s times %s to t-domain' % (self, x))
+            return TimeDomainExpression(self.expr * x.expr)
+        elif (self.__class__ == LaplaceDomainExpression and
+                x.__class__ == TimeDomainExpression):
+            check(state.s_times_t,
+                  'Converting %s times %s to t-domain' % (self, x))
+            return TimeDomainExpression(self.expr * x.expr)
+        elif (x.__class__ == LaplaceDomainExpression and
+              self.__class__ == TimeDomainExpression):
+            check(state.t_times_s,
+                  'Converting %s times %s to t-domain' % (self, x))
             return TimeDomainExpression(self.expr * x.expr)
 
         # Try to convert immittance to a constant so that can handle I(t) * Z
@@ -4038,14 +4062,14 @@ def delcapify(expr):
     return expr
 
 
-def check(expr):
+def check_expr(expr):
 
     args = getattr(expr, 'args', None)
     if args is not None:
         for arg in args:
             if isinstance(arg, Expr):
                 print(arg)
-            check(arg)
+            check_expr(arg)
 
 
 from .cexpr import cexpr, ConstantDomainExpression  # nopep8
