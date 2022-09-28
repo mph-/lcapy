@@ -51,7 +51,8 @@ class State(object):
 
         self.zero_initial_conditions = False
 
-        # The following can either be `allow`, `warn`, or `error`
+        # The following can either be `allow`, `warn`, or `error`.
+        # They are used in expr.c:__mul__ to validate multiplications.
         self.s_times_t = 'warn'
         self.t_times_s = 'warn'
         self.f_times_t = 'warn'

@@ -379,7 +379,7 @@ def expand_functions(expr, var):
     return const * expr
 
 
-def check(value, message):
+def validate(value, message):
 
     if value == 'allow':
         pass
