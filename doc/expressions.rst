@@ -2168,9 +2168,9 @@ The default method is 'bilinear'.  Other methods are:
 - 'bilinear', 'tustin', 'trapezoidal' uses :math:`s = \frac{2}{\Delta t}  (1 - z^{-1}) / (1 + z^{-1})`.  This is equivalent to trapezoidal integration.   The overall result is divided by :math:`\Delta t`.
 
 - 'generalized-bilinear', 'gbf' uses :math:`s = \frac{1}{\Delta t}
-  \frac{1 - z^{-1}}{\alpha + (1 - \alpha) z^{-1})}` (alpha = 0
-  corresponds to forward Euler, alpha = 0.5 corresponds to bilinear,
-  and alpha = 1 corresponds to backward Euler).  The overall result is divided by :math:`\Delta t`.
+  \frac{1 - z^{-1}}{\alpha + (1 - \alpha) z^{-1})}` (:math:`\alpha = 0`
+  corresponds to forward Euler, :math:`\alpha = 0.5` corresponds to bilinear,
+  and :math:`\alpha = 1` corresponds to backward Euler).  The overall result is divided by :math:`\Delta t`.
 
 - 'euler', 'forward-diff', 'forward-euler' uses :math:`s = \frac{1}{\Delta t}  (1 - z^{-1}) / z^{-1}`.  The overall result is divided by :math:`\Delta t`.
 

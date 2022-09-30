@@ -603,7 +603,7 @@ The IDFT converts a k-domain expression to an n-domain expression.  The definiti
 Bilinear transform
 ------------------
 
-The bilinear transform can be used to approximate an s-domain expression with a z-domain expression using :math:`s \approx \frac{2}{\Delta t} \frac{1 - z^{-1}}{1 + z^{-1}}`.   This is performed by the `bilinear_transform()` method of s-domain objects, for example::
+The bilinear transform can be used to approximate an s-domain expression with a z-domain expression using :math:`s \approx \frac{2}{\Delta t} \frac{1 - z^{-1}}{1 + z^{-1}}` (see :ref:`discrete-time-approximation` for other methods).   This is performed by the `bilinear_transform()` method of s-domain objects, for example::
 
    >>> H = s / (s - 'a')
    >>> Hz = H.bilinear_transform().simplify()
