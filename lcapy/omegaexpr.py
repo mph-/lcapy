@@ -32,7 +32,7 @@ class AngularFourierDomainExpression(AngularFourierDomain, Expr):
         expr = self.expr
 
         if check and not expr.has(omegasym):
-            if expr.has(fsym):
+            if expr.has(tsym):
                 validate(state.t_in_w,
                          'omega-domain expression %s depends on t' % expr)
             if expr.has(ssym):

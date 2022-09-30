@@ -36,7 +36,7 @@ class FourierDomainExpression(FourierDomain, Expr):
             if expr.has(ssym):
                 validate(state.s_in_f,
                          'f-domain expression % s depends on s' % expr)
-            if expr.has(fsym):
+            if expr.has(tsym):
                 validate(state.t_in_f,
                          'f-domain expression %s depends on t' % expr)
             if expr.has(omegasym):
