@@ -7,6 +7,24 @@ V1.8
 
 - Compatible with SymPy-1.11.
 
+- Converts s * t, f * t, w * t to time domain with warning.
+
+- Makes phasor arithmetic stricter.
+
+- Fixes phasor ratios.
+
+- Fixes Bode plot of phasors.
+
+- Adds var argument to `bode_plot()` for linear/angular frequency.
+
+- Adds Nichols plot.
+
+- Adds `j2pif`.
+
+- Use `frequency_response()` method for Bode plots (this does not generate Dirac deltas for marginally stable systems).
+
+- Simplifies magnitude of expression with Dirac delta terms.
+
 - Fixes plotting of expressions with Dirac deltas outside desired region.
 
 - Fixes Laplace to Fourier shortcut.
@@ -24,6 +42,8 @@ V1.8
 - Ensures unique names chosen.
 
 - Reduces recursion depth when trying to draw bogus schematics.
+
+- Removes checks for ubuntu-18.04.
 
 
 V1.7
