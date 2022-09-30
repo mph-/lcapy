@@ -79,6 +79,9 @@ class State(object):
         self.s_in_w = 'warn'
         self.t_in_w = 'warn'
 
+        self.pdb_on_warn = False
+        self.error_on_warn = False
+
     def new_context(self):
 
         context = Context()
@@ -119,7 +122,13 @@ def validate(value, message):
     if value == 'allow':
         pass
     elif value == 'warn':
-        warn(message)
+        if state.pdb_on_warn:
+            import pdb
+            pdb.set_trace()
+        if state.error_on_warn:
+            raise ValueError(message)
+        else:
+            warn(message)
     elif value == 'error':
         raise ValueError(message)
     else:
