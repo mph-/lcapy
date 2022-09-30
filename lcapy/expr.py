@@ -1992,6 +1992,13 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         """Return magnitude in dB.  If squared voltage, squared current,
         or power, this uses 10 * log10 otherwise 20 * log10."""
 
+        from sympy import DiracDelta
+
+        if self.has(DiracDelta):
+            rest, deltas = self.separate_dirac_delta()
+            if not rest.has(DiracDelta) and rest != 0:
+                return rest.dB + deltas
+
         # Need to clip for a desired dynamic range?
         # Assume reference is 1.
         if self.is_power or self.is_squared:
@@ -2554,12 +2561,14 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         from .utils import separate_dirac_delta
 
         rest, deltas = separate_dirac_delta(self.sympy)
+        rest = expr(rest)
 
-        if rest == 0 or rest.has(DiracDelta):
+        if rest.has(DiracDelta):
             rest, deltas = separate_dirac_delta(self.sympy.expand())
 
-        if rest == 0 or rest.has(DiracDelta):
-            warn('Could not separate all the Dirac deltas: ', self)
+        rest = expr(rest)
+        if rest.has(DiracDelta):
+            warn('Could not separate all the Dirac deltas: %s' % self)
 
         deltaexpr = 0
         for delta in deltas:
