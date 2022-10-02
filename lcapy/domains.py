@@ -1,6 +1,6 @@
 """This module defines the domain classes.
 
-Copyright 2021 Michael Hayes, UCECE
+Copyright 2021--2022 Michael Hayes, UCECE
 
 """
 

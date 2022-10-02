@@ -1,15 +1,27 @@
 """This module provides resistance support.
 
-Copyright 2021 Michael Hayes, UCECE
+Copyright 2021--2022 Michael Hayes, UCECE
 
 """
-from .cexpr import cexpr
-from .units import u as uu
+from .expr import expr
+from warnings import warn
+
 
 def resistance(arg, **assumptions):
+    """Create an impedance class for the specified resistance.
 
-    # Perhaps, relax to expr?
-    expr1 = cexpr(arg, **assumptions)
-    expr1.units = uu.ohm
+    The resistance, R, is defined as the real part of the impedance:
+
+    Z(omega) = R(omega) + j * X(omega)"""
+
+    expr1 = expr(arg, **assumptions)
+    if expr1.is_imaginary:
+        warn('Resistance %s should be real' % expr1)
+
+    try:
+        expr1 = expr1.as_impedance()
+    except:
+        raise ValueError('Cannot represent %s(%s) as impedance' %
+                         (expr1.__class__.__name__, expr1))
 
     return expr1

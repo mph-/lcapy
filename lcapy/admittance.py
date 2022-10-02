@@ -1,6 +1,6 @@
 """This module provides admittance support.
 
-Copyright 2019-2020 Michael Hayes, UCECE
+Copyright 2019--2022 Michael Hayes, UCECE
 
 """
 from __future__ import division
@@ -9,13 +9,13 @@ from .sexpr import LaplaceDomainExpression
 
 
 def admittance(arg, causal=True, **assumptions):
-    """Generic admittance factory function.
+    """Create an admittance class for the specified admittance.
 
     Y(omega) = G(omega) + j * B(omega)
 
     where G is the conductance and B is the susceptance.
 
-    Admittance is the reciprocal of impedance,
+    Admittance is the reciprocal of impedance:
 
     Z(omega) = 1 / Y(omega)
 

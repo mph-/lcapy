@@ -1,6 +1,6 @@
 """This module provides impedance support.
 
-Copyright 2019--2020 Michael Hayes, UCECE
+Copyright 2019--2022 Michael Hayes, UCECE
 
 """
 from __future__ import division
@@ -9,13 +9,13 @@ from .sexpr import LaplaceDomainExpression
 
 
 def impedance(arg, causal=True, **assumptions):
-    """Generic impedance factory function.
+    """Create an impedance class for the specified impedance.
 
-    Y(omega) = G(omega) + j * B(omega)
+    Z(omega) = R(omega) + j * X(omega)
 
     where G is the conductance and B is the susceptance.
 
-    Admittance is the reciprocal of impedance,
+    Impedance is the reciprocal of admittance:
 
     Z(omega) = 1 / Y(omega)
 
