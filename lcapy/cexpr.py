@@ -1,6 +1,14 @@
-"""This module provides the ConstantDomainExpression class to represent constant expressions.
+"""This module provides the ConstantDomainExpression class to
+represent constant expressions.
 
-Copyright 2014--2021 Michael Hayes, UCECE
+Note there are two types:
+1. ConstantTimeDomainExpression for signals
+2. ConstantFrequencyDomainExpression for transfer functions and immitances.
+
+Note, impedance(3)(s) gives 3 but voltage(3)(s) gives 3 / s.
+Similarly, voltage(3)(t) gives 3 but impedance(3)(t) gives 3 * delta)(t)
+
+Copyright 2014--2022 Michael Hayes, UCECE
 
 """
 
@@ -76,6 +84,12 @@ class ConstantDomainExpression(ConstantDomain, Expr):
 
 
 class ConstantTimeDomainExpression(ConstantDomainExpression):
+    """This represents constant voltage, current, voltage-squared, and
+    current-squared signals.
+
+    Note, impedance(3)(s) gives 3 but voltage(3)(s) gives 3 / s.
+
+    """
 
     def _class_by_quantity(self, quantity, domain=None):
 
@@ -86,6 +100,11 @@ class ConstantTimeDomainExpression(ConstantDomainExpression):
 
 
 class ConstantFrequencyDomainExpression(ConstantDomainExpression):
+    """This represents constant impedance, admittance, and transfer
+    functions.
+
+    Note, impedance(3)(s) gives 3 but voltage(3)(s) gives 3 / s.
+    """
 
     def _class_by_quantity(self, quantity, domain=None):
 
@@ -124,5 +143,7 @@ def cexpr(arg, **assumptions):
 
 from .expressionclasses import expressionclasses  # nopep8
 
-expressionclasses.register('constant', ConstantTimeDomainExpression, ConstantFrequencyDomainExpression,
-                           ('voltage', 'current', 'voltagesquared', 'currentsquared', 'undefined'))
+expressionclasses.register('constant', ConstantTimeDomainExpression,
+                           ConstantFrequencyDomainExpression,
+                           ('voltage', 'current', 'voltagesquared',
+                            'currentsquared', 'undefined'))
