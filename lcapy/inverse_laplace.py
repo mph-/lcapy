@@ -183,19 +183,19 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
 
         return cresult, uresult
 
-    def product(self, expr, s, t, **kwargs):
+    def product_undef(self, expr, s, t, **kwargs):
 
         # Handle expressions with a function of s, e.g., V(s) * Y(s), V(s)
         # / s etc.
-        if kwargs.get('causal', False):
-            # Assume that all functions are causal in the expression.
-            t1 = Zero
-            t2 = t
-        else:
-            # With unilateral Laplace transform need to set lower
-            # limit at 0 rather than -oo.
-            t1 = Zero
-            t2 = sym.oo
+
+        terms = expr.expand().as_ordered_terms()
+
+        result = 0
+        for term in terms:
+            result += self.product_undef1(term, s, t, **kwargs)
+        return result
+
+    def product_undef1(self, expr, s, t, **kwargs):
 
         const, expr = factor_const(expr, s)
 
@@ -204,8 +204,8 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             cresult, uresult = self.term1(expr, s, t, **kwargs)
             return const * (cresult + uresult)
 
+        # Help s * 1 / (s + R * C) * I(s)
         if (len(factors) > 2 and not
-            # Help s * 1 / (s + R * C) * I(s)
             isinstance(factors[1], AppliedUndef) and
                 isinstance(factors[2], AppliedUndef)):
             factors = [factors[0], factors[2], factors[1]] + factors[3:]
@@ -216,11 +216,22 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             if len(terms) >= 2:
                 result = Zero
                 for term in terms:
-                    result += self.product(factors[1] * term, s, t, **kwargs)
+                    result += self.product_undef(factors[1]
+                                                 * term, s, t, **kwargs)
                 return result * const
 
         cresult, uresult = self.term1(factors[0], s, t, **kwargs)
         result = cresult + uresult
+
+        if kwargs.get('causal', False):
+            # Assume that all functions are causal in the expression.
+            t1 = Zero
+            t2 = t
+        else:
+            # With unilateral Laplace transform need to set lower
+            # limit at 0 rather than -oo.
+            t1 = Zero
+            t2 = sym.oo
 
         intnum = 0
         for m in range(len(factors) - 1):
@@ -253,13 +264,15 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
                             sym.DiracDelta(t)
 
                     continue
-                elif factors[0].is_Pow and factors[0].args[0] == s and factors[0].args[1] == -1:
+                elif factors[0].is_Pow and factors[0].args[0] == s \
+                        and factors[0].args[1] == -1:
                     # Handle integration  1 / s * V(s)
                     tau = self.dummy_var(expr, 'tau', level=intnum, real=True)
                     intnum += 1
                     result = self.func(factors[1], s, tau)
                     result = sym.Integral(result, (tau, t1, t))
                     continue
+
             # Convert product to convolution
             tau = self.dummy_var(expr, 'tau', level=intnum, real=True)
             intnum += 1
@@ -467,7 +480,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             return result * const, Zero
 
         if expr.has(AppliedUndef):
-            return const * self.product(expr, s, t, **kwargs), Zero
+            return const * self.product_undef(expr, s, t, **kwargs), Zero
 
         try:
             # This is the common case.
@@ -533,7 +546,7 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
 
                 try:
                     # See if can convert to convolutions...
-                    return self.product(expr, s, t, **kwargs), Zero
+                    return self.product_undef(expr, s, t, **kwargs), Zero
                 except:
                     pass
 

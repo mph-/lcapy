@@ -82,6 +82,9 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(expr('a/(s+a)', causal=True)(t),
                          expr('a*exp(-a * t)*u(t)'), "s/(s+a)")
 
+        A5 = (s + 1) * (s + 2) * expr('X(s)')
+        self.assertEqual(A5(t)(s), A5, str(A5))
+
     def test_damped_sin(self):
 
         H1 = 2 / (2 * s ** 2 + 5 * s + 6)
