@@ -2097,7 +2097,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         poles = self._cached_laplace().poles(aslist=True)
         for pole in poles:
-            if pole.real >= 0:
+            # If poles not constant, assume they are in the negative half-plane.
+            if pole.is_constant and pole.real >= 0:
                 return False
         return True
 
@@ -2114,7 +2115,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         poles = self._cached_laplace().poles(aslist=True)
         for pole in poles:
-            if pole.real > 0:
+            # If poles not constant, assume they are in the negative half-plane.
+            if pole.is_constant and pole.real > 0:
                 return False
         return True
 
