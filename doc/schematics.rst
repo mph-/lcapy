@@ -1615,6 +1615,8 @@ Several strategies are tried to do the conversion:
 When using a Jupyter notebook, the svg format can be used with
 `draw(svg=True`).  However, Jupyter has problems loading multiple svg files.
 
+Use `cct.draw(debug=2)` to determine which conversion program Lcapy selects.
+
 
 .. _schtex:
 
@@ -1768,6 +1770,10 @@ to slight tweakings of component sizes.
 Problems
 ========
 
-- Circuitikz is a moving target and the components are often tweaked.   This causes slight alignment problems.
+- Circuitikz is a moving target and the components are often tweaked.   This causes slight alignment problems.  Please submit an issue (see :ref:`issues`).
 
 - Circuitikz does not correctly determine the bounding box for transistor text labels.  A workaround is to draw a dummy component to extend the bounding box.
+
+- If the circuit is not drawn, use `cct.draw(debug=2)` to see what fails.
+
+- To determine the version of Circuitikz, use `cct.draw(debug=1)`.
