@@ -236,19 +236,9 @@ class LatexRunner(object):
                     print('Removing: %s' % filename)
                 remove(filename)
 
-    def circuitikz_version(self):
-
-        content = r"""
-        \documentclass[a4paper]{standalone}
-        \usepackage{circuitikz}
-        \begin{document}
-        \end{document}"""
-
-        tex_filename = tmpfilename('.tex')
-        open(tex_filename, 'w').write(content)
+    def extract_circuitikz_version(self, tex_filename):
 
         log_filename = tex_filename.replace('.tex', '.log')
-        self.run(tex_filename)
 
         with open(log_filename, 'rt') as logfile:
             lines = logfile.readlines()
@@ -261,6 +251,23 @@ class LatexRunner(object):
                 date = match.group(1)
                 version = lines[m + 1].strip()
                 break
+
+        return date, version
+
+    def find_circuitikz_version(self):
+
+        content = r"""
+        \documentclass[a4paper]{standalone}
+        \usepackage{circuitikz}
+        \begin{document}
+        \end{document}"""
+
+        tex_filename = tmpfilename('.tex')
+        open(tex_filename, 'w').write(content)
+
+        self.run(tex_filename)
+
+        date, version = self.extract_circuitikz_version(tex_filename)
 
         self.cleanup(tex_filename)
         return date, version

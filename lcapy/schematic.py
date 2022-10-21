@@ -43,6 +43,8 @@ __all__ = ('Schematic', )
 # Default dots per inch for png files
 PNG_DPI = 300
 
+CIRCUITIKZ_MIN_VERSION = '1.4.5'
+
 
 def display_matplotlib(filename, dpi=PNG_DPI, scale=2):
 
@@ -465,12 +467,11 @@ class Schematic(NetfileMixin):
             return
 
         if self.debug & 1:
-            self.circuitikz_date, self.circuitikz_version = latexrunner.circuitikz_version()
-            if self.circuitikz_date is None:
+            date, version = latexrunner.find_circuitikz_version()
+            if date is None:
                 raise RuntimeError('circuitikz is not installed')
 
-            print('circuitikz version %s (%s)' % (self.circuitikz_version,
-                                                  self.circuitikz_date))
+            print('circuitikz version %s (%s)' % (version, date))
             print('width=%d, height=%d, dpi=%d, cpt_size=%.2f, node_spacing=%.2f, scale=%.2f'
                   % (self.width, self.height, self.dpi,
                      self.cpt_size, self.node_spacing, self.scale))
@@ -500,6 +501,14 @@ class Schematic(NetfileMixin):
 
         pdf_filename = tex_filename.replace('.tex', '.pdf')
         latexrunner.run(tex_filename)
+
+        date, version = latexrunner.extract_circuitikz_version(tex_filename)
+        if date is None:
+            raise RuntimeError('circuitikz is not installed')
+        if version < CIRCUITIKZ_MIN_VERSION:
+            warn('Have circuitikz version %s; should upgrade to %s or later'
+                 % (version, CIRCUITIKZ_MIN_VERSION))
+
         if not (self.debug & 1):
             latexrunner.cleanup(tex_filename, pdf_filename)
 
