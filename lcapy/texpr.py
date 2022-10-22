@@ -108,9 +108,9 @@ class TimeDomainExpression(TimeDomain, Expr):
     def phasor(self, **assumptions):
         """Convert to phasor domain."""
 
-        from .phasor import PhasorTimeDomainExpression
+        from .phasor import PhasorDomainExpression
 
-        return PhasorTimeDomainExpression.from_time(self, **assumptions)
+        return PhasorDomainExpression.from_time(self, **assumptions)
 
     def FT(self, var=None, evaluate=True, **assumptions):
         """Attempt Fourier transform.

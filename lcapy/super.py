@@ -534,7 +534,7 @@ class Superposition(SuperpositionDomain, ExprDict):
         return str(self.time())
 
     def _kind(self, value):
-        if isinstance(value, PhasorTimeDomainExpression):
+        if isinstance(value, PhasorDomainExpression):
             # Use angular frequency for key.  This can be a nuisance
             # for numerical values since cannot use x.3 syntax
             # say for an angular frequency of 3.
@@ -807,7 +807,7 @@ from .fexpr import FourierDomainExpression  # nopep8
 from .sexpr import LaplaceDomainExpression  # nopep8
 from .texpr import TimeDomainExpression  # nopep8
 from .noiseexpr import NoiseExpression  # nopep8
-from .phasor import PhasorTimeDomainExpression  # nopep8
+from .phasor import PhasorDomainExpression  # nopep8
 from .omegaexpr import AngularFourierDomainExpression  # nopep8
 from .symbols import s, omega  # nopep8
 

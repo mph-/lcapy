@@ -89,7 +89,7 @@ class NormAngularFourierDomain(Domain):
     is_transform_domain = True
 
 
-class PhasorTimeDomain(Domain):
+class PhasorDomain(Domain):
     domain = 'phasor'
     domain_label = ''
     domain_units = 1
@@ -98,7 +98,7 @@ class PhasorTimeDomain(Domain):
     is_transform_domain = True
 
 
-class PhasorFrequencyDomain(Domain):
+class PhasorRatioDomain(Domain):
     domain = 'phasor'
     domain_label = 'Angular Frequency'
     domain_units = uu.rad / uu.s

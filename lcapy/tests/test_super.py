@@ -3,7 +3,7 @@ from lcapy.voltage import Vname
 from lcapy.current import Iname
 from lcapy.superpositionvoltage import SuperpositionVoltage
 from lcapy.superpositioncurrent import SuperpositionCurrent
-from lcapy.phasor import PhasorFrequencyDomainExpression
+from lcapy.phasor import PhasorRatioDomainExpression
 import unittest
 import sympy as sym
 
@@ -218,6 +218,6 @@ class LcapyTester(unittest.TestCase):
 
     def test_super_phasor(self):
 
-        V = SuperpositionVoltage(PhasorFrequencyDomainExpression(3 + 4j))
+        V = SuperpositionVoltage(PhasorRatioDomainExpression(3 + 4j))
         self.assertEqual(V.magnitude, 5, 'Magnitude of single phasor')
         self.assertEqual(V.phase, atan2(4, 3), 'Phase of single phasor')

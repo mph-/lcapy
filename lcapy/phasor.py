@@ -1,5 +1,5 @@
-"""This module provides the PhasorDomain classes to represent phasors
- for AC analysis.
+"""This module provides the PhasorDomain and PhasorRatioDomain classes
+ to represent phasors and ratios of phasors for AC analysis.
 
 A phasor represents the amplitude and phase for a single sinusoid.  By
 default the angular frequency is omega_0 but it can be any number or
@@ -13,26 +13,27 @@ implicit frequency.  The amplitude and phase are usually functions of
 frequency.  A phasor is useful to describe an AC voltage or current
 signal.
 
-A ratio of two phasors (of the same frequency) is no longer a
-time-domain signal but a frequency domain quantity.  The frequency
-dependence is explicit.  A phasor ratio is useful to describe an
-immittance or transfer function.  These are frequency domain concepts.
-A phasor ratio can be inferred from the Laplace domain by substituting
-jomega (or jw) for s, where omega is the angular frequency of the phasor.
-
 Lcapy considers V(jw) or I(jw) a generic phasor but V(3j) or I(3j) a
 specific phasor.  Similarly, X(jw) is a generic phasor ratio and X(3j)
 is a specific phasor ratio, where X denotes an immittance or transfer
 function.
 
-Copyright 2014--2021 Michael Hayes, UCECE
+A ratio of two phasors (of the same frequency) is not a phasor.  The
+ratio of two generic phasors is a frequency domain quantity.  The
+frequency dependence is explicit.  A phasor ratio is useful to
+describe an immittance or transfer function.  These are frequency
+domain concepts.  A phasor ratio can be inferred from the Laplace
+domain by substituting jomega (or jw) for s, where omega is the
+angular frequency of the phasor.
+
+Copyright 2014--2022 Michael Hayes, UCECE
 
 """
 
 from __future__ import division
 from .expressionclasses import expressionclasses
 from .acdc import ACChecker
-from .domains import PhasorTimeDomain, PhasorFrequencyDomain
+from .domains import PhasorDomain, PhasorRatioDomain
 from .sym import j, omegasym
 from .expr import expr
 from .functions import sin, cos, exp, sqrt
@@ -163,7 +164,7 @@ Converting to Fourier domain via phasor domain may not give correct answer.   It
         return super(PhasorExpression, self).subs(*args, **kwargs)
 
 
-class PhasorTimeDomainExpression(PhasorTimeDomain, PhasorExpression):
+class PhasorDomainExpression(PhasorDomain, PhasorExpression):
     """This is a phasor domain base class for voltages and currents."""
 
     is_phasor_domain = True
@@ -185,12 +186,12 @@ class PhasorTimeDomainExpression(PhasorTimeDomain, PhasorExpression):
     def _class_by_quantity(self, quantity, domain=None):
 
         if quantity == 'undefined':
-            return PhasorTimeDomainExpression
+            return PhasorDomainExpression
 
-        return super(PhasorTimeDomainExpression, self)._class_by_quantity(quantity, domain)
+        return super(PhasorDomainExpression, self)._class_by_quantity(quantity, domain)
 
     def as_expr(self):
-        return PhasorTimeDomainExpression(self)
+        return PhasorDomainExpression(self)
 
     @classmethod
     def from_time(cls, expr, omega=None, **assumptions):
@@ -268,7 +269,7 @@ class PhasorTimeDomainExpression(PhasorTimeDomain, PhasorExpression):
         return plot_phasor(self, **kwargs)
 
 
-class PhasorFrequencyDomainExpression(PhasorFrequencyDomain, PhasorExpression):
+class PhasorRatioDomainExpression(PhasorRatioDomain, PhasorExpression):
     """This represents the ratio of two-phasors; for example
     an impedance, an admittance, or a transfer function."""
 
@@ -293,9 +294,9 @@ class PhasorFrequencyDomainExpression(PhasorFrequencyDomain, PhasorExpression):
     def _class_by_quantity(self, quantity, domain=None):
 
         if quantity == 'undefined':
-            return PhasorFrequencyDomainExpression
+            return PhasorRatioDomainExpression
 
-        return super(PhasorFrequencyDomainExpression, self)._class_by_quantity(quantity, domain)
+        return super(PhasorRatioDomainExpression, self)._class_by_quantity(quantity, domain)
 
     @classmethod
     def from_laplace(cls, expr, **assumptions):
@@ -321,7 +322,7 @@ class PhasorFrequencyDomainExpression(PhasorFrequencyDomain, PhasorExpression):
 
         quantity = expr.quantity
         if quantity == 'undefined':
-            cls = PhasorFrequencyDomainExpression
+            cls = PhasorRatioDomainExpression
         else:
             cls = expr._class_by_domain('phasor')
 
@@ -333,7 +334,7 @@ class PhasorFrequencyDomainExpression(PhasorFrequencyDomain, PhasorExpression):
 
         from .sym import fsym
 
-        # TODO, remove this say by having PhasorFrequencyDomainExpression
+        # TODO, remove this say by having PhasorRatioDomainExpression
         # and PhasorAngularFrequencyDomainExpression classes.
 
         if self.var == fsym:
@@ -347,7 +348,7 @@ class PhasorFrequencyDomainExpression(PhasorFrequencyDomain, PhasorExpression):
         from .sym import fsym
         from .units import u as uu
 
-        # TODO, remove this say by having PhasorFrequencyDomainExpression
+        # TODO, remove this say by having PhasorRatioDomainExpression
         # and PhasorAngularFrequencyDomainExpression classes.
 
         if self.var == fsym:
@@ -388,7 +389,7 @@ class PhasorFrequencyDomainExpression(PhasorFrequencyDomain, PhasorExpression):
         return self.time().fourier()
 
     def as_expr(self):
-        return PhasorFrequencyDomainExpression(self)
+        return PhasorRatioDomainExpression(self)
 
     def plot(self, fvector=None, **kwargs):
         """Plot frequency response.
@@ -444,14 +445,14 @@ def phasor(arg, omega=None, **assumptions):
 
     if arg.is_time_domain:
         # Expecting AC signal.
-        return PhasorTimeDomainExpression.from_time(arg, omega=omega, **assumptions)
+        return PhasorDomainExpression.from_time(arg, omega=omega, **assumptions)
     else:
         # Expecting phasor (complex amplitude)
-        return PhasorTimeDomainExpression(arg, omega=omega, **assumptions)
+        return PhasorDomainExpression(arg, omega=omega, **assumptions)
 
 
-expressionclasses.register('phasor', PhasorTimeDomainExpression,
-                           PhasorFrequencyDomainExpression,
+expressionclasses.register('phasor', PhasorDomainExpression,
+                           PhasorRatioDomainExpression,
                            ('voltage', 'current',
                             'voltagesquared', 'currentsquared', 'undefined'))
 

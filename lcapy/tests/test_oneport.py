@@ -1,5 +1,5 @@
 from lcapy import *
-from lcapy.phasor import PhasorTimeDomainExpression
+from lcapy.phasor import PhasorDomainExpression
 from lcapy.sexpr import LaplaceDomainVoltage
 import unittest
 import sympy as sym
