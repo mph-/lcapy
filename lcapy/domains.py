@@ -15,8 +15,7 @@ class Domain(object):
     is_fourier_domain = False
     is_angular_fourier_domain = False
     is_phasor_domain = False
-    is_phasor_time_domain = False
-    is_phasor_frequency_domain = False
+    is_phasor_ratio_domain = False
     is_fourier_noise_domain = False
     is_angular_fourier_noise_domain = False
     is_discrete_time_domain = False
@@ -94,7 +93,6 @@ class PhasorDomain(Domain):
     domain_label = ''
     domain_units = 1
     is_phasor_domain = True
-    is_phasor_time_domain = True
     is_transform_domain = True
 
 
@@ -102,8 +100,7 @@ class PhasorRatioDomain(Domain):
     domain = 'phasor'
     domain_label = 'Angular Frequency'
     domain_units = uu.rad / uu.s
-    is_phasor_domain = True
-    is_phasor_frequency_domain = True
+    is_phasor_ratio_domain = True
     is_transform_domain = True
 
 

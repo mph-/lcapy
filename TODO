@@ -123,6 +123,7 @@ an answer that appears valid for DC.
 
 31. ILT(cosh(d*s/(2*c))/cosh(d*s/c))
 
+32. Convert class if integrate over domain variable
 
 Testing
 =======

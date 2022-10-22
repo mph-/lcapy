@@ -64,7 +64,12 @@ class ConstantDomainExpression(ConstantDomain, Expr):
 
     def phasor(self, **assumptions):
 
-        return self.laplace(**assumptions).phasor(**assumptions)
+        return self.time(**assumptions).phasor(**assumptions)
+
+    def phasor_ratio(self, **assumptions):
+
+        # CHECKME
+        return self.laplace(**assumptions).phasor_ratio(**assumptions)
 
     def time(self, **assumptions):
         return self.change(self, domain='time', **assumptions)

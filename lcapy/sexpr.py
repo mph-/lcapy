@@ -225,8 +225,13 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
     def phasor(self, **assumptions):
         """Convert to phasor domain."""
 
-        result = PhasorRatioDomainExpression.from_laplace(
-            self, **assumptions)
+        result = PhasorDomainExpression.from_laplace(self, **assumptions)
+        return result
+
+    def phasor_ratio(self, **assumptions):
+        """Convert to phasor ratio domain."""
+
+        result = PhasorRatioDomainExpression.from_laplace(self, **assumptions)
         return result
 
     def transient_response(self, tvector=None):
@@ -791,6 +796,7 @@ LaplaceDomainImpedance = classes['impedance']
 LaplaceDomainTransferFunction = classes['transfer']
 
 from .texpr import TimeDomainExpression, texpr  # nopep8
+from .phasor import PhasorDomainExpression  # nopep8
 from .phasor import PhasorRatioDomainExpression  # nopep8
 
 s = LaplaceDomainExpression('s')

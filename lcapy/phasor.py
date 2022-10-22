@@ -98,9 +98,6 @@ class PhasorExpression(Expr):
         if self.domain != x.domain:
             return False
 
-        if False and self.is_phasor_time_domain ^ x.is_phasor_time_domain:
-            return False
-
         if not hasattr(x, 'omega'):
             return True
 
@@ -139,6 +136,13 @@ class PhasorExpression(Expr):
                 self.omega == 2 * pi * x.var):
             return True
 
+        if (self.is_phasor_ratio_domain and x.is_angular_fourier_domain and
+                self.omega == x.var):
+            return True
+        if (self.is_phasor_ratio_domain and x.is_fourier_domain and
+                self.omega == 2 * pi * x.var):
+            return True
+
         return False
 
     def subs(self, *args, safe=False, **kwargs):
@@ -166,9 +170,6 @@ Converting to Fourier domain via phasor domain may not give correct answer.   It
 
 class PhasorDomainExpression(PhasorDomain, PhasorExpression):
     """This is a phasor domain base class for voltages and currents."""
-
-    is_phasor_domain = True
-    is_phasor_time_domain = True
 
     def __init__(self, val, **assumptions):
 
@@ -273,7 +274,7 @@ class PhasorRatioDomainExpression(PhasorRatioDomain, PhasorExpression):
     """This represents the ratio of two-phasors; for example
     an impedance, an admittance, or a transfer function."""
 
-    is_phasor_frequency_domain = True
+    is_phasor_ratio_domain = True
     is_transform_domain = True
 
     def __init__(self, val, **assumptions):

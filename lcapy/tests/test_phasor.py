@@ -90,12 +90,11 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(Z1.omega, 2, 'Z1.omega')
         self.assertEqual(Z1.is_impedance, True, 'Z1.is_impedance')
-        self.assertEqual(Z1.is_phasor_frequency_domain, True,
-                         'Z1.is_phasor_frequency_domain')
+        self.assertEqual(Z1.is_phasor_ratio_domain, True,
+                         'Z1.is_phasor_ratio_domain')
 
         V2 = Z1 * I1
 
         self.assertEqual(V2.omega, 2, 'V2.omega')
         self.assertEqual(V2.is_voltage, True, 'V2.is_voltage')
-        self.assertEqual(V2.is_phasor_time_domain, True,
-                         'V2.is_phasor_time_domain')
+        self.assertEqual(V2.is_phasor_domain, True, 'V2.is_phasor_domain')

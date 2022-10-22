@@ -1275,9 +1275,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 return cls, self, x, assumptions
 
         # For phasor comparisons...
-        if self.is_phasor_domain and x.is_angular_fourier_domain:
+        if self.is_phasor_ratio_domain and x.is_angular_fourier_domain:
             return cls, self, cls(x), assumptions
-        if self.is_angular_fourier_domain and x.is_phasor_domain:
+        if self.is_angular_fourier_domain and x.is_phasor_ratio_domain:
             return xcls, cls(self), x, assumptions
 
         if not self._add_compatible_domains(x):
@@ -1435,7 +1435,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         if self.is_constant_domain:
             cls = x._class_by_quantity(quantity)
-        elif self.is_phasor_time_domain and x.is_phasor_time_domain:
+        elif self.is_phasor_domain and x.is_phasor_domain:
             # Ratio of phasors.
             cls = PhasorRatioDomainExpression(
                 0, **self.assumptions)._class_by_quantity(quantity)

@@ -63,7 +63,7 @@ def transform(expr, arg, **assumptions):
             # and exp(a * t) for positive a, i.e., the impulse
             # responses for marginally stable and unstable systems.
             # For the frequency response use omega.
-            return expr.phasor(omega=arg / j, **assumptions)
+            return expr.phasor_ratio(omega=arg / j, **assumptions)
         elif arg is n:
             return expr.discrete_time(**assumptions)
         elif arg is k:
