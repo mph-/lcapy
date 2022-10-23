@@ -1357,7 +1357,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 pass
 
         if x.is_time_domain and self.is_time_domain:
-            if (self.is_signal and x.is_immittance or x.is_signal and self.is_immittance):
+            if (not (self.is_signal and x.is_signal)):
                 self._dubious_operation(x, '*')
 
         if not self._mul_compatible_domains(x):
@@ -1415,8 +1415,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 pass
 
         if x.is_time_domain and self.is_time_domain:
-            if (self.is_signal and x.is_immittance or x.is_signal and self.is_immittance):
-                self._dubious_operation(x, '/')
+            self._dubious_operation(x, '/')
 
         if not self._div_compatible_domains(x):
             self._incompatible_domains(x, '/')
