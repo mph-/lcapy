@@ -51,12 +51,27 @@ class TimeDomainExpression(TimeDomain, Expr):
 
         return x.is_constant_domain
 
+    def _mul_dubious(self, x):
+
+        # Allow rect(t) * rect(t) etc.
+        if not (self.is_signal or self.is_immittance or
+                x.is_signal or x.is_immittance):
+            return False
+
+        # Allow v*v.
+        return x.is_time_domain and not (self.is_signal and x.is_signal)
+
     def _div_compatible_domains(self, x):
 
         if self.domain == x.domain:
             return True
 
         return x.is_constant_domain
+
+    def _div_dubious(self, x):
+
+        # What about v * v / v ?
+        return x.is_time_domain
 
     @property
     def abs(self):

@@ -1228,6 +1228,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         return False
 
+    def _mul_dubious(self, x):
+
+        return False
+
     def _div_compatible_domains(self, x):
 
         if self.domain == x.domain:
@@ -1235,6 +1239,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         if (self.is_constant_domain or x.is_constant_domain):
             return True
+
+        return False
+
+    def _div_dubious(self, x):
 
         return False
 
@@ -1356,12 +1364,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             except:
                 pass
 
-        if x.is_time_domain and self.is_time_domain:
-            if (not (self.is_signal and x.is_signal)):
-                self._dubious_operation(x, '*')
-
         if not self._mul_compatible_domains(x):
             self._incompatible_domains(x, '*')
+
+        if self._mul_dubious(x):
+            self._dubious_operation(x, '*')
 
         if self.is_transform_domain:
             assumptions = self.assumptions.convolve(self, x)
@@ -1414,11 +1421,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             except:
                 pass
 
-        if x.is_time_domain and self.is_time_domain:
-            self._dubious_operation(x, '/')
-
         if not self._div_compatible_domains(x):
             self._incompatible_domains(x, '/')
+
+        if self._div_dubious(x):
+            self._dubious_operation(x, '/')
 
         assumptions = self.assumptions.convolve(self, x)
 
