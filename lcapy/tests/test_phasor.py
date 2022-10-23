@@ -98,3 +98,11 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(V2.omega, 2, 'V2.omega')
         self.assertEqual(V2.is_voltage, True, 'V2.is_voltage')
         self.assertEqual(V2.is_phasor_domain, True, 'V2.is_phasor_domain')
+
+    def test_phasor_omega_laplace(self):
+
+        self.assertEqual(jomega(s), s, 'jomega(s)')
+
+    def test_phasor_f_laplace(self):
+
+        self.assertEqual(j2pif(s), s, 'j2pif(s)')

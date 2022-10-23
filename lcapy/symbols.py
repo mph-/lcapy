@@ -11,6 +11,7 @@ from .texpr import t
 from .sexpr import s
 from .omegaexpr import omega
 from .normomegaexpr import Omega
+from .phasor import jomega, j2pif
 from .normfexpr import F
 from .nexpr import n
 from .kexpr import k
@@ -23,10 +24,7 @@ from .sym import pi, j, oo, inf, one, omega0sym, f0sym
 omega0 = omega0sym
 f0 = f0sym
 
-jomega = j * omega
 jw = jomega
-
-j2pif = j * 2 * pi * f
 
 jomega0 = j * omega0
 jw0 = jomega0

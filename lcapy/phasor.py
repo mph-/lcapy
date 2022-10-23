@@ -34,11 +34,12 @@ from __future__ import division
 from .expressionclasses import expressionclasses
 from .acdc import ACChecker
 from .domains import PhasorDomain, PhasorRatioDomain
-from .sym import j, omegasym
+from .sym import j, omegasym, fsym, pi
 from .expr import expr
 from .functions import sin, cos, exp, sqrt
 from .expr import Expr
 from .omegaexpr import omega
+from .units import u as uu
 from sympy import Expr as symExpr
 from warnings import warn
 
@@ -69,8 +70,6 @@ class PhasorExpression(Expr):
     @property
     def var(self):
         """Return underlying variable as sympy expression."""
-
-        from .sym import fsym, omegasym, pi
 
         if self.omega == omegasym:
             return omegasym
@@ -120,8 +119,6 @@ class PhasorExpression(Expr):
 
     def _mul_compatible_domains(self, x):
 
-        from .sym import pi
-
         if (self.is_constant_domain or x.is_constant_domain):
             return True
 
@@ -147,8 +144,6 @@ class PhasorExpression(Expr):
 
     def subs(self, *args, safe=False, **kwargs):
         """Substitute variables in expression, see sympy.subs for usage."""
-
-        from .sym import fsym, pi
 
         # Handle omega -> 2 * pi * f conversions to Fourier domain.
         if len(args) == 1 and args[0] == 2 * pi * fsym:
@@ -371,8 +366,14 @@ class PhasorRatioDomainExpression(PhasorRatioDomain, PhasorExpression):
         ass = self.assumptions.copy()
         assumptions = ass.merge(**assumptions)
 
-        omega = self.omega
-        result = self.expr.replace(omega, ssym / j)
+        if self.var == omegasym:
+            result = self.expr.replace(omegasym, ssym / j)
+        elif self.var == fsym:
+            result = self.expr.replace(fsym, ssym / (j * 2 * pi))
+        else:
+            raise ValueError(
+                'Cannot convert PhasorRatioDomain to LaplaceDomain for variable %s' % self.var)
+
         return LaplaceDomainExpression(result, **assumptions).as_quantity(self.quantity)
 
     def angular_fourier(self, **assumptions):
@@ -456,6 +457,12 @@ expressionclasses.register('phasor', PhasorDomainExpression,
                            PhasorRatioDomainExpression,
                            ('voltage', 'current',
                             'voltagesquared', 'currentsquared', 'undefined'))
+
+jomega = PhasorRatioDomainExpression('j * omega', omega=omegasym)
+jomega.units = uu.rad / uu.s
+
+j2pif = PhasorRatioDomainExpression('j * 2 * pi * f', omega=2 * pi * fsym)
+j2pif.units = uu.rad / uu.s
 
 from .texpr import TimeDomainExpression  # nopep8
 from .expr import Expr  # nopep8
