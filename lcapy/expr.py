@@ -1204,9 +1204,15 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
                            """ since the units of the result are unsupported.
 As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
-    def _dubious_quantities(self, x, op):
+    def _dubious_operation(self, x, op):
 
-        self._incompatible(x, op, '; you probably should be using convolution')
+        if op == '/':
+            operation = 'deconvolution'
+        else:
+            operation = 'convolution'
+
+        warn('Dubious operation: %s %s %s; you probably should be using %s' %
+             (self, op, x, operation))
 
     def _add_compatible_domains(self, x):
 
@@ -1352,7 +1358,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         if x.is_time_domain and self.is_time_domain:
             if (self.is_signal and x.is_immittance or x.is_signal and self.is_immittance):
-                self._dubious_quantities(x, '/')
+                self._dubious_operation(x, '*')
 
         if not self._mul_compatible_domains(x):
             self._incompatible_domains(x, '*')
@@ -1410,7 +1416,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         if x.is_time_domain and self.is_time_domain:
             if (self.is_signal and x.is_immittance or x.is_signal and self.is_immittance):
-                self._dubious_quantities(x, '/')
+                self._dubious_operation(x, '/')
 
         if not self._div_compatible_domains(x):
             self._incompatible_domains(x, '/')
