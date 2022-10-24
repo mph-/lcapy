@@ -498,11 +498,11 @@ expressionclasses.register('phasor', PhasorDomainExpression,
                             'voltagesquared', 'currentsquared', 'power',
                             'undefined'))
 
-expressionclasses.register('phasor ratio', PhasorRatioDomainExpression,
-                           None,
-                           ('impedance', 'admittance', 'transfer',
-                            'impedancesquared', 'admittancesquared',
-                            'undefined'))
+# Handle voltage, current frequency response as phasor ratios
+# so that voltage(1 / (s + 2)).subs(jw) works.
+# Probably should add a frequency response domain.
+expressionclasses.register('phasor ratio', PhasorRatioDomainExpression)
+
 
 jomega = PhasorRatioDomainExpression('j * omega', omega=omegasym)
 jomega.units = uu.rad / uu.s
