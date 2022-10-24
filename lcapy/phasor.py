@@ -44,7 +44,7 @@ from sympy import Expr as symExpr
 from warnings import warn
 
 
-__all__ = ('phasor', )
+__all__ = ('phasor', 'phasor_ratio')
 
 # The phasor domain is different from the Fourier and Laplace domain
 # since there is an implicit angular frequency.  This is only needed
@@ -125,6 +125,13 @@ class PhasorExpression(Expr):
         if self._compatible_phasors(x):
             return True
 
+        if (self.is_phasor_ratio_domain and x.is_phasor_domain and
+                self.omega == x.omega):
+            return True
+        if (self.is_phasor_domain and x.is_phasor_ratio_domain and
+                self.omega == x.omega):
+            return True
+
         # Allow phasor(x) * omega, etc.
         if (self.is_phasor_domain and x.is_angular_fourier_domain and
                 self.omega == x.var):
@@ -178,6 +185,13 @@ class PhasorDomainExpression(PhasorDomain, PhasorExpression):
 
         assumptions['ac'] = True
         super(PhasorExpression, self).__init__(val, **assumptions)
+
+    def _div_domain(self, x):
+
+        if x.is_phasor_domain:
+            return 'phasor ratio'
+
+        return self.domain
 
     def _class_by_quantity(self, quantity, domain=None):
 
@@ -287,6 +301,13 @@ class PhasorRatioDomainExpression(PhasorRatioDomain, PhasorExpression):
 
         super(PhasorExpression, self).__init__(val, **ass)
 
+    def _mul_domain(self, x):
+
+        if x.is_phasor_domain:
+            return 'phasor'
+
+        return self.domain
+
     def _class_by_quantity(self, quantity, domain=None):
 
         if quantity == 'undefined':
@@ -320,7 +341,7 @@ class PhasorRatioDomainExpression(PhasorRatioDomain, PhasorExpression):
         if quantity == 'undefined':
             cls = PhasorRatioDomainExpression
         else:
-            cls = expr._class_by_domain('phasor')
+            cls = expr._class_by_domain('phasor ratio')
 
         ret = cls(result2, omega=omega, **ass)
         return ret
@@ -453,10 +474,30 @@ def phasor(arg, omega=None, **assumptions):
         return PhasorDomainExpression(arg, omega=omega, **assumptions)
 
 
+def phasor_ratio(arg, omega=None, **assumptions):
+    """Create phasor ratio.
+
+    If arg is a constant C, the phasor ratio C is created with omega as the
+    angular frequency (this defaults to 'omega' if not specified).
+
+    """
+
+    arg = expr(arg)
+
+    return PhasorRatioDomainExpression(arg, omega=omega, **assumptions)
+
+
 expressionclasses.register('phasor', PhasorDomainExpression,
-                           PhasorRatioDomainExpression,
+                           None,
                            ('voltage', 'current',
-                            'voltagesquared', 'currentsquared', 'undefined'))
+                            'voltagesquared', 'currentsquared', 'power',
+                            'undefined'))
+
+expressionclasses.register('phasor ratio', PhasorRatioDomainExpression,
+                           None,
+                           ('impedance', 'admittance', 'transfer',
+                            'impedancesquared', 'admittancesquared',
+                            'undefined'))
 
 jomega = PhasorRatioDomainExpression('j * omega', omega=omegasym)
 jomega.units = uu.rad / uu.s

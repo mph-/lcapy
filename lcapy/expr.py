@@ -1218,6 +1218,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         return self.domain == x.domain
 
+    def _mul_domain(self, x):
+
+        return self.domain
+
     def _mul_compatible_domains(self, x):
 
         if self.domain == x.domain:
@@ -1231,6 +1235,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     def _mul_dubious(self, x):
 
         return False
+
+    def _div_domain(self, x):
+
+        return self.domain
 
     def _div_compatible_domains(self, x):
 
@@ -1393,10 +1401,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if quantity == 'constant':
             quantity = 'undefined'
 
+        domain = self._mul_domain(x)
+
         if self.is_constant_domain:
             cls = x._class_by_quantity(quantity)
         else:
-            cls = self._class_by_quantity(quantity)
+            cls = self._class_by_quantity(quantity, domain)
 
         value = self.expr * x.expr
         result = cls(value, **assumptions)
@@ -1445,14 +1455,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if quantity == 'constant':
             quantity = 'undefined'
 
+        domain = self._div_domain(x)
+
         if self.is_constant_domain:
             cls = x._class_by_quantity(quantity)
-        elif self.is_phasor_domain and x.is_phasor_domain:
-            # Ratio of phasors.
-            cls = PhasorRatioDomainExpression(
-                0, **self.assumptions)._class_by_quantity(quantity)
         else:
-            cls = self._class_by_quantity(quantity)
+            cls = self._class_by_quantity(quantity, domain)
 
         if floor:
             value = self.expr // x.expr

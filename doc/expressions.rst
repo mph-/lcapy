@@ -90,7 +90,7 @@ Lcapy has seven predefined domain variables for continuous time signals:
 
 - `Omega` (or `W`) -- normalized angular Fourier domain (:math:`\Omega = \omega \Delta t`)
 
-- `jomega` (or `jw`) -- phasor domain
+- `jomega` (or `jw` or `j2pif`) -- phasor ratio domain
 
 
 A time-domain expression is produced using the `t` variable, for example::
@@ -301,8 +301,7 @@ Domain attributes
 - `is_norm_fourier_domain`
 - `is_norm_angular_fourier_domain`
 - `is_phasor_domain`
-- `is_phasor_time_domain`
-- `is_phasor_frequency_domain`
+- `is_phasor_ratio_domain`
 - `is_discrete_time_domain`
 - `is_discrete_fourier_domain`
 - `is_Z_domain`
@@ -1168,7 +1167,7 @@ Alternatively, the call notation can be used to choose the new domain::
 
 - `V(Omega)` returns the normalized angular Fourier domain transformation
 
-- `V(jomega)` or `V(jw)` returns the phasor domain transformation
+- `V(jomega)` or `V(jw)` or `V(j2pif)` returns the phasor ratio domain transformation
 
 - `V(n)` returns the discrete-time domain transformation (by default the bilinear-transform is used)
 
@@ -1189,12 +1188,12 @@ For example::
    s + 2
 
 
-Phasor and angular Fourier domains (jomega or omega)
-----------------------------------------------------
+Phasor ratio and angular Fourier domains (jomega or omega)
+----------------------------------------------------------
 
 The transformation `V(omega)` produces a result in the angular Fourier
 domain, however, the transformation `V(jomega)` produces a result in
-the Phasor domain.  In most cases, `V(omega)` produces the same result
+the phasor ratio domain.  In most cases, `V(omega)` produces the same result
 as `V(jomega)` but not always.  Here's an example where the two
 domains produce the same expression::
 
@@ -1209,7 +1208,7 @@ While they look the same, they have different domains:
     >>> Y(omega).domain
     'angular fourier'
     >>> Y(jomega).domain
-    'phasor'
+    'phasor ratio'
 
 Here's an example, showing a subtle difference between the angular Fourier and phasor domains for the impedance of a 1 F capacitor::
 
@@ -1227,29 +1226,20 @@ Here's an example, showing a subtle difference between the angular Fourier and p
 
 In this case, substitution of `s` with `jomega` is not valid to obtain
 the frequency response.  This is because the poles of `Z` are not in
-the RH plane and thus the evaluation of `Z(s)` at `s = jomega` is
-outside the region of convergence.  In practice, this is not a problem
-for circuit analysis provided the circuit contains some resistance.
+the RH plane (they are on the imaginary axis and thus the system is marginally stable) and thus the evaluation of `Z(s)` at `s = jomega` is
+outside the region of convergence.
 
 The evaluation of a Laplace domain impedance `Z(s)` at `s = jomega` to
-obtain a phasor domain impedance is always valid.  When dealing with
+obtain a phasor ratio domain impedance is always valid.  When dealing with
 phasors, there is no DC component and thus the same result is obtained
-using the phasor or angular Fourier domains.
+using the phasor ratio or angular Fourier domains.
 
 If you have a cunning idea of how to resolve this notational
-gnarliness, or make it less confusing, please report an issue.  Note,
-you can use the `subs()` method to replace `s` with `j * omega` if you
-know what you are doing.  The result is in the angular Fourier
-domain::
-
-    >>> Y.subs(jomega)
-    ⅉ⋅ω
-    >>> Y.subs(jomega).domain
-    'angular fourier'
+gnarliness, or make it less confusing, please report an issue.
 
 The following diagram demonstrates transformations between the domains.
 Note, the unilateral Laplace transform denoted by :math:`\mathcal{L}\{.\}` is not reversible without some prior information (the region of convergence).
-In general, the result is only known for :math:`t\ge 0` since the result for :math:`t < 0` is not unique.   The Fourier transform, denoted by :math:`\mathcal{F}\{.\},` and the angular Fourier transform, denoted by :math:`\mathcal{F}_{\omega}\{.\}`, are reversible.  If :math:`h(t)` is an AC signal, it is possible to go between the time and phasor domains.  If :math:`H(s)` represents the transfer function of a causal system with all its poles in the LH plane, then it is possible to go between the Laplace and angular Fourier domains via the phasor domain.   Note, the capitalized expressions denote a transform domain and are not equivalent.
+In general, the result is only known for :math:`t\ge 0` since the result for :math:`t < 0` is not unique.   The Fourier transform, denoted by :math:`\mathcal{F}\{.\},` and the angular Fourier transform, denoted by :math:`\mathcal{F}_{\omega}\{.\}`, are reversible.  If :math:`h(t)` is an AC signal, it is possible to go between the time and phasor domains.  If :math:`H(s)` represents the transfer function of a causal system with all its poles in the LH plane, then it is possible to go between the Laplace and angular Fourier domains via the phasor ratio domain.   Note, the capitalized expressions denote a transform domain and are not equivalent.
 
 .. image:: examples/schematics/domains.png
    :width: 25cm
@@ -1611,61 +1601,76 @@ Thus, the signal :math:`v(t) = A \sin(\omega t)` has a phase :math:`\phi=-\pi/2`
 
 Phasors can be created in Lcapy with the `phasor()` factory function::
 
-   >>> c = phasor(2)
-   >>> c.time()
+   >>> P = phasor(2)
+   >>> P.time()
    2⋅cos(ω⋅t)
 
-   >>> s = phasor(-2 * j)
-   >>> s.time()
+   >>> P = phasor(-2 * j)
+   >>> P.time()
    2⋅sin(ω⋅t)
 
 The default angular frequency is `omega` but this can be specified::
 
-   >>> p = phasor(-j, omega=1)
+   >>> phasor(-j, omega=1)
    sin(t)
 
 Phasors can also be inferred from an AC signal::
 
-   >>> q = phasor(2 * sin(3 * t))
-   >>> q
+   >>> P = phasor(2 * sin(3 * t))
+   >>> P
    -2⋅ⅉ
-   >>> q.omega
+   >>> P.omega
    3
 
 Phasor voltages and currents can be created using the `voltage()` and `current()` functions.  For example::
 
-   >>> v = voltage(phasor(1))
-   >>> v.quantity
+   >>> V = voltage(phasor(1))
+   >>> V.quantity
    'voltage'
 
 They can also be created from an AC time-domain signal using the `as_phasor()` method.  For example::
 
    >>> v = voltage(2 * sin(7 * t))
-   >>> v.as_phasor()
+   >>> V = v.as_phasor()
+   >>> V
    -2⋅ⅉ
 
 Like all Lcapy expressions, the magnitude and phase of the phasor can
 be found from the `magnitude` and `phase` attributes.  For example::
 
-    >>> v = voltage(phasor(2 * sin(7 * t)))
-    >>> v.magnitude
+    >>> V = voltage(phasor(2 * sin(7 * t)))
+    >>> V.magnitude
     2
-    >>> v.phase
+    >>> V.phase
     -π
     ───
      2
 
 The root-mean-square value of the phasor is found with the `rms()` method.  For example::
 
-   >>> v = voltage(phasor(2))
-   >>> v.rms()
+   >>> V = voltage(phasor(2))
+   >>> V.rms()
    √2
 
 
 Phasors can be plotted on a polar diagram using the `plot()` method, for example::
 
-  >>> i = current(phasor(1 + j))
-  >>> i.plot()
+  >>> I = current(phasor(1 + j))
+  >>> I.plot()
+
+
+Phasor ratios
+=============
+
+The ratio of two phasors is a phasor ratio; it is not a phasor.  For example::
+
+   >>> V = voltage(phasor(4))
+   >>> I = current(phasor(2))
+   >>> Z = V / I
+   >>> Z.domain
+   phasor ratio
+   >>> Z.omega
+   ω
 
 
 .. _immittances:

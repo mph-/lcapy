@@ -25,7 +25,7 @@ from .dltifilter import *
 from .differentialequation import *
 from .ltifilter import *
 from .discretetime import *
-from .phasor import phasor
+from .phasor import phasor, phasor_ratio
 from .normfexpr import Fexpr
 from .normomegaexpr import Omegaexpr
 from .omegaexpr import omegaexpr

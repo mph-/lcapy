@@ -1,5 +1,4 @@
-"""This module provides the AngularFourierNoiseDomainExpression class to represent
-omega-domain (angular Fourier domain) noise expressions.
+"""This module provides the AngularFourierNoiseDomainExpression class to represent omega-domain (angular Fourier domain) noise expressions.
 
 Copyright 2014--2022 Michael Hayes, UCECE
 """

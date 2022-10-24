@@ -73,17 +73,17 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(str(voltage(phasor(1)).units), 'V', 'phasor voltage')
         self.assertEqual(str(current(phasor(1)).units), 'A', 'phasor current')
-        self.assertEqual(str(admittance(phasor(1)).units),
+        self.assertEqual(str(admittance(phasor_ratio(1)).units),
                          'S', 'phasor admittance')
-        self.assertEqual(str(impedance(phasor(1)).units),
+        self.assertEqual(str(impedance(phasor_ratio(1)).units),
                          'ohm', 'phasor impedance')
         self.assertEqual(str((voltage(phasor(1))**2).units),
                          'V**2', 'phasor voltage squared')
         self.assertEqual(str((current(phasor(1))**2).units),
                          'A**2', 'phasor current squared')
-        self.assertEqual(str((admittance(phasor(1))**2).units),
+        self.assertEqual(str((admittance(phasor_ratio(1))**2).units),
                          'S**2', 'phasor admittance squared')
-        self.assertEqual(str((impedance(phasor(1))**2).units),
+        self.assertEqual(str((impedance(phasor_ratio(1))**2).units),
                          'ohm**2', 'phasor impedance squared')
 
     def test_discrete_time_units(self):

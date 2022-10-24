@@ -97,7 +97,7 @@ class PhasorDomain(Domain):
 
 
 class PhasorRatioDomain(Domain):
-    domain = 'phasor'
+    domain = 'phasor ratio'
     domain_label = 'Angular Frequency'
     domain_units = uu.rad / uu.s
     is_phasor_ratio_domain = True
