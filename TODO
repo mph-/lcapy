@@ -109,21 +109,21 @@ an answer that appears valid for DC.
 
 24. TwoPort should only inherit a subset of Network
 
-25. expr(3)(jw)
+25. Add sifting theorem to simplify_dirac_delta
 
-26. Add sifting theorem to simplify_dirac_delta
+26. Fix simplify_sin_cos for multiple cos and sin
 
-27. Fix simplify_sin_cos for multiple cos and sin
+27. Expand cosh, sinh, for inverse Laplace
 
-28. Expand cosh, sinh, for inverse Laplace
+28. Defer two-port evaluation and use AST
 
-29. Defer two-port evaluation and use AST
+29. Handle responses such as (1 - exp(-s * T)) / A(s).
 
-30. Handle responses such as (1 - exp(-s * T)) / A(s).
+30. ILT(cosh(d*s/(2*c))/cosh(d*s/c))
 
-31. ILT(cosh(d*s/(2*c))/cosh(d*s/c))
+31. Convert class if integrate over domain variable
 
-32. Convert class if integrate over domain variable
+32. Fix noise expression products
 
 
 Testing

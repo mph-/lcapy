@@ -236,6 +236,11 @@ class PhasorDomainExpression(PhasorDomain, PhasorExpression):
 
         return cls.change(expr, result, domain='phasor', **assumptions)
 
+    @classmethod
+    def from_constant(cls, expr, omega=None, **assumptions):
+
+        return cls(expr, omega=omega)
+
     def time(self, **assumptions):
         """Convert to time domain representation."""
         from .symbols import t

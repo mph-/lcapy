@@ -36,7 +36,7 @@ class ConstantDomainExpression(ConstantDomain, Expr):
         for symbol in ('s', 'omega', 't', 'f'):
             if symbol in symbols:
                 raise ValueError(
-                    'constant expression %s cannot depend on %s' % (val, symbol))
+                    'Constant expression %s cannot depend on %s' % (val, symbol))
 
         assumptions['dc'] = True
         super(ConstantDomainExpression, self).__init__(val, **assumptions)
@@ -62,22 +62,33 @@ class ConstantDomainExpression(ConstantDomain, Expr):
         # Minor optimisation
         return self
 
-    def phasor(self, **assumptions):
+    def phasor(self, omega=None, **assumptions):
 
-        return self.time(**assumptions).phasor(**assumptions)
+        from .phasor import PhasorDomainExpression
 
-    def phasor_ratio(self, **assumptions):
+        return PhasorDomainExpression.from_constant(self, omega=omega,
+                                                    **assumptions)
 
-        # CHECKME
-        return self.laplace(**assumptions).phasor_ratio(**assumptions)
+    def phasor_ratio(self, omega=None, **assumptions):
+
+        return self.as_laplace(**assumptions).phasor_ratio(omega=omega,
+                                                           **assumptions)
 
     def time(self, **assumptions):
+        """Convert to time domain representation."""
+
         return self.change(self, domain='time', **assumptions)
 
-    def laplace(self):
+    def laplace(self, **assumptions):
         """Convert to Laplace domain representation."""
 
-        return self.time().laplace()
+        return self.time().laplace(**assumptions)
+        # return self.change(self, domain='laplace', **assumptions)
+
+    def as_laplace(self, **assumptions):
+        """Convert to Laplace domain representation."""
+
+        return self.change(self, domain='laplace', **assumptions)
 
     def response(self, xvector, tvector):
         """Evaluate response to input signal `xvector` at times
@@ -98,10 +109,16 @@ class ConstantTimeDomainExpression(ConstantDomainExpression):
 
     def _class_by_quantity(self, quantity, domain=None):
 
-        if quantity == 'undefined':
+        if quantity == 'undefined' and domain is None:
             return ConstantTimeDomainExpression
 
         return super(ConstantTimeDomainExpression, self)._class_by_quantity(quantity, domain)
+
+    def phasor_ratio(self, omega=None, **assumptions):
+
+        raise ValueError(
+            'Cannot convert %s(%s) to phasor_ratio' %
+            (self.__class__.__name__, self))
 
 
 class ConstantFrequencyDomainExpression(ConstantDomainExpression):
@@ -113,10 +130,16 @@ class ConstantFrequencyDomainExpression(ConstantDomainExpression):
 
     def _class_by_quantity(self, quantity, domain=None):
 
-        if quantity == 'undefined':
+        if quantity == 'undefined' and domain is None:
             return ConstantFrequencyDomainExpression
 
         return super(ConstantFrequencyDomainExpression, self)._class_by_quantity(quantity, domain)
+
+    def phasor(self, omega=None, **assumptions):
+
+        raise ValueError(
+            'Cannot convert %s(%s) to phasor' %
+            (self.__class__.__name__, self))
 
     def laplace(self, **assumptions):
         return self.change(self, domain='laplace', **assumptions)
