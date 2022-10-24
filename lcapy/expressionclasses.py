@@ -114,11 +114,13 @@ class ExpressionClassBuilder(dict):
             cls = self.make1(quantity, self.domainclass1)
         elif quantity in self.quantities:
             cls = self.make1(quantity, self.domainclass1)
-        else:
+        elif self.domainclass2 != None:
             cls = self.make1(quantity, self.domainclass2)
+        else:
+            cls = None
 
         if cls is None:
-            raise RuntimeError('No class for %s' % quantity)
+            raise RuntimeError('No class for %s %s' % (self.domain, quantity))
         return cls
 
     def __getitem__(self, quantity):

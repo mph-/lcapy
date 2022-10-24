@@ -1402,6 +1402,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             quantity = 'undefined'
 
         domain = self._mul_domain(x)
+        if domain is None:
+            self._incompatible(x, '*')
 
         if self.is_constant_domain:
             cls = x._class_by_quantity(quantity)
@@ -1456,6 +1458,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             quantity = 'undefined'
 
         domain = self._div_domain(x)
+        if domain is None:
+            self._incompatible(x, '/')
 
         if self.is_constant_domain:
             cls = x._class_by_quantity(quantity)
