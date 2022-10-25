@@ -196,7 +196,10 @@ class PhasorDomainExpression(PhasorDomain, PhasorExpression):
     def _class_by_quantity(self, quantity, domain=None):
 
         if quantity == 'undefined':
-            return PhasorDomainExpression
+            if domain == 'phasor ratio':
+                return PhasorRatioDomainExpression
+            else:
+                return PhasorDomainExpression
 
         return super(PhasorDomainExpression, self)._class_by_quantity(quantity, domain)
 
