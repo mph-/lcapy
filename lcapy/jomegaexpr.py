@@ -1,24 +1,24 @@
-"""This module provides the AngularFourierDomainExpression class to
-represent omega-domain (angular frequency Fourier domain) expressions.
+"""This module provides the AngularFrequencyDomainExpression class to
+represent jomega-domain (angular frequency frequency domain) expressions.
 
-Copyright 2014--2022 Michael Hayes, UCECE
+Copyright 2022 Michael Hayes, UCECE
 
 """
 
 from __future__ import division
-from .domains import AngularFourierDomain
+from .domains import AngularFrequencyDomain
 from .inverse_fourier import inverse_fourier_transform
 from .expr import Expr, expr, expr_make
 from .state import state, validate
-from .sym import fsym, ssym, tsym, omegasym, omega0sym, j, pi
+from .sym import fsym, ssym, tsym, omegasym, j, pi
 from .units import u as uu
 from sympy import Expr as symExpr
 
-__all__ = ('omegaexpr', )
+__all__ = ()
 
 
-class AngularFourierDomainExpression(AngularFourierDomain, Expr):
-    """Fourier domain expression or symbol (angular frequency)."""
+class AngularFrequencyDomainExpression(AngularFrequencyDomain, Expr):
+    """Frequency domain expression or symbol (angular frequency)."""
 
     var = omegasym
 
@@ -26,24 +26,24 @@ class AngularFourierDomainExpression(AngularFourierDomain, Expr):
 
         check = assumptions.pop('check', True)
 
-        super(AngularFourierDomainExpression,
+        super(AngularFrequencyDomainExpression,
               self).__init__(val, **assumptions)
 
         expr = self.expr
 
         if check and not expr.has(omegasym):
             if expr.has(tsym):
-                validate(state.t_in_w,
-                         'omega-domain expression %s depends on t' % expr)
+                validate(state.t_in_jw,
+                         'jomega-domain expression %s depends on t' % expr)
             if expr.has(ssym):
-                validate(state.s_in_w,
-                         'omega-domain expression % s depends on s' % expr)
+                validate(state.s_in_jw,
+                         'jomega-domain expression % s depends on s' % expr)
             if expr.has(omegasym):
-                validate(state.f_in_w,
-                         'omega-domain expression %s depends on f' % expr)
+                validate(state.f_in_jw,
+                         'jomega-domain expression %s depends on f' % expr)
 
     def as_expr(self):
-        return AngularFourierDomainExpression(self)
+        return AngularFrequencyDomainExpression(self)
 
     def inverse_fourier(self, **assumptions):
         """Attempt inverse Fourier transform."""
@@ -61,37 +61,29 @@ class AngularFourierDomainExpression(AngularFourierDomain, Expr):
     def angular_fourier(self, **assumptions):
         """Convert to angular Fourier domain."""
 
-        return self
+        return self.laplace(**assumptions).angular_fourier()
 
     def fourier(self, **assumptions):
         """Convert to Fourier domain."""
 
-        from .symbols import f
-
-        result = self.subs(2 * pi * f)
-        return result
+        return self.laplace(**assumptions).fourier()
 
     def norm_fourier(self, **assumptions):
         """Convert to normalized Fourier domain."""
-        from .symbols import F
-        from .sym import dt
 
-        result = self.subs(2 * pi * F / dt)
-        return result
+        return self.laplace(**assumptions).norm_fourier()
 
     def norm_angular_fourier(self, **assumptions):
         """Convert to normalized angular Fourier domain."""
-        from .symbols import Omega
-        from .sym import dt
 
-        result = self.subs(Omega / dt)
-        return result
+        return self.laplace(**assumptions).norm_angular_fourier()
 
     def laplace(self, **assumptions):
-        """Determine one-sided Laplace transform with 0- as the lower limit."""
+        """Convert to Laplace domain."""
 
-        result = self.time(**assumptions).laplace()
-        return result
+        from .symbols import s, j
+
+        return self.subs(s / j)
 
     def phasor(self, **assumptions):
         """Convert to phasor domain."""
@@ -172,18 +164,10 @@ class AngularFourierDomainExpression(AngularFourierDomain, Expr):
         return plot_nichols(self, wvector, log_frequency=log_frequency, **kwargs)
 
 
-def omegaexpr(arg, **assumptions):
-    """Create AngularFourierDomainExpression object.  If `arg` is omegasym return omega"""
-
-    if arg is omegasym:
-        return omega
-    return expr_make('angular fourier', arg, **assumptions)
-
-
 from .expressionclasses import expressionclasses  # nopep8
 
-classes = expressionclasses.register('angular fourier',
-                                     AngularFourierDomainExpression)
+classes = expressionclasses.register('angular frequency',
+                                     AngularFrequencyDomainExpression)
 
-omega = AngularFourierDomainExpression('omega')
-omega.units = uu.rad / uu.s
+jomega = AngularFrequencyDomainExpression('j * omega', omega=omegasym)
+jomega.units = uu.rad / uu.s

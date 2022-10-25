@@ -547,6 +547,8 @@ class ExprDomain(object):
             return self.as_phasor()
         elif domain == 'angular fourier':
             return self.as_angular_fourier()
+        elif domain == 'angular frequency':
+            return self.as_angular_frequency()
         raise ValueError('Unknown domain %s for %s' % (domain, self))
 
     def as_voltage(self):
@@ -1297,9 +1299,14 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 return cls, self, x, assumptions
 
         # For phasor comparisons...
+        # FIXME, remove phasor stuff?
         if self.is_phasor_ratio_domain and x.is_angular_fourier_domain:
             return cls, self, cls(x), assumptions
-        if self.is_angular_fourier_domain and x.is_phasor_ratio_domain:
+        elif self.is_angular_fourier_domain and x.is_phasor_ratio_domain:
+            return xcls, cls(self), x, assumptions
+        elif self.is_angular_frequency_domain and x.is_angular_fourier_domain:
+            return cls, self, cls(x), assumptions
+        elif self.is_angular_fourier_domain and x.is_angular_frequency_domain:
             return xcls, cls(self), x, assumptions
 
         if not self._add_compatible_domains(x):

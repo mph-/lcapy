@@ -90,7 +90,7 @@ Lcapy has seven predefined domain variables for continuous time signals:
 
 - `Omega` (or `W`) -- normalized angular Fourier domain (:math:`\Omega = \omega \Delta t`)
 
-- `jomega` (or `jw` or `j2pif`) -- phasor ratio domain
+- `jomega` (or `jw`) -- angular frequency domain
 
 
 A time-domain expression is produced using the `t` variable, for example::
@@ -1167,7 +1167,7 @@ Alternatively, the call notation can be used to choose the new domain::
 
 - `V(Omega)` returns the normalized angular Fourier domain transformation
 
-- `V(jomega)` or `V(jw)` or `V(j2pif)` returns the phasor ratio domain transformation
+- `V(jomega)` or `V(jw)` returns the angular frequency domain transformation
 
 - `V(n)` returns the discrete-time domain transformation (by default the bilinear-transform is used)
 
@@ -1865,8 +1865,8 @@ as an argument:
 - `V1(t)` returns the time domain expression
 - `V1(f)` returns the Fourier domain expression with linear frequency
 - `V1(s)` returns the Laplace domain expression
-- `V1(omega)`or `V1(w)` returns the Fourier domain expression with angular frequency
-- `V1(jomega)` or `V1(jw)` returns the Fourier domain expression with angular frequency
+- `V1(omega)`or `V1(w)` returns the angular Fourier domain expression
+- `V1(jomega)` or `V1(jw)` returns the angular frequency domain expression
 
 Here are some examples::
 

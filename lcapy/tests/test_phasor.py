@@ -59,16 +59,6 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(q, r, 'phasor(2) * omega')
 
-    def test_phasor_omega_transform(self):
-
-        from lcapy.sym import omegasym
-
-        H = 1 / s
-        P = H(jw)
-
-        self.assertEqual(type(P), PhasorRatioDomainExpression, 'H(jw)')
-        self.assertEqual(P.var, omegasym, 'P.var')
-
     def test_phasor_f_transform(self):
 
         from lcapy.sym import fsym

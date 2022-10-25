@@ -55,6 +55,8 @@ def transform(expr, arg, **assumptions):
             return expr.norm_angular_fourier(**assumptions)
         elif arg is F:
             return expr.norm_fourier(**assumptions)
+        elif arg is jw:
+            return expr.angular_frequency(**assumptions)
         elif arg.has(j):
             # Note, substituting s = jw is valid for the phasor domain
             # but does not always produce the frequency response since
@@ -89,6 +91,8 @@ def transform(expr, arg, **assumptions):
         result = expr.angular_fourier(**assumptions)
     elif isinstance(arg, NormAngularFourierDomainExpression):
         result = expr.norm_angular_fourier(**assumptions)
+    elif isinstance(arg, AngularFrequencyDomainExpression):
+        result = expr.angular_frequency(**assumptions)
     elif arg.has(j):
         result = expr.phasor(omega=arg / j, **assumptions)
     elif isinstance(arg, DiscreteTimeDomainExpression):
@@ -159,6 +163,7 @@ from .texpr import TimeDomainExpression  # nopep8
 from .omegaexpr import AngularFourierDomainExpression  # nopep8
 from .normfexpr import NormFourierDomainExpression  # nopep8
 from .normomegaexpr import NormAngularFourierDomainExpression  # nopep8
+from .jomegaexpr import AngularFrequencyDomainExpression  # nopep8
 from .nexpr import DiscreteTimeDomainExpression  # nopep8
 from .kexpr import DiscreteFourierDomainExpression  # nopep8
 from .zexpr import ZDomainExpression  # nopep8

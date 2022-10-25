@@ -504,9 +504,6 @@ expressionclasses.register('phasor', PhasorDomainExpression,
 expressionclasses.register('phasor ratio', PhasorRatioDomainExpression)
 
 
-jomega = PhasorRatioDomainExpression('j * omega', omega=omegasym)
-jomega.units = uu.rad / uu.s
-
 j2pif = PhasorRatioDomainExpression('j * 2 * pi * f', omega=2 * pi * fsym)
 j2pif.units = uu.rad / uu.s
 

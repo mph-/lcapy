@@ -58,6 +58,11 @@ class ConstantDomainExpression(ConstantDomain, Expr):
 
         return self.time().angular_fourier()
 
+    def angular_frequency(self):
+        """Convert to angular frequency domain representation."""
+
+        return self.change(self, domain='angular frequency')
+
     def canonical(self, factor_const=True):
         # Minor optimisation
         return self

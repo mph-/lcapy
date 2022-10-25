@@ -79,6 +79,10 @@ class State(object):
         self.s_in_w = 'warn'
         self.t_in_w = 'warn'
 
+        self.f_in_jw = 'warn'
+        self.s_in_jw = 'warn'
+        self.t_in_jw = 'warn'
+
         self.pdb_on_warn = False
         self.error_on_warn = False
 

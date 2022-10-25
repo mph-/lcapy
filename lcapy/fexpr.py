@@ -94,8 +94,13 @@ class FourierDomainExpression(FourierDomain, Expr):
         result = self.subs(Omega / (2 * pi * dt))
         return result
 
+    def angular_frequency(self, **assumptions):
+        """Convert to angular frequency domain."""
+
+        return self.laplace(**assumptions).angular_frequency()
+
     def laplace(self, **assumptions):
-        """Determine one-side Laplace transform with 0- as the lower limit."""
+        """Determine one-sided Laplace transform with 0- as the lower limit."""
 
         result = self.time(**assumptions).laplace()
         return result

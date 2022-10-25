@@ -180,6 +180,13 @@ class TimeDomainExpression(TimeDomain, Expr):
 
         return self.FT(Omega, evaluate, **assumptions)
 
+    def angular_frequency(self, **assumptions):
+        """Convert to angular frequency domain.  Note, this is similar to the
+        Fourier domain but not always."""
+        from .symbols import jw
+
+        return self.laplace(**assumptions).angular_frequency()
+
     def time(self, **assumptions):
         return self
 
