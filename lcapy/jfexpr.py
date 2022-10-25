@@ -1,55 +1,53 @@
-"""This module provides the AngularFrequencyDomainExpression class to
-represent jomega-domain (angular frequency frequency domain) expressions.
+"""This module provides the FrequencyDomainExpression class to
+represent jf-domain ( frequency frequency domain) expressions.
 
 Copyright 2022 Michael Hayes, UCECE
 
 """
 
 from __future__ import division
-from .domains import AngularFrequencyDomain
+from .domains import FrequencyDomain
 from .inverse_fourier import inverse_fourier_transform
 from .expr import Expr, expr, expr_make
 from .state import state, validate
-from .sym import fsym, ssym, tsym, omegasym, j, pi
+from .sym import fsym, ssym, tsym, fsym, j, pi
 from .units import u as uu
 from sympy import Expr as symExpr
 
 __all__ = ()
 
 
-class AngularFrequencyDomainExpression(AngularFrequencyDomain, Expr):
-    """Frequency domain expression or symbol (angular frequency)."""
+class FrequencyDomainExpression(FrequencyDomain, Expr):
+    """Frequency domain expression or symbol."""
 
-    var = omegasym
+    var = fsym
 
     def __init__(self, val, **assumptions):
 
         check = assumptions.pop('check', True)
 
-        super(AngularFrequencyDomainExpression,
-              self).__init__(val, **assumptions)
+        super(FrequencyDomainExpression, self).__init__(val, **assumptions)
 
         expr = self.expr
 
-        if check and not expr.has(omegasym):
+        if check and not expr.has(fsym):
             if expr.has(tsym):
-                validate(state.t_in_jw,
-                         'jomega-domain expression %s depends on t' % expr)
+                validate(state.t_in_jf,
+                         'jf-domain expression %s depends on t' % expr)
             if expr.has(ssym):
-                validate(state.s_in_jw,
-                         'jomega-domain expression % s depends on s' % expr)
-            if expr.has(omegasym):
-                validate(state.f_in_jw,
-                         'jomega-domain expression %s depends on f' % expr)
+                validate(state.s_in_jf,
+                         'jf-domain expression % s depends on s' % expr)
+            if expr.has(fsym):
+                validate(state.f_in_jf,
+                         'jf-domain expression %s depends on f' % expr)
 
     def as_expr(self):
-        return AngularFrequencyDomainExpression(self)
+        return FrequencyDomainExpression(self)
 
     def inverse_fourier(self, **assumptions):
         """Attempt inverse Fourier transform."""
 
-        expr = self.subs(2 * pi * fsym)
-        result = inverse_fourier_transform(expr.sympy, fsym, tsym)
+        result = self.inverse_fourier_transform(expr.sympy, fsym, tsym)
 
         return self.change(result, 'time', units_scale=uu.Hz, **assumptions)
 
@@ -58,10 +56,10 @@ class AngularFrequencyDomainExpression(AngularFrequencyDomain, Expr):
 
         return self.inverse_fourier(**assumptions)
 
-    def angular_fourier(self, **assumptions):
-        """Convert to angular Fourier domain."""
+    def _fourier(self, **assumptions):
+        """Convert to  Fourier domain."""
 
-        return self.laplace(**assumptions).angular_fourier()
+        return self.laplace(**assumptions)._fourier()
 
     def fourier(self, **assumptions):
         """Convert to Fourier domain."""
@@ -74,7 +72,7 @@ class AngularFrequencyDomainExpression(AngularFrequencyDomain, Expr):
         return self.laplace(**assumptions).norm_fourier()
 
     def norm_angular_fourier(self, **assumptions):
-        """Convert to normalized angular Fourier domain."""
+        """Convert to normalized  Fourier domain."""
 
         return self.laplace(**assumptions).norm_angular_fourier()
 
@@ -83,15 +81,15 @@ class AngularFrequencyDomainExpression(AngularFrequencyDomain, Expr):
 
         from .symbols import s, j
 
-        return self.subs(s / j)
+        return self.subs(s / (j * 2 * pi))
 
     def phasor(self, **assumptions):
         """Convert to phasor domain."""
 
         return self.time(**assumptions).phasor(**assumptions)
 
-    def plot(self, wvector=None, **kwargs):
-        """Plot angular frequency response at values specified by wvector.
+    def plot(self, vvector=None, **kwargs):
+        """Plot  frequency response at values specified by vvector.
 
         There are many plotting options, see matplotlib.pyplot.plot.
 
@@ -118,13 +116,13 @@ class AngularFrequencyDomainExpression(AngularFrequencyDomain, Expr):
         real/imaginary plots.
         """
 
-        from .plot import plot_angular_frequency
-        return plot_angular_frequency(self, wvector, **kwargs)
+        from .plot import plot__frequency
+        return plot__frequency(self, vvector, **kwargs)
 
-    def bode_plot(self, wvector=None, unwrap=True, **kwargs):
+    def bode_plot(self, vvector=None, unwrap=True, **kwargs):
         """Plot frequency response for a frequency-domain phasor as a Bode
-        plot (but without the straight line approximations).  wvector
-        specifies the angular frequencies.  If it is a tuple (f1, f2), it sets
+        plot (but without the straight line approximations).  vvector
+        specifies the  frequencies.  If it is a tuple (f1, f2), it sets
         the frequency limits.   Since a logarithmic frequency scale is used,
         f1 must be greater than 0.
 
@@ -133,12 +131,12 @@ class AngularFrequencyDomainExpression(AngularFrequencyDomain, Expr):
         For more info, see `plot`.
         """
 
-        from .plot import plot_angular_bode
-        return plot_angular_bode(self, wvector, unwrap=unwrap, **kwargs)
+        from .plot import plot__bode
+        return plot__bode(self, vvector, unwrap=unwrap, **kwargs)
 
-    def nyquist_plot(self, wvector=None, log_frequency=True, **kwargs):
+    def nyquist_plot(self, vvector=None, log_frequency=True, **kwargs):
         """Plot frequency response as a Nyquist plot (imaginary part versus
-        real part).  wvector specifies the angular frequencies.  If it
+        real part).  vvector specifies the  frequencies.  If it
         is a tuple (f1, f2), it sets the frequency limits as (f1, f2).
 
         `npoints` set the number of plotted points.
@@ -149,11 +147,11 @@ class AngularFrequencyDomainExpression(AngularFrequencyDomain, Expr):
         """
 
         from .plot import plot_nyquist
-        return plot_nyquist(self, wvector, log_frequency=log_frequency, **kwargs)
+        return plot_nyquist(self, vvector, log_frequency=log_frequency, **kwargs)
 
-    def nichols_plot(self, wvector=None, log_frequency=True, **kwargs):
+    def nichols_plot(self, vvector=None, log_frequency=True, **kwargs):
         """Plot frequency response as a Nichols plot (dB versus phase).
-        wvector specifies the angular frequencies.  If it is a tuple
+        vvector specifies the  frequencies.  If it is a tuple
         (f1, f2), it sets the frequency limits as (f1, f2).
 
         `npoints` set the number of plotted points.
@@ -161,13 +159,13 @@ class AngularFrequencyDomainExpression(AngularFrequencyDomain, Expr):
         """
 
         from .plot import plot_nichols
-        return plot_nichols(self, wvector, log_frequency=log_frequency, **kwargs)
+        return plot_nichols(self, vvector, log_frequency=log_frequency, **kwargs)
 
 
 from .expressionclasses import expressionclasses  # nopep8
 
-classes = expressionclasses.register('angular frequency',
-                                     AngularFrequencyDomainExpression)
+classes = expressionclasses.register('frequency',
+                                     FrequencyDomainExpression)
 
-jomega = AngularFrequencyDomainExpression('j * omega')
-jomega.units = uu.rad / uu.s
+jf = FrequencyDomainExpression('j * f')
+jf.units = 1 / uu.s

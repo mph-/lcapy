@@ -11,6 +11,7 @@ from .texpr import t
 from .sexpr import s
 from .omegaexpr import omega
 from .normomegaexpr import Omega
+from .jfexpr import jf
 from .jomegaexpr import jomega
 from .normfexpr import F
 from .phasor import j2pif

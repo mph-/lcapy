@@ -6,7 +6,7 @@ Expressions
 
 Lcapy expressions are similar to SymPy expressions except they have a
 specific domain depending on the predefined domain variables `t`, `s`, `f`, `F`
-`omega` (`w`), `Omega` (`W`), and `jomega` (`jw`).   They can also have associated quantities and units.
+`omega` (`w`), `Omega` (`W`), `jf`, and `jomega` (`jw`).   They can also have associated quantities and units.
 
 
 Symbols
@@ -76,7 +76,7 @@ rational numbers.
 Domain variables
 ----------------
 
-Lcapy has seven predefined domain variables for continuous time signals:
+Lcapy has eight predefined domain variables for continuous time signals:
 
 - `t` -- time domain
 
@@ -89,6 +89,8 @@ Lcapy has seven predefined domain variables for continuous time signals:
 - `omega` (or `w`) -- angular Fourier domain (:math:`\omega = 2 \pi f`)
 
 - `Omega` (or `W`) -- normalized angular Fourier domain (:math:`\Omega = \omega \Delta t`)
+
+- `jf` -- frequency domain
 
 - `jomega` (or `jw`) -- angular frequency domain
 

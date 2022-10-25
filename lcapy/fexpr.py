@@ -94,6 +94,11 @@ class FourierDomainExpression(FourierDomain, Expr):
         result = self.subs(Omega / (2 * pi * dt))
         return result
 
+    def frequency(self, **assumptions):
+        """Convert to frequency domain."""
+
+        return self.laplace(**assumptions).frequency()
+
     def angular_frequency(self, **assumptions):
         """Convert to angular frequency domain."""
 

@@ -18,7 +18,7 @@ __all__ = ('omegaexpr', )
 
 
 class AngularFourierDomainExpression(AngularFourierDomain, Expr):
-    """Fourier domain expression or symbol (angular frequency)."""
+    """Angular Fourier domain expression or symbol."""
 
     var = omegasym
 

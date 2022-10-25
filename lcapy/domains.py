@@ -14,6 +14,7 @@ class Domain(object):
     is_laplace_domain = False
     is_fourier_domain = False
     is_angular_fourier_domain = False
+    is_frequency_domain = False
     is_angular_frequency_domain = False
     is_phasor_domain = False
     is_phasor_ratio_domain = False
@@ -86,6 +87,14 @@ class NormAngularFourierDomain(Domain):
     domain_label = 'Normalized angular frequency'
     domain_units = uu.rad
     is_norm_angular_fourier_domain = True
+    is_transform_domain = True
+
+
+class FrequencyDomain(Domain):
+    domain = 'frequency'
+    domain_label = 'Frequency'
+    domain_units = 1 / uu.s
+    is_frequency_domain = True
     is_transform_domain = True
 
 

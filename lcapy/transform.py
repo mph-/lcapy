@@ -7,7 +7,7 @@ Copyright 2018--2022 Michael Hayes, UCECE
 from .impedance import impedance  # nope8p
 from .sym import sympify, pi
 from .sym import dt
-from .symbols import f, s, t, omega, j, jw, jw0, Omega, F, k, n, z
+from .symbols import f, s, t, omega, j, jf, jw, jw0, Omega, F, k, n, z
 from .symbols import domain_vars, domain_var_ids
 from .nexpr import n
 from .expr import expr as expr1
@@ -55,6 +55,8 @@ def transform(expr, arg, **assumptions):
             return expr.norm_angular_fourier(**assumptions)
         elif arg is F:
             return expr.norm_fourier(**assumptions)
+        elif arg is jf:
+            return expr.frequency(**assumptions)
         elif arg is jw:
             return expr.angular_frequency(**assumptions)
         elif arg.has(j):

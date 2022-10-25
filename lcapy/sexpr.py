@@ -196,9 +196,17 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         result = self.time(**assumptions).angular_fourier(**assumptions)
         return result
 
+    def frequency(self, **assumptions):
+        """Convert to frequency domain.  Note, this is similar to the
+        Fourier domain but not always."""
+        from .symbols import j2pif
+
+        tmp = self.subs(j2pif)
+        return self.change(tmp, domain='frequency', **assumptions)
+
     def angular_frequency(self, **assumptions):
         """Convert to angular frequency domain.  Note, this is similar to the
-        Fourier domain but not always."""
+        angular Fourier domain but not always."""
         from .symbols import jw
 
         tmp = self.subs(jw)
