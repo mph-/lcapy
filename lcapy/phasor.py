@@ -360,7 +360,7 @@ class PhasorRatioDomainExpression(PhasorRatioDomain, PhasorExpression):
         from .sym import fsym
 
         # TODO, remove this say by having PhasorRatioDomainExpression
-        # and PhasorAngularFrequencyDomainExpression classes.
+        # and PhasorAngularFrequencyResponseDomainExpression classes.
 
         if self.var == fsym:
             return 'Frequency'
@@ -374,7 +374,7 @@ class PhasorRatioDomainExpression(PhasorRatioDomain, PhasorExpression):
         from .units import u as uu
 
         # TODO, remove this say by having PhasorRatioDomainExpression
-        # and PhasorAngularFrequencyDomainExpression classes.
+        # and PhasorAngularFrequencyResponseDomainExpression classes.
 
         if self.var == fsym:
             return uu.Hz
@@ -505,10 +505,6 @@ expressionclasses.register('phasor', PhasorDomainExpression,
 # so that voltage(1 / (s + 2)).subs(jw) works.
 # Probably should add a frequency response domain.
 expressionclasses.register('phasor ratio', PhasorRatioDomainExpression)
-
-
-j2pif = PhasorRatioDomainExpression('j * 2 * pi * f', omega=2 * pi * fsym)
-j2pif.units = uu.rad / uu.s
 
 from .texpr import TimeDomainExpression  # nopep8
 from .expr import Expr  # nopep8

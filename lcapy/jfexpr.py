@@ -1,4 +1,4 @@
-"""This module provides the FrequencyDomainExpression class to
+"""This module provides the FrequencyResponseDomainExpression class to
 represent jf-domain ( frequency frequency domain) expressions.
 
 Copyright 2022 Michael Hayes, UCECE
@@ -6,7 +6,7 @@ Copyright 2022 Michael Hayes, UCECE
 """
 
 from __future__ import division
-from .domains import FrequencyDomain
+from .domains import FrequencyResponseDomain
 from .inverse_fourier import inverse_fourier_transform
 from .expr import Expr, expr, expr_make
 from .state import state, validate
@@ -17,7 +17,7 @@ from sympy import Expr as symExpr
 __all__ = ()
 
 
-class FrequencyDomainExpression(FrequencyDomain, Expr):
+class FrequencyResponseDomainExpression(FrequencyResponseDomain, Expr):
     """Frequency domain expression or symbol."""
 
     var = fsym
@@ -26,7 +26,8 @@ class FrequencyDomainExpression(FrequencyDomain, Expr):
 
         check = assumptions.pop('check', True)
 
-        super(FrequencyDomainExpression, self).__init__(val, **assumptions)
+        super(FrequencyResponseDomainExpression,
+              self).__init__(val, **assumptions)
 
         expr = self.expr
 
@@ -42,7 +43,7 @@ class FrequencyDomainExpression(FrequencyDomain, Expr):
                          'jf-domain expression %s depends on f' % expr)
 
     def as_expr(self):
-        return FrequencyDomainExpression(self)
+        return FrequencyResponseDomainExpression(self)
 
     def inverse_fourier(self, **assumptions):
         """Attempt inverse Fourier transform."""
@@ -164,8 +165,11 @@ class FrequencyDomainExpression(FrequencyDomain, Expr):
 
 from .expressionclasses import expressionclasses  # nopep8
 
-classes = expressionclasses.register('frequency',
-                                     FrequencyDomainExpression)
+classes = expressionclasses.register('frequency response',
+                                     FrequencyResponseDomainExpression)
 
-jf = FrequencyDomainExpression('j * f')
+jf = FrequencyResponseDomainExpression('j * f')
 jf.units = 1 / uu.s
+
+j2pif = FrequencyResponseDomainExpression('j * 2 * pi * f')
+j2pif.units = uu.rad / uu.s

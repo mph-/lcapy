@@ -1,4 +1,4 @@
-"""This module provides the AngularFrequencyDomainExpression class to
+"""This module provides the AngularFrequencyResponseDomainExpression class to
 represent jomega-domain (angular frequency frequency domain) expressions.
 
 Copyright 2022 Michael Hayes, UCECE
@@ -6,7 +6,7 @@ Copyright 2022 Michael Hayes, UCECE
 """
 
 from __future__ import division
-from .domains import AngularFrequencyDomain
+from .domains import AngularFrequencyResponseDomain
 from .inverse_fourier import inverse_fourier_transform
 from .expr import Expr, expr, expr_make
 from .state import state, validate
@@ -17,7 +17,7 @@ from sympy import Expr as symExpr
 __all__ = ()
 
 
-class AngularFrequencyDomainExpression(AngularFrequencyDomain, Expr):
+class AngularFrequencyResponseDomainExpression(AngularFrequencyResponseDomain, Expr):
     """Frequency domain expression or symbol (angular frequency)."""
 
     var = omegasym
@@ -26,7 +26,7 @@ class AngularFrequencyDomainExpression(AngularFrequencyDomain, Expr):
 
         check = assumptions.pop('check', True)
 
-        super(AngularFrequencyDomainExpression,
+        super(AngularFrequencyResponseDomainExpression,
               self).__init__(val, **assumptions)
 
         expr = self.expr
@@ -43,7 +43,7 @@ class AngularFrequencyDomainExpression(AngularFrequencyDomain, Expr):
                          'jomega-domain expression %s depends on f' % expr)
 
     def as_expr(self):
-        return AngularFrequencyDomainExpression(self)
+        return AngularFrequencyResponseDomainExpression(self)
 
     def inverse_fourier(self, **assumptions):
         """Attempt inverse Fourier transform."""
@@ -166,8 +166,8 @@ class AngularFrequencyDomainExpression(AngularFrequencyDomain, Expr):
 
 from .expressionclasses import expressionclasses  # nopep8
 
-classes = expressionclasses.register('angular frequency',
-                                     AngularFrequencyDomainExpression)
+classes = expressionclasses.register('angular frequency response',
+                                     AngularFrequencyResponseDomainExpression)
 
-jomega = AngularFrequencyDomainExpression('j * omega')
+jomega = AngularFrequencyResponseDomainExpression('j * omega')
 jomega.units = uu.rad / uu.s

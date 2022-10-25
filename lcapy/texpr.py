@@ -180,17 +180,17 @@ class TimeDomainExpression(TimeDomain, Expr):
 
         return self.FT(Omega, evaluate, **assumptions)
 
-    def frequency(self, **assumptions):
-        """Convert to frequency domain.  Note, this is similar to the
+    def frequency_response(self, **assumptions):
+        """Convert to frequency response domain.  Note, this is similar to the
         Fourier domain but not always."""
 
-        return self.laplace(**assumptions).frequency()
+        return self.laplace(**assumptions).frequency_response()
 
-    def angular_frequency(self, **assumptions):
-        """Convert to angular frequency domain.  Note, this is similar to the
-        angular Fourier domain but not always."""
+    def angular_frequency_response(self, **assumptions):
+        """Convert to angular frequency response domain.  Note, this is
+        similar to the angular Fourier domain but not always."""
 
-        return self.laplace(**assumptions).angular_frequency()
+        return self.laplace(**assumptions).angular_frequency_response()
 
     def time(self, **assumptions):
         return self

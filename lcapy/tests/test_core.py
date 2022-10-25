@@ -1,5 +1,5 @@
 from lcapy import *
-from lcapy.cexpr import ConstantDomainExpression, ConstantFrequencyDomainExpression, ConstantTimeDomainExpression
+from lcapy.cexpr import ConstantDomainExpression, ConstantFrequencyResponseDomainExpression, ConstantTimeDomainExpression
 from lcapy.fexpr import FourierDomainExpression
 from lcapy.omegaexpr import AngularFourierDomainExpression
 from lcapy.texpr import TimeDomainExpression, TimeDomainVoltage
@@ -75,7 +75,7 @@ class LcapyCoreTester(unittest.TestCase):
         Z = impedance(a)
         NZ = Z.N
         self.assertEqual2(
-            type(NZ), ConstantFrequencyDomainExpression, "N type incorrect for Z.")
+            type(NZ), ConstantFrequencyResponseDomainExpression, "N type incorrect for Z.")
 
         V = voltage(a)
         NV = V.N

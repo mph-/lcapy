@@ -14,8 +14,8 @@ class Domain(object):
     is_laplace_domain = False
     is_fourier_domain = False
     is_angular_fourier_domain = False
-    is_frequency_domain = False
-    is_angular_frequency_domain = False
+    is_frequency_response_domain = False
+    is_angular_frequency_response_domain = False
     is_phasor_domain = False
     is_phasor_ratio_domain = False
     is_fourier_noise_domain = False
@@ -90,19 +90,19 @@ class NormAngularFourierDomain(Domain):
     is_transform_domain = True
 
 
-class FrequencyDomain(Domain):
-    domain = 'frequency'
-    domain_label = 'Frequency'
+class FrequencyResponseDomain(Domain):
+    domain = 'frequency response'
+    domain_label = 'Frequency response'
     domain_units = 1 / uu.s
-    is_frequency_domain = True
+    is_frequency_response_domain = True
     is_transform_domain = True
 
 
-class AngularFrequencyDomain(Domain):
-    domain = 'angular frequency'
-    domain_label = 'Angular frequency'
+class AngularFrequencyResponseDomain(Domain):
+    domain = 'angular frequency response'
+    domain_label = 'Angular frequency response'
     domain_units = uu.rad / uu.s
-    is_angular_frequency_domain = True
+    is_angular_frequency_response_domain = True
     is_transform_domain = True
 
 

@@ -9,13 +9,12 @@ from __future__ import division
 from .domains import LaplaceDomain
 from .inverse_laplace import inverse_laplace_transform
 from .state import state, validate
-from .sym import ssym, tsym, fsym, omegasym, j, pi, sympify
+from .sym import ssym, tsym, fsym, omegasym, j, pi, sympify, dt
 from .ratfun import _zp2tf, _pr2tf, Ratfun
 from .expr import Expr, symbol, expr, ExprDict, ExprList, exprcontainer, expr_make
 from .differentialequation import DifferentialEquation
 from .units import u as uu
 from .functions import sqrt, DiracDelta
-from .sym import dt
 from sympy import limit, exp, Poly, Derivative, Integral, div, oo, Eq, Expr as symExpr
 from warnings import warn
 
@@ -196,22 +195,6 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         result = self.time(**assumptions).angular_fourier(**assumptions)
         return result
 
-    def frequency(self, **assumptions):
-        """Convert to frequency domain.  Note, this is similar to the
-        Fourier domain but not always."""
-        from .symbols import j2pif
-
-        tmp = self.subs(j2pif)
-        return self.change(tmp, domain='frequency', **assumptions)
-
-    def angular_frequency(self, **assumptions):
-        """Convert to angular frequency domain.  Note, this is similar to the
-        angular Fourier domain but not always."""
-        from .symbols import jw
-
-        tmp = self.subs(jw)
-        return self.change(tmp, domain='angular frequency', **assumptions)
-
     def norm_angular_fourier(self, **assumptions):
         """Convert to normalized angular Fourier domain."""
         from .symbols import jw, Omega
@@ -269,46 +252,34 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         H = self.__class__(self / self.var, **self.assumptions)
         return H.transient_response(tvector)
 
-    def angular_frequency_response(self, wvector=None, strict=False):
-        """Convert to angular frequency domain and evaluate response if
-        angular frequency vector specified.
+    def frequency_response(self, **assumptions):
+        """Convert to frequency response domain.  Note, this is similar to the
+        Fourier domain but not always."""
+        from .symbols import jf
 
-        """
-        from .symbols import omega
+        tmp = self.subs(jf * 2 * pi)
+        return self.change(tmp, domain='frequency response', **assumptions)
 
-        return self.frequency_response(wvector, var=omega, strict=strict)
+    def angular_frequency_response(self, **assumptions):
+        """Convert to angular frequency response domain.  Note, this is
+        similar to the angular Fourier domain but not always."""
+        from .symbols import jw
 
-    def frequency_response(self, fvector=None, var=None, strict=False):
-        """Convert to frequency domain and evaluate response if frequency
-        vector specified.
+        tmp = self.subs(jw)
+        return self.change(tmp, domain='angular frequency response',
+                           **assumptions)
 
-        If `var` is None or `f` use linear frequency otherwise if
-        `var` is `omega` use angular frequency.
+    def frequency_response_evaluate(self, fvector=None, var=None,
+                                    **assumptions):
 
-        If `strict` is True, evaluate frequency response via Fourier
-        transform.
+        from .symbols import f, jf, omega, jw
 
-        """
-        from .symbols import f, omega
-
-        # Perhaps if strict is False warn if the expression is
-        # not a Laplace transform of a stable impulse response?
-
-        if var is None:
-            var = f
-
-        if id(var) == id(f):
-            if strict:
-                X = self(f)
-            else:
-                X = self.subs(j * 2 * pi * f)
-        elif id(var) == id(omega):
-            if strict:
-                X = self(omega)
-            else:
-                X = self.subs(j * omega)
+        if var in (None, f, jf):
+            X = self.frequency_response()
+        elif var in (omega, jw):
+            X = self.angular_frequency_response()
         else:
-            raise ValueError('var not f or omega: ' % var)
+            raise ValueError('Invalid var %s' % var)
 
         if fvector is None:
             return X
@@ -579,7 +550,16 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         """
 
-        H = self.frequency_response(var=var, strict=strict)
+        from .symbols import f, jf, omega, jw
+
+        if var is None:
+            var is jf
+        elif var is f:
+            var = jf
+        elif var is omega:
+            var = jw
+
+        H = self(var)
         return H.bode_plot(fvector, unwrap=unwrap, **kwargs)
 
     def nyquist_plot(self, fvector=None, var=None, **kwargs):
@@ -595,7 +575,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         This method makes the assumption that the expression is causal.
         """
 
-        H = self.frequency_response(var=var)
+        H = self.frequency_response_evaluate(var=var)
         return H.nyquist_plot(fvector, **kwargs)
 
     def nichols_plot(self, fvector=None, var=None, **kwargs):
@@ -609,7 +589,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         """
 
-        H = self.frequency_response(var=var)
+        H = self.frequency_response_evaluate(var=var)
         return H.nichols_plot(fvector, **kwargs)
 
     def generalized_bilinear_transform(self, alpha=0.5):

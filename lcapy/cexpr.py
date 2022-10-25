@@ -3,7 +3,7 @@ represent constant expressions.
 
 Note there are two types:
 1. ConstantTimeDomainExpression for signals
-2. ConstantFrequencyDomainExpression for transfer functions and immitances.
+2. ConstantFrequencyResponseDomainExpression for transfer functions and immitances.
 
 Note, impedance(3)(s) gives 3 but voltage(3)(s) gives 3 / s.
 Similarly, voltage(3)(t) gives 3 but impedance(3)(t) gives 3 * delta)(t)
@@ -58,10 +58,15 @@ class ConstantDomainExpression(ConstantDomain, Expr):
 
         return self.time().angular_fourier()
 
-    def angular_frequency(self):
-        """Convert to angular frequency domain representation."""
+    def frequency_response(self):
+        """Convert to  frequency response domain representation."""
 
-        return self.change(self, domain='angular frequency')
+        return self.change(self, domain='angular frequency response')
+
+    def angular_frequency_response(self):
+        """Convert to angular frequency response domain representation."""
+
+        return self.change(self, domain='angular frequency response')
 
     def canonical(self, factor_const=True):
         # Minor optimisation
@@ -126,7 +131,7 @@ class ConstantTimeDomainExpression(ConstantDomainExpression):
             (self.__class__.__name__, self))
 
 
-class ConstantFrequencyDomainExpression(ConstantDomainExpression):
+class ConstantFrequencyResponseDomainExpression(ConstantDomainExpression):
     """This represents constant impedance, admittance, and transfer
     functions.
 
@@ -136,9 +141,9 @@ class ConstantFrequencyDomainExpression(ConstantDomainExpression):
     def _class_by_quantity(self, quantity, domain=None):
 
         if quantity == 'undefined' and domain is None:
-            return ConstantFrequencyDomainExpression
+            return ConstantFrequencyResponseDomainExpression
 
-        return super(ConstantFrequencyDomainExpression, self)._class_by_quantity(quantity, domain)
+        return super(ConstantFrequencyResponseDomainExpression, self)._class_by_quantity(quantity, domain)
 
     def phasor(self, omega=None, **assumptions):
 
@@ -177,6 +182,6 @@ def cexpr(arg, **assumptions):
 from .expressionclasses import expressionclasses  # nopep8
 
 expressionclasses.register('constant', ConstantTimeDomainExpression,
-                           ConstantFrequencyDomainExpression,
+                           ConstantFrequencyResponseDomainExpression,
                            ('voltage', 'current', 'voltagesquared',
                             'currentsquared', 'undefined'))

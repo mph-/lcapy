@@ -90,9 +90,9 @@ Lcapy has eight predefined domain variables for continuous time signals:
 
 - `Omega` (or `W`) -- normalized angular Fourier domain (:math:`\Omega = \omega \Delta t`)
 
-- `jf` -- frequency domain
+- `jf` -- frequency response domain
 
-- `jomega` (or `jw`) -- angular frequency domain
+- `jomega` (or `jw`) -- angular frequency response domain
 
 
 A time-domain expression is produced using the `t` variable, for example::
@@ -302,6 +302,8 @@ Domain attributes
 - `is_angular_fourier_domain`
 - `is_norm_fourier_domain`
 - `is_norm_angular_fourier_domain`
+- `is_frequency_response_domain`
+- `is_angular_frequency_response_domain`
 - `is_phasor_domain`
 - `is_phasor_ratio_domain`
 - `is_discrete_time_domain`
@@ -1169,7 +1171,7 @@ Alternatively, the call notation can be used to choose the new domain::
 
 - `V(Omega)` returns the normalized angular Fourier domain transformation
 
-- `V(jomega)` or `V(jw)` returns the angular frequency domain transformation
+- `V(jomega)` or `V(jw)` returns the angular frequency response domain transformation
 
 - `V(n)` returns the discrete-time domain transformation (by default the bilinear-transform is used)
 
@@ -1190,14 +1192,14 @@ For example::
    s + 2
 
 
-Phasor ratio and angular Fourier domains (jomega or omega)
-----------------------------------------------------------
+Frequency response and Fourier domains (jomega or omega)
+--------------------------------------------------------
 
 The transformation `V(omega)` produces a result in the angular Fourier
 domain, however, the transformation `V(jomega)` produces a result in
-the phasor ratio domain.  In most cases, `V(omega)` produces the same result
-as `V(jomega)` but not always.  Here's an example where the two
-domains produce the same expression::
+the angular frequency response domain.  In most cases, `V(omega)`
+produces the same result as `V(jomega)` but not always.  Here's an
+example where the two domains produce the same expression::
 
     >>> Y = admittance(s)
     >>> Y(omega)
@@ -1210,9 +1212,9 @@ While they look the same, they have different domains:
     >>> Y(omega).domain
     'angular fourier'
     >>> Y(jomega).domain
-    'phasor ratio'
+    'angular frequency response'
 
-Here's an example, showing a subtle difference between the angular Fourier and phasor domains for the impedance of a 1 F capacitor::
+Here's an example, showing a subtle difference between the angular Fourier and angular frequency response domains for the impedance of a 1 F capacitor::
 
    >>> Z = impedance(1 / s)
    >>> Z(omega)
@@ -1227,17 +1229,10 @@ Here's an example, showing a subtle difference between the angular Fourier and p
      ω
 
 In this case, substitution of `s` with `jomega` is not valid to obtain
-the frequency response.  This is because the poles of `Z` are not in
-the RH plane (they are on the imaginary axis and thus the system is marginally stable) and thus the evaluation of `Z(s)` at `s = jomega` is
-outside the region of convergence.
-
-The evaluation of a Laplace domain impedance `Z(s)` at `s = jomega` to
-obtain a phasor ratio domain impedance is always valid.  When dealing with
-phasors, there is no DC component and thus the same result is obtained
-using the phasor ratio or angular Fourier domains.
-
-If you have a cunning idea of how to resolve this notational
-gnarliness, or make it less confusing, please report an issue.
+the Fourier transform.  This is because the poles of `Z` are not in
+the RH plane (they are on the imaginary axis and thus the system is
+marginally stable) and thus the evaluation of `Z(s)` at `s = jomega`
+is outside the region of convergence of the Laplace transform.
 
 The following diagram demonstrates transformations between the domains.
 Note, the unilateral Laplace transform denoted by :math:`\mathcal{L}\{.\}` is not reversible without some prior information (the region of convergence).

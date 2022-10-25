@@ -1,5 +1,5 @@
 from lcapy import *
-from lcapy.jomegaexpr import AngularFrequencyDomainExpression
+from lcapy.jomegaexpr import AngularFrequencyResponseDomainExpression
 import unittest
 
 
@@ -20,4 +20,4 @@ class LcapyTester(unittest.TestCase):
         H = 1 / s
         P = H(jw)
 
-        self.assertEqual(type(P), AngularFrequencyDomainExpression, 'H(jw)')
+        self.assertEqual(type(P), AngularFrequencyResponseDomainExpression, 'H(jw)')

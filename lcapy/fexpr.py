@@ -94,15 +94,15 @@ class FourierDomainExpression(FourierDomain, Expr):
         result = self.subs(Omega / (2 * pi * dt))
         return result
 
-    def frequency(self, **assumptions):
-        """Convert to frequency domain."""
+    def frequency_response(self, **assumptions):
+        """Convert to frequency response domain."""
 
-        return self.laplace(**assumptions).frequency()
+        return self.laplace(**assumptions).frequency_response()
 
-    def angular_frequency(self, **assumptions):
-        """Convert to angular frequency domain."""
+    def angular_frequency_response(self, **assumptions):
+        """Convert to angular frequency response domain."""
 
-        return self.laplace(**assumptions).angular_frequency()
+        return self.laplace(**assumptions).angular_frequency_response()
 
     def laplace(self, **assumptions):
         """Determine one-sided Laplace transform with 0- as the lower limit."""
