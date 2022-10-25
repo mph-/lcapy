@@ -550,16 +550,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         """
 
-        from .symbols import f, jf, omega, jw
-
-        if var is None:
-            var is jf
-        elif var is f:
-            var = jf
-        elif var is omega:
-            var = jw
-
-        H = self(var)
+        H = self.frequency_response_evaluate(var=var)
         return H.bode_plot(fvector, unwrap=unwrap, **kwargs)
 
     def nyquist_plot(self, fvector=None, var=None, **kwargs):

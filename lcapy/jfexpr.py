@@ -132,8 +132,8 @@ class FrequencyResponseDomainExpression(FrequencyResponseDomain, Expr):
         For more info, see `plot`.
         """
 
-        from .plot import plot__bode
-        return plot__bode(self, vvector, unwrap=unwrap, **kwargs)
+        from .plot import plot_bode
+        return plot_bode(self, vvector, unwrap=unwrap, **kwargs)
 
     def nyquist_plot(self, vvector=None, log_frequency=True, **kwargs):
         """Plot frequency response as a Nyquist plot (imaginary part versus
