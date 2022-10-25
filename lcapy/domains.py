@@ -93,7 +93,7 @@ class NormAngularFourierDomain(Domain):
 class FrequencyResponseDomain(Domain):
     domain = 'frequency response'
     domain_label = 'Frequency response'
-    domain_units = 1 / uu.s
+    domain_units = uu.Hz
     is_frequency_response_domain = True
     is_transform_domain = True
 
