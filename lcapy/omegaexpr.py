@@ -87,6 +87,16 @@ class AngularFourierDomainExpression(AngularFourierDomain, Expr):
         result = self.subs(Omega / dt)
         return result
 
+    def frequency_response(self, **assumptions):
+        """Convert to frequency response domain."""
+
+        return self.laplace(**assumptions).frequency_response()
+
+    def angular_frequency_response(self, **assumptions):
+        """Convert to angular frequency response domain."""
+
+        return self.laplace(**assumptions).angular_frequency_response()
+
     def laplace(self, **assumptions):
         """Determine one-sided Laplace transform with 0- as the lower limit."""
 
