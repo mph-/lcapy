@@ -2,6 +2,18 @@
 Release notes
 =============
 
+V1.9
+====
+
+- Introduces phasor ratio, frequency response, and angular frequency response domains.
+
+- Changes `jw` to be the domain variable for the angular frequency response domain.
+
+- Adds `jf` domain variable for the frequency response domain.
+
+- Warns if old version of Circuitikz found.
+
+
 V1.8
 ====
 

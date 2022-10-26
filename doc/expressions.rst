@@ -435,19 +435,19 @@ Alternatively, the units can be simplified using the `simplify_units()` method::
 The units are chosen as a function of quantity and domain when an
 Lcapy expression is created and are modified by multiplications, divisions, and transformations, such as a Fourier transform.  Here are the default values::
 
-    +-------------------+-----+-------+--------+------+--------+--------+-----+-----+-----+-----------+
-    | Quantity/Domain   | dc  | t     | s      | f    | omega  | jomega | n   | k   | z   | noise f   |
-    +-------------------+-----+-------+--------+------+--------+--------+-----+-----+-----+-----------+
-    | Voltage           | V   | V     | V/Hz   | V/Hz | V/Hz   | V      | V   | V   | V   | V/sqrt(Hz)|
-    +-------------------+-----+-------+--------+------+--------+--------+-----+-----+-----+-----------+
-    | Current           | A   | A     | A/Hz   | A/Hz | A/Hz   | A      | A   | A   | A   | A/sqrt(Hz)|
-    +-------------------+-----+-------+--------+------+--------+--------+-----+-----+-----+-----------+
-    | Impedance         | ohm | ohm/s | ohm    | ohm  | ohm    | ohm    | ohm | ohm | ohm |           |
-    +-------------------+-----+-------+--------+------+--------+--------+-----+-----+-----+-----------+
-    | Admittance        | S   | S/s   | S      | S    | S      | S      | S   | S   | S   |           |
-    +-------------------+-----+-------+--------+------+--------+--------+-----+-----+-----+-----------+
-    | Transfer function | 1   | 1/s   | 1      | 1    | 1      | 1      | 1   | 1   | 1   |           |
-    +-------------------+-----+-------+--------+------+--------+--------+-----+-----+-----+-----------+
+    +-------------------+-----+-------+--------+------+--------+-----+--------+-----+-----+-----+-----------+
+    | Quantity/Domain   | dc  | t     | s      | f    | omega  | jf  | jomega | n   | k   | z   | noise f   |
+    +-------------------+-----+-------+--------+------+--------+--------+-----+-----+-----+-----+-----------+
+    | Voltage           | V   | V     | V/Hz   | V/Hz | V/Hz   | V   | V      | V   | V   | V   | V/sqrt(Hz)|
+    +-------------------+-----+-------+--------+------+--------+-----+--------+-----+-----+-----+-----------+
+    | Current           | A   | A     | A/Hz   | A/Hz | A/Hz   | A   | A      | A   | A   | A   | A/sqrt(Hz)|
+    +-------------------+-----+-------+--------+------+--------+-----+--------+-----+-----+-----+-----------+
+    | Impedance         | ohm | ohm/s | ohm    | ohm  | ohm    | ohm | ohm    | ohm | ohm | ohm |           |
+    +-------------------+-----+-------+--------+------+--------+-----+--------+-----+-----+-----+-----------+
+    | Admittance        | S   | S/s   | S      | S    | S      | S   | S      | S   | S   | S   |           |
+    +-------------------+-----+-------+--------+------+--------+-----+--------+-----+-----+-----+-----------+
+    | Transfer function | 1   | 1/s   | 1      | 1    | 1      | 1   | 1      | 1   | 1   | 1   |           |
+    +-------------------+-----+-------+--------+------+--------+-----+--------+-----+-----+-----+-----------+
 
 Note, the transfer functions are assumed to be voltage or current ratios in the Laplace and Fourier domains.  Voltage and current ratios are represented by impedances and admittances.
 
@@ -1170,6 +1170,8 @@ Alternatively, the call notation can be used to choose the new domain::
 - `V(omega)` returns the angular Fourier domain transformation
 
 - `V(Omega)` returns the normalized angular Fourier domain transformation
+
+- `V(jf)` returns the frequency response domain transformation
 
 - `V(jomega)` or `V(jw)` returns the angular frequency response domain transformation
 
