@@ -826,10 +826,6 @@ In this circuit, R2 is in parallel with C so Lcapy adds a dummy node 0* and a du
 
 
 
-
-.. _simulation:
-
-
 CircuitGraph attributes
 -----------------------
 
@@ -884,6 +880,9 @@ CircuitGraph methods
 - `tree()` the minimum spanning tree.
 
 - `links()` the edges removed from the graph to form the minimum spanning tree.
+
+
+.. _simulation:
 
 
 Numerical simulation

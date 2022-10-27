@@ -9,18 +9,17 @@ Introduction
 ============
 
 Lcapy is a Python package for symbolic linear circuit analysis and
-signal processing.  Its primary purpose is for symbolic circuit
-analysis but it can also simulate circuits using numerical
+signal processing.  It can also simulate circuits using numerical
 integration.  Lcapy can only symbolically analyse linear, time
 invariant networks.  In other words, networks comprised of basic
 circuit components (R, L, C, etc.) that do not vary with time.
-However, changes in circuit topology can be analysed as a sequence of
-initial value problems.
+However, changes in circuit topology (e.g., switching circuits) can be
+analysed as a sequence of initial value problems.
 
 Networks and circuits can be described using netlists or combinations
 of network elements.  These can be drawn semi-automatically (see :ref:`schematics`).
 
-As well as performing circuit analysis, Lcapy can output the systems
+As well as performing circuit analysis, Lcapy can output the system
 of equations for mesh analysis, nodal analysis, modified nodal
 analysis, and state-space analysis (see :ref:`mesh-analysis`,
 :ref:`nodal-analysis`, :ref:`modified-nodal-analysis`, and
@@ -69,7 +68,7 @@ Preliminaries
 
   >>> ipython --pylab
 
-- Alternatively, you can use a Jupyter notebook.
+- Alternatively, you can use a Jupyter notebook (https://jupyter.org/).
 
 
 Conventions
@@ -86,7 +85,7 @@ current flows out of the positive node.
 Expressions
 ===========
 
-Lcapy defines a number of symbols corresponding to different domains (see :ref:`domainvariables`):
+Lcapy defines a number of domain variables corresponding to different domains (see :ref:`domainvariables`):
 
 - `t` -- time domain
 
@@ -100,7 +99,9 @@ Lcapy defines a number of symbols corresponding to different domains (see :ref:`
 
 - `Omega` -- normalised angular Fourier domain
 
-- `jomega` (or `jw`) -- phasor domain
+- `jf` -- frequency response domain
+
+- `jomega` (or `jw`) -- angular frequency response domain
 
 - `n` -- discrete-time domain
 
@@ -112,7 +113,7 @@ Expressions (see :ref:`expressions`) can be formed using these symbols.  For exa
 
    >>> from lcapy import t, delta, u
    >>> v = 2 * t * u(t) + 3 + delta(t)
-   >>> i = 0 * t + 3
+   2⋅t⋅u(t) + δ(t) + 3
 
 and a s-domain expression can be created using::
 
@@ -135,12 +136,25 @@ The `ratfloat()` method can convert the rational numbers in an expression into f
   >>> x.ratfloat()
   0.1⋅t
 
-This is useful for printing but should be avoided for analysis.  The companion function `floatrat()` converts floating-point numbers back to rationals but due to loss of precision, the result can be unwieldy (see :ref:`numbers`).
+This is useful for printing but should be avoided for analysis.  The companion function `floatrat()` converts floating-point numbers back to rationals but due to loss of precision, the result can be unwieldy (see :ref:`numbers`).  Alternatively, the `evalf()` method can be used with an argument specifying the number of digits
 
-Lcapy expressions have an associated domain (such a time domain or
+  >>> pi.evalf(10)
+   3.141592654
+
+Lcapy expressions have an associated domain (e.g., time domain or
 Laplace domain), an associated quantity (such as voltage or
 impedance), and units.  For more details see :ref:`domains`,
-:ref:`quantities`, and :ref:`units`.  Here is an example::
+:ref:`quantities`, and :ref:`units`.  Here is a time-domain current example::
+
+   >>> I = current(3 * t)
+   >>> I.domain
+   'time'
+   >>> I.quantity
+   'current'
+   >>> I.units
+   A
+
+Here is a Laplace-domain voltage example::
 
    >>> V = voltage(3 * s)
    >>> V.domain
@@ -149,6 +163,8 @@ impedance), and units.  For more details see :ref:`domains`,
    'voltage'
    >>> V.units
    V
+   ──
+   Hz
 
 By default, the units are not printed (for more details see :ref:`units`).
 
@@ -189,7 +205,7 @@ and a number of generic methods (see :ref:`expressionsmethods`) including:
 
 - `evaluate()` -- evaluate at specified vector and return floating-point vector
 
-Here's an example of using these attributes and methods::
+Here's an example that uses these attributes and methods::
 
    >>> from lcapy import s, j, omega
    >>> H = (s + 3) / (s - 4)
@@ -266,9 +282,7 @@ Lcapy defines a number of functions (see :ref:`expressionsfunctions`) that can b
 Expression formatting
 ---------------------
 
-Lcapy can format expressions in many ways (see
-:ref:`expressionsprinting`).  For example, it can represent
-expressions in partial fraction form::
+Lcapy can format expressions in many ways (see :ref:`expressionsprinting`).  For example, it can represent expressions in partial fraction form::
 
    >>> from lcapy import *
    >>> G = 1 / (s**2 + 5 * s + 6)
@@ -391,10 +405,9 @@ repeated pole::
 
 Rational functions with delays can also be handled::
 
-   >>> from lcapy import s
-   >>> import sympy as sym
-   >>> T = sym.symbols('T')
-   >>> H = 5 * (s + 5) * (s - 4) / (s**2 + 5 * s + 6) * sym.exp(-s * T)
+   >>> from lcapy import s, symbol, exp
+   >>> T = symbol('T')
+   >>> H = 5 * (s + 5) * (s - 4) / (s**2 + 5 * s + 6) * exp(-s * T)
    >>> H.partfrac()
    ⎛      70      90 ⎞  -T⋅s
    ⎜5 + ───── - ─────⎟⋅e
@@ -415,7 +428,7 @@ Lcapy can convert s-domain products to time domain convolutions, for example::
 
 Here the function expr converts a string argument to an Lcapy expression.
 
-It can also recognise integrations and differentiations of arbitrary
+Lcapy can also recognise integrations and differentiations of arbitrary
 functions, for example::
 
    >>> from lcapy import s, t
@@ -431,7 +444,7 @@ functions, for example::
    ⌡
    0
 
-These expressions also be written as::
+These- expressions can also be written as::
 
    >>> from lcapy import expr, t
    >>> expr('s * V(s)')(t, causal=True)
@@ -447,7 +460,7 @@ or more explicitly::
 Laplace transforms
 ------------------
 
-Lcapy can also perform Laplace transforms.   Here's an example::
+Lcapy can perform Laplace transforms.   Here's an example::
 
    >>> from lcapy import s, t
    >>> v = 10 * t ** 2 + 3 * t
@@ -474,6 +487,7 @@ transform, see :ref:`laplace_transforms`.  The key difference is for Dirac delta
 
 However, SymPy gives 0.5.
 
+
 Phasors
 -------
 
@@ -486,6 +500,7 @@ Phasors are created with the `phasor()` function::
 The default angular frequency is `omega` but this can be specified::
 
    >>> p = phasor(-j, omega=1)
+   >>> p(t)
    sin(t)
 
 Phasors can also be inferred from an AC signal::
@@ -496,20 +511,28 @@ Phasors can also be inferred from an AC signal::
    >>> q.omega
    3
 
-For steady-state signals, the s-domain can be converted to the phasor
-domain by substituting :math:`\mathrm{j} \omega` for :math:`s`
+For more information on phasors see :ref:`phasors`.
+
+
+
+Frequency response
+------------------
+
+For steady-state signals, the s-domain can be converted to the angular frequency response domain:
 
    >>> from lcapy import s, j, omega
    >>> H = (s + 3) / (s - 4)
-   >>> A = H(j * omega)
+   >>> A = H(jw)
    >>> A
    j⋅ω + 3
    ───────
    j⋅ω - 4
 
-The symbol `jw` can be used instead of `j * omega`.
+The symbol `jomega` can be used instead of `jw`.
 
-For more information on phasors see :ref:`phasors`.
+The angular frequency response domain is almost equivalent to the
+angular Fourier domain, see :ref:`frequency_response_domain`.
+
 
 
 Networks

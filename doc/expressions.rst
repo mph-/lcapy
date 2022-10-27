@@ -626,8 +626,8 @@ where :math:`\tau_i` are time delays.   This representation is returned by the `
 
 .. _expressionsattributes:
 
-Attributes
-==========
+Expression attributes
+=====================
 
 All Lcapy expressions have the following attributes (see :ref:`expressionsrationalfunctions` and :ref:`expressionsresponses` for definitions of numerator and denominator):
 
@@ -721,8 +721,8 @@ In addition, each expression has domain, quantity, and unit attributes, see
 
 .. _expressionsmethods:
 
-Methods
-=======
+Expression methods
+==================
 
 Poles and zeros
 ---------------
@@ -1193,6 +1193,7 @@ For example::
    ─────
    s + 2
 
+.. _frequency_response_domain:
 
 Frequency response and Fourier domains (jomega or omega)
 --------------------------------------------------------
