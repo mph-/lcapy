@@ -70,7 +70,7 @@ class OnePort(Network, ImmittanceMixin):
     height = 0.3
     hsep = 0.5
     width = 1
-    wsep = 0.5
+    wsep = 0.25
 
     _Z = None
     _Y = None

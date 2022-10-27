@@ -35,6 +35,8 @@ labels.
 
 14. Fix ladder layout for three R-L branches all in parallel
 
+15. Use better heuristics for component spacing when drawing networks.
+
 
 Circuit analysis
 ================
@@ -205,7 +207,7 @@ This seems to have changed with SymPy-1.9.
 Discrete-time
 =============
 
-1. Rewrite rational functions in terms of z^-1.
+1. Rewrite rational functions in terms of z^-1.   This will require modifications to SymPy or a separate printer.
 
 2. Symbol for z^-1, say invz or iz?  Would need special casing to handle invz * z etc.  Better to not allow mixed expressions with z and invz.  Would need special handling to have invz correctly printed.
 
