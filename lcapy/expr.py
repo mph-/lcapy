@@ -773,6 +773,12 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
     def as_angular_fourier(self):
         return self.angular_fourier()
 
+    def as_frequency_response(self):
+        return self.frequency_response()
+
+    def as_angular_frequency_response(self):
+        return self.angular_frequency_response()
+
     def __str__(self, printer=None):
         """String representation of expression."""
         return print_str(self._pexpr)
