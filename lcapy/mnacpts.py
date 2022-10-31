@@ -1037,7 +1037,7 @@ class VCVS(DependentSource):
 
         n1, n2, n3, n4 = self.nodenames
         if n1 == n3 and n2 == n4:
-            warn('Output nodes and control nodes are the same for %s' % self)
+            warn('VCVS output nodes and control nodes are the same for %s' % self)
 
     def _stamp(self, mna):
         n1, n2, n3, n4 = mna._cpt_node_indexes(self)
@@ -1167,6 +1167,11 @@ class CCCS(DependentSource):
     """CCCS"""
 
     need_control_current = True
+
+    def check(self):
+
+        if self.args[0] == self.name:
+            warn('CCCS controlled by its own current for %s' % self)
 
     def _stamp(self, mna):
         n1, n2 = mna._cpt_node_indexes(self)
