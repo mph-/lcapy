@@ -106,9 +106,11 @@ class Cpt(ImmittanceMixin):
                 newclass = getattr(lcapy.twoport, classname)
             except:
                 self._cpt = lcapy.oneport.Dummy()
+                self.check()
                 return
 
         self._cpt = newclass(*args)
+        self.check()
 
     def __repr__(self):
         return self.__str__()
@@ -120,6 +122,9 @@ class Cpt(ImmittanceMixin):
     @property
     def cpt(self):
         return self._cpt
+
+    def check(self):
+        pass
 
     def _stamp(self, mna):
         raise NotImplementedError('stamp method not implemented for %s' % self)
@@ -1027,6 +1032,12 @@ class VCVS(DependentSource):
     """VCVS"""
 
     need_branch_current = True
+
+    def check(self):
+
+        n1, n2, n3, n4 = self.nodenames
+        if n1 == n3 and n2 == n4:
+            warn('Output nodes and control nodes are the same for %s' % self)
 
     def _stamp(self, mna):
         n1, n2, n3, n4 = mna._cpt_node_indexes(self)
