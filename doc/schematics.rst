@@ -1335,7 +1335,7 @@ Component attributes
 
 - `fixed`: do not stretch
 
-- `kind`: `electrolytic`, `polar`, or `variable` for capacitors; `variable` for inductors
+- `kind`: `electrolytic`, `polar`, or `variable` for capacitors; `variable`, `choke`, `twolineschoke` for inductors
 
 - `l`: label
 
@@ -1378,6 +1378,15 @@ Here's an example using the kind attribute to specify the type of capacitor.
 .. literalinclude:: examples/schematics/capacitors.sch
 
 .. image:: examples/schematics/capacitors.png
+   :width: 7cm
+
+
+Here's an example using the kind attribute to specify the type of inductor.
+
+
+.. literalinclude:: examples/schematics/inductors.sch
+
+.. image:: examples/schematics/inductors.png
    :width: 7cm
 
 See also the `Circuitikz manual <https://texdoc.org/serve/circuitikz/0>`_ for other component attributes.

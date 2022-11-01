@@ -1593,7 +1593,8 @@ class L(Bipole):
     """Inductor"""
 
     tikz_cpt = 'L'
-    kinds = {'variable': 'variable'}
+    kinds = {'variable': 'vL', 'choke': 'cute choke',
+             'twolineschoke': 'cute choke, twolineschoke'}
 
 
 class V(Bipole):
