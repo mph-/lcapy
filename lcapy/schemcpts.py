@@ -1569,7 +1569,9 @@ class C(Bipole):
     """Capacitor"""
 
     tikz_cpt = 'C'
-    kinds = {'electrolytic': 'eC', 'polar': 'pC', 'variable': 'vC'}
+    kinds = {'electrolytic': 'eC', 'polar': 'pC',
+             'variable': 'vC', 'sensor': 'sC', 'ferroelectric': 'ferrocap',
+             'curved': 'cC'}
 
 
 class D(Bipole):
@@ -1577,7 +1579,8 @@ class D(Bipole):
 
     tikz_cpt = 'D'
     kinds = {'led': 'leD', 'photo': 'pD', 'schottky': 'sD',
-             'zener': 'zD', 'zzener': 'zzD', 'tunnel': 'tD'}
+             'zener': 'zD', 'zzener': 'zzD', 'tunnel': 'tD', 'varcap': 'VC',
+             'bidirectional': 'biD'}
     styles = {'empty': '', 'full': '*', 'stroke': '-'}
 
 
@@ -1594,7 +1597,7 @@ class L(Bipole):
 
     tikz_cpt = 'L'
     kinds = {'variable': 'vL', 'choke': 'cute choke',
-             'twolineschoke': 'cute choke, twolineschoke'}
+             'twolineschoke': 'cute choke, twolineschoke', 'sensor': 'sL'}
 
 
 class V(Bipole):

@@ -5,6 +5,8 @@ Release notes
 V1.9
 ====
 
+- Adds chokes for schematics.
+
 - Introduces phasor ratio, frequency response, and angular frequency response domains.
 
 - Changes `jw` to be the domain variable for the angular frequency response domain.

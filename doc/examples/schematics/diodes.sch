@@ -5,3 +5,5 @@ D4 4 5; right, kind=zener, l=zener
 D5 5 6; right, kind=zzener, l=zzener
 D6 6 7; right, kind=tunnel, l=tunnel
 D7 7 8; right, kind=photo, l=photo
+D8 8 9; right, kind=varcap, l=varcap
+D9 9 10; right, kind=bidirectional, l=bidirectional

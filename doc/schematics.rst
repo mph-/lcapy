@@ -304,13 +304,13 @@ Batteries
    :width: 3cm
 
 
-Crystals
---------
+Capacitors
+----------
 
-.. literalinclude:: examples/schematics/XT1.sch
+.. literalinclude:: examples/schematics/capacitors.sch
 
-.. image:: examples/schematics/XT1.png
-   :width: 2cm
+.. image:: examples/schematics/capacitors.png
+   :width: 11cm
 
 
 Constant phase elements (CPE)
@@ -319,6 +319,15 @@ Constant phase elements (CPE)
 .. literalinclude:: examples/schematics/CPE1.sch
 
 .. image:: examples/schematics/CPE1.png
+   :width: 2cm
+
+
+Crystals
+--------
+
+.. literalinclude:: examples/schematics/XT1.sch
+
+.. image:: examples/schematics/XT1.png
    :width: 2cm
 
 
@@ -334,7 +343,7 @@ Different kinds of diodes can be specified by the `kind` option, for example,
 .. literalinclude:: examples/schematics/diodes.sch
 
 .. image:: examples/schematics/diodes.png
-   :width: 10cm
+   :width: 14cm
 
 The drawn style is controlled by the style option, for example,
 
@@ -361,6 +370,16 @@ Gyrators
 
 .. image:: examples/schematics/GY1.png
    :width: 2cm
+
+
+Inductors and chokes
+--------------------
+
+
+.. literalinclude:: examples/schematics/inductors.sch
+
+.. image:: examples/schematics/inductors.png
+   :width: 9cm
 
 
 .. _chips:
@@ -1372,22 +1391,6 @@ Here's an example using the variable attribute:
 .. image:: examples/schematics/variable1.png
    :width: 5cm
 
-Here's an example using the kind attribute to specify the type of capacitor.
-
-
-.. literalinclude:: examples/schematics/capacitors.sch
-
-.. image:: examples/schematics/capacitors.png
-   :width: 7cm
-
-
-Here's an example using the kind attribute to specify the type of inductor.
-
-
-.. literalinclude:: examples/schematics/inductors.sch
-
-.. image:: examples/schematics/inductors.png
-   :width: 7cm
 
 See also the `Circuitikz manual <https://texdoc.org/serve/circuitikz/0>`_ for other component attributes.
 
