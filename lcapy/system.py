@@ -246,6 +246,12 @@ class LatexRunner(object):
         date = None
         version = None
         for m, line in enumerate(lines):
+            if line.startswith('Package: circuitikzgit'):
+                match = re.search(r'circuitikzgit ([0-9/]+)', line)
+                date = match.group(1)
+                # There is an annoying newline in the middle of the word version
+                version = lines[m + 1].strip('ion').strip()
+                break
             if line.startswith('Package: circuitikz'):
                 match = re.search(r'circuitikz ([0-9/]+)', line)
                 date = match.group(1)
