@@ -1569,7 +1569,7 @@ class C(Bipole):
     """Capacitor"""
 
     tikz_cpt = 'C'
-    kinds = {'electrolytic': 'eC', 'polar': 'pC',
+    kinds = {'electrolytic': 'eC', 'polar': 'cC',
              'variable': 'vC', 'sensor': 'sC', 'ferroelectric': 'ferrocap',
              'curved': 'cC', 'tunable': 'vC, tunable end arrow={Bar}'}
 
