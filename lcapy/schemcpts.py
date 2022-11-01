@@ -1571,7 +1571,7 @@ class C(Bipole):
     tikz_cpt = 'C'
     kinds = {'electrolytic': 'eC', 'polar': 'pC',
              'variable': 'vC', 'sensor': 'sC', 'ferroelectric': 'ferrocap',
-             'curved': 'cC'}
+             'curved': 'cC', 'tunable': 'vC, tunable end arrow={Bar}'}
 
 
 class D(Bipole):
@@ -1597,7 +1597,15 @@ class L(Bipole):
 
     tikz_cpt = 'L'
     kinds = {'variable': 'vL', 'choke': 'cute choke',
-             'twolineschoke': 'cute choke, twolineschoke', 'sensor': 'sL'}
+             'twolineschoke': 'cute choke, twolineschoke', 'sensor': 'sL',
+             'tunable': 'vL, tunable end arrow={Bar}'}
+
+
+class R(Bipole):
+    """Resistor"""
+
+    tikz_cpt = 'R'
+    kinds = {'variable': 'vR', 'tunable': 'vR, tunable end arrow = {Bar}'}
 
 
 class V(Bipole):
@@ -3580,7 +3588,6 @@ defcpt('Q', BJT, 'NPN transistor', 'npn')
 defcpt('Qpnp', 'Q', 'PNP transistor', 'pnp')
 defcpt('Qnpn', 'Q', 'NPN transistor', 'npn')
 
-defcpt('R', Bipole, 'Resistor', 'R')
 defcpt('RV', Potentiometer, 'Potentiometer', 'pR')
 
 defcpt('Sbox', Box, 'Box shape')
