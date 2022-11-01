@@ -1134,15 +1134,15 @@ class Bipole(StretchyCpt):
         else:
             if self.kind is not None:
                 if self.kind not in self.kinds:
-                    raise ValueError('Unknown %s kind %s: known kinds %s'
-                                     % (self.__name__, self.kind,
+                    raise ValueError('Unknown kind %s for %s: known kinds %s'
+                                     % (self.kind, self.name,
                                         ', '.join(self.kinds.keys())))
                 tikz_cpt = self.kinds[self.kind]
 
             if self.style is not None:
                 if self.style not in self.styles:
-                    raise ValueError('Unknown %s style %s: known styles %s'
-                                     % (self.__name__, self.style,
+                    raise ValueError('Unknown style %s for %s: known styles %s'
+                                     % (self.style, self.name,
                                         ', '.join(self.styles.keys())))
                 tikz_cpt += self.styles[self.style]
 
