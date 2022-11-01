@@ -535,7 +535,7 @@ class Graph(dict):
             else:
                 continue
 
-            print('Suggest a constraint between nodes %s and %s for %s graph' %
+            print('Suggestion: add a constraint between nodes %s and %s for %s graph' %
                   (node1, node2, self.name))
 
     def solve(self, stage=None):

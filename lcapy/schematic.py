@@ -505,6 +505,7 @@ class Schematic(NetfileMixin):
         date, version = latexrunner.extract_circuitikz_version(tex_filename)
         if date is None:
             raise RuntimeError('circuitikz is not installed')
+
         if version < CIRCUITIKZ_MIN_VERSION:
             warn('Have circuitikz version %s; should upgrade to %s or later'
                  % (version, CIRCUITIKZ_MIN_VERSION))
