@@ -1,6 +1,6 @@
 S1 box; right=1.9, aspect=2.1, draw=white, l={Laplace domain\\$H(s)$}
 S2 box; right=1.9, aspect=2.1, draw=white, l={Time domain\\$h(t)$}
-S3 box; right=1.9, aspect=2.1, draw=white, l={Phasor domain\\$H(\mathrm{j}\omega)$}
+S3 box; right=1.9, aspect=2.1, draw=white, l={Angular frequency response domain\\$H(\mathrm{j}\omega)$}
 S4 box; right, l={$\mathcal{L}^{-1}\left\{.\right\}$}
 S5 box; right=1.9, aspect=2.1, draw=white, l={Angular Fourier domain\\$H(\omega)$}
 S6 box; right, l={$s=\mathrm{j}\omega$}
