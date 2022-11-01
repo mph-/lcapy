@@ -14,9 +14,10 @@ For schematic drawing you require:
 
 1. pdflatex
 
-2. CircuiTikZ (https://www.ctan.org/pkg/circuitikz).  Lcapy currently
-   expects CircuiTikZ version 1.0.1.  Unfortunately, different
-   CircuiTikZ releases tweak component sizes.
+2. CircuiTikZ (https://www.ctan.org/pkg/circuitikz or
+   https://circuitikz.github.io/circuitikz/).  Unfortunately,
+   different CircuiTikZ releases subtly tweak component sizes.  It is easiest to
+   download Circuitikz as a single file from https://circuitikz.github.io/circuitikz/ and install on your LaTeX inputs path.  If using `circuitikzgit.sty` rename to `circuitikz.sty`.
 
 3. Ghostscript (http://www.ghostscript.com/), ImageMagick (http://www.imagemagick.org/), or `pdftoppm`
 
