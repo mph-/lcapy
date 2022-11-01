@@ -379,7 +379,7 @@ Inductors and chokes
 .. literalinclude:: examples/schematics/inductors.sch
 
 .. image:: examples/schematics/inductors.png
-   :width: 9cm
+   :width: 10cm
 
 
 .. _chips:
@@ -613,6 +613,15 @@ Alternatively, a variable resistor can be defined using:
 
 .. image:: examples/schematics/RV2.png
    :width: 1.4cm
+
+
+Resistors
+----------
+
+.. literalinclude:: examples/schematics/resistors.sch
+
+.. image:: examples/schematics/resistors.png
+   :width: 7cm
 
 
 Switches
