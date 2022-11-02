@@ -1565,6 +1565,24 @@ class BAT(Bipole):
     kinds = {'cell1': 'battery1'}
 
 
+class BL(Bipole):
+    """Block"""
+
+    tikz_cpt = 'twoport'
+
+    # TODO: Circuitikz has many more blocks
+    kinds = {'vco': 'vco', 'bandpass': 'bandpass', 'bandstop': 'bandstop',
+             'highpass': 'highpass', 'lowpass': 'lowpass',
+             'allpass': 'allpass', 'highpass2': 'highpass2', 'lowpass2': 'lowpass2',
+             'adc': 'adc', 'dac': 'dac', 'dsp': 'dsp', 'fft': 'fft',
+             'amp': 'amp', 'vamp': 'vamp',
+             'phaseshifter': 'phaseshifter', 'vphaseshifter': 'vphaseshifter',
+             'piattenuator': 'piattenuator', 'vpiattenuator': 'vpiattenuator',
+             'tattenuator': 'tattenuator', 'vtattenuator': 'vtattenuator',
+             'dcdc': 'sdcdc', 'dcac': 'sdcac', 'acdc': 'sacdc',
+             'detector': 'detector'}
+
+
 class C(Bipole):
     """Capacitor"""
 
@@ -1580,7 +1598,7 @@ class D(Bipole):
     tikz_cpt = 'D'
     kinds = {'led': 'leD', 'photo': 'pD', 'schottky': 'sD',
              'zener': 'zD', 'zzener': 'zzD', 'tunnel': 'tD', 'varcap': 'VC',
-             'bidirectional': 'biD'}
+             'bidirectional': 'biD', 'tvs': 'tvsDo', 'laser': 'lasD'}
     styles = {'empty': '', 'full': '*', 'stroke': '-'}
 
 

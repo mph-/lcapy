@@ -20,6 +20,7 @@ A: Aname Np; Annotation
 ADC: ADCname Np Nm; ADC
 AM: AMname Np Nm; Ammeter
 BAT: BATname Np Nm [Value=name]; Battery
+BL: BLname Np Nm; Block
 C: Cname Np Nm [Value=name] [IC]; Capacitor
 Cable: Cablename; Cable
 CPE: CPEname Np Nm [Value=name] [Power=1]; Constant phase element

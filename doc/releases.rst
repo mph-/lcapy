@@ -5,6 +5,10 @@ Release notes
 V1.9
 ====
 
+- Adds blocks for schematics.
+
+- Adds tunable kind for schematic components.
+
 - Adds chokes for schematics.
 
 - Introduces phasor ratio, frequency response, and angular frequency response domains.

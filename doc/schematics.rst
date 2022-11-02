@@ -304,6 +304,20 @@ Batteries
    :width: 3cm
 
 
+Blocks
+------
+
+.. literalinclude:: examples/schematics/blocks.sch
+
+.. image:: examples/schematics/blocks.png
+   :width: 14cm
+
+.. literalinclude:: examples/schematics/blocks2.sch
+
+.. image:: examples/schematics/blocks2.png
+   :width: 14cm
+
+
 Capacitors
 ----------
 
@@ -343,7 +357,7 @@ Different kinds of diodes can be specified by the `kind` option, for example,
 .. literalinclude:: examples/schematics/diodes.sch
 
 .. image:: examples/schematics/diodes.png
-   :width: 14cm
+   :width: 17cm
 
 The drawn style is controlled by the style option, for example,
 

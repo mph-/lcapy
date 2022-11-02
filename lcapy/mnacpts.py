@@ -2102,6 +2102,7 @@ defcpt('ADC', Misc, 'ADC')
 defcpt('AM', W, 'Ammeter')
 
 defcpt('BAT', V, 'Battery')
+defcpt('BL', Misc, 'Block')
 
 defcpt('D', NonLinear, 'Diode')
 defcpt('DAC', Misc, 'DAC')
