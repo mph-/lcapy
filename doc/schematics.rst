@@ -303,6 +303,7 @@ Batteries
 .. image:: examples/schematics/batteries.png
    :width: 3cm
 
+.. _blocks:
 
 Blocks
 ------
@@ -310,12 +311,14 @@ Blocks
 .. literalinclude:: examples/schematics/blocks.sch
 
 .. image:: examples/schematics/blocks.png
-   :width: 14cm
+   :width: 18cm
 
 .. literalinclude:: examples/schematics/blocks2.sch
 
 .. image:: examples/schematics/blocks2.png
-   :width: 14cm
+   :width: 18cm
+
+Note, the block names match those used by Circuitikz.
 
 
 Capacitors
@@ -1016,11 +1019,12 @@ Block diagrams
 ==============
 
 Block diagrams can be constructed with the following components:
- - `TF` transfer function
- - `SPpp`, `SPpm`, `SPppp`, `SPpmm`, `SPppm` summing points
- - `MX` mixer
- - `box` rectangular box
- - `circle` circle (or ellipse)
+ - `BL` -- block (see :ref:`blocks`)
+ - `TF` -- transfer function
+ - `SPpp`, `SPpm`, `SPppp`, `SPpmm`, `SPppm` -- summing points
+ - `MX` -- mixer
+ - `box` -- rectangular box
+ - `circle` -- circle (or ellipse)
 
 Here's an example showing negative feedback:
 

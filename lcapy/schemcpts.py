@@ -1570,17 +1570,17 @@ class BL(Bipole):
 
     tikz_cpt = 'twoport'
 
-    # TODO: Circuitikz has many more blocks
-    kinds = {'vco': 'vco', 'bandpass': 'bandpass', 'bandstop': 'bandstop',
-             'highpass': 'highpass', 'lowpass': 'lowpass',
-             'allpass': 'allpass', 'highpass2': 'highpass2', 'lowpass2': 'lowpass2',
-             'adc': 'adc', 'dac': 'dac', 'dsp': 'dsp', 'fft': 'fft',
-             'amp': 'amp', 'vamp': 'vamp',
-             'phaseshifter': 'phaseshifter', 'vphaseshifter': 'vphaseshifter',
-             'piattenuator': 'piattenuator', 'vpiattenuator': 'vpiattenuator',
-             'tattenuator': 'tattenuator', 'vtattenuator': 'vtattenuator',
-             'dcdc': 'sdcdc', 'dcac': 'sdcac', 'acdc': 'sacdc',
-             'detector': 'detector'}
+    kinds = {'vco': 'vco', 'bandpass': 'bandpass', 'bandstop':
+             'bandstop', 'highpass': 'highpass', 'lowpass': 'lowpass',
+             'allpass': 'allpass', 'highpass2': 'highpass2',
+             'lowpass2': 'lowpass2', 'adc': 'adc', 'dac': 'dac',
+             'dsp': 'dsp', 'fft': 'fft', 'amp': 'amp', 'vamp': 'vamp',
+             'phaseshifter': 'phaseshifter', 'vphaseshifter':
+             'vphaseshifter', 'piattenuator': 'piattenuator',
+             'vpiattenuator': 'vpiattenuator', 'tattenuator':
+             'tattenuator', 'vtattenuator': 'vtattenuator', 'dcdc':
+             'sdcdc', 'dcac': 'sdcac', 'acdc': 'sacdc', 'detector':
+             'detector', 'twoport': 'twoport', 'twoportsplit': 'twoportsplit'}
 
 
 class C(Bipole):
