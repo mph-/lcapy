@@ -1616,6 +1616,24 @@ class V(Bipole):
              'square': 'sqV', 'triangle': 'tV', 'noise': 'nV'}
 
 
+class Y(Bipole):
+    """Admittance"""
+
+    tikz_cpt = 'generic'
+    kinds = {'variable': 'variable european resistor',
+             'tunable': 'variable european resistor, tunable end arrow = {Bar}',
+             'sensor': 'european resistive sensor'}
+
+
+class Z(Bipole):
+    """Impedance"""
+
+    tikz_cpt = 'generic'
+    kinds = {'variable': 'variable european resistor',
+             'tunable': 'variable european resistor, tunable end arrow = {Bar}',
+             'sensor': 'european resistive sensor'}
+
+
 class Transistor(FixedCpt):
     """Transistor"""
 
@@ -3634,9 +3652,6 @@ defcpt('VM', Bipole, 'Voltmeter', 'voltmeter')
 defcpt('W', Wire, 'Wire', 'short')
 
 defcpt('XT', Bipole, 'Crystal', 'piezoelectric')
-
-defcpt('Y', Bipole, 'Admittance', 'european resistor')
-defcpt('Z', Bipole, 'Impedance', 'european resistor')
 
 defcpt('m', Bipole, 'Mass', 'mass')
 defcpt('k', Bipole, 'Spring', 'spring')
