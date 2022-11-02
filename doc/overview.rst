@@ -1053,7 +1053,7 @@ Transfer functions can be created from netlists using the `transfer()` method.  
        C⋅R
 
 Transfer functions are defined in the Laplace domain but can be
-converted to the phasor domain::
+converted to the a angular frequency response domain::
 
    >>> H(jw)
             1
@@ -1114,6 +1114,48 @@ for example::
           s - z₁
    ───────────────────
    (-p₁ + s)⋅(-p₂ + s)
+
+
+Finally, transfer functions can also be found from the ratio of two
+s-domain quantities such as voltage or current with zero initial
+conditions.  Here's an example using an arbitrary input voltage
+`V(s)`::
+
+   >>> from lcapy import Circuit
+   >>> cct = Circuit("""
+   ... V1 1 0 {V(s)}
+   ... R1 1 2
+   ... C1 2 0 C1 0""")
+   >>> cct[2].V(s)
+       V(s)
+   ───────────
+   C₁⋅R₁⋅s + 1
+
+   >>> H = cct[2].V(s) / cct[1].V(s)
+   >>> H
+        1
+   ───────────
+   C₁⋅R₁⋅s + 1
+
+The corresponding impulse response can found from an inverse Laplace transform::
+
+   >>> H.ILT(causal=True)
+     -t
+    ─────
+    C₁⋅R₁
+   e     ⋅Heaviside(t)
+   ───────────────────
+          C₁⋅R₁
+
+or more simply using::
+
+   >>> H(t, causal=True)
+     -t
+    ─────
+    C₁⋅R₁
+   e     ⋅Heaviside(t)
+   ───────────────────
+          C₁⋅R₁
 
 
 Circuit analysis
@@ -1285,75 +1327,6 @@ specifies the capacitance to be `v0`.
 When an initial condition is detected, the circuit is analysed in the
 s-domain as an initial value problem.  The values of sources are
 ignored for :math:`t<0` and the result is only defined for :math:`t\ge 0`.
-
-
-Transfer functions
-------------------
-
-Transfer functions can be found from the ratio of two s-domain
-quantities such as voltage or current with zero initial conditions.
-Here's an example using an arbitrary input voltage `V(s)`::
-
-   >>> from lcapy import Circuit
-   >>> cct = Circuit("""
-   ... V1 1 0 {V(s)}
-   ... R1 1 2
-   ... C1 2 0 C1 0""")
-   >>> cct[2].V(s)
-       V(s)
-   ───────────
-   C₁⋅R₁⋅s + 1
-
-   >>> H = cct[2].V(s) / cct[1].V(s)
-   >>> H
-        1
-   ───────────
-   C₁⋅R₁⋅s + 1
-
-The corresponding impulse response can found from an inverse Laplace transform::
-
-   >>> H.ILT(causal=True)
-     -t
-    ─────
-    C₁⋅R₁
-   e     ⋅Heaviside(t)
-   ───────────────────
-          C₁⋅R₁
-
-or more simply using::
-
-   >>> H(t, causal=True)
-     -t
-    ─────
-    C₁⋅R₁
-   e     ⋅Heaviside(t)
-   ───────────────────
-          C₁⋅R₁
-
-Transfer functions can also be created using the `transfer()` method of a
-circuit.  For example::
-
-   >>> from lcapy import Circuit
-   >>> cct = Circuit("""
-   ... R1 1 2
-   ... C1 2 0""")
-   >>> H = cct.transfer(1, 0, 2, 0)
-   >>> H
-        1
-   ───────────
-   C₁⋅R₁⋅s + 1
-
-In this example, the `transfer()` method computes `(V[1] - V[0]) / (V[2] -
-V[0])`.  In general, all independent sources are killed and so the
-response is causal.
-
-   >>> H(t)
-     -t
-    ─────
-    C₁⋅R₁
-   e     ⋅Heaviside(t)
-   ───────────────────
-          C₁⋅R₁
 
 
 Mesh analysis
