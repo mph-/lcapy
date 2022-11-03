@@ -3012,31 +3012,42 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         return self._fmt_roots(polesdict, aslist, pairs)
 
-    def parameterize_ZPK(self, zeta=None, ZPK=None):
-
-        def def1(defs, symbolname, value):
-            from .cexpr import cexpr
-
-            sym1 = symbol(symbolname, override=False)
-            defs[symbolname] = cexpr(value)
-            return sym1
+    def _as_ZPK(self):
 
         if self._ratfun is None:
-            return self, {}
+            return None, None, None, None
 
         zeros, poles, K, undef = self._ratfun.as_ZPK()
 
+        return zeros, poles, K, undef
+
+    def parameterize_ZPK(self, zeta=None, ZPK=None):
+
+        def def1(defs, symbolname, value, units):
+            from .cexpr import cexpr
+
+            sym1 = symbol(symbolname, override=False)
+            defs[symbolname] = expr(value, units=units)
+            return sym1
+
+        zeros, poles, K, undef = self._as_ZPK()
+        if zeros is None and poles is None and K is None:
+            return self, {}
+
+        radpers = uu.rad / uu.s
+
         defs = ExprDict()
-        K = def1(defs, 'K', K * undef)
+        K = def1(defs, 'K', K * undef, self.units *
+                 radpers**(len(poles) - len(zeros)))
 
         N = 1
         D = 1
         for m, zero in enumerate(zeros):
-            z = def1(defs, 'z%d' % (m + 1), zero)
+            z = def1(defs, 'z%d' % (m + 1), zero, radpers)
             N *= sym.Add(self.var, -z.sympy, evaluate=False)
 
         for m, pole in enumerate(poles):
-            p = def1(defs, 'p%d' % (m + 1), pole)
+            p = def1(defs, 'p%d' % (m + 1), pole, radpers)
             D *= sym.Add(self.var, -p.sympy, evaluate=False)
 
         result = sym.Mul(K.sympy, sym.Mul(N, sym.Pow(D, -1)), evaluate=False)
