@@ -2908,18 +2908,20 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
     def _fmt_roots(self, roots, aslist=False, pairs=False):
 
+        units = uu.rad / uu.s
+
         def _wrap_dict(roots):
 
             rootsdict = {}
             for root, n in roots.items():
-                rootsdict[expr(root)] = n
+                rootsdict[expr(root, units=units)] = n
             return expr(rootsdict)
 
         def _wrap_list(roots):
 
             rootslist = []
             for root, n in roots.items():
-                rootslist += [expr(root)] * n
+                rootslist += [expr(root, units=units)] * n
             return expr(rootslist)
 
         if pairs:
@@ -3915,7 +3917,7 @@ def _make_domain(expr, **assumptions):
         return cexpr(expr, **assumptions)
 
 
-def expr(arg, override=False, **assumptions):
+def expr(arg, override=False, units=None, **assumptions):
     """Create Lcapy expression from arg.
 
     If `arg` is an `Expr` it is returned, unless `assumptions` is specified.
@@ -3940,6 +3942,7 @@ def expr(arg, override=False, **assumptions):
         return arg
 
     if isinstance(arg, Expr):
+        # Ignore units arg
         if assumptions == {}:
             return arg
         return arg.__class__(arg, **assumptions)
@@ -3955,6 +3958,8 @@ def expr(arg, override=False, **assumptions):
 
     lexpr = _make_domain(expr, **assumptions)
     if not lexpr.has(uu.Quantity):
+        if units is not None:
+            lexpr.units = units
         return lexpr
 
     from .units import units
