@@ -738,14 +738,6 @@ class LcapyCoreTester(unittest.TestCase):
     def test_poles(self):
         """Test poles"""
 
-        # TODO, maybe tweak ExprDict to make keys Lcapy expressions?
-
-        def D(X):
-            Y = {}
-            for key, arg in X.items():
-                Y[expr(key)] = arg
-            return expr(Y)
-
         # TODO, need to handle different orderings of complex conjugate pairs
 
         # H = 1 / ((s + 5j)**3 * (s-5j)**2 * (s+2))
@@ -776,3 +768,10 @@ class LcapyCoreTester(unittest.TestCase):
 
         a = 4 * t * amperes
         self.assertEqual(a.as_current().is_current, True, 'is_current')
+
+    def test_pole_zero_units(self):
+        """Test poles and zeros units"""
+
+        H = s / (s + 3)
+        self.assertEqual(str(list(H.poles())[0].units), 'rad/s', "pole units")
+        self.assertEqual(str(list(H.zeros())[0].units), 'rad/s', "zero units")
