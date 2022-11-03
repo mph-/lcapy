@@ -83,7 +83,7 @@ class LTIFilter(object):
     def frequency_response(self, **assumptions):
         """Return frequency response."""
 
-        return self.transfer_function().FT(**assumptions)
+        return self.transfer_function().frequency_response(**assumptions)
 
     def differential_equation(self, inputsym='x', outputsym='y'):
         """Return differential equation."""
@@ -101,11 +101,16 @@ class LTIFilter(object):
 
     def sdomain_initial_response(self, ic):
         """Return s-domain response due to initial conditions.
-           ic : list of initial conditions y(0), y'(0), y''(0), ...
+           ic : list or tuple of initial conditions y(0), y'(0), y''(0), ...
 
         """
 
         from .sym import ssym
+
+        if not isiterable(ic):
+            ic = (ic, )
+
+        ic = ExprTuple(ic)
 
         Nl = len(self.a)
         if len(ic) != Nl:
