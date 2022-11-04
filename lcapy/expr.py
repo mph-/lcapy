@@ -1899,6 +1899,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     def K(self):
         """Return gain."""
 
+        # TODO, fix units
         return self.N.coeffs()[0] / self.D.coeffs()[0]
 
     @property
@@ -1906,6 +1907,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         """Return numerator of rational function.
         The denominator is chosen so that it is a polynomial."""
 
+        # TODO, fix units
         return self.numerator
 
     @property
@@ -1913,6 +1915,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         """Return denominator of rational function.
         The denominator is chosen so that it is a polynomial."""
 
+        # TODO, fix units
         return self.denominator
 
     @property
@@ -3024,7 +3027,6 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     def parameterize_ZPK(self, zeta=None, ZPK=None):
 
         def def1(defs, symbolname, value, units):
-            from .cexpr import cexpr
 
             sym1 = symbol(symbolname, override=False)
             defs[symbolname] = expr(value, units=units)
@@ -3084,11 +3086,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         """
 
-        def def1(defs, symbolname, value):
-            from .cexpr import cexpr
+        def def1(defs, symbolname, value, units):
+            # from .cexpr import cexpr
 
             sym1 = symbol(symbolname, override=False)
-            defs[symbolname] = cexpr(value)
+            defs[symbolname] = expr(value, units=units)
             return sym1
 
         if zeta is None and ZPK is None:
@@ -3106,6 +3108,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 result, defs = (self / spower).parameterize(zeta)
                 return result * spower, defs
 
+        radpers = uu.rad / uu.s
         N = self.N
         D = self.D
 
@@ -3121,32 +3124,32 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if ndegree < 1 and ddegree < 1:
             result = self
         elif ndegree == 1 and ddegree == 1:
-            K = def1(defs, 'K', K)
-            alpha = def1(defs, 'alpha', dcoeffs[1])
-            beta = def1(defs, 'beta', ncoeffs[1])
+            K = def1(defs, 'K', K, sym.S.One)
+            alpha = def1(defs, 'alpha', dcoeffs[1], radpers)
+            beta = def1(defs, 'beta', ncoeffs[1], radpers)
             result = K * (s + beta) / (s + alpha)
         elif ndegree == 1 and ddegree == 0:
-            K = def1(defs, 'K', K)
-            beta = def1(defs, 'beta', ncoeffs[1])
+            K = def1(defs, 'K', K, self.units / radpers)
+            beta = def1(defs, 'beta', ncoeffs[1], radpers)
             result = K * (s + beta)
         elif ndegree == 0 and ddegree == 1:
-            K = def1(defs, 'K', K)
-            alpha = def1(defs, 'alpha', dcoeffs[1])
+            K = def1(defs, 'K', K, self.units * radpers)
+            alpha = def1(defs, 'alpha', dcoeffs[1], radpers)
             result = K / (s + alpha)
         elif ddegree == 2:
-            K = def1(defs, 'K', K)
+            K = def1(defs, 'K', K, self.units * radpers**(ddegree - ndegree))
             coeffs = self.N.coeffs()
 
             if not zeta:
-                sigma1 = def1(defs, 'sigma_1', dcoeffs[1] / 2)
+                sigma1 = def1(defs, 'sigma_1', dcoeffs[1] / 2, radpers)
                 omega1 = def1(defs, 'omega_1',
-                              sqrt(dcoeffs[2] - (dcoeffs[1] / 2)**2).simplify())
-                result = K * \
-                    (self.N / coeffs[0]) / (s**2 + 2 *
-                                            sigma1 * s + sigma1**2 + omega1**2)
+                              sqrt(dcoeffs[2] - (dcoeffs[1] / 2)**2).simplify(), radpers)
+                result = K * (self.N / coeffs[0]) / (s**2 + 2 *
+                                                     sigma1 * s + sigma1**2 + omega1**2)
             else:
-                omega0 = def1(defs, 'omega_0', sqrt(dcoeffs[2]))
-                zeta = def1(defs, 'zeta', dcoeffs[1] / (2 * sqrt(dcoeffs[2])))
+                omega0 = def1(defs, 'omega_0', sqrt(dcoeffs[2]), radpers)
+                zeta = def1(defs, 'zeta',
+                            dcoeffs[1] / (2 * sqrt(dcoeffs[2])), sym.S.One)
                 result = K * (self.N / coeffs[0]) / \
                     (s**2 + 2 * zeta * omega0 * s + omega0**2)
 
@@ -3953,10 +3956,12 @@ def expr(arg, override=False, units=None, **assumptions):
         return arg
 
     if isinstance(arg, Expr):
-        # Ignore units arg
-        if assumptions == {}:
+        if assumptions == {} and units is None:
             return arg
-        return arg.__class__(arg, **assumptions)
+        new = arg.__class__(arg, **assumptions)
+        if units is not None:
+            new.units = units
+        return new
     if isinstance(arg, Sequence):
         return arg
 
