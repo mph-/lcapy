@@ -5,6 +5,8 @@ Release notes
 V1.9
 ====
 
+- Adds units to parameterization definitions.
+
 - Adds blocks for schematics.
 
 - Adds tunable kind for schematic components.
