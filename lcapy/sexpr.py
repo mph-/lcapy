@@ -14,7 +14,7 @@ from .ratfun import _zp2tf, _pr2tf, Ratfun
 from .expr import Expr, symbol, expr, ExprDict, ExprList, exprcontainer, expr_make
 from .differentialequation import DifferentialEquation
 from .units import u as uu
-from .functions import sqrt, DiracDelta
+from .functions import sqrt, DiracDelta, Function
 from sympy import limit, exp, Poly, Derivative, Integral, div, oo, Eq, Expr as symExpr
 from warnings import warn
 
@@ -458,8 +458,10 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
                                      dt
         """
 
-        x = texpr('%s(t)' % inputsym)
-        y = texpr('%s(t)' % outputsym)
+        from .symbols import t
+
+        x = Function(inputsym)(t)
+        y = Function(outputsym)(t)
 
         X = x.LT()
         Y = y.LT()

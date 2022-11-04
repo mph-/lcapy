@@ -15,7 +15,7 @@ from .expr import symbol, expr, ExprDict, ExprList
 from .differenceequation import DifferenceEquation
 from .seqexpr import SequenceExpression
 from .zseq import ZDomainSequence
-from .functions import sqrt, exp
+from .functions import sqrt, exp, Function
 from sympy import Eq, div, limit, oo, Sum
 
 
@@ -360,9 +360,11 @@ class ZDomainExpression(ZDomain, SequenceExpression):
         `form` can be 'fir' or 'iir' ('direct form I').
         """
 
+        from .symbols import n
+
         H = self
-        x = nexpr('%s(n)' % inputsym)
-        y = nexpr('%s(n)' % outputsym)
+        x = Function(inputsym)(n)
+        y = Function(outputsym)(n)
 
         X = x.ZT()
         Y = y.ZT()

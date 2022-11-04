@@ -6,7 +6,7 @@ Copyright 2022 Michael Hayes, UCECE
 
 from .expr import expr, equation, ExprTuple
 from .differentialequation import DifferentialEquation
-from .functions import Derivative
+from .functions import Derivative, Function
 from .texpr import TimeDomainExpression
 from .symbols import t, s
 from .utils import isiterable
@@ -91,10 +91,10 @@ class LTIFilter(object):
         rhs = 0 * t
 
         for m, bn in enumerate(self.b):
-            rhs += bn * Derivative(expr('%s(t)' % inputsym), t, m)
+            rhs += bn * Derivative(Function(inputsym)(t), t, m)
 
         for m, an in enumerate(self.a[1:]):
-            rhs -= an * Derivative(expr('%s(t)' % outputsym), t, m + 1)
+            rhs -= an * Derivative(Function(outputsym)(t), t, m + 1)
 
         lhs = self.a[0] * expr('y(t)')
         return DifferentialEquation(lhs, rhs, inputsym, outputsym)

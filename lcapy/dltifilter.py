@@ -5,6 +5,7 @@ Copyright 2021--2022 Michael Hayes, UCECE
 """
 
 from .expr import expr, equation, ExprTuple
+from .functions import Function
 from .nexpr import DiscreteTimeDomainExpression
 from .differenceequation import DifferenceEquation
 from .discretetime import n, z, seq
@@ -92,10 +93,10 @@ class DLTIFilter(object):
         rhs = 0 * n
 
         for m, bn in enumerate(self.b):
-            rhs += bn * expr('%s(n - %d)' % (inputsym, m))
+            rhs += bn * Function(inputsym)(n - m)
 
         for m, an in enumerate(self.a[1:]):
-            rhs -= an * expr('%s(n - %d)' % (outputsym, m + 1))
+            rhs -= an * Function(outputsym)(n - (m + 1))
 
         lhs = self.a[0] * expr('y(n)')
         return DifferenceEquation(lhs, rhs, inputsym, outputsym)
