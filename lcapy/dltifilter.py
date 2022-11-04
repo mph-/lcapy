@@ -101,12 +101,18 @@ class DLTIFilter(object):
         lhs = self.a[0] * expr('y(n)')
         return DifferenceEquation(lhs, rhs, inputsym, outputsym)
 
-    def zdomain_initial_response(self, ic):
+    def zdomain_initial_response(self, ic=None):
         """Return z-domain response due to initial conditions.
            ic : list with initial values y[-1], y[-2], ...
         """
 
         from .sym import zsym
+
+        if ic is None:
+            ic = ()
+
+        if not isiterable(ic):
+            ic = (ic, )
 
         Nl = len(self.a)
         if len(ic) != Nl:
@@ -137,7 +143,7 @@ class DLTIFilter(object):
 
         return Yzi
 
-    def initial_response(self, ic):
+    def initial_response(self, ic=None):
         """Return response due to initial conditions in the time domain.
            ic : list with initial values y[-1], y[-2], ...
         """

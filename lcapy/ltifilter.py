@@ -99,7 +99,7 @@ class LTIFilter(object):
         lhs = self.a[0] * expr('y(t)')
         return DifferentialEquation(lhs, rhs, inputsym, outputsym)
 
-    def sdomain_initial_response(self, ic):
+    def sdomain_initial_response(self, ic=None):
         """Return s-domain response due to initial conditions.
            ic : list or tuple of initial conditions y(0), y'(0), y''(0), ...
 
@@ -107,15 +107,18 @@ class LTIFilter(object):
 
         from .sym import ssym
 
+        if ic is None:
+            ic = ()
+
         if not isiterable(ic):
             ic = (ic, )
 
         ic = ExprTuple(ic)
 
         Nl = len(self.a)
-        if len(ic) != Nl:
+        if len(ic) != Nl - 1:
             raise ValueError('Expecting %d initial conditions, got %d'
-                             % (Nl, len(ic)))
+                             % (Nl - 1, len(ic)))
 
         # Denominator for Yi(s)
         denom = self.a[0] * s**0
@@ -141,7 +144,7 @@ class LTIFilter(object):
 
         return Ysi
 
-    def initial_response(self, ic):
+    def initial_response(self, ic=None):
         """Return response due to initial conditions in the time domain.
            ic : list of initial conditions y(0), y'(0), y''(0), ...
         """
