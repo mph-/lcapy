@@ -1897,7 +1897,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
     @property
     def K(self):
-        """Return gain."""
+        """Return gain.  Note, this removes the units."""
 
         # TODO, fix units
         return self.N.coeffs()[0] / self.D.coeffs()[0]
@@ -1905,7 +1905,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     @property
     def N(self):
         """Return numerator of rational function.
-        The denominator is chosen so that it is a polynomial."""
+        The denominator is chosen so that it is a polynomial.
+        Note, this removes the units."""
 
         # TODO, fix units
         return self.numerator
@@ -1913,7 +1914,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     @property
     def D(self):
         """Return denominator of rational function.
-        The denominator is chosen so that it is a polynomial."""
+        The denominator is chosen so that it is a polynomial.
+        Note, this removes the units."""
 
         # TODO, fix units
         return self.denominator
@@ -1921,7 +1923,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     @property
     def numerator(self):
         """Return numerator of rational function.
-        The denominator is chosen so that it is a polynomial."""
+        The denominator is chosen so that it is a polynomial.
+        Note, this removes the units."""
 
         N, D = self.as_N_D()
         return N
@@ -1929,7 +1932,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     @property
     def denominator(self):
         """Return denominator of rational function.
-        The denominator is chosen so that it is a polynomial."""
+        The denominator is chosen so that it is a polynomial.
+        Note, this removes the units."""
 
         N, D = self.as_N_D()
         return D
@@ -3949,6 +3953,8 @@ def expr(arg, override=False, units=None, **assumptions):
     If `override` is True, then create new symbol(s) even if
     previously defined by SymPy.
     """
+
+    # TODO: convert expr('x(t)') into Function('x')(t)
 
     from .sequence import Sequence
 
