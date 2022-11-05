@@ -4,7 +4,7 @@ Copyright 2021 Michael Hayes, UCECE
 
 """
 
-from .expr import equation
+from .expr import equation, expr
 from .texpr import TimeDomainExpression, texpr
 import sympy as sym
 

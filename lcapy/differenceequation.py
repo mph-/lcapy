@@ -4,7 +4,7 @@ Copyright 2021 Michael Hayes, UCECE
 
 """
 
-from .expr import equation
+from .expr import equation, expr
 from .nexpr import DiscreteTimeDomainExpression, nexpr
 import sympy as sym
 
@@ -85,3 +85,23 @@ class DifferenceEquation(DiscreteTimeDomainExpression):
                 newrhs += term
 
         return self.__class__(newlhs, newrhs, **self.assumptions)
+
+
+def difference_equation(lhs, rhs, inputsym='x', outputsym='y', **assumptions):
+    """Create an Lcapy difference equation.
+
+    This is an Lcapy expression of the form Eq(lhs, rhs).
+    For example,
+    e = difference_equation('y(n)', 'x(n) + 2 * y(n - 1)')
+
+    The left hand side (lhs) and right hand side subexpressions
+    can be obtained with the `lhs` and `rhs` attributes."""
+
+    from .differenceequation import DifferenceEquation
+
+    lhs = expr(lhs)
+    rhs = expr(rhs)
+    # Check if lhs and rhs compatible.
+    diff = lhs - rhs
+
+    return DifferenceEquation(lhs, rhs, inputsym, outputsym, **assumptions)
