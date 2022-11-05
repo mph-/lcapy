@@ -122,18 +122,20 @@ def approximate_dominant_terms(expr, defs, threshold=0.01):
 
     # Cannot substitute first since SymPy reorders the args.
 
-    absmaxval = None
+    absvalmax = None
     for term in terms:
         nterm = term.subs(defs)
+        if not nterm.is_constant():
+            continue
         absval = abs(nterm)
-        if absmaxval is None or absval > absmaxval:
-            absmaxval = absval
+        if absvalmax is None or absval > absvalmax:
+            absvalmax = absval
 
     newexpr = 0
     for term in terms:
         nterm = term.subs(defs)
         absval = abs(nterm)
-        if absval > threshold * absmaxval:
+        if (not nterm.is_constant()) or (absval > threshold * absvalmax):
             newexpr += term
 
     return newexpr
