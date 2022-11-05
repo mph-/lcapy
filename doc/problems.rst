@@ -16,6 +16,17 @@ Variable names
 
 SymPy does not allow symbol names that are Python keywords.  For example, `expr('is(t)')` fails.  A workaround is to use an underscore in the name, for example, `expr('i_s(t)')`.
 
+Predefined symbols
+------------------
+
+A number of symbols are predefined by Lcapy and Sympy including:
+- `delta` for Dirac delta
+- `j` for imaginary operator
+- `u` for unit step (Heaviside function)
+- `H` for Heaviside function
+- `I` for imaginary operator
+- `jf`, `jw, `f`, `k`, `n`, `s`, `t`, `w`, `z` for domain variables
+
 
 .. _floating-point:
 
