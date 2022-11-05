@@ -31,6 +31,7 @@ from .utils import (as_N_D, as_sum, remove_images, pair_conjugates,
                     split_dirac_delta, expand_functions)
 import sympy as sym
 from sympy.utilities.lambdify import lambdify
+from sympy import UnevaluatedExpr
 from .sym import simplify
 from .simplify import simplify_sin_cos, simplify_heaviside, simplify_dirac_delta
 from .simplify import simplify_rect, simplify_unit_impulse, simplify_conjugates
@@ -43,7 +44,7 @@ from warnings import warn
 
 
 __all__ = ('expr', 'symbol', 'symbols', 'deg', 'rad',
-           'equation', 'difference_equation')
+           'equation', 'difference_equation', 'UnevaluatedExpr')
 
 
 class ExprPrint(object):
