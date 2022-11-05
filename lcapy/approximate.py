@@ -114,3 +114,41 @@ def approximate_hyperbolic_trig(expr, method='pade', order=1, numer_order=None):
     expr = expand_hyperbolic_trig(expr)
     return approximate_exp(expr, method=method, order=order,
                            numer_order=numer_order)
+
+
+def approximate_dominant_terms(expr, defs, threshold=0.01):
+
+    terms = expr.as_ordered_terms()
+
+    # Cannot substitute first since SymPy reorders the args.
+
+    absmaxval = None
+    for term in terms:
+        nterm = term.subs(defs)
+        absval = abs(nterm)
+        if absmaxval is None or absval > absmaxval:
+            absmaxval = absval
+
+    newexpr = 0
+    for term in terms:
+        nterm = term.subs(defs)
+        absval = abs(nterm)
+        if absval > threshold * absmaxval:
+            newexpr += term
+
+    return newexpr
+
+
+def approximate_dominant(expr, defs, threshold=0.01):
+
+    if expr.is_Add:
+        return approximate_dominant_terms(expr, defs, threshold)
+
+    return expr
+
+
+def approximate_order(expr, var, order):
+
+    from sympy import O
+
+    return (expr + O(var ** order)).removeO()
