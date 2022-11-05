@@ -36,8 +36,9 @@ from .sym import simplify
 from .simplify import simplify_sin_cos, simplify_heaviside, simplify_dirac_delta
 from .simplify import simplify_rect, simplify_unit_impulse, simplify_conjugates
 from .simplify import expand_hyperbolic_trig
-from .approximate import approximate_fractional_power, approximate_exp
-from .approximate import approximate_hyperbolic_trig
+from .approximate import (approximate_fractional_power, approximate_exp,
+                          approximate_hyperbolic_trig, approximate_dominant,
+                          approximate_order)
 from .config import heaviside_zero, unitstep_zero
 from collections import OrderedDict
 from warnings import warn
@@ -3529,12 +3530,14 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         return self.__class__(expr, **self.assumptions)
 
-    def approximate_fractional_power(self, method='pade', order=2):
-        """This is an experimental method to approximate
-        s**a, where a is fractional, with a rational function using
-        a Pade approximant."""
+    def approximate_dominant(self, defs, threshold=0.01):
+        """Approximate expression using numerical values for the symbols to
+        decide which terms in a sum dominate the sum."""
 
-        expr = approximate_fractional_power(self, method, order)
+        ndefs = {}
+        for k, v in defs.items():
+            ndefs[symbol_map(k)] = v
+        expr = approximate_dominant(self.sympy, ndefs, threshold)
         return self.__class__(expr, **self.assumptions)
 
     def approximate_exp(self, method='pade', order=1, numer_order=None):
@@ -3546,11 +3549,24 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         expr = approximate_exp(self, method, order, numer_order)
         return self.__class__(expr, **self.assumptions)
 
+    def approximate_fractional_power(self, method='pade', order=2):
+        """This is an experimental method to approximate
+        s**a, where a is fractional, with a rational function using
+        a Pade approximant."""
+
+        expr = approximate_fractional_power(self, method, order)
+        return self.__class__(expr, **self.assumptions)
+
     def approximate_hyperbolic_trig(self, method='pade', order=1,
                                     numer_order=None):
         """Approximate cosh(a), sinh(a), tanh(a)."""
 
         expr = approximate_hyperbolic_trig(self, method, order, numer_order)
+        return self.__class__(expr, **self.assumptions)
+
+    def approximate_order(self, order):
+
+        expr = approximate_order(self.sympy, self.var, order)
         return self.__class__(expr, **self.assumptions)
 
     def approximate(self, method='pade', order=1, numer_order=None):

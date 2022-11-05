@@ -140,14 +140,22 @@ def approximate_dominant_terms(expr, defs, threshold=0.01):
 
 
 def approximate_dominant(expr, defs, threshold=0.01):
+    """Approximate expression using numerical values for the symbols to
+    decide which terms in a sum dominate the sum."""
 
-    if expr.is_Add:
+    def query(expr):
+
+        return expr.is_Add
+
+    def value(expr):
         return approximate_dominant_terms(expr, defs, threshold)
 
-    return expr
+    return expr.replace(query, value)
 
 
 def approximate_order(expr, var, order):
+    """Approximate expression by reducing order of polynomial to
+    specified order."""
 
     from sympy import O
 

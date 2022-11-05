@@ -1973,6 +1973,22 @@ Approximation
 
 Lcapy has the following approximation methods:
 
+- `approximate_dominant(defs, threshold)` approximates expression
+    using numerical values for the symbols to decide which terms in a
+    sum dominate the sum.  For example,
+
+  >>> expr('1/(A*B + A*A + C)').approximate_dominant('A':100,'B':1,'C':20}, 0.005)
+        1
+   ────────
+    2
+   A  + A⋅B
+
+  >>> expr('1/(A*B + A*A + C)').approximate_dominant('A':100,'B':1,'C':20}, 0.01)
+    1
+   ───
+    2
+   A
+
 - `approximate_exp(method, order, numer_order)` approximates exponential function with a rational function.  If `numer_order` is specified, this is used as the order for the numerator while `order` is used for the order of the denominator; otherwise `order` is used for the order of the numerator and denominator.  For example,
 
    >>> exp(-s*'T').approximate_exp(order=2)
@@ -2006,7 +2022,10 @@ Note, some higher order approximations can be unstable.  For example, the step-r
 
 - `approximate_fractional_power(method, order)` approximates `s**a` where `a` is fractional with a rational function.
 
-- `approximate(method, order, numer_order)` applies all the approximations.
+- `approximate_order(order)` approximate expression by reducing order
+    of polynomial to specified order
+
+- `approximate(method, order, numer_order)` applies many of the approximations.
 
 - `prune_HOT(degree)` prunes higher order terms if expression is a polynomial so that resultant approximate expression has the desired degree.
 
