@@ -6,27 +6,13 @@ Expressions
 
 Lcapy expressions are similar to SymPy expressions except they have a
 specific domain depending on the predefined domain variables `t`, `s`, `f`, `F`
-`omega` (`w`), `Omega` (`W`), `jf`, and `jomega` (`jw`).   They can also have associated quantities and units.
+`omega` (`w`), `Omega` (`W`), `jf`, and `jomega` (`jw`).   They have associated quantities, domains, and units.
 
 
-Symbols
-=======
+Introduction
+============
 
-Lcapy has a number of pre-defined constants, variables, and functions.
-
-
-Constants
----------
-
-- `pi` 3.141592653589793...
-
-- `j`  :math:`\sqrt{-1}`
-
-- `oo` infinity
-
-- `zoo` complex infinity
-
-- `one` 1
+Lcapy expressions are comprised of numbers, pre-defined constant symbols, domain variables, user-defined symbols, and functions.
 
 .. _numbers:
 
@@ -69,6 +55,20 @@ If you prefer floating-point numbers use the `ratfloat()` method.  For example::
 
 The companion method `floatrat()` converts floating-point numbers to
 rational numbers.
+
+
+Constants
+---------
+
+- `pi` 3.141592653589793...
+
+- `j`  :math:`\sqrt{-1}`
+
+- `oo` infinity
+
+- `zoo` complex infinity
+
+- `one` 1
 
 
 .. _domainvariables:
@@ -708,7 +708,7 @@ All Lcapy expressions have the following attributes (see :ref:`expressionsration
 
 - `real_imag` returns expression in form `real + j * imag`
 
-- `sign` returns sign
+- `sign` returns sign of expression
 
 - `symbols` returns dictionary of symbols used in the expression keyed by their names
 
@@ -1515,70 +1515,6 @@ Compare this with::
    ⎝       ╲╱  a  - 4⋅b               ╲╱  a  - 4⋅b       ⎠
 
 
-.. _substitution:
-
-Substitution
-============
-
-Substitution replaces sub-expressions with new sub-expressions in an
-expression.  It is most commonly used to replace the underlying
-variable with a constant, for example::
-
-   >>> a = 3 * s
-   >>> b = a.subs(2)
-   >>> b
-   6
-
-Since the replacement expression is a constant, the substitution can also be performed using the call notation::
-
-   >>> b = a(2)
-   >>> b
-   6
-
-The substitution method can also have a dictionary argument, keyed by symbol name, to replace symbols in an expression with constants.  For example::
-
-   >>> a = expr('a * t + b')
-   >>> defs = {'a': 4, 'b': 2}
-   >>> a2 = a.subs(defs)
-   >>> a2
-   4⋅t + 2
-
-With two arguments, `subs()` replaces a symbol with an expression.  For example,
-
-   >>> a = expr('a * t + b')
-   >>> a2 = a.subs('a', 2)
-   >>> a2
-   b + 2⋅t
-
-
-If you know what you are doing you can coerce the domain of the result
-with the domain argument, for example::
-
-   >>> H.subs(f, w / (2 * pi)).subs(jw, s, domain=s)
-
-
-.. _evaluation:
-
-Evaluation
-==========
-
-Evaluation is similar to substitution but requires all symbols in an
-expression to be substituted with values.  The result is a numerical
-answer, for example::
-
-   >>> a = expr('t**2 + 2 * t + 1')
-   >>> a.evaluate(0)
-   1.0
-
-The argument to `evaluate` can be a scalar, a tuple, a list, or a
-NumPy array.  For example::
-
-   >>> a = expr('t**2 + 2 * t + 1')
-   >>> tv = np.linspace(0, 1, 5)
-   >>> a.evaluate(tv)
-   array([1.    , 1.5625, 2.25  , 3.0625, 4.    ])
-
-If the argument is a scalar the returned result is a Python float or complex type; otherwise it is a NumPy array.  The evaluation method is useful for plotting results, (see :ref:`plotting`).
 
 .. _phasors:
 
@@ -1913,10 +1849,81 @@ Voltage and current methods
 - `oneport()` returns a `Oneport` object corresponding to the immittance.  This may be a `V` or `I` object.
 
 
+
+Expression manipulation
+=======================
+
+.. _substitution:
+
+Substitution
+------------
+
+Substitution replaces sub-expressions with new sub-expressions in an
+expression.  It is most commonly used to replace the underlying
+variable with a constant, for example::
+
+   >>> a = 3 * s
+   >>> b = a.subs(2)
+   >>> b
+   6
+
+Since the replacement expression is a constant, the substitution can also be performed using the call notation::
+
+   >>> b = a(2)
+   >>> b
+   6
+
+With two arguments, `subs()` replaces a symbol with an expression.  For example,
+
+   >>> a = expr('a * t + b')
+   >>> a.subs('a', 2)
+   b + 2⋅t
+
+With one iterable argument of new/old pairs, `subs()` iterates over each pair.  For example::
+
+   >>> a = expr('a * t + b')
+   >>> a.subs((('a', 4), ('b', 2))
+   4⋅t + 2
+
+The substitution method can also have a dictionary argument, keyed by symbol name, to replace symbols in an expression with constants.  For example::
+
+   >>> a = expr('a * t + b')
+   >>> a.subs({'a': 4, 'b': 2})
+   4⋅t + 2
+
+If you know what you are doing you can coerce the domain of the result
+with the domain argument, for example::
+
+   >>> H.subs(f, w / (2 * pi)).subs(jw, s, domain=s)
+
+.. _evaluation:
+
+Evaluation
+----------
+
+Evaluation is similar to substitution but requires all symbols in an
+expression to be substituted with values.  The result is a numerical
+answer, for example::
+
+   >>> a = expr('t**2 + 2 * t + 1')
+   >>> a.evaluate(0)
+   1.0
+
+The argument to `evaluate` can be a scalar, a tuple, a list, or a
+NumPy array.  For example::
+
+   >>> a = expr('t**2 + 2 * t + 1')
+   >>> tv = np.linspace(0, 1, 5)
+   >>> a.evaluate(tv)
+   array([1.    , 1.5625, 2.25  , 3.0625, 4.    ])
+
+If the argument is a scalar the returned result is a Python float or complex type; otherwise it is a NumPy array.  The evaluation method is useful for plotting results, (see :ref:`plotting`).
+
+
 .. _simplification:
 
 Simplification
-==============
+--------------
 
 Lcapy has the following simplification methods:
 
@@ -1971,7 +1978,7 @@ Lcapy has the following simplification methods:
 .. _approximation:
 
 Approximation
-=============
+-------------
 
 Lcapy has the following approximation methods:
 

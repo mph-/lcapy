@@ -5,6 +5,8 @@ Release notes
 V1.9
 ====
 
+- Supports other iterables for `subs()`.
+
 - Adds `approximate_dominant()` method to expressions (see
   :ref:`approximation`).
 
