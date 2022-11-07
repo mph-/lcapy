@@ -3568,8 +3568,13 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         return self.__class__(expr, **self.assumptions)
 
     def approximate_dominant(self, defs, threshold=0.01):
-        """Approximate expression using numerical values for the symbols to
-        decide which terms in a sum dominate the sum."""
+        """Approximate expression using ball-park numerical values for the
+        symbols to decide which terms in a sum dominate the sum.  A term
+        is neglected if its absolute value is below `threshold` times the
+        maximum absolute value of the terms in the sum.
+
+        `defs` is a dict, set, list, or tuple of symbol definitions;
+        see `subs()`."""
 
         ndefs = {}
         for k, v in defs.items():
@@ -3579,9 +3584,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
     def approximate_exp(self, method='pade', order=1, numer_order=None):
         """Approximate exp(a).  The best time-domain response (without a jump)
-        is achieved with 'numer_order == order - 1'.  The best
-        frequency-domain response is achieved with numer_order ==
-        order."""
+        is achieved with 'numer_order == order - 1', where `numer` is
+        the order of the numerator.  The best frequency-domain
+        response is achieved with `numer_order == order`."""
 
         expr = approximate_exp(self, method, order, numer_order)
         return self.__class__(expr, **self.assumptions)
@@ -3589,19 +3594,22 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     def approximate_fractional_power(self, method='pade', order=2):
         """This is an experimental method to approximate
         s**a, where a is fractional, with a rational function using
-        a Pade approximant."""
+        a Pade approximant of order `order`."""
 
         expr = approximate_fractional_power(self, method, order)
         return self.__class__(expr, **self.assumptions)
 
     def approximate_hyperbolic_trig(self, method='pade', order=1,
                                     numer_order=None):
-        """Approximate cosh(a), sinh(a), tanh(a)."""
+        """Approximate cosh(a), sinh(a), tanh(a) with a rational function using
+        a Pade approximant of order `order`."""
 
         expr = approximate_hyperbolic_trig(self, method, order, numer_order)
         return self.__class__(expr, **self.assumptions)
 
     def approximate_numer_order(self, order):
+        """Reduce order of numerator to `order`.
+        Warning, this assumes `self.var` is much smaller than 1."""
 
         N, D = self.as_N_D()
 
@@ -3609,6 +3617,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         return self.__class__(expr, **self.assumptions)
 
     def approximate_denom_order(self, order):
+        """Reduce order of denominator to `order`.
+        Warning, this assumes `self.var` is much smaller than 1."""
 
         N, D = self.as_N_D()
 
@@ -3616,6 +3626,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         return self.__class__(expr, **self.assumptions)
 
     def approximate_order(self, order):
+        """Reduce order of numerator and denominator to `order`.
+        Warning, this assumes `self.var` is much smaller than 1."""
 
         N, D = self.as_N_D()
 

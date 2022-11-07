@@ -142,8 +142,12 @@ def approximate_dominant_terms(expr, defs, threshold=0.01):
 
 
 def approximate_dominant(expr, defs, threshold=0.01):
-    """Approximate expression using numerical values for the symbols to
-    decide which terms in a sum dominate the sum."""
+    """Approximate expression using ball-park numerical values for the
+    symbols to decide which terms in a sum dominate the sum.  A term
+    is neglected if its absolute value is below `threshold` times the
+    maximum absolute value of the terms in the sum.
+
+    `defs` is a dict, set, list, or tuple of symbol definitions."""
 
     def query(expr):
 
