@@ -294,7 +294,15 @@ class ExprDict(ExprPrint, ExprContainer, ExprMisc, OrderedDict):
         return new
 
     def subs(self, *args, **kwargs):
-        """Substitute variables in expression, see sympy.subs for usage.
+        """Substitute symbols for each expression in dict.
+
+        `args` is either:
+        - two arguments, e.g. foo.subs(old, new)
+        - one iterable argument, e.g. foo.subs(iterable). The iterable may be
+           o an iterable container with (old, new) pairs. In this case the
+             replacements are processed in the order given with successive
+             patterns possibly affecting replacements already made.
+           o a dict or set whose key/value items correspond to old/new pairs.
 
         The domain of the result can be coerced using `domain` argument."""
 
@@ -359,7 +367,15 @@ class ExprList(ExprPrint, list, ExprContainer, ExprMisc):
         return self.__class__(ret)
 
     def subs(self, *args, **kwargs):
-        """Substitute variables in expression, see sympy.subs for usage.
+        """Substitute symbols for each expression in list.
+
+        `args` is either:
+        - two arguments, e.g. foo.subs(old, new)
+        - one iterable argument, e.g. foo.subs(iterable). The iterable may be
+           o an iterable container with (old, new) pairs. In this case the
+             replacements are processed in the order given with successive
+             patterns possibly affecting replacements already made.
+           o a dict or set whose key/value items correspond to old/new pairs.
 
         The domain of the result can be coerced using `domain` argument."""
 
@@ -440,7 +456,15 @@ class ExprTuple(ExprPrint, tuple, ExprContainer, ExprMisc):
         return self.__class__(ret)
 
     def subs(self, *args, **kwargs):
-        """Substitute variables in expression, see sympy.subs for usage.
+        """Substitute symbols for each expression in tuple.
+
+        `args` is either:
+        - two arguments, e.g. foo.subs(old, new)
+        - one iterable argument, e.g. foo.subs(iterable). The iterable may be
+           o an iterable container with (old, new) pairs. In this case the
+             replacements are processed in the order given with successive
+             patterns possibly affecting replacements already made.
+           o a dict or set whose key/value items correspond to old/new pairs.
 
         The domain of the result can be coerced using `domain` argument."""
 
@@ -2730,7 +2754,15 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         return self.__class__(ret, **self.assumptions)
 
     def subs(self, *args, **kwargs):
-        """Substitute variables in expression, see sympy.subs for usage.
+        """Substitute symbols in expression.
+
+        `args` is either:
+        - two arguments, e.g. foo.subs(old, new)
+        - one iterable argument, e.g. foo.subs(iterable). The iterable may be
+           o an iterable container with (old, new) pairs. In this case the
+             replacements are processed in the order given with successive
+             patterns possibly affecting replacements already made.
+           o a dict or set whose key/value items correspond to old/new pairs.
 
         The domain of the result can be coerced using `domain` argument."""
 
@@ -2742,11 +2774,16 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if len(args) == 2:
             return self._subs1(args[0], args[1], **kwargs)
 
-        if isinstance(args[0], dict):
+        if isinstance(args[0], (dict, set)):
+            # TODO, sort as per SymPy.
             dst = self
             for key, val in args[0].items():
                 dst = dst._subs1(key, val, **kwargs)
-
+            return dst
+        elif isinstance(args[0], (list, tuple)):
+            dst = self
+            for key, val in args[0]:
+                dst = dst._subs1(key, val, **kwargs)
             return dst
 
         if self.var is None:
