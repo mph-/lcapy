@@ -3536,9 +3536,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         ndefs = {}
         for k, v in defs.items():
-            ndefs[symbol_map(k)] = v
-        expr = approximate_dominant(self.sympy, ndefs, threshold)
-        return self.__class__(expr, **self.assumptions)
+            ndefs[symbol_map(k)] = expr(v).sympy
+        result = approximate_dominant(self.sympy, ndefs, threshold)
+        return self.__class__(result, **self.assumptions)
 
     def approximate_exp(self, method='pade', order=1, numer_order=None):
         """Approximate exp(a).  The best time-domain response (without a jump)
