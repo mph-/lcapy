@@ -11,7 +11,7 @@ Expression manipulation
 Second order system
 -------------------
 
-Consider a time signal of the form :math:`A \exp\left(-\alpha t\right) \cos\left(\omega_0 t + \theta\right)`.  This can be represented in Lcapy as::
+Consider a continuous-time signal of the form :math:`A \exp\left(-\alpha t\right) \cos\left(\omega_0 t + \theta\right)`.  This can be represented in Lcapy as::
 
   >>> from lcapy import *
   >>> x = expr('A * exp(-alpha * t) * cos(omega_0 * t + theta)')
@@ -331,8 +331,8 @@ Using an inverse Laplace transform, the output voltage signal in the time-domain
    >>> v_o = V_o(t)
    >>> v_o
      ⎛                                               -2⋅t⎞
-     ⎜2⋅sin(3⋅t)   cos(3⋅t)   (-2 - 3⋅ⅉ)⋅(-2 + 3⋅ⅉ)⋅ℯ    ⎟
-   6⋅⎜────────── - ──────── + ─────────────────────────── ⎟⋅u(t)
+     ⎜2⋅sin(3⋅t)   cos(3⋅t)   (-2 - 3⋅ⅉ)⋅(-2 + 3⋅ⅉ)⋅ℯ     ⎟
+   6⋅⎜────────── - ──────── + ───────────────────────────⎟⋅u(t)
      ⎝    39          13                  169            ⎠
 
 This can be simplified, however, SymPy has trouble with this as a whole.  Instead it is better to simplify the expression term by term::

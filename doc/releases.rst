@@ -5,7 +5,12 @@ Release notes
 V1.9
 ====
 
+- Adds `approximate_dominant()` method to expressions (see
+  :ref:`approximation`).
+
 - Adds units to parameterization definitions.
+
+- Adds units to poles and zeros.
 
 - Adds blocks for schematics.
 

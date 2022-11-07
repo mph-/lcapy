@@ -161,4 +161,4 @@ def approximate_order(expr, var, order):
 
     from sympy import O
 
-    return (expr + O(var ** order)).removeO()
+    return (expr.expand() + O(var ** (order + 1))).removeO()

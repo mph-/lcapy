@@ -624,6 +624,7 @@ where :math:`\tau_i` are time delays.   This representation is returned by the `
 .. math::
    N(s) = \sum_{i} N_i(s) \exp(-s \tau_i).
 
+
 .. _expressionsattributes:
 
 Expression attributes
@@ -855,7 +856,6 @@ Miscellaneous
 
    >>> (s**2 - 4).solve()
    [-2, 2]
-
 
 - `term_const()` splits expression into constant part and the rest.
 
@@ -1098,54 +1098,10 @@ Utility functions
 Note, SymPy does not allow symbol names that are Python keywords.  For example, `expr('is(t)')` fails.  A workaround is to use an underscore in the name, for example, `expr('i_s(t)')`.
 
 
-Domain transformation and substitution
-======================================
-
-Substitution and transformation use a similar syntax `V(arg)`.  If
-`arg` is a domain variable `t`, `f`, `s`, `omega`, `w`, `jomega`,
-`jw`, `n`, `k`, or `z` or is an expression of a domain variable,
-transformation is performed, otherwise substitution is performed.
-This behaviour can be explicitly controlled using the `subs()` and
-`transform()` methods, for example::
-
-   >>> from lcapy import *
-   >>> V1 = voltage('3 * exp(-2 * t)')
-   >>> V1.transform(s)
-     3
-   ─────
-   s + 2
-   >>> V1.transform(t)
-      -2⋅t
-   3⋅e
-   >>> V1.subs(2)
-      -4
-   3⋅e
-   >>> V1.subs(2).evaluate()
-   0.054946916666202536
-
-Here's another example::
-
-   >>> Hf = 1e6 / (j * f / 10 + 1)
-   1000000
-   ───────
-   ⅉ⋅f
-   ─── + 1
-    10
-   >>> Hs = Hf.subs(f, s / (j * 2 * pi)).canonical()
-   20000000⋅π
-   ──────────
-    s + 20⋅π
-
-If you know what you are doing you can coerce the domain of the result
-with the domain argument, for example::
-
-   >>> H.subs(f, w / (2 * pi)).subs(jw, s, domain=s)
-
-
 .. _transformation:
 
 Domain transformation
----------------------
+=====================
 
 Expressions can be transformed to a different domain (see :ref:`domains` and :ref:`transformation`), for example.  This can be done with an explicit method, for example, the Fourier transform can be determined with::
 
@@ -1192,6 +1148,43 @@ For example::
      3
    ─────
    s + 2
+
+
+Transformation and substitution use a similar syntax `V(arg)`.  If
+`arg` is a domain variable `t`, `f`, `s`, `omega`, `w`, `jf`, `jomega`,
+`jw`, `n`, `k`, or `z` or is an expression of a domain variable,
+transformation is performed, otherwise substitution is performed.
+This behaviour can be explicitly controlled using the `subs()` and
+`transform()` methods, for example::
+
+   >>> from lcapy import *
+   >>> V1 = voltage('3 * exp(-2 * t)')
+   >>> V1.transform(s)
+     3
+   ─────
+   s + 2
+   >>> V1.transform(t)
+      -2⋅t
+   3⋅e
+   >>> V1.subs(2)
+      -4
+   3⋅e
+   >>> V1.subs(2).evaluate()
+   0.054946916666202536
+
+Here's another example::
+
+   >>> Hf = 1e6 / (j * f / 10 + 1)
+   1000000
+   ───────
+   ⅉ⋅f
+   ─── + 1
+    10
+   >>> Hs = Hf.subs(f, s / (j * 2 * pi)).canonical()
+   20000000⋅π
+   ──────────
+    s + 20⋅π
+
 
 .. _frequency_response_domain:
 
@@ -1525,7 +1518,7 @@ Compare this with::
 .. _substitution:
 
 Substitution
-------------
+============
 
 Substitution replaces sub-expressions with new sub-expressions in an
 expression.  It is most commonly used to replace the underlying
@@ -1558,9 +1551,16 @@ With two arguments, `subs()` replaces a symbol with an expression.  For example,
    b + 2⋅t
 
 
+If you know what you are doing you can coerce the domain of the result
+with the domain argument, for example::
+
+   >>> H.subs(f, w / (2 * pi)).subs(jw, s, domain=s)
+
+
+.. _evaluation:
 
 Evaluation
-----------
+==========
 
 Evaluation is similar to substitution but requires all symbols in an
 expression to be substituted with values.  The result is a numerical
@@ -1581,7 +1581,6 @@ NumPy array.  For example::
 If the argument is a scalar the returned result is a Python float or complex type; otherwise it is a NumPy array.  The evaluation method is useful for plotting results, (see :ref:`plotting`).
 
 .. _phasors:
-
 
 Phasors
 =======
@@ -1914,6 +1913,8 @@ Voltage and current methods
 - `oneport()` returns a `Oneport` object corresponding to the immittance.  This may be a `V` or `I` object.
 
 
+.. _simplification:
+
 Simplification
 ==============
 
@@ -1967,6 +1968,7 @@ Lcapy has the following simplification methods:
    >>> rect(t).expand_functions()
    -u(t - 1/2) + u(t + 1/2)
 
+.. _approximation:
 
 Approximation
 =============
@@ -1974,10 +1976,10 @@ Approximation
 Lcapy has the following approximation methods:
 
 - `approximate_dominant(defs, threshold)` approximates expression
-    using numerical values for the symbols to decide which terms in a
+    using ball-park numerical values for the symbols to decide which terms in a
     sum dominate the sum.  For example,
 
-  >>> expr('1/(A*B + A*A + C)').approximate_dominant('A':100,'B':1,'C':20}, 0.005)
+  >>> expr('1/(A * B + A * A + C)').approximate_dominant('A':100,'B':1,'C':20}, 0.005)
         1
    ────────
     2
@@ -2022,8 +2024,13 @@ Note, some higher order approximations can be unstable.  For example, the step-r
 
 - `approximate_fractional_power(method, order)` approximates `s**a` where `a` is fractional with a rational function.
 
-- `approximate_order(order)` approximate expression by reducing order
-    of polynomial to specified order
+- `approximate_numer_order(order)` approximate expression by reducing order
+    of numerator to specified order
+
+- `approximate_denom_order(order)` approximate expression by reducing order
+    of denominator to specified order
+
+- `approximate_order(order)` approximate expression by reducing order to specified order
 
 - `approximate(method, order, numer_order)` applies many of the approximations.
 

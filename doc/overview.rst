@@ -193,9 +193,11 @@ Lcapy expressions have a number of other attributes  (see :ref:`expressionsattri
 
 - `fval` -- the expression evaluated as a Python floating-point number (if possible)
 
-and a number of generic methods (see :ref:`expressionsmethods`) including:
+and many generic methods (see :ref:`expressionsmethods`) including:
 
-- `simplify()` -- attempt simple simplification of the expression
+- `approximate()` -- attempt approximation of the expression (see :ref:`approximation`)
+
+- `simplify()` -- attempt simplification of the expression (see :ref:`simplification`)
 
 - `rationalize_denominator()` -- multiply numerator and denominator by complex conjugate of denominator
 
@@ -203,7 +205,7 @@ and a number of generic methods (see :ref:`expressionsmethods`) including:
 
 - `multiply_top_and_bottom(expr)` -- multiplies numerator and denominator by `expr`.
 
-- `evaluate()` -- evaluate at specified vector and return floating-point vector
+- `evaluate()` -- evaluate at specified vector and return floating-point vector (see :ref:`evaluation`)
 
 Here's an example that uses these attributes and methods::
 

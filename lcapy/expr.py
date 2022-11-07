@@ -3564,12 +3564,39 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         expr = approximate_hyperbolic_trig(self, method, order, numer_order)
         return self.__class__(expr, **self.assumptions)
 
-    def approximate_order(self, order):
+    def approximate_numer_order(self, order):
 
-        expr = approximate_order(self.sympy, self.var, order)
+        N, D = self.as_N_D()
+
+        expr = approximate_order(N.sympy, self.var, order) / D.sympy
         return self.__class__(expr, **self.assumptions)
 
-    def approximate(self, method='pade', order=1, numer_order=None):
+    def approximate_denom_order(self, order):
+
+        N, D = self.as_N_D()
+
+        expr = N.sympy / approximate_order(D.sympy, self.var, order)
+        return self.__class__(expr, **self.assumptions)
+
+    def approximate_order(self, order):
+
+        N, D = self.as_N_D()
+
+        expr = approximate_order(N.sympy, self.var, order) / \
+            approximate_order(D.sympy, self.var, order)
+        return self.__class__(expr, **self.assumptions)
+
+    def approximate(self, method='pade', order=1, numer_order=None, defs=None,
+                    threshold=0.01):
+        """Approximate an expression.  The order of attempted approximations is:
+        1. Fractional powers
+        2. Exponential functions
+        3. Hyperbolic trigonometric functions
+        4. Dominant terms (if `defs` is defined).
+
+        See also `approximate_numer_order`, `approximate_denom_order`, and
+        `approximate_order` methods.
+        """
 
         result = self.approximate_fractional_power(method=method,
                                                    order=order)
@@ -3579,13 +3606,15 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         result = result.approximate_hyperbolic_trig(method=method,
                                                     order=order,
                                                     numer_order=numer_order)
+        if defs is not None:
+            result = result.approximate_dominant(defs, threshold)
         return result
 
     def as_value_unit(self):
         """Return tuple of value and unit.  For example,
 
-        >>> v = voltage(5)
-        >>> v.as_value_unit
+        >> > v = voltage(5)
+        >> > v.as_value_unit
         (5, volts)
         """
 
@@ -3598,8 +3627,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         cannot be factored into ZPK form with a constant delay.
         For example, sometimes SymPy gives:
 
-            ⎛    s⋅τ     ⎞  -s⋅τ
-            ⎝V₁⋅ℯ    - V₂⎠⋅ℯ
+            ⎛    s⋅τ     ⎞ - s⋅τ
+            ⎝V₁⋅ℯ   -  V₂⎠⋅ℯ
         I = ────────────────────
                s⋅(L⋅s + R)
 
@@ -3610,7 +3639,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
                      -s⋅τ
         N = V₁ - V₂⋅ℯ
-        D =  s⋅(L⋅s + R)"""
+        D = s⋅(L⋅s + R)"""
 
         N, D = as_N_D(self.expr, self.var, monic_denominator, use_sympy)
 
@@ -3623,8 +3652,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         cannot be factored into ZPK form with a constant delay.
         For example, sometimes SymPy gives:
 
-            ⎛    s⋅τ     ⎞  -s⋅τ
-            ⎝V₁⋅ℯ    - V₂⎠⋅ℯ
+            ⎛    s⋅τ     ⎞ - s⋅τ
+            ⎝V₁⋅ℯ - V₂⎠⋅ℯ
         I = ────────────────────
                s⋅(L⋅s + R)
 
@@ -3635,8 +3664,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         I.as_ordered_terms()
 
-        ⎡⎛    s⋅τ     ⎞  -s⋅τ⎤
-        ⎢⎝V₁⋅ℯ    - V₂⎠⋅ℯ    ⎥
+        ⎡⎛    s⋅τ     ⎞ - s⋅τ⎤
+        ⎢⎝V₁⋅ℯ - V₂⎠⋅ℯ    ⎥
         ⎢────────────────────⎥
         ⎣    s⋅(L⋅s + R)     ⎦
 
@@ -3779,7 +3808,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         return self
 
     def remove_undefs(self, return_mappings=False):
-        """Replace applied undefined functions (undefs) with symbols, for
+        """Replace applied undefined functions(undefs) with symbols, for
         example, replace x(t) with x, etc.
 
         This is useful for simplifying and solving equations.
@@ -3841,15 +3870,15 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         For example,
 
-        >>> x = Sum(DiracDelta(f - m/Delta_t), (m, -oo, oo))
-        >>> x.remove_images()
+        >> > x = Sum(DiracDelta(f - m/Delta_t), (m, -oo, oo))
+        >> > x.remove_images()
         DiracDelta(f)
 
         Alternatively, the number of images can be changed,
         for example,
 
-        >>> x = Sum(DiracDelta(f - m/Delta_t), (m, -1, 1))
-        >>> x.remove_images()
+        >> > x = Sum(DiracDelta(f - m/Delta_t), (m, -1, 1))
+        >> > x.remove_images()
         Sum(DiracDelta(f - m/Delta_t), (f, -1, 1))
 
         """
@@ -4049,7 +4078,7 @@ def equation(lhs, rhs, inputsym='x', outputsym='y', **assumptions):
     For example,
     e = equation('Y(s)', 'X(s) * 2 * s')
 
-    The left hand side (lhs) and right hand side subexpressions
+    The left hand side(lhs) and right hand side subexpressions
     can be obtained with the `lhs` and `rhs` attributes."""
 
     from .differenceequation import DifferenceEquation
