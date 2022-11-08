@@ -311,6 +311,211 @@ Domain attributes
 - `is_Z_domain`
 - `is_transform_domain`
 
+Domain classes
+--------------
+
+Lcapy has many expression classes, one for each combination of domain
+(time, Fourier, Laplace, etc) and expression type (voltage, current,
+impedance, admittance, transfer function).  For example, to represent
+Laplace domain entities there are the following classes:
+
+`LaplaceDomainExpression` is a generic s-domain expression.
+
+`LaplaceDomainVoltage` is a s-domain voltage.
+
+`LaplaceDomainCurrent` is a s-domain current.
+
+`LaplaceDomainTransferFunction` is a s-domain transfer function.
+
+`LaplaceDomainAdmittance` is a s-domain admittance.
+
+`LaplaceDomainImpedance` is a s-domain impedance.
+
+These classes should not be explicitly used.  Instead use the factory functions
+`expr`, `voltage`, `current`, `transfer`, `admittance`, and `impedance`.
+
+
+.. _phasors:
+
+Phasors
+-------
+
+Phasors represent signals of the form :math:`v(t) = A \cos(\omega t +
+\phi)` as a complex amplitude :math:`X = A \exp(\mathrm{j} \phi)`
+where :math:`A` is the amplitude, :math:`\phi` is the phase, and the
+angular frequency, :math:`\omega`, is implied.  The signal
+corresponding to the phasor :math:`A \exp(\mathrm{j} \phi)` is found
+from:
+
+.. math::
+    x(t) = \mathrm{Re}\left\{ A \exp(\mathrm{j} \phi) \exp(\mathrm{j} \omega t)\right\}
+
+
+Thus, the signal :math:`v(t) = A \sin(\omega t)` has a phase :math:`\phi=-\pi/2`.
+
+Phasors can be created in Lcapy with the `phasor()` factory function::
+
+   >>> P = phasor(2)
+   >>> P.time()
+   2⋅cos(ω⋅t)
+
+   >>> P = phasor(-2 * j)
+   >>> P.time()
+   2⋅sin(ω⋅t)
+
+The default angular frequency is `omega` but this can be specified::
+
+   >>> phasor(-j, omega=1)
+   sin(t)
+
+Phasors can also be inferred from an AC signal::
+
+   >>> P = phasor(2 * sin(3 * t))
+   >>> P
+   -2⋅ⅉ
+   >>> P.omega
+   3
+
+Phasor voltages and currents can be created using the `voltage()` and `current()` functions.  For example::
+
+   >>> V = voltage(phasor(1))
+   >>> V.quantity
+   'voltage'
+
+They can also be created from an AC time-domain signal using the `as_phasor()` method.  For example::
+
+   >>> v = voltage(2 * sin(7 * t))
+   >>> V = v.as_phasor()
+   >>> V
+   -2⋅ⅉ
+
+Like all Lcapy expressions, the magnitude and phase of the phasor can
+be found from the `magnitude` and `phase` attributes.  For example::
+
+    >>> V = voltage(phasor(2 * sin(7 * t)))
+    >>> V.magnitude
+    2
+    >>> V.phase
+    -π
+    ───
+     2
+
+The root-mean-square value of the phasor is found with the `rms()` method.  For example::
+
+   >>> V = voltage(phasor(2))
+   >>> V.rms()
+   √2
+
+
+Phasors can be plotted on a polar diagram using the `plot()` method, for example::
+
+  >>> I = current(phasor(1 + j))
+  >>> I.plot()
+
+
+Phasor ratios
+-------------
+
+The ratio of two phasors is a phasor ratio; it is not a phasor.  For example::
+
+   >>> V = voltage(phasor(4))
+   >>> I = current(phasor(2))
+   >>> Z = V / I
+   >>> Z.domain
+   phasor ratio
+   >>> Z.omega
+   ω
+
+.. _noisesignals:
+
+Noise signals
+-------------
+
+Lcapy can represent wide-sense stationary, zero-mean, Gaussian random
+processes.  They are represented in terms of their one-sided,
+amplitude spectral density (ASD); this is the square root of the power
+spectral density (PSD), assuming a one ohm load.
+
+With the wide-sense stationary assumption, random process can be
+described by their power spectral (or amplitude spectral) density or
+by their time-invariant autocorrelation function.
+
+Lcapy assumes each noise source is independent and assigns a unique
+noise identifier (nid) to each noise expression produced from a noise
+source.  A scaled noise expression shares the noise identifier since
+the noise is perfectly correlated.
+
+Consider the sum of two noise processes:
+
+.. math::
+   Z(t) = X(t) + Y(t).
+
+With the wide-sense stationarity and independence assumptions, the
+resulting-power spectral density is given by
+
+.. math::
+  S_Z(f) = S_X(f) + S_Y(f),
+
+and the amplitude spectral density is
+
+.. math::
+  \mathcal{A}_Z(f) = \sqrt{\mathcal{A}_X^2(f) + \mathcal{A}_Y^2(f)}.
+
+Furthermore, the resultant autocorrelation is
+
+.. math::
+  R_Z(\tau) =  R_X(\tau) + R_Y(\tau).
+
+
+Noise signals can be created using the `noisevoltage()` and
+`noisecurrent()` methods.  For example, a white-noise signal can be
+created using::
+
+   >>> X = noisevoltage(3)
+   >>> X.units
+   'V/sqrt(Hz)'
+   >>> X.domain
+   'fourier noise'
+   >>> X.nid
+   1
+
+
+When another white-noise signal is created, it is is assigned a
+different noise identifier since the noise signals are assumed to be
+independent::
+
+   >>> Y = noisevoltage(4)
+   >>> Y.nid
+   2
+
+Since the noise signals are independent and wide-sense stationary, the
+ASD of the result is found from the square root of the sum of the
+squared ASDs::
+
+   >>> Z = X + Y
+   >>> Z
+   5
+
+Care must be taken when manipulating noise signals.  For example, consider::
+
+   >>> X + Y - X
+   √34
+   >>> X + Y - Y
+   √41
+
+The error arises since it is assumed that `X + Y` is independent of
+`X` which is not the case.  A work-around is to create a
+`VoltageSuperposition` object until someone comes up with a better idea.
+This stores each independent noise component separately (as used by
+Lcapy when performing circuit analysis).  For example::
+
+   >>> from lcapy.superpositionvoltage import SuperpositionVoltage
+   >>> X = noisevoltage(3)
+   >>> Y = noisevoltage(4)
+   >>> Z = SuperpositionVoltage(X) + SuperpositionVoltage(Y)
+   {n1: 3, n2: 4}
+   >>> Z = SuperpositionVoltage(X) + SuperpositionVoltage(Y) - SuperpositionVoltage(X)
+   {n2: 4}
 
 .. _quantities:
 
@@ -371,6 +576,247 @@ Expressions have the following attributes to identify the quantity:
 - `is_impedancesquared`
 - `is_admittancesquared`
 - `is_power`
+
+
+.. _immittances:
+
+Immittances
+-----------
+
+Immittances (impedances and admittances) are a frequency domain
+generalization of resistance and conductance.  In Lcapy they are
+represented using the `Impedance` and `Admittance` classes for each of
+the domains.  The appropriate class is created using the `impedance`
+and `admittance` factory functions.  For example::
+
+   >>> Z1 = impedance(5 * s)
+   >>> Z2 = impedance(5 * j * omega)
+   >>> Z3 = admittance(s * 'C')
+
+The impedance can be converted to a specific domain using a domain variable
+as an argument.  For example::
+
+   >>> Z1(omega)
+   5⋅ⅉ⋅ω
+   >>> Z2(s)
+   5⋅s
+   >>> Z1(f)
+   10⋅ⅉ⋅π⋅f
+
+The time-domain representation of the immittance is the inverse Laplace
+transform of the s-domain immittance, for example::
+
+   >>> impedance(1 / s)(t)
+   Heaviside(t)
+   >>> impedance(1)(t)
+   δ(t)
+   >>> impedance(s)(t)
+    (1)
+   δ   (t)
+
+Here :math:`\delta^{(1)}(t)` denotes the time-derivative of the Dirac
+delta, :math:`\delta(t)`.
+
+An `Admittance` or `Impedance` object can be created with the `Y` or
+`Z` attribute of a `Oneport` component, for example::
+
+   >>> C(3).Z
+   -ⅉ
+   ───
+   3⋅ω
+
+   >>> C(3).Z(s)
+    1
+   ───
+   3⋅s
+   >>> C(3).Y(s)
+   3⋅s
+
+Netlist components have similar attributes.  For example::
+
+   >>> from lcapy import Circuit
+   >>> a = Circuit("""
+   ... C 1 2""")
+   >>> a.C.Z
+    1
+   ───
+   C⋅s
+
+
+Immittance attributes
+---------------------
+
+- `B` susceptance
+
+- `G` conductance
+
+- `R` resistance
+
+- `X` reactance
+
+- `Y` admittance
+
+- `Z` impedance
+
+- `is_lossy` has a non zero resistance component
+
+Impedance is related to resistance and reactance by
+
+:math:`Z = R + \mathrm{j} X`
+
+Admittance is related to conductance and susceptance by
+
+:math:`Y = G + \mathrm{j} B`
+
+Since admittance is the reciprocal of impedance,
+
+:math:`Y = \frac{1}{Z} = \frac{R}{R^2 + X^2} - \mathrm{j} \frac{X}{R^2 + X^2}`
+
+Thus
+
+:math:`G = \frac{R}{R^2 + X^2}`
+
+and
+
+:math:`B = \frac{-X}{R^2 + X^2}`
+
+
+Note, at DC, when :math:`X = 0`, then :math:`G = 1 / R` and is
+infinite for :math:`R= 0`.  However, if Z is purely imaginary, i.e,
+:math:`R = 0` then :math:`G = 0`, not infinity as might be expected.
+
+
+Immittance methods
+------------------
+
+- `oneport()` returns a `Oneport` object corresponding to the immittance.  This may be a `R`, `C`, `L`, `G`, `Y`, or `Z` object.
+
+
+Voltages and currents
+---------------------
+
+Voltages and currents are created with the `voltage()` and `current()`
+factory functions.   For example::
+
+  >>> v = voltage(5 * u(t))
+  >>> I = current(5 * s)
+
+The domain is inferred from the domain variable in the expression (see :ref:`domains`).
+
+The results from circuit analysis are represented by a superposition of different domains.
+
+.. _superpositions:
+
+Voltage and current superpositions
+----------------------------------
+
+Superpositions of voltages and/or current are represented using the `SuperpositionVoltage` and `SuperpositionCurrent` classes.  These classes have similar behaviour; they represent an arbitrary voltage or current signal as a superposition of DC, AC (phasor), transient, and noise signals.
+
+For example, the following expression is a superposition of a DC
+component, an AC component, and a transient component::
+
+   >>> V1 = SuperpositionVoltage('1 + 2 * cos(2 * pi * 3 * t) + 3 * u(t)')
+   >>> V1
+   ⎧          3        ⎫
+   ⎨dc: 1, s: ─, 6⋅π: 2⎬
+   ⎩          s        ⎭
+
+This shows that there is 1 V DC component, a transient component with
+a Laplace transform :math:`3 / s`, and an AC component (phasor) with
+amplitude 2 V and angular frequency :math:`6 \pi` rad/s.
+
+Pure DC components are not shown as a superposition.  For example::
+
+   >>> V2 = SuperpositionVoltage(42)
+   >>> V2
+   42
+
+Similarly, pure transient components are not shown as a superposition
+if they depend on `s`.  For example::
+
+   >>> V3 = SuperpositionVoltage(3 * u(t))
+   >>> V3
+   3
+   ─
+   s
+
+However, consider the following::
+
+   >>> V4 = SuperpositionVoltage(4 * DiracDelta(t))
+   >>> V4
+   {s: 4}
+
+This is not shown as 4 to avoid confusion with a 4 V DC component.  Maybe it should be written :math:`0 s + 4`?
+
+A pure AC component (phasor) has `magnitude`, `phase`, and `omega` attributes.  The latter is the angular frequency.  For example::
+
+   >>> V5 = SuperpositionVoltage(3 * sin(7 * t) + 4 * cos(7 * t))
+   >>> V5
+   {7: 4 - 3⋅ⅉ}
+   >>> V5.magnitude
+   5
+
+If the signal is a superposition of AC signals, each phasor can be extracted using its angular frequency as the index.  For example::
+
+   >>> V6 = SuperpositionVoltage(3 * sin(7 * t) + 2 * cos(14 * t))
+   >>> V6[7]
+   -3⋅ⅉ
+   >>> V6[14]
+   2
+
+The signal can be converted to another domain using a domain variable
+as an argument:
+
+- `V1(t)` returns the time domain expression
+- `V1(f)` returns the Fourier domain expression with linear frequency
+- `V1(s)` returns the Laplace domain expression
+- `V1(omega)`or `V1(w)` returns the angular Fourier domain expression
+- `V1(jomega)` or `V1(jw)` returns the angular frequency domain expression
+
+Here are some examples::
+
+   >>> V1(t)
+   2⋅cos(6⋅π⋅t) + 3⋅u(t) + 1
+   >>> V1(s)
+     ⎛ 2       2⎞
+   6⋅⎝s  + 24⋅π ⎠
+   ──────────────
+     ⎛ 2       2⎞
+   s⋅⎝s  + 36⋅π ⎠
+   >>> V1(jomega)
+        ⎛   2       2⎞
+   -6⋅ⅉ⋅⎝- ω  + 24⋅π ⎠
+   ────────────────────
+       ⎛   2       2⎞
+     ω⋅⎝- ω  + 36⋅π ⎠
+
+
+
+Voltage and current attributes
+------------------------------
+
+- `dc` returns the DC component
+- `ac` returns a dictionary of the AC components, keyed by the frequency
+- `transient` returns the time-domain transient component
+- `is_dc` returns True if a pure DC signal
+- `is_ac` returns True if a pure AC signal
+- `is_transient` returns True if a pure transient signal
+- `has_dc` returns True if has a DC signal
+- `has_ac` returns True if has an AC signal
+- `has_transient` returns True if has a transient signal
+- `domain` returns the domain as a string
+- `quantity` returns the quantity (voltage or current) as a string
+- `is_voltage` returns True if a voltage expression
+- `is_current` returns True if a current expression
+
+In addition, there are domain attributes, such as `is_time_domain`,
+`is_laplace_domain`, etc. (see :ref:`domainattributes`).
+
+
+Voltage and current methods
+---------------------------
+
+- `oneport()` returns a `Oneport` object corresponding to the immittance.  This may be a `V` or `I` object.
 
 
 .. _units:
@@ -1516,340 +1962,6 @@ Compare this with::
 
 
 
-.. _phasors:
-
-Phasors
-=======
-
-Phasors represent signals of the form :math:`v(t) = A \cos(\omega t +
-\phi)` as a complex amplitude :math:`X = A \exp(\mathrm{j} \phi)`
-where :math:`A` is the amplitude, :math:`\phi` is the phase, and the
-angular frequency, :math:`\omega`, is implied.  The signal
-corresponding to the phasor :math:`A \exp(\mathrm{j} \phi)` is found
-from:
-
-.. math::
-    x(t) = \mathrm{Re}\left\{ A \exp(\mathrm{j} \phi) \exp(\mathrm{j} \omega t)\right\}
-
-
-Thus, the signal :math:`v(t) = A \sin(\omega t)` has a phase :math:`\phi=-\pi/2`.
-
-Phasors can be created in Lcapy with the `phasor()` factory function::
-
-   >>> P = phasor(2)
-   >>> P.time()
-   2⋅cos(ω⋅t)
-
-   >>> P = phasor(-2 * j)
-   >>> P.time()
-   2⋅sin(ω⋅t)
-
-The default angular frequency is `omega` but this can be specified::
-
-   >>> phasor(-j, omega=1)
-   sin(t)
-
-Phasors can also be inferred from an AC signal::
-
-   >>> P = phasor(2 * sin(3 * t))
-   >>> P
-   -2⋅ⅉ
-   >>> P.omega
-   3
-
-Phasor voltages and currents can be created using the `voltage()` and `current()` functions.  For example::
-
-   >>> V = voltage(phasor(1))
-   >>> V.quantity
-   'voltage'
-
-They can also be created from an AC time-domain signal using the `as_phasor()` method.  For example::
-
-   >>> v = voltage(2 * sin(7 * t))
-   >>> V = v.as_phasor()
-   >>> V
-   -2⋅ⅉ
-
-Like all Lcapy expressions, the magnitude and phase of the phasor can
-be found from the `magnitude` and `phase` attributes.  For example::
-
-    >>> V = voltage(phasor(2 * sin(7 * t)))
-    >>> V.magnitude
-    2
-    >>> V.phase
-    -π
-    ───
-     2
-
-The root-mean-square value of the phasor is found with the `rms()` method.  For example::
-
-   >>> V = voltage(phasor(2))
-   >>> V.rms()
-   √2
-
-
-Phasors can be plotted on a polar diagram using the `plot()` method, for example::
-
-  >>> I = current(phasor(1 + j))
-  >>> I.plot()
-
-
-Phasor ratios
-=============
-
-The ratio of two phasors is a phasor ratio; it is not a phasor.  For example::
-
-   >>> V = voltage(phasor(4))
-   >>> I = current(phasor(2))
-   >>> Z = V / I
-   >>> Z.domain
-   phasor ratio
-   >>> Z.omega
-   ω
-
-
-.. _immittances:
-
-Immittances
-===========
-
-Immittances (impedances and admittances) are a frequency domain
-generalization of resistance and conductance.  In Lcapy they are
-represented using the `Impedance` and `Admittance` classes for each of
-the domains.  The appropriate class is created using the `impedance`
-and `admittance` factory functions.  For example::
-
-   >>> Z1 = impedance(5 * s)
-   >>> Z2 = impedance(5 * j * omega)
-   >>> Z3 = admittance(s * 'C')
-
-The impedance can be converted to a specific domain using a domain variable
-as an argument.  For example::
-
-   >>> Z1(omega)
-   5⋅ⅉ⋅ω
-   >>> Z2(s)
-   5⋅s
-   >>> Z1(f)
-   10⋅ⅉ⋅π⋅f
-
-The time-domain representation of the immittance is the inverse Laplace
-transform of the s-domain immittance, for example::
-
-   >>> impedance(1 / s)(t)
-   Heaviside(t)
-   >>> impedance(1)(t)
-   δ(t)
-   >>> impedance(s)(t)
-    (1)
-   δ   (t)
-
-Here :math:`\delta^{(1)}(t)` denotes the time-derivative of the Dirac
-delta, :math:`\delta(t)`.
-
-An `Admittance` or `Impedance` object can be created with the `Y` or
-`Z` attribute of a `Oneport` component, for example::
-
-   >>> C(3).Z
-   -ⅉ
-   ───
-   3⋅ω
-
-   >>> C(3).Z(s)
-    1
-   ───
-   3⋅s
-   >>> C(3).Y(s)
-   3⋅s
-
-Netlist components have similar attributes.  For example::
-
-   >>> from lcapy import Circuit
-   >>> a = Circuit("""
-   ... C 1 2""")
-   >>> a.C.Z
-    1
-   ───
-   C⋅s
-
-
-Immittance attributes
----------------------
-
-- `B` susceptance
-
-- `G` conductance
-
-- `R` resistance
-
-- `X` reactance
-
-- `Y` admittance
-
-- `Z` impedance
-
-- `is_lossy` has a non zero resistance component
-
-Impedance is related to resistance and reactance by
-
-:math:`Z = R + \mathrm{j} X`
-
-Admittance is related to conductance and susceptance by
-
-:math:`Y = G + \mathrm{j} B`
-
-Since admittance is the reciprocal of impedance,
-
-:math:`Y = \frac{1}{Z} = \frac{R}{R^2 + X^2} - \mathrm{j} \frac{X}{R^2 + X^2}`
-
-Thus
-
-:math:`G = \frac{R}{R^2 + X^2}`
-
-and
-
-:math:`B = \frac{-X}{R^2 + X^2}`
-
-
-Note, at DC, when :math:`X = 0`, then :math:`G = 1 / R` and is
-infinite for :math:`R= 0`.  However, if Z is purely imaginary, i.e,
-:math:`R = 0` then :math:`G = 0`, not infinity as might be expected.
-
-
-Immittance methods
-------------------
-
-- `oneport()` returns a `Oneport` object corresponding to the immittance.  This may be a `R`, `C`, `L`, `G`, `Y`, or `Z` object.
-
-
-Voltages and currents
-=====================
-
-Voltages and currents are created with the `voltage()` and `current()`
-factory functions.   For example::
-
-  >>> v = voltage(5 * u(t))
-  >>> I = current(5 * s)
-
-The domain is inferred from the domain variable in the expression (see :ref:`domains`).
-
-The results from circuit analysis are represented by a superposition of different domains.
-
-.. _superpositions:
-
-Voltage and current superpositions
-----------------------------------
-
-Superpositions of voltages and/or current are represented using the `SuperpositionVoltage` and `SuperpositionCurrent` classes.  These classes have similar behaviour; they represent an arbitrary voltage or current signal as a superposition of DC, AC (phasor), transient, and noise signals.
-
-For example, the following expression is a superposition of a DC
-component, an AC component, and a transient component::
-
-   >>> V1 = SuperpositionVoltage('1 + 2 * cos(2 * pi * 3 * t) + 3 * u(t)')
-   >>> V1
-   ⎧          3        ⎫
-   ⎨dc: 1, s: ─, 6⋅π: 2⎬
-   ⎩          s        ⎭
-
-This shows that there is 1 V DC component, a transient component with
-a Laplace transform :math:`3 / s`, and an AC component (phasor) with
-amplitude 2 V and angular frequency :math:`6 \pi` rad/s.
-
-Pure DC components are not shown as a superposition.  For example::
-
-   >>> V2 = SuperpositionVoltage(42)
-   >>> V2
-   42
-
-Similarly, pure transient components are not shown as a superposition
-if they depend on `s`.  For example::
-
-   >>> V3 = SuperpositionVoltage(3 * u(t))
-   >>> V3
-   3
-   ─
-   s
-
-However, consider the following::
-
-   >>> V4 = SuperpositionVoltage(4 * DiracDelta(t))
-   >>> V4
-   {s: 4}
-
-This is not shown as 4 to avoid confusion with a 4 V DC component.  Maybe it should be written :math:`0 s + 4`?
-
-A pure AC component (phasor) has `magnitude`, `phase`, and `omega` attributes.  The latter is the angular frequency.  For example::
-
-   >>> V5 = SuperpositionVoltage(3 * sin(7 * t) + 4 * cos(7 * t))
-   >>> V5
-   {7: 4 - 3⋅ⅉ}
-   >>> V5.magnitude
-   5
-
-If the signal is a superposition of AC signals, each phasor can be extracted using its angular frequency as the index.  For example::
-
-   >>> V6 = SuperpositionVoltage(3 * sin(7 * t) + 2 * cos(14 * t))
-   >>> V6[7]
-   -3⋅ⅉ
-   >>> V6[14]
-   2
-
-The signal can be converted to another domain using a domain variable
-as an argument:
-
-- `V1(t)` returns the time domain expression
-- `V1(f)` returns the Fourier domain expression with linear frequency
-- `V1(s)` returns the Laplace domain expression
-- `V1(omega)`or `V1(w)` returns the angular Fourier domain expression
-- `V1(jomega)` or `V1(jw)` returns the angular frequency domain expression
-
-Here are some examples::
-
-   >>> V1(t)
-   2⋅cos(6⋅π⋅t) + 3⋅u(t) + 1
-   >>> V1(s)
-     ⎛ 2       2⎞
-   6⋅⎝s  + 24⋅π ⎠
-   ──────────────
-     ⎛ 2       2⎞
-   s⋅⎝s  + 36⋅π ⎠
-   >>> V1(jomega)
-        ⎛   2       2⎞
-   -6⋅ⅉ⋅⎝- ω  + 24⋅π ⎠
-   ────────────────────
-       ⎛   2       2⎞
-     ω⋅⎝- ω  + 36⋅π ⎠
-
-
-
-Voltage and current attributes
-------------------------------
-
-- `dc` returns the DC component
-- `ac` returns a dictionary of the AC components, keyed by the frequency
-- `transient` returns the time-domain transient component
-- `is_dc` returns True if a pure DC signal
-- `is_ac` returns True if a pure AC signal
-- `is_transient` returns True if a pure transient signal
-- `has_dc` returns True if has a DC signal
-- `has_ac` returns True if has an AC signal
-- `has_transient` returns True if has a transient signal
-- `domain` returns the domain as a string
-- `quantity` returns the quantity (voltage or current) as a string
-- `is_voltage` returns True if a voltage expression
-- `is_current` returns True if a current expression
-
-In addition, there are domain attributes, such as `is_time_domain`,
-`is_laplace_domain`, etc. (see :ref:`domainattributes`).
-
-
-Voltage and current methods
----------------------------
-
-- `oneport()` returns a `Oneport` object corresponding to the immittance.  This may be a `V` or `I` object.
-
-
-
 Expression manipulation
 =======================
 
@@ -2150,29 +2262,6 @@ For example::
    {cos(6⋅π⋅t)  for t ≥ 0
 
 
-Domain classes
-==============
-
-Lcapy has many expression classes, one for each combination of domain
-(time, Fourier, Laplace, etc) and expression type (voltage, current,
-impedance, admittance, transfer function).  For example, to represent
-Laplace domain entities there are the following classes:
-
-`LaplaceDomainExpression` is a generic s-domain expression.
-
-`LaplaceDomainVoltage` is a s-domain voltage.
-
-`LaplaceDomainCurrent` is a s-domain current.
-
-`LaplaceDomainTransferFunction` is a s-domain transfer function.
-
-`LaplaceDomainAdmittance` is a s-domain admittance.
-
-`LaplaceDomainImpedance` is a s-domain impedance.
-
-These classes should not be explicitly used.  Instead use the factory functions
-`expr`, `voltage`, `current`, `transfer`, `admittance`, and `impedance`.
-
 
 .. _discrete-time-approximation:
 
@@ -2230,98 +2319,6 @@ impulse response has no zeros.  For this example, the bilinear and impulse-invar
 
 .. image:: examples/discretetime/discretize1.png
    :width: 12cm
-
-.. _noisesignals:
-
-Noise signals
-=============
-
-Lcapy can represent wide-sense stationary, zero-mean, Gaussian random
-processes.  They are represented in terms of their one-sided,
-amplitude spectral density (ASD); this is the square root of the power
-spectral density (PSD), assuming a one ohm load.
-
-With the wide-sense stationary assumption, random process can be
-described by their power spectral (or amplitude spectral) density or
-by their time-invariant autocorrelation function.
-
-Lcapy assumes each noise source is independent and assigns a unique
-noise identifier (nid) to each noise expression produced from a noise
-source.  A scaled noise expression shares the noise identifier since
-the noise is perfectly correlated.
-
-Consider the sum of two noise processes:
-
-.. math::
-   Z(t) = X(t) + Y(t).
-
-With the wide-sense stationarity and independence assumptions, the
-resulting-power spectral density is given by
-
-.. math::
-  S_Z(f) = S_X(f) + S_Y(f),
-
-and the amplitude spectral density is
-
-.. math::
-  \mathcal{A}_Z(f) = \sqrt{\mathcal{A}_X^2(f) + \mathcal{A}_Y^2(f)}.
-
-Furthermore, the resultant autocorrelation is
-
-.. math::
-  R_Z(\tau) =  R_X(\tau) + R_Y(\tau).
-
-
-Noise signals can be created using the `noisevoltage()` and
-`noisecurrent()` methods.  For example, a white-noise signal can be
-created using::
-
-   >>> X = noisevoltage(3)
-   >>> X.units
-   'V/sqrt(Hz)'
-   >>> X.domain
-   'fourier noise'
-   >>> X.nid
-   1
-
-
-When another white-noise signal is created, it is is assigned a
-different noise identifier since the noise signals are assumed to be
-independent::
-
-   >>> Y = noisevoltage(4)
-   >>> Y.nid
-   2
-
-Since the noise signals are independent and wide-sense stationary, the
-ASD of the result is found from the square root of the sum of the
-squared ASDs::
-
-   >>> Z = X + Y
-   >>> Z
-   5
-
-Care must be taken when manipulating noise signals.  For example, consider::
-
-   >>> X + Y - X
-   √34
-   >>> X + Y - Y
-   √41
-
-The error arises since it is assumed that `X + Y` is independent of
-`X` which is not the case.  A work-around is to create a
-`VoltageSuperposition` object until someone comes up with a better idea.
-This stores each independent noise component separately (as used by
-Lcapy when performing circuit analysis).  For example::
-
-   >>> from lcapy.superpositionvoltage import SuperpositionVoltage
-   >>> X = noisevoltage(3)
-   >>> Y = noisevoltage(4)
-   >>> Z = SuperpositionVoltage(X) + SuperpositionVoltage(Y)
-   {n1: 3, n2: 4}
-   >>> Z = SuperpositionVoltage(X) + SuperpositionVoltage(Y) - SuperpositionVoltage(X)
-   {n2: 4}
-
 
 .. _plotting:
 
