@@ -1,4 +1,4 @@
-P1 1 0; down=1.5, v=v_i(t)
+P1 1 0; down=1.5, v_=v_i(t)
 R 1 2 2; right=1.5
 C 2 0_2 {1/4}; down
 W 0 0_2; right
