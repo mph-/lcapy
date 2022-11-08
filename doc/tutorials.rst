@@ -561,7 +561,19 @@ Finally, the result in terms of R, L, and C can be found by substituting the par
 
    >>> VR(t).subs(defs)
 
-However, the result is too long to show.
+However, the result is too long to show here.
+
+The resultant expression can be approximated (see :ref:`Approximation`) to achieve a simpler form.  The `approximate_dominant()` method requires some ball park values for some (or all) of the components.  It will then neglect terms in a sum that contribute little.  For example::
+
+   >>> VR.subs(defs).approximate_dominant({'C':1e-6,'R':100,'L':1e-6})(t)
+     ⎛                       -R⋅t ⎞
+     ⎜                       ─────⎟
+     ⎜                         L  ⎟
+     ⎜L⋅v₀   L⋅(-R⋅i₀ + v₀)⋅ℯ     ⎟
+   R⋅⎜──── - ─────────────────────⎟
+     ⎝ R               R          ⎠
+   ────────────────────────────────  for t ≥ 0
+                  L
 
 
 .. _switchingcircuits:
