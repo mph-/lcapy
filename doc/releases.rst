@@ -5,102 +5,102 @@ Release notes
 V1.9
 ====
 
-- Supports other iterables for `subs()`.
+- Supports other iterables for `subs()`
 
 - Adds `approximate_dominant()` method to expressions (see
-  :ref:`approximation`).
+  :ref:`approximation`)
 
-- Adds units to parameterization definitions.
+- Adds units to parameterization definitions
 
-- Adds units to poles and zeros.
+- Adds units to poles and zeros
 
-- Adds blocks for schematics.
+- Adds blocks for schematics
 
-- Adds tunable kind for schematic components.
+- Adds tunable kind for schematic components
 
-- Adds chokes for schematics.
+- Adds chokes for schematics
 
-- Introduces phasor ratio, frequency response, and angular frequency response domains.
+- Introduces phasor ratio, frequency response, and angular frequency response domains
 
-- Changes `jw` to be the domain variable for the angular frequency response domain.
+- Changes `jw` to be the domain variable for the angular frequency response domain
 
-- Adds `jf` domain variable for the frequency response domain.
+- Adds `jf` domain variable for the frequency response domain
 
-- Warns if old version of Circuitikz found.
+- Warns if old version of Circuitikz found
 
 
 V1.8
 ====
 
-- Compatible with SymPy-1.11.
+- Compatible with SymPy-1.11
 
-- Converts s * t, f * t, w * t to time domain with warning.
+- Converts s * t, f * t, w * t to time domain with warning
 
-- Makes phasor arithmetic stricter.
+- Makes phasor arithmetic stricter
 
-- Fixes phasor ratios.
+- Fixes phasor ratios
 
-- Fixes Bode plot of phasors.
+- Fixes Bode plot of phasors
 
-- Adds var argument to `bode_plot()` for linear/angular frequency.
+- Adds var argument to `bode_plot()` for linear/angular frequency
 
-- Adds Nichols plot.
+- Adds Nichols plot
 
-- Adds `j2pif`.
+- Adds `j2pif`
 
-- Use `frequency_response()` method for Bode plots (this does not generate Dirac deltas for marginally stable systems).
+- Use `frequency_response()` method for Bode plots (this does not generate Dirac deltas for marginally stable systems)
 
-- Simplifies magnitude of expression with Dirac delta terms.
+- Simplifies magnitude of expression with Dirac delta terms
 
-- Fixes plotting of expressions with Dirac deltas outside desired region.
+- Fixes plotting of expressions with Dirac deltas outside desired region
 
-- Fixes Laplace to Fourier shortcut.
+- Fixes Laplace to Fourier shortcut
 
-- Adds `is_marginally_stable` attribute to expressions.
+- Adds `is_marginally_stable` attribute to expressions
 
-- Adds `remove_disconnected()`, `remove_dangling()`, `remove_dangling_wires()`.
+- Adds `remove_disconnected()`, `remove_dangling()`, `remove_dangling_wires()`
 
-- Adds `select` and `ignore` argument to `simplify()`, `simplify_series()`, `simplify_parallel()`.
+- Adds `select` and `ignore` argument to `simplify()`, `simplify_series()`, `simplify_parallel()`
 
-- Adds `is_dangling` and `is_disconnected` attributes to components.
+- Adds `is_dangling` and `is_disconnected` attributes to components
 
-- Warns if using `I` for current source value (this is considered the imaginary operator by SymPy).
+- Warns if using `I` for current source value (this is considered the imaginary operator by SymPy)
 
-- Ensures unique names chosen.
+- Ensures unique names chosen
 
-- Reduces recursion depth when trying to draw bogus schematics.
+- Reduces recursion depth when trying to draw bogus schematics
 
-- Removes checks for ubuntu-18.04.
+- Removes checks for ubuntu-18.04
 
 
 V1.7
 ====
 
-- Adds `convert_IVP()` method to convert a circuit with switches to an initial value problem.
+- Adds `convert_IVP()` method to convert a circuit with switches to an initial value problem
 
-- Handles DC analysis for capacitors by adding a conductance in parallel and considering the limit as the conductance goes to zero.
+- Handles DC analysis for capacitors by adding a conductance in parallel and considering the limit as the conductance goes to zero
 
-- Adds `replace_switches()` and `replace_switches_before()` to remove switches from a circuit.
+- Adds `replace_switches()` and `replace_switches_before()` to remove switches from a circuit
 
-- Adds `switching_times()` to determine the times when switches activate.
+- Adds `switching_times()` to determine the times when switches activate
 
-- Fixes `mirror` and `invert` attributes for SPDT switches.
+- Fixes `mirror` and `invert` attributes for SPDT switches
 
-- Improves debugging for conversion of schematic to png.
+- Improves debugging for conversion of schematic to png
 
-- Fixes lower limit of convolution when using ILT.
+- Fixes lower limit of convolution when using ILT
 
-- Adds comparison for equations.
+- Adds comparison for equations
 
-- Fixes z-domain frequency response.
+- Fixes z-domain frequency response
 
-- Adds `LTIFilter` and `DifferentialEquation` classes.
+- Adds `LTIFilter` and `DifferentialEquation` classes
 
-- Fixes definition of `psinc()`.
+- Fixes definition of `psinc()`
 
-- Adds `abc` module to mimim SymPy.
+- Adds `abc` module to mimim SymPy
 
-- Inherits functions docs from SymPy.
+- Inherits functions docs from SymPy
 
 
 V1.6
@@ -373,8 +373,6 @@ V1.2
 - Speeds up inverse Laplace transform by computing residues by equating coefficients
 
 
-
-
 V1.1
 ====
 
@@ -392,7 +390,7 @@ V1.1
 
 - Supports `AppliedUndef` for `Function`
 
-- Uses `warn()` function throughout.
+- Uses `warn()` function throughout
 
 
 V1.00
@@ -542,7 +540,6 @@ V0.94
 - Allows symbol redefinition
 
 - Improves Nyquist plots
-
 
 
 
@@ -963,11 +960,11 @@ Older versions
   impedance).  It also has better distinction between the impedance of
   a component and the driving point impedance.
 
-- V0.36 has improved handling of complex conjugate poles.
+- V0.36 improves handling of complex conjugate poles
 
 - V0.34 switched to using setuptools and pushed to https::pypi.org
 
-- V0.33 reworked expression printing infrastructure
+- V0.33 reworks expression printing infrastructure
 
 - V0.32.3 introduces state-space analysis.  The API is experimental and may change.
 
@@ -977,20 +974,10 @@ Older versions
 
 - V0.30.0 tweaks the syntax to perform transformations based on the argument, e.g., V(s) or V(t)
 
-- V0.28.0 works with Sympy 1.2.
+- V0.28.0 works with Sympy 1.2
 
-- V0.26.0 adds noise analysis.
+- V0.26.0 adds noise analysis
 
-- V0.25.1 adds time-domain analysis for circuits without reactive components.
+- V0.25.1 adds time-domain analysis for circuits without reactive components
 
 - From version 0.25.0, Lcapy performs more comprehensive circuit analysis using combinations of DC, AC, and Laplace analysis.  This added functionality has resulted in a slight change of syntax.  cct.R1.V no longer prints the s-domain expression but the decomposition of a signal into each of the transform domains.
-
-
-Future plans
-============
-
-- As of V0.79 there are no envisaged modifications to the API :-)
-
-- Add more unit tests
-
-- Add more Laplace and Fourier transforms
