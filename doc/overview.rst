@@ -32,28 +32,37 @@ Nevertheless, it can draw them!  Lcapy can generate text-book quality schematics
 Lcapy uses SymPy (symbolic Python) for its values and expressions
 and thus the circuit analysis can be performed symbolically.  See http://docs.sympy.org/latest/tutorial/index.html for the SymPy tutorial.
 
-Lcapy can perform many other linear circuit analysis operations, including:
+Lcapy can perform many linear circuit analysis operations, including:
 
-1. Two-port parameters (A, B, G, H, S, T, Y, and Z)
+1. Solve linear circuits and networks symbolically (including time-variant circuits with switches)
 
-2. Norton/Thevenin transforms
+2. Generate high-quality semi-automated schematics from netlists
 
-3. Wye-delta transforms
+3. Generate systems of equations for nodal, modified nodal, and mesh analysis
 
-4. Polyphase transforms
+4. Perform state-space analysis
 
-5. Laplace transforms
+5. Perform Laplace, Fourier, Z, discrete-time Fourier, and discrete Fourier transforms
 
-6. Fourier transforms
+6. Track units of expressions for dimensional analysis
 
-7. Discrete-time Fourier transforms
+7. Analyse two-port networks (A, B, G, H, S, T, Y, and Z)
 
-8. Discrete Fourier transforms
+8. Perform Norton/Thevenin and wye/delta transforms
 
-9. z-transforms
+9. Analyse poly-phase systems
 
-10. Time-stepping simulation (see :ref:`simulation`)
+10. Perform time-stepping simulation for numerical circuit analysis (see :ref:`simulation`)
 
+11. Generate many forms of plot (Bode, Nichols, Nyquist, pole-zero, etc.) with automatic axis labelling
+
+12. Perform network synthesis given an immitance expression
+
+13. Approximate continuous-time systems as discrete-time
+
+14. Convert expressions into many forms (ZPK, partial fraction, etc.)
+
+15. Parameterize an expression
 
 If you need to model a non-linear circuit numerically using Python, see PySpice (https://pypi.org/project/PySpice/).
 
