@@ -37,6 +37,8 @@ class AdmittanceMixin(Quantity, ImmittanceMixin):
     def __rtruediv__(self, x):
         """Reverse true divide"""
 
+        # FIXME for things like 1 / (R * C).
+
         x = expr(x)
         if x.is_constant:
             from .impedance import impedance
