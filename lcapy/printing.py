@@ -12,6 +12,7 @@ from .state import state
 from sympy.printing.str import StrPrinter
 from sympy.printing.latex import LatexPrinter
 from sympy.printing.pretty.pretty import PrettyPrinter
+from sympy.printing.printer import print_function
 import sympy as sym
 
 __all__ = ('pretty', 'pprint', 'latex', 'print_str')
@@ -71,7 +72,7 @@ def canonical_name(name):
     if name.find('_') != -1:
         return name
 
-    # Don't touch things like heaviside
+    # Don't touch things like Heaviside
     if name.lower() in words + functions:
         return name
 
@@ -129,6 +130,9 @@ class LcapyStrPrinter(StrPrinter):
 
 
 class LcapyLatexPrinter(LatexPrinter):
+
+    def __init__(self, settings=None):
+        LatexPrinter.__init__(self, settings)
 
     def _print(self, expr, exp=None):
 
@@ -426,33 +430,11 @@ def pprint(expr, **kwargs):
         print(latex(expr, **kwargs))
 
 
-def latex(expr, fold_frac_powers=False, fold_func_brackets=False,
-          fold_short_frac=None, inv_trig_style="abbreviated",
-          itex=False, ln_notation=False, long_frac_ratio=None,
-          mat_delim="[", mat_str=None, mode="plain", mul_symbol=None,
-          order=None, symbol_names=None):
+@print_function(LcapyLatexPrinter)
+def latex(expr, **settings):
 
     # This is mostly lifted from sympy/printing/latex.py when all we needed
     # was a hook...
-
-    if symbol_names is None:
-        symbol_names = {}
-
-    settings = {
-        'fold_frac_powers': fold_frac_powers,
-        'fold_func_brackets': fold_func_brackets,
-        'fold_short_frac': fold_short_frac,
-        'inv_trig_style': inv_trig_style,
-        'itex': itex,
-        'ln_notation': ln_notation,
-        'long_frac_ratio': long_frac_ratio,
-        'mat_delim': mat_delim,
-        'mat_str': mat_str,
-        'mode': mode,
-        'mul_symbol': mul_symbol,
-        'order': order,
-        'symbol_names': symbol_names,
-    }
 
     string = LcapyLatexPrinter(settings).doprint(expr)
 
@@ -466,6 +448,7 @@ def latex(expr, fold_frac_powers=False, fold_func_brackets=False,
 
 
 from sympy import init_printing  # nopep8
+
 init_printing(latex_printer=latex, pretty_printer=pretty,
               str_printer=print_str)
 
