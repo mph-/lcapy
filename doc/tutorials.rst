@@ -1829,7 +1829,7 @@ differential and common-mode voltages :math:`V_{s1} = V_{ic} - V_{id}
    A_c⋅V_ic - ────────── - V_id
                  R_g
 
-The differential gain can be found by setting :math:`Vic` to zero::
+The differential gain can be found by setting :math:`V_{ic}` to zero::
 
    >>> Gd = (Vo1.subs('Vic', 0) / voltage('Vid')).simplify()
    >>> Gd
@@ -1837,7 +1837,7 @@ The differential gain can be found by setting :math:`Vic` to zero::
    ───────────────
          R_g
 
-Similarly, the common-mode gain can be found by setting :math:`Vid` to zero::
+Similarly, the common-mode gain can be found by setting :math:`V_{id}` to zero::
 
    >>> Gc = (Vo1.subs('Vid', 0) / voltage('Vic')).simplify()
    >>> Gc
@@ -1876,7 +1876,7 @@ A noisy circuit model can be created with the `noisy()` method of the circuit ob
    >>> b.draw()
 
 .. image:: examples/tutorials/RCnoise/RCparallel1noisy.png
-   :width: 4cm
+   :width: 7cm
 
 The noise voltage across the capacitor can be found using:
 
@@ -2210,7 +2210,7 @@ which produces:
 .. image:: examples/tutorials/annotations/circuit1_component_currents2.png
    :width: 9cm
 
-The currents can shown as rational numbers by setting `evalf=False`.
+The currents can be shown as rational numbers by setting `evalf=False`.
 
    >>> cct.annotate_currents(('R1', 'R2', 'R3', 'R4'), evalf=False, flow=True).draw(draw_nodes='connections')
 
