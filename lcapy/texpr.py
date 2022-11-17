@@ -299,6 +299,11 @@ class TimeDomainExpression(TimeDomain, Expr):
         H = Hc.discretize(method=method, alpha=alpha)
         return H.IZT()
 
+    def dlti_filter(self, method='bilinear'):
+        """Create DLTI filter using bilinear transform."""
+
+        return self.LT().dlti_filter(method)
+
     def zdomain(self, **assumptions):
 
         # Going via the Laplace domain will restrict result for n >= 0.
