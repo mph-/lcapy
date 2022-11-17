@@ -499,12 +499,10 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         lpf = LTIFilter(bn, an)
         return lpf
 
-    def dlti_filter(self, method='bilinear'):
+    def dlti_filter(self, method='bilinear', alpha=0.5):
         """Create DLTI filter using bilinear transform."""
 
-        if method != 'bilinear':
-            raise ValueError('Unsupported transform ' + method)
-        return self.bilinear_transform().simplify().dlti_filter()
+        return self.discretize(method, alpha).simplify().dlti_filter()
 
     def evaluate(self, svector=None):
 

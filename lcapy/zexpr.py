@@ -405,12 +405,21 @@ class ZDomainExpression(ZDomain, SequenceExpression):
         bn = ExprList((len(dn) - len(nn)) * [0] + nn)
         an = dn
 
+        # Remove trailing zero coefficients.  Could call cancel before
+        # determing coeffs to reduce order of numerator and denominator.
+        while an[-1] == 0:
+            an = an[0:-1]
+        while bn[-1] == 0:
+            bn = bn[0:-1]
+
         if normalize_a0:
             bn = [bx / an[0] for bx in bn]
             an = [ax / an[0] for ax in an]
 
-        lpf = DLTIFilter(bn, an)
-        return lpf
+        # Could scale bn by dt.  Leave this to user...
+
+        fil = DLTIFilter(bn, an)
+        return fil
 
     def inverse_bilinear_transform(self):
         """Approximate z = exp(s * dt)

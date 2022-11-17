@@ -20,7 +20,14 @@ class DLTIFilter(object):
     def __init__(self, b, a):
         """Create discrete-time filter where `b` is a list or array of
         numerator coefficients and `a` is a list or array of
-        denominator coefficients."""
+        denominator coefficients.
+
+        Note, a recursive (IIR) filter with more than 3 coefficients
+        for `a` is sensitive to truncation of the cofficients and can
+        easily become unstable.  It is better to use a sequence
+        of biquadratic filters.
+
+        """
 
         if not isiterable(b):
             b = (b, )
