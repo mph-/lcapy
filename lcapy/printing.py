@@ -403,12 +403,18 @@ class LcapyPrettyPrinter(PrettyPrinter):
             return self._print_Function(expr)
 
 
-def print_str(expr):
+# print_function is a decorator to replace kwargs with the printer
+# settings in __signature__
+
+@print_function(LcapyStrPrinter)
+def print_str(expr, **settings):
     """Convert expression into a string."""
 
-    return LcapyStrPrinter().doprint(expr)
+    printer = LcapyStrPrinter(settings)
+    return printer.doprint(expr)
 
 
+@print_function(LcapyPrettyPrinter)
 def pretty(expr, **settings):
     """Pretty print an expression."""
 
@@ -433,10 +439,8 @@ def pprint(expr, **kwargs):
 @print_function(LcapyLatexPrinter)
 def latex(expr, **settings):
 
-    # This is mostly lifted from sympy/printing/latex.py when all we needed
-    # was a hook...
-
-    string = LcapyLatexPrinter(settings).doprint(expr)
+    printer = LcapyLatexPrinter(settings)
+    string = printer.doprint(expr)
 
     match = func_pattern.match(string)
     if match is not None:
