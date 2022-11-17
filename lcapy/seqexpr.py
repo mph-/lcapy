@@ -122,7 +122,8 @@ class SequenceExpression(DiscreteExpression):
 
         poles = self.poles(aslist=True)
         for pole in poles:
-            if abs(pole) >= 1:
+            # If poles not constant, assume they are inside the unit circle.
+            if pole.is_constant and abs(pole).fval >= 1:
                 return False
         return True
 
@@ -135,6 +136,7 @@ class SequenceExpression(DiscreteExpression):
 
         poles = self.poles(aslist=True)
         for pole in poles:
-            if abs(pole) > 1:
+            # If poles not constant, assume they are inside the unit circle.
+            if pole.is_constant and abs(pole).fval > 1:
                 return False
         return True
