@@ -265,3 +265,8 @@ class DLTIFilter(object):
         See also is_stable."""
 
         return self.transfer_function().is_marginally_stable
+
+    def inverse(self):
+        """Create inverse filter."""
+
+        return self.__class__(self.a, self.b)

@@ -2269,26 +2269,45 @@ For example::
 Discrete-time approximation
 ===========================
 
-A continuous time transfer function in the Laplace domain can be
-converted to a discrete-time transfer function in the Z-domain using
-the `discretize()` method:
+A continuous-time signal can be approximated by a discrete-time signal
+using the `discretize()` method.  There are many methods but no
+universally best method since there is a trade-off between accuracy
+and stability.
 
-:math:`H(z) \approx H_c(s)` .
+The simplest method samples the continuous-time signal:
 
-If :math:`H(s)` is a transfer function then for the impulse-invariance
-method, the discrete-time impulse response is related to the
-continuous-time impulse response by
+.. math::
 
-:math:`h[n] = h_c(n \Delta t)` .
+   v[n] = v(n \Delta t).
 
-Note, when designing digital filters, it is often common to to scale
-the discrete-time impulse response by the sampling interval:
+However, this method does not work if the continuous-time signal has
+Dirac deltas.  An example is the impulse response of a transfer
+function that is a pure delay or is not-strictly proper.
 
-:math:`h[n] = \Delta t \; h_c(n \Delta t)` .
+Other methods instead approximate the Laplace transform of the
+continuous-time signal in the Z-domain, and inverse Z-transform the
+result.  These methods use different approximations for :math:`s =
+\ln(z) / \Delta t`. For example, the bilinear transform uses:
 
-There are many methods to approximate a Laplace transform with a Z-transform; there is no universally best method since there is a trade-off between accuracy and stability.
+.. math::
 
-The default method is 'bilinear'.  Other methods are:
+   s = \frac{2}{\Delta t} \frac{1 - z^{-1}}{1 + z^{-1}}.
+
+With an impulse response, it is common to scale the discrete-time
+approximation by :math:`\Delta t`, i.e.,
+
+.. math::
+
+   h[n] = \Delta t \; h(n \Delta t).
+
+This corrects the scaling when approximating a continuous-time
+convolution integral by a discrete-time convolution sum.  Lcapy makes
+this scaling decision on the basis of the expression quantity.  If the
+expression is an admittance, impedance, or transfer function, the time
+signal is treated as an impulse response and so the :math:`\Delta t`
+scaling is applied.
+
+The default discretization method is 'bilinear'.  Other methods are:
 
 - 'impulse-invariance' samples the impulse response (using :math:`t = n \Delta t`) and then converts to the Z-domain.  It does not work with transfer functions that are not strictly proper (high-pass, band-pass) since these have impulse responses with Dirac deltas that cannot be be sampled.  It requires the sampling frequency to be many times the system bandwidth to avoid aliasing.
 
@@ -2309,7 +2328,10 @@ The default method is 'bilinear'.  Other methods are:
   can be more accurate but doubles the order and can lead to
   instability.
 
-- 'matched-Z', 'zero-pole-matching' matches poles and zeros where :math:`s + \alpha = (1 - \exp(-\alpha  \Delta t) / z)`.  The overall result is divided by :math:`\Delta t`.  When the expression has no zeros, the matched-Z and impulse invariance methods are equivalent.
+- 'matched-Z', 'zero-pole-matching' matches poles and zeros where
+  :math:`s + \alpha = (1 - \exp(-\alpha \Delta t) / z)`.  The overall
+  result is divided by :math:`\Delta t`.  When the expression has no
+  zeros, the matched-Z and impulse invariance methods are equivalent.
 
 The following figure compares the impulse responses computed using
 some of these methods for a continuous-time impulse response

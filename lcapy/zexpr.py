@@ -384,8 +384,13 @@ class ZDomainExpression(ZDomain, SequenceExpression):
         return DifferenceEquation(lhs, rhs, inputsym, outputsym)
 
     def dlti_filter(self, normalize_a0=True):
-        """Create discrete-time linear time-invariant filter from discrete-time
-        transfer function."""
+        """Create discrete-time linear time-invariant filter from
+        discrete-time transfer function.
+
+        If `normalize_a0` is `True` (default) all the coefficients
+        are normalized so a0 = 1.
+
+        """
 
         # TODO, perhaps add only to DiscreteTimeDomainTransfer?
 
@@ -415,8 +420,6 @@ class ZDomainExpression(ZDomain, SequenceExpression):
         if normalize_a0:
             bn = [bx / an[0] for bx in bn]
             an = [ax / an[0] for ax in an]
-
-        # Could scale bn by dt.  Leave this to user...
 
         fil = DLTIFilter(bn, an)
         return fil

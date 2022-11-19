@@ -52,7 +52,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
     def from_poles_residues(cls, poles, residues):
         """Create a transfer function from lists of poles and residues.
 
-        See also from_zeros_poles_gain, from_numer_denom"""
+        See also `from_zeros_poles_gain`, `from_numer_denom`."""
 
         return cls(pr2tf(poles, residues, cls.var), causal=True)
 
@@ -61,7 +61,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         """Create a transfer function from lists of zeros and poles,
         and from a constant gain.
 
-        See also from_poles_residues, from_numer_denom"""
+        See also `from_poles_residues`, `from_numer_denom`."""
 
         return cls(zp2tf(zeros, poles, K, cls.var), causal=True)
 
@@ -70,7 +70,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         """Create a transfer function from lists of the coefficient
         for the numerator and denominator.
 
-        See also from_zeros_poles_gain, from_poles_residues"""
+        See also `from_zeros_poles_gain`, `from_poles_residues`."""
 
         return cls(tf(numer, denom, cls.var), causal=True)
 
@@ -255,6 +255,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
     def frequency_response(self, **assumptions):
         """Convert to frequency response domain.  Note, this is similar to the
         Fourier domain but not always."""
+
         from .symbols import jf
 
         tmp = self.subs(jf * 2 * pi)
@@ -287,8 +288,9 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         return X.evaluate(fvector)
 
     def _response_impulse_invariance(self, xvector, tvector, dtval):
-        """Evaluate response of system with applied signal.
-        This method assumes that the data is well over-sampled."""
+        """Evaluate response of system with applied signal using impulse
+        invariance method.  This method assumes that the data is well
+        over-sampled and that there are no Dirac deltas."""
 
         from numpy import arange, convolve, diff, hstack
 
@@ -329,6 +331,8 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         return y
 
     def _response_bilinear(self, xvector, tvector, dtval, alpha=0.5):
+        """Evaluate response of system with applied signal using bilinear
+         method."""
 
         import scipy.signal as signal
         from numpy import hstack, zeros
@@ -375,7 +379,9 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         'bilinear', 'tustin', 'trapezoidal'
         'generalized-bilinear', 'gbf' controlled by the parameter `alpha`
         'euler', 'forward-diff', 'forward-euler'
-        'backward-diff', 'backward-euler'
+        'backward-diff', 'backward-euler'.
+
+        See also `discretize` with regards to scaling of the result.
         """
 
         from numpy import array, diff, allclose
@@ -502,7 +508,15 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
     def dlti_filter(self, method='bilinear', alpha=0.5):
         """Create DLTI filter using bilinear transform."""
 
-        return self.discretize(method, alpha).simplify().dlti_filter()
+        from .transfer import transfer
+
+        e = self
+        if not e.is_ratio:
+            warn('Assuming %s expression is a transfer function' %
+                 e.quantity)
+            e = transfer(e)
+
+        return e.discretize(method, alpha).simplify().dlti_filter()
 
     def evaluate(self, svector=None):
 
@@ -584,13 +598,31 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         return H.nichols_plot(fvector, **kwargs)
 
     def generalized_bilinear_transform(self, alpha=0.5):
+        """Approximate s = ln(z) / dt
+
+        by s = (1 / dt) * (1 - z**-1) / (alpha + (1 - alpha) * z**-1))
+
+        When `alpha = 0` this is equivalent to the forward Euler
+        (forward difference) method.
+
+        When `alpha = 0.5` this is equivalent to the bilinear
+        transform, aka, Tustin's method or the trapezoidal method.
+
+        When `alpha = 1` this is equivalent to the backward Euler
+        (backward difference) method.
+
+        See also `discretize` with regards to scaling of the result.
+
+        """
 
         from .discretetime import z, dt
 
         if alpha < 0 or alpha > 1:
             raise ValueError("alpha must be between 0 and 1 inclusive")
 
-        return self.subs((1 / dt) * (1 - z**-1) / (alpha + (1 - alpha) * z**-1)) / dt
+        scale = 1 if self.is_ratio else 1 / dt
+
+        return self.subs((1 / dt) * (1 - z**-1) / (alpha + (1 - alpha) * z**-1)) * scale
 
     def bilinear_transform(self):
         """Approximate s = ln(z) / dt
@@ -598,48 +630,69 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         by s = (2 / dt) * (1 - z**-1) / (1 + z**-1)
 
         This is also called Tustin's method and is equivalent to the
-        trapezoidal method."""
+        trapezoidal method.
+
+        See also `discretize` with regards to scaling of the result.
+        """
 
         # TODO: add frequency warping as an option
         return self.generalized_bilinear_transform(0.5)
 
     def forward_euler_transform(self):
-        """Approximate s = ln(z)
+        """Approximate s = ln(z) / dt
 
         by s = (1 / dt) * (1 - z**-1) / z**-1.   This is also known
-        as the forward difference method."""
+        as the forward difference method.
+
+        See also `discretize` with regards to scaling of the result.
+        """
 
         return self.generalized_bilinear_transform(0)
 
     def backward_euler_transform(self):
-        """Approximate s = ln(z)
+        """Approximate s = ln(z) / dt
 
         by s = (1 / dt) * (1 - z**-1).  This is also known
-        as the backward difference method."""
+        as the backward difference method.
+
+        See also `discretize` with regards to scaling of the result.
+        """
 
         return self.generalized_bilinear_transform(1)
 
     def simpson_transform(self):
-        """Approximate s = ln(z)
+        """Approximate s = ln(z) / dt
 
-        by s = (3 / dt) * (z**2 - 1) / (z**2 + 4 * z + 1).  This
-        doubles the system order and can produce unstable poles."""
+        by s = (3 / dt) * (z**2 - 1) / (z**2 + 4 * z + 1).  This is
+        more accurate than the other methods but doubles the system
+        order and can produce unstable poles.
+
+        See also `discretize` with regards to scaling of the result.
+
+        """
 
         from .discretetime import z
 
-        return self.subs((3 / dt) * (z**2 - 1) / (z**2 + 4 * z + 1))
+        scale = dt if self.is_ratio else 1
+
+        return self.subs((3 / dt) * (z**2 - 1) / (z**2 + 4 * z + 1)) * scale
 
     def matched_ztransform(self):
         """Match poles and zeros of H(s) to approximate H(z).
 
         If there are no zeros, this is equivalent to impulse_invariance.
 
-        See also bilinear_transform and impulse_invariance_transform."""
+        See also `bilinear_transform` and `impulse_invariance_transform`.
+
+        See also `discretize` with regards to scaling of the result.
+        """
 
         from .discretetime import z
 
+        scale = dt if self.is_ratio else 1
+
         zeros, poles, K, undef = self._ratfun.as_ZPK()
-        result = K
+        result = K * scale
         for zero in zeros:
             result *= (1 - exp(zero * dt) / z)
         for pole in poles:
@@ -661,7 +714,10 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         The data needs to be sampled many times the bandwidth to avoid
         aliasing.
 
-        See also bilinear_transform and matched_ztransform."""
+        See also `bilinear_transform` and `matched_ztransform`.
+
+        See also `discretize` with regards to scaling of the result.
+        """
 
         from .discretetime import n, z, dt
 
@@ -675,26 +731,37 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         if h.has(DiracDelta):
             raise ValueError('Impulse response has Dirac-deltas')
 
+        scale = dt if self.is_ratio else 1
+
         hn = h.subs(n * dt)
-        H = hn.ZT()
+        H = hn.ZT() * scale
         return H
 
     def discretize(self, method='bilinear', alpha=0.5):
         """Convert to a discrete-time approximation in the z-domain:
 
-        :math:`H(z) \approx H_c(s)`
+        :math:`H(z) \approx K H_c(s)`
 
-        If :math:`H(s)` is a transfer function then for the
-        impulse-invariance method, the discrete-time impulse response
-        is related to the continuous-time impulse response by
+        where :math:`K` is a scale factor.
 
-        :math:`h[n] = h_c(n \Delta t)`
+        Note, the scaling is different for admittance, impedance, or
+        transfer function expressions compared to voltage, current,
+        and undefined expressions.
 
-        Note, when designing digital filters, it is often common to to
-        scale the discrete-time impulse response by the sampling
-        interval:
+        The scaling is chosen so that the discrete-time voltage and
+        current expressions have plots similar to the continuous-time
+        forms.  For example, with the impulse-invariance method for a
+        continuous-time voltage signal :math:`v_c(t)`:
 
-        :math:`h[n] = \Delta t h_c(n \Delta t)`
+        :math:`v[n] = v_c(n \Delta t)`
+
+        However, for a transfer-function with a continuous-time
+        impulse response :math:`h_c(t)`, then
+
+        :math:`h[n] = \Delta t h_c(n \Delta t)`.
+
+        This corrects the scaling when approximating a continuous-time
+        convolution by a discrete-time convolution.
 
         The default method is 'bilinear'.  Other methods are:
         'impulse-invariance' 'bilinear', 'tustin', 'trapezoidal'

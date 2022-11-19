@@ -2,6 +2,19 @@
 Release notes
 =============
 
+V1.10
+=====
+
+- Updates printing to be compatible with SymPy printing API changes.
+
+- Modifies scaling for discretization of continuous-time signals
+ (for admittance, impedance, and transfer function quantities).
+
+- Fixes stability checks.
+
+- Adds `dlti_filter()` method for time-domain expressions.
+
+
 V1.9
 ====
 
