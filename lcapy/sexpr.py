@@ -511,6 +511,11 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         from .transfer import transfer
 
         e = self
+
+        if not e.is_causal:
+            warn('Assuming expression is causal')
+            e = expr(e, causal=True)
+
         if not e.is_ratio:
             warn('Assuming %s expression is a transfer function' %
                  e.quantity)
