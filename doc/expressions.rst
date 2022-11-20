@@ -1217,6 +1217,25 @@ Miscellaneous
 
 - `divide_top_and_bottom(expr)` divides numerator and denominator by `expr`.
 
+- `dlti_filter(method='bilinear')` creates a DLTI filter (see
+  :ref:`DLTIfilter`) by approximating the discrete-time impulse
+  response (see :ref:`discrete-time-approximation`).  For example,
+
+   >>> H = transfer(1 / (s + 'a'))
+   >>> fil = H.dlti_filter()
+   >>> fil.a
+   ⎛   Δₜ⋅a - 2⎞
+   ⎜1, ────────⎟
+   ⎝   Δₜ⋅a + 2⎠
+   >>> fil.b
+   ⎛   Δₜ        Δₜ   ⎞
+   ⎜────────, ────────⎟
+   ⎝Δₜ⋅a + 2  Δₜ⋅a + 2⎠
+   >>> fil.difference_equation()
+          Δₜ⋅x(n)    Δₜ⋅x(n - 1)   (Δₜ⋅a - 2)⋅y(n - 1)
+   y(n) = ──────── + ─────────── - ───────────────────
+          Δₜ⋅a + 2     Δₜ⋅a + 2          Δₜ⋅a + 2
+
 - `evalf(n)` returns floating-point number to `n` decimal places (as Lcapy expression) if expression can be evaluated (see also `val`, `fval`, and `cval` attributes)
 
 - `evaluate(arg)` returns floating-point number (Python float or complex type) if expression can be evaluated.  If passed a tuple, list, or NumPy array, an array of NumPy float or complex types is returned.  For example::

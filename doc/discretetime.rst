@@ -231,7 +231,7 @@ These methods do not modify the sequence but return a new sequence, NumPy ndarra
 - `evaluate()` evaluate sequence at specified indices and return as NumPy ndarray
 - `IDFT()` compute inverse discrete Fourier transform as a sequence
 - `IZT()` compute inverse z-transform as a sequence
-- `lfilter()`  filter by LTI filter
+- `lfilter()`  filter by DLTI filter
 - `simplify()` simplify each expression in sequence
 - `prune()` remove zeroes from the ends of the sequence
 - `plot()` plot sequence as a lollipop (stem) plot
@@ -612,8 +612,9 @@ The bilinear transform can be used to approximate an s-domain expression with a 
    ──────────────────────
    Δₜ⋅a⋅(z + 1) - 2⋅z + 2
 
-The related method `inverse_bilinear_transform()` converts an s-domain expression to the z-domain using :math:`z \approx
-(1 + 0.5 \Delta t s) / (1 - 0.5 \Delta t s)`.
+The related method `inverse_bilinear_transform()` converts an s-domain
+expression to the z-domain using :math:`z \approx (1 + 0.5 \Delta t s)
+/ (1 - 0.5 \Delta t s)`.
 
 Here's an example of the bilinear transform applied for an RC low-pass filter.
 

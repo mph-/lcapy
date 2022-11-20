@@ -332,12 +332,14 @@ Discrete-time transfer function methods
 - `difference_equation()` creates discrete-time difference equation
 
 
+.. _DLTIfilter:
+
 Discrete-time linear time invariant filters
 ===========================================
 
-A discrete-time linear time invariant filter can be specified by its numerator and
-denominator coefficients.  For example, a first-order, discrete-time,
-recursive low-pass filter can be created with:
+A discrete-time linear time invariant filter can be specified by its
+numerator and denominator coefficients.  For example, a first-order,
+discrete-time, recursive low-pass filter can be created with:
 
    >>> a = symbol('a')
    >>> lpf = DLTIFilter((1 - a, ), (1, -a))
@@ -398,6 +400,7 @@ Discrete-time linear time invariant filter methods
 - `difference_equation()` creates discrete-time difference equation
 - `impulse_response()` creates discrete-time domain impulse response
 - `initial_response()` returns discrete time-domain response due to initial conditions
+- `inverse()` creates an inverse filter by switching numerator and denominator coefficients
 - `response()` returns discrete time-domain response due to input signal and initial conditions
 - `transfer_function()` creates z-domain transfer function
 - `zdomain_initial_response()` returns z-domain response due to initial conditions
