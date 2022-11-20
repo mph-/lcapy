@@ -5,6 +5,8 @@ Release notes
 V1.10
 =====
 
+- Fixes units after integration and differentiation.
+
 - Updates printing to be compatible with SymPy printing API changes.
 
 - Modifies scaling for discretization of continuous-time signals

@@ -2827,9 +2827,13 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         if arg is None:
             arg = self.var
-        arg = self._tweak_arg(arg)
 
-        return self.__class__(sym.diff(self.expr, arg), **self.assumptions)
+        arg = expr(arg)
+        sarg = delcapify(arg)
+
+        result = self.__class__(sym.diff(self.expr, sarg), **self.assumptions)
+        result.units /= arg.units
+        return result
 
     def diff(self, arg=None):
 
@@ -2842,19 +2846,6 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         result.part = self.part
         return result
 
-    def _tweak_arg(self, arg):
-
-        if isinstance(arg, (Expr, Function)):
-            return arg.expr
-
-        if isinstance(arg, tuple):
-            return tuple([self._tweak_arg(arg1) for arg1 in arg])
-
-        if isinstance(arg, list):
-            return [self._tweak_arg(arg1) for arg1 in arg]
-
-        return arg
-
     def integrate(self, arg=None, **kwargs):
         """Integrate expression.
 
@@ -2865,9 +2856,16 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if arg is None:
             arg = self.var
 
-        arg = self._tweak_arg(arg)
-        return self.__class__(sym.integrate(self.expr, arg, **kwargs),
-                              **self.assumptions)
+        arg = expr(arg)
+        sarg = delcapify(arg)
+
+        result = self.__class__(sym.integrate(self.expr, sarg, **kwargs),
+                                **self.assumptions)
+        if isinstance(arg, tuple):
+            arg = arg[0]
+
+        result.units *= arg.units
+        return result
 
     def rewrite(self, *args, **hints):
         """Rewrite expression.
@@ -2876,7 +2874,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         cos(4⋅t)`.  Similarly, `cos(2 * t).rewrite(exp)` will expand
         the cosine as two complex exponentials."""
 
-        args = self._tweak_arg(args)
+        args = delcapify(args)
         return self.__class__(self.sympy.rewrite(*args, **hints),
                               **self.assumptions)
 
