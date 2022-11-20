@@ -261,13 +261,20 @@ class ZDomainExpression(ZDomain, SequenceExpression):
                                                                **kwargs)
 
     def inverse_bilinear_transform(self):
+        """Approximate z = exp(s * dt)
+
+        by z = (1 + 0.5 * dt * s) / (1 - 0.5 * dt * s)"""
+
+        # TODO: add frequency warping as an option
 
         from .symbols import s
         from .discretetime import dt
 
-        # z = exp(s * dt) gives the exact solution
+        a = s * dt / 2
 
-        return self.subs((1 + s * dt / 2) / (1 - s * dt / 2))
+        scale = 1 if self.is_ratio else dt
+
+        return self.subs((1 + a) / (1 - a)) * scale
 
     def DFT(self, N=None, evaluate=True, **assumptions):
         """Determine DFT.
@@ -423,20 +430,6 @@ class ZDomainExpression(ZDomain, SequenceExpression):
 
         fil = DLTIFilter(bn, an)
         return fil
-
-    def inverse_bilinear_transform(self):
-        """Approximate z = exp(s * dt)
-
-        by z = (1 + 0.5 * dt * s) / (1 - 0.5 * dt * s)"""
-
-        # TODO: add frequency warping as an option
-
-        from .symbols import s
-        from .discretetime import dt
-
-        a = s * dt / 2
-
-        return self.subs((1 + a) / (1 - a))
 
     def zdomain(self, **assumptions):
         return self
