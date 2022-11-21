@@ -22,7 +22,7 @@ Here's an example:
    ... V 1 0 {V(s)}; down
    ... R 1 2; right
    ... C 2 _0_2; down
-   ... W 0 _0_2; right"")
+   ... W 0 _0_2; right""")
    >>> cct.draw()
 
 Note, the orientation hints are appended to the netlist strings with a
@@ -40,7 +40,7 @@ Here's an example with implicit ground connections added automatically:
    ... V 1 0 {V(s)}; down
    ... R 1 2; right
    ... C 2 0; down
-   ... ; autoground=true"")
+   ... ; autoground=true""")
    >>> cct.draw()
 
 .. image:: examples/schematics/schematic2.png
