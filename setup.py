@@ -41,6 +41,7 @@ setup(name='lcapy',
       entry_points={
           'console_scripts': [
               'schtex=lcapy.scripts.schtex:main',
+              'lcapy=lcapy.scripts.lcapy:main',
           ],
       },
       classifiers=[
