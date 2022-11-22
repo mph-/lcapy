@@ -39,6 +39,8 @@ Installation for Linux
 
     $ sudo apt install ghostscript texlive-latex-extra cm-super
 
+If you wish to use :ref:`schtex` ensure that `~/.local/bin` is on your path.
+
 
 Installation for macOS
 ======================
@@ -67,7 +69,7 @@ or to minimise disk space, install a smaller set of LaTeX packages using:
 Installation for Windows
 ========================
 
-1. Lcapy (and its Python dependencies) can be installed using
+1. Lcapy (and its Python dependencies) can be installed using:
 
 .. code-block:: console
 
