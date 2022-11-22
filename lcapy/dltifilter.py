@@ -267,6 +267,7 @@ class DLTIFilter(object):
         return self.transfer_function().is_marginally_stable
 
     def inverse(self):
-        """Create inverse filter."""
+        """Create inverse filter.  Note, in practice, an inverse filter
+        is sensitive to noise.  It is better to use a Wiener filter."""
 
         return self.__class__(self.a, self.b)
