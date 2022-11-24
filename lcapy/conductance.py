@@ -1,9 +1,10 @@
 """This module provides conductance support.
 
-Copyright 2021--2022 Michael Hayes, UCECE
+Copyright 2021-2022 Michael Hayes, UCECE
 
 """
 from .expr import expr
+from .units import u as uu
 from warnings import warn
 
 
@@ -14,14 +15,9 @@ def conductance(arg, **assumptions):
 
     Y(omega) = G(omega) + j B(omega)"""
 
-    expr1 = expr(arg, **assumptions)
+    expr1 = expr(arg, frequency=True, **assumptions)
     if expr1.is_imaginary:
         warn('Conductance %s should be real' % expr1)
 
-    try:
-        expr1 = expr1.as_admittance()
-    except:
-        raise ValueError('Cannot represent %s(%s) as admittance' %
-                         (expr1.__class__.__name__, expr1))
-
+    expr1.units = uu.siemens
     return expr1

@@ -160,7 +160,7 @@ class ConstantFrequencyResponseDomainExpression(ConstantDomainExpression):
         return self.laplace(**assumptions).time(**assumptions)
 
 
-def cexpr(arg, **assumptions):
+def cexpr(arg, frequency=False, **assumptions):
     """Create Lcapy constant expression from `arg`.
 
     By default, `arg` is assumed to be positive.  If symbols in the
@@ -173,6 +173,10 @@ def cexpr(arg, **assumptions):
         quantity = 'undefined'
 
     if quantity == 'undefined':
+
+        if frequency:
+            return ConstantFrequencyResponseDomainExpression(arg, **assumptions)
+
         # Sit on the fence rather than choosing ConstantTimeDomainExpression
         return ConstantDomainExpression(arg, **assumptions)
 

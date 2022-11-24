@@ -1,9 +1,10 @@
 """This module provides resistance support.
 
-Copyright 2021--2022 Michael Hayes, UCECE
+Copyright 2021-2022 Michael Hayes, UCECE
 
 """
 from .expr import expr
+from .units import u as uu
 from warnings import warn
 
 
@@ -14,14 +15,9 @@ def resistance(arg, **assumptions):
 
     Z(omega) = R(omega) + j * X(omega)"""
 
-    expr1 = expr(arg, **assumptions)
+    expr1 = expr(arg, frequency=True, **assumptions)
     if expr1.is_imaginary:
         warn('Resistance %s should be real' % expr1)
 
-    try:
-        expr1 = expr1.as_impedance()
-    except:
-        raise ValueError('Cannot represent %s(%s) as impedance' %
-                         (expr1.__class__.__name__, expr1))
-
+    expr1.units = uu.ohms
     return expr1
