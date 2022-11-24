@@ -1,6 +1,6 @@
 """This module provides transfer function support.
 
-Copyright 2020-2022 Michael Hayes, UCECE
+Copyright 2020--2022 Michael Hayes, UCECE
 
 """
 from .expr import expr

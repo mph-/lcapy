@@ -1,7 +1,7 @@
 """This module provides support for the inverse z-transform.  It
 calculates the unilateral inverse z-transform.
 
-Copyright 2021-2022 Michael Hayes, UCECE
+Copyright 2021--2022 Michael Hayes, UCECE
 
 """
 

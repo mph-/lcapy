@@ -1,6 +1,6 @@
 """This module provides conductance support.
 
-Copyright 2021-2022 Michael Hayes, UCECE
+Copyright 2021--2022 Michael Hayes, UCECE
 
 """
 from .expr import expr

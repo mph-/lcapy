@@ -1,7 +1,7 @@
 """This module defines the StateSpace base class for representing a linear
 time-invariant system as a state-space model.
 
-Copyright 2019-2022 Michael Hayes, UCECE
+Copyright 2019--2022 Michael Hayes, UCECE
 
 """
 

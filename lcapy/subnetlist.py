@@ -1,6 +1,6 @@
 """This module provides the SubNetlist class.
 
-Copyright 2020-2022 Michael Hayes, UCECE
+Copyright 2020--2022 Michael Hayes, UCECE
 
 """
 

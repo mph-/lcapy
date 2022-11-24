@@ -1,7 +1,7 @@
 """This module performs nodal analysis.  It is primarily for showing
 the equations rather than for evaluating them.
 
-Copyright 2019-2022 Michael Hayes, UCECE
+Copyright 2019--2022 Michael Hayes, UCECE
 
 """
 

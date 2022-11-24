@@ -4,7 +4,7 @@
 
    X(f) = \sum_{n=\infty}^{\infty} x(n) e^{-j * 2 * \pi * n * dt * f}
 
-Copyright 2021-2022 Michael Hayes, UCECE
+Copyright 2021--2022 Michael Hayes, UCECE
 
 """
 
