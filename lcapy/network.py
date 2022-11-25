@@ -69,7 +69,16 @@ class Network(object):
 
     def _repr_latex_(self):
 
-        return '$%s$' % self.latex()
+        s = self.latex(mode='plain')
+        return "$$%s$$" % s
+
+    def _repr_png_(self):
+
+        return None
+
+    def _repr_svg_(self):
+
+        return None
 
     def pretty(self, **kwargs):
 

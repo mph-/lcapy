@@ -81,7 +81,17 @@ class Matrix(sym.Matrix):
         LaTeX markup.  However, this requires mathjax.  If this method
         is not defined, jupyter falls back on _repr__pretty_ which
         outputs unicode."""
-        return '$$' + latex(self) + '$$'
+
+        s = self.latex(mode='plain')
+        return "$$%s$$" % s
+
+    def _repr_png_(self):
+
+        return None
+
+    def _repr_svg_(self):
+
+        return None
 
     def pprint(self):
 
@@ -153,12 +163,12 @@ class Matrix(sym.Matrix):
         def f(x): return expr(x).subs(*args, **kwargs).sympy
         return self.applyfunc(f)
 
-    @property
+    @ property
     def conj(self):
         """Complex conjugate; for compatilibility with Expr conj is an attribute."""
         return self._new(self.rows, self.cols, [x.conj for x in self])
 
-    @property
+    @ property
     def symbols(self):
 
         symbols = {}
@@ -166,16 +176,16 @@ class Matrix(sym.Matrix):
             symbols.update(expr(elt).symbols)
         return symbols
 
-    @property
+    @ property
     def sympy(self):
 
         return sym.Matrix(self.rows, self.cols, [x.sympy for x in self])
 
-    @property
+    @ property
     def expr(self):
         return self.sympy
 
-    @property
+    @ property
     def is_complex(self):
 
         for x in self:
@@ -203,7 +213,7 @@ class Matrix(sym.Matrix):
                 result[i, j] = self[i, j].evaluate(arg)
         return result
 
-    @property
+    @ property
     def numpy(self):
         """Return NumPy array; not a NumPy matrix."""
         return self.evaluate()

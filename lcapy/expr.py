@@ -80,6 +80,17 @@ class ExprPrint(object):
 
     # Note, _repr_latex_ is handled at the end of this file.
 
+    def _repr_png_(self):
+
+        # This adds a large amount of data to the notebook without
+        # adding anything useful.  It also triggers a bug on Windows
+        # when converting a latex expression to png.
+        return None
+
+    def _repr_svg_(self):
+
+        return None
+
     def pretty(self, **kwargs):
         """Make pretty string."""
         return pretty(self._pexpr, **kwargs)
@@ -186,7 +197,6 @@ class ExprMisc(object):
 
 
 class ExprDict(ExprPrint, ExprContainer, ExprMisc, OrderedDict):
-
     """Facade class for dictionary created by sympy."""
 
     def __getitem__(self, key):
@@ -822,14 +832,6 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
 
         p.text(pretty(self._pexpr))
 
-    def _repr_png_(self):
-
-        return None
-
-    def _repr_svg_(self):
-
-        return None
-
     def _repr_latex_(self):
         """This is used by jupyter notebooks to display an expression using
         LaTeX markup.  However, this requires mathjax.  If this method
@@ -838,7 +840,7 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
 
         # This is called for Expr but not ExprList
         s = latex(self._pexpr, mode='plain')
-        return "$\\displaystyle %s$" % s
+        return "$$%s$$" % s
 
     def _latex(self, *args, **kwargs):
         """Make latex string.  This is called by sympy.latex when it
@@ -4247,7 +4249,7 @@ from .expressionclasses import expressionclasses  # nopep8
 # Horrible hack to work with IPython around Sympy's back for LaTeX
 # formatting.  The problem is that Sympy does not check for the
 # _repr_latex method and instead relies on a predefined list of known
-# types.  See _can_print_latex method in sympy/interactive/printing.py
+# types.  See _can_print method in sympy/interactive/printing.py
 
 try:
     from .printing import latex

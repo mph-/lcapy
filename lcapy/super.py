@@ -113,7 +113,16 @@ class Superposition(SuperpositionDomain, ExprDict):
         is not defined, jupyter falls back on _repr__pretty_ which
         outputs unicode."""
 
-        return '$$' + latex(self._representation()) + '$$'
+        s = latex(self._representation(), mode='plain')
+        return "$$%s$$" % s
+
+    def _repr_png_(self):
+
+        return None
+
+    def _repr_svg_(self):
+
+        return None
 
     def pprint(self):
         """Pretty print"""
@@ -810,7 +819,6 @@ from .noiseexpr import NoiseExpression  # nopep8
 from .phasor import PhasorDomainExpression  # nopep8
 from .omegaexpr import AngularFourierDomainExpression  # nopep8
 from .symbols import s, omega  # nopep8
-
 
 # See expr.py
 
