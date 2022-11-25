@@ -822,6 +822,14 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
 
         p.text(pretty(self._pexpr))
 
+    def _repr_png_(self):
+
+        return None
+
+    def _repr_svg_(self):
+
+        return None
+
     def _repr_latex_(self):
         """This is used by jupyter notebooks to display an expression using
         LaTeX markup.  However, this requires mathjax.  If this method
@@ -829,7 +837,8 @@ class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
         outputs unicode."""
 
         # This is called for Expr but not ExprList
-        return '$$' + latex(self._pexpr) + '$$'
+        s = latex(self._pexpr, mode='plain')
+        return "$\\displaystyle %s$" % s
 
     def _latex(self, *args, **kwargs):
         """Make latex string.  This is called by sympy.latex when it
