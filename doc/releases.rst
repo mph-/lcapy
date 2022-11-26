@@ -5,6 +5,12 @@ Release notes
 V1.10
 =====
 
+- Disables png output for Jupyter.
+
+- Unify `resistance()`, `conductance()`, `capacitance()`,
+  `inductance()`, `susceptance()`, and `reactance()` to return
+  `ConstantFrequencyResponseDomain` objects.
+
 - Fixes units after integration and differentiation.
 
 - Updates printing to be compatible with SymPy printing API changes.
