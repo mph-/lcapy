@@ -2205,6 +2205,10 @@ Here's another example using the frequency domain:
     >>> results.rmse
     1.3283205831942986e-14
 
+The first argument to the `fit()` method is a NumPy array of values
+for the dependent variable and the second argument is a NumPy array of
+values for the independent variable.
+
 The `ranges` argument is a dictionary of search ranges (specified as a
 tuple) for each unknown parameter in the expression.  For the curve
 fitting methods, the average of each search range is used as the
