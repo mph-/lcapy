@@ -5,6 +5,8 @@ Release notes
 V1.10
 =====
 
+- Adds data fitting method `fit` to expressions.
+
 - Disables png output for Jupyter.
 
 - Unify `resistance()`, `conductance()`, `capacitance()`,

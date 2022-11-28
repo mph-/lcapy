@@ -2178,6 +2178,42 @@ The default approximation method, and the only supported method at
 present, is a Pade approximant.
 
 
+Parameter estimation
+--------------------
+
+Expression parameters can be estimated using ordinary least squares
+optimization.  This is performed by the `fit()` method.  For example:
+
+    >>> e = expr('a * exp(-t  / tau) * u(t)')
+    >>> tv = arange(100)
+    >>> vv = e.subs({'a': 1, 'tau': 10}).evaluate(tv)
+    >>> results = e.fit(tv, vv, ranges={'a': (0, 10), 'tau': (1, 20)})
+    >>> results.params
+    {'a': 1.000000000048109, 'tau': 9.999999998432187}
+    >>> results.rmse
+    3.489526384702217e-22
+
+Here's another example using the frequency domain:
+
+    >>> e = expr('a * exp(-t  / tau) * u(t)')
+    >>> E = e(f)
+    >>> fv = arange(100)
+    >>> Vv = E.subs({'a': 1, 'tau': 10}).evaluate(fv)
+    >>> results = E.fit(fv, Vv, ranges={'a': (0, 10), 'tau': (1, 20)})
+    >>> results.params
+    {'a': 0.999999482934574, 'tau': 10.000006318373696}
+    >>> results.rmse
+    1.3283205831942986e-14
+
+The `ranges` argument is a dictionary of search ranges (specified as a
+tuple) for each unknown parameter in the expression.  For the curve
+fitting methods, the average of each search range is used as the
+initial guess.
+
+`fit()` has a method argument.  This can be `brute`, `dogbox`, or `trf` (default).  See
+SciPy `scipy.optimize.curve_fit` and `scipy.optimize.brute` for other parameters.
+
+
 Assumptions
 ===========
 
