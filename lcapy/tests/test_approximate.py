@@ -1,6 +1,7 @@
 from lcapy import *
 import unittest
 
+
 class LcapyTester(unittest.TestCase):
     """Unit tests for lcapy"""
 
@@ -19,8 +20,10 @@ class LcapyTester(unittest.TestCase):
         Ha = H.approximate_exp(order=1)
         Hb = H.approximate_exp(order=2, numer_order=1)
 
-        self.assertEqual2(Ha, (2 - s) / (2 + s), 'approximate exp Pade order 1')
-        self.assertEqual2(Hb, (6 - 2 * s) / (6 + 4 *s + s**2), 'approximate exp Pade order 1,2')
+        self.assertEqual2(Ha, (2 - s) / (2 + s),
+                          'approximate exp Pade order 1')
+        self.assertEqual2(Hb, (6 - 2 * s) / (6 + 4 * s + s**2),
+                          'approximate exp Pade order 1,2')
 
     def test_approximate_cosh(self):
 

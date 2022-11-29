@@ -3865,7 +3865,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         `x` is an ndarray of values for the dependent variable,
         `y` is an ndarray of values for the independent variable,
-        `method` is the optimization method ('brute', 'trf' (default), or 'dogbox'),
+        `method` is the optimization method (including: 'brute', 'trf' (default), 'dogbox',
+        'Nelder-Mead`, `Powell`),
         `ranges` is a dictionary of the search ranges keyed by the parameter name,
         `Ns` is the number of steps per range for the 'brute' optimizer.
 
@@ -3878,7 +3879,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         >>> e = expr('a * exp(-t  / tau) * u(t)')
         >>> tv = arange(100)
         >>> vv = e.subs({'a': 1, 'tau': 10}).evaluate(tv)
-        >>> results = e.fit(tv, vv, ranges={'a': (0, 10), 'tau': (1, 20)})
+        >>> results = e.estimate(tv, vv, ranges={'a': (0, 10), 'tau': (1, 20)})
         >>> results.params
         {'a': 1.000000000048109, 'tau': 9.999999998432187}
         >>> results.rmse
