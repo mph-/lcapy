@@ -124,20 +124,15 @@ class Fitter(object):
         kwargs.pop('Ns', None)
         kwargs.pop('finish', None)
 
-        bounds_min = zeros(len(ranges))
-        bounds_max = zeros(len(ranges))
+        bounds = []
+        p0 = []
 
         for m, r in enumerate(ranges.values()):
             if len(r) in (2, 3):
-                bounds_min[m] = r[0]
-                bounds_max[m] = r[1]
+                bounds.append((r[0], r[1]))
+                p0.append(0.5 * (r[0] + r[1]))
             else:
                 raise ValueError('Range %s can only have 2 or 3 values' % r)
-
-        bounds = (bounds_min, bounds_max)
-
-        # Initial guess.
-        p0 = 0.5 * (bounds_min + bounds_max)
 
         iscomplex = iscomplexobj(y)
 
