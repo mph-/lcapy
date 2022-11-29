@@ -3861,7 +3861,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
     def fit(self, x, y, method='trf', ranges=None, Ns=10, **kwargs):
         """Find the parameters of an expression that best fits measured data using
-        ordinary least squares optimization techniques.
+        non-linear least squares optimization techniques.
 
         `x` is an ndarray of values for the dependent variable,
         `y` is an ndarray of values for the independent variable,

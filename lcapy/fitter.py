@@ -5,7 +5,7 @@ Copyright 2022 Michael Hayes, UCECE
 
 """
 
-from scipy.optimize import brute, fmin, curve_fit
+from scipy.optimize import brute, fmin, curve_fit, minimize
 from numpy import iscomplexobj, hstack, zeros
 
 
@@ -40,8 +40,6 @@ class Fitter(object):
         return self.expr.subs(defs).evaluate(x)
 
     def _optimize_brute(self, x, y, ranges=None, Ns=10, finish='fmin', **kwargs):
-        """Ranges is a list of tuples, of the form: (min, max) or (min, max,
-        numsteps).  If `numsteps` is not specified then `Ns` is used."""
 
         kwargs.pop('method', None)
         self.verbose = kwargs.pop('verbose', 0)
@@ -80,7 +78,6 @@ class Fitter(object):
 
     def _optimize_curvefit(self, x, y, ranges=None, method='trf', ftol=1e-14, xtol=1e-14,
                            maxfev=1e5, **kwargs):
-        """Ranges is a list of tuples, of the form: (min, max)."""
 
         kwargs.pop('Ns', None)
         kwargs.pop('finish', None)
@@ -122,15 +119,59 @@ class Fitter(object):
         defs = self._make_defs(params, ranges)
         return FitterResult(defs, rmse)
 
+    def _optimize_minimize(self, x, y, ranges=None, method='Nelder-Mead', **kwargs):
+
+        kwargs.pop('Ns', None)
+        kwargs.pop('finish', None)
+
+        bounds_min = zeros(len(ranges))
+        bounds_max = zeros(len(ranges))
+
+        for m, r in enumerate(ranges.values()):
+            if len(r) in (2, 3):
+                bounds_min[m] = r[0]
+                bounds_max[m] = r[1]
+            else:
+                raise ValueError('Range %s can only have 2 or 3 values' % r)
+
+        bounds = (bounds_min, bounds_max)
+
+        # Initial guess.
+        p0 = 0.5 * (bounds_min + bounds_max)
+
+        iscomplex = iscomplexobj(y)
+
+        if iscomplex:
+            y = hstack((y.real, y.imag))
+
+        def func(params):
+
+            yp = self.model(params, x, ranges)
+
+            if iscomplex:
+                return (abs(y - yp)**2).mean()
+            return ((y - yp)**2).mean()
+
+        results = minimize(func, x0=p0, bounds=bounds, method=method, **kwargs)
+
+        params = results.x
+
+        yp = func(params)
+        rmse = ((y - yp)**2).mean()
+
+        defs = self._make_defs(params, ranges)
+        return FitterResult(defs, rmse)
+
     def optimize(self, x, y, ranges=None, method='trf', **kwargs):
 
         if method == 'brute':
             return self._optimize_brute(x, y, ranges, **kwargs)
-        elif method in ('trf', 'dogbox'):
+        elif method in ('lm', 'trf', 'dogbox'):
             return self._optimize_curvefit(x, y, ranges, method, **kwargs)
+        elif method in ('Nelder-Mead', 'Powell'):
+            return self._optimize_minimize(x, y, ranges, method, **kwargs)
         else:
-            raise ValueError(
-                'Unknown method %s: needs to be brute, trf, dogbox' % method)
+            return self._optimize_minimize(x, y, ranges, method, **kwargs)
 
 
 def fit(expr, x, y, method='trf', ranges=None, Ns=10, **kwargs):

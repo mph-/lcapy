@@ -2181,7 +2181,7 @@ present, is a Pade approximant.
 Parameter estimation
 --------------------
 
-Expression parameters can be estimated using ordinary least squares
+Expression parameters can be estimated using non-linear least squares
 optimization.  This is performed by the `fit()` method.  For example:
 
     >>> e = expr('a * exp(-t  / tau) * u(t)')
@@ -2214,8 +2214,10 @@ tuple) for each unknown parameter in the expression.  For the curve
 fitting methods, the average of each search range is used as the
 initial guess.
 
-`fit()` has a method argument.  This can be `brute`, `dogbox`, or `trf` (default).  See
-SciPy `scipy.optimize.curve_fit` and `scipy.optimize.brute` for other parameters.
+`fit()` has a method argument.  This can be `brute`, `lm', `dogbox`,
+`Nelder-Mead`, `Powell`, or `trf` (default).  See SciPy
+`scipy.optimize.curve_fit`, `scipy.optimize.brute`, and `scipy.optimize.minimize` for other
+parameters.
 
 
 Assumptions
