@@ -3859,8 +3859,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         result = foo(coeffs)
         return self.__class__(result, **self.assumptions)
 
-    def fit(self, x, y, method='trf', ranges=None, Ns=10, **kwargs):
-        """Find the parameters of an expression that best fits measured data using
+    def estimate(self, x, y, method='trf', ranges=None, Ns=10, **kwargs):
+        """Estimate the parameters of an expression that best fits measured data using
         non-linear least squares optimization techniques.
 
         `x` is an ndarray of values for the dependent variable,

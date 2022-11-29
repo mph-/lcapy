@@ -64,6 +64,8 @@ Lcapy can perform many linear circuit analysis operations, including:
 
 15. Parameterize an expression
 
+16. Estimate numeric parameters of an expression (see :ref:`parameter_estimation`)
+
 If you need to model a non-linear circuit numerically using Python, see PySpice (https://pypi.org/project/PySpice/).
 
 
@@ -206,6 +208,10 @@ and many generic methods (see :ref:`expressionsmethods`) including:
 
 - `approximate()` -- attempt approximation of the expression (see :ref:`approximation`)
 
+- `evaluate()` -- evaluate at specified vector and return floating-point vector (see :ref:`evaluation`)
+
+- `estimate()` -- estimate parameters of an expression given numerical data (see :ref:`parameter_estimation`)
+
 - `simplify()` -- attempt simplification of the expression (see :ref:`simplification`)
 
 - `rationalize_denominator()` -- multiply numerator and denominator by complex conjugate of denominator
@@ -214,7 +220,6 @@ and many generic methods (see :ref:`expressionsmethods`) including:
 
 - `multiply_top_and_bottom(expr)` -- multiplies numerator and denominator by `expr`.
 
-- `evaluate()` -- evaluate at specified vector and return floating-point vector (see :ref:`evaluation`)
 
 Here's an example that uses these attributes and methods::
 

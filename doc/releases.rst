@@ -5,7 +5,8 @@ Release notes
 V1.10
 =====
 
-- Adds data fitting method `fit` to expressions.
+- Adds parameter estimation method `estimate()` to expressions (see
+  :ref:`parameter_estimation`).
 
 - Disables png output for Jupyter.
 
