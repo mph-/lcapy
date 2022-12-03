@@ -168,8 +168,12 @@ class Schematic(NetfileMixin):
 
         name = cpt_type
         subscript = cpt_id
-        if len(name) > 1:
+
+        if cpt_type == 'REL':
+            name = r'\mathcal{R}'
+        elif len(name) > 1:
             name = r'\mathrm{%s}' % name
+
         if subscript != '':
             if len(subscript) > 1:
                 subscript = r'\mathrm{%s}' % subscript

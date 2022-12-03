@@ -74,6 +74,7 @@ Qnpn: Qname Nc Nb Ne npn [Value=name]; NPN transistor
 Qpnp: Qname Nc Nb Ne pnp [Value=name]; PNP transistor
 r: rname Np Nm [Value=name]; Damper
 R: Rname Np Nm [Value=name]; Resistor
+REL: RELname Np Nm [Value=name]; Reluctance
 RV: RVname Np Nm No [Value=name] [Value=name]; Potentiometer
 Sbox: Sname box; Box
 Scircle: Sname circle; Circle

@@ -1626,6 +1626,13 @@ class R(Bipole):
     kinds = {'variable': 'vR', 'tunable': 'vR, tunable end arrow = {Bar}'}
 
 
+class REL(Bipole):
+    """Reluctance"""
+
+    tikz_cpt = 'R'
+    kinds = {'variable': 'vR', 'tunable': 'vR, tunable end arrow = {Bar}'}
+
+
 class V(Bipole):
     """Voltage source"""
 

@@ -625,14 +625,23 @@ Potentiometers
 .. literalinclude:: examples/schematics/RV1.sch
 
 .. image:: examples/schematics/RV1.png
-   :width: 1.6cm
+   :width: 3cm
 
 Alternatively, a variable resistor can be defined using:
 
 .. literalinclude:: examples/schematics/RV2.sch
 
 .. image:: examples/schematics/RV2.png
-   :width: 1.4cm
+   :width: 3cm
+
+
+Reluctances
+-----------
+
+.. literalinclude:: examples/schematics/reluctance.sch
+
+.. image:: examples/schematics/reluctance.png
+   :width: 3cm
 
 
 Resistors

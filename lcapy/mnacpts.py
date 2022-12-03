@@ -2143,6 +2143,9 @@ defcpt('Q', NonLinear, 'NPN transistor')
 defcpt('Qpnp', 'Q', 'PNP transistor')
 defcpt('Qnpn', 'Q', 'NPN transistor')
 
+# Could model if introduce MagneticCircuit class.
+defcpt('REL', Misc, 'Reluctance')
+
 defcpt('Sbox', Misc, 'Box shape')
 defcpt('Scircle', Misc, 'Circle shape')
 defcpt('Sellipse', Misc, 'Ellipse shape')

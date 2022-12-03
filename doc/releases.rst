@@ -5,6 +5,8 @@ Release notes
 V1.10
 =====
 
+- Adds reluctance component RL for drawing.
+
 - Adds parameter estimation method `estimate()` to expressions (see
   :ref:`parameter_estimation`).
 

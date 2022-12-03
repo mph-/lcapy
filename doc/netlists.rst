@@ -265,18 +265,19 @@ simulation (additional components can be drawn, see
 
    `kname Np Nm k u0` Here `u0` is the initial speed.  If this is specified then the circuit is solved as an initial value problem.
 
-
 - Mechanical mass:
 
    `mname Np Nm m`
 
    `mname Np Nm m f0` Here `f0` is the initial force.  If this is specified then the circuit is solved as an initial value problem.
 
-
 - Mechanical damper:
 
    `rname Np Nm r`
 
+- Reluctance:
+
+   `RLname Np Nm R`
 
 - Switch:
 
@@ -309,13 +310,11 @@ The activation-time argument defaults to zero.
 
     The last two arguments default to zero.   Note, Lcapy assumes that the nodes Nm and Nim are at the same potential.
 
-
 Np denotes the positive node; Nm denotes the negative node.  For
 two-port devices, Nip denotes the positive input node and Nim denotes
 the negative input node.  Note, conventional current flows from
 `positive-node` to `negative-node`.  Node names can be numeric or
 symbolic.  The ground node is designated `0`.
-
 
 - Transmission-line:
 
