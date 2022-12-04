@@ -6,7 +6,7 @@ Copyright 2022 Michael Hayes, UCECE
 """
 
 from scipy.optimize import brute, fmin, curve_fit, minimize
-from numpy import iscomplexobj, hstack, zeros
+from numpy import iscomplexobj, hstack, zeros, sqrt
 
 
 class FitterResult(object):
@@ -166,10 +166,7 @@ class Fitter(object):
         defs = self._make_defs(params, ranges)
         return FitterResult(defs, rmse)
 
-    def optimize(self, x, y, ranges=None, method='trf', **kwargs):
-
-        if ranges is None:
-            ranges = self._make_ranges()
+    def _optimize1(self, x, y, ranges=None, method='trf', **kwargs):
 
         if method == 'brute':
             return self._optimize_brute(x, y, ranges, **kwargs)
@@ -180,10 +177,61 @@ class Fitter(object):
         else:
             return self._optimize_minimize(x, y, ranges, method, **kwargs)
 
+    def optimize(self, x, y, ranges=None, method='trf', iterations=1, **kwargs):
 
-def fit(expr, x, y, method='trf', ranges=None, Ns=10, **kwargs):
+        if ranges is None:
+            ranges = self._make_ranges()
 
-    return Fitter(expr).optimize(x, y, method=method, ranges=ranges, Ns=Ns, **kwargs)
+        iscomplex = iscomplexobj(y)
+
+        if iterations <= 1:
+            return self._optimize1(x, y, ranges, method, **kwargs)
+
+        tol = kwargs.get('tol', 1e-6)
+
+        rmse_prev = None
+        x1 = x
+        y1 = y
+        for i in range(iterations):
+
+            result = self._optimize1(x1, y1, ranges, method, **kwargs)
+
+            params = result.params
+            yp = self.expr.subs(params).evaluate(x)
+
+            e = abs(y - yp)
+            sd = e.std()
+            m = e <= 3 * sd
+            num_outliers = len(x) - sum(m)
+            if num_outliers == 0:
+                break
+
+            x1 = x[m]
+            y1 = y[m]
+
+            if len(x1) == 0:
+                raise ValueError('Outlier removal failed')
+
+            e = abs(y1 - yp[m])
+            rmse = sqrt((e**2).mean())
+
+            if False:
+                print('Removed %d outliers at iteration %d: sd=%f, rmse=%f' %
+                      (num_outliers, i + 1, sd, rmse))
+
+            result.rmse = rmse
+            if rmse < tol:
+                break
+            if rmse_prev is not None and rmse == rmse_prev:
+                break
+            rmse_prev = rmse
+
+        return result
+
+
+def fit(expr, x, y, ranges, method='trf', Ns=10, **kwargs):
+
+    return Fitter(expr).optimize(x, y, ranges=ranges, method=method, Ns=Ns, **kwargs)
 
 
 def test1():

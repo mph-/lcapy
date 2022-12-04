@@ -3859,7 +3859,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         result = foo(coeffs)
         return self.__class__(result, **self.assumptions)
 
-    def estimate(self, x, y, method='trf', ranges=None, Ns=10, **kwargs):
+    def estimate(self, x, y, ranges=None, method='trf', Ns=10, iterations=1,
+                 **kwargs):
         """Estimate the parameters of an expression that best fits measured data using
         non-linear least squares optimization techniques.
 
@@ -3868,7 +3869,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         `method` is the optimization method (including: 'brute', 'trf' (default), 'dogbox',
         'Nelder-Mead`, `Powell`),
         `ranges` is a dictionary of the search ranges keyed by the parameter name,
-        `Ns` is the number of steps per range for the 'brute' optimizer.
+        `Ns` is the number of steps per range for the 'brute' optimizer,
+        `iterations` is the number of iterations to use for outlier removal.
 
         The returned result is a `FitterResult` object.   This has attributes:
         `params` a dictionary of the estimated parameter values keyed by parameter name,
@@ -3889,7 +3891,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         from .fitter import fit
 
-        return fit(self, x, y, method, ranges, **kwargs)
+        return fit(self, x, y, ranges=ranges, method=method,
+                   iterations=iterations, **kwargs)
 
     def force_time(self):
 

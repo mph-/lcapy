@@ -2216,7 +2216,7 @@ tuple) for each unknown parameter in the expression.  For the curve
 fitting methods, the average of each search range is used as the
 initial guess.
 
-`estimate()` has a method argument.  This can be `brute`, `lm`,
+`estimate()` has a `method` argument.  This can be `brute`, `lm`,
 `dogbox`, `Nelder-Mead`, `Powell`, `trf` (default), and many others.
 See SciPy `scipy.optimize.curve_fit`, `scipy.optimize.brute`, and
 `scipy.optimize.minimize` for other methods and parameters.  Note, the
@@ -2233,6 +2233,22 @@ can be estimated using:
    ... {'R': (10, 100), 'C': (1e-9, 1e-6), 'L': (1e-6, 100e-6)}).params
 
 The dictionary argument specifies the search ranges for each parameter.
+
+The `estimate()` method also has an `iterations` argument.  If this is
+greater than 1, then it controls the number of iterations to perform
+while trying to remove outliers from the data.  For example:
+
+   >>> q = expr('x * 3 + a', var='x')
+   >>> xv = arange(10)
+   >>> yv = q.subs('a', 4).evaluate(xv)
+   >>> y[5] = -100
+   >>> a = q.estimate(xv, yv)
+   >>> a.params
+   {'a': -7.899999937589999}
+   >>> a = q.estimate(xv, yv, iterations=5)
+   >>> a.params
+   {'a': 3.999999999999999}
+
 
 
 Assumptions
