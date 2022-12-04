@@ -4071,7 +4071,7 @@ def _make_domain(expr, **assumptions):
         return cexpr(expr, **assumptions)
 
 
-def expr(arg, override=False, units=None, **assumptions):
+def expr(arg, override=False, units=None, var=None, **assumptions):
     """Create Lcapy expression from arg.
 
     If `arg` is an `Expr` it is returned, unless `assumptions` is specified.
@@ -4113,6 +4113,11 @@ def expr(arg, override=False, units=None, **assumptions):
     # Don't set rational=True since this will set rational
     # assumption for symbols.
     expr = sympify(arg, override=override, **assumptions)
+
+    if var is not None:
+        # Allow things like expr('a * x + b', var='x').
+        expr = UndefinedDomainExpression(expr, var)
+        return expr
 
     lexpr = _make_domain(expr, **assumptions)
     if not lexpr.has(uu.Quantity):
@@ -4272,6 +4277,7 @@ from .normfexpr import Fexpr  # nopep8
 from .normomegaexpr import Omegaexpr  # nopep8
 from .phasor import PhasorRatioDomainExpression  # nopep8
 from .texpr import t, texpr, TimeDomainExpression  # nopep8
+from .uexpr import UndefinedDomainExpression  # nopep8
 from .sexpr import s, sexpr, LaplaceDomainExpression  # nopep8
 from .nexpr import nexpr  # nopep8
 from .kexpr import kexpr  # nopep8
