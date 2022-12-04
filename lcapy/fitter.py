@@ -33,6 +33,15 @@ class Fitter(object):
             defs[r[0]] = params[m]
         return defs
 
+    def _make_ranges(self):
+
+        ranges = {}
+        for symbol in self.symbols:
+            # Perhaps make (-inf, inf) for unbounded
+            # but will need to need to fix initial guess.
+            ranges[symbol] = (-1e9, 1e9)
+        return ranges
+
     def model(self, params, x, ranges):
 
         defs = self._make_defs(params, ranges)
@@ -158,6 +167,9 @@ class Fitter(object):
         return FitterResult(defs, rmse)
 
     def optimize(self, x, y, ranges=None, method='trf', **kwargs):
+
+        if ranges is None:
+            ranges = self._make_ranges()
 
         if method == 'brute':
             return self._optimize_brute(x, y, ranges, **kwargs)
