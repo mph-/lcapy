@@ -31,6 +31,7 @@ from .normomegaexpr import Omegaexpr
 from .omegaexpr import omegaexpr
 from .cexpr import cexpr
 from .texpr import texpr
+from .uexpr import uexpr
 from .sexpr import sexpr, zp2tf, tf, pr2tf
 from .fexpr import fexpr
 from .expr import *

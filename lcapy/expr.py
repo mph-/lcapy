@@ -646,7 +646,7 @@ class ExprDomain(object):
         return ret
 
 
-class Expr(UndefinedDomain, UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
+class Expr(UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
     """Facade class for sympy classes derived from sympy.Expr."""
 
     var = None
@@ -1432,6 +1432,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         if self.is_transform_domain:
             assumptions = self.assumptions.convolve(self, x)
+        elif self.is_undefined_domain:
+            assumptions = self.assumptions
         else:
             assumptions = Assumptions()
 
@@ -1644,7 +1646,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         except ValueError:
             return False
 
-        x = cls(x)
+        x = cls(x, **assumptions)
 
         # This does not speed up the comparison.
         # if self.expr == x.expr:
@@ -4074,7 +4076,7 @@ def _make_domain(expr, **assumptions):
         return cexpr(expr, **assumptions)
 
 
-def expr(arg, override=False, units=None, var=None, **assumptions):
+def expr(arg, var=None, override=False, units=None, **assumptions):
     """Create Lcapy expression from arg.
 
     If `arg` is an `Expr` it is returned, unless `assumptions` is specified.
@@ -4118,8 +4120,8 @@ def expr(arg, override=False, units=None, var=None, **assumptions):
     expr = sympify(arg, override=override, **assumptions)
 
     if var is not None:
-        # Allow things like expr('a * x + b', var='x').
-        expr = UndefinedDomainExpression(expr, var)
+        # Allow things like expr('a * x + b', 'x').
+        expr = uexpr(expr, var)
         return expr
 
     lexpr = _make_domain(expr, **assumptions)
@@ -4206,7 +4208,7 @@ def symbol(name, **assumptions):
 
     `symbols('a b', integer=True, positive=True)` creates positive integer symbols
 
-    See also symbol.
+    See also symbols.
     """
 
     ssym = usersymbol(name, **assumptions)
@@ -4280,7 +4282,7 @@ from .normfexpr import Fexpr  # nopep8
 from .normomegaexpr import Omegaexpr  # nopep8
 from .phasor import PhasorRatioDomainExpression  # nopep8
 from .texpr import t, texpr, TimeDomainExpression  # nopep8
-from .uexpr import UndefinedDomainExpression  # nopep8
+from .uexpr import uexpr  # nopep8
 from .sexpr import s, sexpr, LaplaceDomainExpression  # nopep8
 from .nexpr import nexpr  # nopep8
 from .kexpr import kexpr  # nopep8

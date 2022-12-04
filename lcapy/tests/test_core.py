@@ -775,3 +775,18 @@ class LcapyCoreTester(unittest.TestCase):
         H = s / (s + 3)
         self.assertEqual(str(list(H.poles())[0].units), 'rad/s', "pole units")
         self.assertEqual(str(list(H.zeros())[0].units), 'rad/s', "zero units")
+
+    def test_uExpr1(self):
+        """Check uExpr
+
+        """
+        a = uexpr('x * 3 + 4', 'x')
+        b = expr('x * 3 + 4', 'x')
+
+        x = symbol('x').sympy
+
+        c = b * b
+
+        self.assertEqual(a, b, 'uexpr')
+        self.assertEqual(a.var, x, 'uexpr.var')
+        self.assertEqual(c.var, x, '(uexpr * uexpr).var')
