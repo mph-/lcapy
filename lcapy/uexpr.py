@@ -14,7 +14,12 @@ __all__ = ('uexpr', )
 
 class UndefinedDomainExpression(UndefinedDomain, Expr):
 
-    def __init__(self, val, var, **assumptions):
+    def __init__(self, val, var=None, **assumptions):
+
+        if var is None and isinstance(val, Expr):
+            var = val.var
+        if var is None:
+            raise ValueError('Unspecified independent variable')
 
         self.var = usersymbol(var, override=False)
         assumptions['var'] = self.var
@@ -41,7 +46,7 @@ class UndefinedDomainExpression(UndefinedDomain, Expr):
         The plot axes are returned."""
 
         from .plot import plot_time
-        return plot_time(self, x, **kwargs)
+        return plot_time(self, x, xlabel=xlabel, **kwargs)
 
 
 def uexpr(arg, var, **assumptions):
