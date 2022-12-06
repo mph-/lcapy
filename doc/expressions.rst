@@ -2186,14 +2186,20 @@ Parameter estimation
 Expression parameters can be estimated using non-linear least squares
 optimization.  This is performed by the `estimate()` method.  For example:
 
+    >>> from numpy import arange
+    >>> from numpy.random import randn
     >>> e = expr('a * exp(-t  / tau) * u(t)')
-    >>> tv = arange(100)
-    >>> vv = e.subs({'a': 1, 'tau': 10}).evaluate(tv)
+    >>> tv = arange(1, 100)
+    >>> vv = e.subs({'a': 1, 'tau': 10}).evaluate(tv) + randn(len(tv)) * 0.05
     >>> results = e.estimate(tv, vv, ranges={'a': (0, 10), 'tau': (1, 20)})
     >>> results.params
-    {'a': 1.000000000048109, 'tau': 9.999999998432187}
+    {'a': 1.0295857498103738, 'tau': 9.617626581003838}
     >>> results.rmse
-    3.489526384702217e-22
+    0.0022484512868559342
+
+.. image:: examples/plotting/fit1.png
+   :width: 12cm
+
 
 Here's another example using the frequency domain:
 
