@@ -942,9 +942,11 @@ Opamps
 
 An ideal opamp is represented by a voltage controlled voltage source.  The netlist has the form::
 
-   E out+ gnd opamp in+ in-  Ad Ac
+   E out gnd opamp in+ in-  Ad Ac
 
-Here `Ad` is the open-loop differential gain and `Ac` is the open-loop common-mode gain (zero default).
+Here `Ad` is the open-loop differential gain and `Ac` is the open-loop common-mode gain (zero default).  Assuming no saturation, the output voltage is
+
+:math:`V_o = A_d (V_{\mathrm{in+}} - V_{\mathrm{in-}}) + A_c \frac{1}{2} (V_{\mathrm{in+}} + V_{\mathrm{in-}})`.
 
 
 Non-inverting amplifier
@@ -1098,7 +1100,8 @@ The input impedance can be found by removing `Vs` (since it has zero resistance)
 
 In the limit with infinite open-loop differential gain::
 
-   >>> a.impedance(4,0).limit('Ad', oo)                                            R₁
+   >>> a.impedance(4,0).limit('Ad', oo)
+   R₁
 
 
 However, in practice, the open-loop gain decreases with frequency and so at high frequencies,
@@ -1690,12 +1693,12 @@ In Lcapy a fully differential opamp is defined using the notation of a
 voltage controlled voltage source (although it is functionally
 equivalent to two VCVSs).  The netlist has the form::
 
-   E vout+ vout- fdopamp vin+ vin- vocm Ad Ac
+   E out+ out- fdopamp in+ in- ocm Ad Ac
 
-Here `Ad` is the open-loop differential gain and `Ac` is the open-loop common-mode gain (zero default).  The node `vocm` sets the common-mode output voltage.  Internally it expands to::
+Here `Ad` is the open-loop differential gain and `Ac` is the open-loop common-mode gain (zero default).  The node `ocm` sets the common-mode output voltage.  Internally it expands to::
 
-   Ep vout+ vocm opamp vin+ vin- Ad Ac
-   Em vocm vout- opamp vin+ vin- Ad Ac
+   Ep out+ ocm opamp in+ in- Ad Ac
+   Em ocm out- opamp in+ in- Ad Ac
 
 .. image:: examples/tutorials/opamps/fdopamp1.png
    :width: 8cm
@@ -1769,20 +1772,20 @@ As expected, this is zero since the common-mode output voltage pin of the fully 
 Instrumentation amplifiers
 ==========================
 
-Instrumentation amplifiers have a large input resistance and a high
+Instrumentation amplifiers have a large input impedance and a high
 common-mode rejection ratio (CMRR).
 
 In Lcapy an instrumentation amplifier is defined using the notation of a
 voltage controlled voltage source (although it is functionally
 equivalent to two or three VCVSs).  The netlist has the form::
 
-   E vout ref inamp vin+ vin- rin+ rin- Ad Ac Rf
+   E out ref inamp in+ in- rin+ rin- Ad Ac Rf
 
 Here `Ad` is the open-loop differential gain, `Ac` is the open-loop common-mode gain (zero default), and `Rf` is the internal feedback resistance.   Internally it expands to::
 
-   Ep int+ 0 opamp vin+ vin- Ad 0
-   Em int- 0 opamp vin+ vin- Ad 0
-   Ed vout ref opamp int+ int- 1 Ac
+   Ep int+ 0 opamp in+ in- Ad 0
+   Em int- 0 opamp in+ in- Ad 0
+   Ed out ref opamp int+ int- 1 Ac
    Rfp rin+ int+ Rf
    Rfm rin- int- Rf
 
