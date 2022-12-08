@@ -3477,18 +3477,20 @@ class Wire(Bipole):
         if self.voltage_str != '':
             warn('There is no voltage drop across an ideal wire!')
 
-        if self.current_str != '' or self.label_str != '':
+        if self.current_str != '' or self.label_str != '' or self.flow_str != '':
             # FIXME, we don't really want the wire drawn since this
             # can clobber the arrow.  We just want the current
             # annotation and/or the label.
 
             # To handle multiple labels, we need to draw separate wires.
             for label_str in self.label_str_list:
-                s += r'  \draw[%s] (%s) [short, %s, %s] to (%s);''\n' % (
-                    self.args_str(**kwargs), n1.s, self.current_str, label_str, n2.s)
+                s += r'  \draw[%s] (%s) [short, %s, %s, %s] to (%s);''\n' % (
+                    self.args_str(**kwargs), n1.s, self.current_str,
+                    self.flow_str, label_str, n2.s)
             if self.label_str_list == []:
-                s += r'  \draw[%s] (%s) [short, %s] to (%s);''\n' % (
-                    self.args_str(**kwargs), n1.s, self.current_str, n2.s)
+                s += r'  \draw[%s] (%s) [short, %s, %s] to (%s);''\n' % (
+                    self.args_str(**kwargs), n1.s, self.current_str,
+                    self.flow_str, n2.s)
         return s
 
 
