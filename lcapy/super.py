@@ -337,6 +337,11 @@ class Superposition(SuperpositionDomain, ExprDict):
         from .transform import transform
         return transform(self, arg, **assumptions)
 
+    def simplify(self):
+
+        raise ValueError(
+            'You need to select a specific domain, e.g., using V(t).simplify()')
+
     def __add__(self, x):
 
         def _is_s_arg(x):
