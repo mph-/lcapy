@@ -1668,8 +1668,14 @@ class Transistor(FixedCpt):
 
     @property
     def pins(self):
-        xpins = [[self.npins, self.inpins], [self.ppins, self.ippins]]
-        if self.classname in ('Qpnp', 'Mpmos', 'Jpjf'):
+        if self.kind in ('pigfetd', 'nigfetd', 'pigfete', 'nigfete',
+                         'pigfetebulk', 'nigfetebulk'):
+            xpins = [[self.npins2, self.inpins2], [self.ppins2, self.ippins2]]
+        else:
+            xpins = [[self.npins, self.inpins], [self.ppins, self.ippins]]
+        if (self.classname in ('Qpnp', 'Mpmos', 'Jpjf')
+            or self.kind in ('pmos', 'pmosd', 'pfetd', 'pfet', 'pigfetd',
+                             'pigfete', 'pigfetebulk')):
             return xpins[not self.mirror][self.invert]
         else:
             return xpins[self.mirror][self.invert]
@@ -1778,11 +1784,23 @@ class MOSFET(Transistor):
     inpins = {'d': ('lx', 0, 1),
               'g': ('lx', 0.55, 0.5),
               's': ('lx', 0, 0)}
+    ppins2 = {'d': ('lx', 0.55, 0),
+              'g': ('lx', 0, 0.645),
+              's': ('lx', 0.55, 1)}
+    npins2 = {'d': ('lx', 0.55, 1),
+              'g': ('lx', 0, 0.355),
+              's': ('lx', 0.55, 0)}
+    ippins2 = {'d': ('lx', 0, 0),
+               'g': ('lx', 0.55, 0.645),
+               's': ('lx', 0, 1)}
+    inpins2 = {'d': ('lx', 0, 1),
+               'g': ('lx', 0.55, 0.355),
+               's': ('lx', 0, 0)}
     kinds = {'nmos': 'nmos', 'pmos': 'pmos', 'nmosd': 'nmosd', 'pmosd': 'pmosd',
              'nfet': 'nfet', 'pfet': 'pfet', 'nfetd': 'nfetd', 'pfetd': 'pfetd',
-             'nigfet': 'nigfet', 'pigfet': 'pigfet',
+             'nigfetd': 'nigfetd', 'pigfetd': 'pigfetd',
              'nigfete': 'nfigete', 'pigfete': 'pigfete',
-             'nigfetbulk': 'nigfetbulk', 'pigfetbulk': 'pigfetbulk',
+             'nigfetebulk': 'nigfetebulk', 'pigfetebulk': 'pigfetebulk',
              'hemt': 'hemt'}
 
 
