@@ -2,6 +2,12 @@
 Release notes
 =============
 
+V1.11
+=====
+
+ - Fixes MOSFET drawing.
+
+
 V1.10
 =====
 
