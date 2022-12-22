@@ -1686,7 +1686,7 @@ class Transistor(FixedCpt):
                 # size is not 1.  Only required if pos != 0.5.
                 pins = pins.copy()
                 gpin = pins['g']
-                pins['g'] = (gpin[0], gpin[1], (gpin[2] +
+                pins['g'] = (gpin[0], gpin[1], (gpin[2] / self.scale +
                              (self.size - 1) / 2) / self.size)
         return pins
 
