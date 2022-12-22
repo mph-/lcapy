@@ -1676,9 +1676,19 @@ class Transistor(FixedCpt):
         if (self.classname in ('Qpnp', 'Mpmos', 'Jpjf')
             or self.kind in ('pmos', 'pmosd', 'pfetd', 'pfet', 'pigfetd',
                              'pigfete', 'pigfetebulk')):
-            return xpins[not self.mirror][self.invert]
+            pins = xpins[not self.mirror][self.invert]
         else:
-            return xpins[self.mirror][self.invert]
+            pins = xpins[self.mirror][self.invert]
+
+        if self.size != 1:
+            if 'g' in pins:
+                # Apply hack to draw gate in correct place when
+                # size is not 1.  Only required if pos != 0.5.
+                pins = pins.copy()
+                gpin = pins['g']
+                pins['g'] = (gpin[0], gpin[1], (gpin[2] +
+                             (self.size - 1) / 2) / self.size)
+        return pins
 
     def draw(self, **kwargs):
 
