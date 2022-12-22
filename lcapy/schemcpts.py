@@ -1680,14 +1680,15 @@ class Transistor(FixedCpt):
         else:
             pins = xpins[self.mirror][self.invert]
 
-        if self.size != 1:
+        if self.size != 1 or self.scale != 1:
             if 'g' in pins:
                 # Apply hack to draw gate in correct place when
                 # size is not 1.  Only required if pos != 0.5.
                 pins = pins.copy()
                 gpin = pins['g']
-                pins['g'] = (gpin[0], gpin[1], (gpin[2] / self.scale +
-                             (self.size - 1) / 2) / self.size)
+                y = ((1 - self.scale) / 2 +
+                     gpin[2] * self.scale + (self.size - 1) / 2) / self.size
+                pins['g'] = (gpin[0], gpin[1], y)
         return pins
 
     def draw(self, **kwargs):
