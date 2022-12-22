@@ -277,7 +277,7 @@ class Simulator(object):
 
     def _step(self, foo, n, tv, results):
 
-        from numpy import array, linalg, dot, float
+        from numpy import array, linalg, dot
 
         # Substitute values into the MNA A matrix and Z vector,
         # then perform numerical inversion of the A matrix.
@@ -339,7 +339,7 @@ class Simulator(object):
 
         """
 
-        from numpy import array, float
+        from numpy import array
 
         if integrator == 'trapezoid':
             Ccls = SimulatedCapacitorTrapezoid
