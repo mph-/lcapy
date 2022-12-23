@@ -2,8 +2,10 @@
 Release notes
 =============
 
-V1.11
-=====
+V1.10.1
+=======
+
+ - Works with NumPy 1.24.0
 
  - Fixes MOSFET drawing.
 
