@@ -346,7 +346,10 @@ class Schematic(NetfileMixin):
         placer._make_graphs()
         return placer.xgraph, placer.ygraph
 
-    def _positions_calculate(self, method='graph', debug=False):
+    def _positions_calculate(self, method='graph', debug=False, **kwargs):
+
+        autoground = kwargs.get('autoground', False)
+        self._setup(autoground)
 
         if self.debug & 4:
             print('Creating graphs')
@@ -358,11 +361,8 @@ class Schematic(NetfileMixin):
     def _tikz_draw(self, style_args='', **kwargs):
 
         method = kwargs.pop('method', 'graph')
-        autoground = kwargs.get('autoground', False)
 
-        self._setup(autoground)
-
-        self._positions_calculate(method, self.debug)
+        self._positions_calculate(method, self.debug, **kwargs)
 
         # Note, scale does not scale the font size.
         opts = ['scale=%.2f' % self.scale,
