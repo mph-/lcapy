@@ -623,6 +623,34 @@ class Cpt(object):
 
         return s
 
+    def sdraw(self, pos, tikzcpt, args='', opts='', label='', indent=2):
+
+        ind = ' ' * indent
+
+        if isinstance(args, list):
+            args = ', '.join(args)
+        if isinstance(opts, list):
+            opts = ', '.join(opts)
+        label_str = latex_format_label(label)
+
+        if args == '':
+            args = tikzcpt
+        elif tikzcpt != '':
+            args = tikzcpt + ', ' + args
+
+        if args == '':
+            node_str = 'node'
+        else:
+            node_str = 'node[' + args + ']'
+
+        if opts == '':
+            s = r'%s\draw (%s) %s {%s};''\n' % (
+                ind, pos, node_str, label_str)
+        else:
+            s = r'%s\draw[%s] (%s) %s {%s};''\n' % (
+                ind, opts, pos, node_str, label_str)
+        return s
+
     def draw_node(self, n, draw_nodes):
 
         # Don't draw nodes for open-circuits.  Use port
@@ -630,7 +658,7 @@ class Cpt(object):
         if self.type == 'O':
             return ''
 
-        args_str = self.node_args_str(n)
+        args = self.node_args_list(n)
 
         s = ''
         kind = n.implicit_symbol
@@ -649,36 +677,30 @@ class Cpt(object):
             # vss and vdd labels are drawn in the correct place.
             # There is no provision for labels for ground, sground, etc.
             if kind in ('vcc', 'vdd', 'vee', 'vss'):
-                s += r'  \draw (%s) node[%s,%s] {%s};''\n' % (n.s, kind,
-                                                              args_str, label)
+                s += self.sdraw(n.s, kind, args, label)
             else:
                 anchor = 'south west'
                 if self.down:
                     anchor = 'north west'
                 anchor = self.anchor_opt(n, anchor)
                 lpos = self.tf(n.pos, (0.5, 0), scale=1)
-                args_str += 'rotate=%d' % (90 + self.angle)
-                s += r'  \draw (%s) node[%s,%s] {};''\n' % (n.s, kind,
-                                                            args_str)
+                args.append('rotate=%d' % (90 + self.angle))
+                s += self.sdraw(n.s, kind, args)
                 if label != '':
-                    label_str = latex_format_label(label)
-                    s += r'  \draw[anchor=%s] (%s) node {%s};''\n' % (
-                        anchor, lpos, label_str)
+                    s += self.sdraw(lpos, '', '', 'anchor=' + anchor, label)
 
             if not n.visible(draw_nodes) or n.pin or not draw_nodes:
                 return s
             symbol = n.opts.get('symbol', 'ocirc' if n.is_port else 'circ')
-            s += r'  \draw (%s) node[%s,%s] {};''\n' % (n.s, symbol, args_str)
+            s += self.sdraw(n.s, symbol, args)
 
         else:
             if not n.visible(draw_nodes) or n.pin or not draw_nodes:
                 return s
-
-            # label = n.opts.get('l', n.opts.get('label', n.label))
             symbol = n.opts.get('symbol', 'ocirc' if n.is_port or
                                 n.is_dangling else 'circ')
-            s += r'  \draw (%s) node[%s,%s] {};''\n' % (n.s, symbol,
-                                                        args_str)
+            s += self.sdraw(n.s, symbol, args)
+
         return s
 
     def draw_nodes(self, **kwargs):
@@ -697,7 +719,7 @@ class Cpt(object):
 
         s = ''
         for n in self.drawn_pins:
-            s += r'  \draw (%s) node[ocirc] {};''\n' % n.s
+            s += self.sdraw(n.s, 'ocirc')
         return s
 
     def draw_pinlabel(self, node):
@@ -992,9 +1014,13 @@ class Cpt(object):
 
         return ','.join(self.args_list(self.opts, **kwargs))
 
+    def node_args_list(self, node, **kwargs):
+
+        return self.args_list(node.opts, **kwargs)
+
     def node_args_str(self, node, **kwargs):
 
-        return ','.join(self.args_list(node.opts, **kwargs))
+        return ','.join(self.node_args_list(node, **kwargs))
 
     def label(self, keys=None, default=True, **kwargs):
 
@@ -1108,8 +1134,7 @@ class Cpt(object):
             else:
                 label = r'\textbf{%s}' % label
 
-        return r'  \draw[%s] (%s) node[] {%s};''\n' % (
-            args_str, pos, label)
+        return self.sdraw(pos, opts=args_str, label=label)
 
     def draw_label(self, pos, keys=None, default=True, **kwargs):
         """Draw label for component that does not have a circuitikz label."""
@@ -1150,12 +1175,7 @@ class Unipole(Cpt):
         if self.invert:
             xscale = -xscale
 
-        args_str = self.args_str(**kwargs)
-        args = []
-        if tikz_cpt != '':
-            args.append(tikz_cpt)
-        if args_str != '':
-            args.append(args_str)
+        args = self.args_list(self.opts, **kwargs)
         args.append('rotate=%d' % self.angle)
         if xscale != 1:
             args.append('xscale=%f' % xscale)
@@ -1167,9 +1187,7 @@ class Unipole(Cpt):
 
         label = self.label(**kwargs)
         label = self.label_tweak(label, xscale, yscale, self.angle)
-
-        s = r'  \draw (%s) node[%s] {%s};''\n' % (q, ', '.join(args),
-                                                  label)
+        s = self.sdraw(q, tikz_cpt, args, '', label)
         return s
 
 
