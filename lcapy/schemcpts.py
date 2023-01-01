@@ -56,6 +56,15 @@ def check_boolean(value):
     return value in (True, 'true')
 
 
+def arrow_map(name):
+
+    try:
+        return {'tee': '|', 'otri': 'open triangle 60',
+                'tri': 'triangle 60'}[name]
+    except:
+        return name
+
+
 class Cpt(object):
 
     voltage_keys = ('v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<',
@@ -588,7 +597,7 @@ class Cpt(object):
 
     def draw_connection(self, n, kind):
 
-        args_str = self.node_args_str(n)
+        args = self.node_args_list(n)
 
         try:
             scale = float(self.opts[kind])
@@ -619,36 +628,129 @@ class Cpt(object):
                                 (w + a, -h / 2), (0, -h / 2)),
                         scale=1)
 
-        s = self.draw_path(q, closed=True, args_str=args_str)
+        s = self.draw_path(q, closed=True, dargs=args)
 
         return s
 
-    def sdraw(self, pos, tikzcpt='', args='', opts='', label='', indent=2):
+    def draw_cptnode(self, pos, cpt='', args='', dargs='', label=''):
+        """Create a string to draw a tikz node containing a circuitikz
+        component `cpt` at position `pos`. `args` is a list or string
+        of the node options; `dargs` is a list or string of the draw
+        options.  `label` is an optional label.
 
-        ind = ' ' * indent
+        The general form of the generated string is:
+
+        \draw[dargs] (pos) node[cpt, args] {label};
+
+        """
 
         if isinstance(args, list):
-            args = ', '.join(args)
-        if isinstance(opts, list):
-            opts = ', '.join(opts)
+            args = ', '.join([arg for arg in args if arg != ''])
+        if isinstance(dargs, list):
+            dargs = ', '.join([arg for arg in dargs if arg != ''])
         label_str = latex_format_label(label)
 
         if args == '':
-            args = tikzcpt
-        elif tikzcpt != '':
-            args = tikzcpt + ', ' + args
+            args = cpt
+        elif cpt != '':
+            args = cpt + ', ' + args
 
         if args == '':
             node_str = 'node'
         else:
             node_str = 'node[' + args + ']'
 
-        if opts == '':
-            s = r'%s\draw (%s) %s {%s};''\n' % (
-                ind, pos, node_str, label_str)
+        if dargs == '':
+            s = r'  \draw (%s) %s {%s};''\n' % (
+                pos, node_str, label_str)
         else:
-            s = r'%s\draw[%s] (%s) %s {%s};''\n' % (
-                ind, opts, pos, node_str, label_str)
+            s = r'  \draw[%s] (%s) %s {%s};''\n' % (
+                dargs, pos, node_str, label_str)
+        return s
+
+    def draw_cpt(self, pos1, pos2, cpt='', args='', dargs=''):
+        """Create a string to draw a circuitikz component `cpt` between
+        positions `pos1` and `pos2`. `args` is a list or string of the
+        component options; `dargs` is a list or string of the draw options.
+
+        The general form of the generated string is:
+
+        \draw[dargs] (pos1) to [cpt, args] (pos2);
+
+        """
+
+        if isinstance(args, list):
+            args = ', '.join([arg for arg in args if arg != ''])
+        if isinstance(dargs, list):
+            dargs = ', '.join([arg for arg in dargs if arg != ''])
+
+        if args == '':
+            args = cpt
+        elif cpt != '':
+            args = cpt + ', ' + args
+
+        if dargs == '':
+            s = r'  \draw (%s) to [%s] (%s);''\n' % (
+                pos1, args, pos2)
+        else:
+            s = r'  \draw[%s] (%s) to [%s] (%s);''\n' % (
+                dargs, pos1, args, pos2)
+        return s
+
+    def draw_wire(self, pos1, pos2, dargs=[], startarrow='',
+                  endarrow='', style=''):
+        """Create a string to draw a circuitikz wire between positions `pos1`
+        and `pos2`.  `dargs` is a list or string of the draw options.
+
+        The general form of the generated string is:
+
+        \draw[-, dargs] (pos1) to (pos2);
+
+        """
+
+        startarrow = arrow_map(startarrow)
+        endarrow = arrow_map(endarrow)
+
+        cpt = startarrow + '-' + endarrow
+
+        dargs.insert(0, cpt)
+        dargs.append(style)
+        dargs = ', '.join([arg for arg in dargs if arg != ''])
+
+        s = r'  \draw[%s] (%s) to (%s);''\n' % (dargs, pos1, pos2)
+        return s
+
+    def draw_stepped_wire(self, pos1, steps, dargs=[],
+                          startarrow='', endarrow='', style=''):
+
+        path = '(%s)' % pos1
+        for pos in steps:
+            path += ' to (%s)' % pos
+
+        cpt = startarrow + '-' + endarrow
+
+        dargs.insert(0, cpt)
+        dargs.append(style)
+        dargs = ', '.join([arg for arg in dargs if arg != ''])
+
+        s = r'  \draw[%s] %s;''\n' % (dargs, path)
+        return s
+
+    def draw_path(self, points, style='', join='--', closed=False, dargs=None):
+
+        path = (' %s ' % join).join(['(%s)' % point for point in points])
+        if closed:
+            path += ' %s cycle' % join
+
+        if dargs is None:
+            dargs = self.args_list(self.opts)
+        if style != '':
+            dargs.append(style)
+        dargs = ', '.join([arg for arg in dargs if arg != ''])
+        if dargs != '':
+            dargs = '[' + dargs + ']'
+
+        s = r'  \draw%s %s;''\n' % (dargs, path)
         return s
 
     def draw_node(self, n, draw_nodes):
@@ -677,7 +779,7 @@ class Cpt(object):
             # vss and vdd labels are drawn in the correct place.
             # There is no provision for labels for ground, sground, etc.
             if kind in ('vcc', 'vdd', 'vee', 'vss'):
-                s += self.sdraw(n.s, kind, args, label)
+                s += self.draw_cptnode(n.s, kind, args, label)
             else:
                 anchor = 'south west'
                 if self.down:
@@ -685,21 +787,22 @@ class Cpt(object):
                 anchor = self.anchor_opt(n, anchor)
                 lpos = self.tf(n.pos, (0.5, 0), scale=1)
                 args.append('rotate=%d' % (90 + self.angle))
-                s += self.sdraw(n.s, kind, args)
+                s += self.draw_cptnode(n.s, kind, args)
                 if label != '':
-                    s += self.sdraw(lpos, '', '', 'anchor=' + anchor, label)
+                    s += self.draw_cptnode(lpos, '', '',
+                                           'anchor=' + anchor, label)
 
             if not n.visible(draw_nodes) or n.pin or not draw_nodes:
                 return s
             symbol = n.opts.get('symbol', 'ocirc' if n.is_port else 'circ')
-            s += self.sdraw(n.s, symbol, args)
+            s += self.draw_cptnode(n.s, symbol, args)
 
         else:
             if not n.visible(draw_nodes) or n.pin or not draw_nodes:
                 return s
             symbol = n.opts.get('symbol', 'ocirc' if n.is_port or
                                 n.is_dangling else 'circ')
-            s += self.sdraw(n.s, symbol, args)
+            s += self.draw_cptnode(n.s, symbol, args)
 
         return s
 
@@ -719,7 +822,7 @@ class Cpt(object):
 
         s = ''
         for n in self.drawn_pins:
-            s += self.sdraw(n.s, 'ocirc')
+            s += self.draw_cptnode(n.s, 'ocirc')
         return s
 
     def draw_pinlabel(self, node):
@@ -756,8 +859,8 @@ class Cpt(object):
 
         anchor = anchors[pinpos]
 
-        s = self.sdraw(node.s, opts='anchor=' + anchor,
-                       label=node.pinlabel.replace('_', r'\_'))
+        s = self.draw_cptnode(node.s, dargs='anchor=' + anchor,
+                              label=node.pinlabel.replace('_', r'\_'))
         return s
 
     def draw_pinname(self, node):
@@ -781,8 +884,8 @@ class Cpt(object):
                    't': 'north', 'b': 'south'}
         anchor = anchors[pinpos]
 
-        s = self.sdraw(node.s, opts='anchor=' + anchor,
-                       label=node.pinlabel.replace('_', r'\_'))
+        s = self.draw_cptnode(node.s, dargs='anchor=' + anchor,
+                              label=node.pinlabel.replace('_', r'\_'))
         return s
 
     def draw_node_label(self, node, label_nodes, anchor):
@@ -799,8 +902,8 @@ class Cpt(object):
 
         anchor = self.anchor_opt(self, anchor)
 
-        s = self.sdraw(node.s, opts='anchor=' + anchor,
-                       label=node.pinlabel.replace('_', r'\_'))
+        s = self.draw_cptnode(node.s, dargs='anchor=' + anchor,
+                              label=node.pinlabel.replace('_', r'\_'))
         return s
 
     def draw_node_labels(self, **kwargs):
@@ -1106,26 +1209,6 @@ class Cpt(object):
 
         return centre + np.dot((x * self.w, y * self.h), self.R(angle_offset)) * scale
 
-    def draw_path(self, points, style='', join='--', closed=False, args_str=None):
-
-        if args_str is None:
-            args_str = self.args_str()
-
-        path = (' %s ' % join).join(['(%s)' % point for point in points])
-        if closed:
-            path += ' %s cycle' % join
-
-        if style == '':
-            s = args_str
-        elif args_str == '':
-            s = style
-        else:
-            s = style + ', ' + args_str
-        if s != '':
-            s = '[%s]' % s
-
-        return r'  \draw%s %s;''\n' % (s, path)
-
     def annotate(self, pos, label, args_str='', bold=False):
 
         if bold:
@@ -1135,7 +1218,7 @@ class Cpt(object):
             else:
                 label = r'\textbf{%s}' % label
 
-        return self.sdraw(pos, opts=args_str, label=label)
+        return self.draw_cptnode(pos, dargs=args_str, label=label)
 
     def draw_label(self, pos, keys=None, default=True, **kwargs):
         """Draw label for component that does not have a circuitikz label."""
@@ -1188,7 +1271,7 @@ class Unipole(Cpt):
 
         label = self.label(**kwargs)
         label = self.label_tweak(label, xscale, yscale, self.angle)
-        s = self.sdraw(q, tikz_cpt, args, '', label)
+        s = self.draw_cptnode(q, tikz_cpt, args, '', label)
         return s
 
 
@@ -1316,8 +1399,8 @@ class Bipole(StretchyCpt):
             # With this option, draw component as a piece of wire.
             # This is useful for hiding the control voltage source
             # required for a CCVS or a CCCS.
-            s = r'  \draw[-, %s] (%s) to (%s);''\n' % (
-                self.args_str(**kwargs), n1.s, n2.s)
+            dargs = self.args_list(self.opts, **kwargs)
+            s = self.draw_wire(n1.s, n2.s, dargs)
             return s
 
         tikz_cpt = self.tikz_cpt
@@ -1399,25 +1482,23 @@ class Bipole(StretchyCpt):
         if 'a' in self.opts:
             self.opts['a' + annotation_pos] = self.opts.pop('a')
 
-        args_str = self.args_str(**kwargs)
-        args_str2 = ','.join(
-            [self.voltage_str, self.current_str, self.flow_str])
+        dargs = self.args_list(self.opts, **kwargs)
+        args = [self.voltage_str, self.current_str, self.flow_str]
 
         if self.mirror:
-            args_str2 += ', mirror'
+            args.append('mirror')
         if self.invert:
-            args_str2 += ', invert'
+            args.append('invert')
 
         if self.scale != 1.0:
-            args_str2 += ', bipoles/length=%.2fcm' % (
-                self.sch.cpt_size * self.scale)
+            args.append('bipoles/length=%.2fcm' % (
+                self.sch.cpt_size * self.scale))
 
         label_str = self.label_make(label_pos, **kwargs)
+        args.append(label_str)
+        args.append('n=' + self.s)
 
-        s = r'  \draw[%s] (%s) to [%s,%s,%s,n=%s] (%s);''\n' % (
-            args_str, n1.s, tikz_cpt, label_str, args_str2,
-            self.s, n2.s)
-
+        s = self.draw_cpt(n1.s, n2.s, tikz_cpt, args, dargs)
         return s
 
 
@@ -3546,14 +3627,6 @@ class Wire(Bipole):
             s = self.draw_path((n1.s, n2.s))
             return self.draw_implicit(**kwargs)
 
-        def arrow_map(name):
-
-            try:
-                return {'tee': '|', 'otri': 'open triangle 60',
-                        'tri': 'triangle 60'}[name]
-            except:
-                return name
-
         n1, n2 = self.nodes
 
         # W 1 2; up, arrow=tri, l=V_{dd}
@@ -3573,21 +3646,21 @@ class Wire(Bipole):
 
         # TODO, add arrow shapes for earth symbol.
 
-        if self.steps is None:
-            s = r'  \draw[%s-%s, %s, %s] (%s) to (%s);''\n' % (
-                arrow_map(startarrow), arrow_map(endarrow), style,
-                self.args_str(**kwargs), n1.s, n2.s)
-        else:
+        dargs = self.args_list(self.opts, **kwargs)
 
+        if self.steps is None:
+            s = self.draw_wire(n1.s, n2.s, style=style,
+                               startarrow=startarrow,
+                               endarrow=endarrow,
+                               dargs=dargs)
+        else:
             steps = Steps(self.steps, n1.pos, n2.pos)
 
-            path = '(%s)' % n1.pos
-            for pos in steps:
-                path += ' to (%s)' % pos
-
-            s = r'  \draw[%s-%s, %s, %s] %s;''\n' % (
-                arrow_map(startarrow), arrow_map(endarrow), style,
-                self.args_str(**kwargs), path)
+            s = self.draw_stepped_wire(n1.s, steps,
+                                       style=style,
+                                       startarrow=startarrow,
+                                       endarrow=endarrow,
+                                       dargs=dargs)
 
         if self.voltage_str != '':
             # Well there can be an EMF if a changing magnetic flux passes
