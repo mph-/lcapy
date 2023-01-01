@@ -1,19 +1,17 @@
-"""
-This module defines and draws the schematic components using
+"""This module defines and draws the schematic components using
 circuitikz.   The components are defined at the bottom of this file.
 
-Copyright 2015--2022 Michael Hayes, UCECE
+Copyright 2015--2023 Michael Hayes, UCECE
 """
 
-
 from __future__ import print_function
-from .config import implicit_default
-from .latex import latex_format_label
-from .schemmisc import Pos, Steps
-from .opts import Opts
-import numpy as np
-import sys
 from warnings import warn
+import sys
+import numpy as np
+from .opts import Opts
+from .schemmisc import Pos, Steps
+from .latex import latex_format_label
+from .config import implicit_default
 
 module = sys.modules[__name__]
 
@@ -69,8 +67,7 @@ class Cpt(object):
     label_keys = ('l', 'l_', 'l^')
     annotation_keys = ('a', 'a_', 'a^')
     inner_label_keys = ('t', )
-    connection_keys = ('input', 'output', 'bidir', 'pad',
-                       'antenna', 'rxantenna', 'txantenna')
+    connection_keys = ('input', 'output', 'bidir', 'pad')
     ground_keys = ('ground', 'sground', 'rground',
                    'cground', 'nground', 'pground', '0V')
     supply_positive_keys = ('vcc', 'vdd')
@@ -86,12 +83,14 @@ class Cpt(object):
                  'nowires', 'nolabels', 'steps', 'free', 'fliplr', 'flipud',
                  'nodots', 'draw_nodes', 'label_nodes', 'nodraw',
                  'mirrorinputs', 'autoground', 'xoffset', 'yoffset',
-                 'node_label_anchor')
+                 'anchor')
     label_opt_keys = ('label_values', 'label_ids', 'annotate_values')
 
     special_keys = voltage_keys + current_keys + flow_keys + label_keys + \
         inner_label_keys + annotation_keys + misc_keys + \
         implicit_keys + label_opt_keys + connection_keys
+
+    node_special_keys = ('label', 'l', 'anchor')
 
     can_rotate = True
     can_scale = False
@@ -133,9 +132,11 @@ class Cpt(object):
         self.net = string.split(';')[0]
         self.opts_string = opts_string
         self.opts = Opts(self.opts_string)
+        self._setup = False
 
         self.args = args
         self.classname = self.__class__.__name__
+        self.implicit = None
 
         # Drawing hints
         self.opts = Opts(opts_string)
@@ -186,8 +187,8 @@ class Cpt(object):
         # This is set by the process_pins method.
         self.drawn_pins = []
 
-        self.all_node_names = list(
-            self.required_node_names) + auxiliary_node_names + pin_node_names
+        self.all_node_names = list(self.required_node_names) + \
+            auxiliary_node_names + pin_node_names
 
         # Create dictionary of pinnames sharing the same relative
         # coords (pinname aliases).
@@ -389,9 +390,18 @@ class Cpt(object):
     def label_nodes_opt(self):
         return self.opts.get('label_nodes', None)
 
-    @property
-    def node_label_anchor_opt(self):
-        return self.opts.get('node_label_anchor', None)
+    def anchor_opt(self, thing, default=None):
+
+        mapping = {'n': 'north', 'e': 'east',
+                   's': 'south', 'w': 'west',
+                   'ne': 'north east', 'nw': 'north west',
+                   'se': 'south east', 'sw': 'south west'}
+
+        val = thing.opts.get('anchor', default)
+        if val in mapping:
+            val = mapping[val]
+        # TODO check for valid anchor names
+        return val
 
     @property
     def style(self):
@@ -462,9 +472,29 @@ class Cpt(object):
         # Fake pins have a pinpos like lx, rx, tx, or bx
         return len(self.allpins[pinname][0]) == 2
 
+    def node_opts(self):
+
+        opts = []
+        for key, val in self.opts.items():
+            if '.' not in key:
+                continue
+            parts = key.split('.')
+            if len(parts) > 2:
+                raise ValueError('Badly formatted node attribute: ' + key)
+            node = parts[0]
+            if node not in self.pins:
+                raise ValueError('Unknown pin %s in %s.  Known pins: %s' %
+                                 (node, key, ', '.join(self.pins)))
+            parts.append(val)
+            opts.append(parts)
+        return opts
+
     @property
     def nodes(self):
-        """Nodes used to draw the current element."""
+        """Nodes used to draw the element."""
+
+        if not self._setup:
+            raise RuntimeError('Using nodes before setup.')
 
         if hasattr(self, '_nodes'):
             return self._nodes
@@ -556,6 +586,43 @@ class Cpt(object):
     def midpoint(self, node1, node2):
         return (node1.pos + node2.pos) * 0.5
 
+    def draw_connection(self, n, kind):
+
+        args_str = self.node_args_str(n)
+
+        try:
+            scale = float(self.opts[kind])
+        except:
+            scale = 1.0
+
+        h = 0.5 * scale * 1.2
+        w = 0.75 * scale * 1.2
+        a = 0.25 * scale * 1.2
+
+        # x = (w + a) / 2
+
+        if kind == 'output':
+            q = self.tf(n.pos, ((0, h / 2), (w, h / 2),
+                                (w + a, 0), (w, -h / 2), (0, -h / 2)),
+                        scale=1)
+        elif kind == 'input':
+            q = self.tf(n.pos, ((0, 0), (a, h / 2), (a + w, h / 2),
+                                (a + w, -h / 2), (a, -h / 2)),
+                        scale=1)
+        elif kind == 'bidir':
+            q = self.tf(n.pos, ((0, 0), (a, h / 2), (w, h / 2),
+                                (a + w, 0), (w, -h / 2),
+                                (a, -h / 2)),
+                        scale=1)
+        elif kind == 'pad':
+            q = self.tf(n.pos, ((0, h / 2), (w + a, h / 2),
+                                (w + a, -h / 2), (0, -h / 2)),
+                        scale=1)
+
+        s = self.draw_path(q, closed=True, args_str=args_str)
+
+        return s
+
     def draw_node(self, n, draw_nodes):
 
         # Don't draw nodes for open-circuits.  Use port
@@ -563,26 +630,55 @@ class Cpt(object):
         if self.type == 'O':
             return ''
 
+        args_str = self.node_args_str(n)
+
         s = ''
+        kind = n.implicit_symbol
+        if kind is not None:
 
-        if n.symbol is not None:
-            s += r'  \draw (%s) node[%s] {};''\n' % (n.s, n.symbol)
-            if n.is_port:
-                s += r'  \draw (%s) node[ocirc] {};''\n' % n.s
-            elif draw_nodes == 'all':
-                s += r'  \draw (%s) node[circ] {};''\n' % n.s
-        else:
-            if not n.visible(draw_nodes) or n.pin:
-                return s
+            label = ''
+            if kind == '0V':
+                label = r'0\,\mathrm{V}'
+                kind = implicit_default
+            elif kind == 'implicit':
+                kind = implicit_default
+            elif kind in self.connection_keys:
+                return self.draw_connection(n, kind)
 
-            if not draw_nodes:
-                return s
-
-            if n.is_port or n.is_dangling:
-                s += r'  \draw (%s) node[ocirc] {};''\n' % n.s
+            label = n.opts.get('l', n.opts.get('label', label))
+            # vss and vdd labels are drawn in the correct place.
+            # There is no provision for labels for ground, sground, etc.
+            if kind in ('vcc', 'vdd', 'vee', 'vss'):
+                s += r'  \draw (%s) node[%s,%s] {%s};''\n' % (n.s, kind,
+                                                              args_str, label)
             else:
-                s += r'  \draw (%s) node[circ] {};''\n' % n.s
+                anchor = 'south west'
+                if self.down:
+                    anchor = 'north west'
+                anchor = self.anchor_opt(n, anchor)
+                lpos = self.tf(n.pos, (0.5, 0), scale=1)
+                args_str += 'rotate=%d' % (90 + self.angle)
+                s += r'  \draw (%s) node[%s,%s] {};''\n' % (n.s, kind,
+                                                            args_str)
+                if label != '':
+                    label_str = latex_format_label(label)
+                    s += r'  \draw[anchor=%s] (%s) node {%s};''\n' % (
+                        anchor, lpos, label_str)
 
+            if not n.visible(draw_nodes) or n.pin or not draw_nodes:
+                return s
+            symbol = n.opts.get('symbol', 'ocirc' if n.is_port else 'circ')
+            s += r'  \draw (%s) node[%s,%s] {};''\n' % (n.s, symbol, args_str)
+
+        else:
+            if not n.visible(draw_nodes) or n.pin or not draw_nodes:
+                return s
+
+            # label = n.opts.get('l', n.opts.get('label', n.label))
+            symbol = n.opts.get('symbol', 'ocirc' if n.is_port or
+                                n.is_dangling else 'circ')
+            s += r'  \draw (%s) node[%s,%s] {};''\n' % (n.s, symbol,
+                                                        args_str)
         return s
 
     def draw_nodes(self, **kwargs):
@@ -665,13 +761,23 @@ class Cpt(object):
         return r'  \draw[anchor=%s] (%s) node {%s};''\n' % (
             anchor, node.s, node.pinname.replace('_', r'\_'))
 
-    def draw_node_label(self, node, label_nodes, node_label_anchor):
+    def draw_node_label(self, node, label_nodes, anchor):
 
+        # TODO, format user defined label
+        label = node.opts.get('l', node.opts.get('label', node.label))
+
+        # Perhaps override if have a user defined label.
         if not node.show_label(label_nodes):
             return ''
 
-        return r'  \draw[anchor=%s] (%s) node {%s};''\n' % (
-            node_label_anchor, node.s, node.label)
+        if node.implicit:
+            return ''
+        else:
+            anchor = self.anchor_opt(self, anchor)
+            s = r' \draw[anchor=%s] (%s) node {%s};''\n' % (anchor,
+                                                            node.s, label)
+
+        return s
 
     def draw_node_labels(self, **kwargs):
 
@@ -679,9 +785,7 @@ class Cpt(object):
         if label_nodes is None:
             label_nodes = kwargs.get('label_nodes', 'primary')
 
-        node_label_anchor = self.node_label_anchor_opt
-        if node_label_anchor is None:
-            node_label_anchor = kwargs.get('node_label_anchor', 'south east')
+        anchor = self.anchor_opt(self, kwargs.get('anchor', 'south east'))
 
         s = ''
         for node in self.drawn_nodes:
@@ -695,7 +799,7 @@ class Cpt(object):
             else:
                 if node.auxiliary:
                     continue
-                s += self.draw_node_label(node, label_nodes, node_label_anchor)
+                s += self.draw_node_label(node, label_nodes, anchor)
 
         return s
 
@@ -734,9 +838,46 @@ class Cpt(object):
             if node_name != '0':
                 continue
 
+            new_node = self.sch.nodes[node_name].split(self)
+            new_node.implicit_symbol = autoground
+
+            self.node_names[m] = new_node.name
+            self.sch.nodes[new_node.name] = new_node
+
+            index = self.all_node_names.index(node_name)
+            self.all_node_names[index] = new_node.name
+
+    def setup(self):
+        self.ref_node_names = self.find_ref_node_names()
+        self._setup = True
+
+    def implicit_key(self, opts):
+
+        prevkey = None
+        for key in self.implicit_keys + self.connection_keys:
+            if key in opts:
+                if prevkey is not None:
+                    raise ValueError(
+                        'Multiple implicit node options %s and %s for %s: ' %
+                        (prevkey, key, self))
+                prevkey = key
+
+        return prevkey
+
+    def process_nodes(self):
+        """Parse node options."""
+
+        opts = self.node_opts()
+        for opt in opts:
+            node = self.node(opt[0])
+            node.opts.add(opt[1] + '=' + opt[2])
+
+        def split_nodes1(m, kind):
+
             node = self.nodes[m]
             new_node = node.split(self)
-            new_node.symbol = autoground
+            new_node.implicit_symbol = kind
+            new_node.implicit = True
 
             self.node_names[m] = new_node.name
             self.nodes[m] = new_node
@@ -744,12 +885,33 @@ class Cpt(object):
 
             index = self.all_node_names.index(node.name)
             self.all_node_names[index] = new_node.name
+            return new_node
 
-    def setup(self):
-        self.ref_node_names = self.find_ref_node_names()
+        # Old syntax, look for implicit, ground, etc.
+        implicit = self.implicit_key(self.opts)
+        if implicit:
+            if implicit in self.supply_positive_keys:
+                m = 0
+            else:
+                m = len(self.node_names) - 1
+            new_node = split_nodes1(m, implicit)
 
-    def split_nodes(self):
-        pass
+            label = self.opts.pop('label', None)
+            if label is not None:
+                new_node.opts.add('l=' + label)
+            label = self.opts.pop('l', None)
+            if label is not None:
+                new_node.opts.add('l=' + label)
+            anchor = self.opts.pop('anchor', None)
+            if anchor is not None:
+                new_node.opts.add('anchor=' + anchor)
+
+        # New syntax, look for p.implicit, p.ground, etc.
+        for m, node in enumerate(self.nodes):
+            # FOO
+            implicit = self.implicit_key(node.opts)
+            if implicit:
+                split_nodes1(m, implicit)
 
     def parse_pindefs(self):
         return {}
@@ -814,29 +976,25 @@ class Cpt(object):
 
         return self.opts_str(self.inner_label_keys)
 
-    def args_list(self, **kwargs):
+    def args_list(self, opts, **kwargs):
 
         def fmt(key, val):
             return '%s=%s' % (key, latex_format_label(val))
 
         kwargs = kwargs.copy()
-        for key, val in self.opts.items():
-            if key == 'anchor':
-                anchor_map = {'n': 'north', 'e': 'east',
-                              's': 'south', 'w': 'west',
-                              'ne': 'north east', 'nw': 'north west',
-                              'se': 'south east', 'sw': 'south west'}
-                if val in anchor_map:
-                    val = anchor_map[val]
-
+        for key, val in opts.items():
             # Override with element opts
             kwargs[key] = val
 
-        return [fmt(key, val) for key, val in kwargs.items() if key not in self.special_keys]
+        return [fmt(key, val) for key, val in kwargs.items() if key not in self.special_keys and '.' not in key]
 
     def args_str(self, **kwargs):
 
-        return ','.join(self.args_list(**kwargs))
+        return ','.join(self.args_list(self.opts, **kwargs))
+
+    def node_args_str(self, node, **kwargs):
+
+        return ','.join(self.args_list(node.opts, **kwargs))
 
     def label(self, keys=None, default=True, **kwargs):
 
@@ -870,6 +1028,16 @@ class Cpt(object):
         if len(label_str) > 1 and label_str[0] == '{' and label_str[-1] == '}':
             label_str = label_str[1:-1]
         return label_str
+
+    def label_tweak(self, label, xscale, yscale, angle):
+
+        # Circuitikz scales the label text so we undo this.
+        if xscale != 1 or yscale != 1:
+            label = r'\scalebox{%s}[%s]{%s}' % (1 / xscale, 1 / yscale, label)
+        # Circuitikz rotates the label text so we undo this.
+        if angle != 0:
+            label = r'\rotatebox{%s}{%s}' % (-angle, label)
+        return label
 
     def check(self):
         """Check schematic options and return True if component is to be drawn"""
@@ -911,13 +1079,15 @@ class Cpt(object):
 
         return centre + np.dot((x * self.w, y * self.h), self.R(angle_offset)) * scale
 
-    def draw_path(self, points, style='', join='--', closed=False):
+    def draw_path(self, points, style='', join='--', closed=False, args_str=None):
+
+        if args_str is None:
+            args_str = self.args_str()
 
         path = (' %s ' % join).join(['(%s)' % point for point in points])
         if closed:
             path += ' %s cycle' % join
 
-        args_str = self.args_str()
         if style == '':
             s = args_str
         elif args_str == '':
@@ -951,19 +1121,71 @@ class Cpt(object):
                                              **kwargs), self.args_str())
 
 
-class A(Cpt):
-    """Annotation."""
+class Unipole(Cpt):
 
+    node_pinnames = ('p', )
+    pins = {'p': ('lx', 0, 0)}
     place = False
 
     def draw(self, **kwargs):
 
+        if not self.check():
+            return ''
+
         n = self.nodes[0]
         q = self.tf(n.pos, ((self.xoffset, self.yoffset)))
+        tikz_cpt = self.tikz_cpt
 
-        s = r'  \draw[%s] (%s) node {%s};''\n' % (self.args_str(**kwargs), q,
-                                                  self.label(**kwargs))
+        if self.kind is not None:
+            if self.kind not in self.kinds:
+                raise ValueError('Unknown kind %s for %s: known kinds %s'
+                                 % (self.kind, self.name,
+                                    ', '.join(self.kinds.keys())))
+            tikz_cpt = self.kinds[self.kind]
+
+        xscale = self.scale
+        yscale = self.scale
+        if self.mirror:
+            yscale = -yscale
+        if self.invert:
+            xscale = -xscale
+
+        args_str = self.args_str(**kwargs)
+        args = []
+        if tikz_cpt != '':
+            args.append(tikz_cpt)
+        if args_str != '':
+            args.append(args_str)
+        args.append('rotate=%d' % self.angle)
+        if xscale != 1:
+            args.append('xscale=%f' % xscale)
+        if yscale != 1:
+            args.append('yscale=%f' % yscale)
+        anchor = self.anchor_opt(self)
+        if anchor is not None:
+            args.append('anchor=' + anchor)
+
+        label = self.label(**kwargs)
+        label = self.label_tweak(label, xscale, yscale, self.angle)
+
+        s = r'  \draw (%s) node[%s] {%s};''\n' % (q, ', '.join(args),
+                                                  label)
         return s
+
+
+class A(Unipole):
+    """Annotation."""
+
+    tikz_cpt = ''
+
+
+class ANT(Unipole):
+    """Antenna"""
+
+    can_mirror = True
+    can_invert = True
+    tikz_cpt = 'antenna'
+    kinds = {'rx': 'rxantenna', 'tx': 'txantenna'}
 
 
 class StretchyCpt(Cpt):
@@ -1022,10 +1244,10 @@ class Bipole(StretchyCpt):
     can_invert = True
     can_scale = True
 
-    node_pinnames = ('1', '2')
+    node_pinnames = ('p', 'n')
 
-    pins = {'1': ('lx', -0.5, 0),
-            '2': ('rx', 0.5, 0)}
+    pins = {'p': ('lx', -0.5, 0),
+            'n': ('rx', 0.5, 0)}
 
     def label_make(self, label_pos='', **kwargs):
 
@@ -1063,40 +1285,6 @@ class Bipole(StretchyCpt):
             label_str += ',' + self.annotation_str
 
         return label_str
-
-    def split_nodes(self):
-
-        if self.type == 'W':
-            return
-
-        def split_nodes1(kind):
-            n1, n2 = self.nodes[0:2]
-
-            m = 0
-            node = n1
-            if kind in self.ground_keys or kind in self.supply_negative_keys:
-                node = n2
-                m = 1
-
-            new_node = node.split(self)
-            new_node.symbol = kind
-
-            self.node_names[m] = new_node.name
-            self.nodes[m] = new_node
-            self.sch.nodes[new_node.name] = new_node
-
-            index = self.all_node_names.index(node.name)
-            self.all_node_names[index] = new_node.name
-
-        prevkey = None
-        for key in self.implicit_keys:
-            if key in self.opts:
-                if prevkey is not None:
-                    raise ValueError(
-                        'Multiple implicit node options %s and %s for %s: ' %
-                        (prevkey, key, self))
-                prevkey = key
-                split_nodes1(key)
 
     def draw(self, **kwargs):
 
@@ -1210,6 +1398,7 @@ class Bipole(StretchyCpt):
         s = r'  \draw[%s] (%s) to [%s,%s,%s,n=%s] (%s);''\n' % (
             args_str, n1.s, tikz_cpt, label_str, args_str2,
             self.s, n2.s)
+
         return s
 
 
@@ -1718,12 +1907,7 @@ class Transistor(FixedCpt):
 
         label = self.label(**kwargs)
 
-        # Circuitikz scales the label text so we undo this.
-        if xscale != 1 or yscale != 1:
-            label = r'\scalebox{%s}[%s]{%s}' % (1 / xscale, 1 / yscale, label)
-        # Circuitikz rotates the label text so we undo this.
-        if self.angle != 0:
-            label = r'\rotatebox{%s}{%s}' % (-self.angle, label)
+        label = self.label_tweak(label, xscale, yscale, self.angle)
 
         s = r'  \draw (%s) node[%s, %s, xscale=%s, yscale=%s, rotate=%d] (%s) {%s};''\n' % (
             centre, cpt, self.args_str(**kwargs), xscale, yscale,
@@ -2216,9 +2400,9 @@ class Potentiometer(Bipole):
 
     can_stretch = False
 
-    node_pinnames = ('1', '2', 'wiper')
-    pins = {'1': ('rx', 0, 0),
-            '2': ('rx', 1, 0),
+    node_pinnames = ('p', 'n', 'wiper')
+    pins = {'p': ('rx', 0, 0),
+            'n': ('rx', 1, 0),
             'wiper': ('lx', 0.5, 0.3)}
 
 
@@ -2244,12 +2428,12 @@ class SPDT(FixedCpt):
     can_mirror = True
     can_invert = True
 
-    node_pinnames = ('1', '2', 'common')
-    ppins = {'1': ('lx', 0, 0.169),
-             '2': ('rx', 0.632, 0.338),
+    node_pinnames = ('p', 'n', 'common')
+    ppins = {'p': ('lx', 0, 0.169),
+             'n': ('rx', 0.632, 0.338),
              'common': ('lx', 0.632, 0)}
-    npins = {'1': ('lx', 0.632, 0.169),
-             '2': ('rx', 0, 0.338),
+    npins = {'p': ('lx', 0.632, 0.169),
+             'n': ('rx', 0, 0.338),
              'common': ('lx', 0, 0)}
 
     @property
@@ -3333,131 +3517,14 @@ class Uisoamp(Ufdopamp):
 
 class Wire(Bipole):
 
-    def __init__(self, sch, namespace, defname, name, cpt_type, cpt_id, string,
-                 opts_string, node_names, keyword, *args):
-
-        opts = Opts(opts_string)
-
-        implicit = False
-        for key in self.implicit_keys + self.connection_keys:
-            if key in opts:
-                implicit = True
-                break
-
-        if implicit:
-            # Rename second node since this is spatially different from
-            # other nodes of the same name.  Add underscore at start so node
-            # not drawn.
-
-            # For example, the following nets share the ground node 0:
-            # W 1 0; implicit
-            # W 2 0; implicit
-
-            node_names = (node_names[0], '_' + name + '@' + node_names[1])
-        super(Wire, self).__init__(sch, namespace, defname, name, cpt_type,
-                                   cpt_id, string,
-                                   opts_string, node_names, keyword, *args)
-        self.implicit = implicit
-
-    def draw_implicit(self, **kwargs):
-        """Draw implicit wires, i.e., connections to ground, etc."""
-
-        kind = None
-        for key in self.implicit_keys:
-            if key in self.opts:
-                kind = key
-                break
-
-        label = None
-        if kind == '0V':
-            label = r'0\,\mathrm{V}'
-
-        if kind is None or kind == 'implicit' or kind == '0V':
-            kind = implicit_default
-        anchor = 'south west'
-        if self.down:
-            anchor = 'north west'
-
-        n1, n2 = self.nodes
-        s = self.draw_path((n1.s, n2.s))
-
-        label_pos = n2
-        if kind in ('input', 'output', 'bidir', 'pad'):
-
-            # TODO: create node shapes
-
-            try:
-                scale = float(self.opts[kind])
-            except:
-                scale = 1.0
-
-            h = 0.5 * scale * 1.2
-            w = 0.75 * scale * 1.2
-            a = 0.25 * scale * 1.2
-
-            x = (w + a) / 2
-
-            if kind == 'output':
-                q = self.tf(n2.pos, ((0, h / 2), (w, h / 2),
-                                     (w + a, 0), (w, -h / 2), (0, -h / 2)),
-                            scale=1)
-            elif kind == 'input':
-                q = self.tf(n2.pos, ((0, 0), (a, h / 2), (a + w, h / 2),
-                                     (a + w, -h / 2), (a, -h / 2)),
-                            scale=1)
-            elif kind == 'bidir':
-                q = self.tf(n2.pos, ((0, 0), (a, h / 2), (w, h / 2),
-                                     (a + w, 0), (w, -h / 2),
-                                     (a, -h / 2)),
-                            scale=1)
-            elif kind == 'pad':
-                q = self.tf(n2.pos, ((0, h / 2), (w + a, h / 2),
-                                     (w + a, -h / 2), (0, -h / 2)),
-                            scale=1)
-
-            s += self.draw_path(q, closed=True)
-
-            if 'l' in self.opts:
-                lpos = self.tf(n2.pos, (x, 0), scale=1)
-                s += r'  \draw[align=center] (%s) node {%s};''\n' % (
-                    lpos, self.label(**kwargs))
-            return s
-
-        rotate = 90
-        if kind in ('antenna', 'rxantenna', 'txantenna'):
-            rotate = 0
-
-        args_str = 'scale=0.5, rotate=%d' % (self.angle + rotate)
-        # mirror and invert keywords are ignored by circuitikz
-        if self.mirror:
-            args_str += ', yscale=-1'
-        if self.invert:
-            args_str += ', xscale=-1'
-
-        s += r'  \draw (%s) node[%s, %s] {};''\n' % (n2.s, kind, args_str)
-
-        if 'l' in self.opts or label is not None:
-
-            if label is None:
-                label = self.label(**kwargs)
-
-            lpos = self.tf(n2.pos, (0.125, 0), scale=1)
-            s += r'  \draw[anchor=%s] (%s) node {%s};''\n' % (
-                anchor, lpos, label)
-        return s
-
-    def setup(self):
-        super(Wire, self).setup()
-
-        if self.implicit:
-            self.nodes[1].implicit = True
-
     def draw(self, **kwargs):
 
         if not self.check():
             return ''
 
         if self.implicit:
+            n1, n2 = self.nodes
+            s = self.draw_path((n1.s, n2.s))
             return self.draw_implicit(**kwargs)
 
         def arrow_map(name):
@@ -3504,6 +3571,8 @@ class Wire(Bipole):
                 self.args_str(**kwargs), path)
 
         if self.voltage_str != '':
+            # Well there can be an EMF if a changing magnetic flux passes
+            # through the loop.
             warn('There is no voltage drop across an ideal wire!')
 
         if self.current_str != '' or self.label_str != '' or self.flow_str != '':
@@ -3582,6 +3651,9 @@ class XX(Cpt):
         if self.string.startswith(';;'):
             return ' ' + self.string[2:] + '\n'
         return ''
+
+    def process_nodes(self):
+        pass
 
 
 classes = {}

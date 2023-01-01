@@ -2,7 +2,7 @@
 This module defines the components for modified nodal analysis.  The components
 are defined at the bottom of this file.
 
-Copyright 2015--2022 Michael Hayes, UCECE
+Copyright 2015--2023 Michael Hayes, UCECE
 
 """
 
@@ -2100,6 +2100,7 @@ def make(classname, parent, namespace, defname, name, cpt_type, cpt_id,
 defcpt('A', Misc, 'Annotation')
 defcpt('ADC', Misc, 'ADC')
 defcpt('AM', W, 'Ammeter')
+defcpt('ANT', Misc, 'Antenna')
 
 defcpt('BAT', V, 'Battery')
 defcpt('BL', Misc, 'Block')

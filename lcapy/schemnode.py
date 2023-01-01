@@ -1,10 +1,11 @@
 """This module provides node support for schematic drawing.
 
-Copyright 2022 Michael Hayes, UCECE
+Copyright 2022--2023 Michael Hayes, UCECE
 
 """
 
 from .latex import latex_format_node_label
+from .opts import Opts
 
 
 class Node:
@@ -39,9 +40,10 @@ class Node:
         self.ref = None
         # Node has an implicit connection, say to ground.
         self.implicit = False
-        # Symbol to use if node is an autoground
-        self._symbol = None
+        # Implicit symbol to use if node is an autoground
+        self._implicit_symbol = None
         self.split_count = 0
+        self.opts = Opts()
 
     @property
     def basename(self):
@@ -172,20 +174,21 @@ class Node:
         new_node._port = self._port
         new_node.label = self.label
         new_node._port = elt.type == 'P'
+        new_node.opts = self.opts
 
         return new_node
 
     @property
-    def symbol(self):
-        """Return node symbol"""
+    def implicit_symbol(self):
+        """Return node implicit_symbol"""
 
-        return self._symbol
+        return self._implicit_symbol
 
-    @symbol.setter
-    def symbol(self, value):
-        """Set node symbol."""
+    @implicit_symbol.setter
+    def implicit_symbol(self, value):
+        """Set node implicit_symbol."""
 
-        if self._symbol != None and self._symbol != value:
+        if self._implicit_symbol != None and self._implicit_symbol != value:
             raise ValueError('Conflicting symbols %s and %s' %
-                             (self._symbol, value))
-        self._symbol = value
+                             (self._implicit_symbol, value))
+        self._implicit_symbol = value

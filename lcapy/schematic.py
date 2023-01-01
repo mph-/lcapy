@@ -87,7 +87,7 @@ class SchematicOpts(Opts):
              'label_ids': True,
              'annotate_values': False,
              'label_nodes': 'primary',
-             'node_label_anchor': 'south east',
+             'anchor': 'south east',
              'autoground': 'none',
              'scale': 1.0,
              'dpi': PNG_DPI,
@@ -290,8 +290,8 @@ class Schematic(NetfileMixin):
             # defaults to the component identifier.  Note, some objects
             # we do not want to label, such as wires and ports.
         cpt.id_label = '' if id_label is None else latex_format_label(id_label)
-        cpt.value_label = cpt.id_label if value_label is None else latex_format_label(
-            value_label)
+        cpt.value_label = cpt.id_label if value_label is None \
+            else latex_format_label(value_label)
 
         if unify:
             cpt.value_label = cpt.id_label
@@ -328,10 +328,10 @@ class Schematic(NetfileMixin):
                 elt.autoground(autoground)
 
         for elt in self.elements.values():
-            elt.split_nodes()
+            elt.setup()
 
         for elt in self.elements.values():
-            elt.setup()
+            elt.process_nodes()
 
         for nodename, node in self.nodes.items():
             if node.ref is not None:
@@ -564,7 +564,7 @@ class Schematic(NetfileMixin):
              'pins' to label nodes that are pins on a chip,
              'all' to label all nodes,
              'none' to label no nodes
-           'node_label_anchor': where to position node label (default south east)
+           'anchor': where to position node label (default south east)
            'include': name of file to include before \\begin{document}
            'style': 'american', 'british', or 'european'
            'scale': schematic scale factor, default 1.0

@@ -1,7 +1,7 @@
 """
 This module performs schematic component placement using a graph algorithm.
 
-Copyright 2021 Michael Hayes, UCECE
+Copyright 2021--2023 Michael Hayes, UCECE
 """
 
 from .schemgraph import Graph
@@ -14,7 +14,7 @@ from .schemplacerbase import SchemPlacerBase
 # There is a naming confusion.  We have network nodes (electrical
 # nodes) and nodes in the graph used for component placement.
 # Let's call the latter gnodes.  The names of these gnodes are a
-# tuple of the common network nodes.
+# tuple of the common electrical nodes.
 #
 # x and y component positioning are performed independently.  Let's
 # consider the x or horizontal positioning.  There are three stages:

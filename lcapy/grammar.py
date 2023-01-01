@@ -1,7 +1,7 @@
 """
 This module defines a grammar for SPICE-like netlists.
 
-Copyright 2015--2022 Michael Hayes, UCECE
+Copyright 2015--2023 Michael Hayes, UCECE
 """
 
 # SPICE also considers = a delimiter.
@@ -19,6 +19,7 @@ rules = r"""
 A: Aname Np; Annotation
 ADC: ADCname Np Nm; ADC
 AM: AMname Np Nm; Ammeter
+ANT: ANTname Np; Antenna
 BAT: BATname Np Nm [Value=name]; Battery
 BL: BLname Np Nm; Block
 C: Cname Np Nm [Value=name] [IC]; Capacitor
