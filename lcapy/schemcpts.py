@@ -623,7 +623,7 @@ class Cpt(object):
 
         return s
 
-    def sdraw(self, pos, tikzcpt, args='', opts='', label='', indent=2):
+    def sdraw(self, pos, tikzcpt='', args='', opts='', label='', indent=2):
 
         ind = ' ' * indent
 
@@ -756,8 +756,9 @@ class Cpt(object):
 
         anchor = anchors[pinpos]
 
-        return r'  \draw[anchor=%s] (%s) node {%s};''\n' % (
-            anchor, node.s, node.pinlabel.replace('_', r'\_'))
+        s = self.sdraw(node.s, opts='anchor=' + anchor,
+                       label=node.pinlabel.replace('_', r'\_'))
+        return s
 
     def draw_pinname(self, node):
 
@@ -780,8 +781,9 @@ class Cpt(object):
                    't': 'north', 'b': 'south'}
         anchor = anchors[pinpos]
 
-        return r'  \draw[anchor=%s] (%s) node {%s};''\n' % (
-            anchor, node.s, node.pinname.replace('_', r'\_'))
+        s = self.sdraw(node.s, opts='anchor=' + anchor,
+                       label=node.pinlabel.replace('_', r'\_'))
+        return s
 
     def draw_node_label(self, node, label_nodes, anchor):
 
@@ -794,11 +796,11 @@ class Cpt(object):
 
         if node.implicit:
             return ''
-        else:
-            anchor = self.anchor_opt(self, anchor)
-            s = r' \draw[anchor=%s] (%s) node {%s};''\n' % (anchor,
-                                                            node.s, label)
 
+        anchor = self.anchor_opt(self, anchor)
+
+        s = self.sdraw(node.s, opts='anchor=' + anchor,
+                       label=node.pinlabel.replace('_', r'\_'))
         return s
 
     def draw_node_labels(self, **kwargs):
@@ -930,7 +932,6 @@ class Cpt(object):
 
         # New syntax, look for p.implicit, p.ground, etc.
         for m, node in enumerate(self.nodes):
-            # FOO
             implicit = self.implicit_key(node.opts)
             if implicit:
                 split_nodes1(m, implicit)
