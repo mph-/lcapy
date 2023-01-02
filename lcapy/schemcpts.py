@@ -1030,7 +1030,6 @@ class Cpt(object):
         """Parse implicit nodes."""
 
         def split_nodes1(m, kind):
-
             node = self.nodes[m]
             if node.pin:
                 new_node = node
@@ -1039,6 +1038,7 @@ class Cpt(object):
 
             new_node.implicit_symbol = kind
             new_node.implicit = True
+            new_node.pinpos = self.pinpos(self.node_pinnames[m])
 
             try:
                 self.node_names[m] = new_node.name
