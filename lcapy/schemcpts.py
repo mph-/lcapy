@@ -600,45 +600,6 @@ class Cpt(object):
     def midpoint(self, node1, node2):
         return (node1.pos + node2.pos) * 0.5
 
-    def draw_connection(self, n, kind):
-
-        args = self.node_args_list(n)
-
-        try:
-            scale = float(self.opts[kind])
-        except:
-            scale = 1.0
-
-        pinpos = n.pinpos
-        angle = {'l': 180, 't': 90, 'b': -90, 'r': 0}[pinpos] + self.angle
-
-        h = 0.5 * scale * 1.2
-        w = 0.75 * scale * 1.2
-        a = 0.25 * scale * 1.2
-        # x = (w + a) / 2
-
-        if kind == 'output':
-            q = self.tf(n.pos, ((0, h / 2), (w, h / 2),
-                                (w + a, 0), (w, -h / 2), (0, -h / 2)),
-                        scale=1, angle_offset=angle)
-        elif kind == 'input':
-            q = self.tf(n.pos, ((0, 0), (a, h / 2), (a + w, h / 2),
-                                (a + w, -h / 2), (a, -h / 2)),
-                        scale=1, angle_offset=angle)
-        elif kind == 'bidir':
-            q = self.tf(n.pos, ((0, 0), (a, h / 2), (w, h / 2),
-                                (a + w, 0), (w, -h / 2),
-                                (a, -h / 2)),
-                        scale=1, angle_offset=angle)
-        elif kind == 'pad':
-            q = self.tf(n.pos, ((0, h / 2), (w + a, h / 2),
-                                (w + a, -h / 2), (0, -h / 2)),
-                        scale=1, angle_offset=angle)
-
-        s = self.draw_path(q, closed=True, dargs=args)
-
-        return s
-
     def draw_cptnode(self, pos, cpt='', args='', dargs='', label=''):
         """Create a string to draw a tikz node containing a circuitikz
         component `cpt` at position `pos`. `args` is a list or string
@@ -760,59 +721,106 @@ class Cpt(object):
         s = r'  \draw%s %s;''\n' % (dargs, path)
         return s
 
-    def draw_node(self, n, draw_nodes):
-        """Draw a node symbol.  This also draws the node label
-        for implicit nodes."""
-
-        # Don't draw nodes for open-circuits.  Use port
-        # if want nodes drawn.
-        if self.type == 'O':
-            return ''
+    def draw_connection(self, n, kind):
+        """Draw connection and label."""
 
         args = self.node_args_list(n)
 
+        try:
+            scale = float(self.opts[kind])
+        except:
+            scale = 1.0
+
+        pinpos = n.pinpos
+        angle = {'l': 180, 't': 90, 'b': -90, 'r': 0}[pinpos] + self.angle
+
+        h = 0.5 * scale * 1.2
+        w = 0.75 * scale * 1.2
+        a = 0.25 * scale * 1.2
+        # x = (w + a) / 2
+
+        if kind == 'output':
+            q = self.tf(n.pos, ((0, h / 2), (w, h / 2),
+                                (w + a, 0), (w, -h / 2), (0, -h / 2)),
+                        scale=1, angle_offset=angle)
+        elif kind == 'input':
+            q = self.tf(n.pos, ((0, 0), (a, h / 2), (a + w, h / 2),
+                                (a + w, -h / 2), (a, -h / 2)),
+                        scale=1, angle_offset=angle)
+        elif kind == 'bidir':
+            q = self.tf(n.pos, ((0, 0), (a, h / 2), (w, h / 2),
+                                (a + w, 0), (w, -h / 2),
+                                (a, -h / 2)),
+                        scale=1, angle_offset=angle)
+        elif kind == 'pad':
+            q = self.tf(n.pos, ((0, h / 2), (w + a, h / 2),
+                                (w + a, -h / 2), (0, -h / 2)),
+                        scale=1, angle_offset=angle)
+
+        s = self.draw_path(q, closed=True, dargs=args)
+
+        return s
+
+    def draw_implicit(self, n, kind, draw_nodes):
+        """Draw implicit connection and label."""
+
+        label = ''
+        if kind == '0V':
+            label = r'0\,\mathrm{V}'
+            kind = implicit_default
+        elif kind == 'implicit':
+            kind = implicit_default
+
         s = ''
-        kind = n.implicit_symbol
-        if kind is not None:
-
-            label = ''
-            if kind == '0V':
-                label = r'0\,\mathrm{V}'
-                kind = implicit_default
-            elif kind == 'implicit':
-                kind = implicit_default
-            elif kind in self.connection_keys:
-                return self.draw_connection(n, kind)
-
-            label = n.opts.get('l', n.opts.get('label', label))
-            # vss and vdd labels are drawn in the correct place.
-            # There is no provision for labels for ground, sground, etc.
-            if kind in ('vcc', 'vdd', 'vee', 'vss'):
-                s += self.draw_cptnode(n.s, kind, args, label)
-            else:
-                anchor = 'south west'
-                if self.down:
-                    anchor = 'north west'
-                anchor = self.anchor_opt(n, anchor)
-                lpos = self.tf(n.pos, (0.5, 0), scale=1)
-                args.append('rotate=%d' % (90 + self.angle))
-                s += self.draw_cptnode(n.s, kind, args)
-                if label != '':
-                    s += self.draw_cptnode(lpos, '', '',
-                                           'anchor=' + anchor, label)
-
-            if not n.visible(draw_nodes) or n.pin or not draw_nodes:
-                return s
-            symbol = n.opts.get('symbol', 'ocirc' if n.is_port else 'circ')
-            s += self.draw_cptnode(n.s, symbol, args)
-
+        args = self.node_args_list(n)
+        label = n.opts.get('l', n.opts.get('label', label))
+        # vss and vdd labels are drawn in the correct place.
+        # There is no provision for labels for ground, sground, etc.
+        if kind in ('vcc', 'vdd', 'vee', 'vss'):
+            s += self.draw_cptnode(n.s, kind, args, label=label)
         else:
-            if not n.visible(draw_nodes) or n.pin or not draw_nodes:
-                return s
-            symbol = n.opts.get('symbol', 'ocirc' if n.is_port or
-                                n.is_dangling else 'circ')
-            s += self.draw_cptnode(n.s, symbol, args)
+            anchor = 'south west'
+            if self.down:
+                anchor = 'north west'
+            anchor = self.anchor_opt(n, anchor)
+            lpos = self.tf(n.pos, (0.5, 0), scale=1)
+            args.append('rotate=%d' % (90 + self.angle))
+            s += self.draw_cptnode(n.s, kind, args)
+            if label != '':
+                s += self.draw_cptnode(lpos, '', '',
+                                       'anchor=' + anchor, label)
 
+        if not n.visible(draw_nodes) or n.pin or not draw_nodes:
+            return s
+
+        symbol = n.opts.get('symbol', 'ocirc' if n.is_port else 'circ')
+        s += self.draw_cptnode(n.s, symbol, args)
+        return s
+
+    def draw_node(self, n, draw_nodes):
+        """Draw a node symbol.  This also draws the node label
+        for implicit and connection nodes."""
+
+        # Don't draw nodes for open-circuits.  Use port if want nodes drawn.
+        if self.type == 'O':
+            return ''
+
+        kind = n.implicit_symbol
+
+        if kind in self.connection_keys:
+            return self.draw_connection(n, kind)
+
+        if kind is not None:
+            return self.draw_implicit(n, kind, draw_nodes)
+
+        args = self.node_args_list(n)
+
+        if not n.visible(draw_nodes) or n.pin or not draw_nodes:
+            return ''
+
+        symbol = n.opts.get('symbol', 'ocirc' if n.is_port or
+                            n.is_dangling else 'circ')
+        s = self.draw_cptnode(n.s, symbol, args)
         return s
 
     def draw_nodes(self, **kwargs):
