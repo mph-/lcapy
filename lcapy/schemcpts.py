@@ -29,15 +29,10 @@ module = sys.modules[__name__]
 # the (unrotated) height is set by the aspect attribute.  The scale attribute
 # is not used.
 
-# There are two paradigms used for specifying node coordinates:
-#
-# 1.  The old model.  The required_node_names method returns a subset of
-# node_names as a list.
-#
-# 2.  The new model.  The node_pinnames attribute specifies the subset
-# of required nodes.  It is a list of pinnames that are used to find
-# the pin coordinates and thus the node coordinates.  Note, some
-# components to do not have any explicit nodes (shapes, chips, etc).
+# The node_pinnames attribute specifies the subset of required nodes.
+# It is a list of pinnames that are used to find the pin coordinates
+# and thus the node coordinates.  Note, some components do not have
+# any explicit nodes (shapes, chips, etc).
 
 # The direction commands rotate the component:
 # right (0 degrees)
@@ -439,13 +434,7 @@ class Cpt(object):
         """Subset of node_names.  This filters out nodes that are not
         drawn.  For example, the ground node of an Eopamp is not drawn."""
 
-        # Old model.   The number of node names in the list
-        # must match the number of entries in coords.
-        if self.node_pinnames == ():
-            return self.node_names
-
-        # New model.  The node_pinnames tuple specifies the required
-        # nodes.
+        # The node_pinnames tuple specifies the required nodes.
         node_names = []
         for pinname, node_name in zip(self.node_pinnames, self.node_names):
             if pinname != '':
@@ -2516,18 +2505,12 @@ class Potentiometer(Bipole):
 
 class VCS(Bipole):
     """Voltage controlled source"""
-
-    @property
-    def required_node_names(self):
-        return self.node_names[0:2]
+    pass
 
 
 class CCS(Bipole):
     """Current controlled source"""
-
-    @property
-    def required_node_names(self):
-        return self.node_names[0:2]
+    pass
 
 
 class SPDT(FixedCpt):
