@@ -610,29 +610,31 @@ class Cpt(object):
         except:
             scale = 1.0
 
+        pinpos = n.pinpos
+        angle = {'l': 180, 't': 90, 'b': -90, 'r': 0}[pinpos] + self.angle
+
         h = 0.5 * scale * 1.2
         w = 0.75 * scale * 1.2
         a = 0.25 * scale * 1.2
-
         # x = (w + a) / 2
 
         if kind == 'output':
             q = self.tf(n.pos, ((0, h / 2), (w, h / 2),
                                 (w + a, 0), (w, -h / 2), (0, -h / 2)),
-                        scale=1)
+                        scale=1, angle_offset=angle)
         elif kind == 'input':
             q = self.tf(n.pos, ((0, 0), (a, h / 2), (a + w, h / 2),
                                 (a + w, -h / 2), (a, -h / 2)),
-                        scale=1)
+                        scale=1, angle_offset=angle)
         elif kind == 'bidir':
             q = self.tf(n.pos, ((0, 0), (a, h / 2), (w, h / 2),
                                 (a + w, 0), (w, -h / 2),
                                 (a, -h / 2)),
-                        scale=1)
+                        scale=1, angle_offset=angle)
         elif kind == 'pad':
             q = self.tf(n.pos, ((0, h / 2), (w + a, h / 2),
                                 (w + a, -h / 2), (0, -h / 2)),
-                        scale=1)
+                        scale=1, angle_offset=angle)
 
         s = self.draw_path(q, closed=True, dargs=args)
 
