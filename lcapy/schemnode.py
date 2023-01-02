@@ -166,7 +166,7 @@ class Node:
         if self.split_count == 1:
             return self
 
-        name = self.name + '_split%d' % self.split_count
+        name = self.name + '_split%d' % (self.split_count - 1)
 
         new_node = Node(name)
         self._count -= 1

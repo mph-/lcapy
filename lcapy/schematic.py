@@ -333,8 +333,9 @@ class Schematic(NetfileMixin):
         for elt in self.elements.values():
             elt.setup()
 
+        # Cannot split nodes until know all the nodes.
         for elt in self.elements.values():
-            elt.process_nodes()
+            elt.process_implicit_nodes()
 
         for nodename, node in self.nodes.items():
             if node.ref is not None:

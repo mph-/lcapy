@@ -193,8 +193,16 @@ class Cpt(object):
         # This is set by the process_pins method.
         self.drawn_pins = []
 
+        attribute_node_names = []
+        if isinstance(self, Shape):
+            for opt in self.node_opts():
+                if opt[0] not in self.node_names:
+                    attribute_node_names.append(prefix + opt[0])
+
+        self.attribute_node_names = attribute_node_names
+
         self.all_node_names = list(self.required_node_names) + \
-            auxiliary_node_names + pin_node_names
+            auxiliary_node_names + pin_node_names + attribute_node_names
 
         # Create dictionary of pinnames sharing the same relative
         # coords (pinname aliases).
@@ -449,12 +457,13 @@ class Cpt(object):
             node_name = self.node_names[index]
         else:
             node_name = self.name + '.' + pinname
-        for node in self.nodes:
-            if node.name == node_name:
-                return node
-        known_pins = ', '.join([node.name for node in self.nodes])
-        raise ValueError('Unknown pinname %s for %s, known pins: %s' %
-                         (pinname, self, known_pins))
+
+        try:
+            return self.sch.nodes[node_name]
+        except KeyError:
+            known_pins = ', '.join(self.pins.keys())
+            raise ValueError('Unknown pinname %s for `%s`, known pins: %s' %
+                             (pinname, self, known_pins))
 
     def pinpos(self, pinname):
         """Return pinpos by pinname"""
@@ -900,7 +909,7 @@ class Cpt(object):
         anchor = self.anchor_opt(self, anchor)
 
         s = self.draw_cptnode(node.s, dargs='anchor=' + anchor,
-                              label=node.pinlabel.replace('_', r'\_'))
+                              label=label)
         return s
 
     def draw_node_labels(self, **kwargs):
@@ -971,8 +980,35 @@ class Cpt(object):
             index = self.all_node_names.index(node_name)
             self.all_node_names[index] = new_node.name
 
+    def process_nodes(self, nodes, draw_pin=False, add_pinname=False):
+
+        for n in nodes:
+            # Add pin to nodes so that it will get allocated a coord.
+            node = self.sch._node_add(n, self, auxiliary=True)
+            node.ref = self
+            node.pin = not self.fakepin(node.basename)
+            node.pinpos = self.pinpos(node.basename)
+            if draw_pin:
+                self.drawn_pins.append(node)
+            if add_pinname:
+                node.pinname = node.basename
+
+    def process_attribute_nodes(self):
+        """Process nodes specified as attributes.  For example,
+        R1 1 2; .n.vss"""
+
+        self.process_nodes(self.attribute_node_names)
+
+        opts = self.node_opts()
+        for opt in opts:
+            n = opt[0]
+            node = self.node(n)
+            node.opts.add(opt[1] + '=' + opt[2])
+
     def setup(self):
         self.ref_node_names = self.find_ref_node_names()
+        self.process_attribute_nodes()
+
         self._setup = True
 
     def implicit_key(self, opts):
@@ -988,23 +1024,26 @@ class Cpt(object):
 
         return prevkey
 
-    def process_nodes(self):
-        """Parse node options."""
-
-        opts = self.node_opts()
-        for opt in opts:
-            node = self.node(opt[0])
-            node.opts.add(opt[1] + '=' + opt[2])
+    def process_implicit_nodes(self):
+        """Parse implicit nodes."""
 
         def split_nodes1(m, kind):
 
             node = self.nodes[m]
-            new_node = node.split(self)
+            if node.pin:
+                new_node = node
+            else:
+                new_node = node.split(self)
+
             new_node.implicit_symbol = kind
             new_node.implicit = True
 
-            self.node_names[m] = new_node.name
-            self.nodes[m] = new_node
+            try:
+                self.node_names[m] = new_node.name
+                self.nodes[m] = new_node
+            except IndexError:
+                pass
+
             self.sch.nodes[new_node.name] = new_node
 
             index = self.all_node_names.index(node.name)
@@ -1206,7 +1245,7 @@ class Cpt(object):
 
         return centre + np.dot((x * self.w, y * self.h), self.R(angle_offset)) * scale
 
-    def annotate(self, pos, label, args_str='', bold=False):
+    def annotate(self, pos, label, dargs=[], bold=False):
 
         if bold:
             if label.startswith('$') and label.endswith('$'):
@@ -1215,7 +1254,7 @@ class Cpt(object):
             else:
                 label = r'\textbf{%s}' % label
 
-        return self.draw_cptnode(pos, dargs=args_str, label=label)
+        return self.draw_cptnode(pos, dargs=dargs, label=label)
 
     def draw_label(self, pos, keys=None, default=True, **kwargs):
         """Draw label for component that does not have a circuitikz label."""
@@ -1223,8 +1262,8 @@ class Cpt(object):
         if keys is None:
             keys = self.label_keys
 
-        return self.annotate(pos, self.label(keys, default=default,
-                                             **kwargs), self.args_str())
+        return self.annotate(pos, self.label(keys, default=default, **kwargs),
+                             self.args_list(self.opts))
 
 
 class Unipole(Cpt):
@@ -1690,27 +1729,14 @@ class Shape(FixedCpt):
 
     def process_pinnodes(self):
 
-        pinnodes = self.parse_pinnodes()
-        for pinnode in pinnodes:
-            # Add pin to nodes so that it will get allocated a coord.
-            node = self.sch._node_add(pinnode, self, auxiliary=True)
-            node.ref = self
-            node.pin = not self.fakepin(node.basename)
-            node.pinpos = self.pinpos(node.basename)
-            self.drawn_pins.append(node)
+        self.process_nodes(self.parse_pinnodes(), draw_pin=True)
 
     def process_pinnames(self):
 
-        pinnames = self.parse_pinnames()
-        for pinname in pinnames:
-            # Add pin to nodes so that it will get allocated a coord.
-            node = self.sch._node_add(pinname, self, auxiliary=True)
-            node.ref = self
-            node.pin = not self.fakepin(node.basename)
-            node.pinpos = self.pinpos(node.basename)
-            node.pinname = node.basename
+        self.process_nodes(self.parse_pinnames(), add_pinname=True)
 
     def setup(self):
+
         super(Shape, self).setup()
 
         self.process_pinnodes()
@@ -2476,9 +2502,7 @@ class Triode(FixedCpt):
 
         # stupid thing above sets distance between nodes.
         # get correct distance, then slide into place.
-        print(self.centre, "centre")
         mid = self.centre
-        # print(help(mid))
         mid = mid + Pos(0, -0.5)
 
         s = r'  \draw (%s) node[triode, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
@@ -3735,7 +3759,7 @@ class XX(Cpt):
             return ' ' + self.string[2:] + '\n'
         return ''
 
-    def process_nodes(self):
+    def process_opts_nodes(self):
         pass
 
 
