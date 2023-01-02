@@ -150,10 +150,12 @@ class Cpt(object):
         # Drawing hints
         self.opts = Opts(opts_string)
 
+        # List of node names specified as component arguments.  For example,
+        # given R 1 2, node_names = ['1', '2'].
         # The ordering of this list is important.
         self.node_names = list(node_names)
 
-        # The relative node names start with a .
+        # The relative node names start with a ., e.g., .tl
         self.relative_node_names = []
         for name in node_names:
             fields = name.split('.')
@@ -461,7 +463,9 @@ class Cpt(object):
         for node in self.nodes:
             if node.name == node_name:
                 return node
-        raise ValueError('Unknown pinname %s for %s' % (pinname, self))
+        known_pins = ', '.join([node.name for node in self.nodes])
+        raise ValueError('Unknown pinname %s for %s, known pins: %s' %
+                         (pinname, self, known_pins))
 
     def pinpos(self, pinname):
         """Return pinpos by pinname"""
@@ -485,10 +489,13 @@ class Cpt(object):
 
         opts = []
         for key, val in self.opts.items():
-            if '.' not in key:
+            if not key.startswith('.'):
+                if '.' in key:
+                    warn('The node key %s should start with a .' % key)
                 continue
-            parts = key.split('.')
-            if len(parts) > 2:
+
+            parts = key[1:].split('.')
+            if len(parts) != 2:
                 raise ValueError('Badly formatted node attribute: ' + key)
             node = parts[0]
             if node not in self.pins:
@@ -511,6 +518,7 @@ class Cpt(object):
         # Perhaps determine coords here as well and cache them?
 
         # The ordering of the first nodes is important.
+        # These must match with the electrical nodes.
         # FIXME: there can be duplicates but cannot use a set to
         # remove them since this will change the ordering.
         node_names = self.all_node_names

@@ -308,10 +308,13 @@ class Schematic(NetfileMixin):
         # Perhaps don't show nodes if cpt invisible?
         if not cpt.ignore:
 
+            # The auxiliary nodes are for behind the scenes
+            # use, such as finding the component centre.
             for node in cpt.auxiliary_node_names:
                 self._node_add(node, cpt, auxiliary=True)
 
-            # Note, an auxiliary node can be trumped...
+            # The required nodes are those explicitly
+            # specified in the schematic.
             for node in cpt.required_node_names:
                 self._node_add(node, cpt, auxiliary=False)
 
