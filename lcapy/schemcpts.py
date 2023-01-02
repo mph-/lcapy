@@ -891,7 +891,7 @@ class Cpt(object):
         anchor = anchors[pinpos]
 
         s = self.draw_cptnode(node.s, dargs='anchor=' + anchor,
-                              label=node.pinlabel.replace('_', r'\_'))
+                              label=node.pinname.replace('_', r'\_'))
         return s
 
     def draw_node_label(self, node, label_nodes, anchor):
