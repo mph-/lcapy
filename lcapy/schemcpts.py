@@ -140,7 +140,6 @@ class Cpt(object):
 
         self.args = args
         self.classname = self.__class__.__name__
-        self.implicit = None
 
         # Drawing hints
         self.opts = Opts(opts_string)
@@ -762,6 +761,8 @@ class Cpt(object):
         return s
 
     def draw_node(self, n, draw_nodes):
+        """Draw a node symbol.  This also draws the node label
+        for implicit nodes."""
 
         # Don't draw nodes for open-circuits.  Use port
         # if want nodes drawn.
@@ -3638,11 +3639,6 @@ class Wire(Bipole):
 
         if not self.check():
             return ''
-
-        if self.implicit:
-            n1, n2 = self.nodes
-            s = self.draw_path((n1.s, n2.s))
-            return self.draw_implicit(**kwargs)
 
         n1, n2 = self.nodes
 
