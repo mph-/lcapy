@@ -60,6 +60,22 @@ def arrow_map(name):
         return name
 
 
+def anchor_choose(pinpos, outside=False):
+
+    if outside:
+        anchors = {None: 'south east',
+                   'c': 'south east',
+                   'l': 'west', 'r': 'east',
+                   't': 'north', 'b': 'south'}
+    else:
+        anchors = {None: 'south east',
+                   'c': 'south east',
+                   'l': 'south east', 'r': 'north west',
+                   't': 'south west', 'b': 'north west'}
+
+    return anchors[pinpos]
+
+
 class Cpt(object):
 
     voltage_keys = ('v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<',
@@ -732,12 +748,12 @@ class Cpt(object):
             scale = 1.0
 
         pinpos = n.pinpos
-        angle = {'l': 180, 't': 90, 'b': -90, 'r': 0}[pinpos] + self.angle
+        angle = {'l': 180, 't': 90, 'b': -90, 'r': 0}[pinpos]
 
         h = 0.5 * scale * 1.2
         w = 0.75 * scale * 1.2
         a = 0.25 * scale * 1.2
-        # x = (w + a) / 2
+        x = (w + a) / 2
 
         if kind == 'output':
             q = self.tf(n.pos, ((0, h / 2), (w, h / 2),
@@ -759,6 +775,19 @@ class Cpt(object):
 
         s = self.draw_path(q, closed=True, dargs=args)
 
+        label = n.opts.get('l', n.opts.get('label', ''))
+        if label != '':
+            lpos = self.tf(n.pos, (x, 0), scale=1, angle_offset=angle)
+            dargs = ['align=center']
+            angle += self.angle
+            if angle > 90:
+                angle -= 180
+            elif angle < -90:
+                angle += 180
+
+            args = ['rotate=%s' % angle]
+            s += self.draw_cptnode(lpos, args=args, dargs=dargs, label=label)
+
         return s
 
     def draw_implicit(self, n, kind, draw_nodes):
@@ -771,13 +800,17 @@ class Cpt(object):
         elif kind == 'implicit':
             kind = implicit_default
 
-        s = ''
         args = self.node_args_list(n)
+        pinpos = n.pinpos
+        angle = {'l': 180, 't': 90, 'b': -90, 'r': 0}[pinpos] + self.angle + 90
+        if angle != 0:
+            args.append('rotate=%d' % angle)
+
+        s = ''
         label = n.opts.get('l', n.opts.get('label', label))
         # vss and vdd labels are drawn in the correct place.
         # There is no provision for labels for ground, sground, etc.
         if kind in ('vcc', 'vdd', 'vee', 'vss'):
-            args.append('rotate=%d' % (90 + self.angle))
             s += self.draw_cptnode(n.s, kind, args, label=label)
         else:
             anchor = 'south west'
@@ -785,11 +818,11 @@ class Cpt(object):
                 anchor = 'north west'
             anchor = self.anchor_opt(n, anchor)
             lpos = self.tf(n.pos, (0.5, 0), scale=1)
-            args.append('rotate=%d' % (90 + self.angle))
             s += self.draw_cptnode(n.s, kind, args)
             if label != '':
-                s += self.draw_cptnode(lpos, '', '',
-                                       'anchor=' + anchor, label)
+                # FIXME reposition label if rotated but keep upright
+                s += self.draw_cptnode(lpos, dargs='anchor=' + anchor,
+                                       label=label)
 
         if not n.visible(draw_nodes) or n.pin or not draw_nodes:
             return s
@@ -801,6 +834,10 @@ class Cpt(object):
     def draw_node(self, n, draw_nodes):
         """Draw a node symbol.  This also draws the node label
         for implicit and connection nodes."""
+
+        if n.drawn:
+            return ''
+        n.drawn = True
 
         # Don't draw nodes for open-circuits.  Use port if want nodes drawn.
         if self.type == 'O':
@@ -864,18 +901,7 @@ class Cpt(object):
             elif pinpos == 'b':
                 pinpos = 't'
 
-        if outside == '':
-            anchors = {None: 'south east',
-                       'c': 'south east',
-                       'l': 'south east', 'r': 'north west',
-                       't': 'south west', 'b': 'north west'}
-        else:
-            anchors = {None: 'south east',
-                       'c': 'south east',
-                       'l': 'west', 'r': 'east',
-                       't': 'north', 'b': 'south'}
-
-        anchor = anchors[pinpos]
+        anchor = anchor_choose(pinpos, outside != '')
 
         s = self.draw_cptnode(node.s, dargs='anchor=' + anchor,
                               label=node.pinlabel.replace('_', r'\_'))
@@ -1051,13 +1077,8 @@ class Cpt(object):
             new_node.implicit_symbol = kind
             new_node.implicit = True
             new_node.pinpos = self.pinpos(node_name)
-
-            try:
-                self.node_names[m] = new_node.name
-                self.nodes[m] = new_node
-            except IndexError:
-                pass
-
+            self.node_names[m] = new_node.name
+            self.nodes[m] = new_node
             self.sch.nodes[new_node.name] = new_node
 
             index = self.all_node_names.index(node.name)
@@ -1758,7 +1779,7 @@ class Shape(FixedCpt):
             node = self.sch.nodes[pin_name]
             implicit = self.implicit_key(node.opts)
             if implicit:
-                node.implicit = implicit
+                node.implicit = True
                 node.implicit_symbol = implicit
                 node.pinpos = self.pinpos(node.basename)
 
