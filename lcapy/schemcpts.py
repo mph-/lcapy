@@ -54,10 +54,25 @@ def check_boolean(value):
 def arrow_map(name):
 
     try:
-        return {'tee': '|', 'otri': 'open triangle 60',
+        name = {'tee': '|', 'otri': 'open triangle 60',
                 'tri': 'triangle 60'}[name]
-    except:
-        return name
+    except KeyError:
+        pass
+    return name
+
+
+def anchor_map(anchor):
+
+    mapping = {'n': 'north', 'e': 'east',
+               's': 'south', 'w': 'west',
+               'ne': 'north east', 'nw': 'north west',
+               'se': 'south east', 'sw': 'south west'}
+
+    try:
+        anchor = mapping[anchor]
+    except KeyError:
+        pass
+    return anchor
 
 
 def anchor_choose(pinpos, outside=False):
@@ -74,6 +89,12 @@ def anchor_choose(pinpos, outside=False):
                    't': 'south west', 'b': 'north west'}
 
     return anchors[pinpos]
+
+
+def angle_choose(pinpos):
+
+    angle = {'l': 180, 't': 90, 'b': -90, 'r': 0, None: 0}[pinpos]
+    return angle
 
 
 class Cpt(object):
@@ -421,16 +442,8 @@ class Cpt(object):
 
     def anchor_opt(self, thing, default=None):
 
-        mapping = {'n': 'north', 'e': 'east',
-                   's': 'south', 'w': 'west',
-                   'ne': 'north east', 'nw': 'north west',
-                   'se': 'south east', 'sw': 'south west'}
-
         val = thing.opts.get('anchor', default)
-        if val in mapping:
-            val = mapping[val]
-        # TODO check for valid anchor names
-        return val
+        return anchor_map(val)
 
     @property
     def style(self):
@@ -748,7 +761,7 @@ class Cpt(object):
             scale = 1.0
 
         pinpos = n.pinpos
-        angle = {'l': 180, 't': 90, 'b': -90, 'r': 0}[pinpos]
+        angle = angle_choose(pinpos)
 
         h = 0.5 * scale * 1.2
         w = 0.75 * scale * 1.2
@@ -802,27 +815,31 @@ class Cpt(object):
 
         args = self.node_args_list(n)
         pinpos = n.pinpos
-        angle = {'l': 180, 't': 90, 'b': -90, 'r': 0}[pinpos] + self.angle + 90
-        if angle != 0:
-            args.append('rotate=%d' % angle)
+        angle = angle_choose(pinpos)
 
-        s = ''
+        if kind in ('vcc', 'vdd'):
+            # vcc/vee and vdd/vss are drawn in opposite directions
+            # so use vss to be consistent.
+            kind = 'vss'
+
+        args.append('rotate=%d' % (angle + self.angle + 90))
+
+        s = self.draw_cptnode(n.s, kind, args)
+
+        # vss and vdd labels are drawn in the correct place except
+        # with rotation.  However, there is no provision for labels
+        # for ground, sground, etc.  So we position them ourself.
+
         label = n.opts.get('l', n.opts.get('label', label))
-        # vss and vdd labels are drawn in the correct place.
-        # There is no provision for labels for ground, sground, etc.
-        if kind in ('vcc', 'vdd', 'vee', 'vss'):
-            s += self.draw_cptnode(n.s, kind, args, label=label)
-        else:
-            anchor = 'south west'
-            if self.down:
-                anchor = 'north west'
-            anchor = self.anchor_opt(n, anchor)
-            lpos = self.tf(n.pos, (0.5, 0), scale=1)
-            s += self.draw_cptnode(n.s, kind, args)
-            if label != '':
-                # FIXME reposition label if rotated but keep upright
-                s += self.draw_cptnode(lpos, dargs='anchor=' + anchor,
-                                       label=label)
+        if label != '':
+
+            lpos = self.tf(n.pos, (1, 0), scale=1,
+                           angle_offset=angle + self.angle)
+
+            # This does not rotate the text (unlike connections).
+            # TODO, use anchor instead of align
+            dargs = ['align=center']
+            s += self.draw_cptnode(lpos, dargs=dargs, label=label)
 
         if not n.visible(draw_nodes) or n.pin or not draw_nodes:
             return s
@@ -922,11 +939,7 @@ class Cpt(object):
                    't': 'b', 'b': 't'}
         pinpos = mapping[pinpos]
 
-        anchors = {None: 'south east',
-                   'c': 'south east',
-                   'l': 'west', 'r': 'east',
-                   't': 'north', 'b': 'south'}
-        anchor = anchors[pinpos]
+        anchor = anchor_choose(pinpos, True)
 
         s = self.draw_cptnode(node.s, dargs='anchor=' + anchor,
                               label=node.pinname.replace('_', r'\_'))
