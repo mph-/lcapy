@@ -777,6 +777,7 @@ class Cpt(object):
         # vss and vdd labels are drawn in the correct place.
         # There is no provision for labels for ground, sground, etc.
         if kind in ('vcc', 'vdd', 'vee', 'vss'):
+            args.append('rotate=%d' % (90 + self.angle))
             s += self.draw_cptnode(n.s, kind, args, label=label)
         else:
             anchor = 'south west'
@@ -1039,15 +1040,17 @@ class Cpt(object):
         """Parse implicit nodes."""
 
         def split_nodes1(m, kind):
-            node = self.nodes[m]
+            node_name = self.node_pinnames[m]
+
+            node = self.node(node_name)
             if node.pin:
-                new_node = node
-            else:
-                new_node = node.split(self)
+                raise RuntimeError('Cannot split pin ' + node.name)
+
+            new_node = node.split(self)
 
             new_node.implicit_symbol = kind
             new_node.implicit = True
-            new_node.pinpos = self.pinpos(self.node_pinnames[m])
+            new_node.pinpos = self.pinpos(node_name)
 
             try:
                 self.node_names[m] = new_node.name
@@ -1080,8 +1083,9 @@ class Cpt(object):
             if anchor is not None:
                 new_node.opts.add('anchor=' + anchor)
 
-        # New syntax, look for p.implicit, p.ground, etc.
-        for m, node in enumerate(self.nodes):
+        # New syntax, look for .p.implicit, .p.ground, etc.
+        for m, node_name in enumerate(self.node_names):
+            node = self.sch.nodes[node_name]
             implicit = self.implicit_key(node.opts)
             if implicit:
                 split_nodes1(m, implicit)
@@ -1745,6 +1749,18 @@ class Shape(FixedCpt):
     def process_pinnames(self):
 
         self.process_nodes(self.parse_pinnames(), add_pinname=True)
+
+    def process_implicit_nodes(self):
+
+        for pin_name in self.pin_node_names:
+            if pin_name not in self.sch.nodes:
+                continue
+            node = self.sch.nodes[pin_name]
+            implicit = self.implicit_key(node.opts)
+            if implicit:
+                node.implicit = implicit
+                node.implicit_symbol = implicit
+                node.pinpos = self.pinpos(node.basename)
 
     def setup(self):
 
