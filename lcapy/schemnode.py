@@ -45,6 +45,7 @@ class Node:
         self.split_count = 0
         self.opts = Opts()
         self.drawn = False
+        self.label_drawn = False
 
     @property
     def basename(self):

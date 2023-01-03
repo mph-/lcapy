@@ -113,8 +113,8 @@ class Cpt(object):
                    'cground', 'nground', 'pground', '0V')
     supply_positive_keys = ('vcc', 'vdd')
     supply_negative_keys = ('vee', 'vss')
-    implicit_keys = ('implicit', ) + ground_keys + supply_positive_keys + \
-        supply_negative_keys
+    supply_keys = supply_positive_keys + supply_negative_keys
+    implicit_keys = ('implicit', ) + ground_keys + supply_keys
     # The following keys do not get passed through to circuitikz.
     misc_keys = ('left', 'right', 'up', 'down', 'rotate', 'size',
                  'mirror', 'invert', 'scale', 'invisible', 'variable', 'fixed',
@@ -803,8 +803,8 @@ class Cpt(object):
 
         return s
 
-    def draw_implicit(self, n, kind, draw_nodes):
-        """Draw implicit connection and label."""
+    def draw_implicit_rotate(self, n, kind, draw_nodes):
+        """Draw implicit connection and label with rotation."""
 
         label = ''
         if kind == '0V':
@@ -832,19 +832,61 @@ class Cpt(object):
 
         label = n.opts.get('l', n.opts.get('label', label))
         if label != '':
-
             lpos = self.tf(n.pos, (1, 0), scale=1,
-                           angle_offset=angle + self.angle)
+                           angle_offset=angle)
 
             # This does not rotate the text (unlike connections).
             # TODO, use anchor instead of align
             dargs = ['align=center']
             s += self.draw_cptnode(lpos, dargs=dargs, label=label)
 
+        return s
+
+    def draw_implicit_norotate(self, n, kind, draw_nodes):
+        """Draw implicit connection and label with no rotation."""
+
+        label = ''
+        if kind == '0V':
+            label = r'0\,\mathrm{V}'
+            kind = implicit_default
+        elif kind == 'implicit':
+            kind = implicit_default
+
+        args = self.node_args_list(n)
+        label = n.opts.get('l', n.opts.get('label', label))
+
+        # vss and vdd labels are drawn in the correct place except
+        # with rotation.  However, there is no provision for labels
+        # for ground, sground, etc.  So we position them ourself.
+        if kind in self.supply_keys:
+            s = self.draw_cptnode(n.s, kind, args=args, label=label)
+        else:
+            s = self.draw_cptnode(n.s, kind, args=args)
+            if label != '':
+
+                lpos = self.tf(n.pos, (1, 0), scale=1,
+                               angle_offset=-90)
+
+                # This does not rotate the text (unlike connections).
+                # TODO, use anchor instead of align
+                dargs = ['align=center']
+                s += self.draw_cptnode(lpos, dargs=dargs, label=label)
+
+        return s
+
+    def draw_implicit(self, n, kind, draw_nodes):
+        """Draw implicit connection and label."""
+
+        if kind in self.supply_keys:
+            s = self.draw_implicit_norotate(n, kind, draw_nodes)
+        else:
+            s = self.draw_implicit_rotate(n, kind, draw_nodes)
+
         if not n.visible(draw_nodes) or n.pin or not draw_nodes:
             return s
 
         symbol = n.opts.get('symbol', 'ocirc' if n.is_port else 'circ')
+        args = self.node_args_list(n)
         s += self.draw_cptnode(n.s, symbol, args)
         return s
 
@@ -946,6 +988,10 @@ class Cpt(object):
         return s
 
     def draw_node_label(self, node, label_nodes, anchor):
+
+        if node.label_drawn:
+            return ''
+        node.label_drawn = True
 
         # TODO, format user defined label
         label = node.opts.get('l', node.opts.get('label', node.label))
