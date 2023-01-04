@@ -153,6 +153,7 @@ class Cpt(object):
     place = True
     kinds = {}
     styles = {}
+    aliases = {}
 
     @property
     def s(self):
@@ -480,6 +481,9 @@ class Cpt(object):
     def node(self, pinname):
         """Return node by pinname"""
 
+        if pinname in self.aliases:
+            pinname = self.aliases[pinname]
+
         if pinname in self.node_pinnames:
             index = self.node_pinnames.index(pinname)
             node_name = self.node_names[index]
@@ -524,6 +528,10 @@ class Cpt(object):
             if len(parts) != 2:
                 raise ValueError('Badly formatted node attribute: ' + key)
             node = parts[0]
+
+            if node in self.aliases:
+                node = self.aliases[node]
+
             if node not in self.pins:
                 raise ValueError('Unknown pin %s in %s.  Known pins: %s' %
                                  (node, key, ', '.join(self.pins)))
@@ -1363,9 +1371,11 @@ class Cpt(object):
 
 class Unipole(Cpt):
 
-    node_pinnames = ('p', )
-    pins = {'p': ('lx', 0, 0)}
     place = False
+
+    node_pinnames = ('p', )
+    aliases = {'+': 'p'}
+    pins = {'p': ('lx', 0, 0)}
 
     def draw(self, **kwargs):
 
@@ -1478,7 +1488,7 @@ class Bipole(StretchyCpt):
     can_scale = True
 
     node_pinnames = ('p', 'n')
-
+    aliases = {'+': 'p', '-': 'n'}
     pins = {'p': ('lx', -0.5, 0),
             'n': ('rx', 0.5, 0)}
 
@@ -2159,6 +2169,7 @@ class BJT(Transistor):
     """BJT"""
 
     node_pinnames = ('e', 'b', 'c')
+    aliases = {'emitter': 'e', 'base': 'b', 'collector': 'c'}
     ppins = {'e': ('lx', 0.55, 0),
              'b': ('lx', 0, 0.5),
              'c': ('lx', 0.55, 1)}
@@ -2179,6 +2190,7 @@ class JFET(Transistor):
     """JFET"""
 
     node_pinnames = ('d', 'g', 's')
+    aliases = {'drain': 'd', 'gate': 'g', 'source': 's'}
     ppins = {'d': ('lx', 0.55, 0),
              'g': ('lx', 0, 0.645),
              's': ('lx', 0.55, 1)}
@@ -2197,6 +2209,7 @@ class MOSFET(Transistor):
     """MOSFET"""
 
     node_pinnames = ('d', 'g', 's')
+    aliases = {'drain': 'd', 'gate': 'g', 'source': 's'}
     ppins = {'d': ('lx', 0.55, 0),
              'g': ('lx', 0, 0.5),
              's': ('lx', 0.55, 1)}
@@ -2378,10 +2391,10 @@ class TL(StretchyCpt):
     # corresponding yscale changes the ellipse.  This should be fixed
     # in circuitikz.
     can_scale = True
+    w = 1
 
     node_pinnames = ('out1', 'out2', 'in1', 'in2')
-
-    w = 1
+    aliases = {'out+': 'out1', 'out-': 'out2', 'in+': 'in1', 'in-': 'in2'}
     pins = {'in1': ('lx', 0, 0.5),
             'in2': ('lx', 0, 0),
             'out1': ('rx', w, 0.5),
@@ -2593,10 +2606,11 @@ class Gyrator(FixedCpt):
 class Triode(FixedCpt):
     """Triode"""
 
-    node_pinnames = ('anode', 'grid', 'cathode')
-    pins = {'anode': ('l', 0.75, 0),
-            'grid': ('l', 0.25, 0.5),
-            'cathode': ('l', -0.25, 0)}
+    node_pinnames = ('a', 'g', 'k')
+    aliases = {'anode': 'a', 'grid': 'g', 'cathode': 'k'}
+    pins = {'a': ('l', 0.75, 0),
+            'g': ('l', 0.25, 0.5),
+            'k': ('l', -0.25, 0)}
 
     def draw(self, **kwargs):
 
@@ -2629,6 +2643,7 @@ class Potentiometer(Bipole):
     can_stretch = False
 
     node_pinnames = ('p', 'n', 'wiper')
+    aliases = {'+': 'p', '-': 'n'}
     pins = {'p': ('rx', 0, 0),
             'n': ('rx', 1, 0),
             'wiper': ('lx', 0.5, 0.3)}
@@ -2651,6 +2666,7 @@ class SPDT(FixedCpt):
     can_invert = True
 
     node_pinnames = ('p', 'n', 'common')
+    aliases = {'+': 'p', '-': 'n'}
     ppins = {'p': ('lx', 0, 0.169),
              'n': ('rx', 0.632, 0.338),
              'common': ('lx', 0.632, 0)}
@@ -2928,14 +2944,15 @@ class Chip(Shape):
 class Uchip1313(Chip):
     """Chip of size 1 3 1 3"""
 
-    pins = {'in': ('l', -0.5, 0),
+    pins = {'l1': ('l', -0.5, 0),
             'b1': ('b', -0.25, -0.5),
-            'vss': ('b', 0, -0.5),
+            'b2': ('b', 0, -0.5),
             'b3': ('b', 0.25, -0.5),
-            'out': ('r', 0.5, 0),
+            'r1': ('r', 0.5, 0),
             't1': ('t', -0.25, 0.5),
-            'vdd': ('t', 0, 0.5),
+            't2': ('t', 0, 0.5),
             't3': ('t', 0.25, 0.5)}
+    aliases = {'vss': 'b2', 'vdd': 't2', 'in': 'l1', 'out': 'r1'}
 
 
 class Uchip2121(Chip):
@@ -2943,10 +2960,11 @@ class Uchip2121(Chip):
 
     pins = {'l1': ('l', -0.5, 0.25),
             'l2': ('l', -0.5, -0.25),
-            'vss': ('b', 0, -0.5),
+            'b1': ('b', 0, -0.5),
             'r2': ('r', 0.5, -0.25),
             'r1': ('r', 0.5, 0.25),
-            'vdd': ('t', 0, 0.5)}
+            't1': ('t', 0, 0.5)}
+    aliases = {'vss': 'b1', 'vdd': 't1'}
 
     pinlabels = {'vss': 'VSS', 'vdd': 'VDD'}
 
@@ -2957,11 +2975,12 @@ class Uchip3131(Chip):
     pins = {'l1': ('l', -0.5, 0.25),
             'l2': ('l', -0.5, 0),
             'l3': ('l', -0.5, -0.25),
-            'vss': ('b', 0.0, -0.5),
+            'b1': ('b', 0.0, -0.5),
             'r3': ('r', 0.5, -0.25),
             'r2': ('r', 0.5, 0),
             'r1': ('r', 0.5, 0.25),
-            'vdd': ('t', 0.0, 0.5)}
+            't1': ('t', 0.0, 0.5)}
+    aliases = {'vss': 'b1', 'vdd': 't1'}
 
     pinlabels = {'vss': 'VSS', 'vdd': 'VDD'}
 
@@ -2977,14 +2996,15 @@ class Uchip3333(Chip):
             'l2': ('l', -0.5, 0),
             'l3': ('l', -0.5, -0.25),
             'b1': ('b', -0.25, -0.5),
-            'vss': ('b', 0.0, -0.5),
+            'b2': ('b', 0.0, -0.5),
             'b3': ('b', 0.25, -0.5),
             'r3': ('r', 0.5, -0.25),
             'r2': ('r', 0.5, 0),
             'r1': ('r', 0.5, 0.25),
             't1': ('t', -0.25, 0.5),
-            'vdd': ('t', 0.0, 0.5),
+            't2': ('t', 0.0, 0.5),
             't3': ('t', 0.25, 0.5)}
+    aliases = {'vss': 'b2', 'vdd': 't2'}
 
     pinlabels = {'vss': 'VSS', 'vdd': 'VDD'}
 
@@ -3013,12 +3033,13 @@ class Uchip4141(Chip):
             'l2': ('l', -0.5, 0.125),
             'l3': ('l', -0.5, -0.125),
             'l4': ('l', -0.5, -0.375),
-            'vss': ('b', 0.0, -0.5),
+            'b1': ('b', 0.0, -0.5),
             'r4': ('r', 0.5, -0.375),
             'r3': ('r', 0.5, -0.125),
             'r2': ('r', 0.5, 0.125),
             'r1': ('r', 0.5, 0.375),
-            'vdd': ('t', 0.0, 0.5)}
+            't1': ('t', 0.0, 0.5)}
+    aliases = {'vss': 'b1', 'vdd': 't1'}
 
 
 class Uchip4444(Chip):
@@ -3053,7 +3074,7 @@ class Uchip8181(Chip):
             'l6': ('l', -0.5, -0.1875),
             'l7': ('l', -0.5, -0.3125),
             'l8': ('l', -0.5, -0.4375),
-            'vss': ('b', 0.0, -0.5),
+            'b1': ('b', 0.0, -0.5),
             'r8': ('r', 0.5, -0.4375),
             'r7': ('r', 0.5, -0.3125),
             'r6': ('r', 0.5, -0.1875),
@@ -3062,7 +3083,8 @@ class Uchip8181(Chip):
             'r3': ('r', 0.5, 0.1875),
             'r2': ('r', 0.5, 0.3125),
             'r1': ('r', 0.5, 0.4375),
-            'vdd': ('t', 0.0, 0.5)}
+            't1': ('t', 0.0, 0.5)}
+    aliases = {'vss': 'b1', 'vdd': 't1'}
 
 
 class Uchip8888(Chip):
