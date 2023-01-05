@@ -1,7 +1,7 @@
 """This module provides the NetlistMixin class.  This is used for
 Netlist and SubNetlist.
 
-Copyright 2020--2022 Michael Hayes, UCECE
+Copyright 2020--2023 Michael Hayes, UCECE
 
 """
 
@@ -1773,6 +1773,7 @@ class NetlistMixin(object):
         for net in netlist.split('\n'):
             sch.add(net)
 
+        sch.subnetlists = self.subnetlists
         self._sch = sch
         return sch
 

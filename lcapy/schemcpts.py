@@ -43,6 +43,37 @@ module = sys.modules[__name__]
 # Lcapy uses this information to position the second node with respect
 # to the first.   Circuitikz then infers the rotation.
 
+# `node_names` is a list of the node names specified for each component.
+# For example, given `R1 1 2` the node_names for R1 are ['1', '2]
+# '
+# `required_node_names` is a list comprising a subset of node_names,
+# ignoring the nodes that are not drawn, say the ground node for an opamp.
+#
+# `auxiliary_node_names` is a list of node names for each component used
+# to draw the component.
+#
+# `pin_node_names` is a list of the pin nodes for each component.
+# For example, ['R1.p', 'R1.n'] or ['U1.t1', 'U1.l1', 'U1.b1', 'U1.r1'].
+# This does not include the aliases such as `U1.vdd`.
+#
+# `attribute_node_names` is a list of node names specified as
+# schematic attributes.  For example, given `R1 1 2; .p.l=foo` the
+# list is ['.p'].  CHECKME
+#
+# `all_node_names` is the union of required_node_names,
+# auxiliary_node_names, pin_node_names, and attribute_node_names
+#
+# `relative_node_names` is a list of node names defined in a component
+# net with a dot prefix, for example, `R1 .a .b`.  This is shorthand
+# for `R1 R1.a R1.b`.  The resulting list is ['R1.a', 'R1.b'].
+#
+# `U1 chip2121; W 1 U1.vdd` Here U1.vdd is an alias for U1.t1.
+#
+# The node linking compares xvals and yvals.  These are derived from
+# coords via tcoords.  coords uses required_pins which uses nodes.
+# Finally, nodes is a subset of all_node_names selected if the node
+# name is explicitly registered.
+
 
 def check_boolean(value):
 
@@ -187,15 +218,6 @@ class Cpt(object):
         # The ordering of this list is important.
         self.node_names = list(node_names)
 
-        # The relative node names start with a ., e.g., .tl
-        self.relative_node_names = []
-        for name in node_names:
-            fields = name.split('.')
-            if len(fields) < 2:
-                continue
-            if fields[-2] == self.name:
-                self.relative_node_names.append(name)
-
         prefix = self.name + '.'
 
         auxiliary_node_names = []
@@ -204,23 +226,73 @@ class Cpt(object):
 
         self.auxiliary_node_names = auxiliary_node_names
 
+    def check_nodes(self):
+
+        # There are 5 cases:
+        # 1. node             R1 1 2
+        # 2. pin ref          R1 1 U1.in
+        # 3. include node     R1 1 s.2
+        # 4. include pin ref  R1 1 s.U1.in
+        # 5. relative ref     R1 1 ._2   or  R1  R1 1 R1._2
+        # Note R1 1 ._2 gets converted to R1 1 R1._2 before this is called.
+
+        for node_name in self.node_names:
+
+            fields = node_name.split('.')
+            # Case 1
+            if len(fields) < 2:
+                continue
+
+            cpt_name = '.'.join(fields[0:-1])
+            basename = fields[-1]
+
+            # Case 3
+            if cpt_name in self.sch.subnetlists:
+                continue
+
+            if cpt_name not in self.sch.elements:
+                raise ValueError('Undefined component `%s` in `%s`' %
+                                 (cpt_name, self))
+            cpt = self.sch.elements[cpt_name]
+
+            # Case 5
+            if not isinstance(cpt, Shape):
+                continue
+
+            if node_name not in cpt.all_node_names:
+                known_pins = ', '.join(cpt.all_node_names)
+                raise ValueError(
+                    'Unknown node `%s` for `%s` in `%s`, known nodes: %s' %
+                    (basename, cpt_name, self, known_pins))
+
+        self.relative_node_names = []
+        for name in self.node_names:
+            fields = name.split('.')
+            if len(fields) < 2:
+                continue
+            if fields[-2] == self.name:
+                self.relative_node_names.append(name)
+
+    def parse_nodes(self):
+
         self.allpins = self.pins.copy()
         self.allpins.update(self.auxiliary)
 
+        prefix = self.name + '.'
         pin_node_names = []
         for pin in self.pins.keys():
             pin_node_names.append(prefix + pin)
 
         self.pindefs = self.parse_pindefs()
-        for nodename, pindef in self.pindefs.items():
+        for node_name, pindef in self.pindefs.items():
             if True:
                 # Remove old name.
-                self.allpins[pindef] = self.allpins.pop(nodename)
-                pin_node_names.remove(prefix + nodename)
+                self.allpins[pindef] = self.allpins.pop(node_name)
+                pin_node_names.remove(prefix + node_name)
             else:
                 # Keep old name as an alias.  This will cause problems
                 # when printing pinnodes.
-                self.allpins[pindef] = self.allpins[nodename]
+                self.allpins[pindef] = self.allpins[node_name]
             pin_node_names.append(prefix + pindef)
 
         # These are all the pin names belonging to the cpt.
@@ -238,8 +310,13 @@ class Cpt(object):
 
         self.attribute_node_names = attribute_node_names
 
-        self.all_node_names = list(self.required_node_names) + \
-            auxiliary_node_names + pin_node_names + attribute_node_names
+        alias_node_names = []
+        for alias in self.aliases:
+            alias_node_names.append(prefix + alias)
+
+        self.all_node_names = self.required_node_names + \
+            self.auxiliary_node_names + pin_node_names + \
+            attribute_node_names + alias_node_names
 
         # Create dictionary of pinnames sharing the same relative
         # coords (pinname aliases).
@@ -476,7 +553,7 @@ class Cpt(object):
         for pinname, node_name in zip(self.node_pinnames, self.node_names):
             if pinname != '':
                 node_names.append(node_name)
-        return tuple(node_names)
+        return node_names
 
     def node(self, pinname):
         """Return node by pinname"""
@@ -500,6 +577,9 @@ class Cpt(object):
     def pinpos(self, pinname):
         """Return pinpos by pinname"""
 
+        if pinname in self.aliases:
+            pinname = self.aliases[pinname]
+
         if pinname not in self.allpins:
             raise ValueError('Unknown pin %s for %s, known pins: %s'
                              % (pinname, self.name, ', '.join(list(self.allpins))))
@@ -507,6 +587,9 @@ class Cpt(object):
 
     def fakepin(self, pinname):
         """Return True if pinname is a fake pin"""
+
+        if pinname in self.aliases:
+            pinname = self.aliases[pinname]
 
         # Check if known pinname; it might be a netlist node name
         if pinname not in self.allpins:
@@ -580,6 +663,8 @@ class Cpt(object):
                 pinname = self.node_pinnames[index]
             elif node_name in self.sch.nodes:
                 pinname = node_name.split('.')[-1]
+                if pinname in self.aliases:
+                    pinname = self.aliases[pinname]
             else:
                 raise ValueError('Unknown node %s' % node_name)
 
@@ -1049,19 +1134,18 @@ class Cpt(object):
 
         ref_node_names = []
 
-        for nodename, node in self.sch.nodes.items():
-            if nodename in self.relative_node_names:
-                node.ref = self
+        for node_name, node in self.sch.nodes.items():
+            if node_name in self.relative_node_names:
+                pass
             elif node.belongs(self.name):
                 if node.basename not in self.allpins:
                     continue
-                node.ref = self
                 node.pin = not self.fakepin(node.basename)
                 if node.basename not in self.auxiliary:
                     ref_node_names.append(node.name)
-            elif self.namespace != '' and nodename.startswith(self.namespace):
+            elif self.namespace != '' and node_name.startswith(self.namespace):
                 # Need to be lenient here since can have any old name.
-                node.ref = self
+                pass
 
         return ref_node_names
 
@@ -1090,7 +1174,7 @@ class Cpt(object):
         for n in nodes:
             # Add pin to nodes so that it will get allocated a coord.
             node = self.sch._node_add(n, self, auxiliary=True)
-            node.ref = self
+
             node.pin = not self.fakepin(node.basename)
             node.pinpos = self.pinpos(node.basename)
             if draw_pin:
@@ -1401,7 +1485,8 @@ class Unipole(Cpt):
             xscale = -xscale
 
         args = self.args_list(self.opts, **kwargs)
-        args.append('rotate=%d' % self.angle)
+        if self.angle != 0:
+            args.append('rotate=%d' % self.angle)
         if xscale != 1:
             args.append('xscale=%f' % xscale)
         if yscale != 1:
@@ -1694,9 +1779,9 @@ class Shape(FixedCpt):
         # pinlabels=all  label all pinlabels (pins connected or not)
         # pinlabels=none label no pinlabels
 
-        def pinlabel(nodename):
+        def pinlabel(node_name):
 
-            fields = nodename.split('.')
+            fields = node_name.split('.')
             pinname = fields[-1]
 
             try:
@@ -1817,10 +1902,9 @@ class Shape(FixedCpt):
 
         pinlabels = self.parse_pinlabels()
 
-        for nodename, pinlabel in pinlabels.items():
+        for node_name, pinlabel in pinlabels.items():
             # Add pin to nodes so that it will get allocated a coord.
-            node = self.sch._node_add(nodename, self, auxiliary=True)
-            node.ref = self
+            node = self.sch._node_add(node_name, self, auxiliary=True)
             node.pin = not self.fakepin(node.basename)
             node.pinpos = self.pinpos(node.basename)
 

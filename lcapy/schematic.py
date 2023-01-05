@@ -12,7 +12,7 @@ This module performs schematic drawing using circuitikz from a netlist::
     ... W 0.2 0.2; right''')
     >>> sch.draw()
 
-Copyright 2014--2022 Michael Hayes, UCECE
+Copyright 2014--2023 Michael Hayes, UCECE
 """
 
 # Strings starting with ;; are schematic options.  They are parsed in
@@ -29,6 +29,7 @@ import sympy as sym
 from .engformatter import EngFormatter
 from .schemmisc import Pos
 from .schemnode import Node
+from .schemnodes import Nodes
 from .schemplacer import schemplacer
 from .opts import Opts
 from .netfile import NetfileMixin
@@ -103,7 +104,7 @@ class Schematic(NetfileMixin):
     def __init__(self, filename=None, allow_anon=False, **kwargs):
 
         self.elements = OrderedDict()
-        self.nodes = {}
+        self.nodes = Nodes()
         self.hints = False
         self._init_parser(schemcpts, allow_anon)
         self.cpt_size = 1.2
@@ -326,6 +327,12 @@ class Schematic(NetfileMixin):
         elif autoground in (False, None, 'false', 'none'):
             autoground = False
 
+        for elt in self.elements.values():
+            elt.parse_nodes()
+
+        for elt in self.elements.values():
+            elt.check_nodes()
+
         if autoground:
             for elt in self.elements.values():
                 elt.autoground(autoground)
@@ -337,15 +344,9 @@ class Schematic(NetfileMixin):
         for elt in self.elements.values():
             elt.process_implicit_nodes()
 
-        for nodename, node in self.nodes.items():
-            if node.ref is not None:
-                continue
-            if node.cptname is not None and not node.implicit:
-                raise ValueError('Unreferenced pin connection %s for %s' % (
-                    node.name, node.elt_list))
-
     def make_graphs(self, debug=0):
 
+        # This is only used by schtex for debugging
         placer = schemplacer(self.elements, self.nodes, 'graph', debug)
         placer._make_graphs()
         return placer.xgraph, placer.ygraph

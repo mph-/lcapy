@@ -1,7 +1,7 @@
 """This module provides the NetfileMixin class.  This is used for
 Netlist and Schematic to parse a netlist file.
 
-Copyright 2020--2022 Michael Hayes, UCECE
+Copyright 2020--2023 Michael Hayes, UCECE
 
 """
 
@@ -9,6 +9,7 @@ from . import grammar
 from .parser import Parser
 from .state import state
 from .componentnamer import ComponentNamer
+from warnings import warn
 from os.path import dirname, join
 
 
@@ -19,9 +20,9 @@ class NetfileMixin(object):
         self.parser = Parser(cpts, grammar, allow_anon)
         # Current namespace
         self.namespace = ''
-        self.subnetlists = {}
         self.namer = ComponentNamer()
         self.dirname = None
+        self.subnetlists = {}
 
     def _make_anon_cpt_id(self, cpt_type):
         """Make identifier for anonymous component"""
@@ -45,10 +46,14 @@ class NetfileMixin(object):
         if len(parts) != 4 and parts[2] != 'as':
             raise ValueError(
                 'Expecting include filename as name in %s' % string)
+
         name = parts[3]
         namespace = self.namespace
         self.namespace = name + '.' + namespace
-        self.subnetlists[self.namespace[0:-1]] = None
+        if name in self.subnetlists:
+            warn('Overriding subnetlist %s with %s for %s' %
+                 (self.subnetlists[name], parts[1], name))
+        self.subnetlists[name] = parts[1]
         ret = self._netfile_add(filename, self.namespace)
         self.namespace = namespace
         return ret

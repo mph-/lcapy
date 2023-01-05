@@ -226,7 +226,7 @@ class Graph(dict):
         return super(Graph, self).__getitem__(key)
 
     def link(self, n1, n2):
-        """Make nodes n1 and n2 share common node"""
+        """Make nodes n1 and n2 share common gnode"""
 
         self.cnodes.link(n1, n2)
 

@@ -36,8 +36,6 @@ class Node:
         self.pinpos = None
         self.clock = False
         self.auxiliary = None
-        # Reference to node that defines the pin
-        self.ref = None
         # Node has an implicit connection, say to ground.
         self.implicit = False
         # Implicit symbol to use if node is an autoground
