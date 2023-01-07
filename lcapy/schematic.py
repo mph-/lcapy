@@ -311,7 +311,8 @@ class Schematic(NetfileMixin):
             # The auxiliary nodes are for behind the scenes
             # use, such as finding the component centre.
             for node in cpt.auxiliary_node_names:
-                self._node_add(node, cpt, auxiliary=True)
+                if node.endswith('.mid'):
+                    self._node_add(node, cpt, auxiliary=True)
 
             # The required nodes are those explicitly
             # specified in the schematic.
