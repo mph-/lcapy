@@ -344,9 +344,11 @@ class Schematic(NetfileMixin):
         for elt in self.elements.values():
             elt.process_implicit_nodes()
 
-    def make_graphs(self, debug=0):
+    def make_graphs(self, debug=0, **kwargs):
 
         # This is only used by schtex for debugging
+        autoground = kwargs.get('autoground', False)
+        self._setup(autoground)
         placer = schemplacer(self.elements, self.nodes, 'graph', debug)
         placer._make_graphs()
         return placer.xgraph, placer.ygraph
