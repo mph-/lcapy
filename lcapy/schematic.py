@@ -29,7 +29,6 @@ import sympy as sym
 from .engformatter import EngFormatter
 from .schemmisc import Pos
 from .schemnode import Node
-from .schemnodes import Nodes
 from .schemplacer import schemplacer
 from .opts import Opts
 from .netfile import NetfileMixin
@@ -104,7 +103,7 @@ class Schematic(NetfileMixin):
     def __init__(self, filename=None, allow_anon=False, **kwargs):
 
         self.elements = OrderedDict()
-        self.nodes = Nodes()
+        self.nodes = {}
         self.hints = False
         self._init_parser(schemcpts, allow_anon)
         self.cpt_size = 1.2
