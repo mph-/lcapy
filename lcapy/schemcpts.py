@@ -15,7 +15,7 @@ from .config import implicit_default
 
 module = sys.modules[__name__]
 
-# There are two types of component (Cpt).
+# There are two types of component (Cpt):
 #
 # 1. The stretchable components (such as resistors and capacitors) have
 # wires that can be stretched.  The size attribute controls the
@@ -70,9 +70,12 @@ module = sys.modules[__name__]
 # `U1 chip2121; W 1 U1.vdd` Here U1.vdd is an alias for U1.t1.
 #
 # The node linking compares xvals and yvals.  These are derived from
-# coords via tcoords.  coords uses required_pins which uses nodes.
+# transformed coords (tcoords).  coords uses required_pins which uses nodes.
 # Finally, nodes is a subset of all_node_names selected if the node
 # name is explicitly registered.
+
+# TODO, this has evolved into a can of words and could do with a
+# complete rewrite.
 
 
 def check_boolean(value):
@@ -891,7 +894,8 @@ class Cpt(object):
             elif angle < -90:
                 angle += 180
 
-            args = ['rotate=%s' % angle]
+            if angle != 0:
+                args = ['rotate=%s' % angle]
             s += self.draw_cptnode(lpos, args=args, dargs=dargs, label=label)
 
         return s
@@ -915,7 +919,9 @@ class Cpt(object):
             # so use vss to be consistent.
             kind = 'vss'
 
-        args.append('rotate=%d' % (angle + self.angle + 90))
+        rotate = angle + self.angle + 90
+        if rotate != 0:
+            args.append('rotate=%d' % rotate)
 
         s = self.draw_cptnode(n.s, kind, args)
 
@@ -1817,7 +1823,7 @@ class Shape(FixedCpt):
                 else:
                     pinname = pindef
                     if pindef in self.pinlabels:
-                        pinname = self.pinlabels[pindef]
+                        pinname = self.pinlabels[pindxef]
                     foo[prefix + pindef] = pinname
             return foo
 
@@ -2770,7 +2776,9 @@ class SPDT(FixedCpt):
         n1, n2, n3 = self.nodes
         centre = n1.pos * 0.5 + (n2.pos + n3.pos) * 0.25
 
-        args_str = 'rotate=%d' % self.angle
+        args = self.args_list(self.opts, **kwargs)
+        if self.angle != 0:
+            args.append('rotate=%d' % self.angle)
 
         xscale = self.scale
         yscale = self.scale
@@ -2778,11 +2786,14 @@ class SPDT(FixedCpt):
             yscale = -yscale
         if self.invert:
             xscale = -xscale
-        args_str += ', xscale=%s' % xscale
-        args_str += ', yscale=%s' % yscale
+        if xscale != 1:
+            args.append('xscale=%s' % xscale)
+        if yscale != 1:
+            args.append('yscale=%s' % yscale)
+        args.insert(0, 'spdt')
 
-        s = r'  \draw (%s) node[spdt, %s, %s] (%s) {};''\n' % (
-            centre, self.args_str(**kwargs), args_str, self.s)
+        s = r'  \draw (%s) node[%s] (%s) {};''\n' % (
+            centre, ', '.join(args), self.s)
 
         # TODO, fix label position.
         centre = (n1.pos + n3.pos) * 0.5 + Pos(0.5, -0.5)
