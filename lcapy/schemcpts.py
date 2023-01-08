@@ -791,7 +791,7 @@ class Cpt(object):
                 dargs, pos1, args, pos2)
         return s
 
-    def draw_wire(self, pos1, pos2, dargs=[], startarrow='',
+    def draw_wire(self, pos1, pos2, dargs=None, startarrow='',
                   endarrow='', style=''):
         """Create a string to draw a circuitikz wire between positions `pos1`
         and `pos2`.  `dargs` is a list or string of the draw options.
@@ -807,6 +807,7 @@ class Cpt(object):
 
         cpt = startarrow + '-' + endarrow
 
+        dargs = [] if dargs is None else dargs
         dargs.insert(0, cpt)
         dargs.append(style)
         dargs = ', '.join([arg for arg in dargs if arg != ''])
@@ -814,7 +815,7 @@ class Cpt(object):
         s = r'  \draw[%s] (%s) to (%s);''\n' % (dargs, pos1, pos2)
         return s
 
-    def draw_stepped_wire(self, pos1, steps, dargs=[],
+    def draw_stepped_wire(self, pos1, steps, dargs=None,
                           startarrow='', endarrow='', style=''):
 
         path = '(%s)' % pos1
@@ -823,6 +824,7 @@ class Cpt(object):
 
         cpt = startarrow + '-' + endarrow
 
+        dargs = [] if dargs is None else dargs
         dargs.insert(0, cpt)
         dargs.append(style)
         dargs = ', '.join([arg for arg in dargs if arg != ''])
@@ -1439,7 +1441,7 @@ class Cpt(object):
 
         return centre + np.dot((x * self.w, y * self.h), self.R(angle_offset)) * scale
 
-    def annotate(self, pos, label, dargs=[], bold=False):
+    def annotate(self, pos, label, dargs=None, bold=False):
 
         if bold:
             if label.startswith('$') and label.endswith('$'):
