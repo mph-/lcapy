@@ -162,10 +162,10 @@ class Node:
 
     def split(self, elt):
 
-        self.split_count += 1
-        if self.split_count == 1:
+        if self.count == 1:
             return self
 
+        self.split_count += 1
         name = self.name + '_split%d' % (self.split_count - 1)
 
         new_node = Node(name)

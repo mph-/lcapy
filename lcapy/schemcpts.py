@@ -183,6 +183,7 @@ class Cpt(object):
     # Auxiliary nodes are used for finding the centre of the shape or
     # to define a bounding box.
     auxiliary = {}
+    required_auxiliary = ('mid', )
     directive = False
     place = True
     kinds = {}
@@ -1262,7 +1263,7 @@ class Cpt(object):
                 new_node.opts.add('anchor=' + anchor)
 
         # New syntax, look for .p.implicit, .p.ground, etc.
-        for m, node_name in enumerate(self.node_names):
+        for m, node_name in enumerate(self.required_node_names):
             node = self.sch.nodes[node_name]
             implicit = self.implicit_key(node.opts)
             if implicit:
@@ -1463,9 +1464,9 @@ class Unipole(Cpt):
 
     place = False
 
-    node_pinnames = ('p', )
-    aliases = {'+': 'p'}
-    pins = {'p': ('lx', 0, 0)}
+    node_pinnames = ('+', )
+    aliases = {'p': '+'}
+    pins = {'+': ('lx', 0, 0)}
 
     def draw(self, **kwargs):
 
@@ -1540,13 +1541,12 @@ class FixedCpt(Cpt):
 
     can_stretch = False
 
-    @property
+    @ property
     def centre(self):
-        if hasattr(self, 'pins'):
-            # Look for centre pin.
-            for node in self.nodes:
-                if node.name.split('.')[-1] == 'mid':
-                    return node.pos
+        # Look for centre pin.
+        for node in self.nodes:
+            if node.name.endswith('.mid'):
+                return node.pos
 
         N = len(self.nodes)
         return self.midpoint(self.nodes[0], self.nodes[N // 2])
@@ -1578,10 +1578,10 @@ class Bipole(StretchyCpt):
     can_invert = True
     can_scale = True
 
-    node_pinnames = ('p', 'n')
-    aliases = {'+': 'p', '-': 'n'}
-    pins = {'p': ('lx', -0.5, 0),
-            'n': ('rx', 0.5, 0)}
+    node_pinnames = ('+', '-')
+    aliases = {'p': '+', 'n': '-'}
+    pins = {'+': ('lx', -0.5, 0),
+            '-': ('rx', 0.5, 0)}
 
     def label_make(self, label_pos='', **kwargs):
 
@@ -1823,7 +1823,7 @@ class Shape(FixedCpt):
                 else:
                     pinname = pindef
                     if pindef in self.pinlabels:
-                        pinname = self.pinlabels[pindxef]
+                        pinname = self.pinlabels[pindef]
                     foo[prefix + pindef] = pinname
             return foo
 
@@ -2741,12 +2741,14 @@ class Potentiometer(Bipole):
 
 class VCS(Bipole):
     """Voltage controlled source"""
-    pass
+
+    node_pinnames = ('+', '-', '', '')
 
 
 class CCS(Bipole):
     """Current controlled source"""
-    pass
+
+    node_pinnames = ('+', '-', '', '')
 
 
 class SPDT(FixedCpt):
@@ -2920,6 +2922,7 @@ class Triangle(Shape):
                  'top': ('t', 0, 0.5774),
                  'tl': ('l', -0.5, 0.5774),
                  'tr': ('r', 0.5, 0.5774)}
+    required_auxiliary = ('top', 'bl', 'br', 'mid')
 
     def draw(self, **kwargs):
 
@@ -2961,6 +2964,7 @@ class TwoPort(Shape):
                  'ene': ('l', x, p),
                  'ese': ('l', x, -p)}
     auxiliary.update(Shape.auxiliary)
+    required_auxiliary = ('wnw', 'wsw', 'ene', 'ese', 'mid')
 
     node_pinnames = ('out+', 'out-', 'in+', 'in-')
 
@@ -3691,6 +3695,7 @@ class Uopamp(Chip):
     auxiliary = {'lin+': ('c', -0.375, 0.25),
                  'lin-': ('c', -0.375, -0.25)}
     auxiliary.update(Chip.auxiliary)
+    required_auxiliary = ('lin+', 'lin-', 'mid')
 
     ppins = {'out': ('r', 0.5, 0.0),
              'in+': ('l', -0.5, 0.25),
@@ -3751,6 +3756,7 @@ class Ufdopamp(Chip):
                  'lout+': ('c', 0, -0.17),
                  'lout-': ('c', 0, 0.17)}
     auxiliary.update(Chip.auxiliary)
+    required_auxiliary = ('lin+', 'lin-', 'lout+', 'lout-', 'mid')
 
     ppins = {'out-': ('r', 0.1, 0.2),
              'out+': ('r', 0.1, -0.2),
