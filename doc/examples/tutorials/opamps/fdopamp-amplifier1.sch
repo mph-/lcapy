@@ -3,7 +3,7 @@ W 0_1 0; down=0.1, 0V
 W 1 1_1; right
 R1 1_1 6; right
 Vsm 2 0_3 ; down
-W 0_3 0; down=0.1, 0V
+W 0_3 0; down=0.05, 0V
 R3 2 3; right
 E1 5_2 4_2 fdopamp 3 6 0_4 A; right, mirror, l
 W 5_2 5; right

@@ -1,2 +1,1 @@
-W 1 2; right=0.1, rxantenna, rotate=0
-
+ANT 1; right, kind=rx
