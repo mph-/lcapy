@@ -2,6 +2,12 @@
 Release notes
 =============
 
+V1.11
+=====
+
+- Adds new schematic syntax for drawing nodes and implicit connections.
+
+
 V1.10.1
 =======
 

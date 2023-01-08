@@ -85,7 +85,7 @@ Component orientation
 ---------------------
 
 Lcapy uses a semi-automated component layout.  Each component requires
-a specified orientation: up, down, left, or right.  In addition,
+a specified orientation: up, down, left, right.  In addition,
 attributes can be added to override color, size, etc.
 
 The drawing direction provides a constraint.  For example, the nodes
@@ -298,13 +298,22 @@ Components
 Only linear, time-invariant, components can be analyzed by Lcapy.  For a list of these, see :ref:`component-specification`.  However, many others can be drawn.
 
 
+Antennas
+--------
+
+.. literalinclude:: examples/schematics/antennas.sch
+
+.. image:: examples/schematics/antennas.png
+   :width: 5cm
+
+
 Batteries
 ---------
 
 .. literalinclude:: examples/schematics/batteries.sch
 
 .. image:: examples/schematics/batteries.png
-   :width: 3cm
+   :width: 4cm
 
 .. _blocks:
 
@@ -930,11 +939,19 @@ capacitor, wire, etc.), for example:
 .. image:: examples/schematics/implicit2.png
     :width: 3cm
 
-The first node is considered the implicit wire for `vcc` and `vdd` otherwise it is the second node.
+The first node is considered the implicit wire for `vcc` and `vdd` otherwise it is the last node.  The node can also be specified, for example:
 
-The implicit connection functionality is currently best for wires.
-This allows the nodes to be labelled.  For example, here are some
-ground examples:
+.. literalinclude:: examples/schematics/implicit3.sch
+
+.. image:: examples/schematics/implicit3.png
+    :width: 2.5cm
+
+In this example, the MOSFET has three nodes: `d` (drain), `g` (gate),
+and `s` (source).  The resistor has two nodes: `p` (positive) and `n`
+(negative).
+
+
+Here are some ground examples:
 
 .. literalinclude:: examples/schematics/grounds.sch
 
@@ -1165,7 +1182,12 @@ The annotation is positioned with respect to the node using the anchor attribute
 .. image:: examples/schematics/annotate2.png
    :width: 3cm
 
-Schematics can be annotated using additional tikz commands in the
+Another way to label a node is using a node label attribute (see
+:ref:`node_attributes`).  For example, `R 1 2; right .+.l=foo`.  This
+labels the positive node with `foo`.  The position can be adjusted
+using an anchor: `R 1 2; right .+.l=foo .+.anchor=south`.
+
+Schematics can be also annotated using additional tikz commands in the
 netlist.  These are delimited by a line starting with two semicolons,
 for example:
 
@@ -1362,8 +1384,13 @@ open-circuit component.   For example,
 
 .. _attributes:
 
+Attributes
+==========
+
+There are component attributes, node attributes, and schematic attributes.
+
 Component attributes
-====================
+--------------------
 
 - `a`: annotation (a second label) (also `a^` and `a_`)
 
@@ -1433,9 +1460,25 @@ Here's an example using the variable attribute:
 
 See also the `Circuitikz manual <https://texdoc.org/serve/circuitikz/0>`_ for other component attributes.
 
+.. _node_attributes:
+
+Node attributes
+---------------
+
+Node attributes are prefixed by a dot followed by the node name.  For
+example, `.p.vdd`, `.s.vss`, `.drain.output`.
+
+Oneport components such as resistors, voltage sources, capacitors,
+inductors, wires, etc., have two nodes: the first node (the positive
+node) is called `p` or `+` and the second node (the negative node) is
+called `n` or `-`.  BJTs have `c` or `collector`, `b` or `base`, and
+`e` or `emitter` nodes.  JFETs and MOSFETs have `d` or `drain`, `g` or
+`gate`, and `s` or `source` nodes.  For chip node names, see
+:ref:`integrated_circuits`.
+
 
 Schematic attributes
-====================
+--------------------
 
 - `autoground`: enables automatically drawing of implicit ground connections.  Its argument can specify the type of connection (`ground`, `sground`, `rground`, etc).    If the argument is `False` this feature is disable.  If the argument is `True`, this feature is enabled using the the default symbol `sground`.
 
