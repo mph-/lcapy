@@ -5,7 +5,9 @@ Release notes
 V1.11
 =====
 
-- Fixes mesh analysis
+- Use lower case i for time-domain loop analysis.
+
+- Fixes loop analysis.
 
 - Adds new schematic syntax for drawing nodes and implicit connections.
 

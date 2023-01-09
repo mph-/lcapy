@@ -26,7 +26,7 @@ class LcapyTester(unittest.TestCase):
 
         loop = loops[0]
 
-        self.assertEqual(eq.lhs, voltage('v(t) - R * I_1(t)'),
+        self.assertEqual(eq.lhs, voltage('v(t) - R * i_1(t)'),
                          'mesh_equations()[1].lhs')
 
         self.assertEqual(eq.rhs, voltage(0), 'mesh_equations()[1].rhs')
@@ -51,7 +51,7 @@ class LcapyTester(unittest.TestCase):
         loop = loops[0]
 
         self.assertEqual(eq.lhs,
-                         voltage('v1(t) - v2(t) - R * I_1(t)'),
+                         voltage('v1(t) - v2(t) - R * i_1(t)'),
                          'mesh_equations()[1].lhs')
 
         self.assertEqual(eq.rhs, voltage(0), 'mesh_equations()[1].rhs')
@@ -78,14 +78,14 @@ class LcapyTester(unittest.TestCase):
         loop = loops[0]
 
         if loop == ['R2', 'C']:
-            self.assertEqual(eq.lhs, voltage(
-                'R3*(I_2(t) - I_1(t)) + R4*(I_2(t) - I_1(t)) + v(t)'), 'mesh_equations()[1].lhs')
+            self.assertEqual(abs(eq.lhs), voltage(
+                'abs(R3*(i_2(t) - i_1(t)) + R4*(i_2(t) - i_1(t)) + v(t))'), 'mesh_equations()[1].lhs')
         elif loop == ['V', 'R1', 'R2', 'R3']:
-            self.assertEqual(eq.lhs, voltage(
-                '-R1*I_1(t) - R2*I_1(t) + R3*(-I_1(t) + I_2(t)) + v(t)'), 'mesh_equations()[1].lhs')
+            self.assertEqual(abs(eq.lhs), voltage(
+                'abs(-R1*i_1(t) - R2*i_1(t) + R3*(-i_1(t) + i_2(t)) + v(t))'), 'mesh_equations()[1].lhs')
         elif loop == ['R3', 'R4']:
-            self.assertEqual(eq.lhs, voltage(
-                'R3*(I_1(t) - I_2(t)) + R4*(I_1(t) - I_2(t))'), 'mesh_equations()[1].lhs')
+            self.assertEqual(abs(eq.lhs), voltage(
+                'abs(R3*(i_1(t) - i_2(t)) + R4*(i_1(t) - i_2(t)))'), 'mesh_equations()[1].lhs')
         else:
             raise ValueError('Unhandled loop %s' % loop)
 

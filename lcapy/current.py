@@ -1,6 +1,6 @@
 """This module provides current support.
 
-Copyright 2020 Michael Hayes, UCECE
+Copyright 2020--2023 Michael Hayes, UCECE
 
 """
 from .expr import expr
@@ -13,7 +13,7 @@ def Iname(name, kind, cache=False):
     # when using subnetlists.  The alternative is a proper context
     # switch.  This would require every method to set the context.
 
-    if kind == 't':
+    if kind in ('t', 'time'):
         name = name.lower()
 
     undef = domain_kind_to_symbol(kind, name)

@@ -24,7 +24,7 @@ class LcapyTester(unittest.TestCase):
 
         na_eqs = na.nodal_equations()
 
-        self.assertEqual(na_eqs[1].lhs, expr('V1(t)'),
+        self.assertEqual(na_eqs[1].lhs, expr('v1(t)'),
                          'nodal_equations()[1].lhs')
         self.assertEqual(na_eqs[1].rhs, expr('v(t)'),
                          'nodal_equations()[1].rhs')
