@@ -2,7 +2,7 @@
 This module performs loop analysis.  It is primarily for showing
 the equations rather than evaluating them.
 
-Copyright 2019--2022 Michael Hayes, UCECE
+Copyright 2019--2023 Michael Hayes, UCECE
 
 """
 
@@ -90,16 +90,77 @@ class LoopAnalysis(object):
             [Iname('I_%d' % (m + 1), self.kind) for m in range(Nloops)])
         return mesh_currents
 
+    def _add_mesh_currents(self, loop, loops, nodenames, mesh_currents):
+
+        current = 0
+
+        # Find opposing currents in other meshes flowing through cpt.
+        for n, loop2 in enumerate(loops):
+
+            # Convert ['X', 'Y', 'Z'] to ['X', 'Y', 'Z', 'X'] to
+            # avoid worrying about the wrap-around.
+            loop2 = loop2.copy()
+            loop2.append(loop2[0])
+
+            if nodenames[0] not in loop2 or nodenames[1] not in loop2:
+                continue
+
+            # Determine polarity of cpt.
+            for l in range(len(loop2) - 1):
+                if (nodenames[0] == loop2[l] and
+                        nodenames[1] == loop2[l + 1]):
+                    current -= mesh_currents[n]
+                    break
+                elif (nodenames[1] == loop2[l] and
+                      nodenames[0] == loop2[l + 1]):
+                    current += mesh_currents[n]
+                    break
+
+        return current
+
+    def _process_loop(self, loop, mesh_current, loops, mesh_currents):
+
+        result = Vtype(self.kind)(0)
+
+        # Convert ['A', 'B', 'C'] to ['A', 'B', 'C', 'A'] to
+        # avoid worrying about the wrap-around.
+        loop1 = loop.copy()
+        loop1.append(loop1[0])
+        for j in range(len(loop1) - 1):
+
+            elt = self.cg.component(loop1[j], loop1[j + 1])
+            # Skip wires.
+            if elt is None:
+                continue
+
+            if elt.is_current_source:
+                raise ValueError('TODO: handle current source in loop')
+
+            # Map node names to equipotential node names.
+            nodenames = [self.cct.node_map[nodename]
+                         for nodename in elt.nodenames]
+
+            if elt.is_voltage_source:
+                v = elt.cpt.voltage_equation(mesh_current, self.kind)
+            else:
+                current = self._add_mesh_currents(loop, loops, nodenames,
+                                                  mesh_currents)
+                v = -elt.cpt.voltage_equation(current, self.kind)
+
+            is_reversed = nodenames[0] == loop1[j] \
+                and nodenames[1] == loop1[j + 1]
+
+            if is_reversed:
+                v = -v
+
+            result += v
+
+        return result
+
     def _make_equations(self):
 
         if not self.cg.is_planar:
             raise ValueError('Circuit topology is not planar')
-
-        if self.cct.is_superposition:
-            raise ValueError(
-                'Circuit has a mixture of ac/dc/transient sources')
-
-        # This is work in progress to do mesh analysis.
 
         loops = self.loops()
         Nloops = len(loops)
@@ -110,57 +171,8 @@ class LoopAnalysis(object):
 
         for m, loop in enumerate(loops):
 
-            result = Vtype(self.kind)(0)
-
-            loop1 = loop.copy()
-            loop1.append(loop1[0])
-            for j in range(len(loop1) - 1):
-
-                elt = self.cg.component(loop1[j], loop1[j + 1])
-                if elt is None:
-                    continue
-
-                if elt.is_current_source:
-                    raise ValueError('TODO: handle current source in loop')
-
-                # Map node names to equipotential node names.
-                nodenames = [self.cct.node_map[nodename]
-                             for nodename in elt.nodenames]
-
-                is_reversed = nodenames[0] == loop1[j] and nodenames[1] == loop1[j + 1]
-
-                if is_reversed:
-                    current = -mesh_currents[m]
-                else:
-                    current = mesh_currents[m]
-
-                for n, loop2 in enumerate(loops):
-
-                    if loop2 == loop:
-                        continue
-
-                    loop2 = loop2.copy()
-                    loop2.append(loop2[0])
-
-                    if nodenames[0] not in loop2 or nodenames[1] not in loop2:
-                        continue
-
-                    # Determine polarity of cpt.
-                    for l in range(len(loop2) - 1):
-                        if (nodenames[0] == loop2[l] and
-                                nodenames[1] == loop2[l + 1]):
-                            current -= mesh_currents[n]
-                            break
-                        elif (nodenames[1] == loop2[l] and
-                              nodenames[0] == loop2[l + 1]):
-                            current += mesh_currents[n]
-                            break
-
-                v = elt.cpt.voltage_equation(current, self.kind)
-                if elt.is_voltage_source and is_reversed:
-                    v = -v
-                result += v
-
+            result = self._process_loop(loop, mesh_currents[m],
+                                        loops, mesh_currents)
             equations[mesh_currents[m]] = (result, expr(0))
 
         return equations

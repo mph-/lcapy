@@ -5,6 +5,8 @@ Release notes
 V1.11
 =====
 
+- Fixes mesh analysis
+
 - Adds new schematic syntax for drawing nodes and implicit connections.
 
 

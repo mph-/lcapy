@@ -8,7 +8,55 @@ class LcapyTester(unittest.TestCase):
 
     """
 
-    def test_loop(self):
+    def test_loop1(self):
+
+        a = Circuit("""
+        V 1 0 {v(t)}
+        R 1 0""")
+
+        la = a.loop_analysis()
+
+        la_eqs = la.mesh_equations()
+        loops = la.loops_by_cpt_name()
+
+        key = list(la_eqs.keys())[0]
+        eq = la_eqs[key]
+
+        self.assertEqual(len(loops), 1, 'num loops')
+
+        loop = loops[0]
+
+        self.assertEqual(eq.lhs, voltage('v(t) - R * I_1(t)'),
+                         'mesh_equations()[1].lhs')
+
+        self.assertEqual(eq.rhs, voltage(0), 'mesh_equations()[1].rhs')
+
+    def test_loop2(self):
+
+        a = Circuit("""
+        V1 1 0 {v1(t)}
+        V2 1 2 {v2(t)}
+        R 2 0""")
+
+        la = a.loop_analysis()
+
+        la_eqs = la.mesh_equations()
+        loops = la.loops_by_cpt_name()
+
+        key = list(la_eqs.keys())[0]
+        eq = la_eqs[key]
+
+        self.assertEqual(len(loops), 1, 'num loops')
+
+        loop = loops[0]
+
+        self.assertEqual(eq.lhs,
+                         voltage('v1(t) - v2(t) - R * I_1(t)'),
+                         'mesh_equations()[1].lhs')
+
+        self.assertEqual(eq.rhs, voltage(0), 'mesh_equations()[1].rhs')
+
+    def test_loop3(self):
 
         a = Circuit("""
         V 1 0 {v(t)}
