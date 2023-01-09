@@ -167,7 +167,7 @@ class Schematic(NetfileMixin):
     def _format_name(self, cpt_type, cpt_id):
 
         name = cpt_type
-        subscript = cpt_id
+        subscript = cpt_id[1:] if cpt_id.startswith('_') else cpt_id
 
         if cpt_type == 'REL':
             name = r'\mathcal{R}'
@@ -285,10 +285,11 @@ class Schematic(NetfileMixin):
             # This will prevent printing the name and value.
             unify = expr == cpt.type + cpt.id
 
-            # Currently, we only annnotate the component with the value,
-            # expression, or symbol.  If this is not specified, it
-            # defaults to the component identifier.  Note, some objects
-            # we do not want to label, such as wires and ports.
+            # Currently, we only annnotate the component with the
+            # value, expression, or symbol.  If this is not specified,
+            # it defaults to the component identifier.  Note, there
+            # are some objects we do not want to label, such as wires
+            # and ports.
         cpt.id_label = '' if id_label is None else latex_format_label(id_label)
         cpt.value_label = cpt.id_label if value_label is None \
             else latex_format_label(value_label)
