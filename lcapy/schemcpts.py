@@ -1089,7 +1089,7 @@ class Cpt(object):
                               label=node.pinname.replace('_', r'\_'))
         return s
 
-    def draw_node_label(self, node, label_nodes, anchor):
+    def draw_node_label(self, node, label_nodes, anchor, dargs=None):
 
         if node.label_drawn:
             return ''
@@ -1107,8 +1107,10 @@ class Cpt(object):
 
         anchor = self.anchor_opt(self, anchor)
 
-        s = self.draw_cptnode(node.s, dargs='anchor=' + anchor,
-                              label=label)
+        dargs = [] if dargs is None else dargs
+        dargs.append('anchor=' + anchor)
+
+        s = self.draw_cptnode(node.s, dargs=dargs, label=label)
         return s
 
     def draw_node_labels(self, **kwargs):
@@ -1118,6 +1120,7 @@ class Cpt(object):
             label_nodes = kwargs.get('label_nodes', 'primary')
 
         anchor = self.anchor_opt(self, kwargs.get('anchor', 'south east'))
+        dargs = self.args_list(self.opts, **kwargs)
 
         s = ''
         for node in self.drawn_nodes:
@@ -1131,7 +1134,7 @@ class Cpt(object):
             else:
                 if node.auxiliary:
                     continue
-                s += self.draw_node_label(node, label_nodes, anchor)
+                s += self.draw_node_label(node, label_nodes, anchor, dargs)
 
         return s
 
@@ -1459,7 +1462,7 @@ class Cpt(object):
             keys = self.label_keys
 
         return self.annotate(pos, self.label(keys, default=default, **kwargs),
-                             self.args_list(self.opts))
+                             self.args_list(self.opts, **kwargs))
 
 
 class Unipole(Cpt):
