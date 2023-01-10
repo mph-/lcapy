@@ -5,6 +5,8 @@ Release notes
 V1.11
 =====
 
+- Schematic attributes specified in last netlist entry are considered first.
+
 - Use lower case i for time-domain loop analysis.
 
 - Fixes loop analysis.

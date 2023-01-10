@@ -1387,7 +1387,14 @@ open-circuit component.   For example,
 Attributes
 ==========
 
-There are component attributes, node attributes, and schematic attributes.
+There are component attributes, node attributes, and schematic attributes.  The precedence (highest to lowest) is:
+
+1. node attributes
+2. attributes specified as keyword arguments to the `draw()` method that are not `None`
+3. component attributes
+4. schematic attributes
+5. default attributes
+
 
 Component attributes
 --------------------
@@ -1480,7 +1487,35 @@ called `n` or `-`.  BJTs have `c` or `collector`, `b` or `base`, and
 Schematic attributes
 --------------------
 
+Schematic attributes apply to the whole schematic.  They can be specified by starting a netlist entry with a semicolon, for example,
+
+    ; help_lines=1, draw_nodes=connections, color=blue
+
+For historical reasons, schematic attributes specified in the last entry of the netlist are considered first.  These attributes override default attributes.  Schematic attributes can be defined anywhere in the netlist and apply to the following netlist entries.  They can be overridden by component attributes.
+
+For example, consider the following netlist:
+
+.. literalinclude:: examples/schematics/attr1.sch
+
+This draws R1 in blue, R2 and R3 in green, R4 and R6 pin red, and R5 in purple.   In this example, R5 has a component color attribute.
+
+.. image:: examples/schematics/attr1.png
+   :width: 15cm
+
+
+Note, nodes are drawn and labelled using the attributes current at
+their first definition.
+
+
+The schematic attributes can be overridden using arguments to the `draw` method.  For example,
+
+    >>> sch.draw(color='black')
+
+Here is a list of the schematic attributes:
+
 - `autoground`: enables automatically drawing of implicit ground connections.  Its argument can specify the type of connection (`ground`, `sground`, `rground`, etc).    If the argument is `False` this feature is disable.  If the argument is `True`, this feature is enabled using the the default symbol `sground`.
+
+- `color`: component colour (default black)
 
 - `cpt_size`: length of component (default 1.5).
 
@@ -1503,26 +1538,6 @@ Schematic attributes
 - `scale`: scale factor (default 1).
 
 - `style`: specifies the component style.  This is either `american`,  `british`, or `european` (default `american`).
-
-Schematic attributes apply to the whole schematic.  They can be specified by starting a netlist with a semicolon, for example,
-
-    ;help_lines=1, draw_nodes=connections
-
-The schematic attributes can be overridden using arguments to the `draw` method.  For example,
-
-    >>> sch.draw(draw_nodes='alpha')
-
-The schematic attributes are also overridden by the component attributes.  For example::
-
-    ; right, fill=blue
-    Z1 1 2
-    Z2 2 3
-    Z3 3 4; fill=green
-
-In this example, all the components are drawn with the `right` attribute and are filled as blue, except for Z3 that is filled as green.
-
-.. image:: examples/schematics/attr1.png
-   :width: 5cm
 
 
 Includes

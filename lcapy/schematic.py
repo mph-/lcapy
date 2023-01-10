@@ -585,14 +585,15 @@ class Schematic(NetfileMixin):
            'debug': non-zero to display debug information
         """
 
-        # None means don't care, so remove
-        for key in list(kwargs.keys()):
+        # None means don't care, so remove.  Use list so can remove
+        # entries from kwargs
+        for key in list(kwargs):
             if kwargs[key] is None:
                 kwargs.pop(key)
 
-        # Remove options that may be overridden
+        # Remove options that may be overridden by arguments to draw
         for elt in self.elements.values():
-            for key in list(elt.opts.keys()):
+            for key in list(elt.opts):
                 if key in kwargs:
                     elt.opts.remove(key)
 

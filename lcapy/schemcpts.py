@@ -992,7 +992,7 @@ class Cpt(object):
         s += self.draw_cptnode(n.s, symbol, args)
         return s
 
-    def draw_node(self, n, draw_nodes):
+    def draw_node(self, n, draw_nodes, dargs):
         """Draw a node symbol.  This also draws the node label
         for implicit and connection nodes."""
 
@@ -1019,7 +1019,7 @@ class Cpt(object):
 
         symbol = n.opts.get('symbol', 'ocirc' if n.is_port or
                             n.is_dangling else 'circ')
-        s = self.draw_cptnode(n.s, symbol, args)
+        s = self.draw_cptnode(n.s, symbol, args, dargs)
         return s
 
     def draw_nodes(self, **kwargs):
@@ -1027,10 +1027,11 @@ class Cpt(object):
         draw_nodes = self.draw_nodes_opt
         if draw_nodes is None:
             draw_nodes = kwargs.get('draw_nodes', True)
+        dargs = self.args_list(kwargs)
 
         s = ''
         for n in self.drawn_nodes:
-            s += self.draw_node(n, draw_nodes=draw_nodes)
+            s += self.draw_node(n, draw_nodes=draw_nodes, dargs=dargs)
 
         return s
 
