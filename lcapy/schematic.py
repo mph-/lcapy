@@ -415,7 +415,7 @@ class Schematic(NetfileMixin):
                 continue
             if elt.directive:
                 for key, val in elt.opts.items():
-                    # Directive overrides kwargs
+                    # Local opts overrides global opts in kwargs
                     kwargs[key] = val
 
             s += elt.draw(**kwargs)
@@ -428,6 +428,7 @@ class Schematic(NetfileMixin):
                 continue
             if elt.directive:
                 for key, val in elt.opts.items():
+                    # Local opts overrides global opts in kwargs
                     kwargs2[key] = val
             s += elt.draw_node_labels(**kwargs2)
 
@@ -601,12 +602,10 @@ class Schematic(NetfileMixin):
             if key not in kwargs:
                 kwargs[key] = val
 
-        # Global options (usually at end of netlist for historical reasons)
-        # These can be overwritten
-        for eltname in self.elements:
-            elt = self.elements[eltname]
-            if not elt.directive:
-                continue
+        # Global options (at end of netlist for historical reasons)
+        # These overwrite the default options
+        elt = self.elements[next(reversed(self.elements))]
+        if elt.directive:
             for key, val in elt.opts.items():
                 # val is a str
                 kwargs[key] = val
