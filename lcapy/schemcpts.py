@@ -1121,7 +1121,6 @@ class Cpt(object):
             label_nodes = kwargs.get('label_nodes', 'primary')
 
         anchor = self.anchor_opt(self, kwargs.get('anchor', 'south east'))
-        dargs = self.args_list(self.opts, **kwargs)
 
         s = ''
         for node in self.drawn_nodes:
@@ -1135,6 +1134,7 @@ class Cpt(object):
             else:
                 if node.auxiliary:
                     continue
+                dargs = self.args_list(self.opts, **kwargs)
                 s += self.draw_node_label(node, label_nodes, anchor, dargs)
 
         return s
