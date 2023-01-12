@@ -1,7 +1,7 @@
 """This module provides the Latex class for formatting
 values and labels.
 
-Copyright 2020--2022 Michael Hayes, UCECE
+Copyright 2020--2023 Michael Hayes, UCECE
 
 """
 
@@ -90,9 +90,14 @@ def latex_format_label(s):
     # use math mode.  The tricky part is that arbitrary signals may
     # have math symbols, say sqrt.
     math_symbols = ('_',  '^', '\\')
+
+    # Do not switch into math mode for \\
+    s2 = s.replace(r'\\', '@@@')
+
     for math_symbol in math_symbols:
         if math_symbol in s2:
             return '$' + s + '$'
+
     return s
 
 
