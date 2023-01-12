@@ -367,10 +367,50 @@ class Schematic(NetfileMixin):
             print('Solving graphs')
         self.width, self.height = placer.solve(self.node_spacing)
 
+    def _write_coordinates(self):
+
+        s = ''
+        for n in self.nodes.values():
+            s += r'  \coordinate (%s) at (%s);''\n' % (n.s, n.pos)
+        return s
+
+    def _draw_components(self, **kwargs):
+
+        s = ''
+        for elt in self.elements.values():
+            if elt.ignore:
+                continue
+            if elt.directive:
+                for key, val in elt.opts.items():
+                    # Local opts overrides global opts in kwargs
+                    kwargs[key] = val
+
+            s += elt.draw(**kwargs)
+            s += elt.draw_nodes(**kwargs)
+            s += elt.draw_pins()
+        return s
+
+    def _draw_node_labels(self, **kwargs):
+
+        s = ''
+        for elt in self.elements.values():
+            if elt.ignore:
+                continue
+            if elt.directive:
+                for key, val in elt.opts.items():
+                    # Local opts overrides global opts in kwargs
+                    kwargs[key] = val
+
+            s += elt.draw_node_labels(**kwargs)
+        return s
+
     def _tikz_draw(self, style_args='', **kwargs):
 
-        method = kwargs.pop('method', 'graph')
+        if (self.debug & 64):
+            import pdb
+            pdb.set_trace()
 
+        method = kwargs.pop('method', 'graph')
         self._positions_calculate(method, self.debug, **kwargs)
 
         # Note, scale does not scale the font size.
@@ -401,36 +441,17 @@ class Schematic(NetfileMixin):
             s += r'  \draw[help lines, %s] (%s) grid [xstep=%s, ystep=%s] (%s);''\n' % (
                 help_lines_color, start, help_lines, help_lines, stop)
 
-        # Write coordinates.  TODO, not all coordinates are needed
-        # so those can be weeded out to simplify the generated file.
-        for n in self.nodes.values():
-            s += r'  \coordinate (%s) at (%s);''\n' % (n.s, n.pos)
+        # Write coordinates.
+        s += self._write_coordinates()
 
         # Keyword args for second pass
         kwargs2 = kwargs.copy()
 
         # Pass 1: Draw components
-        for elt in self.elements.values():
-            if elt.ignore:
-                continue
-            if elt.directive:
-                for key, val in elt.opts.items():
-                    # Local opts overrides global opts in kwargs
-                    kwargs[key] = val
-
-            s += elt.draw(**kwargs)
-            s += elt.draw_nodes(**kwargs)
-            s += elt.draw_pins()
+        s += self._draw_components(**kwargs)
 
         # Pass 2: Add the node labels
-        for elt in self.elements.values():
-            if elt.ignore:
-                continue
-            if elt.directive:
-                for key, val in elt.opts.items():
-                    # Local opts overrides global opts in kwargs
-                    kwargs2[key] = val
-            s += elt.draw_node_labels(**kwargs2)
+        s += self._draw_node_labels(**kwargs2)
 
         # Add postamble
         if 'postamble' in kwargs:
@@ -604,12 +625,16 @@ class Schematic(NetfileMixin):
                 kwargs[key] = val
 
         # Global options (at end of netlist for historical reasons)
-        # These overwrite the default options
-        elt = self.elements[next(reversed(self.elements))]
-        if elt.directive:
-            for key, val in elt.opts.items():
-                # val is a str
-                kwargs[key] = val
+        # These overwrite the default options.  Skip blank lines.
+        for elt_name in reversed(self.elements):
+            elt = self.elements[elt_name]
+            if not elt.directive:
+                break
+            if elt.string.strip().startswith(';'):
+                for key, val in elt.opts.items():
+                    # val is a str
+                    kwargs[key] = val
+                break
 
         def in_ipynb():
             try:
