@@ -5,13 +5,15 @@ Release notes
 V1.11
 =====
 
-- Schematic attributes specified in last netlist entry are considered first.
+- Schematic attributes specified in the last netlist entry are considered first.
+
+- Use lower case v for time-domain nodal analysis.
 
 - Use lower case i for time-domain loop analysis.
 
 - Fixes loop analysis.
 
-- Adds new schematic syntax for drawing nodes and implicit connections.
+- Adds new schematic syntax for drawing nodes and implicit connections (see :ref:`node_attributes`).
 
 
 V1.10.1

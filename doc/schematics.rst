@@ -1483,6 +1483,13 @@ called `n` or `-`.  BJTs have `c` or `collector`, `b` or `base`, and
 `gate`, and `s` or `source` nodes.  For chip node names, see
 :ref:`integrated_circuits`.
 
+Here's an example where the positive (+) node of a resistor is an implicit connection to +24 V and the negative (-) node of the resistor is an implicit connection to -24 V.
+
+.. literalinclude:: examples/schematics/nodes1.sch
+
+.. image:: examples/schematics/nodes1.png
+   :width: 1cm
+
 
 Schematic attributes
 --------------------
