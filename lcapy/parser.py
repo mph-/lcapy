@@ -1,7 +1,7 @@
 """This module performs parsing of SPICE-like netlists.  It uses a
 custom parser rather than lex/yacc to give better error messages.
 
-Copyright 2015--2022 Michael Hayes, UCECE
+Copyright 2015--2023 Michael Hayes, UCECE
 
 """
 
@@ -380,7 +380,8 @@ class Parser:
             name += parent._make_anon_cpt_id(cpt_type)
         elif cpt_id == '?':
             # Automatically name cpts to ensure they are unique
-            name = name[:-1] + parent._make_anon_cpt_id(cpt_type)
+            cpt_id = parent._make_anon_cpt_id(cpt_type)
+            name = name[:-1] + cpt_id
 
         default_value = cpt_type + cpt_id
         nodes, args = rule.process(net, fields, name, namespace, default_value)

@@ -5,6 +5,8 @@ Release notes
 V1.11
 =====
 
+- Allows autonaming for netlist components (see :ref:`autonaming`).
+
 - Schematic attributes specified in the last netlist entry are considered first.
 
 - Use lower case v for time-domain nodal analysis.

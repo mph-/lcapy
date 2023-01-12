@@ -198,13 +198,13 @@ simulation (additional components can be drawn, see
 
    `Wname Np Nm`
 
-   Note, if name is not specified, a unique name is chosen.
+   Note, if name is not specified, a unique name is chosen.  See :ref:`autonaming`.
 
 - Open circuit:
 
    `Oname Np Nm`
 
-   Note, if name is not specified, a unique name is chosen.
+   Note, if name is not specified, a unique name is chosen.  See :ref:`autonaming`.
 
 - Port:
 
@@ -327,6 +327,22 @@ For example,
 
    `C1 1 0` is equivalent to `C1 1 0 C1`
 
+.. _autonaming:
+
+Autonaming
+----------
+
+Components (except for wires and open-circuits) must have unique names
+otherwise the previous definition is over-written.  For some netlists,
+choosing unique names can be tedious and so if the name is a `?` a
+unique name is automatically generated.  For example::
+
+    C2 1 2
+    C? 2 3
+    C? 3 4
+    C3 4 5
+
+In this example, the second capacitor is named as `C1` and the third capacitor is named `C3` since `C1` has been previously define.  However, the fourth capacitor also has the name `C3 and so it overrides the previous definition.
 
 
 Circuit attributes
