@@ -967,10 +967,12 @@ Here are some power supply examples:
     :width: 3cm
 
 
-Connections
------------
+.. _signal_connections:
 
-These are similar to implicit wires but are useful for denoting an off-sheet connection or an IC pin.   They have one of the attributes:
+Signal connections
+------------------
+
+These are similar to implicit power connections but are useful for denoting an off-sheet connection or an IC pin.   They have one of the attributes:
 
 - `input`   input connection
 - `output`  output connection
@@ -1489,6 +1491,13 @@ Here's an example where the positive (+) node of a resistor is an implicit conne
 
 .. image:: examples/schematics/nodes1.png
    :width: 1cm
+
+Here's another example using :ref:`signal_connections`:
+
+.. literalinclude:: examples/schematics/connections3.sch
+
+.. image:: examples/schematics/connections3.png
+   :width: 5cm
 
 
 Schematic attributes
