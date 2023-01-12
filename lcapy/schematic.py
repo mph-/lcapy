@@ -313,8 +313,7 @@ class Schematic(NetfileMixin):
             # use, such as finding the component centre.
             for node_name in cpt.auxiliary_node_names:
                 pinname = node_name.split('.')[-1]
-                if pinname in cpt.required_auxiliary:
-                    self._node_add(node_name, cpt, auxiliary=True)
+                self._node_add(node_name, cpt, auxiliary=True)
 
             # The required nodes are those explicitly
             # specified in the schematic.

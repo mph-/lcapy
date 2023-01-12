@@ -49,8 +49,10 @@ module = sys.modules[__name__]
 # `required_node_names` is a list comprising a subset of node_names,
 # ignoring the nodes that are not drawn, say the ground node for an opamp.
 #
-# `auxiliary_node_names` is a list of node names for each component used
-# to draw the component.
+# `auxiliary_node_names` is a list of node names for each component
+# used to draw the component.  It also provides node names defining
+# the bounding box of a component so that the user can fit boxes
+# around components.
 #
 # `pin_node_names` is a list of the pin nodes for each component.
 # For example, ['R1.p', 'R1.n'] or ['U1.t1', 'U1.l1', 'U1.b1', 'U1.r1'].
@@ -158,7 +160,7 @@ class Cpt(object):
                  'nowires', 'nolabels', 'steps', 'free', 'fliplr', 'flipud',
                  'nodots', 'draw_nodes', 'label_nodes', 'nodraw',
                  'mirrorinputs', 'autoground', 'xoffset', 'yoffset',
-                 'anchor')
+                 'anchor', 'thickness')
     label_opt_keys = ('label_values', 'label_ids', 'annotate_values')
 
     special_keys = voltage_keys + current_keys + flow_keys + label_keys + \
@@ -183,7 +185,6 @@ class Cpt(object):
     # Auxiliary nodes are used for finding the centre of the shape or
     # to define a bounding box.
     auxiliary = {}
-    required_auxiliary = ('mid', )
     directive = False
     place = True
     kinds = {}
@@ -2928,7 +2929,6 @@ class Triangle(Shape):
                  'top': ('t', 0, 0.5774),
                  'tl': ('l', -0.5, 0.5774),
                  'tr': ('r', 0.5, 0.5774)}
-    required_auxiliary = ('top', 'bl', 'br', 'mid')
 
     def draw(self, **kwargs):
 
@@ -2970,7 +2970,6 @@ class TwoPort(Shape):
                  'ene': ('l', x, p),
                  'ese': ('l', x, -p)}
     auxiliary.update(Shape.auxiliary)
-    required_auxiliary = ('wnw', 'wsw', 'ene', 'ese', 'mid')
 
     node_pinnames = ('out+', 'out-', 'in+', 'in-')
 
@@ -3701,7 +3700,6 @@ class Uopamp(Chip):
     auxiliary = {'lin+': ('c', -0.375, 0.25),
                  'lin-': ('c', -0.375, -0.25)}
     auxiliary.update(Chip.auxiliary)
-    required_auxiliary = ('lin+', 'lin-', 'mid')
 
     ppins = {'out': ('r', 0.5, 0.0),
              'in+': ('l', -0.5, 0.25),
@@ -3762,7 +3760,6 @@ class Ufdopamp(Chip):
                  'lout+': ('c', 0, -0.17),
                  'lout-': ('c', 0, 0.17)}
     auxiliary.update(Chip.auxiliary)
-    required_auxiliary = ('lin+', 'lin-', 'lout+', 'lout-', 'mid')
 
     ppins = {'out-': ('r', 0.1, 0.2),
              'out+': ('r', 0.1, -0.2),
