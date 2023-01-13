@@ -174,7 +174,7 @@ class Node:
         new_node._port = self._port
         new_node.label = self.label
         new_node._port = elt.type == 'P'
-        new_node.opts = self.opts
+        new_node.opts = self.opts.copy()
 
         return new_node
 
