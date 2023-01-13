@@ -92,7 +92,7 @@ def latex_format_label(s):
     math_symbols = ('_',  '^', '\\')
 
     # Do not switch into math mode for \\
-    s2 = s.replace(r'\\', '@@@')
+    s2 = s2.replace(r'\\', '@@@')
 
     for math_symbol in math_symbols:
         if math_symbol in s2:
