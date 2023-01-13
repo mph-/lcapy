@@ -444,7 +444,7 @@ class Schematic(NetfileMixin):
         s = r'\begin{tikzpicture}[%s]''\n' % ', '.join(opts)
 
         # Add preamble
-        if preamble is not None:
+        if preamble:
             s += '  ' + preamble + '\n'
 
         if help_lines != 0:
@@ -460,7 +460,7 @@ class Schematic(NetfileMixin):
         s += self._draw_node_labels(**kwargs)
 
         # Add postamble
-        if postamble is not None:
+        if postamble:
             s += '  ' + postamble + '\n'
 
         s += r'\end{tikzpicture}''\n'

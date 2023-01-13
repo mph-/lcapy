@@ -152,6 +152,7 @@ class Cpt(object):
     supply_keys = supply_positive_keys + supply_negative_keys
     implicit_keys = ('implicit', ) + ground_keys + supply_keys
     # The following keys do not get passed through to circuitikz.
+    # Note, thickness is currently ignored.
     misc_keys = ('left', 'right', 'up', 'down', 'rotate', 'size',
                  'mirror', 'invert', 'scale', 'invisible', 'variable', 'fixed',
                  'aspect', 'pins', 'image', 'offset', 'pinlabels',
@@ -935,12 +936,18 @@ class Cpt(object):
 
         label = n.opts.get('l', n.opts.get('label', label))
         if label != '':
-            lpos = self.tf(n.pos, (1, 0), scale=1,
-                           angle_offset=angle)
+            lpos = self.tf(n.pos, (0.5, 0), scale=1, angle_offset=0)
+
+            if abs(self.angle) <= 90:
+                anchor = 'west'
+                xoffset = 0.2
+            else:
+                xoffset = -0.2
+                anchor = 'east'
+            lpos.x += xoffset
 
             # This does not rotate the text (unlike connections).
-            # TODO, use anchor instead of align
-            dargs = ['align=center']
+            dargs = ['anchor=' + anchor]
             s += self.draw_cptnode(lpos, dargs=dargs, label=label)
 
         return s
