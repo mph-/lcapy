@@ -403,6 +403,16 @@ class Schematic(NetfileMixin):
             s += elt.draw_node_labels(**kwargs)
         return s
 
+    def _draw_help_lines(self, help_lines, help_lines_color):
+
+        start = Pos(-0.5, -0.5) * self.node_spacing
+        stop = Pos(self.width + 0.5, self.height + 0.5) * self.node_spacing
+
+        s = r'  \draw[help lines, %s] (%s) grid [xstep=%s, ystep=%s] (%s);''\n' % (
+            help_lines_color, start, help_lines, help_lines, stop)
+
+        return s
+
     def _tikz_draw(self, style_args='', **kwargs):
 
         if (self.debug & 64):
@@ -410,6 +420,12 @@ class Schematic(NetfileMixin):
             pdb.set_trace()
 
         method = kwargs.pop('method', 'graph')
+        preamble = kwargs.pop('preamble', None)
+        postamble = kwargs.pop('postamble', None)
+        options = kwargs.pop('options', None)
+        help_lines = float(kwargs.pop('help_lines', 0))
+        help_lines_color = kwargs.pop('help_lines_color', 'blue')
+
         self._positions_calculate(method, self.debug, **kwargs)
 
         # Note, scale does not scale the font size.
@@ -417,8 +433,8 @@ class Schematic(NetfileMixin):
                 'transform shape',
                 '/tikz/circuitikz/bipoles/length=%.2fcm' % self.cpt_size]
         opts.append(style_args)
-        if 'options' in kwargs:
-            opts.append(kwargs.pop('options'))
+        if options is not None:
+            opts.append(options)
 
         global_options = ['font', 'voltage_dir', 'color']
         for opt in global_options:
@@ -428,33 +444,24 @@ class Schematic(NetfileMixin):
         s = r'\begin{tikzpicture}[%s]''\n' % ', '.join(opts)
 
         # Add preamble
-        if 'preamble' in kwargs:
-            s += '  ' + kwargs.pop('preamble') + '\n'
+        if preamble is not None:
+            s += '  ' + preamble + '\n'
 
-        help_lines = float(kwargs.pop('help_lines', 0))
-        help_lines_color = kwargs.pop('help_lines_color', 'blue')
         if help_lines != 0:
-            start = Pos(-0.5, -0.5) * self.node_spacing
-            stop = Pos(self.width + 0.5, self.height + 0.5) * self.node_spacing
-
-            s += r'  \draw[help lines, %s] (%s) grid [xstep=%s, ystep=%s] (%s);''\n' % (
-                help_lines_color, start, help_lines, help_lines, stop)
+            s += self._draw_help_lines(help_lines, help_lines_color)
 
         # Write coordinates.
         s += self._write_coordinates()
-
-        # Keyword args for second pass
-        kwargs2 = kwargs.copy()
 
         # Pass 1: Draw components
         s += self._draw_components(**kwargs)
 
         # Pass 2: Add the node labels
-        s += self._draw_node_labels(**kwargs2)
+        s += self._draw_node_labels(**kwargs)
 
         # Add postamble
-        if 'postamble' in kwargs:
-            s += '  ' + kwargs.pop('postamble') + '\n'
+        if postamble is not None:
+            s += '  ' + postamble + '\n'
 
         s += r'\end{tikzpicture}''\n'
 
