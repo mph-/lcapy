@@ -637,6 +637,8 @@ class Schematic(NetfileMixin):
             elt = self.elements[elt_name]
             if not elt.directive:
                 break
+            if elt.string.strip().startswith(';;'):
+                continue
             if elt.string.strip().startswith(';'):
                 for key, val in elt.opts.items():
                     # val is a str

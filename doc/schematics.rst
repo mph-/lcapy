@@ -1177,61 +1177,6 @@ The pin names can be redefined by the `pindefs` option.  This has a syntax:
   - `pindefs={new1=old1, new2=old2, ...}`
 
 
-Node annotation
-===============
-
-Nodes can be annotated using the `A` net.   For example,
-
-.. literalinclude:: examples/schematics/annotate1.sch
-
-.. image:: examples/schematics/annotate1.png
-   :width: 7cm
-
-The annotation is positioned with respect to the node using the anchor attribute.  This can be `north`, `north east`, `east`, `south east`, `south`, `south west`, `west`, and `north west` or the abbreviations `n`, `ne`, `e`, `se`, `s`, `sw`, `w` and `nw`.   The annotation point can be shifted with the `xoffset` and `yoffset` attributes and rotated with the `rotate` attribute.  For example,
-
-.. literalinclude:: examples/schematics/annotate2.sch
-
-.. image:: examples/schematics/annotate2.png
-   :width: 3cm
-
-Another way to label a node is using a node label attribute (see
-:ref:`node_attributes`).  For example, `R 1 2; right .+.l=foo`.  This
-labels the positive node with `foo`.  The position can be adjusted
-using an anchor: `R 1 2; right .+.l=foo .+.anchor=south`.
-
-Schematics can be also annotated using additional tikz commands in the
-netlist.  These are delimited by a line starting with two semicolons,
-for example:
-
-.. literalinclude:: examples/schematics/fit1.sch
-
-This example draws dashed boxes around the nodes 0, 1, and 6 and 2, 3,
-4, and 5:
-
-.. image:: examples/schematics/fit1.png
-   :width: 7cm
-
-Alternatively, the boxes can be fit around named components, for
-example::
-
-    ;;\node[blue,draw,dashed,inner sep=5mm, fit=(R2) (C2), label=CMOS input model]{};
-
-With this example, the netlist must be stored in a file or as a raw string to avoid the `\n` being interpreted as a new line.  For example,
-
-    >>> a = Circuit(r"""
-    ;;\node[blue,draw,dashed,inner sep=5mm, fit=(R2) (C2), label=CMOS input model]{};
-    """)
-
-Boxes can be fitted around named nodes or pin connections.  When referring to a pin connection of a component it is necessary to use `@` instead of `.`, for example, `U1@tl` instead of `U1.tl`.  Here's an example:
-
-.. literalinclude:: examples/schematics/fit3.sch
-
-.. image:: examples/schematics/fit3.png
-   :width: 10cm
-
-In this example, the annotate entries are used to make references to the top left (tl) and bottom right (br) coordinates of the `U1` component.  These references are required for the fit command.
-
-
 Styles
 ======
 
@@ -1272,7 +1217,7 @@ attributes, see the `Tikz manual <https://pgf-tikz.github.io/pgf/pgfmanual.pdf>`
 Line styles
 -----------
 
-The line style of wires can be changed using the tikz attributes, `dashed`, `dotted`, `thick`, `ultra thick`, `line width`, `densely dotted`, `loosely dashed` and many others.  For example,
+The line style of wires can be changed using the Tikz attributes, `dashed`, `dotted`, `thick`, `ultra thick`, `line width`, `densely dotted`, `loosely dashed` and many others.  For example,
 
 .. literalinclude:: examples/schematics/wirestyles.sch
 
@@ -1280,8 +1225,15 @@ The line style of wires can be changed using the tikz attributes, `dashed`, `dot
    :width: 12cm
 
 
+.. _labels_and_annotations:
+
 Labels and annotations
 ======================
+
+Both components and nodes can be labelled and and annotated.  In addition, arbitrary Circuitikz/Tikz macros can be applied to embellish a schematic.
+
+Component labels and annotations
+--------------------------------
 
 Each component has a component identifier label and a value label.
 These can be augmented by explicit voltage, current, and flow labels.  One-port components (bipoles) also have an optional annotation that is similar to a label.  Some components have an inner label.
@@ -1305,11 +1257,7 @@ employed.  For example,
 >>> cct.add('R1 1 2; right, i=$I_1$, v=$V_{R_1}$')
 
 Lcapy will try to automatically switch to math-mode if it detects a
-math-mode command.  Use `\mathrm{}` to ensure text is kept in a Roman font rathe than italic font.
-
-
-Component labels and annotations
---------------------------------
+math-mode command.  Use `\mathrm{}` to ensure text is kept in a Roman text font rather than an italic math font.
 
 The component label and annotation positions are controlled with the
 `^` and `_` attributes.  The `^` attribute positions the label above
@@ -1321,7 +1269,7 @@ component.  For example,
 .. image:: examples/schematics/labels1.png
    :width: 8cm
 
-Annotations are similar to a component label but use the `a` attribute instead of the `l` attribute, for example,
+Component annotations are similar to a component label but use the `a` attribute instead of the `l` attribute, for example,
 
 .. literalinclude:: examples/schematics/Rlabels.sch
 
@@ -1345,6 +1293,7 @@ example,
 The direction of the voltage labels depends on the `voltage dir`
 attribute.  This can be `RP` for rising potential or `EF` for electric
 field.  `RP` is the default.
+
 
 Current and flow labels
 -----------------------
@@ -1393,6 +1342,73 @@ Voltage labels can be annotated between pairs of nodes using an
 open-circuit component.   For example,
 
     >>> O1 1 0; down, v=V_1
+
+
+.. _node_annotations:
+
+Node annotations
+----------------
+
+Nodes can be annotated using the `A` net.   For example,
+
+.. literalinclude:: examples/schematics/annotate1.sch
+
+.. image:: examples/schematics/annotate1.png
+   :width: 7cm
+
+The annotation is positioned with respect to the node using the anchor attribute.  This can be `north`, `north east`, `east`, `south east`, `south`, `south west`, `west`, and `north west` or the abbreviations `n`, `ne`, `e`, `se`, `s`, `sw`, `w` and `nw`.   The annotation point can be shifted with the `xoffset` and `yoffset` attributes and rotated with the `rotate` attribute.  For example,
+
+.. literalinclude:: examples/schematics/annotate2.sch
+
+.. image:: examples/schematics/annotate2.png
+   :width: 3cm
+
+Another way to label a node is using a node label attribute (see
+:ref:`node_attributes`).  For example, `R 1 2; right .+.l=foo`.  This
+labels the positive node with `foo`.  The position can be adjusted
+using an anchor: `R 1 2; right .+.l=foo .+.anchor=south`.
+
+
+Miscellaneous annotation
+------------------------
+
+Schematics can be also annotated using additional Tikz commands in the
+netlist.  These are delimited by a line starting with two semicolons.
+A common use is for box fitting.
+
+
+Box fitting
+-----------
+
+Boxes can be drawn around components and groups of components using Tikz macros defined in the netlist.  For example:
+
+.. literalinclude:: examples/schematics/fit1.sch
+
+This example draws dashed boxes around the nodes 0, 1, and 6 and 2, 3,
+4, and 5:
+
+.. image:: examples/schematics/fit1.png
+   :width: 7cm
+
+Alternatively, the boxes can be fit around named components, for
+example::
+
+    ;;\node[blue,draw,dashed,inner sep=5mm, fit=(R2) (C2), label=CMOS input model]{};
+
+With this example, the netlist must be stored in a file or as a raw string to avoid the `\\n` being interpreted as a new line.  For example,
+
+    >>> a = Circuit(r"""
+    ;;\node[blue,draw,dashed,inner sep=5mm, fit=(R2) (C2), label=CMOS input model]{};
+    """)
+
+Boxes can be fitted around pin connections of components.  When referring to a pin connection of a component it is necessary to use `@` instead of `.`, for example, `U1@tl` instead of `U1.tl`.  Here's an example:
+
+.. literalinclude:: examples/schematics/fit3.sch
+
+.. image:: examples/schematics/fit3.png
+   :width: 10cm
+
+In this example, the node annotation entries  (see :ref:`node_annotations) make references to the top left (tl) and bottom right (br) coordinates of the `U1` component.  These references are required for the fit command.
 
 
 .. _attributes:
