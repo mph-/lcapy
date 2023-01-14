@@ -1103,10 +1103,10 @@ Here's a example of a mixer:
 Shapes
 ------
 
-Shapes include `box`, `circle`, `ellipse`, `triangle`.
+Shapes include `box`, `circle`, `ellipse`, and `triangle`.
 
-`box`, `circle`, `ellipse`, and `triangle` shapes have default anchor
-nodes based on the centre (`c`) and sixteen directions of the compass:
+`box`, `circle`, `ellipse`, and `triangle` shapes have connection pins
+based on the centre (`c`) and sixteen directions of the compass:
 `n`, `nne`, `ne`, `ene`, `e`, `ese`, `se`, `sse`, `s`, `ssw`, `sw`,
 `wsw`, `w`, `wnw`, `nw`, `nww`.   For other rectangular shapes see :ref:`chips`.
 
@@ -1131,8 +1131,7 @@ Here's an example of their use:
    :width: 5cm
 
 
-`triangle` is an equilateral triangle.  Its shape can be changed with the `aspect` attribute.   It has anchors `n`, `e`, `s`, `w`, `c`, `c1`, `c2`, `c3`,
-
+`triangle` is an equilateral triangle.  Its shape can be changed with the `aspect` attribute.   It has connection pins `n`, `e`, `s`, `w`, `c`, `c1`, `c2`, `c3`.
 
 The label of a shape can be replaced by an image, using the `image` attribute.  For example,
 
@@ -1141,9 +1140,20 @@ The label of a shape can be replaced by an image, using the `image` attribute.  
 The image file can be of any format supported by the LaTeX `\\includegraphics` macro (such as .pdf, .png, .jpg, etc) or a file that can be processed by LaTeX with the `\\input` macro (such as .pgf, .tex, .schtex).
 
 
-Each shape has a number of predefined connection pins.  Associated
-with each pin is an optional label.
+Each shape or chip have the following connection pins:
 
+`tl` (top left)
+
+`tr` (top right)
+
+`bl` (bottom left)
+
+`br` (bottom right)
+
+`mid` (middle)
+
+In addition, there are component specific connection pins.  Associated
+with each pin is an optional label.
 
 The `pinlabels` option can be specified as:
  - `all` : the default labels for all the pins are shown
@@ -1212,13 +1222,14 @@ With this example, the netlist must be stored in a file or as a raw string to av
     ;;\node[blue,draw,dashed,inner sep=5mm, fit=(R2) (C2), label=CMOS input model]{};
     """)
 
-When referring to an anchor of a component it is necessary to use `@` instead of `.`, for example, `U1@tl` instead of `U1.tl`.  Here's an example:
-
+Boxes can be fitted around named nodes or pin connections.  When referring to a pin connection of a component it is necessary to use `@` instead of `.`, for example, `U1@tl` instead of `U1.tl`.  Here's an example:
 
 .. literalinclude:: examples/schematics/fit3.sch
 
 .. image:: examples/schematics/fit3.png
    :width: 10cm
+
+In this example, the annotate entries are used to make references to the top left (tl) and bottom right (br) coordinates of the `U1` component.  These references are required for the fit command.
 
 
 Styles
@@ -1442,6 +1453,7 @@ Component attributes
 - `nosim`: this is ignored for schematics (it is used to ignore electrical simulation of the component)
 
 - `offset`: distance to orthogonally offset component (useful for parallel components)
+
 - `pins`: define pin labels for ICs
 
 - `rotate`: angle in degrees to rotate component anti-clockwise

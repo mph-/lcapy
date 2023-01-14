@@ -15,5 +15,7 @@ L6 0_3 0_4; right, color=blue
 W 4 U1.vdd; down=0.25, color=blue
 W 0_4 U1.vss; up=0.25, color=blue
 Clocal 6 0_6; down, color=blue
-; label_nodes=none, draw_nodes=connections, label_values=false, label_ids=false
+A U1.tl
+A U1.br
 ;;\node[blue,draw,dashed,inner sep=8mm, fit=(Cbulk) (U1@tl) (U1@br), label=PCB]{};
+; label_nodes=none, draw_nodes=connections, label_values=false, label_ids=false
