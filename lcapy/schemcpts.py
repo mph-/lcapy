@@ -853,7 +853,7 @@ class Cpt(object):
     def draw_connection(self, n, kind):
         """Draw connection and label."""
 
-        args = self.node_args_list(n)
+        args = self.node_args_list(n.opts)
 
         try:
             scale = float(self.opts[kind])
@@ -890,6 +890,11 @@ class Cpt(object):
 
         label = n.opts.get('l', n.opts.get('label', ''))
         if label != '':
+
+            opts = n.opts.copy()
+            opts.pop('fill', None)
+            args = self.node_args_list(opts)
+
             lpos = self.tf(n.pos, (x, 0), scale=1, angle_offset=angle)
             dargs = ['align=center']
             angle += self.angle
@@ -914,7 +919,7 @@ class Cpt(object):
         elif kind == 'implicit':
             kind = implicit_default
 
-        args = self.node_args_list(n)
+        args = self.node_args_list(n.opts)
         pinpos = n.pinpos
         angle = angle_choose(pinpos)
 
@@ -961,7 +966,7 @@ class Cpt(object):
         elif kind == 'implicit':
             kind = implicit_default
 
-        args = self.node_args_list(n)
+        args = self.node_args_list(n.opts)
         label = n.opts.get('l', n.opts.get('label', label))
 
         # vss and vdd labels are drawn in the correct place except
@@ -995,7 +1000,7 @@ class Cpt(object):
             return s
 
         symbol = n.opts.get('symbol', 'ocirc' if n.is_port else 'circ')
-        args = self.node_args_list(n)
+        args = self.node_args_list(n.opts)
         s += self.draw_cptnode(n.s, symbol, args)
         return s
 
@@ -1019,7 +1024,7 @@ class Cpt(object):
         if kind is not None:
             return self.draw_implicit(n, kind, draw_nodes)
 
-        args = self.node_args_list(n)
+        args = self.node_args_list(n.opts)
 
         if not n.visible(draw_nodes) or n.pin or not draw_nodes:
             return ''
@@ -1271,9 +1276,11 @@ class Cpt(object):
             label = self.opts.pop('l', None)
             if label is not None:
                 new_node.opts.add('l=' + label)
-            anchor = self.opts.pop('anchor', None)
-            if anchor is not None:
-                new_node.opts.add('anchor=' + anchor)
+            # Perhaps copy all the component opts to the node?
+            for opt in ('anchor', 'fill', 'color'):
+                val = self.opts.pop(opt, None)
+                if val is not None:
+                    new_node.opts.add(opt + '=' + val)
 
         # New syntax, look for .p.implicit, .p.ground, etc.
         for m, node_name in enumerate(self.required_node_names):
@@ -1361,13 +1368,9 @@ class Cpt(object):
 
         return ','.join(self.args_list(self.opts, **kwargs))
 
-    def node_args_list(self, node, **kwargs):
+    def node_args_list(self, opts, **kwargs):
 
-        return self.args_list(node.opts, **kwargs)
-
-    def node_args_str(self, node, **kwargs):
-
-        return ','.join(self.node_args_list(node, **kwargs))
+        return self.args_list(opts, **kwargs)
 
     def label(self, keys=None, default=True, **kwargs):
 
