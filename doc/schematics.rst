@@ -412,6 +412,7 @@ Inductors and chokes
 
 
 .. _chips:
+.. _integrated_circuits:
 
 Integrated circuits
 -------------------
@@ -1276,6 +1277,25 @@ Component annotations are similar to a component label but use the `a` attribute
 .. image:: examples/schematics/Rlabels.png
    :width: 8cm
 
+The style of the labels can be changed with the `bipole label style`
+attribute.  Similarly, the style of the annotation, voltage, current,
+and flow labels can be changed with the `bipole annotation style`,
+`bipole voltage style`, `bipole current style`, and `bipole flow
+style` attributes.  For example,
+
+
+.. literalinclude:: examples/schematics/voltage_labels2.sch
+
+.. image:: examples/schematics/voltage_labels2.png
+   :width: 8cm
+
+These styles can be applied to the entire schematic, for example,
+
+.. literalinclude:: examples/schematics/voltage_labels3.sch
+
+.. image:: examples/schematics/voltage_labels3.png
+   :width: 8cm
+
 
 Voltage labels
 --------------
@@ -1408,7 +1428,7 @@ Boxes can be fitted around pin connections of components.  When referring to a p
 .. image:: examples/schematics/fit3.png
    :width: 10cm
 
-In this example, the node annotation entries  (see :ref:`node_annotations) make references to the top left (tl) and bottom right (br) coordinates of the `U1` component.  These references are required for the fit command.
+In this example, the node annotation entries  (see :ref:`node_annotations`) make references to the top left (tl) and bottom right (br) coordinates of the `U1` component.  These references are required for the fit command.
 
 
 .. _attributes:
