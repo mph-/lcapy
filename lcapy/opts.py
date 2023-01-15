@@ -3,6 +3,8 @@
 Copyright 2021 Michael Hayes, UCECE
 """
 
+from .latex import latex_format_label
+
 
 class Opts(dict):
 
@@ -116,3 +118,17 @@ class Opts(dict):
         stripped.update(self.strip_labels())
 
         return stripped
+
+    def as_list(self, ignore=None, **kwargs):
+
+        if ignore is None:
+            ignore = []
+
+        for key, val in self.items():
+            # Override with component opts
+            kwargs[key] = val
+
+        def fmt(key, val):
+            return '%s=%s' % (key, latex_format_label(val))
+
+        return [fmt(key, val) for key, val in kwargs.items() if key not in ignore and '.' not in key]

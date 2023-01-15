@@ -840,7 +840,7 @@ class Cpt(object):
             path += ' %s cycle' % join
 
         if dargs is None:
-            dargs = self.args_list(self.opts)
+            dargs = self.opts.as_list(self.special_keys)
         if style != '':
             dargs.append(style)
         dargs = ', '.join([arg for arg in dargs if arg != ''])
@@ -853,7 +853,7 @@ class Cpt(object):
     def draw_connection(self, n, kind):
         """Draw connection and label."""
 
-        args = self.node_args_list(n.opts)
+        args = n.opts.as_list(self.special_keys)
 
         try:
             scale = float(self.opts[kind])
@@ -893,7 +893,7 @@ class Cpt(object):
 
             opts = n.opts.copy()
             opts.pop('fill', None)
-            args = self.node_args_list(opts)
+            args = opts.as_list(self.special_keys)
 
             lpos = self.tf(n.pos, (x, 0), scale=1, angle_offset=angle)
             dargs = ['align=center']
@@ -919,7 +919,7 @@ class Cpt(object):
         elif kind == 'implicit':
             kind = implicit_default
 
-        args = self.node_args_list(n.opts)
+        args = n.opts.as_list(self.special_keys)
         pinpos = n.pinpos
         angle = angle_choose(pinpos)
 
@@ -966,7 +966,7 @@ class Cpt(object):
         elif kind == 'implicit':
             kind = implicit_default
 
-        args = self.node_args_list(n.opts)
+        args = n.opts.as_list(self.special_keys)
         label = n.opts.get('l', n.opts.get('label', label))
 
         # vss and vdd labels are drawn in the correct place except
@@ -1000,7 +1000,7 @@ class Cpt(object):
             return s
 
         symbol = n.opts.get('symbol', 'ocirc' if n.is_port else 'circ')
-        args = self.node_args_list(n.opts)
+        args = n.opts.as_list(self.special_keys)
         s += self.draw_cptnode(n.s, symbol, args)
         return s
 
@@ -1024,7 +1024,7 @@ class Cpt(object):
         if kind is not None:
             return self.draw_implicit(n, kind, draw_nodes)
 
-        args = self.node_args_list(n.opts)
+        args = n.opts.as_list(self.special_keys)
 
         if not n.visible(draw_nodes) or n.pin or not draw_nodes:
             return ''
@@ -1039,7 +1039,7 @@ class Cpt(object):
         draw_nodes = self.draw_nodes_opt
         if draw_nodes is None:
             draw_nodes = kwargs.get('draw_nodes', True)
-        dargs = self.args_list(kwargs)
+        dargs = self.opts.as_list(self.special_keys, **kwargs)
 
         s = ''
         for n in self.drawn_nodes:
@@ -1146,7 +1146,7 @@ class Cpt(object):
             else:
                 if node.auxiliary:
                     continue
-                dargs = self.args_list(self.opts, **kwargs)
+                dargs = self.opts.as_list(self.special_keys, **kwargs)
                 s += self.draw_node_label(node, label_nodes, anchor, dargs)
 
         return s
@@ -1278,7 +1278,7 @@ class Cpt(object):
                 new_node.opts.add('l=' + label)
             # Perhaps copy all the component opts to the node?
             for opt in ('anchor', 'fill', 'color'):
-                val = self.opts.pop(opt, None)
+                val = self.opts.get(opt, None)
                 if val is not None:
                     new_node.opts.add(opt + '=' + val)
 
@@ -1352,25 +1352,9 @@ class Cpt(object):
 
         return self.opts_str(self.inner_label_keys)
 
-    def args_list(self, opts, **kwargs):
-
-        def fmt(key, val):
-            return '%s=%s' % (key, latex_format_label(val))
-
-        kwargs = kwargs.copy()
-        for key, val in opts.items():
-            # Override with element opts
-            kwargs[key] = val
-
-        return [fmt(key, val) for key, val in kwargs.items() if key not in self.special_keys and '.' not in key]
-
     def args_str(self, **kwargs):
 
-        return ','.join(self.args_list(self.opts, **kwargs))
-
-    def node_args_list(self, opts, **kwargs):
-
-        return self.args_list(opts, **kwargs)
+        return ','.join(self.opts.as_list(self.special_keys, **kwargs))
 
     def label(self, keys=None, default=True, **kwargs):
 
@@ -1473,7 +1457,7 @@ class Cpt(object):
             keys = self.label_keys
 
         return self.annotate(pos, self.label(keys, default=default, **kwargs),
-                             self.args_list(self.opts, **kwargs))
+                             self.opts.as_list(self.special_keys, **kwargs))
 
 
 class Unipole(Cpt):
@@ -1507,7 +1491,7 @@ class Unipole(Cpt):
         if self.invert:
             xscale = -xscale
 
-        args = self.args_list(self.opts, **kwargs)
+        args = self.opts.as_list(self.special_keys, **kwargs)
         if self.angle != 0:
             args.append('rotate=%d' % self.angle)
         if xscale != 1:
@@ -1647,7 +1631,7 @@ class Bipole(StretchyCpt):
             # With this option, draw component as a piece of wire.
             # This is useful for hiding the control voltage source
             # required for a CCVS or a CCCS.
-            dargs = self.args_list(self.opts, **kwargs)
+            dargs = self.opts.as_list(self.special_keys, **kwargs)
             s = self.draw_wire(n1.s, n2.s, dargs)
             return s
 
@@ -1730,7 +1714,7 @@ class Bipole(StretchyCpt):
         if 'a' in self.opts:
             self.opts['a' + annotation_pos] = self.opts.pop('a')
 
-        dargs = self.args_list(self.opts, **kwargs)
+        dargs = self.opts.as_list(self.special_keys, **kwargs)
         args = [self.voltage_str, self.current_str, self.flow_str]
 
         if self.mirror:
@@ -2794,7 +2778,7 @@ class SPDT(FixedCpt):
         n1, n2, n3 = self.nodes
         centre = n1.pos * 0.5 + (n2.pos + n3.pos) * 0.25
 
-        args = self.args_list(self.opts, **kwargs)
+        args = self.opts.as_list(self.special_keys, **kwargs)
         if self.angle != 0:
             args.append('rotate=%d' % self.angle)
 
@@ -3902,7 +3886,7 @@ class Wire(Bipole):
 
         # TODO, add arrow shapes for earth symbol.
 
-        dargs = self.args_list(self.opts, **kwargs)
+        dargs = self.opts.as_list(self.special_keys, **kwargs)
 
         if self.steps is None:
             s = self.draw_wire(n1.s, n2.s, style=style,
