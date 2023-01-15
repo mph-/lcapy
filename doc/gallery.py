@@ -116,6 +116,9 @@ categories.append(Category('Labels', (
     'annotate1', 'current_labels1', 'current_labels2', 'flow_labels1', 'labels1',
     'voltage_labels1', 'Rlabels')))
 
+categories.append(Category('Digital', ('PIO1', 'PIO-input2',
+                  'PIO-input3', 'PIO-output2',  'PIO-pullup2')))
+
 categories.append(Category('Miscellaneous', ('colors1', )))
 
 filename_dict = {}

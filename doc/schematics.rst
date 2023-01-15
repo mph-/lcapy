@@ -1201,7 +1201,7 @@ with the color attribute, for example:
 
    >>> cct.add('R1 1 2; right, color=blue')
 
-Colors can be specified many ways, see https://en.wikibooks.org/wiki/LaTeX/Colors and https://latexcolor.com/
+Colors can be specified many ways, see https://en.wikibooks.org/wiki/LaTeX/Colors and https://latexcolor.com/.
 
 Here are some examples using the `fill` attribute:
 
