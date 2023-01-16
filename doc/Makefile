@@ -155,6 +155,8 @@ doctest:
 figs:
 	cd examples/netlists; make
 	cd examples/schematics; make
+	cd examples/schematics/digital; make
+	cd examples/schematics/analogue; make
 	cd examples/networks; make
 	cd examples/functions; make
 	cd examples/plotting; make

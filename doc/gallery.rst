@@ -1045,8 +1045,8 @@ Labels
 .. image:: examples/schematics/Rlabels.png
    :width: 8.9cm
         
-Digital
-=======
+Digital circuits
+================
 
 
 `PIO1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/digital/PIO1.sch>`_
@@ -1087,6 +1087,25 @@ Digital
 
 .. image:: examples/schematics/digital/PIO-pullup2.png
    :width: 6.1cm
+        
+Transistor circuits
+===================
+
+
+`nmosfet_simple_amplifier.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/analogue/nmosfet_simple_amplifier.sch>`_
+
+.. literalinclude:: examples/schematics/analogue/nmosfet_simple_amplifier.sch
+
+.. image:: examples/schematics/analogue/nmosfet_simple_amplifier.png
+   :width: 8.1cm
+        
+
+`mosfet_push_pull_load.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/analogue/mosfet_push_pull_load.sch>`_
+
+.. literalinclude:: examples/schematics/analogue/mosfet_push_pull_load.sch
+
+.. image:: examples/schematics/analogue/mosfet_push_pull_load.png
+   :width: 8.2cm
         
 Miscellaneous
 =============
