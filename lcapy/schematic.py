@@ -386,6 +386,19 @@ class Schematic(NetfileMixin):
                     kwargs[key] = val
 
             s += elt.draw(**kwargs)
+        return s
+
+    def _draw_nodes(self, **kwargs):
+
+        s = ''
+        for elt in self.elements.values():
+            if elt.ignore:
+                continue
+            if elt.directive:
+                for key, val in elt.opts.items():
+                    # Local opts overrides global opts in kwargs
+                    kwargs[key] = val
+
             s += elt.draw_nodes(**kwargs)
             s += elt.draw_pins()
         return s
@@ -454,10 +467,14 @@ class Schematic(NetfileMixin):
         # Write coordinates.
         s += self._write_coordinates()
 
-        # Pass 1: Draw components
+        # Draw components
         s += self._draw_components(**kwargs)
 
-        # Pass 2: Add the node labels
+        # Draw nodes (do not do concurrently with _draw_components
+        # since get a short piece of wire through ocirc nodes)
+        s += self._draw_nodes(**kwargs)
+
+        # Draw node labels
         s += self._draw_node_labels(**kwargs)
 
         # Add postamble
