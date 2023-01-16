@@ -1779,6 +1779,7 @@ class Shape(FixedCpt):
         # pinlabels, pinlabels=, pinlabels=auto  label connected pins with defined labels
         # pinlabels={pin1, pin2, ...} label specified pins by pinname
         # pinlabels=all  label all pinlabels (pins connected or not)
+        # pinlabels=default label the default pinlabels
         # pinlabels=none label no pinlabels
 
         def pinlabel(node_name):
@@ -1794,7 +1795,7 @@ class Shape(FixedCpt):
 
         prefix = self.name + '.'
 
-        pinlabels = self.opts.get('pinlabels', 'none')
+        pinlabels = self.opts.get('pinlabels', 'default')
 
         if pinlabels == 'none':
             return {}
@@ -1803,7 +1804,7 @@ class Shape(FixedCpt):
         elif pinlabels == 'all':
             return {name: pinlabel(name) for name in self.pin_node_names if pinlabel(name) != ''}
         elif pinlabels == 'default':
-            return {name: pinlabel(name) for name in self.default_pins if pinlabel(name) != ''}
+            return {self.name + '.' + name: pinlabel(self.name + '.' + name) for name in self.default_pins if pinlabel(name) != ''}
         else:
             if pinlabels[0] != '{':
                 raise ValueError('Expecting { for pinlabels in %s' % self)
@@ -3444,7 +3445,7 @@ class Flipflop(Chip):
 class Udff(Flipflop):
     """D flip-flop"""
 
-    default_pins = '{d, clk, q}'
+    default_pins = ('d', 'clk', 'q')
 
     pins = {'d': ('l', -0.5, 0.25),
             'clk': ('l', -0.5, 0),
@@ -3460,7 +3461,7 @@ class Udff(Flipflop):
 class Ujkff(Flipflop):
     """JK flip-flop"""
 
-    default_pins = '{j, k, clk, q}'
+    default_pins = ('j', 'k', 'clk', 'q')
 
     pins = {'j': ('l', -0.5, 0.25),
             'clk': ('l', -0.5, 0),
@@ -3478,7 +3479,7 @@ class Ujkff(Flipflop):
 class Urslatch(Flipflop):
     """RS latch"""
 
-    default_pins = '{r, s, q}'
+    default_pins = ('r', 's', 'q')
 
     pins = {'r': ('l', -0.5, 0.25),
             's': ('l', -0.5, -0.25),

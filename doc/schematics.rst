@@ -1167,21 +1167,22 @@ In addition, there are component specific connection pins.  Associated
 with each pin is an optional label.
 
 The `pinlabels` option can be specified as:
- - `all` : the default labels for all the pins are shown
- - `connected` : the default labels for all the connected pins are shown
- - `none` : none of the default labels are shown
- - `{pin1:label1, pin2:label2, ...}` : the labels are specified for the named pins.
+ - `all` : the labels for all the pins are shown
+ - `connected` : the labels for all the connected pins are shown
+ - `default` : the default labels are shown (default)
+ - `none` : none of the labels are shown
+ - `{pin1:label1, pin2:label2, ...}`: the labels are specified for the named pins.
 
 The names of the pins can be drawn using the `pinnames` option.  This has a syntax:
  - `all` : the pin names for all the pins are shown
  - `connected` : the pin names for all the connected pins are shown
- - `none` : none of the pin names are shown
+ - `none` : none of the pin names are shown (default)
  - `{pin1, pin2, ...}` : the specified pin names are shown.
 
 The nodes of the pins can be drawn using the `pinnodes` option.  This has a syntax:
  - `all` : the pin nodes for all the pins are shown
  - `connected` : the pin nodes for all the connected pins are shown
- - `none` : none of the pin nodes are shown
+ - `none` : none of the pin nodes are shown (default)
  - `{pin1, pin2, ...}` : the specified pin nodes are shown.
 
 The pin names can be redefined by the `pindefs` option.  This has a syntax:
