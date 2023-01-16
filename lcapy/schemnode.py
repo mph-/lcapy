@@ -75,6 +75,8 @@ class Node:
         """Number of elements (including wires but not open-circuits and
         annotations) connected to the node"""
 
+        if self.implicit:
+            return self._count + 1
         return self._count
 
     def belongs(self, cpt_name):
@@ -94,9 +96,6 @@ class Node:
         if self.pin:
             return False
 
-        if self.implicit:
-            return False
-
         if self._port:
             return True
 
@@ -104,11 +103,11 @@ class Node:
             return False
 
         # Implied port
-        if self._count == 1:
+        if self.count == 1:
             return True
 
         if draw_nodes in ('connections', 'connected'):
-            return self._count > 2
+            return self.count > 2
 
         if draw_nodes == 'primary':
             return self.primary
@@ -125,7 +124,7 @@ class Node:
     def is_dangling(self):
         """Return True if node has a single connection"""
 
-        return self._count == 1
+        return self.count == 1
 
     @property
     def is_ground(self):

@@ -996,12 +996,6 @@ class Cpt(object):
         else:
             s = self.draw_implicit_rotate(n, kind, draw_nodes)
 
-        if not n.visible(draw_nodes) or n.pin or not draw_nodes:
-            return s
-
-        symbol = n.opts.get('symbol', 'ocirc' if n.is_port else 'circ')
-        args = n.opts.as_list(self.special_keys)
-        s += self.draw_cptnode(n.s, symbol, args)
         return s
 
     def draw_node(self, n, draw_nodes, dargs):
@@ -1016,22 +1010,23 @@ class Cpt(object):
         if self.type == 'O':
             return ''
 
-        kind = n.implicit_symbol
-
-        if kind in self.connection_keys:
-            return self.draw_connection(n, kind)
-
-        if kind is not None:
-            return self.draw_implicit(n, kind, draw_nodes)
-
         args = n.opts.as_list(self.special_keys)
 
+        s = ''
+
+        kind = n.implicit_symbol
+        if kind in self.connection_keys:
+            s += self.draw_connection(n, kind)
+        elif kind is not None:
+            s += self.draw_implicit(n, kind, draw_nodes)
+
         if not n.visible(draw_nodes) or n.pin or not draw_nodes:
-            return ''
+            return s
 
         symbol = n.opts.get('symbol', 'ocirc' if n.is_port or
                             n.is_dangling else 'circ')
-        s = self.draw_cptnode(n.s, symbol, args, dargs)
+
+        s += self.draw_cptnode(n.s, symbol, args, dargs)
         return s
 
     def draw_nodes(self, **kwargs):
