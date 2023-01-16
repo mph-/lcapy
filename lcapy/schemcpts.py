@@ -179,7 +179,7 @@ class Cpt(object):
     default_aspect = 1.0
     # node_pinnames maps node numbers to pinnames
     node_pinnames = ()
-    default_pins = None
+    default_pins = ()
     pins = {}
     # Auxiliary nodes are used for finding the centre of the shape or
     # to define a bounding box.
