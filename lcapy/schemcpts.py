@@ -1181,6 +1181,7 @@ class Cpt(object):
                 continue
 
             new_node = self.sch.nodes[node_name].split(self)
+            new_node.implicit = True
             new_node.implicit_symbol = autoground
 
             self.node_names[m] = new_node.name
