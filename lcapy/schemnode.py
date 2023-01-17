@@ -44,6 +44,7 @@ class Node:
         self.opts = Opts()
         self.drawn = False
         self.label_drawn = False
+        self.parent = None
 
     @property
     def basename(self):
@@ -169,6 +170,7 @@ class Node:
 
         new_node = Node(name)
         self._count -= 1
+        new_node.parent = self
         new_node._count = 1
         new_node._port = self._port
         new_node.label = self.label
