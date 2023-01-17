@@ -897,14 +897,6 @@ Digital circuits
    :width: 8.8cm
         
 
-`inamp-amplifier1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/inamp-amplifier1.sch>`_
-
-.. literalinclude:: examples/tutorials/opamps/inamp-amplifier1.sch
-
-.. image:: examples/tutorials/opamps/inamp-amplifier1.png
-   :width: 8.0cm
-        
-
 `stepup.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/stepup.sch>`_
 
 .. literalinclude:: examples/schematics/stepup.sch
@@ -967,14 +959,6 @@ Opamp circuits
    :width: 9.3cm
         
 
-`integrator.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/integrator.sch>`_
-
-.. literalinclude:: examples/schematics/integrator.sch
-
-.. image:: examples/schematics/integrator.png
-   :width: 9.1cm
-        
-
 `opamp-transimpedance-amplifier1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-transimpedance-amplifier1.sch>`_
 
 .. literalinclude:: examples/tutorials/opamps/opamp-transimpedance-amplifier1.sch
@@ -989,6 +973,14 @@ Opamp circuits
 
 .. image:: examples/tutorials/opamps/opamp-transimpedance-amplifier2.png
    :width: 14.7cm
+        
+
+`inamp-amplifier1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/inamp-amplifier1.sch>`_
+
+.. literalinclude:: examples/tutorials/opamps/inamp-amplifier1.sch
+
+.. image:: examples/tutorials/opamps/inamp-amplifier1.png
+   :width: 8.0cm
         
 
 `fdopamp-amplifier1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/fdopamp-amplifier1.sch>`_
@@ -1063,6 +1055,14 @@ Opamp circuits
    :width: 8.8cm
         
 
+`guard1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/guard1.sch>`_
+
+.. literalinclude:: examples/schematics/guard1.sch
+
+.. image:: examples/schematics/guard1.png
+   :width: 14.1cm
+        
+
 `shield-ground.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/shield-guard/shield-ground.sch>`_
 
 .. literalinclude:: examples/tutorials/shield-guard/shield-ground.sch
@@ -1077,14 +1077,6 @@ Opamp circuits
 
 .. image:: examples/tutorials/shield-guard/shield-guard.png
    :width: 22.5cm
-        
-
-`guard1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/guard1.sch>`_
-
-.. literalinclude:: examples/schematics/guard1.sch
-
-.. image:: examples/schematics/guard1.png
-   :width: 14.1cm
         
 
 `opamp-displacement-current-sensor-noise-model1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-displacement-current-sensor-noise-model1.sch>`_

@@ -5,17 +5,19 @@ Release notes
 V1.11
 =====
 
-- Allows autonaming for netlist components (see :ref:`autonaming`).
+- Simplifies Circuitikz output for schematics
 
-- Schematic attributes specified in the last netlist entry are considered first.
+- Allows autonaming for netlist components (see :ref:`autonaming`)
 
-- Use lower case v for time-domain nodal analysis.
+- Schematic attributes specified in the last netlist entry are considered first
 
-- Use lower case i for time-domain loop analysis.
+- Use lower case v for time-domain nodal analysis
 
-- Fixes loop analysis.
+- Use lower case i for time-domain loop analysis
 
-- Adds new schematic syntax for drawing nodes and implicit connections (see :ref:`node_attributes`).
+- Fixes loop analysis
+
+- Adds new schematic syntax for drawing nodes and implicit connections (see :ref:`node_attributes`)
 
 
 V1.10.1
@@ -23,33 +25,32 @@ V1.10.1
 
  - Works with NumPy 1.24.0
 
- - Fixes MOSFET drawing.
+ - Fixes MOSFET drawing
 
 
 V1.10
 =====
 
-- Adds reluctance component RL for drawing.
+- Adds reluctance component RL for drawing
 
 - Adds parameter estimation method `estimate()` to expressions (see
-  :ref:`parameter_estimation`).
+  :ref:`parameter_estimation`)
 
-- Disables png output for Jupyter.
+- Disables png output for Jupyter
 
 - Unify `resistance()`, `conductance()`, `capacitance()`,
   `inductance()`, `susceptance()`, and `reactance()` to return
-  `ConstantFrequencyResponseDomain` objects.
+  `ConstantFrequencyResponseDomain` objects
 
-- Fixes units after integration and differentiation.
+- Fixes units after integration and differentiation
 
-- Updates printing to be compatible with SymPy printing API changes.
+- Updates printing to be compatible with SymPy printing API changes
 
-- Modifies scaling for discretization of continuous-time signals
- (for admittance, impedance, and transfer function quantities).
+- Modifies scaling for discretization of continuous-time signals (for admittance, impedance, and transfer function quantities)
 
-- Fixes stability checks.
+- Fixes stability checks
 
-- Adds `dlti_filter()` method for time-domain expressions.
+- Adds `dlti_filter()` method for time-domain expressions
 
 
 V1.9
