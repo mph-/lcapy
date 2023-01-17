@@ -44,36 +44,12 @@ Circuits
    :width: 11.4cm
         
 
-`I2C2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/I2C2.sch>`_
-
-.. literalinclude:: examples/schematics/I2C2.sch
-
-.. image:: examples/schematics/I2C2.png
-   :width: 17.5cm
-        
-
 `K2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/K2.sch>`_
 
 .. literalinclude:: examples/schematics/K2.sch
 
 .. image:: examples/schematics/K2.png
    :width: 6.5cm
-        
-
-`KLM2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/transducers/KLM2.sch>`_
-
-.. literalinclude:: examples/tutorials/transducers/KLM2.sch
-
-.. image:: examples/tutorials/transducers/KLM2.png
-   :width: 13.3cm
-        
-
-`KLM3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/transducers/KLM3.sch>`_
-
-.. literalinclude:: examples/tutorials/transducers/KLM3.sch
-
-.. image:: examples/tutorials/transducers/KLM3.png
-   :width: 9.6cm
         
 
 `VRL2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/VRL2.sch>`_
@@ -90,38 +66,6 @@ Circuits
 
 .. image:: examples/schematics/VRmesh1.png
    :width: 9.4cm
-        
-
-`accelerometer1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/accelerometer1.sch>`_
-
-.. literalinclude:: examples/schematics/accelerometer1.sch
-
-.. image:: examples/schematics/accelerometer1.png
-   :width: 12.3cm
-        
-
-`BH-mag.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/BH-mag.sch>`_
-
-.. literalinclude:: examples/schematics/BH-mag.sch
-
-.. image:: examples/schematics/BH-mag.png
-   :width: 16.6cm
-        
-
-`cmos-backdrive1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-backdrive1.sch>`_
-
-.. literalinclude:: examples/schematics/cmos-backdrive1.sch
-
-.. image:: examples/schematics/cmos-backdrive1.png
-   :width: 6.1cm
-        
-
-`cmos-backdrive2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-backdrive2.sch>`_
-
-.. literalinclude:: examples/schematics/cmos-backdrive2.sch
-
-.. image:: examples/schematics/cmos-backdrive2.png
-   :width: 9.9cm
         
 
 `cmos-esd-damage.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-esd-damage.sch>`_
@@ -196,14 +140,6 @@ Circuits
    :width: 6.5cm
         
 
-`fdopamp-amplifier1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/fdopamp-amplifier1.sch>`_
-
-.. literalinclude:: examples/tutorials/opamps/fdopamp-amplifier1.sch
-
-.. image:: examples/tutorials/opamps/fdopamp-amplifier1.png
-   :width: 11.2cm
-        
-
 `ferrite-choke1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/ferrite-choke1.sch>`_
 
 .. literalinclude:: examples/schematics/ferrite-choke1.sch
@@ -236,54 +172,6 @@ Circuits
    :width: 11.1cm
         
 
-`guard1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/guard1.sch>`_
-
-.. literalinclude:: examples/schematics/guard1.sch
-
-.. image:: examples/schematics/guard1.png
-   :width: 14.1cm
-        
-
-`ic1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/ic1.sch>`_
-
-.. literalinclude:: examples/schematics/ic1.sch
-
-.. image:: examples/schematics/ic1.png
-   :width: 8.8cm
-        
-
-`inamp-amplifier1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/inamp-amplifier1.sch>`_
-
-.. literalinclude:: examples/tutorials/opamps/inamp-amplifier1.sch
-
-.. image:: examples/tutorials/opamps/inamp-amplifier1.png
-   :width: 8.0cm
-        
-
-`integrator.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/integrator.sch>`_
-
-.. literalinclude:: examples/schematics/integrator.sch
-
-.. image:: examples/schematics/integrator.png
-   :width: 9.1cm
-        
-
-`mcu-bt.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/mcu-bt.sch>`_
-
-.. literalinclude:: examples/schematics/mcu-bt.sch
-
-.. image:: examples/schematics/mcu-bt.png
-   :width: 15.4cm
-        
-
-`multiple-feedback-lpf.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/multiple-feedback-lpf.sch>`_
-
-.. literalinclude:: examples/tutorials/opamps/multiple-feedback-lpf.sch
-
-.. image:: examples/tutorials/opamps/multiple-feedback-lpf.png
-   :width: 8.8cm
-        
-
 `non-ideal-transformer-primary.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/transformers/non-ideal-transformer-primary.sch>`_
 
 .. literalinclude:: examples/tutorials/transformers/non-ideal-transformer-primary.sch
@@ -298,126 +186,6 @@ Circuits
 
 .. image:: examples/tutorials/transformers/non-ideal-transformer.png
    :width: 13.5cm
-        
-
-`opamp-differential-amplifier1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/opamp-differential-amplifier1.sch>`_
-
-.. literalinclude:: examples/schematics/opamp-differential-amplifier1.sch
-
-.. image:: examples/schematics/opamp-differential-amplifier1.png
-   :width: 9.3cm
-        
-
-`opamp-displacement-current-sensor-noise-model1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-displacement-current-sensor-noise-model1.sch>`_
-
-.. literalinclude:: examples/tutorials/opamps/opamp-displacement-current-sensor-noise-model1.sch
-
-.. image:: examples/tutorials/opamps/opamp-displacement-current-sensor-noise-model1.png
-   :width: 14.8cm
-        
-
-`opamp-displacement-current-sensor1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-displacement-current-sensor1.sch>`_
-
-.. literalinclude:: examples/tutorials/opamps/opamp-displacement-current-sensor1.sch
-
-.. image:: examples/tutorials/opamps/opamp-displacement-current-sensor1.png
-   :width: 11.0cm
-        
-
-`opamp-inverting-amplifier1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-inverting-amplifier1.sch>`_
-
-.. literalinclude:: examples/tutorials/opamps/opamp-inverting-amplifier1.sch
-
-.. image:: examples/tutorials/opamps/opamp-inverting-amplifier1.png
-   :width: 9.9cm
-        
-
-`opamp-inverting-integrator.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/opamp-inverting-integrator.sch>`_
-
-.. literalinclude:: examples/schematics/opamp-inverting-integrator.sch
-
-.. image:: examples/schematics/opamp-inverting-integrator.png
-   :width: 9.3cm
-        
-
-`opamp-noninverting-amplifier-noisy.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opampnoise/opamp-noninverting-amplifier-noisy.sch>`_
-
-.. literalinclude:: examples/tutorials/opampnoise/opamp-noninverting-amplifier-noisy.sch
-
-.. image:: examples/tutorials/opampnoise/opamp-noninverting-amplifier-noisy.png
-   :width: 16.5cm
-        
-
-`opamp-piezo-amplifier1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-piezo-amplifier1.sch>`_
-
-.. literalinclude:: examples/tutorials/opamps/opamp-piezo-amplifier1.sch
-
-.. image:: examples/tutorials/opamps/opamp-piezo-amplifier1.png
-   :width: 16.0cm
-        
-
-`opamp-transimpedance-amplifier1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-transimpedance-amplifier1.sch>`_
-
-.. literalinclude:: examples/tutorials/opamps/opamp-transimpedance-amplifier1.sch
-
-.. image:: examples/tutorials/opamps/opamp-transimpedance-amplifier1.png
-   :width: 9.8cm
-        
-
-`opamp-transimpedance-amplifier2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-transimpedance-amplifier2.sch>`_
-
-.. literalinclude:: examples/tutorials/opamps/opamp-transimpedance-amplifier2.sch
-
-.. image:: examples/tutorials/opamps/opamp-transimpedance-amplifier2.png
-   :width: 14.7cm
-        
-
-`opamp-transimpedance-amplifier-with-voltage-gain1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-transimpedance-amplifier-with-voltage-gain1.sch>`_
-
-.. literalinclude:: examples/tutorials/opamps/opamp-transimpedance-amplifier-with-voltage-gain1.sch
-
-.. image:: examples/tutorials/opamps/opamp-transimpedance-amplifier-with-voltage-gain1.png
-   :width: 9.0cm
-        
-
-`pierce-oscillator.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/pierce-oscillator.sch>`_
-
-.. literalinclude:: examples/schematics/pierce-oscillator.sch
-
-.. image:: examples/schematics/pierce-oscillator.png
-   :width: 6.2cm
-        
-
-`sallen-key-lpf1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/sallen-key-lpf1.sch>`_
-
-.. literalinclude:: examples/schematics/sallen-key-lpf1.sch
-
-.. image:: examples/schematics/sallen-key-lpf1.png
-   :width: 10.6cm
-        
-
-`shield-ground.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/shield-guard/shield-ground.sch>`_
-
-.. literalinclude:: examples/tutorials/shield-guard/shield-ground.sch
-
-.. image:: examples/tutorials/shield-guard/shield-ground.png
-   :width: 19.2cm
-        
-
-`shield-guard.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/shield-guard/shield-guard.sch>`_
-
-.. literalinclude:: examples/tutorials/shield-guard/shield-guard.sch
-
-.. image:: examples/tutorials/shield-guard/shield-guard.png
-   :width: 22.5cm
-        
-
-`stepup.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/stepup.sch>`_
-
-.. literalinclude:: examples/schematics/stepup.sch
-
-.. image:: examples/schematics/stepup.png
-   :width: 9.5cm
         
 Block diagrams
 ==============
@@ -642,7 +410,7 @@ Components
 .. literalinclude:: examples/schematics/connections2.sch
 
 .. image:: examples/schematics/connections2.png
-   :width: 10.5cm
+   :width: 10.8cm
         
 
 `CPE1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/CPE1.sch>`_
@@ -1088,6 +856,62 @@ Digital circuits
 .. image:: examples/schematics/digital/PIO-pullup2.png
    :width: 6.1cm
         
+
+`mcu-bt.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/mcu-bt.sch>`_
+
+.. literalinclude:: examples/schematics/mcu-bt.sch
+
+.. image:: examples/schematics/mcu-bt.png
+   :width: 15.4cm
+        
+
+`cmos-backdrive1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-backdrive1.sch>`_
+
+.. literalinclude:: examples/schematics/cmos-backdrive1.sch
+
+.. image:: examples/schematics/cmos-backdrive1.png
+   :width: 6.1cm
+        
+
+`cmos-backdrive2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/cmos-backdrive2.sch>`_
+
+.. literalinclude:: examples/schematics/cmos-backdrive2.sch
+
+.. image:: examples/schematics/cmos-backdrive2.png
+   :width: 9.9cm
+        
+
+`I2C2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/I2C2.sch>`_
+
+.. literalinclude:: examples/schematics/I2C2.sch
+
+.. image:: examples/schematics/I2C2.png
+   :width: 17.5cm
+        
+
+`ic1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/ic1.sch>`_
+
+.. literalinclude:: examples/schematics/ic1.sch
+
+.. image:: examples/schematics/ic1.png
+   :width: 8.8cm
+        
+
+`inamp-amplifier1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/inamp-amplifier1.sch>`_
+
+.. literalinclude:: examples/tutorials/opamps/inamp-amplifier1.sch
+
+.. image:: examples/tutorials/opamps/inamp-amplifier1.png
+   :width: 8.0cm
+        
+
+`stepup.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/stepup.sch>`_
+
+.. literalinclude:: examples/schematics/stepup.sch
+
+.. image:: examples/schematics/stepup.png
+   :width: 9.5cm
+        
 Transistor circuits
 ===================
 
@@ -1106,6 +930,212 @@ Transistor circuits
 
 .. image:: examples/schematics/analogue/mosfet_push_pull_load.png
    :width: 8.2cm
+        
+
+`BH-mag.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/BH-mag.sch>`_
+
+.. literalinclude:: examples/schematics/BH-mag.sch
+
+.. image:: examples/schematics/BH-mag.png
+   :width: 16.6cm
+        
+Opamp circuits
+==============
+
+
+`opamp-differential-amplifier1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/opamp-differential-amplifier1.sch>`_
+
+.. literalinclude:: examples/schematics/opamp-differential-amplifier1.sch
+
+.. image:: examples/schematics/opamp-differential-amplifier1.png
+   :width: 9.3cm
+        
+
+`opamp-inverting-amplifier1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-inverting-amplifier1.sch>`_
+
+.. literalinclude:: examples/tutorials/opamps/opamp-inverting-amplifier1.sch
+
+.. image:: examples/tutorials/opamps/opamp-inverting-amplifier1.png
+   :width: 9.9cm
+        
+
+`opamp-inverting-integrator.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/opamp-inverting-integrator.sch>`_
+
+.. literalinclude:: examples/schematics/opamp-inverting-integrator.sch
+
+.. image:: examples/schematics/opamp-inverting-integrator.png
+   :width: 9.3cm
+        
+
+`integrator.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/integrator.sch>`_
+
+.. literalinclude:: examples/schematics/integrator.sch
+
+.. image:: examples/schematics/integrator.png
+   :width: 9.1cm
+        
+
+`opamp-transimpedance-amplifier1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-transimpedance-amplifier1.sch>`_
+
+.. literalinclude:: examples/tutorials/opamps/opamp-transimpedance-amplifier1.sch
+
+.. image:: examples/tutorials/opamps/opamp-transimpedance-amplifier1.png
+   :width: 9.8cm
+        
+
+`opamp-transimpedance-amplifier2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-transimpedance-amplifier2.sch>`_
+
+.. literalinclude:: examples/tutorials/opamps/opamp-transimpedance-amplifier2.sch
+
+.. image:: examples/tutorials/opamps/opamp-transimpedance-amplifier2.png
+   :width: 14.7cm
+        
+
+`fdopamp-amplifier1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/fdopamp-amplifier1.sch>`_
+
+.. literalinclude:: examples/tutorials/opamps/fdopamp-amplifier1.sch
+
+.. image:: examples/tutorials/opamps/fdopamp-amplifier1.png
+   :width: 11.2cm
+        
+
+`opamp-displacement-current-sensor-noise-model1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-displacement-current-sensor-noise-model1.sch>`_
+
+.. literalinclude:: examples/tutorials/opamps/opamp-displacement-current-sensor-noise-model1.sch
+
+.. image:: examples/tutorials/opamps/opamp-displacement-current-sensor-noise-model1.png
+   :width: 14.8cm
+        
+
+`opamp-displacement-current-sensor1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-displacement-current-sensor1.sch>`_
+
+.. literalinclude:: examples/tutorials/opamps/opamp-displacement-current-sensor1.sch
+
+.. image:: examples/tutorials/opamps/opamp-displacement-current-sensor1.png
+   :width: 11.0cm
+        
+
+`opamp-noninverting-amplifier-noisy.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opampnoise/opamp-noninverting-amplifier-noisy.sch>`_
+
+.. literalinclude:: examples/tutorials/opampnoise/opamp-noninverting-amplifier-noisy.sch
+
+.. image:: examples/tutorials/opampnoise/opamp-noninverting-amplifier-noisy.png
+   :width: 16.5cm
+        
+
+`opamp-piezo-amplifier1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-piezo-amplifier1.sch>`_
+
+.. literalinclude:: examples/tutorials/opamps/opamp-piezo-amplifier1.sch
+
+.. image:: examples/tutorials/opamps/opamp-piezo-amplifier1.png
+   :width: 16.0cm
+        
+
+`opamp-transimpedance-amplifier-with-voltage-gain1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-transimpedance-amplifier-with-voltage-gain1.sch>`_
+
+.. literalinclude:: examples/tutorials/opamps/opamp-transimpedance-amplifier-with-voltage-gain1.sch
+
+.. image:: examples/tutorials/opamps/opamp-transimpedance-amplifier-with-voltage-gain1.png
+   :width: 9.0cm
+        
+
+`pierce-oscillator.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/pierce-oscillator.sch>`_
+
+.. literalinclude:: examples/schematics/pierce-oscillator.sch
+
+.. image:: examples/schematics/pierce-oscillator.png
+   :width: 6.2cm
+        
+
+`sallen-key-lpf1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/sallen-key-lpf1.sch>`_
+
+.. literalinclude:: examples/schematics/sallen-key-lpf1.sch
+
+.. image:: examples/schematics/sallen-key-lpf1.png
+   :width: 10.6cm
+        
+
+`multiple-feedback-lpf.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/multiple-feedback-lpf.sch>`_
+
+.. literalinclude:: examples/tutorials/opamps/multiple-feedback-lpf.sch
+
+.. image:: examples/tutorials/opamps/multiple-feedback-lpf.png
+   :width: 8.8cm
+        
+
+`shield-ground.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/shield-guard/shield-ground.sch>`_
+
+.. literalinclude:: examples/tutorials/shield-guard/shield-ground.sch
+
+.. image:: examples/tutorials/shield-guard/shield-ground.png
+   :width: 19.2cm
+        
+
+`shield-guard.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/shield-guard/shield-guard.sch>`_
+
+.. literalinclude:: examples/tutorials/shield-guard/shield-guard.sch
+
+.. image:: examples/tutorials/shield-guard/shield-guard.png
+   :width: 22.5cm
+        
+
+`guard1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/guard1.sch>`_
+
+.. literalinclude:: examples/schematics/guard1.sch
+
+.. image:: examples/schematics/guard1.png
+   :width: 14.1cm
+        
+
+`opamp-displacement-current-sensor-noise-model1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-displacement-current-sensor-noise-model1.sch>`_
+
+.. literalinclude:: examples/tutorials/opamps/opamp-displacement-current-sensor-noise-model1.sch
+
+.. image:: examples/tutorials/opamps/opamp-displacement-current-sensor-noise-model1.png
+   :width: 14.8cm
+        
+
+`opamp-displacement-current-sensor1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opamps/opamp-displacement-current-sensor1.sch>`_
+
+.. literalinclude:: examples/tutorials/opamps/opamp-displacement-current-sensor1.sch
+
+.. image:: examples/tutorials/opamps/opamp-displacement-current-sensor1.png
+   :width: 11.0cm
+        
+
+`opamp-noninverting-amplifier-noisy.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/opampnoise/opamp-noninverting-amplifier-noisy.sch>`_
+
+.. literalinclude:: examples/tutorials/opampnoise/opamp-noninverting-amplifier-noisy.sch
+
+.. image:: examples/tutorials/opampnoise/opamp-noninverting-amplifier-noisy.png
+   :width: 16.5cm
+        
+Transducers
+===========
+
+
+`KLM2.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/transducers/KLM2.sch>`_
+
+.. literalinclude:: examples/tutorials/transducers/KLM2.sch
+
+.. image:: examples/tutorials/transducers/KLM2.png
+   :width: 13.3cm
+        
+
+`KLM3.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/tutorials/transducers/KLM3.sch>`_
+
+.. literalinclude:: examples/tutorials/transducers/KLM3.sch
+
+.. image:: examples/tutorials/transducers/KLM3.png
+   :width: 9.6cm
+        
+
+`accelerometer1.sch <https://github.com/mph-/lcapy/tree/master/doc/examples/schematics/accelerometer1.sch>`_
+
+.. literalinclude:: examples/schematics/accelerometer1.sch
+
+.. image:: examples/schematics/accelerometer1.png
+   :width: 12.3cm
         
 Miscellaneous
 =============

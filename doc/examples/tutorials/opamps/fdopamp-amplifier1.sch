@@ -16,5 +16,5 @@ R2 6_1 5_1; right
 W 4_2 4_1; down
 R4 3_1 4_1; right
 W 0 0_4; right=0.4
-W 0 0_2; down=0.1, 0V
+W 0 0_2; down=0.01, 0V
 ; draw_nodes=connected
