@@ -58,10 +58,6 @@ class NetfileMixin(object):
         self.namespace = namespace
         return ret
 
-    def _directive(self, string, namespace=''):
-
-        return self.parser.cpts.Directive(self, string, namespace)
-
     def _parse(self, string, namespace=''):
         """The general form is: 'Name Np Nm symbol'
         where Np is the positive node and Nm is the negative node.

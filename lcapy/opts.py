@@ -1,6 +1,6 @@
 """This module provides the Opts class for handling schematic options.
 
-Copyright 2021 Michael Hayes, UCECE
+Copyright 2021--2023 Michael Hayes, UCECE
 """
 
 from .latex import latex_format_label
@@ -57,7 +57,12 @@ class Opts(dict):
             elif arg in ('false', 'False'):
                 arg = False
 
-            self[key] = arg
+            if key == 'def':
+                if key not in self:
+                    self[key] = []
+                self[key].append(arg)
+            else:
+                self[key] = arg
 
     def __str__(self):
         return self.format()

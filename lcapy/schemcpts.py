@@ -159,7 +159,7 @@ class Cpt(object):
                  'nowires', 'nolabels', 'steps', 'free', 'fliplr', 'flipud',
                  'nodots', 'draw_nodes', 'label_nodes', 'nodraw',
                  'mirrorinputs', 'autoground', 'xoffset', 'yoffset',
-                 'anchor')
+                 'anchor', 'def')
     label_opt_keys = ('label_values', 'label_ids', 'annotate_values')
 
     special_keys = voltage_keys + current_keys + flow_keys + label_keys + \
@@ -230,6 +230,31 @@ class Cpt(object):
             auxiliary_node_names.append(prefix + pin)
 
         self.auxiliary_node_names = auxiliary_node_names
+
+        self._process_opts()
+
+    def _process_opts(self):
+
+        defines = self.sch.defines
+
+        # Look for defs
+        if 'def' in self.opts:
+            for arg in self.opts['def']:
+                parts = arg.split('=', 1)
+                arg = parts[1]
+                if arg.startswith('{') and arg.endswith('}'):
+                    arg = arg[1:-1]
+                defines[parts[0]] = arg
+
+        # Replace defs
+        for opt in self.opts.copy():
+            if opt in defines:
+                self.opts.pop(opt)
+                parts = defines[opt].split('=', 1)
+                if len(parts) == 2:
+                    self.opts[parts[0]] = parts[1]
+                else:
+                    self.opts[parts[0]] = ''
 
     def check_nodes(self):
 

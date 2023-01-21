@@ -2,6 +2,12 @@
 Release notes
 =============
 
+V1.12dev
+========
+
+- Adds attribute definitions (see :ref:`attribute_definitions`)
+
+
 V1.11
 =====
 

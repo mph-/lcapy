@@ -112,6 +112,7 @@ class Schematic(NetfileMixin):
         self.dummy_node = 0
         self.context = None
         self.debug = 0
+        self.defines = {}
 
         if filename is not None:
             self.netfile_add(filename)

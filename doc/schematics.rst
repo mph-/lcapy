@@ -1237,6 +1237,24 @@ The line style of wires can be changed using the Tikz attributes, `dashed`, `dot
    :width: 12cm
 
 
+.. _attribute_definitions:
+
+Attibute definitions
+--------------------
+
+New attributes can be created with the `def` attribute.  For example::
+
+    ; def highlight={color=blue, thick}
+
+This defines a new attribute called `highlight`.  Any following occurrences of this in the netlist is replaced by `color=blue, thick`.  For example::
+
+    R1 1 2; right, highlight
+
+is equivalent to::
+
+    R1 1 2; right, color=blue, thick
+
+
 .. _labels_and_annotations:
 
 Labels and annotations
@@ -1660,7 +1678,6 @@ name of the component, for example::
    W R1.m 2; right
 
 
-
 Examples
 ========
 
@@ -1918,7 +1935,6 @@ If this file is called `pic4-demo.tex`, a PDF file can be produced using:
 
           $ schtex pic4.sch pic4.pgf
           $ pdflatex pic4-demo
-
 
 
 Drawing tips
