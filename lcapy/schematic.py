@@ -60,6 +60,7 @@ def display_matplotlib(filename, dpi=PNG_DPI, scale=2):
     ax.imshow(img)
     ax.axis('off')
     fig.subplots_adjust(left=0.05, right=0.95, top=0.95, bottom=0.05)
+    fig.show()
 
 
 def png_image_size(filename):
