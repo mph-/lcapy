@@ -507,7 +507,7 @@ def plot_bode(obj, f, **kwargs):
     if 'unwrap' not in kwargs:
         kwargs['unwrap'] = True
 
-    return plot_frequency(obj, f, **kwargs)
+    return plot_frequency(obj, f, log_magnitude=True, **kwargs)
 
 
 def plot_angular_bode(obj, f, **kwargs):
