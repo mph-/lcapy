@@ -123,6 +123,11 @@ class Cpt(ImmittanceMixin):
     def cpt(self):
         return self._cpt
 
+    def pdb(self):
+        import pdb
+        pdb.set_trace()
+        return self
+
     def check(self):
         pass
 
