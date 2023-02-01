@@ -2222,8 +2222,8 @@ class NetlistMixin(object):
 
         return self._components
 
-    def describe(self):
-        """Print a message describing how circuit is solved."""
+    def description(self):
+        """Return a message describing how circuit is solved."""
 
         def describe_sources(sources):
             sources_string = ', '.join(sources)
@@ -2236,35 +2236,40 @@ class NetlistMixin(object):
                                                     describe_sources(sources))
 
         if self.is_switching:
-            print('''This has switches and thus is time variant.  Use the convert_IVP(t) method to convert to an initial value problem, specifying the time when to evaluate the switches.''')
-            return
+            return '''This has switches and thus is time variant.  Use the convert_IVP(t) method to convert to an initial value problem, specifying the time when to evaluate the switches.'''
 
         groups = self.independent_source_groups(
             transform=not self.is_time_domain)
 
         if groups == {}:
-            print('There are no non-zero independent sources so everything is zero.')
-            return
+            return 'There are no non-zero independent sources so everything is zero.'
 
         if self.is_IVP:
-            print('This has initial conditions for %s so is an initial value '
-                  'problem solved in the s-domain using Laplace transforms.' %
-                  ', '.join(self.ics))
+            return 'This has initial conditions for %s so is an initial value '
+            'problem solved in the s-domain using Laplace transforms.' \
+                % ', '.join(self.ics)
             return
 
+        s = ''
         if len(groups) > 1:
-            print('This is solved using superposition.')
+            s = 'This is solved using superposition.\n'
+
         for kind, sources in groups.items():
             if not isinstance(kind, str):
-                print(describe_analysis('Phasor', sources))
+                s += describe_analysis('Phasor', sources)
             elif kind[0] == 'n':
-                print(describe_analysis('Noise', sources))
+                s += describe_analysis('Noise', sources)
             elif kind == 'dc':
-                print(describe_analysis('DC', sources))
+                s += describe_analysis('DC', sources)
             elif kind == 's':
-                print(describe_analysis('Laplace', sources))
+                s += describe_analysis('Laplace', sources)
             elif kind in ('t', 'time'):
-                print(describe_analysis('Time-domain', sources))
+                s += describe_analysis('Time-domain', sources)
+        return s
+
+    def describe(self):
+        """Print a message describing how circuit is solved."""
+        print(self.description())
 
     def Vname(self, name):
         return Vname(name, self.kind)
