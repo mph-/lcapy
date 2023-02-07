@@ -114,6 +114,7 @@ class Schematic(NetfileMixin):
         self.context = None
         self.debug = 0
         self.defines = {}
+        self.node_positions = {}
 
         if filename is not None:
             self.netfile_add(filename)
@@ -189,6 +190,25 @@ class Schematic(NetfileMixin):
     def _format_value_units(self, value, units):
 
         return EngFormatter().latex_math(value, units)
+
+    def _parse_nodes(self, nodesstr):
+
+        from .utils import split_parens
+
+        # Ignore {}
+        nodesstr = nodesstr[1:-1]
+        entries = split_parens(nodesstr, ',')
+        for entry in entries:
+            parts = entry.split('@')
+            nodename = parts[0].strip()
+            # Ignore ()
+            values = parts[1][1:-1]
+            parts = values.split(',')
+            x = float(parts[0])
+            y = float(parts[1])
+            pos = Pos(x, y)
+
+            self.node_positions[nodename] = pos
 
     def _cpt_add(self, cpt):
 
@@ -306,6 +326,9 @@ class Schematic(NetfileMixin):
             warn('Overriding component %s' % cpt.name)
             # Need to search lists and update component.
 
+        if cpt.type == 'XX' and 'nodes' in cpt.opts:
+            self._parse_nodes(cpt.opts['nodes'])
+
         self.elements[cpt.name] = cpt
 
         # Perhaps don't show nodes if cpt invisible?
@@ -359,6 +382,16 @@ class Schematic(NetfileMixin):
 
     def _positions_calculate(self, method='graph', debug=False, **kwargs):
 
+        if self.node_positions != {}:
+            for k, v in self.node_positions.items():
+                self.nodes[k].pos = v
+
+            x = [node.pos.x for node in self.nodes.values()]
+            y = [node.pos.y for node in self.nodes.values()]
+            self.width = max(x) - min(x)
+            self.height = max(y) - min(y)
+            return False
+
         autoground = kwargs.get('autoground', False)
         self._setup(autoground)
 
@@ -368,6 +401,8 @@ class Schematic(NetfileMixin):
         if self.debug & 4:
             print('Solving graphs')
         self.width, self.height = placer.solve(self.node_spacing)
+
+        return True
 
     def _write_coordinates(self):
 
@@ -620,7 +655,6 @@ class Schematic(NetfileMixin):
              'alpha' to label nodes starting with a letter,
              'pins' to label nodes that are pins on a chip,
              'all' to label all nodes,
-             'none' to label no nodes
            'anchor': where to position node label (default south east)
            'include': name of file to include before \\begin{document}
            'style': 'american', 'british', or 'european'
