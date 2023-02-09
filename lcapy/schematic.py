@@ -382,6 +382,9 @@ class Schematic(NetfileMixin):
 
     def _positions_calculate(self, method='graph', debug=False, **kwargs):
 
+        autoground = kwargs.get('autoground', False)
+        self._setup(autoground)
+
         if self.node_positions != {}:
             for k, v in self.node_positions.items():
                 self.nodes[k].pos = v
@@ -391,9 +394,6 @@ class Schematic(NetfileMixin):
             self.width = max(x) - min(x)
             self.height = max(y) - min(y)
             return False
-
-        autoground = kwargs.get('autoground', False)
-        self._setup(autoground)
 
         if self.debug & 4:
             print('Creating graphs')
