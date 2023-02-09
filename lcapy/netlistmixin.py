@@ -2232,8 +2232,8 @@ class NetlistMixin(object):
             return 'sources %s' % sources_string
 
         def describe_analysis(method, sources):
-            return '%s analysis is used for %s.' % (method,
-                                                    describe_sources(sources))
+            return '%s analysis is used for %s.\n' % (method,
+                                                      describe_sources(sources))
 
         if self.is_switching:
             return '''This has switches and thus is time variant.  Use the convert_IVP(t) method to convert to an initial value problem, specifying the time when to evaluate the switches.'''
@@ -2242,11 +2242,11 @@ class NetlistMixin(object):
             transform=not self.is_time_domain)
 
         if groups == {}:
-            return 'There are no non-zero independent sources so everything is zero.'
+            return 'There are no non-zero independent sources so everything is zero.\n'
 
         if self.is_IVP:
             return 'This has initial conditions for %s so is an initial value '
-            'problem solved in the s-domain using Laplace transforms.' \
+            'problem solved in the s-domain using Laplace transforms.\n' \
                 % ', '.join(self.ics)
             return
 
