@@ -235,6 +235,9 @@ class Cpt(object):
 
     def _process_opts(self):
 
+        if self.sch is None:
+            return
+
         defines = self.sch.defines
 
         # Look for defs
@@ -1269,7 +1272,10 @@ class Cpt(object):
             if node.pin:
                 raise RuntimeError('Cannot split pin ' + node.name)
 
-            new_node = node.split(self)
+            if self.type != 'A':
+                new_node = node.split(self)
+            else:
+                new_node = node
 
             new_node.implicit_symbol = kind
             new_node.implicit = True

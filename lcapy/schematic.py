@@ -387,10 +387,12 @@ class Schematic(NetfileMixin):
 
         if self.node_positions != {}:
             for k, v in self.node_positions.items():
-                self.nodes[k].pos = v
+                # Opamp ground node not included
+                if k in self.nodes:
+                    self.nodes[k].pos = v
 
-            x = [node.pos.x for node in self.nodes.values()]
-            y = [node.pos.y for node in self.nodes.values()]
+            x = [node.pos.x for node in self.nodes.values() if not node.auxiliary]
+            y = [node.pos.y for node in self.nodes.values() if not node.auxiliary]
             self.width = max(x) - min(x)
             self.height = max(y) - min(y)
             return False
