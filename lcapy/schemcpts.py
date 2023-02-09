@@ -159,7 +159,7 @@ class Cpt(object):
                  'nowires', 'nolabels', 'steps', 'free', 'fliplr', 'flipud',
                  'nodots', 'draw_nodes', 'label_nodes', 'nodraw',
                  'mirrorinputs', 'autoground', 'xoffset', 'yoffset',
-                 'anchor', 'def')
+                 'anchor', 'def', 'nodes')
     label_opt_keys = ('label_values', 'label_ids', 'annotate_values')
 
     special_keys = voltage_keys + current_keys + flow_keys + label_keys + \
