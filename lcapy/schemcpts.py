@@ -235,6 +235,9 @@ class Cpt(object):
 
     def _process_opts(self):
 
+        if self.sch is None:
+            return
+
         defines = self.sch.defines
 
         # Look for defs
