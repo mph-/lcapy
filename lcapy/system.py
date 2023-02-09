@@ -145,7 +145,6 @@ class PDFConverter(object):
             # TODO, determine why this fails...
             run(args, debug=self.debug)
         else:
-            from os import system
             checkexe(args)
             system(' '.join(args))
 
