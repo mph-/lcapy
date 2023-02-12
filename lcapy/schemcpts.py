@@ -949,13 +949,20 @@ class Cpt(object):
 
         args = n.opts.as_list(self.special_keys)
         pinpos = n.pinpos
-        angle = angle_choose(pinpos)
+
+        if self.type != 'A':
+            angle = angle_choose(pinpos)
+        else:
+            angle = 0
 
         if kind in ('vcc', 'vdd'):
             # vcc/vee and vdd/vss are drawn in opposite directions
             # so use vss to be consistent.
             kind = 'vss'
 
+        # The default drawing direction for a ground symbol
+        # is down (rotate = 0).  Need to rotate by 90 degrees
+        # so convert Lcapy's direction to Circuitikz's direction.
         rotate = angle + self.angle + 90
         if rotate != 0:
             args.append('rotate=%d' % rotate)
@@ -1029,6 +1036,12 @@ class Cpt(object):
     def draw_node(self, n, draw_nodes, dargs):
         """Draw a node symbol.  This also draws the node label
         for implicit and connection nodes."""
+
+        # Give preference to annotation elts.
+        if self.type != 'A':
+            for elt in n.elt_list:
+                if elt.type == 'A':
+                    return ''
 
         if n.drawn:
             return ''
