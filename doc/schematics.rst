@@ -8,10 +8,11 @@ Schematics
 Introduction
 ============
 
-Lcapy can generate high quality schematics from a netlist using
-the Circuitikz LaTeX package.  This is much easier than writing
-Circuitikz commands directly in LaTeX.  For the fastest way to
-generate a schematic, see :ref:`schtex`.
+Lcapy can generate high quality schematics from a netlist using the
+Circuitikz LaTeX package.  This is much easier than writing Circuitikz
+commands directly in LaTeX.  For the fastest way to generate a
+schematic from a netlist, see :ref:`schtex`.  For a graphical user
+interface, see https://github.com/mph-/lcapy-gui.
 
 A semi-automatic component placement is used with hints required to
 designate component orientation and explicit wires to link nodes of
@@ -1239,8 +1240,8 @@ The line style of wires can be changed using the Tikz attributes, `dashed`, `dot
 
 .. _attribute_definitions:
 
-Attibute definitions
---------------------
+Attribute definitions
+---------------------
 
 New attributes can be created with the `def` attribute.  For example::
 

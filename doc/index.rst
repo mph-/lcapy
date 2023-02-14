@@ -23,6 +23,8 @@ _
 If you have suggestions for improvements, please create an issue at
 https://github.com/mph-/lcapy/issues.
 
+For a graphical user interface, see https://github.com/mph-/lcapy-gui.
+
 If you are using Lcapy for teaching, please email to `''.join(reversed(['nz', '.', 'ac', '.', 'canterbury', '@', 'hayes', '.', 'michael']))`.
 
 To cite Lcapy in publications use `Hayes M. 2022. Lcapy: symbolic linear circuit analysis with Python. PeerJ Computer Science 8:e875` https://doi.org/10.7717/peerj-cs.875

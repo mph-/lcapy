@@ -2,8 +2,12 @@
 Release notes
 =============
 
-V1.12dev
-========
+V1.12
+=====
+
+- Adds support for lcapy-tk (this is a GUI under development for drawing and analyzing schematics with Lcapy, see https://github.com/mph-/lcapy-gui)
+
+- Adds connection attributes to annotations
 
 - Adds attribute definitions (see :ref:`attribute_definitions`)
 
