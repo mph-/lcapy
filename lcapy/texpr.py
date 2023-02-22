@@ -68,11 +68,6 @@ class TimeDomainExpression(TimeDomain, Expr):
 
         return x.is_constant_domain
 
-    def _div_dubious(self, x):
-
-        # What about v * v / v ?
-        return x.is_time_domain
-
     @property
     def abs(self):
         """Return absolute value."""
