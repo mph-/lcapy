@@ -63,7 +63,7 @@ from .oneport import *
 from .circuit import *
 from .symbols import *
 from .nodalanalysis import *
-from .meshanalysis import *
+from .loopanalysis import *
 import sys
 import pkg_resources
 del absolute_import, print_function
