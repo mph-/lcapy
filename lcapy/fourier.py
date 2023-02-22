@@ -206,6 +206,8 @@ class FourierTransformer(BilateralForwardTransformer):
             elif other == t**2:
                 return -const1 / (2 * pi)**2 * DiracDelta(sf, 2)
             # TODO check for other powers of t...
+            elif other == abs(t):
+                return -const1 / (2 * (pi * sf)**2)
             elif other == sign(t):
                 return const1 / (I * pi * sf)
             elif other == sign(t) * t:
