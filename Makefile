@@ -23,10 +23,6 @@ test: lcapy/*.py
 cover: lcapy/*.py
 	nosetests --pdb --with-coverage --cover-package=lcapy --cover-html
 
-.PHONY: doc-install
-doc-install: doc
-	scp -r doc/_build/html/* lcapy.elec.canterbury.ac.nz:/var/www/lcapy/
-
 .PHONY: doc
 release: doc push
 	cd /tmp; rm -rf lcapy; git clone git@github.com:mph-/lcapy.git; cd lcapy; make test; make upload

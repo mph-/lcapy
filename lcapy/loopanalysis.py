@@ -15,9 +15,8 @@ import sympy as sym
 
 
 class LoopAnalysis(object):
-    """This is an experimental class for loop analysis.  Currently,
-    it uses mesh analysis and so is only applicable to circuits with
-    a planar topology.
+    """This performs for loop analysis.  Currently, it uses mesh analysis
+    and so is only applicable to circuits with a planar topology.
 
     The API is likely to change since different invocations find
     different current loops.
@@ -40,6 +39,11 @@ class LoopAnalysis(object):
     To display the equations found by applying KVL around each mesh:
 
     >>> la.mesh_equations().pprint()
+
+    To display the system of equations (in matrix form) that needs to
+    be solved:
+
+    >>> la.matrix_equations().pprint()
 
     """
 

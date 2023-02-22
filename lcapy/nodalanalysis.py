@@ -15,9 +15,7 @@ __all__ = ('NodalAnalysis', )
 
 
 class NodalAnalysis(object):
-    """
-    This is an experimental class for nodal analysis.  The API
-    is likely to change.
+    """This is for nodal analysis.
 
     >>> from lcapy import Circuit, NodalAnalysis
     >>> cct = Circuit('''
@@ -34,14 +32,14 @@ class NodalAnalysis(object):
 
     >>> na = NodalAnalysis(cct.laplace())
 
-    To display the system of equations (in matrix form) that needs to
-    be solved:
-
-    >>> na.equations().pprint()
-
     To display the equations found by applying KCL at each node:
 
     >>> na.nodal_equations().pprint()
+
+    To display the system of equations (in matrix form) that needs to
+    be solved:
+
+    >>> na.matrix_equations().pprint()
 
     """
 

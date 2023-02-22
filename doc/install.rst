@@ -87,7 +87,7 @@ If you wish to install the latest version from the git repository use:
 
    $ pip install git+https://github.com/mph-/lcapy.git#egg=lcapy
 
-However, it is better to clone the git repository if you wish to make fixes.
+However, it is better to fork or clone the git repository if you wish to make fixes.
 
 
 Installation for development
