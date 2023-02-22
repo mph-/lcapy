@@ -1758,10 +1758,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         """
 
+        x = expr(x)
+
         if self.domain != x.domain:
             self._incompatible_domains(x, 'convolve')
 
-        x = expr(x)
         f1 = self.expr
         f2 = x.expr
         if commutate:
