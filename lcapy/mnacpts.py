@@ -1368,7 +1368,7 @@ class I(IndependentSource):
         return self._netmake(args='%s(t)' % self.relname.lower())
 
     def _s_model(self, var):
-        return self._netmake(args=self.Isc.laplace()(var))
+        return self._netmake(args=self.Isc.laplace()(var), ignore_keyword=True)
 
     def _pre_initial_model(self):
 
@@ -2030,7 +2030,7 @@ class V(IndependentSource):
         return self._netmake(args='%s(t)' % self.relname.lower())
 
     def _s_model(self, var):
-        return self._netmake(args=self.cpt.Voc.laplace()(var))
+        return self._netmake(args=self.cpt.Voc.laplace()(var), ignore_keyword=True)
 
     def _pre_initial_model(self):
 
