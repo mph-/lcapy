@@ -1043,6 +1043,18 @@ class Y(OnePort):
         Yval = admittance(Yval)
         self._Y = Yval
 
+    def current_equation(self, v, kind='t'):
+        """Return expression for current through component given
+        applied voltage."""
+
+        return SuperpositionCurrent(SuperpositionVoltage(v).select(kind) / self._Z).select(kind)
+
+    def voltage_equation(self, i, kind='t'):
+        """Return expression for voltage across component given
+        applied current."""
+
+        return SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Z).select(kind)
+
 
 class Z(OnePort):
     """General impedance."""
@@ -1053,6 +1065,18 @@ class Z(OnePort):
         self.args = (Zval, )
         Zval = impedance(Zval)
         self._Z = Zval
+
+    def current_equation(self, v, kind='t'):
+        """Return expression for current through component given
+        applied voltage."""
+
+        return SuperpositionCurrent(SuperpositionVoltage(v).select(kind) / self._Z).select(kind)
+
+    def voltage_equation(self, i, kind='t'):
+        """Return expression for voltage across component given
+        applied current."""
+
+        return SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Z).select(kind)
 
 
 class VoltageSourceBase(OnePort):
