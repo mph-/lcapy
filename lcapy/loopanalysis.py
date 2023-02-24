@@ -57,8 +57,14 @@ class LoopAnalysis(object):
         self.cct = cct
         self.cg = CircuitGraph.from_circuit(cct)
 
-        self.kind = self.cct.kind
-        if self.kind == 'super':
+        source_groups = cct.independent_source_groups()
+
+        if len(source_groups) > 1:
+            # Could convert to time domain
+            raise ValueError('Multiple independent source domains')
+        elif len(source_groups) == 1:
+            self.kind = list(source_groups)[0]
+        else:
             self.kind = 'time'
 
         self._equations = self._make_equations()

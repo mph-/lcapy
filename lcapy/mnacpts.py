@@ -865,7 +865,9 @@ class DependentSource(Dummy):
 
 class RLC(Cpt):
 
-    def _s_model(self, var):
+    def _s_model(self, kind):
+
+        var = s if kind == 's' else kind
 
         if self.Voc == 0:
             return self._netmake_variant('Z', args=self.Z(var))
@@ -1367,8 +1369,8 @@ class I(IndependentSource):
     def _ss_model(self):
         return self._netmake(args='%s(t)' % self.relname.lower())
 
-    def _s_model(self, var):
-        return self._netmake(args=self.Isc.laplace()(var), ignore_keyword=True)
+    def _s_model(self, kind):
+        return self._netmake(args=self.Isc.laplace(), ignore_keyword=True)
 
     def _pre_initial_model(self):
 
@@ -2029,8 +2031,8 @@ class V(IndependentSource):
     def _ss_model(self):
         return self._netmake(args='%s(t)' % self.relname.lower())
 
-    def _s_model(self, var):
-        return self._netmake(args=self.cpt.Voc.laplace()(var), ignore_keyword=True)
+    def _s_model(self, kind):
+        return self._netmake(args=self.cpt.Voc.laplace(), ignore_keyword=True)
 
     def _pre_initial_model(self):
 

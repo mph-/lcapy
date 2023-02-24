@@ -1868,13 +1868,13 @@ class NetlistMixin(object):
             new._add(net)
         return new
 
-    def s_model(self, var=s):
+    def s_model(self, kind='s'):
         """"Create s-domain model."""
 
         new = self._new()
 
         for cpt in self._elements.values():
-            net = cpt._s_model(var)
+            net = cpt._s_model(kind)
             new._add(net)
         return new
 
