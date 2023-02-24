@@ -391,8 +391,10 @@ class Schematic(NetfileMixin):
                 if k in self.nodes:
                     self.nodes[k].pos = v
 
-            x = [node.pos.x for node in self.nodes.values() if not node.auxiliary]
-            y = [node.pos.y for node in self.nodes.values() if not node.auxiliary]
+            nodes = [node for node in self.nodes.values() if not node.is_split]
+
+            x = [node.pos.x for node in nodes if not node.auxiliary]
+            y = [node.pos.y for node in nodes if not node.auxiliary]
             self.width = max(x) - min(x)
             self.height = max(y) - min(y)
             return False

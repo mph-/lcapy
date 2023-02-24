@@ -45,6 +45,7 @@ class Node:
         self.drawn = False
         self.label_drawn = False
         self.parent = None
+        self.is_split = False
 
     @property
     def basename(self):
@@ -176,6 +177,7 @@ class Node:
         new_node.label = self.label
         new_node._port = elt.type == 'P'
         new_node.opts = self.opts.copy()
+        new_node.is_split = True
 
         return new_node
 
