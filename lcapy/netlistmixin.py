@@ -27,7 +27,7 @@ from .matrix import Matrix
 from .utils import isiterable
 from .texpr import t
 from .deprecation import LcapyDeprecationWarning
-
+from .nodes import Nodes
 from . import mnacpts
 from collections import OrderedDict
 from warnings import warn
@@ -39,7 +39,7 @@ class NetlistMixin(object):
 
         self._elements = OrderedDict()
         self.namespaces = {}
-        self.nodes = AttrDict()
+        self.nodes = Nodes()
         if context is None:
             context = state.new_context()
 
@@ -277,9 +277,11 @@ class NetlistMixin(object):
 
         if name not in self._elements:
             raise ValueError('Unknown component: ' + name)
-        self._elements.pop(name)
-        # TODO, remove nodes that are only connected
-        # to this component.
+
+        cpt = self._elements[name]
+        for node in cpt.nodes:
+            node.remove(cpt)
+
         return self
 
     @property

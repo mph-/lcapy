@@ -1,6 +1,6 @@
 """This module provides support for nodes.
 
-Copyright 2020--2022 Michael Hayes, UCECE
+Copyright 2020--2023 Michael Hayes, UCECE
 
 """
 
@@ -24,6 +24,28 @@ class Node(ImmittanceMixin):
 
     def __repr__(self):
         return "Node('%s')" % self.name
+
+    def __str__(self):
+
+        # Note, need to have float type otherwise 0 becomes empty string.
+        x = str(round(self.x, 2)).rstrip('0').rstrip('.')
+        y = str(round(self.y, 2)).rstrip('0').rstrip('.')
+
+        return '%s@(%s, %s)' % (self.name, x, y)
+
+    @property
+    def x(self):
+
+        if self.pos is None:
+            raise ValueError('Node position undefined')
+        return self.pos[0]
+
+    @property
+    def y(self):
+
+        if self.pos is None:
+            raise ValueError('Node position undefined')
+        return self.pos[1]
 
     @property
     def V(self):
@@ -57,6 +79,20 @@ class Node(ImmittanceMixin):
             self._count += 1
 
         self._connected.append(cpt)
+
+    def remove(self, cpt):
+
+        if self.count == 0:
+            raise RuntimeError('Removing node %s with 0 count' % str(self))
+
+        for c in self._connected:
+            if c.name == cpt.name:
+                self._connected.remove(c)
+                break
+        self._count -= 1
+
+        if self.count == 0:
+            self.cct.nodes._remove(self.name)
 
     @property
     def count(self):
@@ -135,3 +171,13 @@ class Node(ImmittanceMixin):
         """Return True if node is a ground"""
 
         return self.name.startswith('0')
+
+    def debug(self):
+
+        s = str(self) + ', count=%s' % self.count
+
+        names = [cpt.name for cpt in self.connected]
+
+        s += ', cpts=[%s]' % ', '.join(names) + '\n'
+
+        return s
