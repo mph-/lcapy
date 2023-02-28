@@ -38,14 +38,14 @@ class Node(ImmittanceMixin):
 
         if self.pos is None:
             raise ValueError('Node position undefined')
-        return self.pos[0]
+        return self.pos.x
 
     @property
     def y(self):
 
         if self.pos is None:
             raise ValueError('Node position undefined')
-        return self.pos[1]
+        return self.pos.y
 
     @property
     def V(self):
