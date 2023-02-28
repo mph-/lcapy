@@ -80,7 +80,7 @@ class Cpt(ImmittanceMixin):
 
         self._string = string
         # self.net = string.split(';')[0]
-        self.args = args
+        self.args = list(args)
         self.classname = self.__class__.__name__
         self.keyword = keyword
         self.opts = Opts(opts_string)
