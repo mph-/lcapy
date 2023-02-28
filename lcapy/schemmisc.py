@@ -1,8 +1,10 @@
 """This module provides miscellaneous support for schematic drawing.
 
-Copyright 2014--2022 Michael Hayes, UCECE
+Copyright 2014--2023 Michael Hayes, UCECE
 
 """
+
+from math import sqrt
 
 
 class Pos(object):
@@ -54,6 +56,10 @@ class Pos(object):
         from numpy import array
 
         return array((self.x, self.y))
+
+    def norm(self):
+
+        return sqrt(self.x**2 + self.y**2)
 
 
 class Steps(object):
