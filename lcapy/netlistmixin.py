@@ -282,6 +282,7 @@ class NetlistMixin(object):
         for node in cpt.nodes:
             node.remove(cpt)
 
+        self._elements.pop(name, None)
         return self
 
     @property

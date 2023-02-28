@@ -33,6 +33,7 @@ from .schemplacer import schemplacer
 from .opts import Opts
 from .netfile import NetfileMixin
 from .system import LatexRunner, PDFConverter, tmpfilename
+from .nodes import parse_nodes
 from os import path, remove
 from collections import OrderedDict
 from warnings import warn
@@ -191,25 +192,6 @@ class Schematic(NetfileMixin):
 
         return EngFormatter().latex_math(value, units)
 
-    def _parse_nodes(self, nodesstr):
-
-        from .utils import split_parens
-
-        # Ignore {}
-        nodesstr = nodesstr[1:-1]
-        entries = split_parens(nodesstr, ',')
-        for entry in entries:
-            parts = entry.split('@')
-            nodename = parts[0].strip()
-            # Ignore ()
-            values = parts[1][1:-1]
-            parts = values.split(',')
-            x = float(parts[0])
-            y = float(parts[1])
-            pos = Pos(x, y)
-
-            self.node_positions[nodename] = pos
-
     def _cpt_add(self, cpt):
 
         if cpt.offset != 0 and len(cpt.node_names) == 2:
@@ -327,7 +309,7 @@ class Schematic(NetfileMixin):
             # Need to search lists and update component.
 
         if cpt.type == 'XX' and 'nodes' in cpt.opts:
-            self._parse_nodes(cpt.opts['nodes'])
+            self.positions = parse_nodes(cpt.opts['nodes'])
 
         self.elements[cpt.name] = cpt
 
