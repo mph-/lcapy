@@ -82,7 +82,7 @@ class Node(ImmittanceMixin):
 
     def remove(self, cpt):
 
-        if self.count == 0:
+        if len(self._connected) == 0:
             raise RuntimeError('Removing node %s with 0 count' % str(self))
 
         for c in self._connected:

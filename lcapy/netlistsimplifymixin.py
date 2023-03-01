@@ -1,6 +1,6 @@
 """This module provides the SubNetlistSimplifyMixin class.
 
-Copyright 2022 Michael Hayes, UCECE
+Copyright 2022--2023 Michael Hayes, UCECE
 
 """
 
@@ -48,11 +48,8 @@ class NetlistSimplifyMixin:
         parts = net1.split(' ', 1)
         net1 = newname + ' ' + parts[1]
 
-        elt = self._parse(net1)
-
-        # Overwrite component with one having total value.  _fixup will
-        # fix element keys later on, once all simplifications are performed.
-        net.elements[name] = elt
+        net.add(net1)
+        net.remove(name)
 
         for name1 in subset_list[1:]:
             # Replace with wire or open-circuit.
@@ -60,9 +57,12 @@ class NetlistSimplifyMixin:
                 net1 = self.elements[name1]._netmake_W()
             else:
                 net1 = self.elements[name1]._netmake_O()
-            # Remove component
-            elt = self._parse(net1)
-            net.elements[name1] = elt
+
+            # Avoid creating open-circuit components.
+            if True and series:
+                net.add(net1)
+
+            net.remove(name1)
 
         return True
 
@@ -89,14 +89,6 @@ class NetlistSimplifyMixin:
 
         return okay
 
-    def _fixup(self):
-        """Rename keys to fix things up for removed components."""
-
-        newelements = OrderedDict()
-        for k, v in self.elements.items():
-            newelements[v.name] = v
-        self._elements = newelements
-
     def _simplify_combine_series(self, skip, explain=False):
 
         net = self.copy()
@@ -118,9 +110,6 @@ class NetlistSimplifyMixin:
                                                          subset, net, explain, False, True)
                 else:
                     raise RuntimeError('Internal error')
-
-        if changed:
-            net._fixup()
 
         return net, changed
 
@@ -146,9 +135,7 @@ class NetlistSimplifyMixin:
                 else:
                     raise RuntimeError('Internal error')
 
-        if changed:
-            # TODO, remove dangling wires connected to the removed components.
-            net._fixup()
+        # TODO, remove dangling wires connected to the removed components.
 
         return net, changed
 
@@ -253,11 +240,16 @@ class NetlistSimplifyMixin:
         This performs a number of passes specified by `passes`.  If zero,
         this iterates until no more simplifications can be performed.
 
+        Note, if there are no circuits, e.g., a series network, then
+        all the components will be removed.
+
         `select` is a list of component names to consider for simplification.
         If `None`, all components are considered.
 
         If `explain` is True, the reason for a simplification is printed.
-        If `modify` is False, no modifications are performed."""
+        If `modify` is False, no modifications are performed.
+
+        """
 
         return self.simplify(select=select, ignore=ignore, passes=passes,
                              explain=explain, modify=modify,
@@ -347,10 +339,16 @@ class NetlistSimplifyMixin:
                              keep_nodes=keep_nodes)
 
     def simplify(self, select=None, ignore=None, passes=0, series=True,
-                 parallel=True, dangling=False, disconnected=True,
+                 parallel=True, dangling=False, disconnected=False,
                  explain=False, modify=True, keep_nodes=None):
-        """Simplify a circuit by combining components in series, combining
-        components in parallel, and removing dangling components.
+        """Simplify a circuit by combining components in series and combining
+        components in parallel.
+
+        If `dangling` is True, then dangling components are removed.
+        Dangling components are not in a circuit.
+
+        If `disconnected` is True, then disconnected components are removed.
+        Disconnected components are not connected to any other components.
 
         This performs a number of passes specified by `passes`.  If zero,
         this iterates until no more simplifications can be performed.
@@ -361,8 +359,9 @@ class NetlistSimplifyMixin:
         If `explain` is True, the reason for a simplification is printed.
         If `modify` is False, no modifications are performed.
 
-        See also `simplify_series`, `simplify_parallel`, `simplify_dangling`,
-        and `simplify_dangling_wires`.
+        See also `simplify_series`, `simplify_parallel`, `remove_dangling`,
+        and `remove_dangling_wires`.
+
         """
 
         if keep_nodes is None:

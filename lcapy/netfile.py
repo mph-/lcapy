@@ -24,15 +24,15 @@ class NetfileMixin(object):
         self.dirname = None
         self.subnetlists = {}
 
-    def _make_anon_cpt_id(self, cpt_type):
-        """Make identifier for anonymous component"""
-
-        return 'anon' + self.namer.cpt_id(cpt_type + 'anon')
-
-    def _make_anon_name(self, cpt_type):
+    def _make_anon_cpt_name(self, cpt_type):
         """Make name for anonymous component"""
 
         return self.namer.name(cpt_type + 'anon', self.elements)
+
+    def _make_anon_node_name(self):
+        """Make name for anonymous node"""
+
+        return self.namer.name('nodeanon', self.nodes)
 
     def _include(self, string):
 

@@ -42,7 +42,7 @@ class NetlistHelper(object):
                 name = None
 
         if name is None:
-            name = self._namer.name(cpt_type)
+            name = self._namer.name(cpt_type, self.names)
 
         self.names.append(name)
 

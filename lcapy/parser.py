@@ -244,6 +244,7 @@ class Parser:
         self.delimiters = grammar.delimiters
         # A string defining comment characters
         self.comments = grammar.comments
+        # A Boolean allowing anonymous component ids
         self.allow_anon = allow_anon
 
         self.cpts = cpts
@@ -321,10 +322,9 @@ class Parser:
 
         if directive:
             cpt_type = 'XX'
-            cpt_id = ''
-            name = 'XX'
-            name += parent._make_anon_cpt_id(cpt_type)
-            defname = namespace + cpt_type + cpt_id
+            name = parent._make_anon_cpt_name(cpt_type)
+            cpt_id = name[2:]
+            defname = namespace + name
 
             if string.startswith(';') and not string.startswith(';;'):
                 opts_string = string[1:]
@@ -368,7 +368,8 @@ class Parser:
             pos = rule1.pos
             if pos is None:
                 continue
-            if len(fields) > pos and fields[pos].lower() == rule1.params[pos].lowercase_name:
+            if len(fields) > pos \
+               and fields[pos].lower() == rule1.params[pos].lowercase_name:
                 rule = rule1
                 keyword = rule1.params[pos].name
                 break
@@ -377,11 +378,10 @@ class Parser:
         name = defname
         if (cpt_id == '' and parent is not None
                 and (cpt_type in ('A', 'W', 'O', 'P')) or self.allow_anon):
-            name += parent._make_anon_cpt_id(cpt_type)
+            name = namespace + parent._make_anon_cpt_name(cpt_type)
         elif cpt_id == '?':
             # Automatically name cpts to ensure they are unique
-            cpt_id = parent._make_anon_cpt_id(cpt_type)
-            name = name[:-1] + cpt_id
+            name = namespace + parent._make_anon_cpt_name(cpt_type)
 
         default_value = cpt_type + cpt_id
         nodes, args = rule.process(net, fields, name, namespace, default_value)

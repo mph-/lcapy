@@ -103,7 +103,7 @@ class NetlistMixin(object):
     def _dummy_node(self):
         """Create a dummy node name."""
 
-        return '_' + self._make_anon_name('node')
+        return '_' + self._make_anon_node_name()
 
     def _add_ground(self, node):
 

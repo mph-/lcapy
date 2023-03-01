@@ -1,12 +1,12 @@
 import lcapy.grammar as grammar
-import lcapy.schemcpts as schemcpts
+import lcapy.mnacpts as mnacpts
 from lcapy.parser import Parser
 from nose.tools import *
 import sys
 sys.path.append('..')
 
 
-parser = Parser(schemcpts, grammar)
+parser = Parser(mnacpts, grammar)
 parse = parser.parse
 
 
@@ -55,51 +55,61 @@ def test_Exception6():
 def test_V1():
     '''Test voltage source'''
 
-    assert_equals(type(parse('V1 1 2')), schemcpts.V, 'Class not V')
+    assert_equals(type(parse('V1 1 2')), mnacpts.V, 'Class not V')
+    assert_equals(str(parse('V1 1 2')), 'V1 1 2', 'V netmake')
 
 
 def test_Vdc1():
     '''Test dc voltage source'''
 
     assert_equals(type(parse('V1 1 2 dc')),
-                  schemcpts.classes['Vdc'], 'Class not Vdc')
+                  mnacpts.classes['Vdc'], 'Class not Vdc')
+    assert_equals(str(parse('V1 1 2 dc')), 'V1 1 2 dc', 'V dc netmake')
 
 
 def test_Vac1():
     '''Test ac voltage source'''
 
     assert_equals(type(parse('V1 1 2 ac')),
-                  schemcpts.classes['Vac'], 'Class not Vac')
+                  mnacpts.classes['Vac'], 'Class not Vac')
 
 
 def test_Vsin1():
     '''Test sin voltage source'''
 
     assert_equals(type(parse('V1 1 2 sin(1, 2, 3)')),
-                  schemcpts.classes['Vsin'], 'Class not Vsin')
+                  mnacpts.classes['Vsin'], 'Class not Vsin')
 
 
 def test_Vexpr():
     '''Test voltage source with expr'''
 
     assert_equals(type(parse('V1 1 2 {a * 5}')),
-                  schemcpts.V, 'Class not V')
+                  mnacpts.V, 'Class not V')
+    assert_equals(str(parse('V1 1 2 {a * 5}')),
+                  'V1 1 2 {a * 5}', 'V expr netmake')
+
+
+def test_Vexpr2():
+    '''Test voltage source with expr as name'''
+
+    assert_equals(str(parse('V1 1 2 V1')), 'V1 1 2', 'V expr2 netmake')
 
 
 def test_Vac2():
     '''Test ac voltage source'''
 
     assert_equals(
-        type(parse('V1 1 2 ac {1j} {0} 3')), schemcpts.classes['Vac'], 'Class not Vac')
+        type(parse('V1 1 2 ac {1j} {0} 3')), mnacpts.classes['Vac'], 'Class not Vac')
 
 
 def test_Vquotes():
     '''Test voltage source with arg in quotes'''
 
     assert_equals(type(parse('V1 1 2 "a * 5"')),
-                  schemcpts.V, 'Class not V')
+                  mnacpts.V, 'Class not V')
 
 # def test_opamp():
 #     '''Test opamp'''
 #
-#     assert_equals(type(parse('E 1 2 opamp 3 4')), schemcpts.classes['Eopamp'], 'Class not Eopamp')
+#     assert_equals(type(parse('E 1 2 opamp 3 4')), mnacpts.classes['Eopamp'], 'Class not Eopamp')

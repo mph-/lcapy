@@ -116,8 +116,11 @@ class Cpt(ImmittanceMixin):
         return self.__str__()
 
     def __str__(self):
-        # TODO, use self._netmake() but fix for XX
-        return self._string
+        if self.type == 'XX':
+            return self._string
+        else:
+            # This works if the nodes are renamed or the args are changed
+            return self._netmake()
 
     @property
     def cpt(self):
@@ -255,15 +258,19 @@ class Cpt(ImmittanceMixin):
 
         if args is None:
             args = self.args
-
-        if not isinstance(args, tuple):
-            args = (args, )
+        elif isinstance(args, tuple):
+            args = list(args)
+        elif not isinstance(args, list):
+            args = [args]
 
         if opts is None:
             opts = self.opts
 
         fmtargs = []
         for arg in args:
+            # Ignore initial value if not defined.
+            if arg is None:
+                continue
             fmtargs.append(self._arg_format(arg))
 
         if len(fmtargs) == 1 and fmtargs[0] == name:
@@ -272,7 +279,8 @@ class Cpt(ImmittanceMixin):
         parts = [name]
         for m, node in enumerate(nodes):
             parts.append(node)
-            if not ignore_keyword and self.keyword[0] == m + 1:
+            if not ignore_keyword and self.keyword[0] == m + 1 \
+               and self.keyword[1] != '':
                 parts.append(self.keyword[1])
         parts.extend(fmtargs)
 

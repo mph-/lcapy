@@ -14,9 +14,10 @@ class Nodes(AttrDict):
         this will not remove the Node until all uses are removed."""
 
         node = self[node_name]
-        if node.count != 0:
-            raise ValueError('Cannot remove node; it is needed for ' +
-                             ', '.join(node.components))
+        if len(node.connected) != 0:
+            raise ValueError('Cannot remove node ' + str(node_name) +
+                             '; it is needed for ' +
+                             ', '.join([str(name) for name in node.connected]))
 
         self.pop(node_name)
 
