@@ -100,7 +100,7 @@ class NetlistMixin(object):
         # Perhaps should prune wires, open-circuits, etc. ?
         return list(self._elements.keys())
 
-    def _dummy_node(self):
+    def _dummy_node_name(self):
         """Create a dummy node name."""
 
         return '_' + self._make_anon_node_name()
@@ -191,12 +191,6 @@ class NetlistMixin(object):
 
         return self.cg.is_connected
 
-    def _node_add(self, node, cpt):
-
-        if node not in self.nodes:
-            self.nodes[node] = Node(self, node)
-        self.nodes[node].append(cpt)
-
     def _cpt_add(self, cpt):
 
         if cpt.name in self._elements:
@@ -212,9 +206,6 @@ class NetlistMixin(object):
                 raise ValueError('Invalid component name %s' % cpt.name)
 
         self._elements[cpt.name] = cpt
-
-        for node in cpt.nodenames:
-            self._node_add(node, cpt)
 
         self._namespace_add(cpt.namespace)
 

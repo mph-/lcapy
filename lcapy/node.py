@@ -7,12 +7,18 @@ Copyright 2020--2023 Michael Hayes, UCECE
 from .immittancemixin import ImmittanceMixin
 
 
+class DummyNode:
+
+    def __init__(self, name):
+        self.name = name
+
+
 class Node(ImmittanceMixin):
 
     def __init__(self, cct, name):
 
         self.cct = cct
-        self.name = name
+        self._name = name
         self.pos = None
         self.port = False
         parts = name.split('_')
@@ -32,6 +38,16 @@ class Node(ImmittanceMixin):
         y = str(round(self.y, 2)).rstrip('0').rstrip('.')
 
         return '%s@(%s, %s)' % (self.name, x, y)
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, name):
+        # Use new node name for nodes
+        self.cct.nodes[name] = self.cct.nodes.pop(self._name)
+        self._name = name
 
     @property
     def x(self):

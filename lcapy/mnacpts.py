@@ -19,6 +19,7 @@ from .superpositioncurrent import SuperpositionCurrent
 from .voltage import voltage
 from .current import current
 from .opts import Opts
+from .node import DummyNode
 import lcapy
 import inspect
 import sys
@@ -56,7 +57,7 @@ class Cpt(ImmittanceMixin):
     is_wire = False
 
     def __init__(self, cct, namespace, defname, name, cpt_type, cpt_id, string,
-                 opts_string, nodes, keyword, *args):
+                 opts_string, nodenames, keyword, *args):
 
         self.cct = cct
         self.type = cpt_type
@@ -65,21 +66,32 @@ class Cpt(ImmittanceMixin):
         self.name = name
         self.relname = name
         self.namespace = ''
-        self.nodenames = nodes
-        self.relnodes = nodes
+        self.nodenames = nodenames
 
+        self.nodes = []
+        if cct is not None:
+            for nodename in nodenames:
+                self.nodes.append(cct.nodes.add(nodename, self, cct))
+        else:
+            for nodename in nodenames:
+                self.nodes.append(DummyNode(nodename))
+
+        self.relnodes = self.nodes
+
+        # Handle names such as a.R1 or a.b.R1.  The namespace is
+        # a for the first example and a.b for the second.
+        # The relative name (relname) in both cases is R1.
         parts = name.split('.')
         if len(parts) > 1:
             self.namespace = '.'.join(parts[0:-1]) + '.'
             self.relname = parts[-1]
-            self.relnodes = []
-            for node in nodes:
-                if node.startswith(self.namespace):
-                    node = node[len(self.namespace):]
-                self.relnodes.append(node)
+            # self.relnodes = []
+            # for node in nodes:
+            #     if node.startswith(self.namespace):
+            #         node = node[len(self.namespace):]
+            #     self.relnodes.append(node)
 
         self._string = string
-        # self.net = string.split(';')[0]
         self.args = list(args)
         self.classname = self.__class__.__name__
         self.keyword = keyword
@@ -213,9 +225,10 @@ class Cpt(ImmittanceMixin):
         field = 0
 
         for node in self.relnodes:
+            nodename = node.name
             if node_map is not None:
-                node = node_map[node]
-            string += ' ' + node
+                nodename = node_map[nodename]
+            string += ' ' + nodename
             field += 1
             if field == self.keyword[0]:
                 string += ' ' + self.keyword[1]
@@ -278,7 +291,7 @@ class Cpt(ImmittanceMixin):
 
         parts = [name]
         for m, node in enumerate(nodes):
-            parts.append(node)
+            parts.append(node.name)
             if not ignore_keyword and self.keyword[0] == m + 1 \
                and self.keyword[1] != '':
                 parts.append(self.keyword[1])
@@ -579,13 +592,13 @@ class Cpt(ImmittanceMixin):
     def V(self):
         """Voltage drop across component."""
 
-        return self.cct.get_Vd(self.nodenames[0], self.nodenames[1])
+        return self.cct.get_Vd(self.nodes[0].name, self.nodes[1].name)
 
     @property
     def v(self):
         """Time-domain voltage drop across component."""
 
-        return self.cct.get_vd(self.nodenames[0], self.nodenames[1])
+        return self.cct.get_vd(self.nodes[0].name, self.nodes[1].name)
 
     @property
     def Isc(self):
@@ -682,33 +695,33 @@ class Cpt(ImmittanceMixin):
         """Driving-point admittance measured across component in-circuit.  For
         the admittance of the component in isolation use .Y"""
 
-        return self.cct.admittance(self.nodenames[1], self.nodenames[0])
+        return self.cct.admittance(self.nodes[1].name, self.nodes[0].name)
 
     @property
     def dpZ(self):
         """Driving-point impedance measured across component in-circuit.  For
         the impedance of the component in isolation use .Z"""
 
-        return self.cct.impedance(self.nodenames[1], self.nodenames[0])
+        return self.cct.impedance(self.nodes[1].name, self.nodes[0].name)
 
     def _dummy_node(self):
 
-        return self.cct._dummy_node()
+        return DummyNode(self.cct._dummy_node_name())
 
     def oneport(self):
         """Create oneport object."""
 
-        return self.cct.oneport(self.nodenames[1], self.nodenames[0])
+        return self.cct.oneport(self.nodes[1].name, self.nodes[0].name)
 
     def thevenin(self):
         """Create Thevenin oneport object."""
 
-        return self.cct.thevenin(self.nodenames[1], self.nodenames[0])
+        return self.cct.thevenin(self.nodes[1].name, self.nodes[0].name)
 
     def norton(self):
         """Create Norton oneport object."""
 
-        return self.cct.norton(self.nodenames[1], self.nodenames[0])
+        return self.cct.norton(self.nodes[1].name, self.nodes[0].name)
 
     def transfer(self, cpt):
         """Create transfer function for the s-domain voltage across the
@@ -717,15 +730,8 @@ class Cpt(ImmittanceMixin):
         if isinstance(cpt, str):
             cpt = self.cct._elements[cpt]
 
-        return self.cct.transfer(self.nodenames[1], self.nodenames[0],
-                                 cpt.nodenames[1], cpt.nodenames[0])
-
-    @property
-    def nodes(self):
-        """Return list of nodes for this component.   See also
-        nodenames."""
-
-        return [self.cct.nodes[nodename] for nodename in self.nodenames]
+        return self.cct.transfer(self.nodes[1].name, self.nodes[0].name,
+                                 cpt.nodes[1].name, cpt.nodes[0].name)
 
     def connected(self):
         """Return list of components connected to this component."""
@@ -779,7 +785,7 @@ class Cpt(ImmittanceMixin):
         # Could add wire or zero ohm resistor but then could not
         # determine current through the short.  So instead add a
         # voltage source.
-        self.cct.add('V? %s %s 0' % (self.nodes[0].name, self.nodes[1].name))
+        self.cct.add('V? %s %s 0' % (self.nodes[0], self.nodes[1]))
 
         return self.cct.last_added()
 
@@ -1008,12 +1014,14 @@ class C(RC):
 
         opts.strip_voltage_labels()
         rnet = self._netmake_variant('R', suffix='eq',
-                                     nodes=(self.relnodes[0], dummy_node),
+                                     nodes=(
+                                         self.relnodes[0], dummy_node),
                                      args=Req, opts=opts)
 
         opts.strip_current_labels()
         vnet = self._netmake_variant('V', suffix='eq',
-                                     nodes=(dummy_node, self.relnodes[1]),
+                                     nodes=(dummy_node,
+                                            self.relnodes[1]),
                                      args=('dc', Veq), opts=opts)
 
         # TODO: the voltage labels should be added across an
@@ -1050,7 +1058,7 @@ class VCVS(DependentSource):
 
     def check(self):
 
-        n1, n2, n3, n4 = self.nodenames
+        n1, n2, n3, n4 = [node.name for node in self.nodes]
         if n1 == n3 and n2 == n4:
             warn('VCVS output nodes and control nodes are the same for %s' % self)
 
@@ -1130,14 +1138,18 @@ class Efdopamp(DependentSource):
         Ad = '{%s / 2}' % Ad
 
         opampp = self._netmake_expand('Ep',
-                                      nodes=(self.relnodes[0], self.relnodes[4],
+                                      nodes=(self.relnodes[0],
+                                             self.relnodes[4],
                                              'opamp',
-                                             self.relnodes[2], self.relnodes[3]),
+                                             self.relnodes[2],
+                                             self.relnodes[3]),
                                       args=(Ad, Ac))
         opampm = self._netmake_expand('Em',
-                                      nodes=(self.relnodes[4], self.relnodes[1],
+                                      nodes=(self.relnodes[4],
+                                             self.relnodes[1],
                                              'opamp',
-                                             self.relnodes[2], self.relnodes[3]),
+                                             self.relnodes[2],
+                                             self.relnodes[3]),
                                       args=(Ad, Ac))
 
         return opampp + '\n' + opampm + '\n'
@@ -1159,7 +1171,8 @@ class Einamp(DependentSource):
 
         cpts.append(self._netmake_expand('Ep',
                                          nodes=(node7, '0', 'opamp',
-                                                self.relnodes[2], self.relnodes[4]),
+                                                self.relnodes[2],
+                                                self.relnodes[4]),
                                          args=(Ad, )))
         cpts.append(self._netmake_expand('Em',
                                          nodes=(node8, '0', 'opamp',
@@ -1445,12 +1458,14 @@ class L(RLC):
 
         opts.strip_voltage_labels()
         rnet = self._netmake_variant('R', suffix='eq',
-                                     nodes=(self.relnodes[0], dummy_node),
+                                     nodes=(
+                                         self.relnodes[0], dummy_node),
                                      args=Req, opts=opts)
 
         opts.strip_current_labels()
         vnet = self._netmake_variant('V', suffix='eq',
-                                     nodes=(dummy_node, self.relnodes[1]),
+                                     nodes=(dummy_node,
+                                            self.relnodes[1]),
                                      args=('dc', Veq), opts=opts)
 
         # TODO: the voltage labels should be added across an
@@ -1710,8 +1725,12 @@ class SW(TimeVarying):
             net = self._netmake_opts(opts)
 
             if active ^ ('mirror' in self.opts):
-                return net + '\n' + self._netmake_W(nodes=(self.relnodes[0], self.relnodes[2]), opts=wopts)
-            return net + '\n' + self._netmake_W(nodes=(self.relnodes[0], self.relnodes[1]), opts=wopts)
+                return net + '\n' + self._netmake_W(nodes=(self.relnodes[0],
+                                                           self.relnodes[2]),
+                                                    opts=wopts)
+            return net + '\n' + self._netmake_W(nodes=(self.relnodes[0],
+                                                       self.relnodes[1]),
+                                                opts=wopts)
 
         else:
             raise RuntimeError('Internal error, unhandled switch %s' % self)

@@ -5,9 +5,20 @@ Copyright 2023 Michael Hayes, UCECE
 
 from .attrdict import AttrDict
 from .schemmisc import Pos
+from .node import Node
 
 
 class Nodes(AttrDict):
+
+    def add(self, node_name, cpt, cct):
+
+        if node_name in self:
+            node = self[node_name]
+        else:
+            node = Node(cct, node_name)
+            self[node_name] = node
+        node.append(cpt)
+        return node
 
     def _remove(self, node_name):
         """Remove node from dict of nodes.  Note, it is best to use Node.remove;
@@ -49,7 +60,7 @@ def parse_nodes(nodesstr):
     entries = split_parens(nodesstr, ',')
     for entry in entries:
         parts = entry.split('@')
-        nodename = parts[0].strip()
+        node_name = parts[0].strip()
         # Ignore ()
         values = parts[1][1:-1]
         parts = values.split(',')
@@ -57,6 +68,6 @@ def parse_nodes(nodesstr):
         y = float(parts[1])
         pos = Pos(x, y)
 
-        node_positions[nodename] = pos
+        node_positions[node_name] = pos
 
     return node_positions
