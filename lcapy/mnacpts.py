@@ -57,7 +57,7 @@ class Cpt(ImmittanceMixin):
     is_wire = False
 
     def __init__(self, cct, namespace, defname, name, cpt_type, cpt_id, string,
-                 opts_string, nodenames, keyword, *args):
+                 opts_string, node_names, keyword, *args):
 
         self.cct = cct
         self.type = cpt_type
@@ -66,15 +66,15 @@ class Cpt(ImmittanceMixin):
         self.name = name
         self.relname = name
         self.namespace = ''
-        self.nodenames = nodenames
+        self.node_names = node_names
 
         self.nodes = []
         if cct is not None:
-            for nodename in nodenames:
-                self.nodes.append(cct.nodes.add(nodename, self, cct))
+            for node_name in node_names:
+                self.nodes.append(cct.nodes.add(node_name, self, cct))
         else:
-            for nodename in nodenames:
-                self.nodes.append(DummyNode(nodename))
+            for node_name in node_names:
+                self.nodes.append(DummyNode(node_name))
 
         self.relnodes = self.nodes
 
@@ -225,10 +225,10 @@ class Cpt(ImmittanceMixin):
         field = 0
 
         for node in self.relnodes:
-            nodename = node.name
+            node_name = node.name
             if node_map is not None:
-                nodename = node_map[nodename]
-            string += ' ' + nodename
+                node_name = node_map[node_name]
+            string += ' ' + node_name
             field += 1
             if field == self.keyword[0]:
                 string += ' ' + self.keyword[1]

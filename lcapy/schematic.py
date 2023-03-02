@@ -152,11 +152,11 @@ class Schematic(NetfileMixin):
 
         return '\n'.join([elt.__str__() for elt in self.elements.values()])
 
-    def _node_add(self, nodename, elt, auxiliary=False):
+    def _node_add(self, node_name, elt, auxiliary=False):
 
-        if nodename not in self.nodes:
-            self.nodes[nodename] = Node(nodename)
-        node = self.nodes[nodename]
+        if node_name not in self.nodes:
+            self.nodes[node_name] = Node(node_name)
+        node = self.nodes[node_name]
 
         node.append(elt)
 

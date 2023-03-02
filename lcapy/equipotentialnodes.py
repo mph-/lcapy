@@ -8,8 +8,8 @@ Copyright 2020--2022 Michael Hayes, UCECE
 
 class EquipotentialNodes(dict):
 
-    def add(self, nodenames):
-        for key in nodenames:
+    def add(self, node_names):
+        for key in node_names:
             self[key] = [key]
 
     def find_key(self, n):

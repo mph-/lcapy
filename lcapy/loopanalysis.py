@@ -100,7 +100,7 @@ class LoopAnalysis(object):
             [Iname('I_%d' % (m + 1), self.kind) for m in range(Nloops)])
         return mesh_currents
 
-    def _add_mesh_currents(self, loop, loops, nodenames, mesh_currents):
+    def _add_mesh_currents(self, loop, loops, node_names, mesh_currents):
 
         current = 0
 
@@ -112,17 +112,17 @@ class LoopAnalysis(object):
             loop2 = loop2.copy()
             loop2.append(loop2[0])
 
-            if nodenames[0] not in loop2 or nodenames[1] not in loop2:
+            if node_names[0] not in loop2 or node_names[1] not in loop2:
                 continue
 
             # Determine polarity of cpt.
             for l in range(len(loop2) - 1):
-                if (nodenames[0] == loop2[l] and
-                        nodenames[1] == loop2[l + 1]):
+                if (node_names[0] == loop2[l] and
+                        node_names[1] == loop2[l + 1]):
                     current -= mesh_currents[n]
                     break
-                elif (nodenames[1] == loop2[l] and
-                      nodenames[0] == loop2[l + 1]):
+                elif (node_names[1] == loop2[l] and
+                      node_names[0] == loop2[l + 1]):
                     current += mesh_currents[n]
                     break
 
@@ -147,18 +147,18 @@ class LoopAnalysis(object):
                 raise ValueError('TODO: handle current source in loop')
 
             # Map node names to equipotential node names.
-            nodenames = [self.cct.node_map[nodename]
-                         for nodename in elt.nodenames]
+            node_names = [self.cct.node_map[node_name]
+                         for node_name in elt.node_names]
 
             if elt.is_voltage_source:
                 v = elt.cpt.voltage_equation(mesh_current, self.kind)
             else:
-                current = self._add_mesh_currents(loop, loops, nodenames,
+                current = self._add_mesh_currents(loop, loops, node_names,
                                                   mesh_currents)
                 v = -elt.cpt.voltage_equation(current, self.kind)
 
-            is_reversed = nodenames[0] == loop1[j] \
-                and nodenames[1] == loop1[j + 1]
+            is_reversed = node_names[0] == loop1[j] \
+                and node_names[1] == loop1[j + 1]
 
             if is_reversed:
                 v = -v

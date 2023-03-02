@@ -118,7 +118,7 @@ class MNA(object):
 
     def _cpt_node_indexes(self, cpt):
 
-        return [self._node_index(n) for n in cpt.nodenames]
+        return [self._node_index(n) for n in cpt.node_names]
 
     def _cpt_branch_index(self, cpt):
 
@@ -194,8 +194,8 @@ class MNA(object):
         for elt in self.cct.elements.values():
             if elt.type in ('K', 'Cable') or elt.ignore:
                 continue
-            n1 = self.cct.node_map[elt.nodenames[0]]
-            n2 = self.cct.node_map[elt.nodenames[1]]
+            n1 = self.cct.node_map[elt.node_names[0]]
+            n2 = self.cct.node_map[elt.node_names[1]]
             branchdict[elt.name] = (n1, n2)
 
         vtype = Vtype(self.kind)
@@ -235,8 +235,8 @@ class MNA(object):
         # evaluated as required.
         for elt in self.cct.elements.values():
             if elt.type in ('R', 'NR', 'C'):
-                n1 = self.cct.node_map[elt.nodenames[0]]
-                n2 = self.cct.node_map[elt.nodenames[1]]
+                n1 = self.cct.node_map[elt.node_names[0]]
+                n2 = self.cct.node_map[elt.node_names[1]]
                 V1, V2 = self._Vdict[n1], self._Vdict[n2]
                 I = (V1.expr - V2.expr - elt.V0.expr) / elt.Z.expr
                 self._Idict[elt.name] = itype(I, **assumptions).simplify()

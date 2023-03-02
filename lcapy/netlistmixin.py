@@ -285,7 +285,7 @@ class NetlistMixin(object):
         for elt in self.elements.values():
             if not elt.is_voltage_source:
                 continue
-            snodes.append(elt.nodenames[0:2])
+            snodes.append(elt.node_names[0:2])
 
         from .utils import merge_common
 
@@ -309,11 +309,11 @@ class NetlistMixin(object):
             if elt.nosim:
                 continue
             if elt.type == 'W':
-                enodes.add_wire(*elt.nodenames)
+                enodes.add_wire(*elt.node_names)
             elif elt.type.startswith('TL'):
-                enodes.add_wire(elt.nodenames[1], elt.nodenames[3])
+                enodes.add_wire(elt.node_names[1], elt.node_names[3])
             elif elt.type.startswith('TP'):
-                enodes.add_wire(elt.nodenames[1], elt.nodenames[3])
+                enodes.add_wire(elt.node_names[1], elt.node_names[3])
                 warn("Assuming V2' = V1' for %s" % elt.name)
             else:
                 for connections in elt.equipotential_nodes:
@@ -680,7 +680,7 @@ class NetlistMixin(object):
             if isinstance(cpt, Node):
                 Np, Nm = cpt.name, 0
             else:
-                Np, Nm = cpt.nodenames[0:2]
+                Np, Nm = cpt.node_names[0:2]
         return Np, Nm
 
     def _parse_node_args4(self, N1p, N1m, N2p, N2m, name):

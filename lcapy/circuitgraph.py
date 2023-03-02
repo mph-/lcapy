@@ -50,22 +50,22 @@ class CircuitGraph(object):
 
         for name in cct.branch_list:
             elt = cct.elements[name]
-            if len(elt.nodenames) < 2:
+            if len(elt.node_names) < 2:
                 continue
 
-            nodename1 = node_map[elt.nodenames[0]]
-            nodename2 = node_map[elt.nodenames[1]]
+            node_name1 = node_map[elt.node_names[0]]
+            node_name2 = node_map[elt.node_names[1]]
 
-            if G.has_edge(nodename1, nodename2):
+            if G.has_edge(node_name1, node_name2):
                 # Add dummy node in graph to avoid parallel edges.
                 dummynode = '*%d' % dummy
                 dummycpt = 'W%d' % dummy
-                G.add_edge(nodename1, dummynode, name=name)
-                G.add_edge(dummynode, nodename2, name=dummycpt)
-                dummy_nodes[dummynode] = nodename2
+                G.add_edge(node_name1, dummynode, name=name)
+                G.add_edge(dummynode, node_name2, name=dummycpt)
+                dummy_nodes[dummynode] = node_name2
                 dummy += 1
             else:
-                G.add_edge(nodename1, nodename2, name=name)
+                G.add_edge(node_name1, node_name2, name=name)
 
         return cls(cct, G)
 
@@ -245,22 +245,22 @@ class CircuitGraph(object):
         cloops = []
 
         # Map node names to equipotential node names.
-        nodenames = [self.cct.node_map[nodename] for nodename in elt.nodenames]
+        node_names = [self.cct.node_map[node_name] for node_name in elt.node_names]
 
         for n, loop in enumerate(loops):
 
             loop1 = loop.copy()
             loop1.append(loop1[0])
 
-            def find(loop1, nodename1, nodename2):
+            def find(loop1, node_name1, node_name2):
                 for m in range(len(loop1) - 1):
-                    if (nodename1 == loop1[m] and
-                            nodename2 == loop1[m + 1]):
+                    if (node_name1 == loop1[m] and
+                            node_name2 == loop1[m + 1]):
                         return True
 
-            if find(loop1, nodenames[0], nodenames[1]):
+            if find(loop1, node_names[0], node_names[1]):
                 cloops.append((loop, False))
-            elif find(loop1, nodenames[1], nodenames[0]):
+            elif find(loop1, node_names[1], node_names[0]):
                 cloops.append((loop, True))
             else:
                 cloops.append(([], None))
@@ -281,7 +281,7 @@ class CircuitGraph(object):
 
         cct = self.cct
         elt = cct.elements[cpt_name]
-        nodenames = [cct.node_map[nodename] for nodename in elt.nodenames]
+        node_names = [cct.node_map[node_name] for node_name in elt.node_names]
 
         series = []
         series.append(cpt_name)
@@ -295,8 +295,8 @@ class CircuitGraph(object):
                     series.append(e['name'])
                     follow(n)
 
-        follow(nodenames[0])
-        follow(nodenames[1])
+        follow(node_names[0])
+        follow(node_names[1])
 
         # If only have two components in parallel, they will be
         # detected as a series connection.  However, if there is a
@@ -312,9 +312,9 @@ class CircuitGraph(object):
 
         cct = self.cct
         elt = cct.elements[cpt_name]
-        nodenames = [cct.node_map[nodename] for nodename in elt.nodenames]
+        node_names = [cct.node_map[node_name] for node_name in elt.node_names]
 
-        n1, n2 = nodenames[0:2]
+        n1, n2 = node_names[0:2]
 
         # This is trivial for a multigraph but a mutigraph adds
         # additional problems since component() will fail if have
