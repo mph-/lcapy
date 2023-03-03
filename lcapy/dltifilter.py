@@ -236,14 +236,15 @@ class DLTIFilter(object):
     def response(self, x, ic=None, ni=None):
         """
         response(x, ic=None, ni=None)
-        Calculate response of filter to input `x` given a list of initial conditions
-        `ic` for time indexes specified by `ni`.
+        Calculate response of filter to input `x` at time indexes specified by `ni`,
+        given a list of initial conditions `ic`.
 
-        - If `ni` is a tuple, this specifies the first and last (inclusive) time index.
-        - The initial conditions are valid prior to the time indices given by the ni
-            ic=[y(n0-1), y(n0-2), ...]
         - `x` can be an expression, a sequence, or a list/array of values.
-        - If ic=None the initial conditions are assumed to be zero
+        - If `ni` is a tuple, this specifies the first and last (inclusive) time index.
+          Otherwise, it should be list of integers, monotonically increasing by 1.
+          If `ni` is `None`, or unspecified, it defaults to `(-len(ic), 10)`.
+        - `ic` specifies the initial conditions, `[y[-1], y[-2], ...]`.
+        - If `ic` is `None` the initial conditions are assumed to be zero.
         """
 
         from numpy import arange, ndarray
@@ -280,7 +281,7 @@ class DLTIFilter(object):
                 "Expected %d initial conditions, got %d" % (len(self.a) - 1, Ni))
 
         if ni is None:
-            ni = (0, 10)
+            ni = (-Ni, 10)
 
         if isinstance(ni, tuple):
             ni = arange(ni[0], ni[1] + 1)
