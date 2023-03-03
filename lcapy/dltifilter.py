@@ -1,6 +1,6 @@
 """This module provides discrete-time filter support.
 
-Copyright 2021--2022 Michael Hayes, UCECE
+Copyright 2021--2023 Michael Hayes, UCECE
 
 """
 
@@ -20,7 +20,7 @@ class DLTIFilter(object):
     def __init__(self, b, a):
         """Create discrete-time filter where `b` is a list or array of
         numerator coefficients and `a` is a list or array of
-        denominator coefficients. 
+        denominator coefficients.
         The order in a and b is according to z^0, z^(-1), ...
 
         Note, a recursive (IIR) filter with more than 3 coefficients
@@ -99,7 +99,7 @@ class DLTIFilter(object):
         """
              difference_equation(inputsym='x', outputsym='y')
              Return difference equation.
-             y[n] is a function of x[n-i] and y[n-i]     i>=0 
+             y[n] is a function of x[n-i] and y[n-i]     i>=0
         """
 
         rhs = 0 * n
@@ -113,60 +113,58 @@ class DLTIFilter(object):
         lhs = self.a[0] * expr('y(n)')
         return DifferenceEquation(lhs, rhs, inputsym, outputsym)
 
-    def zdomain_initial_response(self, ic=None, xic=None, left=True, inputsym='x', outputsym='y'):
+    def zdomain_initial_response(self, ic=None, xic=None, left=True,
+                                 inputsym='x', outputsym='y'):
         """
            Return z-domain response due to initial conditions.
            zdomain_initial_response(ic=None, xic=None, left=True, inputsym='x', outputsym='y')
-           left=True (default) 
-              ic : list with initial values y[-1], y[-2], ..., 
+           left=True (default)
+              ic : list with initial values y[-1], y[-2], ...,
               xic : list with initial values x[-1], x[-2], ...,
            left=False
-              ic : list with initial values y[0], y[1], ... 
-              xic : list with initial values x[0], x[1], ... 
-           If no ic or xic are given symbolic expressions are used   
+              ic : list with initial values y[0], y[1], ...
+              xic : list with initial values x[0], x[1], ...
+           If no ic or xic are given symbolic expressions are used
         """
 
         from .sym import zsym
 
         Nl = len(self.a)
-        
-        # default values for ic 
+
+        # default values for ic
         if ic is None:
-            ic=[]
-            n_pos = range(-1,-Nl,-1)
-            if left==False:
-                n_pos = range(0,Nl-1)
+            ic = []
+            n_pos = range(-1, -Nl, -1)
+            if not left:
+                n_pos = range(0, Nl - 1)
             for k in n_pos:
-                #ic += [ expr( '%s(%i)'%(outputsym, k ) ) ]
-                ic += [  sym.Symbol('%s[%i]'%(outputsym,k)) ]
+                ic += [sym.Symbol('%s[%i]' % (outputsym, k))]
             ic = tuple(ic)
-    
+
         # default values for xic
         if xic is None:
-            xic=[]
-            n_pos = range(-1,-Nl,-1)
-            if left==False:
-                n_pos = range(0,Nl-1)
+            xic = []
+            n_pos = range(-1, -Nl, -1)
+            if not left:
+                n_pos = range(0, Nl - 1)
             for k in n_pos:
-                #xic += [ expr( '%s(%i)'%(inputsym, k ) ) ]
-                xic += [  sym.Symbol('%s[%i]'%(inputsym,k)) ]
-            xic = tuple(xic)        
-                                
-                        
+                xic += [sym.Symbol('%s[%i]' % (inputsym, k))]
+            xic = tuple(xic)
+
         if not isiterable(ic):
             ic = (ic, )
         if not isiterable(xic):
-            xic = (xic, )        
+            xic = (xic, )
 
         Nl = len(self.a)
-        if len(ic) != Nl-1:
+        if len(ic) != Nl - 1:
             raise ValueError('Expecting %d initial conditions for ic, got %d'
-                             % (Nl-1, len(ic)))
-        if len(xic) != Nl-1:
+                             % (Nl - 1, len(ic)))
+        if len(xic) != Nl - 1:
             raise ValueError('Expecting %d initial conditions for xic, got %d'
-                             % (Nl-1, len(ic)))        
-        
-        # inition condition y[-1],y[-2], .....
+                             % (Nl - 1, len(ic)))
+
+        # Initial condition y[-1], y[-2], .....
         if left:
             # Denominator for Yi(z)
             denom = self.a[0] * z**0
@@ -180,41 +178,40 @@ class DLTIFilter(object):
                 for i in range(0, k):
                     y0 += ic[i] * z**(i + 1)
                     x0 += xic[i] * z**(i + 1)
-                # ic conditions    
+                # ic conditions
                 num -= az * y0
                 # xic conditions
-                if len( self.b  ) >= k+1  :
-                    num +=  x0 * self.b[k] * z**(-k)
-    
-            # Collect with respect to positive powers of the variable z
-            num = num.sympy * zsym**(Nl-1) 
-            denom = denom.sympy * zsym**(Nl-1)
+                if len(self.b) >= k + 1:
+                    num += x0 * self.b[k] * z**(-k)
 
-        # inition condition y[0],y[1], ..... 
+            # Collect with respect to positive powers of the variable z
+            num = num.sympy * zsym**(Nl - 1)
+            denom = denom.sympy * zsym**(Nl - 1)
+
+        # Initial condition y[0], y[1], .....
         else:
             # Denominator for Yi(z)
-            denom = self.a[Nl-1] 
+            denom = self.a[Nl - 1]
             num = 0 * z
-            for k in range(0, Nl-1):
-                az = self.a[k] * z**(Nl-1-k)
+            for k in range(0, Nl - 1):
+                az = self.a[k] * z**(Nl - 1 - k)
                 denom += az
                 # Numerator for Yi(z)
                 y0 = 0 * z
                 x0 = 0 * z
-                for i in range(0,Nl-1-k):
+                for i in range(0, Nl - 1 - k):
                     y0 += ic[i] * z ** (-i)
                     x0 -= xic[i] * z ** (-i)
-                # ic conditions    
-                num +=  az * y0
+                # ic conditions
+                num += az * y0
                 # xic conditions
-                if len( self.b  ) >= k+1  :
-                    num +=  x0 * self.b[k] * z**(Nl-1-k)            
+                if len(self.b) >= k + 1:
+                    num += x0 * self.b[k] * z**(Nl - 1 - k)
 
-        
         num = sym.collect(sym.expand(num), zsym)
-        denom = sym.collect(sym.expand(denom), zsym)         
+        denom = sym.collect(sym.expand(denom), zsym)
 
-        Yzi = expr( num / denom )
+        Yzi = expr(num / denom)
         Yzi.is_causal = True
 
         return Yzi
@@ -232,21 +229,22 @@ class DLTIFilter(object):
            If no ic or xic are given symbolic expressions are used
         """
 
-        Yzi = self.zdomain_initial_response(ic=ic, xic=xic, left=left, inputsym=inputsym, outputsym=outputsym)
+        Yzi = self.zdomain_initial_response(
+            ic=ic, xic=xic, left=left, inputsym=inputsym, outputsym=outputsym)
         return Yzi(n)
 
     def response(self, x, ic=None, ni=None):
         """
         response(x, ic=None, ni=None)
         Calculate response of filter to input `x` given a list of initial conditions
-        `ic` for time indexes specified by `ni`.  
-        
+        `ic` for time indexes specified by `ni`.
+
         - If `ni` is a tuple, this specifies the first and last (inclusive) time index.
         - The initial conditions are valid prior to the time indices given by the ni
-            ic=[ y(n0-1), y(n0-2), ...]
+            ic=[y(n0-1), y(n0-2), ...]
         - `x` can be an expression, a sequence, or a list/array of values.
-        - If ic=None they are assumed to be zero
-        - The initial conditions are added to the output
+        - If ic=None the initial conditions are assumed to be zero
+        - The initial conditions are prepended to the calculated response
         """
 
         from numpy import arange, ndarray
@@ -312,9 +310,8 @@ class DLTIFilter(object):
                 rhs / self.a[0]
 
         # Solution, with initial values prior to calculated values
-        ni = [ ni[0]-2, ni[0]-1 ] + list(ni)
-        ret_seq = seq(y_tot[0:], tuple(ni) )
-        
+        ni = list(range(-len(ic) + ni[0], ni[0])) + list(ni)
+        ret_seq = seq(y_tot[0:], tuple(ni))
 
         return ret_seq
 

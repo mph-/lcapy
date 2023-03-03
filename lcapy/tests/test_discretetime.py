@@ -119,14 +119,16 @@ class LcapyTester(unittest.TestCase):
 
         y = lpf.response(1, [0], (0, 2))
 
-        self.assertEqual(y[0], 1 - a, "IIR impulse response @0")
-        self.assertEqual(y[1], a * (1 - a), "IIR impulse response @1")
-        self.assertEqual(y[2], a**2 * (1 - a), "IIR impulse response @2")
+        self.assertEqual(y[-1], 0, "IIR impulse response at n=-1")
+        self.assertEqual(y[0], 1 - a, "IIR impulse response at n=0")
+        self.assertEqual(y[1], a * (1 - a), "IIR impulse response at n=1")
+        self.assertEqual(y[2], a**2 * (1 - a), "IIR impulse response at n=2")
 
         y = lpf.response(0, [1], (0, 2))
 
-        self.assertEqual(y[0], a, "transient response @0")
-        self.assertEqual(y[1], a**2, "transient response @1")
+        self.assertEqual(y[-1], 1, "transient response at n=-1")
+        self.assertEqual(y[0], a, "transient response at n=0")
+        self.assertEqual(y[1], a**2, "transient response at n=1")
 
     def test_dt_assumptions(self):
 
