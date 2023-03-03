@@ -1,6 +1,6 @@
 """This module provides difference equation support.
 
-Copyright 2021 Michael Hayes, UCECE
+Copyright 2021--2023 Michael Hayes, UCECE
 
 """
 
@@ -46,17 +46,16 @@ class DifferenceEquation(DiscreteTimeDomainExpression):
         Y = self.outputsym.upper()
 
         result = self.ZT()
-        
-        # remove all initial conditions from z-transform if any
-        for thisvar in [ self.inputsym , self.outputsym ]:
-            counter=0
-            while result.has( sym.Function(thisvar) ):
-                result = result.subs( sym.Function(thisvar)(counter) , 0 )
-                counter += 1
-        
-        # solve for Y(z) and remove X(z) 
-        result = result.solve(Y)[0] / zexpr(X + '(z)')          
 
+        # remove all initial conditions from z-transform if any
+        for thisvar in [self.inputsym, self.outputsym]:
+            counter = 0
+            while result.has(sym.Function(thisvar)):
+                result = result.subs(sym.Function(thisvar)(counter), 0)
+                counter += 1
+
+        # solve for Y(z) and remove X(z)
+        result = result.solve(Y)[0] / zexpr(X + '(z)')
 
         #result = self.ZT().solve(Y)[0] / zexpr(X + '(z)')
         result.is_causal = True

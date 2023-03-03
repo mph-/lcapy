@@ -1,6 +1,6 @@
 """This module provides support for z transforms.
 
-Copyright 2020--2022 Michael Hayes, UCECE
+Copyright 2020--2023 Michael Hayes, UCECE
 
 """
 
@@ -179,13 +179,13 @@ class ZTransformer(UnilateralForwardTransformer):
             result = func(z)
 
             if shift != 0:
-                # x[ n+i ] = z^i X(z) -z^i x(0) - .... - z x(i-1) 
+                # x[ n+i ] = z^i X(z) -z^i x(0) - .... - z x(i-1)
                 if shift.is_positive:
-                    result = result * z **shift
+                    result = result * z ** shift
                     for ind in range(shift):
-                        result -= expr.func(ind) * z **(shift-ind)
+                        result -= expr.func(ind) * z ** (shift - ind)
                 # x[ n-i ] = z^(-i) X(z)
-                else:    
+                else:
                     result = result * z ** shift
             return result
 
