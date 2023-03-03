@@ -179,7 +179,14 @@ class ZTransformer(UnilateralForwardTransformer):
             result = func(z)
 
             if shift != 0:
-                result = result * z ** shift
+                # x[ n+i ] = z^i X(z) -z^i x(0) - .... - z x(i-1) 
+                if shift.is_positive:
+                    result = result * z **shift
+                    for ind in range(shift):
+                        result -= expr.func(ind) * z **(shift-ind)
+                # x[ n-i ] = z^(-i) X(z)
+                else:    
+                    result = result * z ** shift
             return result
 
         if scale.is_integer:

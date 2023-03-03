@@ -45,7 +45,20 @@ class DifferenceEquation(DiscreteTimeDomainExpression):
         X = self.inputsym.upper()
         Y = self.outputsym.upper()
 
-        result = self.ZT().solve(Y)[0] / zexpr(X + '(z)')
+        result = self.ZT()
+        
+        # remove all initial conditions from z-transform if any
+        for thisvar in [ self.inputsym , self.outputsym ]:
+            counter=0
+            while result.has( sym.Function(thisvar) ):
+                result = result.subs( sym.Function(thisvar)(counter) , 0 )
+                counter += 1
+        
+        # solve for Y(z) and remove X(z) 
+        result = result.solve(Y)[0] / zexpr(X + '(z)')          
+
+
+        #result = self.ZT().solve(Y)[0] / zexpr(X + '(z)')
         result.is_causal = True
 
         return result
