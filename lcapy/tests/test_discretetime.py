@@ -117,15 +117,22 @@ class LcapyTester(unittest.TestCase):
         a = symbol('a')
         lpf = DLTIFilter((1 - a, ), (1, -a))
 
-        y = lpf.response(1, [0], (0, 2))
+        y = lpf.response(1, [0], (-1, 2))
 
         self.assertEqual(y[-1], 0, "IIR impulse response at n=-1")
         self.assertEqual(y[0], 1 - a, "IIR impulse response at n=0")
         self.assertEqual(y[1], a * (1 - a), "IIR impulse response at n=1")
         self.assertEqual(y[2], a**2 * (1 - a), "IIR impulse response at n=2")
 
-        y = lpf.response(0, [1], (0, 2))
+        y = lpf.response(0, [1], (-1, 2))
 
+        self.assertEqual(y[-1], 1, "transient response at n=-1")
+        self.assertEqual(y[0], a, "transient response at n=0")
+        self.assertEqual(y[1], a**2, "transient response at n=1")
+
+        y = lpf.response(0, [1], (-2, 2))
+
+        self.assertEqual(y[-2], 0, "transient response at n=-2")
         self.assertEqual(y[-1], 1, "transient response at n=-1")
         self.assertEqual(y[0], a, "transient response at n=0")
         self.assertEqual(y[1], a**2, "transient response at n=1")

@@ -244,7 +244,6 @@ class DLTIFilter(object):
             ic=[y(n0-1), y(n0-2), ...]
         - `x` can be an expression, a sequence, or a list/array of values.
         - If ic=None the initial conditions are assumed to be zero
-        - The initial conditions are prepended to the calculated response
         """
 
         from numpy import arange, ndarray
@@ -274,11 +273,11 @@ class DLTIFilter(object):
             raise ValueError(
                 'The input x must be a scalar, tuple, sequence, nexpr, list, or array')
 
-        NO = len(ic)
+        Ni = len(ic)
 
-        if NO != len(self.a) - 1:
+        if Ni != len(self.a) - 1:
             raise ValueError(
-                "Expected %d initial conditions, got %d" % (len(self.a) - 1, NO))
+                "Expected %d initial conditions, got %d" % (len(self.a) - 1, Ni))
 
         if ni is None:
             ni = (0, 10)
@@ -286,32 +285,36 @@ class DLTIFilter(object):
         if isinstance(ni, tuple):
             ni = arange(ni[0], ni[1] + 1)
 
-        Nn = len(ni)
+        Nn = ni[-1] + 1
 
         # Order right hand side
         Nr = len(self.b)
 
-        y_tot = list(ic[-1::-1]) + Nn * [0]
+        y_tot = list(ic[-1::-1]) + [0] * Nn
 
-        a_r = self.a[-1:-1-NO:-1]
-        for i, nval in enumerate(ni):
+        a_r = self.a[-1:-1 - Ni:-1]
+        for i in range(Nn):
             # Get previous y vals (sliding window)
-            pre_y = y_tot[i:i + NO]
+            pre_y = y_tot[i:i + Ni]
 
             # Calculate rhs of new value
             if isinstance(x, Sequence):
-                rhs = sum(self.b[l] * x[nval - l] for l in range(Nr))
+                rhs = sum(self.b[l] * x[i - l] for l in range(Nr))
             else:
-                rhs = sum(self.b[l] * x(nval - l) for l in range(Nr))
+                rhs = sum(self.b[l] * x(i - l) for l in range(Nr))
 
             # Add lhs
-            y_tot[i + NO] = -1 / self.a[0] * \
+            y_tot[i + Ni] = -1 / self.a[0] * \
                 sum(csi * ysi for csi, ysi in zip(a_r, pre_y)) + \
                 rhs / self.a[0]
 
-        # Solution, with initial values prior to calculated values
-        ni = list(range(-len(ic) + ni[0], ni[0])) + list(ni)
-        ret_seq = seq(y_tot[0:], tuple(ni))
+        # Number of zeros to prepend
+        Nz = 0
+        if ni[0] < -Ni:
+            Nz = -(Ni + ni[0])
+            y_tot = Nz * [0] + y_tot
+
+        ret_seq = seq(y_tot[ni[0] + Ni + Nz:], tuple(ni))
 
         return ret_seq
 
