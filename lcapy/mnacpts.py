@@ -138,6 +138,10 @@ class Cpt(ImmittanceMixin):
     def cpt(self):
         return self._cpt
 
+    @property
+    def _kind(self):
+        return self.keyword[1]
+
     def pdb(self):
         import pdb
         pdb.set_trace()
@@ -215,6 +219,17 @@ class Cpt(ImmittanceMixin):
         """Change initial condition to ic."""
 
         return self._copy()
+
+    def _change_kind(self, kind):
+
+        if self.keyword[1] == kind:
+            return self
+
+        cpt = self
+        self.cct.remove(cpt.name)
+        cpt.keyword = (cpt.keyword[0], kind)
+        self.cct.add(str(cpt))
+        return self.cct[cpt.name]
 
     def _netsubs(self, node_map=None, zero=False, subs_dict=None):
         """Create a new net description using substitutions in `subs_dict`.
