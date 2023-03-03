@@ -304,6 +304,10 @@ class Cpt(ImmittanceMixin):
         if len(fmtargs) == 1 and fmtargs[0] == name:
             fmtargs = []
 
+        # Never name wires, etc, since this confuses the autonamer
+        if name[0] in ('A', 'O', 'W'):
+            name = name[0]
+
         parts = [name]
         for m, node in enumerate(nodes):
             parts.append(node.name)
