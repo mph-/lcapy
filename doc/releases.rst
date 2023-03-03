@@ -2,6 +2,23 @@
 Release notes
 =============
 
+V1.13
+=====
+
+- Fixes Z-transform of left shifted signal
+
+- Allows nodes to be mutable for lcapy-tk
+
+- Allows components to be mutable for lcapy-tk
+
+- Fixes s_model
+
+- Adds current/voltage equations for Y and Z
+
+- Adds FT of abs(t)
+
+
+
 V1.12
 =====
 

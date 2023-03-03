@@ -880,7 +880,7 @@ Here is the complete list of component attributes:
 
 - `nodes` list of nodes
 
-- `nodenames` list of node names
+- `node_names` list of node names
 
 - `nosim` component is ignored for analysis
 
