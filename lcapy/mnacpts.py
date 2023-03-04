@@ -314,6 +314,11 @@ class Cpt(ImmittanceMixin):
             if not ignore_keyword and self.keyword[0] == m + 1 \
                and self.keyword[1] != '':
                 parts.append(self.keyword[1])
+
+        # Handle things like U1 opamp
+        if len(nodes) == 0 and self.keyword[0] == 0 and self.keyword[1] != '':
+            parts.append(self.keyword[1])
+
         parts.extend(fmtargs)
 
         net = ' '.join(parts)
