@@ -309,15 +309,16 @@ class Cpt(ImmittanceMixin):
             name = name[0]
 
         parts = [name]
+
+        # Handle things like U1 opamp
+        if self.keyword[0] == 0 and self.keyword[1] != '':
+            parts.append(self.keyword[1])
+
         for m, node in enumerate(nodes):
             parts.append(node.name)
             if not ignore_keyword and self.keyword[0] == m + 1 \
                and self.keyword[1] != '':
                 parts.append(self.keyword[1])
-
-        # Handle things like U1 opamp
-        if len(nodes) == 0 and self.keyword[0] == 0 and self.keyword[1] != '':
-            parts.append(self.keyword[1])
 
         parts.extend(fmtargs)
 
