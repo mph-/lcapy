@@ -196,13 +196,12 @@ class Cpt(object):
         """Sanitised name"""
         return self.name.replace('.', '@')
 
-    def __init__(self, sch, namespace, defname, name, cpt_type, cpt_id, string,
+    def __init__(self, sch, namespace, name, cpt_type, cpt_id, string,
                  opts_string, node_names, keyword, *args):
 
         self.sch = sch
         self.type = cpt_type
         self.id = cpt_id
-        self.defname = defname
         self.name = name
         self.namespace = namespace
 
@@ -266,7 +265,7 @@ class Cpt(object):
         # 2. pin ref          R1 1 U1.in
         # 3. include node     R1 1 s.2
         # 4. include pin ref  R1 1 s.U1.in
-        # 5. relative ref     R1 1 ._2   or  R1  R1 1 R1._2
+        # 5. relative ref     R1 1 ._2   or  R1 1 R1._2
         # Note R1 1 ._2 gets converted to R1 1 R1._2 before this is called.
 
         for node_name in self.node_names:
@@ -2676,12 +2675,12 @@ class TFtap(TF1):
 class K(TF1):
     """Mutual coupling"""
 
-    def __init__(self, sch, namespace, defname, name, cpt_type, cpt_id, string,
+    def __init__(self, sch, namespace, name, cpt_type, cpt_id, string,
                  opts_string, node_names, keyword, *args):
 
         self.Lname1 = args[0]
         self.Lname2 = args[1]
-        super(K, self).__init__(sch, namespace, defname, name,
+        super(K, self).__init__(sch, namespace, name,
                                 cpt_type, cpt_id, string, opts_string,
                                 node_names, keyword, *args[2:])
 
@@ -4044,7 +4043,7 @@ def defcpt(name, base, docstring, cpt=None):
     classes[name] = newclass
 
 
-def make(classname, parent, name, cpt_type, cpt_id,
+def make(classname, parent, namespace, name, cpt_type, cpt_id,
          string, opts_string, node_names, *args):
 
     # Create instance of component object
@@ -4053,8 +4052,8 @@ def make(classname, parent, name, cpt_type, cpt_id,
     except:
         newclass = classes[classname]
 
-    cpt = newclass(parent, name, cpt_type, cpt_id, string, opts_string,
-                   node_names, *args)
+    cpt = newclass(parent, namespace, name, cpt_type, cpt_id,
+                   string, opts_string, node_names, *args)
     # Add named attributes for the args?   Lname1, etc.
 
     return cpt

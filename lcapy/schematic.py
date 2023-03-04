@@ -305,6 +305,8 @@ class Schematic(NetfileMixin):
             self.hints = True
 
         if cpt.name in self.elements:
+            import pdb
+            pdb.set_trace()
             warn('Overriding component %s' % cpt.name)
             # Need to search lists and update component.
 

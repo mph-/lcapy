@@ -148,6 +148,7 @@ class Rule:
             error, string, repr(self)))
 
     def extract_nodes(self, string, fields, name, namespace):
+        "Extract the node names and prepend namespace"""
 
         ruleparams = self.params
         nodes = []
@@ -170,7 +171,7 @@ class Rule:
 
         return tuple(nodes)
 
-    def extract_args(self, string, fields, name, namespace, default_value):
+    def extract_args(self, string, fields, name, default_value):
 
         args = Args()
         m2 = 0
@@ -224,8 +225,7 @@ class Rule:
 
         nodes = self.extract_nodes(string, fields, name, namespace)
 
-        args = self.extract_args(string, fields, name,
-                                 namespace, default_value)
+        args = self.extract_args(string, fields, name, default_value)
 
         return nodes, args
 
@@ -309,6 +309,8 @@ class Parser:
     def parse(self, string, namespace='', parent=None):
         """Parse string and create object"""
 
+        # Namespace is usually '' but is defined when including a file.
+
         directive = False
         net = string.strip()
         if net == '':
@@ -322,16 +324,16 @@ class Parser:
 
         if directive:
             cpt_type = 'XX'
-            name = parent._make_anon_cpt_name(cpt_type)
-            cpt_id = name[2:]
-            defname = namespace + name
+            relname = parent._make_anon_cpt_name(cpt_type)
+            cpt_id = relname[2:]
+            name = namespace + relname
 
             if string.startswith(';') and not string.startswith(';;'):
                 opts_string = string[1:]
             else:
                 opts_string = ''
 
-            return self.cpts.make('XX', parent, '', defname, name,
+            return self.cpts.make('XX', parent, '', name,
                                   cpt_type, cpt_id, string, opts_string, (), '',
                                   Args())
 
@@ -342,12 +344,14 @@ class Parser:
 
         name = fields.pop(0)
         parts = name.split('.')
-        namespace = ''
-        if len(parts) > 1:
-            namespace = '.'.join(parts[0:-1]) + '.'
-        name = parts[-1]
 
-        match = self.cpt_pattern.match(name)
+        relname = parts[-1]
+        if len(parts) > 1:
+            current_namespace = '.'.join(parts[0:-1]) + '.'
+        else:
+            current_namespace = ''
+
+        match = self.cpt_pattern.match(relname)
         if match is None:
             raise ValueError(
                 'Unknown component %s while parsing "%s"' % (name, net))
@@ -374,14 +378,16 @@ class Parser:
                 keyword = rule1.params[pos].name
                 break
 
-        defname = namespace + cpt_type + cpt_id
-        name = defname
         if (cpt_id == '' and parent is not None
-                and (cpt_type in ('A', 'W', 'O')) or self.allow_anon):
-            name = namespace + parent._make_anon_cpt_name(cpt_type)
+                and (cpt_type in ('A', 'W', 'O', 'P')) or self.allow_anon):
+            name = namespace + current_namespace + \
+                parent._make_anon_cpt_name(cpt_type)
         elif cpt_id == '?':
             # Automatically name cpts to ensure they are unique
-            name = namespace + parent._make_anon_cpt_name(cpt_type)
+            name = namespace + current_namespace + \
+                parent._make_anon_cpt_name(cpt_type)
+        else:
+            name = namespace + current_namespace + relname
 
         default_value = cpt_type + cpt_id
         nodes, args = rule.process(net, fields, name, namespace, default_value)
@@ -393,6 +399,6 @@ class Parser:
 
         # self.cpts is either the mnacpts or schemcpts module
         return self.cpts.make(rule.classname, parent, namespace,
-                              defname, name, cpt_type, cpt_id, net,
+                              name, cpt_type, cpt_id, net,
                               opts_string, tuple(nodes), keyword,
                               *args)

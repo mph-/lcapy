@@ -56,13 +56,12 @@ class Cpt(ImmittanceMixin):
     is_transformer = False
     is_wire = False
 
-    def __init__(self, cct, namespace, defname, name, cpt_type, cpt_id, string,
+    def __init__(self, cct, namespace, name, cpt_type, cpt_id, string,
                  opts_string, node_names, keyword, *args):
 
         self.cct = cct
         self.type = cpt_type
         self.id = cpt_id
-        self.defname = defname
         self.name = name
         self.relname = name
         self.namespace = ''
@@ -236,7 +235,7 @@ class Cpt(ImmittanceMixin):
         If `node_map` is not `None`, rename the nodes.  If `zero` is `True`,
         set args to zero."""
 
-        string = self.defname
+        string = self.name
         field = 0
 
         for node in self.relnodes:
@@ -305,7 +304,7 @@ class Cpt(ImmittanceMixin):
             fmtargs = []
 
         # Never name wires, etc, since this confuses the autonamer
-        if name[0] in ('A', 'O', 'W'):
+        if name[0] in ('A', 'O', 'W', 'P') and name[1:].startswith('anon'):
             name = name[0]
 
         parts = [name]
@@ -1282,7 +1281,7 @@ class GY(Dummy):
     def _stamp(self, mna):
 
         n1, n2, n3, n4 = mna._cpt_node_indexes(self)
-        m1 = mna._branch_index(self.defname + 'X')
+        m1 = mna._branch_index(self.name + 'X')
         m2 = mna._cpt_branch_index(self)
 
         # m1 is the input branch
@@ -1325,7 +1324,7 @@ class TVtriode(Dummy):
     def _stamp(self, cct):
 
         n1, n2, n3 = self.node_indexes
-        m1 = self.cct._branch_index(self.defname + 'X')
+        m1 = self.cct._branch_index(self.name + 'X')
         m2 = self.branch_index
 
         # m1 is the input branch
@@ -1425,12 +1424,12 @@ class I(IndependentSource):
 
 class K(Dummy):
 
-    def __init__(self, cct, namespace, defname, name, cpt_type, cpt_id, string,
+    def __init__(self, cct, namespace, name, cpt_type, cpt_id, string,
                  opts_string, nodes, keyword, *args):
 
         self.Lname1 = args[0]
         self.Lname2 = args[1]
-        super(K, self).__init__(cct, namespace, defname, name,
+        super(K, self).__init__(cct, namespace, name,
                                 cpt_type, cpt_id, string,
                                 opts_string, nodes, keyword, *args)
 
@@ -2143,13 +2142,13 @@ def defcpt(name, base, docstring):
     classes[name] = newclass
 
 
-def make(classname, parent, namespace, defname, name, cpt_type, cpt_id,
+def make(classname, parent, namespace, name, cpt_type, cpt_id,
          string, opts_string, nodes, keyword, *args):
 
     # Create instance of component object
     newclass = classes[classname]
 
-    cpt = newclass(parent, namespace, defname, name, cpt_type, cpt_id, string,
+    cpt = newclass(parent, namespace, name, cpt_type, cpt_id, string,
                    opts_string, nodes, keyword, *args)
 
     return cpt
