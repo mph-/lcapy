@@ -1,6 +1,6 @@
 P 1 2; down, v_=V_1
-W 1 11; right=0.5, i=I_1
-W 2 12; right=0.5, i<=I_1
+W 1 11; right=0.75, i=I_1
+W 2 12; right=0.75, i<=I_1
 I1y 12 11; up
 W 11 5; right=0.25
 W 12 6; right=0.25
