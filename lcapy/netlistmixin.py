@@ -194,8 +194,6 @@ class NetlistMixin(object):
     def _cpt_add(self, cpt):
 
         if cpt.name in self._elements:
-            import pdb
-            pdb.set_trace()
             warn('Overriding component %s' % cpt.name)
             # Need to search lists and update component.
             # For example, remove nodes that are only connected
