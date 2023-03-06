@@ -380,16 +380,14 @@ class Parser:
 
         if (cpt_id == '' and parent is not None
                 and (cpt_type in ('A', 'W', 'O', 'P')) or self.allow_anon):
-            name = namespace + current_namespace + \
-                parent._make_anon_cpt_name(cpt_type)
+            relname = parent._make_anon_cpt_name(cpt_type)
         elif cpt_id == '?':
             # Automatically name cpts to ensure they are unique
-            name = namespace + current_namespace + \
-                parent._make_anon_cpt_name(cpt_type)
-        else:
-            name = namespace + current_namespace + relname
+            relname = parent._make_anon_cpt_name(cpt_type)
 
-        default_value = cpt_type + cpt_id
+        name = namespace + current_namespace + relname
+
+        default_value = relname
         nodes, args = rule.process(net, fields, name, namespace, default_value)
 
         parts = net.split(';', 1)
