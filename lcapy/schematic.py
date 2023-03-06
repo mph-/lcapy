@@ -682,8 +682,9 @@ class Schematic(NetfileMixin):
                 continue
             if elt.string.strip().startswith(';'):
                 for key, val in elt.opts.items():
-                    # val is a str
-                    kwargs[key] = val
+                    if key != 'thickness':
+                        # val is a str
+                        kwargs[key] = val
                 break
 
         def in_ipynb():
