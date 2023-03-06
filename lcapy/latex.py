@@ -78,7 +78,9 @@ def latex_format_label(s):
 
     s = latex_str(s)
 
-    s2 = s
+    # Do not switch into math mode for \\
+    s2 = s.replace(r'\\', '@@@@')
+
     for macro in (r'\hspace', r'\vspace', r'\ ', r'\,', r'\;', r'\!',
                   r'\tiny', r'\scriptsize', r'\footnotesize', r'\small',
                   r'\normalsize', r'\large', '\Large',
@@ -90,9 +92,6 @@ def latex_format_label(s):
     # use math mode.  The tricky part is that arbitrary signals may
     # have math symbols, say sqrt.
     math_symbols = ('_',  '^', '\\')
-
-    # Do not switch into math mode for \\
-    s2 = s2.replace(r'\\', '@@@')
 
     for math_symbol in math_symbols:
         if math_symbol in s2:
