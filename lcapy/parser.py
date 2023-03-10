@@ -337,7 +337,6 @@ class Parser:
                                   cpt_type, cpt_id, string, opts_string, (), '',
                                   Args())
 
-        net = namespace + net
         parts = net.split(';', 1)
 
         fields = split(parts[0], self.delimiters)
