@@ -2227,8 +2227,9 @@ class Transistor(FixedCpt):
 
     @property
     def pins(self):
-        if self.kind in ('pigfetd', 'nigfetd', 'pigfete', 'nigfete',
-                         'pigfetebulk', 'nigfetebulk'):
+        if (self.kind is not None
+            and (self.kind.startswith('pigfet')
+                 or self.kind.startswith('nigfet'))):
             xpins = [[self.npins2, self.inpins2], [self.ppins2, self.ippins2]]
         else:
             xpins = [[self.npins, self.inpins], [self.ppins, self.ippins]]
@@ -2314,8 +2315,17 @@ class BJT(Transistor):
     inpins = {'e': ('lx', 0, 1),
               'b': ('lx', 0.55, 0.5),
               'c': ('lx', 0, 0)}
-    kinds = {'nigbt': 'nigbt', 'pigbt': 'pigbt', 'Lnigbt': 'Lnigbt',
-             'Lpigbt': 'Lpigbt'}
+    kinds = {'npn': 'npn',
+             'pnp': 'pnp',
+             'bodydiode': '-bodydiode',
+             'nigbt': 'nigbt',
+             'pigbt': 'pigbt',
+             'nigbt-bodydiode': 'nigbt-bodydiode',
+             'pigbt-bodydiode': 'pigbt-bodydiode',
+             'Lnigbt': 'Lnigbt',
+             'Lpigbt': 'Lpigbt',
+             'Lnigbt-bodydiode': 'Lnigbt-bodydiode',
+             'Lpigbt-bodydiode': 'Lpigbt-bodydiode'}
 
 
 class JFET(Transistor):
@@ -2374,8 +2384,14 @@ class MOSFET(Transistor):
              'pfet-bodydiode': 'pfet-bodydiode',
              'nfetd-bodydiode': 'nfetd-bodydiode',
              'pfetd-bodydiode': 'pfetd-bodydiode',
-             'nigfetd': 'nigfetd', 'pigfetd': 'pigfetd',
-             'nigfete': 'nfigete', 'pigfete': 'pigfete',
+             'nigfetd': 'nigfetd',
+             'pigfetd': 'pigfetd',
+             'nigfetd-bodydiode': 'nigfetd-bodydiode',
+             'pigfetd-bodydiode': 'pigfetd-bodydiode',
+             'nigfete': 'nfigete',
+             'pigfete': 'pigfete',
+             'nigfete-bodydiode': 'nfigete-bodydiode',
+             'pigfete-bodydiode': 'pigfete-bodydiode',
              'nigfetebulk': 'nigfetebulk', 'pigfetebulk': 'pigfetebulk',
              'hemt': 'hemt'}
 
