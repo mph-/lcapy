@@ -225,10 +225,14 @@ class Cpt(ImmittanceMixin):
             return self
 
         cpt = self
+        node_positions = [node.pos for node in cpt.nodes]
         self.cct.remove(cpt.name)
         cpt.keyword = (cpt.keyword[0], kind)
         self.cct.add(str(cpt))
-        return self.cct[cpt.name]
+        newcpt = self.cct[cpt.name]
+        for node, pos in zip(newcpt.nodes, node_positions):
+            node.pos = pos
+        return newcpt
 
     def _netsubs(self, node_map=None, zero=False, subs_dict=None):
         """Create a new net description using substitutions in `subs_dict`.
