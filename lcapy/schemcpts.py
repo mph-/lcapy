@@ -2233,8 +2233,9 @@ class Transistor(FixedCpt):
         else:
             xpins = [[self.npins, self.inpins], [self.ppins, self.ippins]]
         if (self.classname in ('Qpnp', 'Mpmos', 'Jpjf')
-            or self.kind in ('pmos', 'pmosd', 'pfetd', 'pfet', 'pigfetd',
-                             'pigfete', 'pigfetebulk')):
+            or self.kind in ('pmos', 'pmosd', 'pfetd', 'pfet',
+                             'pfetd-bodydiode', 'pfet-bodydiode'
+                             'pigfetd', 'pigfete', 'pigfetebulk')):
             pins = xpins[not self.mirror][self.invert]
         else:
             pins = xpins[self.mirror][self.invert]
@@ -2273,7 +2274,8 @@ class Transistor(FixedCpt):
             if self.kind not in self.kinds:
                 warn('Kind %s not in known kinds: %s' %
                      (self.kind, ', '.join(self.kinds)))
-            cpt = self.kind
+            # Handle bodydiode
+            cpt = self.kind.replace('-', ', ')
 
         label = self.label(**kwargs)
 
@@ -2364,8 +2366,14 @@ class MOSFET(Transistor):
     inpins2 = {'d': ('lx', 0, 1),
                'g': ('lx', 0.55, 0.355),
                's': ('lx', 0, 0)}
-    kinds = {'nmos': 'nmos', 'pmos': 'pmos', 'nmosd': 'nmosd', 'pmosd': 'pmosd',
-             'nfet': 'nfet', 'pfet': 'pfet', 'nfetd': 'nfetd', 'pfetd': 'pfetd',
+    kinds = {'nmos': 'nmos', 'pmos': 'pmos',
+             'nmosd': 'nmosd', 'pmosd': 'pmosd',
+             'nfet': 'nfet', 'pfet': 'pfet',
+             'nfetd': 'nfetd', 'pfetd': 'pfetd',
+             'nfet-bodydiode': 'nfet-bodydiode',
+             'pfet-bodydiode': 'pfet-bodydiode',
+             'nfetd-bodydiode': 'nfetd-bodydiode',
+             'pfetd-bodydiode': 'pfetd-bodydiode',
              'nigfetd': 'nigfetd', 'pigfetd': 'pigfetd',
              'nigfete': 'nfigete', 'pigfete': 'pigfete',
              'nigfetebulk': 'nigfetebulk', 'pigfetebulk': 'pigfetebulk',
