@@ -234,6 +234,34 @@ class Cpt(ImmittanceMixin):
             node.pos = pos
         return newcpt
 
+    def _change_control(self, control_cpt_name):
+
+        from .parser import split
+
+        if not self.is_dependent_source:
+            return self
+
+        control_cpt = self.cct[control_cpt_name]
+
+        cpt = self
+        node_positions = [node.pos for node in cpt.nodes]
+        self.cct.remove(cpt.name)
+
+        fields = split(str(cpt), ' ')
+        if cpt.type in ('E', 'G'):
+            fields[3] = control_cpt.nodes[0].name
+            fields[4] = control_cpt.nodes[1].name
+
+        else:
+            fields[3] = control_cpt_name
+
+        netitem = ' '.join(fields)
+        self.cct.add(netitem)
+        newcpt = self.cct[cpt.name]
+        for node, pos in zip(newcpt.nodes[0:2], node_positions[0:2]):
+            node.pos = pos
+        return newcpt
+
     def _netsubs(self, node_map=None, zero=False, subs_dict=None):
         """Create a new net description using substitutions in `subs_dict`.
         If `node_map` is not `None`, rename the nodes.  If `zero` is `True`,
