@@ -141,6 +141,9 @@ class MNA(object):
 
         message = 'The MNA A matrix is not invertible for %s analysis:' % self.kind
         cct = self.cct
+        if cct.nodes['0'].count == 0:
+            return message + ' Nothing electrically connected to ground.'
+
         if not cct.is_connected:
             return message + ' Not all nodes are connected.  Use cct.unconnected_nodes() to find them.'
 

@@ -33,11 +33,14 @@ class Node(ImmittanceMixin):
 
     def __str__(self):
 
-        # Note, need to have float type otherwise 0 becomes empty string.
-        x = str(round(self.x, 2)).rstrip('0').rstrip('.')
-        y = str(round(self.y, 2)).rstrip('0').rstrip('.')
+        if self.pos is not None:
+            # Note, need to have float type otherwise 0 becomes empty string.
+            x = str(round(self.x, 2)).rstrip('0').rstrip('.')
+            y = str(round(self.y, 2)).rstrip('0').rstrip('.')
 
-        return '%s@(%s, %s)' % (self.name, x, y)
+            return '%s@(%s, %s)' % (self.name, x, y)
+        else:
+            return self.name
 
     @property
     def name(self):
@@ -91,7 +94,7 @@ class Node(ImmittanceMixin):
 
         if cpt.type in ('P', ):
             self.port = True
-        if cpt.type not in ('A', 'O'):
+        if cpt.type not in ('A', 'O', 'P'):
             self._count += 1
 
         self._connected.append(cpt)
@@ -99,21 +102,25 @@ class Node(ImmittanceMixin):
     def remove(self, cpt):
 
         if len(self._connected) == 0:
-            raise RuntimeError('Removing node %s with 0 count' % str(self))
+            raise RuntimeError(
+                'Removing node %s with no connections' % str(self))
 
         for c in self._connected:
             if c.name == cpt.name:
                 self._connected.remove(c)
                 break
-        self._count -= 1
+        if cpt.type not in ('A', 'O', 'P'):
+            self._count -= 1
 
         if self.count == 0:
             self.cct.nodes._remove(self.name)
 
     @property
     def count(self):
-        """Number of elements (including wires but not open-circuits and
-        annotations) connected to the node"""
+        """Number of elements electrically connected to the node.  This
+        includes wires but not open-circuits, ports, and annotations.
+
+        """
 
         return self._count
 
@@ -178,7 +185,7 @@ class Node(ImmittanceMixin):
 
     @property
     def is_dangling(self):
-        """Return True if node has a single connection"""
+        """Return True if node has a single electrical connection"""
 
         return self._count <= 1
 
