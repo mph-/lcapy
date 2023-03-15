@@ -1768,7 +1768,11 @@ class NetlistMixin(object):
             sch.add(net)
 
         sch.subnetlists = self.subnetlists
-        self._sch = sch
+
+        # Don't cache schematic; need to remove splitting of implicit nodes
+        # from the draw method otherwise a.draw(); a.draw() fails.
+        #
+        # self._sch = sch
         return sch
 
     @property
