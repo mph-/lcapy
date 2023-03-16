@@ -336,7 +336,7 @@ class NetlistMixin(object):
     def unconnected_nodes(self):
         """Return list of node names that are not connected."""
 
-        return [node.name for node in self.nodes.values() if node.count == 1]
+        return [node.name for node in self.nodes.values() if node.count <= 1]
 
     @property
     def node_map(self):
