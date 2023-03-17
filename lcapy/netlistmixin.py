@@ -772,7 +772,7 @@ class NetlistMixin(object):
             return self.thevenin(Np, Nm)
 
     def thevenin(self, Np, Nm=None):
-        """Return s-domain Thevenin oneport model between nodes Np and Nm.
+        """Return Laplace-domain Thevenin oneport model between nodes Np and Nm.
 
         If Np is a component name, create model using the component nodes."""
 
@@ -786,7 +786,7 @@ class NetlistMixin(object):
         return (V(Voc) + Z(Zoc)).simplify()
 
     def norton(self, Np, Nm=None):
-        """Return s-domain Norton model between nodes Np and Nm.
+        """Return Laplace-domain Norton model between nodes Np and Nm.
 
         If Np is a component name, create model using the component nodes."""
 
@@ -812,11 +812,9 @@ class NetlistMixin(object):
         return elts
 
     def admittance(self, Np, Nm=None):
-        """Return driving-point admittance between nodes
+        """Return driving-point Laplace-domain admittance between nodes
         Np and Nm with independent sources killed and initial
-        conditions ignored.  Since the result is causal, the frequency
-        domain admittance can be found by substituting j * omega for
-        s."""
+        conditions ignored."""
 
         Np, Nm = self._parse_node_args2(Np, Nm)
         Np, Nm = self._check_nodes(Np, Nm)
@@ -829,11 +827,9 @@ class NetlistMixin(object):
         return admittance(If.laplace().sympy)
 
     def impedance(self, Np, Nm=None):
-        """Return driving-point impedance between nodes
+        """Return driving-point Laplace-domain impedance between nodes
         Np and Nm with independent sources killed and initial
-        conditions ignored.  Since the result is causal, the frequency
-        domain impedance can be found by substituting j * omega for
-        s."""
+        conditions ignored."""
 
         Np, Nm = self._parse_node_args2(Np, Nm)
         Np, Nm = self._check_nodes(Np, Nm)
@@ -867,13 +863,12 @@ class NetlistMixin(object):
         return self.impedance(Np, Nm).B
 
     def transfer(self, N1p, N1m, N2p=None, N2m=None):
-        """Create s-domain voltage transfer function V2(s) / V1(s) where:
+        """Create Laplace-domain voltage transfer function V2(s) / V1(s) where:
         V1 is V[N1p] - V[N1m]
         V2 is V[N2p] - V[N2m]
 
         Note, independent sources are killed and initial conditions
-        are ignored.  Since the result is causal, the frequency response
-        can be found by substituting j * omega for s.
+        are ignored.
 
         Alternative forms are:
             transfer(N1p, N1m, N2p, N2m)
@@ -893,13 +888,12 @@ class NetlistMixin(object):
         return H
 
     def voltage_gain(self, N1p, N1m, N2p=None, N2m=None):
-        """Create s-domain voltage transfer function V2(s) / V1(s) where:
+        """Create Laplace-domain voltage transfer function V2(s) / V1(s) where:
         V1 is the test voltage applied between N1p and N1m
         V2 is the measured open-circuit voltage between N2p and N2m
 
         Note, independent sources are killed and initial conditions
-        are ignored.  Since the result is causal, the frequency response
-        can be found by substituting j * omega for s.
+        are ignored.
 
         Alternative forms are:
             voltage_gain(N1p, N1m, N2p, N2m)
@@ -920,7 +914,7 @@ class NetlistMixin(object):
         return H
 
     def current_gain(self, N1p, N1m, N2p=None, N2m=None):
-        """Create s-domain current transfer function I2(s) / I1(s) where:
+        """Create Laplace-domain current transfer function I2(s) / I1(s) where:
         I1 is the test current applied between N1p and N1m
         I2 is the measured short-circuit current flowing from N2m to N2p
 
@@ -930,8 +924,7 @@ class NetlistMixin(object):
         piece of wire has a current gain of -1.
 
         Note, independent sources are killed and initial conditions
-        are ignored.  Since the result is causal, the frequency response
-        can be found by substituting j * omega for s.
+        are ignored.
 
         Alternative forms are:
             current_gain(N1p, N1m, N2p, N2m)
@@ -951,7 +944,7 @@ class NetlistMixin(object):
         return H
 
     def transadmittance(self, N1p, N1m, N2p=None, N2m=None):
-        """Create s-domain transadmittance (transfer admittance) function
+        """Create Laplace-domain transadmittance (transfer admittance) function
         I2(s) / V1(s) where:
           V1 is the test voltage applied between N1p and N1m
           I2 is the measured short-circuit current flowing from N2m to N2p.
@@ -961,8 +954,7 @@ class NetlistMixin(object):
         a series resistor with resistance R is -1 / R.
 
         Note, independent sources are killed and initial conditions
-        are ignored.  Since the result is causal, the frequency response
-        can be found by substituting j * omega for s.
+        are ignored.
 
         Alternative forms are:
             transadmittance(N1p, N1m, N2p, N2m)
@@ -982,7 +974,7 @@ class NetlistMixin(object):
         return H
 
     def transimpedance(self, N1p, N1m, N2p=None, N2m=None):
-        """Create s-domain transimpedance (transfer impedance) function
+        """Create Laplace-domain transimpedance (transfer impedance) function
         V2(s) / I1(s) where:
           I1 is the test current applied between N1p and N1m
           V2 is the measured open-circuit voltage between N2p and N2m.
@@ -991,8 +983,7 @@ class NetlistMixin(object):
         is the convention with two-ports.
 
         Note, independent sources are killed and initial conditions
-        are ignored.  Since the result is causal, the frequency response
-        can be found by substituting j * omega for s.
+        are ignored.
 
         Alternative forms are:
             transimpedance(N1p, N1m, N2p, N2m)
@@ -1692,7 +1683,7 @@ class NetlistMixin(object):
         return self.simplify(explain=True, modify=False)
 
     def twoport(self, N1p, N1m, N2p=None, N2m=None, model='B'):
-        """Create s-domain twoport model for two-port defined by nodes N1p, N1m, N2p, and N2m, where:
+        """Create Laplace-domain twoport model for two-port defined by nodes N1p, N1m, N2p, and N2m, where:
         I1 is the current flowing into N1p and out of N1m
         I2 is the current flowing into N2p and out of N2m
         V1 is V[N1p] - V[N1m]
@@ -1714,7 +1705,7 @@ class NetlistMixin(object):
             N1p, N1m, N2p, N2m, 'twoport')
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
 
-        # TODO, generalise for not just s-domain.
+        # TODO, generalise for not just Laplace-domain.
 
         new = self.copy()
         new._add_ground(N1m)
@@ -1867,7 +1858,7 @@ class NetlistMixin(object):
         return new
 
     def s_model(self, kind='s'):
-        """"Create s-domain model."""
+        """"Create Laplace-domain model."""
 
         new = self._new()
 
@@ -2036,7 +2027,7 @@ class NetlistMixin(object):
 
     @property
     def has_s_transient(self):
-        """Return True if any independent source has a transient component defined in s-domain."""
+        """Return True if any independent source has a transient component defined in Laplace-domain."""
         return self.analysis.has_s
 
     @property
@@ -2244,7 +2235,7 @@ class NetlistMixin(object):
 
         if self.is_IVP:
             return 'This has initial conditions for %s so is an initial value '
-            'problem solved in the s-domain using Laplace transforms.\n' \
+            'problem solved in the Laplace-domain using Laplace transforms.\n' \
                 % ', '.join(self.ics)
             return
 
