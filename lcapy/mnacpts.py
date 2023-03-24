@@ -1263,9 +1263,9 @@ class CCCS(DependentSource):
         F = ConstantDomainExpression(self.args[1]).sympy
 
         if n1 >= 0:
-            mna._B[n1, m] -= F
+            mna._B[n1, m] += F
         if n2 >= 0:
-            mna._B[n2, m] += F
+            mna._B[n2, m] -= F
 
     def _kill(self):
         newopts = self.opts.copy()
