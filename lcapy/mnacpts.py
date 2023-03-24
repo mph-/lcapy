@@ -1258,14 +1258,19 @@ class CCCS(DependentSource):
             warn('CCCS controlled by its own current for %s' % self)
 
     def _stamp(self, mna):
+
+        # The controlling current is specified by a zero volt
+        # voltage source.  The positive current flows into
+        # the positive input of the controlling voltage source.
+
         n1, n2 = mna._cpt_node_indexes(self)
         m = mna._branch_index(self.args[0])
         F = ConstantDomainExpression(self.args[1]).sympy
 
         if n1 >= 0:
-            mna._B[n1, m] += F
+            mna._B[n1, m] -= F
         if n2 >= 0:
-            mna._B[n2, m] -= F
+            mna._B[n2, m] += F
 
     def _kill(self):
         newopts = self.opts.copy()
