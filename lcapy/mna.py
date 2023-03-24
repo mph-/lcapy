@@ -175,7 +175,7 @@ class MNA(object):
 
         if '0' not in self.cct.node_map:
             raise RuntimeError(
-                'Cannot solve: nothing connected to ground node 0')
+                'Cannot solve: ground node 0 undefined')
 
         # Solve for the nodal voltages
         try:
