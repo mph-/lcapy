@@ -239,7 +239,10 @@ simulation (additional components can be drawn, see
 
    `Ename Np Nm inamp Nip Nim Nrp Nrm Ad Ac Rf`
 
-- Current-controlled current source (CCVS) of current gain F.  The control current is defined as the current flowing through the voltage source Vcontrol.
+- Current-controlled current source (CCVS) of current gain F.  The
+  control current is defined as the current flowing through the zero
+  value voltage source Vcontrol.  Note, the positive control current
+  flows into the positive node of Vcontrol.
 
    `Fname Np Nm Vcontrol F`
 
@@ -247,7 +250,10 @@ simulation (additional components can be drawn, see
 
    `Gname Np Nm Nip Nim G`
 
-- Current-controlled voltage source (VCCS) of transimpedance H.  The control current is defined as the current flowing through the voltage source Vcontrol.
+- Current-controlled voltage source (VCCS) of transimpedance H.  The
+  control current is defined as the current flowing through the zero
+  valued voltage source Vcontrol.  Note, the positive control current
+  flows into the positive node of Vcontrol.
 
    `Hname Np Nm Vcontrol H`
 
