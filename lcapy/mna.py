@@ -87,6 +87,19 @@ class MNA(object):
                 self.unknown_branch_currents.append(elt.name)
             if elt.need_extra_branch_current:
                 self.unknown_branch_currents.append(elt.name + 'X')
+            if elt.is_current_controlled:
+                cname = elt.args[0]
+                if cname not in self.cct.elements:
+                    raise ValueError(
+                        'Undefined controlling source %s for %s' % (cname, elt.name))
+                ccpt = self.cct.elements[cname]
+                if not ccpt.is_voltage_source:
+                    raise ValueError(
+                        'Control component %s not voltage source for %s' % (cname, elt.name))
+
+                # Will need to be cunning with stamps for CCVS and CCCS.
+                # if cname not in self.unknown_branch_currents:
+                #    self.unknown_branch_currents.append(cname)
 
         # Generate stamps.
         num_nodes = len(self.cct.node_list) - 1

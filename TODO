@@ -37,6 +37,7 @@ labels.
 
 15. Use better heuristics for component spacing when drawing networks.
 
+16. Show values with SI unit prefixes (f, p, n, u, m, k, M, G, T)
 
 Circuit analysis
 ================
@@ -127,6 +128,7 @@ an answer that appears valid for DC.
 
 32. Fix noise expression products
 
+33. Parse SI unit prefixes (f, p, n, u, m, k, M, G, T)
 
 Testing
 =======

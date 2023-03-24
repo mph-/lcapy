@@ -55,6 +55,8 @@ class Cpt(ImmittanceMixin):
     is_switch = False
     is_transformer = False
     is_wire = False
+    is_current_controlled = False
+    is_voltage_controlled = False
 
     def __init__(self, cct, namespace, name, cpt_type, cpt_id, string,
                  opts_string, node_names, keyword, *args):
@@ -1111,6 +1113,7 @@ class VCVS(DependentSource):
     """VCVS"""
 
     need_branch_current = True
+    is_voltage_controlled = True
 
     def check(self):
 
@@ -1251,6 +1254,7 @@ class CCCS(DependentSource):
     """CCCS"""
 
     need_control_current = True
+    is_current_controlled = True
 
     def check(self):
 
@@ -1287,6 +1291,8 @@ class FB(Misc):
 
 class VCCS(DependentSource):
     """VCCS"""
+
+    is_voltage_controlled = True
 
     def _stamp(self, mna):
         n1, n2, n3, n4 = mna._cpt_node_indexes(self)
@@ -1397,6 +1403,7 @@ class CCVS(DependentSource):
 
     need_branch_current = True
     need_control_current = True
+    is_current_controlled = True
 
     def _stamp(self, mna):
         n1, n2 = mna._cpt_node_indexes(self)
