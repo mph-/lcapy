@@ -110,8 +110,8 @@ class NodalAnalysis(object):
             for elt in self.cg.connected_cpts(node):
                 if elt.type == 'V':
                     voltage_sources.append(elt)
-                elif elt.is_controlled_source:
-                    raise ValueError('Controlled sources not handled yet')
+                elif elt.is_dependent_source:
+                    raise ValueError('Dependent sources not handled yet')
 
             if voltage_sources != []:
                 elt = voltage_sources[0]

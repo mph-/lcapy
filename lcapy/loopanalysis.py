@@ -145,8 +145,8 @@ class LoopAnalysis(object):
 
             if elt.is_current_source:
                 raise ValueError('TODO: handle current source in loop')
-            elif elt.is_controlled_source:
-                raise ValueError('Controlled sources not handled yet')
+            elif elt.is_dependent_source:
+                raise ValueError('Dependent sources not handled yet')
 
             # Map node names to equipotential node names.
             node_names = [self.cct.node_map[node_name]
