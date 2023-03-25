@@ -49,6 +49,7 @@ singular matrix.
 
 3. Remove dangling sources
 
+4. Handle controlled sources for loop and mesh analysis
 
 Infrastructure
 ==============
