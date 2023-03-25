@@ -145,10 +145,12 @@ class LoopAnalysis(object):
 
             if elt.is_current_source:
                 raise ValueError('TODO: handle current source in loop')
+            elif elt.is_controlled_source:
+                raise ValueError('Controlled sources not handled yet')
 
             # Map node names to equipotential node names.
             node_names = [self.cct.node_map[node_name]
-                         for node_name in elt.node_names]
+                          for node_name in elt.node_names]
 
             if elt.is_voltage_source:
                 v = elt.cpt.voltage_equation(mesh_current, self.kind)

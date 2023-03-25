@@ -1277,6 +1277,19 @@ class CCCS(DependentSource):
         if n2 >= 0:
             mna._B[n2, m] += F
 
+        ccpt = self.cct.elements[cname]
+        if ccpt.is_voltage_source and ccpt.cpt.Voc == 0:
+            return
+        # Controlling node indices
+        n3, n4 = [mna._node_index(name) for name in ccpt.node_names[0:2]]
+
+        if n3 >= 0:
+            mna._B[n3, m] += 1
+            mna._C[m, n3] += 1
+        if n4 >= 0:
+            mna._B[n4, m] -= 1
+            mna._C[m, n4] -= 1
+
     def _kill(self):
         newopts = self.opts.copy()
         newopts.strip_voltage_labels()
