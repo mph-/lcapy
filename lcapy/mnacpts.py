@@ -30,7 +30,7 @@ __all__ = ()
 
 module = sys.modules[__name__]
 
-cptaliases = {'F': 'CCCS',
+cptaliases = {'E': 'VCVS', 'F': 'CCCS',
               'G': 'VCCS',  'H': 'CCVS',
               'r': 'Damper', 'm': 'Mass',
               'k': 'Spring'}
@@ -1267,8 +1267,9 @@ class CCCS(DependentSource):
         # voltage source.  The positive current flows into
         # the positive input of the controlling voltage source.
 
+        cname = self.args[0]
         n1, n2 = mna._cpt_node_indexes(self)
-        m = mna._branch_index(self.args[0])
+        m = mna._branch_index(cname)
         F = ConstantDomainExpression(self.args[1]).sympy
 
         if n1 >= 0:

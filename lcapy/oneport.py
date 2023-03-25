@@ -1498,10 +1498,10 @@ class CCCS(ControlledSource):
 
 class VCVS(ControlledSource):
 
-    def __init__(self, value, **kwargs):
+    def __init__(self, value, Ac=0, **kwargs):
 
         self.kwargs = kwargs
-        self.args = (value, )
+        self.args = (value, Ac)
         self._Voc = SuperpositionVoltage(0)
         self._Z = impedance(0)
 
