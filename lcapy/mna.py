@@ -92,11 +92,6 @@ class MNA(object):
                 if cname not in self.cct.elements:
                     raise ValueError(
                         'Undefined controlling source %s for %s' % (cname, elt.name))
-                ccpt = self.cct.elements[cname]
-                if False and not ccpt.is_voltage_source:
-                    raise ValueError(
-                        'Control component %s not voltage source for %s' % (cname, elt.name))
-
                 if cname not in self.unknown_branch_currents:
                     self.unknown_branch_currents.append(cname)
 

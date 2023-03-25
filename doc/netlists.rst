@@ -240,9 +240,8 @@ simulation (additional components can be drawn, see
    `Ename Np Nm inamp Nip Nim Nrp Nrm Ad Ac Rf`
 
 - Current-controlled current source (CCVS) of current gain F.  The
-  control current is defined as the current flowing through the zero
-  value voltage source Vcontrol.  Note, the positive control current
-  flows into the positive node of Vcontrol.
+  control current is defined as the current flowing through the control
+  component, from its positive node to its negative node.
 
    `Fname Np Nm Vcontrol F`
 
@@ -251,11 +250,10 @@ simulation (additional components can be drawn, see
    `Gname Np Nm Nip Nim G`
 
 - Current-controlled voltage source (VCCS) of transimpedance H.  The
-  control current is defined as the current flowing through the zero
-  valued voltage source Vcontrol.  Note, the positive control current
-  flows into the positive node of Vcontrol.
+  control current is defined as the current flowing through the
+  control component, from its positive node to its negative node.
 
-   `Hname Np Nm Vcontrol H`
+   `Hname Np Nm control H`
 
 - Ideal transformer of turns ratio a = N_2 / N_1:
 
