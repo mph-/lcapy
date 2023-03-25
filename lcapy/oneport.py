@@ -1478,6 +1478,8 @@ class ControlledSource(OnePort):
 
 class CCVS(ControlledSource):
 
+    is_voltage_source = True
+
     def __init__(self, control, value, **kwargs):
 
         self.kwargs = kwargs
@@ -1487,6 +1489,8 @@ class CCVS(ControlledSource):
 
 
 class CCCS(ControlledSource):
+
+    is_current_source = True
 
     def __init__(self, control, value, **kwargs):
 
@@ -1498,6 +1502,8 @@ class CCCS(ControlledSource):
 
 class VCVS(ControlledSource):
 
+    is_voltage_source = True
+
     def __init__(self, value, Ac=0, **kwargs):
 
         self.kwargs = kwargs
@@ -1507,6 +1513,8 @@ class VCVS(ControlledSource):
 
 
 class VCCS(ControlledSource):
+
+    is_current_source = True
 
     def __init__(self, value, **kwargs):
 

@@ -1263,9 +1263,11 @@ class CCCS(DependentSource):
 
     def _stamp(self, mna):
 
-        # The controlling current is specified by a zero volt
-        # voltage source.  The positive current flows into
-        # the positive input of the controlling voltage source.
+        # The positive control current flows into the positive input
+        # of the controlling component.
+
+        # This fails if have a control component in parallel
+        # with a voltage source.
 
         cname = self.args[0]
         n1, n2 = mna._cpt_node_indexes(self)
@@ -1278,7 +1280,7 @@ class CCCS(DependentSource):
             mna._B[n2, m] += F
 
         ccpt = self.cct.elements[cname]
-        if ccpt.is_voltage_source and ccpt.cpt.Voc == 0:
+        if ccpt.is_voltage_source:
             return
         # Controlling node indices
         n3, n4 = [mna._node_index(name) for name in ccpt.node_names[0:2]]
@@ -1421,18 +1423,32 @@ class CCVS(DependentSource):
 
     def _stamp(self, mna):
         n1, n2 = mna._cpt_node_indexes(self)
-        m = mna._cpt_branch_index(self)
+        m1 = mna._cpt_branch_index(self)
 
         if n1 >= 0:
-            mna._B[n1, m] += 1
-            mna._C[m, n1] += 1
+            mna._B[n1, m1] += 1
+            mna._C[m1, n1] += 1
         if n2 >= 0:
-            mna._B[n2, m] -= 1
-            mna._C[m, n2] -= 1
+            mna._B[n2, m1] -= 1
+            mna._C[m1, n2] -= 1
 
-        mc = mna._branch_index(self.args[0])
-        G = ConstantDomainExpression(self.args[1]).sympy
-        mna._D[m, mc] -= G
+        cname = self.args[0]
+        m2 = mna._branch_index(cname)
+        H = ConstantDomainExpression(self.args[1]).sympy
+        mna._D[m1, m2] -= H
+
+        ccpt = self.cct.elements[cname]
+        if ccpt.is_voltage_source:
+            return
+        # Controlling node indices
+        n3, n4 = [mna._node_index(name) for name in ccpt.node_names[0:2]]
+
+        if n3 >= 0:
+            mna._B[n3, m2] += 1
+            mna._C[m2, n3] += 1
+        if n4 >= 0:
+            mna._B[n4, m2] -= 1
+            mna._C[m2, n4] -= 1
 
     def _kill(self):
         newopts = self.opts.copy()
