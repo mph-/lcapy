@@ -41,3 +41,9 @@ class EquipotentialNodes(dict):
         for i in range(len(nodes)):
             for m in range(i + 1, len(nodes)):
                 self.add_wire(nodes[i], nodes[m])
+
+    def add_connection(self, n1, n2):
+
+        if n2 not in self:
+            self.add((n2, ))
+        self.add_wire(n1, n2)

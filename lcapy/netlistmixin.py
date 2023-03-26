@@ -319,11 +319,16 @@ class NetlistMixin(object):
                 for connections in elt.equipotential_nodes:
                     enodes.add_wires([elt.name + '.' + n for n in connections])
 
+            # Add implicit connections.
             for ground in ('ground', 'cground', 'rground', 'sground', '0V'):
                 if ground in elt.opts:
-                    if '0' not in enodes:
-                        enodes.add('0')
-                    enodes.add_wire(elt.node_names[-1], '0')
+                    enodes.add_connection(elt.node_names[-1], '0')
+            for connection in ('vdd', 'vcc'):
+                if connection in elt.opts:
+                    enodes.add_connection(elt.node_names[0], connection)
+            for connection in ('vss', 'vee'):
+                if connection in elt.opts:
+                    enodes.add_connection(elt.node_names[-1], connection)
 
         # Alter keys to avoid underscore and to ensure that have a '0'
         # key if possible.
