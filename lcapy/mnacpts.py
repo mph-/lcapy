@@ -327,6 +327,10 @@ class Cpt(ImmittanceMixin):
         if opts is None:
             opts = self.opts
 
+        parts = name.split('.')
+        relname = parts[-1]
+        namespace = '.'.join(parts[0:-1])
+
         fmtargs = []
         for arg in args:
             # Ignore initial value if not defined.
@@ -334,12 +338,16 @@ class Cpt(ImmittanceMixin):
                 continue
             fmtargs.append(self._arg_format(arg))
 
-        if len(fmtargs) == 1 and fmtargs[0] == name:
+        if len(fmtargs) == 1 and fmtargs[0] == relname:
             fmtargs = []
 
         # Never name wires, etc, since this confuses the autonamer
-        if name[0] in ('A', 'O', 'W', 'P') and name[1:].startswith('anon'):
-            name = name[0]
+        if relname[0] in ('A', 'O', 'W', 'P') and relname[1:].startswith('anon'):
+            relname = relname[0]
+
+        name = relname
+        if namespace != '':
+            name = namespace + '.' + relname
 
         parts = [name]
 
@@ -907,7 +915,7 @@ class XX(Dummy):
         return self._string
 
 
-class A(XX):
+class A(Cpt):
     pass
 
 
