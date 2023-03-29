@@ -319,7 +319,8 @@ class NetlistMixin(object):
                 for connections in elt.equipotential_nodes:
                     enodes.add_wires([elt.name + '.' + n for n in connections])
 
-            # Add implicit connections.
+            # Add implicit connections.   This is a temporary hack for lcapy-tk.
+            # All the connections should be specified by the netlist.
             for ground in ('ground', 'cground', 'rground', 'sground', '0V'):
                 if ground in elt.opts:
                     enodes.add_connection(elt.node_names[-1], '0')
