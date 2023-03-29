@@ -236,6 +236,23 @@ class Cpt(ImmittanceMixin):
             node.pos = pos
         return newcpt
 
+    def _change_name(self, name):
+
+        if self.name == name:
+            return self
+
+        cpt = self
+        node_positions = [node.pos for node in cpt.nodes]
+        # TODO, fix if namespace not ''
+        cpt.relname = name
+        self.cct.add(str(cpt))
+        self.cct.remove(cpt.name)
+
+        newcpt = self.cct[name]
+        for node, pos in zip(newcpt.nodes, node_positions):
+            node.pos = pos
+        return newcpt
+
     def _change_control(self, control_cpt_name):
 
         from .parser import split
