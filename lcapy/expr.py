@@ -1205,7 +1205,7 @@ class Expr(UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
         """Return SymPy expression with units."""
 
         if self.units == 1:
-            return expr
+            return self.expr
 
         # Don't evaluate otherwise 1 A gets printed as A.
         return sym.Mul(self.expr, self.units, evaluate=False)
