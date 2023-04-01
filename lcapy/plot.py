@@ -127,6 +127,8 @@ def plot_pole_zero(obj, **kwargs):
                    axes=kwargs.pop('axes', None))
 
     unitcircle = kwargs.pop('unitcircle', False)
+    xscale = kwargs.pop('xscale', 1)
+    yscale = kwargs.pop('yscale', 1)
 
     ax.axvline(0, color='0.7')
     ax.axhline(0, color='0.7')
@@ -153,6 +155,10 @@ def plot_pole_zero(obj, **kwargs):
             y_max = 1
 
     x_extra, y_extra = 0.0, 0.0
+    x_min = x_min * xscale
+    x_max = x_max * xscale
+    y_min = y_min * yscale
+    y_max = y_max * yscale
 
     # This needs tweaking for better bounds.
     if len(a) >= 2:
@@ -184,7 +190,8 @@ def plot_pole_zero(obj, **kwargs):
         for pole, num in poles.items():
             if num > 1:
                 p = pole.cval
-                axes.text(p.real + offset, p.imag + offset, '%d' % num)
+                axes.text(p.real * xscale + offset,
+                          p.imag * yscale + offset, '%d' % num)
 
     # Marker size.  Unfortunately, the default is too small
     # but if the user wants a size of 6 set in rcParams, they are out of luck...
@@ -195,11 +202,15 @@ def plot_pole_zero(obj, **kwargs):
     xlabel = kwargs.pop('xlabel', 'Re(%s)' % obj.var)
     ylabel = kwargs.pop('ylabel', 'Im(%s)' % obj.var)
     title = kwargs.pop('title', None)
+    color = kwargs.pop('color', 'C0')
+    pole_color = kwargs.pop('pole_color', color)
+    zero_color = kwargs.pop('zero_color', color)
 
-    lines = ax.plot(z.real, z.imag, 'o', fillstyle=fillstyle, **kwargs)
+    ax.plot(z.real * xscale, z.imag * yscale,
+            'o', color=zero_color, fillstyle=fillstyle, **kwargs)
     annotate(ax, zeros)
-    color = kwargs.pop('color', lines[0].get_color())
-    ax.plot(p.real, p.imag, 'x', fillstyle=fillstyle, color=color, **kwargs)
+    ax.plot(p.real * xscale, p.imag * yscale,
+            'x', color=pole_color, fillstyle=fillstyle, **kwargs)
     annotate(ax, poles)
 
     if xlabel is not None:

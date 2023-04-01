@@ -536,6 +536,8 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         ylabel - the y-axis label (default Im(s))
         xscale - the x-axis scaling
         yscale - the y-axis scaling
+        pole_color -- the color of the pole markers
+        zero_color -- the color of the zero markers
         in addition to those supported by the matplotlib plot command.
 
         The plot axes are returned."""
