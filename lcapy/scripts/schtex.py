@@ -188,9 +188,9 @@ def main(argv=None):
     parser.add_argument('--method', type=str, default='graph',
                         help='specify component placement algorithm')
 
-    parser.add_argument('--voltage-dir', type=str, default='RP',
+    parser.add_argument('--voltage-dir', type=str, default=None,
                         dest='voltage_dir',
-                        help="specify voltage dir: 'RP' (rising potential) or 'EF' (electric field)")
+                        help="specify voltage dir: 'RP' (rising potential) or 'EF' (electric field); default RP")
 
     parser.add_argument('filename', type=str, help='schematic filename')
 
@@ -269,6 +269,8 @@ def main(argv=None):
             kwargs['postamble'] = args.postamble
         if args.style != None:
             kwargs['style'] = args.style
+        if args.voltage_dir != None:
+            kwargs['voltage_dir'] = args.voltage_dir
         if args.font != None:
             kwargs['font'] = args.font
 

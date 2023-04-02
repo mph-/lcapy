@@ -305,8 +305,6 @@ class Schematic(NetfileMixin):
             self.hints = True
 
         if cpt.name in self.elements:
-            import pdb
-            pdb.set_trace()
             warn('Overriding component %s' % cpt.name)
             # Need to search lists and update component.
 
@@ -476,6 +474,7 @@ class Schematic(NetfileMixin):
             opts.append(options)
 
         global_options = ['font', 'voltage_dir', 'color']
+
         for opt in global_options:
             if opt in kwargs:
                 opts.append(opt.replace('_', ' ') + '=' + kwargs.pop(opt))
