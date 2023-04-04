@@ -36,6 +36,10 @@ class SchemPlacerBase(object):
             print('TODO: offset %s by %f' % (elt, elt.offset))
 
         size = elt.size
+        # Handle zero length wires, say for implicit connections.
+        if size == 0:
+            size = 1e-9
+
         nodes = elt.nodes
         idx = argsort(vals)[::-1]
         for i in range(len(idx) - 1):
