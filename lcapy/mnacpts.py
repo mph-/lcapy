@@ -93,7 +93,7 @@ class Cpt(ImmittanceMixin):
             #     self.relnodes.append(node)
 
         self._string = string
-        self.args = list(args)
+        self.args = self._process_args(args)
         self.classname = self.__class__.__name__
         self.keyword = keyword
         self.opts = Opts(opts_string)
@@ -134,6 +134,24 @@ class Cpt(ImmittanceMixin):
         else:
             # This works if the nodes are renamed or the args are changed
             return self._netmake()
+
+    def _process_args(self, args):
+        """Convert args such as 42p to 42e-12.
+
+        The suffixes are ignored in expressions such as 10 * 42p."""
+
+        suffixes = {'f': 1e-15, 'p': 1e-12, 'n': 1e-9, 'u': 1e-6,
+                    'm': 1e-3, 'k': 1e3, 'M': 1e6, 'G': 1e9, 'T': 1e12}
+
+        pargs = []
+        for arg in args:
+            if (arg is not None and len(arg) > 2
+                    and arg[-1] in suffixes and arg[0:-1].is_numeric()):
+                pargs.append(float(arg) * suffixes[arg[-1]])
+            else:
+                pargs.append(arg)
+
+        return pargs
 
     @property
     def cpt(self):
