@@ -146,7 +146,7 @@ class Cpt(ImmittanceMixin):
         pargs = []
         for arg in args:
             if (arg is not None and len(arg) > 2
-                    and arg[-1] in suffixes and arg[0:-1].is_numeric()):
+                    and arg[-1] in suffixes and arg[0:-1].isnumeric()):
                 pargs.append(float(arg) * suffixes[arg[-1]])
             else:
                 pargs.append(arg)
