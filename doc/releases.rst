@@ -2,6 +2,25 @@
 Release notes
 =============
 
+V1.14
+=====
+
+- Fixes labelling of implicit nodes
+
+- Supports SI unit suffixes
+
+- Allows `voltage_dir` to be changed for schematics using `schtex`
+
+- Improves infrastruture for lcapy-tk (adds `_change_control`, `_change_name`, `_change_kind`)
+
+- Relaxes restriction on control components for current controlled dependent sources
+
+- Fixes unconnected_nodes
+
+- Fixes autonamer
+
+
+
 V1.13
 =====
 
