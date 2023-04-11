@@ -28,6 +28,17 @@ This requires Python3.7.  tuna graphically shows which modules take the most tim
   $ pip3 install tuna
 
 
+Adding new components
+=====================
+
+There are three steps:
+1. Define component in `grammar.py`
+2. Add associated class in `mnacpts.py` that handles the electrical properties
+3. Add associated class in `schemcpts.py` that draws the component
+
+Note, both `mnacpts.py` and `schemcpts.py` are in dire need of splitting into multiple files; ideally one per class.
+
+
 Python package dependencies
 ===========================
 
