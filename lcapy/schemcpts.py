@@ -3560,6 +3560,58 @@ class Urslatch(Flipflop):
                  'q': 'Q', '/q': '$\overline{\mathrm{Q}}$'}
 
 
+class Gate2(Chip):
+
+    can_mirror = False
+    can_scale = True
+    can_invert = False
+
+    pins = {'in1': ('l', -0.6, 0.15),
+            'in2': ('l', -0.6, -0.15),
+            'out': ('r', 0.55, 0)}
+
+    def draw(self, **kwargs):
+
+        centre = self.node('mid')
+        q = self.tf(centre.pos, ((-0.3, 0.075)))
+        args = self.opts.as_list(self.special_keys)
+        args.append('anchor=in 1')
+        s = self.draw_cptnode(q, cpt='ieeestd ' + self.kind + ' port',
+                              args=args)
+        s += self.draw_label(centre.s, **kwargs)
+        return s
+
+
+class Uand(Gate2):
+
+    kind = 'and'
+
+
+class Uor(Gate2):
+
+    kind = 'or'
+
+
+class Unand(Gate2):
+
+    kind = 'nand'
+
+
+class Unor(Gate2):
+
+    kind = 'nor'
+
+
+class Uxor(Gate2):
+
+    kind = 'xor'
+
+
+class Uxnor(Gate2):
+
+    kind = 'xnor'
+
+
 class Eopamp(Chip):
     """This is for an opamp created with the E netlist type as used for
     simulation."""

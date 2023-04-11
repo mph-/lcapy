@@ -106,11 +106,13 @@ TPY: TPname Np Nm Ncp Ncm Y Y11 Y12 Y21 Y22 [I1] [I2]; Y-parameter two-port
 TPZ: TPname Np Nm Ncp Ncm Z Z11 Z12 Z21 Z22 [V1] [V2]; Z-parameter two-port
 TR: TRname Pi Po [Value=name]; Transfer function
 TVtriode: TVname Nanode Ngrid Ncathode [mu] [gm] [Cgk] [Cga]; Thermionic valve triode
+Uand: Uname and; And gate
 Ubuffer: Uname buffer; Buffer
 Uinverter: Uname inverter; Inverter
 Udiffamp: Uname diffamp; Differential amplifier
 Udiffdriver: Uname diffdriver; Differential driver
 Uopamp: Uname opamp; Opamp
+Uor: Uname or; Or gate
 Uinamp: Uname inamp; Instrumentation amplifier
 Uisoamp: Uname isoamp; Isolated amplifier
 Ufdopamp: Uname fdopamp; Fully differential opamp
@@ -136,7 +138,11 @@ Umux41: Uname mux41; 4-1 multiplexer
 Umux42: Uname mux42; 4-2 multiplexer
 Udff: Uname dff; D flip/flop
 Ujkff: Uname jkff; D flip/flop
+Unand: Uname nand; Nand gate
+Unor: Uname nor; Nor gate
 Urslatch: Uname rslatch; RS latch
+Uxor: Uname xor; Xor gate
+Uxnor: Uname xnor; Xnor gate
 V: Vname Np Nm [Value=name]; Voltage source
 sV: Vname Np Nm s [Value=name]; s-domain voltage source
 Vdc: Vname Np Nm dc [Value=name]; DC voltage source
@@ -215,6 +221,12 @@ ppp: keyword;
 pmm: keyword;
 ppm: keyword;
 push: keyword;
+and: keyword;
+or: keyword;
+nand: keyword;
+nor: keyword;
+xor: keyword;
+xnor: keyword;
 dff: keyword; D flip-flop
 jkff: keyword; JK flip-flop
 rslatch: keyword; RS latch
