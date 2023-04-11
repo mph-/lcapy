@@ -1150,7 +1150,7 @@ class Cpt(object):
         if not node.show_label(label_nodes):
             return ''
 
-        if node.parent:
+        if False and node.parent:
             return ''
 
         anchor = self.anchor_opt(self, anchor)
