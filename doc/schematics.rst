@@ -403,6 +403,23 @@ Ferrite beads
 
 
 
+Flip-flops and latches
+----------------------
+
+The syntax is::
+
+    Uname dff|jkff|rslatch
+
+.. image:: examples/schematics/Udff.png
+   :width: 5cm
+
+.. image:: examples/schematics/Ujkff.png
+   :width: 5cm
+
+.. image:: examples/schematics/Urslatch.png
+   :width: 5cm
+
+
 Gyrators
 --------
 
@@ -454,16 +471,10 @@ The supported chips are:
  - `regulator`
  - `adc`
  - `dac`
- - `dff`
- - `jkff`
- - `rslatch`
  - `fdopamp`
  - `inamp`
  - `isoamp`
  - `opamp`
- - `mux21`
- - `mux41`
- - `mux42`
  - `diffdriver`
  - `diffamp`
 
@@ -507,24 +518,6 @@ The supported chips are:
 .. image:: examples/schematics/Uisoamp.png
    :width: 5cm
 
-.. image:: examples/schematics/Umux21.png
-   :width: 5cm
-
-.. image:: examples/schematics/Umux41.png
-   :width: 5cm
-
-.. image:: examples/schematics/Umux42.png
-   :width: 5cm
-
-.. image:: examples/schematics/Udff.png
-   :width: 5cm
-
-.. image:: examples/schematics/Ujkff.png
-   :width: 5cm
-
-.. image:: examples/schematics/Urslatch.png
-   :width: 5cm
-
 .. image:: examples/schematics/Uinverter.png
    :width: 5cm
 
@@ -539,6 +532,18 @@ labelled, renamed, etc.  For example:
 
 .. image:: examples/schematics/pindefs1.png
    :width: 4cm
+
+
+Logic gates
+-----------
+
+Logic gate support is preliminary and the gates may change in size.
+The syntax is::
+
+    Uname and|or|xor|nand|nor|xnor
+
+.. image:: examples/schematics/gates.png
+   :width: 20cm
 
 
 Meters
@@ -564,6 +569,24 @@ component.  For example,
    :width: 5cm
 
 See the `Circuitikz manual <https://texdoc.org/serve/circuitikz/0>`_ for bipole components that can be drawn.
+
+
+Multiplexers
+------------
+
+The syntax is::
+
+    Uname mux21|mux41|mux42
+
+
+.. image:: examples/schematics/Umux21.png
+   :width: 5cm
+
+.. image:: examples/schematics/Umux41.png
+   :width: 5cm
+
+.. image:: examples/schematics/Umux42.png
+   :width: 5cm
 
 
 Opamps
