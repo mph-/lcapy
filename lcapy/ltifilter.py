@@ -1,14 +1,15 @@
 """This module provides continuous-time filter support.
 
-Copyright 2022 Michael Hayes, UCECE
+Copyright 2022-2023 Michael Hayes, UCECE
 
 """
 
 from .expr import expr, equation, ExprTuple
 from .differentialequation import DifferentialEquation
-from .functions import Derivative, Function
+from .functions import Derivative, Function, exp
 from .texpr import TimeDomainExpression
-from .symbols import t, s
+from .transfer import transfer
+from .symbols import t, s, omega0, j, pi
 from .utils import isiterable
 import sympy as sym
 
@@ -60,8 +61,7 @@ class LTIFilter(object):
         num = sym.collect(sym.expand(num), ssym)
         denom = sym.collect(sym.expand(denom), ssym)
 
-        Hs = expr(sym.simplify(num / denom))
-        Hs.is_causal = True
+        Hs = transfer(sym.simplify(num / denom))
         return Hs
 
     def impulse_response(self):
@@ -76,7 +76,6 @@ class LTIFilter(object):
 
         H = self.transfer_function()
         G = H / s
-        G.is_causal = H.is_causal
 
         return G(t)
 
@@ -84,6 +83,11 @@ class LTIFilter(object):
         """Return frequency response."""
 
         return self.transfer_function().frequency_response(**assumptions)
+
+    def angular_frequency_response(self, **assumptions):
+        """Return angular frequency response."""
+
+        return self.transfer_function().angular_frequency_response(**assumptions)
 
     def differential_equation(self, inputsym='x', outputsym='y'):
         """Return differential equation."""
@@ -194,3 +198,22 @@ class LTIFilter(object):
         See also is_stable."""
 
         return self.transfer_function().is_marginally_stable
+
+    @classmethod
+    def butterworth(cls, order=2, omega=omega0):
+        """Create a Butterworth filter of specified order
+        and angular frequency."""
+
+        H = 1
+        for k in range(1, order + 1):
+            sk = omega0 * exp(j * (2 * k + order - 1) * pi / (2 * order))
+            H *= omega0 / (s - sk)
+
+        H = transfer(H)
+
+        a = H.a
+        b = H.b
+        return cls(b, a)
+
+
+Butterworth = LTIFilter.butterworth
