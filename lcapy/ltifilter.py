@@ -200,9 +200,39 @@ class LTIFilter(object):
         return self.transfer_function().is_marginally_stable
 
     @classmethod
-    def butterworth(cls, order=2, omega=omega0):
+    def bessel(cls, order=2, kind='lpf', omega0=omega0):
+        """Create a Bessel filter of specified order
+        and angular cut-off frequency omega0."""
+
+        from math import factorial
+
+        if kind != 'lpf':
+            raise ValueError(
+                'Butterworth filter of kind %s not supported' % kind)
+
+        D = 0
+        n = order
+        for k in range(0, n + 1):
+
+            a = factorial(2 * n - k) / (2 ** (n - k) *
+                                        factorial(k) * factorial(n - k))
+            D += a * (s / omega0)**k
+
+        N = sym.limit(D, s, 0)
+        H = transfer(N / D)
+
+        a = H.a.simplify()
+        b = H.b.simplify()
+        return cls(b, a)
+
+    @classmethod
+    def butterworth(cls, order=2, kind='lpf', omega0=omega0):
         """Create a Butterworth filter of specified order
-        and angular frequency."""
+        and angular cut-off frequency omega0."""
+
+        if kind != 'lpf':
+            raise ValueError(
+                'Butterworth filter of kind %s not supported' % kind)
 
         H = 1
         for k in range(1, order + 1):
@@ -211,9 +241,10 @@ class LTIFilter(object):
 
         H = transfer(H)
 
-        a = H.a
-        b = H.b
+        a = H.a.simplify()
+        b = H.b.simplify()
         return cls(b, a)
 
 
+Bessel = LTIFilter.bessel
 Butterworth = LTIFilter.butterworth
