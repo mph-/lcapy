@@ -9,7 +9,7 @@ from .differentialequation import DifferentialEquation
 from .functions import Derivative, Function, exp
 from .texpr import TimeDomainExpression
 from .transfer import transfer
-from .symbols import t, s, omega0, j, pi
+from .symbols import t, s, omega0, j, pi, omega
 from .utils import isiterable
 import sympy as sym
 
@@ -88,6 +88,13 @@ class LTIFilter(object):
         """Return angular frequency response."""
 
         return self.transfer_function().angular_frequency_response(**assumptions)
+
+    def group_delay(self):
+
+        H = self.angular_frequency_response()
+        phi = H.phase
+        tau = - Derivative(phi, omega)
+        return tau.simplify().general()
 
     def differential_equation(self, inputsym='x', outputsym='y'):
         """Return differential equation."""
