@@ -9,7 +9,7 @@ from .differentialequation import DifferentialEquation
 from .functions import Derivative, Function, exp
 from .texpr import TimeDomainExpression
 from .transfer import transfer
-from .symbols import t, s, omega0, j, pi, omega
+from .symbols import t, s, omega0, j, pi, f
 from .utils import isiterable
 import sympy as sym
 
@@ -20,6 +20,9 @@ class LTIFilter(object):
         """Create continuous-time filter where `b` is a list or array of
         numerator coefficients and `a` is a list or array of
         denominator coefficients."""
+
+        # For numerical stability it might be better to store filter
+        # as ZPK form.
 
         if not isiterable(b):
             b = (b, )
@@ -34,6 +37,29 @@ class LTIFilter(object):
         in the debugger."""
 
         return '%s(%s, %s)' % (self.__class__.__name__, self.b, self.a)
+
+    @classmethod
+    def from_ZPK(cls, Z, P, K=1):
+        """Create LTIFilter given transfer function in zero-pole-gain form
+        where `Z` is a list of zeroes, `P` is a list of poles, and `K`
+        is a constant."""
+
+        if not isiterable(Z):
+            Z = (Z, )
+        if not isiterable(P):
+            P = (P, )
+
+        N = expr(K)
+        for z in Z:
+            N *= (s - z)
+        b = N.coeffs()
+
+        D = expr(1)
+        for p in P:
+            D *= (s - p)
+        a = D.coeffs()
+
+        return cls(b, a)
 
     def transfer_function(self):
         """Return continuous-time impulse response (transfer function) in
@@ -91,9 +117,9 @@ class LTIFilter(object):
 
     def group_delay(self):
 
-        H = self.angular_frequency_response()
+        H = self.frequency_response()
         phi = H.phase
-        tau = - Derivative(phi, omega)
+        tau = - Derivative(phi, f) / (2 * pi)
         return tau.simplify().general()
 
     def differential_equation(self, inputsym='x', outputsym='y'):
