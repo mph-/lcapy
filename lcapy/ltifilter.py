@@ -6,7 +6,7 @@ Copyright 2022-2023 Michael Hayes, UCECE
 
 from .expr import expr, equation, ExprTuple
 from .differentialequation import DifferentialEquation
-from .functions import Derivative, Function, exp
+from .functions import Derivative, Function, exp, cos
 from .texpr import TimeDomainExpression
 from .transfer import transfer
 from .symbols import t, s, omega0, j, pi, f
@@ -243,7 +243,7 @@ class LTIFilter(object):
             raise ValueError(
                 'Butterworth filter of kind %s not supported' % kind)
 
-        D = 0
+        D = expr(0)
         n = order
         for k in range(0, n + 1):
 
@@ -251,11 +251,10 @@ class LTIFilter(object):
                                         factorial(k) * factorial(n - k))
             D += a * (s / omega0)**k
 
-        N = sym.limit(D, s, 0)
-        H = transfer(N / D)
+        N = D.limit(s, 0)
+        b = N.coeffs()
+        a = D.coeffs()
 
-        a = H.a.simplify()
-        b = H.b.simplify()
         return cls(b, a)
 
     @classmethod
@@ -267,15 +266,19 @@ class LTIFilter(object):
             raise ValueError(
                 'Butterworth filter of kind %s not supported' % kind)
 
-        H = 1
+        N = expr(1)
+        D = expr(1)
         for k in range(1, order + 1):
             sk = omega0 * exp(j * (2 * k + order - 1) * pi / (2 * order))
-            H *= omega0 / (s - sk)
+            N *= omega0
+            # Rewrite exp as cos to improve simplification.  For some reason
+            # sympy does not simplify exp(-j pi / 4).
+            sk = sk.rewrite(cos)
+            D *= (s - sk)
 
-        H = transfer(H)
+        b = N.coeffs()
+        a = D.coeffs()
 
-        a = H.a.simplify()
-        b = H.b.simplify()
         return cls(b, a)
 
 

@@ -4140,6 +4140,7 @@ defcpt('ADC', Bipole, 'ADC', 'adc')
 defcpt('AM', Bipole, 'Ammeter', 'ammeter')
 
 defcpt('DAC', Bipole, 'DAC', 'dac')
+# TODO, rationalise D 1 2 led; with D 1 2; kind=led, etc.
 defcpt('Dled', D, 'LED', 'leD')
 defcpt('Dphoto', D, 'Photo diode', 'pD')
 defcpt('Dschottky', D, 'Schottky diode', 'zD')
