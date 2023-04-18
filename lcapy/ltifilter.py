@@ -239,10 +239,6 @@ class LTIFilter(object):
 
         from math import factorial
 
-        if kind != 'lpf':
-            raise ValueError(
-                'Butterworth filter of kind %s not supported' % kind)
-
         D = expr(0)
         n = order
         for k in range(0, n + 1):
@@ -252,8 +248,17 @@ class LTIFilter(object):
             D += a * (s / omega0)**k
 
         N = D.limit(s, 0)
-        b = N.coeffs()
-        a = D.coeffs()
+
+        if kind == 'lpf':
+            b = N.coeffs()
+            a = D.coeffs()
+        elif kind == 'hpf':
+            H = (N / D).subs(s, omega0**2 / s)
+            a = H.a
+            b = H.b
+        else:
+            raise ValueError(
+                'Bessel filter of kind %s not supported' % kind)
 
         return cls(b, a)
 
@@ -261,10 +266,6 @@ class LTIFilter(object):
     def butterworth(cls, order=2, kind='lpf', omega0=omega0):
         """Create a Butterworth filter of specified order
         and angular cut-off frequency omega0."""
-
-        if kind != 'lpf':
-            raise ValueError(
-                'Butterworth filter of kind %s not supported' % kind)
 
         N = expr(1)
         D = expr(1)
@@ -276,7 +277,17 @@ class LTIFilter(object):
             sk = sk.rewrite(cos)
             D *= (s - sk)
 
-        b = N.coeffs()
+        # Can convert LPF to HPF with s = omega0**2 / s
+
+        if kind == 'lpf':
+            b = N.coeffs()
+        elif kind == 'hpf':
+            b = [0] * (order + 1)
+            b[0] = 1
+        else:
+            raise ValueError(
+                'Butterworth filter of kind %s not supported' % kind)
+
         a = D.coeffs()
 
         return cls(b, a)
