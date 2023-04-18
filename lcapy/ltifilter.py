@@ -233,62 +233,67 @@ class LTIFilter(object):
         return self.transfer_function().is_marginally_stable
 
     @classmethod
-    def bessel(cls, order=2, kind='lpf', omega0=omega0):
-        """Create a Bessel filter of specified order
-        and angular cut-off frequency omega0."""
+    def bessel(cls, N=2, Wn=omega0, btype='lowpass'):
+        """Create a Bessel filter of specified order `N`
+        and angular cut-off frequency Wn."""
 
         from math import factorial
 
-        D = expr(0)
-        n = order
-        for k in range(0, n + 1):
+        # TODO, add band-pass and band-stop with list for Wn.
+        omega0 = Wn
 
-            a = factorial(2 * n - k) / (2 ** (n - k) *
-                                        factorial(k) * factorial(n - k))
-            D += a * (s / omega0)**k
+        denom = expr(0)
+        for k in range(0, N + 1):
 
-        N = D.limit(s, 0)
+            a = factorial(2 * N - k) / (2 ** (N - k) *
+                                        factorial(k) * factorial(N - k))
+            denom += a * (s / omega0)**k
 
-        if kind == 'lpf':
-            b = N.coeffs()
-            a = D.coeffs()
-        elif kind == 'hpf':
-            H = (N / D).subs(s, omega0**2 / s)
+        numer = denom.limit(s, 0)
+
+        if btype == 'lowpass':
+            b = numer.coeffs()
+            a = denom.coeffs()
+        elif btype == 'highpass':
+            H = (numer / denom).subs(s, omega0**2 / s)
             a = H.a
             b = H.b
         else:
             raise ValueError(
-                'Bessel filter of kind %s not supported' % kind)
+                'Bessel filter of btype %s not supported' % btype)
 
         return cls(b, a)
 
     @classmethod
-    def butterworth(cls, order=2, kind='lpf', omega0=omega0):
-        """Create a Butterworth filter of specified order
-        and angular cut-off frequency omega0."""
+    def butterworth(cls, N=2, Wn=omega0, btype='lowpass'):
+        """Create a Butterworth filter of specified order `N`
+        and angular cut-off frequency Wn."""
 
-        N = expr(1)
-        D = expr(1)
-        for k in range(1, order + 1):
-            sk = omega0 * exp(j * (2 * k + order - 1) * pi / (2 * order))
-            N *= omega0
+        # TODO, add band-pass and band-stop with list for Wn.
+        omega0 = Wn
+
+        numer = expr(1)
+        denom = expr(1)
+        for k in range(1, N + 1):
+            sk = omega0 * exp(j * (2 * k + N - 1) * pi / (2 * N))
+            numer *= omega0
             # Rewrite exp as cos to improve simplification.  For some reason
             # sympy does not simplify exp(-j pi / 4).
             sk = sk.rewrite(cos)
-            D *= (s - sk)
+            denom *= (s - sk)
 
-        # Can convert LPF to HPF with s = omega0**2 / s
+        # Can convert low-pass to high-pass with s = omega0**2 / s
 
-        if kind == 'lpf':
-            b = N.coeffs()
-        elif kind == 'hpf':
-            b = [0] * (order + 1)
+        if btype == 'lowpass':
+            b = numer.coeffs()
+        elif btype == 'highpass':
+            b = [0] * (N + 1)
             b[0] = 1
         else:
             raise ValueError(
-                'Butterworth filter of kind %s not supported' % kind)
+                'Butterworth filter of btype %s not supported' % btype)
 
-        a = D.coeffs()
+        a = denom.coeffs()
 
         return cls(b, a)
 
