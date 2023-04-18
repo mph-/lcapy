@@ -545,6 +545,8 @@ The syntax is::
 .. image:: examples/schematics/gates.png
    :width: 20cm
 
+IEEE standard shapes are used.
+
 
 Meters
 ------

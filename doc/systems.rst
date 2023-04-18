@@ -42,6 +42,21 @@ its frequency response is found with the `frequency_response()` method::
    ───────────────
    2⋅ⅉ⋅π⋅a₀⋅f + a₁
 
+its angular frequency response is found with the `angular_frequency_response()` method::
+
+   >>> fil.angular_frequency_response()
+         b₀
+     ──────────
+     ⅉ⋅a₀⋅ω + a₁
+
+its group delay is found with the `group_delay()` method::
+
+   >>> fil.group_delay()
+           a₀⋅a₁
+    ─────────────────
+       2   2  2     2
+    4⋅π ⋅a₀ ⋅f  + a₁
+
 its impulse response is found with the `impulse_response()` method::
 
    >>> fil.impulse_response()
@@ -52,7 +67,7 @@ its impulse response is found with the `impulse_response()` method::
    ───────────────
           a₀
 
-its step response is found with the `step_response()` method::
+and its step response is found with the `step_response()` method::
 
    >>> fil.step_response()
       ⎛      -a₁⋅t ⎞
@@ -82,6 +97,16 @@ The response due to intial conditions is found with the `initial_response()` met
           ⎝             a₀       ⎠
 
 
+An LTI filter can also be constructed from its transfer function in
+zero-pole-gain representation with the `LTIFilter.from_ZPK` class
+method.  For example,
+
+    >>> fil = LTIFilter.from_ZPK(('z1',),('p1','p2'), 'K')
+    >>> fil.a
+    (1, -p₁ - p₂, p₁⋅p₂)
+    >>> fil.b
+    (K, -K⋅z₁)
+
 Continuous-time linear time invariant filter attributes
 -------------------------------------------------------
 
@@ -94,13 +119,74 @@ Continuous-time linear time invariant filter attributes
 Continuous-time linear time invariant filter methods
 ----------------------------------------------------
 
-- `differential_equation()` creates discrete-time differential equation
-- `impulse_response()` creates discrete-time domain impulse response
-- `initial_response()` returns discrete time-domain response due to initial conditions
-- `response()` returns discrete time-domain response due to input signal and initial conditions
-- `transfer_function()` creates s-domain transfer function
+- `differential_equation()` creates continuous-time differential equation
+- `impulse_response()` creates continuous-time domain impulse response
+- `step_response()` returns continuous time-domain step response
+- `initial_response()` returns continuous time-domain response due to initial conditions
+- `response()` returns continuous time-domain response due to input signal and initial conditions
+- `transfer_fnction()` creates s-domain transfer function
 - `sdomain_initial_response()` returns s-domain response due to initial conditions
+- `group_delay()` returns the group delay as function of frequency, `f`
 
+
+Butterworth filters
+-------------------
+
+Butterworth filters are created with the `Butterworth` class method.  For example::
+
+  >>> B = Butterworth(order=2, kind='lpf', omega0=omega0)
+  >>> B.transfer_function()
+            2
+          ω₀
+   ──────────────────
+     2              2
+   ω₀  + √2⋅ω₀⋅s + s
+
+
+   >>> abs(B.frequency_response())
+             2
+           ω₀
+   ───────────────────
+      ________________
+     ╱     4  4     4
+   ╲╱  16⋅π ⋅f  + ω₀
+
+
+   >>> B.group_delay()
+         2  2           3
+   4⋅√2⋅π ⋅f ⋅ω₀ + √2⋅ω₀
+   ──────────────────────
+           4  4     4
+       16⋅π ⋅f  + ω₀
+
+
+
+Bessel filters
+--------------
+
+Bessel filters are created with the `Bessel` class method.  For example::
+
+  >>> B = Bessel(order=2, kind='lpf', omega0=omega0)
+  >>> B.transfer_function()
+              2
+          3⋅ω₀
+   ───────────────────
+       2             2
+   3⋅ω₀  + 3⋅ω₀⋅s + s
+
+   >>> abs(B.frequency_response())
+                   2
+               3⋅ω₀
+   ──────────────────────────────
+        2  2                    2
+   - 4⋅π ⋅f  + 6⋅ⅉ⋅π⋅f⋅ω₀ + 3⋅ω₀
+
+   >>> B.group_delay()
+             2  2          3
+         12⋅π ⋅f ⋅ω₀ + 9⋅ω₀
+   ───────────────────────────────
+       4  4       2  2   2       4
+   16⋅π ⋅f  + 12⋅π ⋅f ⋅ω₀  + 9⋅ω₀
 
 
 Differential equations
