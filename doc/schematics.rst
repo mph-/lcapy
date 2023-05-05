@@ -466,6 +466,11 @@ The supported chips are:
  - `chip3131`
  - `chip3333`
  - `chip4141`
+ - `chip4444`
+ - `chip5555`
+ - `chip7777`
+ - `chip8181`
+ - `chip8888`
  - `buffer`
  - `inverter`
  - `regulator`
