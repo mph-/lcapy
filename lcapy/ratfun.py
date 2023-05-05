@@ -345,14 +345,22 @@ class Ratfun(object):
     @lru_cache()
     def zeros(self):
         """Return zeroes of expression as a dictionary
-        Note this may not find them all."""
+        Note this may not find them all.
+
+        Zeros at infinity are not returned.  There will be q - p zeros
+        at infinity for a rational function with a numerator of degree p
+        and a denominator of degree q."""
 
         return self._roots(self.Bpoly)
 
     @lru_cache()
     def poles(self, damping=None):
         """Return poles of expression as a list of Pole objects.
-        Note this may not find all the poles."""
+        Note this may not find all the poles.
+
+        Poles at infinity are not returned.  There will be p - q poles
+        at infinity for a rational function with a numerator of degree p
+        and a denominator of degree q."""
 
         roots = self._roots(self.Apoly)
 

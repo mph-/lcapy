@@ -3018,6 +3018,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         them all.  In particular, if the denominator of the rational
         function has a degree of five or higher.
 
+        Zeros at infinity are not returned.  There will be q - p zeros
+        at infinity for a rational function with a numerator of degree p
+        and a denominator of degree q.
+
         If `pairs` is True, return two dictionaries.  The first
         contains the conjugate pairs and the second contains the
         others
@@ -3041,6 +3045,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         """Return poles of expression as a dictionary.  Note this may not find
         them all.  In particular, if the denominator of the rational
         function has a degree of five or higher.
+
+        Poles at infinity are not returned.  There will be p - q poles
+        at infinity for a rational function with a numerator of degree p
+        and a denominator of degree q.
 
         If `pairs` is True, return two dictionaries.  The first
         contains the conjugate pairs and the second contains the
