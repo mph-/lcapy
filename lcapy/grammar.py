@@ -132,6 +132,7 @@ Uchip3333: Uname chip3333; Chip
 Uchip4141: Uname chip4141; Chip
 Uchip4444: Uname chip4444; Chip
 Uchip5555: Uname chip5555; Chip
+Uchip6666: Uname chip6666; Chip
 Uchip7777: Uname chip7777; Chip
 Uchip8181: Uname chip8181; Chip
 Uchip8888: Uname chip8888; Chip
@@ -213,6 +214,7 @@ chip3333: keyword;
 chip4141: keyword;
 chip4444: keyword;
 chip5555: keyword;
+chip6666: keyword;
 chip7777: keyword;
 chip8181: keyword;
 chip8888: keyword;

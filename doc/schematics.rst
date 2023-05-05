@@ -468,6 +468,7 @@ The supported chips are:
  - `chip4141`
  - `chip4444`
  - `chip5555`
+ - `chip6666`
  - `chip7777`
  - `chip8181`
  - `chip8888`
