@@ -131,6 +131,7 @@ Uchip3131: Uname chip3131; Chip
 Uchip3333: Uname chip3333; Chip
 Uchip4141: Uname chip4141; Chip
 Uchip4444: Uname chip4444; Chip
+Uchip7777: Uname chip7777; Chip
 Uchip8181: Uname chip8181; Chip
 Uchip8888: Uname chip8888; Chip
 Umux21: Uname mux21; 2-1 multiplexer
@@ -211,6 +212,7 @@ chip3333: keyword;
 chip4141: keyword;
 chip4444: keyword;
 chip8181: keyword;
+chip7777: keyword;
 chip8888: keyword;
 mux21: keyword;
 mux41: keyword;

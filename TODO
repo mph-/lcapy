@@ -131,6 +131,8 @@ an answer that appears valid for DC.
 
 33. ImpulseResponse, StepResponse classes?  This will fix label if calculate step response from TransferFunction.
 
+34. Add warning if S has unknown kind
+
 Testing
 =======
 

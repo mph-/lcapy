@@ -377,6 +377,8 @@ class Parser:
                 keyword = rule1.params[pos].name
                 break
 
+        # TODO, print warning if have a bogus keyword, e.g., S chip333
+
         if (cpt_id == '' and parent is not None
                 and (cpt_type in ('A', 'W', 'O', 'P')) or self.allow_anon):
             relname = parent._make_anon_cpt_name(cpt_type)
