@@ -850,6 +850,8 @@ class Cpt(object):
         for pos in steps:
             path += ' to (%s)' % pos
 
+        startarrow = arrow_map(startarrow)
+        endarrow = arrow_map(endarrow)
         cpt = startarrow + '-' + endarrow
 
         dargs = [] if dargs is None else dargs
