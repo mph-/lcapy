@@ -294,7 +294,7 @@ Node names not starting with an underscore are considered primary nodes.
 Node names starting with an underscore are considered secondary nodes (usually they are at the same potential as a primary node and do not need to be
 labelled).  For backward compatibility, nodes with names that contain an underscore and start with a digit are considered secondary.
 
-Node names can also refer to pins of shape and chip components.  For example::
+Node names can also refer to pins of Shape and Chip components.  For example::
 
   U1 regulator; right
   W  1 U1.in; right
@@ -485,24 +485,6 @@ The supported chips are:
  - `diffamp`
 
 
-.. image:: examples/schematics/Uchip1313.png
-   :width: 5cm
-
-.. image:: examples/schematics/Uchip2121.png
-   :width: 5cm
-
-.. image:: examples/schematics/Uchip2222.png
-   :width: 5cm
-
-.. image:: examples/schematics/Uchip3131.png
-   :width: 5cm
-
-.. image:: examples/schematics/Uchip3333.png
-   :width: 5cm
-
-.. image:: examples/schematics/Uchip4141.png
-   :width: 5cm
-
 .. image:: examples/schematics/Uregulator.png
    :width: 5cm
 
@@ -531,13 +513,18 @@ The supported chips are:
     :width: 5cm
 
 
-Chips are subclassed from the shape class and thus the pins can be
+Chips are subclassed from the Shape class and thus the pins can be
 labelled, renamed, etc.  For example:
 
 .. literalinclude:: examples/schematics/pindefs1.sch
 
 .. image:: examples/schematics/pindefs1.png
    :width: 4cm
+
+Here is a gallery of some of the chips.  Note, the aspect ratio can be changed with the `aspect` attribute.
+
+.. image:: examples/schematics/chips4.png
+   :width: 12cm
 
 
 Logic gates
