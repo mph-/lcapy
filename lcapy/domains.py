@@ -52,7 +52,7 @@ class TimeDomain(Domain):
 
 class LaplaceDomain(Domain):
     domain = 'laplace'
-    domain_label = 'Laplace frequency'
+    domain_label = 'Angular frequency'
     domain_units = uu.rad / uu.s
     is_laplace_domain = True
     is_transform_domain = True
@@ -92,7 +92,7 @@ class NormAngularFourierDomain(Domain):
 
 class FrequencyResponseDomain(Domain):
     domain = 'frequency response'
-    domain_label = 'Frequency response'
+    domain_label = 'Frequency'
     domain_units = uu.Hz
     is_frequency_response_domain = True
     is_transform_domain = True
@@ -100,7 +100,7 @@ class FrequencyResponseDomain(Domain):
 
 class AngularFrequencyResponseDomain(Domain):
     domain = 'angular frequency response'
-    domain_label = 'Angular frequency response'
+    domain_label = 'Angular frequency'
     domain_units = uu.rad / uu.s
     is_angular_frequency_response_domain = True
     is_transform_domain = True
@@ -116,7 +116,7 @@ class PhasorDomain(Domain):
 
 class PhasorRatioDomain(Domain):
     domain = 'phasor ratio'
-    domain_label = 'Angular Frequency'
+    domain_label = 'Angular frequency'
     domain_units = uu.rad / uu.s
     is_phasor_ratio_domain = True
     is_transform_domain = True
@@ -150,7 +150,7 @@ class DiscreteTimeDomain(Domain):
 
 class DiscreteFourierDomain(Domain):
     domain = 'discrete fourier'
-    domain_label = 'Discrete Fourier'
+    domain_label = 'Discrete frequency'
     domain_units = 1
     is_discrete_fourier_domain = True
     is_transform_domain = True
