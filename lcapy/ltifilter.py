@@ -137,7 +137,14 @@ class LTIFilter(object):
 
         H = self.frequency_response()
         phi = H.phase
-        tau = - Derivative(phi, f) / (2 * pi)
+        tau = -Derivative(phi, f) / (2 * pi)
+        return tau.simplify().general()
+
+    def phase_delay(self):
+
+        H = self.frequency_response()
+        phi = H.phase
+        tau = -phi / (2 * pi * f)
         return tau.simplify().general()
 
     def differential_equation(self, inputsym='x', outputsym='y'):

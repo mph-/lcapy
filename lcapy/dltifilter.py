@@ -5,11 +5,12 @@ Copyright 2021--2023 Michael Hayes, UCECE
 """
 
 from .expr import expr, equation, ExprTuple, ExprList
-from .functions import Function
+from .functions import Function, Derivative
 from .nexpr import DiscreteTimeDomainExpression
 from .differenceequation import DifferenceEquation
 from .discretetime import n, z, seq
 from .sequence import Sequence
+from .symbols import f, pi
 from .utils import isiterable
 from .sym import oo
 import sympy as sym
@@ -149,6 +150,20 @@ class DLTIFilter(object):
         """Return frequency response."""
 
         return self.transfer_function().DTFT(var, images, **assumptions)
+
+    def group_delay(self):
+
+        H = self.frequency_response()
+        phi = H.phase
+        tau = -Derivative(phi, f) / (2 * pi)
+        return tau.simplify().general()
+
+    def phase_delay(self):
+
+        H = self.frequency_response()
+        phi = H.phase
+        tau = -phi / (2 * pi * f)
+        return tau.simplify().general()
 
     def difference_equation(self, inputsym='x', outputsym='y'):
         """
