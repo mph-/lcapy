@@ -450,7 +450,11 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
     ax.plot([], [], label=plot2_type, color=color2,
             linestyle=linestyle2, **kwargs2)
 
-    ax2 = ax.twinx()
+    try:
+        ax2 = ax.ax2
+    except AttributeError:
+        ax2 = ax.twinx()
+        ax.ax2 = ax2
     kwargs['axes'] = ax2
     kwargs.pop('color', None)
 
