@@ -5,14 +5,14 @@ Copyright 2021--2023 Michael Hayes, UCECE
 """
 
 from .expr import expr, equation, ExprTuple, ExprList
-from .functions import Function, Derivative
+from .functions import Function, Derivative, sin, exp
 from .nexpr import DiscreteTimeDomainExpression
 from .differenceequation import DifferenceEquation
 from .discretetime import n, z, seq
 from .sequence import Sequence
-from .symbols import f, pi
+from .symbols import f
 from .utils import isiterable
-from .sym import oo
+from .sym import oo, j, pi, dt
 import sympy as sym
 
 
@@ -146,22 +146,45 @@ class DLTIFilter(object):
 
         return G(n)
 
+    @property
+    def is_moving_average(self):
+
+        if len(self.a) != 1 or len(self.b) < 2:
+            return False
+
+        for m in range(len(self.b) - 1):
+            if self.b[m + 1] != self.b[0]:
+                return False
+        return True
+
     def frequency_response(self, var=None, images=oo, **assumptions):
         """Return frequency response."""
 
+        if self.is_moving_average:
+            N = len(self.b)
+            return sin(N * pi * f * dt) / sin(pi * f * dt) \
+                * exp(-j * pi * f * (N - 1) * dt) * N * self.b[0] / self.a[0]
+
         return self.transfer_function().DTFT(var, images, **assumptions)
+
+    def phase_response(self):
+
+        if self.is_moving_average:
+            N = len(self.b)
+            return -pi * f * (N - 1) * dt
+
+        H = self.frequency_response()
+        return H.phase
 
     def group_delay(self):
 
-        H = self.frequency_response()
-        phi = H.phase
+        phi = self.phase_response()
         tau = -Derivative(phi, f) / (2 * pi)
         return tau.simplify().general()
 
     def phase_delay(self):
 
-        H = self.frequency_response()
-        phi = H.phase
+        phi = self.phase_response()
         tau = -phi / (2 * pi * f)
         return tau.simplify().general()
 
