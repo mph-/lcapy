@@ -490,20 +490,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         from .ltifilter import LTIFilter
 
-        if not self.is_rational_function:
-            raise ValueError("Not a rational function")
-
-        N = self.N
-        D = self.D
-        bn = N.coeffs()
-        an = D.coeffs()
-
-        if normalize_a0:
-            bn = [bx / an[0] for bx in bn]
-            an = [ax / an[0] for ax in an]
-
-        lpf = LTIFilter(bn, an)
-        return lpf
+        return LTIFilter.from_transfer_function(self, normalize_a0)
 
     def dlti_filter(self, method='bilinear', alpha=0.5):
         """Create DLTI filter using bilinear transform."""

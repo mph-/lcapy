@@ -61,6 +61,24 @@ class LTIFilter(object):
 
         return cls(b, a)
 
+    @classmethod
+    def from_transfer_function(cls, H, normalize_a0=True):
+        """Create LTIFilter given a transfer function."""
+
+        if not H.is_rational_function:
+            raise ValueError("Transfer function is not a rational function")
+
+        N, D = H.as_N_D()
+
+        bn = N.coeffs()
+        an = D.coeffs()
+
+        if normalize_a0:
+            bn = [bx / an[0] for bx in bn]
+            an = [ax / an[0] for ax in an]
+
+        return cls(bn, an)
+
     def transfer_function(self):
         """Return continuous-time impulse response (transfer function) in
         s-domain."""

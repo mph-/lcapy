@@ -11,7 +11,7 @@ from .sym import j, pi, fsym, omegasym
 from .sym import nsym, ksym, zsym, dt
 from .vector import Vector
 from .ratfun import _zp2tf, Ratfun
-from .expr import symbol, expr, ExprDict, ExprList
+from .expr import symbol, expr, ExprDict
 from .differenceequation import DifferenceEquation
 from .seqexpr import SequenceExpression
 from .zseq import ZDomainSequence
@@ -403,33 +403,7 @@ class ZDomainExpression(ZDomain, SequenceExpression):
 
         from .dltifilter import DLTIFilter
 
-        if not self.is_rational_function:
-            raise ValueError("Not a rational function")
-
-        N = self.N
-        D = self.D
-        nn = N.coeffs()
-        dn = D.coeffs()
-
-        if len(nn) > len(dn):
-            raise ValueError("System not causal")
-
-        bn = ExprList((len(dn) - len(nn)) * [0] + nn)
-        an = dn
-
-        # Remove trailing zero coefficients.  Could call cancel before
-        # determing coeffs to reduce order of numerator and denominator.
-        while an[-1] == 0:
-            an = an[0:-1]
-        while bn[-1] == 0:
-            bn = bn[0:-1]
-
-        if normalize_a0:
-            bn = [bx / an[0] for bx in bn]
-            an = [ax / an[0] for ax in an]
-
-        fil = DLTIFilter(bn, an)
-        return fil
+        return DLTIFilter.from_transfer_function(self, normalize_a0)
 
     def zdomain(self, **assumptions):
         return self

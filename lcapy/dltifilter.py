@@ -4,7 +4,7 @@ Copyright 2021--2023 Michael Hayes, UCECE
 
 """
 
-from .expr import expr, equation, ExprTuple
+from .expr import expr, equation, ExprTuple, ExprList
 from .functions import Function
 from .nexpr import DiscreteTimeDomainExpression
 from .differenceequation import DifferenceEquation
@@ -43,6 +43,61 @@ class DLTIFilter(object):
         in the debugger."""
 
         return '%s(%s, %s)' % (self.__class__.__name__, self.b, self.a)
+
+    @classmethod
+    def from_ZPK(cls, Z, P, K=1):
+        """Create LTIFilter given transfer function in zero-pole-gain form
+        where `Z` is a list of zeroes, `P` is a list of poles, and `K`
+        is a constant."""
+
+        if not isiterable(Z):
+            Z = (Z, )
+        if not isiterable(P):
+            P = (P, )
+
+        N = expr(K)
+        for z1 in Z:
+            N *= (z - z1)
+        b = N.coeffs()
+
+        D = expr(1)
+        for p in P:
+            D *= (z - p)
+        a = D.coeffs()
+
+        return cls(b, a)
+
+    @classmethod
+    def from_transfer_function(cls, H, normalize_a0=True):
+        """Create LTIFilter given a transfer function."""
+
+        if not H.is_rational_function:
+            raise ValueError("Transfer function is not a rational function")
+
+        N, D = H.as_N_D()
+
+        nn = N.coeffs()
+        dn = D.coeffs()
+
+        if len(nn) > len(dn):
+            # Perhaps just warn?
+            raise ValueError("System not causal")
+
+        bn = ExprList((len(dn) - len(nn)) * [0] + nn)
+        an = dn
+
+        # Remove trailing zero coefficients.  Could call cancel before
+        # determing coeffs to reduce order of numerator and denominator.
+        while an[-1] == 0:
+            an = an[0:-1]
+        while bn[-1] == 0:
+            bn = bn[0:-1]
+
+        if normalize_a0:
+            bn = [bx / an[0] for bx in bn]
+            an = [ax / an[0] for ax in an]
+
+        return cls(bn, an)
 
     def transfer_function(self):
         """Return discrete-time impulse response (transfer function) in
