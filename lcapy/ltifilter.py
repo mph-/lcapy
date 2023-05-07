@@ -65,6 +65,7 @@ class LTIFilter(object):
     def from_transfer_function(cls, H, normalize_a0=True):
         """Create LTIFilter given a transfer function."""
 
+        H = transfer(H)
         if not H.is_rational_function:
             raise ValueError("Transfer function is not a rational function")
 

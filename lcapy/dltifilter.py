@@ -11,6 +11,7 @@ from .differenceequation import DifferenceEquation
 from .discretetime import n, z, seq
 from .sequence import Sequence
 from .symbols import f
+from .transfer import transfer
 from .utils import isiterable
 from .sym import oo, j, pi, dt
 import sympy as sym
@@ -72,6 +73,7 @@ class DLTIFilter(object):
     def from_transfer_function(cls, H, normalize_a0=True):
         """Create LTIFilter given a transfer function."""
 
+        H = transfer(H)
         if not H.is_rational_function:
             raise ValueError("Transfer function is not a rational function")
 
