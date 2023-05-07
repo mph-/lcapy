@@ -42,6 +42,13 @@ class AngularFrequencyResponseDomainExpression(AngularFrequencyResponseDomain, E
                 validate(state.f_in_jw,
                          'jomega-domain expression %s depends on f' % expr)
 
+    def _div_compatible_domains(self, x):
+
+        if x.is_angular_fourier_domain:
+            return True
+
+        return super(AngularFrequencyResponseDomainExpression, self)._div_compatible_domains(x)
+
     def as_expr(self):
         return AngularFrequencyResponseDomainExpression(self)
 

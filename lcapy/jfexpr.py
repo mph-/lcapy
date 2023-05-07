@@ -42,6 +42,13 @@ class FrequencyResponseDomainExpression(FrequencyResponseDomain, Expr):
                 validate(state.f_in_jf,
                          'jf-domain expression %s depends on f' % expr)
 
+    def _div_compatible_domains(self, x):
+
+        if x.is_fourier_domain:
+            return True
+
+        return super(FrequencyResponseDomainExpression, self)._div_compatible_domains(x)
+
     def as_expr(self):
         return FrequencyResponseDomainExpression(self)
 
