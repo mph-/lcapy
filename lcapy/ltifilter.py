@@ -133,17 +133,20 @@ class LTIFilter(object):
 
         return self.transfer_function().angular_frequency_response(**assumptions)
 
-    def group_delay(self):
+    def phase_response(self):
 
         H = self.frequency_response()
-        phi = H.phase
+        return H.phase
+
+    def group_delay(self):
+
+        phi = self.phase_response()
         tau = -Derivative(phi, f) / (2 * pi)
         return tau.simplify().general()
 
     def phase_delay(self):
 
-        H = self.frequency_response()
-        phi = H.phase
+        phi = self.phase_response()
         tau = -phi / (2 * pi * f)
         return tau.simplify().general()
 
