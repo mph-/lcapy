@@ -117,8 +117,8 @@ class FrequencyResponseDomainExpression(FrequencyResponseDomain, Expr):
         real/imaginary plots.
         """
 
-        from .plot import plot__frequency
-        return plot__frequency(self, vvector, **kwargs)
+        from .plot import plot_frequency
+        return plot_frequency(self, vvector, **kwargs)
 
     def bode_plot(self, vvector=None, unwrap=True, **kwargs):
         """Plot frequency response for a frequency-domain phasor as a Bode
