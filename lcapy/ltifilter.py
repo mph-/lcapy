@@ -155,14 +155,17 @@ class LTIFilter(object):
         """Return differential equation."""
 
         rhs = 0 * t
+        lhs = 0 * t
 
-        for m, bn in enumerate(self.b):
-            rhs += bn * Derivative(Function(inputsym)(t), t, m)
+        x = Function(inputsym)(t)
+        y = Function(outputsym)(t)
 
-        for m, an in enumerate(self.a[1:]):
-            rhs -= an * Derivative(Function(outputsym)(t), t, m + 1)
+        for m, bn in enumerate(reversed(self.b)):
+            rhs += bn * Derivative(x, t, m)
 
-        lhs = self.a[0] * expr('y(t)')
+        for m, an in enumerate(reversed(self.a)):
+            lhs += an * Derivative(y, t, m)
+
         return DifferentialEquation(lhs, rhs, inputsym, outputsym)
 
     def sdomain_initial_response(self, ic=None):
