@@ -56,16 +56,40 @@ class DifferentialEquation(TimeDomainExpression):
 
     @property
     def lhs(self):
+        """Return left-hand-side of differential equation."""
+
         return TimeDomainExpression(self.expr.lhs, **self.assumptions)
 
     @property
     def rhs(self):
+        """Return right-hand-side of differential equation."""
+
         return TimeDomainExpression(self.expr.rhs, **self.assumptions)
 
     def lti_filter(self):
         """Create continuous-time linear time-invariant filter."""
 
         return self.transfer_function().lti_filter()
+
+    def angular_frequency_response(self):
+        """Return angular frequency response."""
+
+        return self.transfer_function().angular_frequency_response()
+
+    def frequency_response(self):
+        """Return frequency response."""
+
+        return self.transfer_function().frequency_response()
+
+    def impulse_response(self):
+        """Return impulse response."""
+
+        return self.transfer_function().impulse_response()
+
+    def step_response(self):
+        """Return step response."""
+
+        return self.transfer_function().step_response()
 
     def separate(self):
         """Rewrite differential equation so that input symbols are on the right
@@ -89,3 +113,17 @@ class DifferentialEquation(TimeDomainExpression):
                 newrhs += term
 
         return self.__class__(newlhs, newrhs, **self.assumptions)
+
+    def discretize(self, method='bilinear', alpha=0.5):
+        """Convert to a difference equation.
+
+        The default method is 'bilinear'.  Other methods are:
+        'impulse-invariance' 'bilinear', 'tustin', 'trapezoidal'
+        'generalized-bilinear', 'gbf' controlled by the parameter
+        `alpha`, 'euler', 'forward-diff', 'forward-euler'
+        'backward-diff', 'backward-euler' 'simpson', 'matched-Z',
+        'zero-pole-matching'"""
+
+        H = self.transfer_function()
+
+        return H.discretize(method, alpha).difference_equation()

@@ -747,7 +747,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         The default method is 'bilinear'.  Other methods are:
         'impulse-invariance' 'bilinear', 'tustin', 'trapezoidal'
         'generalized-bilinear', 'gbf' controlled by the parameter
-        `alpha` 'euler', 'forward-diff', 'forward-euler'
+        `alpha`, 'euler', 'forward-diff', 'forward-euler'
         'backward-diff', 'backward-euler' 'simpson', 'matched-Z',
         'zero-pole-matching'
 

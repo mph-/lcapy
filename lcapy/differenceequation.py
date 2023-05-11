@@ -64,16 +64,40 @@ class DifferenceEquation(DiscreteTimeDomainExpression):
 
     @property
     def lhs(self):
+        """Return left-hand-side of difference equation."""
+
         return DiscreteTimeDomainExpression(self.expr.lhs, **self.assumptions)
 
     @property
     def rhs(self):
+        """Return left-hand-side of difference equation."""
+
         return DiscreteTimeDomainExpression(self.expr.rhs, **self.assumptions)
 
     def dlti_filter(self):
         """Create discrete-time linear time-invariant filter."""
 
         return self.transfer_function().dlti_filter()
+
+    def angular_frequency_response(self):
+        """Return angular frequency response."""
+
+        return self.transfer_function().angular_frequency_response()
+
+    def frequency_response(self):
+        """Return frequency response."""
+
+        return self.transfer_function().frequency_response()
+
+    def impulse_response(self):
+        """Return impulse response."""
+
+        return self.transfer_function().impulse_response()
+
+    def step_response(self):
+        """Return step response."""
+
+        return self.transfer_function().step_response()
 
     def separate(self):
         """Rewrite difference equation so that input symbols are on the right

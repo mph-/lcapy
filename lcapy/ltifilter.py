@@ -246,6 +246,20 @@ class LTIFilter(object):
         pdb.set_trace()
         return self
 
+    def discretize(self, method='bilinear', alpha=0.5):
+        """Convert to a discrete-time linear time-invariant filter.
+
+        The default method is 'bilinear'.  Other methods are:
+        'impulse-invariance' 'bilinear', 'tustin', 'trapezoidal'
+        'generalized-bilinear', 'gbf' controlled by the parameter
+        `alpha`, 'euler', 'forward-diff', 'forward-euler'
+        'backward-diff', 'backward-euler' 'simpson', 'matched-Z',
+        'zero-pole-matching'"""
+
+        H = self.transfer_function()
+
+        return H.discretize(method, alpha).dlti_filter()
+
     @property
     def is_stable(self):
         """Return True if all the poles of the filters transfer function
