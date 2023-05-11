@@ -452,34 +452,21 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         return self.state_space()
 
-    def differential_equation(self, inputsym='x', outputsym='y'):
+    def differential_equation(self, inputsym='x', outputsym='y',
+                              normalize_a0=True):
         """Create differential equation from transfer function.
 
         For example,
         >>> H = (s + 3) / (s**2 + 4)
         >>> H.differential_equation()
-                 d                    d
-        3.y(t) + --(y(t)) = 4.x(t) + ---(x(t))
-                 dt                    2
+               d                    d
+        y(t) + --(y(t)) = 4.x(t) + ---(x(t))
+               dt                    2
                                      dt
         """
 
-        from .symbols import t
-
-        x = Function(inputsym)(t)
-        y = Function(outputsym)(t)
-
-        X = x.LT()
-        Y = y.LT()
-
-        H = self.simplify()
-        N = H.N
-        D = H.D
-
-        lhs = (N * Y).ILT(causal=True, zero_initial_conditions=True)
-        rhs = (D * X).ILT(causal=True, zero_initial_conditions=True)
-
-        return DifferentialEquation(lhs, rhs, inputsym, outputsym)
+        fil = self.lti_filter(normalize_a0)
+        return fil.differential_equation(inputsym, outputsym)
 
     def lti_filter(self, normalize_a0=True):
         """Create continuous-time linear time-invariant filter from
