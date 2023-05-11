@@ -4017,6 +4017,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if not self.has(AppliedUndef):
             return self
 
+        if self.is_Equality:
+            return equation(self.lhs.zero_initial_conditions(),
+                            self.rhs.zero_initial_conditions())
+
         result = 0
         expr = self.sympy
         terms = expr.as_ordered_terms()
