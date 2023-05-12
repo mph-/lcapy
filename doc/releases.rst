@@ -2,6 +2,42 @@
 Release notes
 =============
 
+V1.15
+=====
+
+- Adds `LTIFilter.discretize()`
+
+- Adds `DifferentialEquation.discretize()`
+
+- Adds `DifferentialEquation.frequency_response()`
+
+- Fixes `LTIFilter.differential_equation()`
+
+- Allows division of frequency response expressions by fourier expressions
+
+- Adds `phase_response()` method to `LTIFilter` and `DLTIFilter`
+
+- Adds `from_transfer_function()` classmethod to `LTIFilter` and `DLTIFilter`
+
+- Cycles colors for multiple pole-zero plots
+
+- Fixes domain labels
+
+- Fixes arrows for stepped lines
+
+- Adds chip5555, chip6666, chip7777 to schematics
+
+- Assumes `f0`, `omega0` is positive
+
+- Adds `from_ZPK()` classmethod to `LTIFilter` and `DLTIFilter`
+
+- Adds `group_delay()` method to `LTIFilter`
+
+- Adds Butterworth and Bessel filters
+
+- Adds logic gates for schematics
+
+
 V1.14
 =====
 
@@ -18,7 +54,6 @@ V1.14
 - Fixes unconnected_nodes
 
 - Fixes autonamer
-
 
 
 V1.13

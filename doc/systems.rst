@@ -107,6 +107,12 @@ method.  For example,
     >>> fil.b
     (K, -K⋅z₁)
 
+A continuous-time LTI filter can be approximated by discrete-time LTI
+filter using the `discretize()` method:
+
+
+
+
 Continuous-time linear time invariant filter attributes
 -------------------------------------------------------
 
