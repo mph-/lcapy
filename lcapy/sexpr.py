@@ -1,7 +1,7 @@
 """This module provides the LaplaceDomainExpression class to represent
 s-domain (Laplace domain) expressions.
 
-Copyright 2014--2022 Michael Hayes, UCECE
+Copyright 2014--2023 Michael Hayes, UCECE
 
 """
 
@@ -821,18 +821,8 @@ def sexpr(arg, **assumptions):
     return expr_make('laplace', arg, **assumptions)
 
 
-from .expressionclasses import expressionclasses  # nopep8
-
-classes = expressionclasses.register('laplace', LaplaceDomainExpression)
-LaplaceDomainVoltage = classes['voltage']
-LaplaceDomainCurrent = classes['current']
-LaplaceDomainAdmittance = classes['admittance']
-LaplaceDomainImpedance = classes['impedance']
-LaplaceDomainTransferFunction = classes['transfer']
-
-from .texpr import TimeDomainExpression, texpr  # nopep8
-from .phasor import PhasorDomainExpression  # nopep8
-from .phasor import PhasorRatioDomainExpression  # nopep8
-
 s = LaplaceDomainExpression('s')
 s.units = uu.rad / uu.s
+
+from .phasor import PhasorDomainExpression  # nopep8
+from .phasor import PhasorRatioDomainExpression  # nopep8

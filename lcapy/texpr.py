@@ -1,7 +1,7 @@
 """This module provides the TimeDomainExpression class to represent
 time domain expressions.
 
-Copyright 2014--2022 Michael Hayes, UCECE
+Copyright 2014--2023 Michael Hayes, UCECE
 
 """
 
@@ -339,12 +339,6 @@ def texpr(arg, **assumptions):
         return t
     return expr_make('time', arg, **assumptions)
 
-
-from .expressionclasses import expressionclasses  # nopep8
-
-classes = expressionclasses.register('time', TimeDomainExpression)
-TimeDomainVoltage = classes['voltage']
-TimeDomainCurrent = classes['current']
 
 t = TimeDomainExpression('t')
 t.units = uu.s

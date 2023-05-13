@@ -1,19 +1,19 @@
 """
 This module supports simple linear two-port networks.
 
-Copyright 2014--2022 Michael Hayes, UCECE
+Copyright 2014--2023 Michael Hayes, UCECE
 """
 
 from __future__ import division
 from warnings import warn
 import sympy as sym
 from .symbols import s
-from .sexpr import LaplaceDomainVoltage, LaplaceDomainCurrent, LaplaceDomainImpedance
-from .sexpr import LaplaceDomainAdmittance, LaplaceDomainTransferFunction
-from .sexpr import LaplaceDomainExpression
+from .exprclasses import LaplaceDomainVoltage, LaplaceDomainCurrent, LaplaceDomainImpedance
+from .exprclasses import LaplaceDomainAdmittance, LaplaceDomainTransferFunction
+from .exprclasses import LaplaceDomainExpression
+from .exprclasses import ConstantDomainExpression
 from .smatrix import LaplaceDomainVoltageMatrix, LaplaceDomainCurrentMatrix
 from .smatrix import LaplaceDomainImpedanceMatrix, LaplaceDomainAdmittanceMatrix
-from .cexpr import ConstantDomainExpression
 from .expr import expr
 from .vector import Vector
 from .matrix import Matrix

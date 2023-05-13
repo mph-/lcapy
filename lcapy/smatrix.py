@@ -1,7 +1,7 @@
 """This module implements the LaplaceDomainMatrix class for a matrix of
 Laplace-domain expressions.
 
-Copyright 2019--2021 Michael Hayes, UCECE
+Copyright 2019--2023 Michael Hayes, UCECE
 
 """
 
@@ -9,7 +9,7 @@ from .matrix import Matrix
 
 
 class LaplaceDomainMatrix(Matrix):
-    from .sexpr import LaplaceDomainExpression
+    from .exprclasses import LaplaceDomainExpression
     _typewrap = LaplaceDomainExpression
 
     def ILT(self, **assumptions):
@@ -21,22 +21,22 @@ class LaplaceDomainMatrix(Matrix):
 
 
 class LaplaceDomainVoltageMatrix(LaplaceDomainMatrix):
-    from .sexpr import LaplaceDomainVoltage
+    from .exprclasses import LaplaceDomainVoltage
     _typewrap = LaplaceDomainVoltage
 
 
 class LaplaceDomainCurrentMatrix(LaplaceDomainMatrix):
-    from .sexpr import LaplaceDomainCurrent
+    from .exprclasses import LaplaceDomainCurrent
     _typewrap = LaplaceDomainCurrent
 
 
 class LaplaceDomainAdmittanceMatrix(LaplaceDomainMatrix):
-    from .sexpr import LaplaceDomainAdmittance
+    from .exprclasses import LaplaceDomainAdmittance
     _typewrap = LaplaceDomainAdmittance
 
 
 class LaplaceDomainImpedanceMatrix(LaplaceDomainMatrix):
-    from .sexpr import LaplaceDomainImpedance
+    from .exprclasses import LaplaceDomainImpedance
     _typewrap = LaplaceDomainImpedance
 
 

@@ -10,6 +10,8 @@ from .units import u as uu
 class Domain(object):
     is_undefined_domain = False
     is_constant_domain = False
+    is_constant_time_domain = False
+    is_constant_frequency_domain = False
     is_time_domain = False
     is_laplace_domain = False
     is_fourier_domain = False
@@ -38,9 +40,23 @@ class UndefinedDomain(Domain):
 
 class ConstantDomain(Domain):
     domain = 'constant'
-    domain_label = 'Constant'
+    domain_label = ''
     domain_units = 1
     is_constant_domain = True
+
+
+class ConstantTimeDomain(Domain):
+    domain = 'constant time'
+    domain_label = ''
+    domain_units = 1
+    is_constant_time_domain = True
+
+
+class ConstantFrequencyDomain(Domain):
+    domain = 'constant frequency'
+    domain_label = ''
+    domain_units = 1
+    is_constant_time_domain = True
 
 
 class TimeDomain(Domain):
@@ -170,3 +186,11 @@ class SuperpositionDomain(Domain):
     domain_units = 1
     is_superposition_domain = True
     is_transform_domain = True
+
+
+domains = [UndefinedDomain, ConstantDomain, TimeDomain, LaplaceDomain,
+           FourierDomain, NormFourierDomain, AngularFourierDomain,
+           NormAngularFourierDomain, FrequencyResponseDomain,
+           AngularFrequencyResponseDomain, PhasorDomain, PhasorRatioDomain,
+           FourierNoiseDomain, AngularFourierNoiseDomain, DiscreteTimeDomain,
+           DiscreteFourierDomain, ZDomain, SuperpositionDomain]

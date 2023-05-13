@@ -547,11 +547,11 @@ class ExprDomain(object):
 
         if domain is None:
             domain = self.domain
-        return expressionclasses.get_quantity(domain, quantity)
+        return exprclasses[domain][quantity]
 
     def _class_by_domain(self, domain):
 
-        return expressionclasses.get_quantity(domain, self.quantity)
+        return exprclasses[domain][self.quantity]
 
     def as_quantity(self, quantity):
 
@@ -4174,7 +4174,7 @@ def expr_class(domain, arg, **assumptions):
     except:
         quantity = 'undefined'
 
-    cls = expressionclasses.get_quantity(domain, quantity)
+    cls = exprclasses[domain][quantity]
     return cls
 
 
@@ -4300,7 +4300,7 @@ from .sexpr import s, sexpr, LaplaceDomainExpression  # nopep8
 from .nexpr import nexpr  # nopep8
 from .kexpr import kexpr  # nopep8
 from .zexpr import zexpr, ZDomainExpression  # nopep8
-from .expressionclasses import expressionclasses  # nopep8
+from .exprclasses import exprclasses  # nopep8
 
 # Horrible hack to work with IPython around Sympy's back for LaTeX
 # formatting.  The problem is that Sympy does not check for the

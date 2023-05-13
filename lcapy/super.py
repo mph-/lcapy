@@ -1,8 +1,8 @@
-"""This module provides the Super class.  It is the base class for
-Current and Voltage.  It represents voltages and currents as a
-superposition in different transform domains.
+"""This module provides the SuperpositionDomainExpression class.  It
+is the base class for Current and Voltage.  It represents voltages and
+currents as a superposition in different transform domains.
 
-Copyright 2019--2022 Michael Hayes, UCECE
+Copyright 2019--2023 Michael Hayes, UCECE
 
 """
 

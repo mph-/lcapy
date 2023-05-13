@@ -1,5 +1,5 @@
-"""This module provides the SupoerPositionCurrent class.  This represents currents
-as a superposition in different transform domains.
+"""This module provides the SuperpositionCurrent class.  This
+represents currents as a superposition in different transform domains.
 
 For example, the following expression is a superposition of a DC
 component, an AC component, and a transient component:
@@ -22,7 +22,7 @@ I1.has_dc returns True if has a DC signal
 I1.has_ac returns True if has an AC signal
 I1.has_transient returns True if has a transient signal
 
-Copyright 2019--2020 Michael Hayes, UCECE
+Copyright 2019--2023 Michael Hayes, UCECE
 
 """
 

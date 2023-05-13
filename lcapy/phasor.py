@@ -503,7 +503,6 @@ expressionclasses.register('phasor', PhasorDomainExpression,
 
 # Handle voltage, current frequency response as phasor ratios
 # so that voltage(1 / (s + 2)).subs(jw) works.
-# Probably should add a frequency response domain.
 expressionclasses.register('phasor ratio', PhasorRatioDomainExpression)
 
 from .texpr import TimeDomainExpression  # nopep8
