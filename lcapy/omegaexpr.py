@@ -190,10 +190,5 @@ def omegaexpr(arg, **assumptions):
     return expr_make('angular fourier', arg, **assumptions)
 
 
-from .expressionclasses import expressionclasses  # nopep8
-
-classes = expressionclasses.register('angular fourier',
-                                     AngularFourierDomainExpression)
-
 omega = AngularFourierDomainExpression('omega')
 omega.units = uu.rad / uu.s

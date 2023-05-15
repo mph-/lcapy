@@ -1,4 +1,3 @@
-from .expr import expr
 from .immittancemixin import ImmittanceMixin
 from .quantity import Quantity
 
@@ -63,3 +62,6 @@ class AdmittanceMixin(Quantity, ImmittanceMixin):
             return C(y.expr)
 
         return Y(self)
+
+
+from .expr import expr  # nopep8

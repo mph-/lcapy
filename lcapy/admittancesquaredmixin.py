@@ -5,3 +5,4 @@ class AdmittanceSquaredMixin(object):
     quantity_units = 'S^2'
     is_admittancesquared = True
     is_squared = True
+    is_ratio = True

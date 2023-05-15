@@ -205,9 +205,5 @@ def fexpr(arg, **assumptions):
     return expr_make('fourier', arg, **assumptions)
 
 
-from .expressionclasses import expressionclasses  # nopep8
-
-classes = expressionclasses.register('fourier', FourierDomainExpression)
-
 f = FourierDomainExpression('f')
 f.units = uu.Hz

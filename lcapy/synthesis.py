@@ -5,7 +5,8 @@ Copyright 2020 Michael Hayes, UCECE
 """
 
 from .oneport import L, C, R, G, parallel, series
-from .sexpr import s, LaplaceDomainImpedance, LaplaceDomainExpression
+from .sexpr import s, LaplaceDomainExpression
+from .exprclasses import LaplaceDomainImpedance
 from .expr import expr
 
 # Should check that args to L, C, R, G contains s and raise

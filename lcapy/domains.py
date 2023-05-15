@@ -10,6 +10,8 @@ from .units import u as uu
 class Domain(object):
     is_undefined_domain = False
     is_constant_domain = False
+    is_constant_time_domain = False
+    is_constant_frequency_response_domain = False
     is_time_domain = False
     is_laplace_domain = False
     is_fourier_domain = False
@@ -38,8 +40,24 @@ class UndefinedDomain(Domain):
 
 class ConstantDomain(Domain):
     domain = 'constant'
-    domain_label = 'Constant'
+    domain_label = ''
     domain_units = 1
+    is_constant_domain = True
+
+
+class ConstantTimeDomain(Domain):
+    domain = 'constant time'
+    domain_label = ''
+    domain_units = 1
+    is_constant_time_domain = True
+    is_constant_domain = True
+
+
+class ConstantFrequencyResponseDomain(Domain):
+    domain = 'constant frequency response'
+    domain_label = ''
+    domain_units = 1
+    is_constant_frequency_response_domain = True
     is_constant_domain = True
 
 
@@ -170,3 +188,25 @@ class SuperpositionDomain(Domain):
     domain_units = 1
     is_superposition_domain = True
     is_transform_domain = True
+
+
+domains = {'undefined': UndefinedDomain,
+           'constant': ConstantDomain,
+           'constant time': ConstantTimeDomain,
+           'constant frequency response': ConstantFrequencyResponseDomain,
+           'time': TimeDomain,
+           'laplace': LaplaceDomain,
+           'fourier': FourierDomain,
+           'norm fourier': NormFourierDomain,
+           'angular fourier': AngularFourierDomain,
+           'norm angular fourier': NormAngularFourierDomain,
+           'frequency response': FrequencyResponseDomain,
+           'angular frequency response': AngularFrequencyResponseDomain,
+           'phasor': PhasorDomain,
+           'phasor ratio': PhasorRatioDomain,
+           'fourier noise': FourierNoiseDomain,
+           'angular fourier noise': AngularFourierNoiseDomain,
+           'discrete time': DiscreteTimeDomain,
+           'discrete fourier': DiscreteFourierDomain,
+           'Z': ZDomain,
+           'superposition': SuperpositionDomain}

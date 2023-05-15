@@ -7,6 +7,10 @@ install:
 package:
 	python3 setup.py sdist bdist_wheel
 
+lcapy/exprclasses.py: lcapy/makeclasses.py lcapy/domains.py lcapy/quantities.py
+	cd lcapy; python3 makeclasses.py
+
+
 .PHONY: upload-test
 upload-test: package
 	python3 -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*

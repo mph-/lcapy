@@ -208,10 +208,5 @@ def Fexpr(arg, **assumptions):
     return expr_make('norm fourier', arg, **assumptions)
 
 
-from .expressionclasses import expressionclasses  # nopep8
-
-classes = expressionclasses.register('norm fourier',
-                                     NormFourierDomainExpression)
-
 F = NormFourierDomainExpression('F')
 F.units = uu.rad / uu.rad

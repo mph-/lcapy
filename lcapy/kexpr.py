@@ -149,8 +149,4 @@ def kexpr(arg, **assumptions):
     return DiscreteFourierDomainExpression(arg, **assumptions)
 
 
-from .expressionclasses import expressionclasses  # nopep8
-
-expressionclasses.register('discrete fourier', DiscreteFourierDomainExpression)
-
 k = DiscreteFourierDomainExpression('k', integer=True)

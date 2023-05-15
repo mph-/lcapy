@@ -122,11 +122,5 @@ class FourierNoiseDomainCurrent(CurrentMixin, FourierNoiseDomainExpression):
     units = 'A/rtHz'
 
 
-from .expressionclasses import expressionclasses  # nopep8
-
-expressionclasses.register('fourier noise', FourierNoiseDomainExpression, None,
-                           ('voltage', 'current'))
-
-
 from .fexpr import f  # nopep8
 from .noiseomegaexpr import AngularFourierNoiseDomainExpression  # nopep8
