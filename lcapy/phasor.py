@@ -31,7 +31,6 @@ Copyright 2014--2022 Michael Hayes, UCECE
 """
 
 from __future__ import division
-from .expressionclasses import expressionclasses
 from .acdc import ACChecker
 from .domains import PhasorDomain, PhasorRatioDomain
 from .sym import j, omegasym, fsym, pi
@@ -494,16 +493,6 @@ def phasor_ratio(arg, omega=None, **assumptions):
 
     return PhasorRatioDomainExpression(arg, omega=omega, **assumptions)
 
-
-expressionclasses.register('phasor', PhasorDomainExpression,
-                           None,
-                           ('voltage', 'current',
-                            'voltagesquared', 'currentsquared', 'power',
-                            'undefined'))
-
-# Handle voltage, current frequency response as phasor ratios
-# so that voltage(1 / (s + 2)).subs(jw) works.
-expressionclasses.register('phasor ratio', PhasorRatioDomainExpression)
 
 from .texpr import TimeDomainExpression  # nopep8
 from .expr import Expr  # nopep8

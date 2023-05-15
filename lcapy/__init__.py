@@ -65,6 +65,7 @@ from .symbols import *
 from .nodalanalysis import *
 from .loopanalysis import *
 from .exprclasses import *
+from .seqclasses import *
 
 import sys
 import pkg_resources

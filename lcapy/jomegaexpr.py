@@ -171,10 +171,5 @@ class AngularFrequencyResponseDomainExpression(AngularFrequencyResponseDomain, E
         return plot_nichols(self, wvector, log_frequency=log_frequency, **kwargs)
 
 
-from .expressionclasses import expressionclasses  # nopep8
-
-classes = expressionclasses.register('angular frequency response',
-                                     AngularFrequencyResponseDomainExpression)
-
 jomega = AngularFrequencyResponseDomainExpression('j * omega')
 jomega.units = uu.rad / uu.s

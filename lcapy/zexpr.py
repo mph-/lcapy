@@ -88,9 +88,9 @@ class ZDomainExpression(ZDomain, SequenceExpression):
         """Evaluate transient (impulse) response."""
 
         if tvector is None:
-            return self.time()
+            return self.discrete_time()
 
-        return self.time().evaluate(tvector)
+        return self.discrete_time().evaluate(tvector)
 
     def impulse_response(self, tvector=None):
         """Evaluate transient (impulse) response."""
@@ -451,14 +451,4 @@ def zexpr(arg, **assumptions):
     return ZDomainExpression(arg, **assumptions)
 
 
-from .expressionclasses import expressionclasses  # nopep8
-
-classes = expressionclasses.register('Z', ZDomainExpression)
-ZDomainVoltage = classes['voltage']
-ZDomainCurrent = classes['current']
-ZDomainAdmittance = classes['admittance']
-ZDomainImpedance = classes['impedance']
-ZDomainTransferFunction = classes['transfer']
-
-from .nexpr import DiscreteTimeDomainExpression, nexpr  # nopep8
 z = ZDomainExpression('z')

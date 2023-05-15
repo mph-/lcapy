@@ -5,3 +5,4 @@ class ImpedanceSquaredMixin(object):
     quantity_units = 'ohm^2'
     is_impedancesquared = True
     is_squared = True
+    is_ratio = True

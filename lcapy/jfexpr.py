@@ -170,11 +170,6 @@ class FrequencyResponseDomainExpression(FrequencyResponseDomain, Expr):
         return plot_nichols(self, vvector, log_frequency=log_frequency, **kwargs)
 
 
-from .expressionclasses import expressionclasses  # nopep8
-
-classes = expressionclasses.register('frequency response',
-                                     FrequencyResponseDomainExpression)
-
 jf = FrequencyResponseDomainExpression('j * f')
 jf.units = 1 / uu.s
 

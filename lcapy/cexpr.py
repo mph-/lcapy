@@ -13,7 +13,7 @@ Copyright 2014--2022 Michael Hayes, UCECE
 """
 
 from .expr import Expr, expr_make
-from .domains import ConstantDomain
+from .domains import ConstantDomain, ConstantTimeDomain, ConstantFrequencyResponseDomain
 from .sym import symbols_find
 from .voltagemixin import VoltageMixin
 from .currentmixin import CurrentMixin
@@ -22,13 +22,7 @@ from .impedancemixin import ImpedanceMixin
 from .transfermixin import TransferMixin
 
 
-class ConstantDomainExpression(ConstantDomain, Expr):
-    """Constant real expression or symbol.
-
-    If symbols in the expression are known to be negative, use
-    ConstantDomainExpression(expr, positive=False)
-
-    """
+class ConstantExpr(Expr):
 
     def __init__(self, val, **assumptions):
 
@@ -39,7 +33,7 @@ class ConstantDomainExpression(ConstantDomain, Expr):
                     'Constant expression %s cannot depend on %s' % (val, symbol))
 
         assumptions['dc'] = True
-        super(ConstantDomainExpression, self).__init__(val, **assumptions)
+        super(ConstantExpr, self).__init__(val, **assumptions)
 
     def as_expr(self):
         return ConstantDomainExpression(self)
@@ -109,7 +103,17 @@ class ConstantDomainExpression(ConstantDomain, Expr):
         return self(s).response(xvector, tvector)
 
 
-class ConstantTimeDomainExpression(ConstantDomainExpression):
+class ConstantDomainExpression(ConstantDomain, ConstantExpr):
+    """Constant real expression or symbol.
+
+    If symbols in the expression are known to be negative, use
+    ConstantDomainExpression(expr, positive=False)
+
+    """
+    pass
+
+
+class ConstantTimeDomainExpression(ConstantTimeDomain, ConstantExpr):
     """This represents constant voltage, current, voltage-squared, and
     current-squared signals.
 
@@ -131,7 +135,8 @@ class ConstantTimeDomainExpression(ConstantDomainExpression):
             (self.__class__.__name__, self))
 
 
-class ConstantFrequencyResponseDomainExpression(ConstantDomainExpression):
+class ConstantFrequencyResponseDomainExpression(ConstantFrequencyResponseDomain,
+                                                ConstantExpr):
     """This represents constant impedance, admittance, and transfer
     functions.
 
@@ -181,11 +186,3 @@ def cexpr(arg, frequency=False, **assumptions):
         return ConstantDomainExpression(arg, **assumptions)
 
     return expr_make('constant', arg, **assumptions)
-
-
-from .expressionclasses import expressionclasses  # nopep8
-
-expressionclasses.register('constant', ConstantTimeDomainExpression,
-                           ConstantFrequencyResponseDomainExpression,
-                           ('voltage', 'current', 'voltagesquared',
-                            'currentsquared', 'undefined'))

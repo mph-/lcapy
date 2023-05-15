@@ -290,11 +290,4 @@ def nexpr(arg, **assumptions):
     return DiscreteTimeDomainExpression(arg, **assumptions)
 
 
-from .expressionclasses import expressionclasses  # nopep8
-
-classes = expressionclasses.register(
-    'discrete time', DiscreteTimeDomainExpression)
-DiscreteTimeDomainVoltage = classes['voltage']
-DiscreteTimeDomainCurrent = classes['current']
-
 n = DiscreteTimeDomainExpression('n', integer=True)

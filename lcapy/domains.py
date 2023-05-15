@@ -11,7 +11,7 @@ class Domain(object):
     is_undefined_domain = False
     is_constant_domain = False
     is_constant_time_domain = False
-    is_constant_frequency_domain = False
+    is_constant_frequency_response_domain = False
     is_time_domain = False
     is_laplace_domain = False
     is_fourier_domain = False
@@ -50,13 +50,15 @@ class ConstantTimeDomain(Domain):
     domain_label = ''
     domain_units = 1
     is_constant_time_domain = True
+    is_constant_domain = True
 
 
-class ConstantFrequencyDomain(Domain):
-    domain = 'constant frequency'
+class ConstantFrequencyResponseDomain(Domain):
+    domain = 'constant frequency response'
     domain_label = ''
     domain_units = 1
-    is_constant_time_domain = True
+    is_constant_frequency_response_domain = True
+    is_constant_domain = True
 
 
 class TimeDomain(Domain):
@@ -188,9 +190,23 @@ class SuperpositionDomain(Domain):
     is_transform_domain = True
 
 
-domains = [UndefinedDomain, ConstantDomain, TimeDomain, LaplaceDomain,
-           FourierDomain, NormFourierDomain, AngularFourierDomain,
-           NormAngularFourierDomain, FrequencyResponseDomain,
-           AngularFrequencyResponseDomain, PhasorDomain, PhasorRatioDomain,
-           FourierNoiseDomain, AngularFourierNoiseDomain, DiscreteTimeDomain,
-           DiscreteFourierDomain, ZDomain, SuperpositionDomain]
+domains = {'undefined': UndefinedDomain,
+           'constant': ConstantDomain,
+           'constant time': ConstantTimeDomain,
+           'constant frequency response': ConstantFrequencyResponseDomain,
+           'time': TimeDomain,
+           'laplace': LaplaceDomain,
+           'fourier': FourierDomain,
+           'norm fourier': NormFourierDomain,
+           'angular fourier': AngularFourierDomain,
+           'norm angular fourier': NormAngularFourierDomain,
+           'frequency response': FrequencyResponseDomain,
+           'angular frequency response': AngularFrequencyResponseDomain,
+           'phasor': PhasorDomain,
+           'phasor ratio': PhasorRatioDomain,
+           'fourier noise': FourierNoiseDomain,
+           'angular fourier noise': AngularFourierNoiseDomain,
+           'discrete time': DiscreteTimeDomain,
+           'discrete fourier': DiscreteFourierDomain,
+           'Z': ZDomain,
+           'superposition': SuperpositionDomain}

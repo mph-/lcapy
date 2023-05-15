@@ -45,22 +45,22 @@ class ZDomainMatrix(Matrix):
 
 
 class ZDomainVoltageMatrix(ZDomainMatrix):
-    from .zexpr import ZDomainVoltage
+    from .exprclasses import ZDomainVoltage
     _typewrap = ZDomainVoltage
 
 
 class ZDomainCurrentMatrix(ZDomainMatrix):
-    from .zexpr import ZDomainCurrent
+    from .exprclasses import ZDomainCurrent
     _typewrap = ZDomainCurrent
 
 
 class ZDomainAdmittanceMatrix(ZDomainMatrix):
-    from .zexpr import ZDomainAdmittance
+    from .exprclasses import ZDomainAdmittance
     _typewrap = ZDomainAdmittance
 
 
 class ZDomainImpedanceMatrix(ZDomainMatrix):
-    from .zexpr import ZDomainImpedance
+    from .exprclasses import ZDomainImpedance
     _typewrap = ZDomainImpedance
 
 

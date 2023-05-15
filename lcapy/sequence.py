@@ -1,10 +1,11 @@
 """This module handles sequences.
 
-Copyright 2020--2022 Michael Hayes, UCECE
+Copyright 2020--2023 Michael Hayes, UCECE
 
 """
 
-from .expr import ExprList, ExprDomain, expr
+from .expr import ExprList, expr
+from .seqdomain import SeqDomain
 from .utils import isiterable
 from .assumptions import Assumptions
 
@@ -42,7 +43,7 @@ def parse_seq_str(s):
     return vals, ni
 
 
-class Sequence(ExprList, ExprDomain):
+class Sequence(ExprList, SeqDomain):
 
     var = None
     is_sequence = True

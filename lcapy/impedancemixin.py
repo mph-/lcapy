@@ -1,4 +1,3 @@
-from .expr import expr
 from .immittancemixin import ImmittanceMixin
 from .quantity import Quantity
 
@@ -62,3 +61,6 @@ class ImpedanceMixin(Quantity, ImmittanceMixin):
             return L(z.expr)
 
         return Z(self)
+
+
+from .expr import expr  # nopep8

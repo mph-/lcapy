@@ -1,6 +1,5 @@
 from lcapy import *
-from lcapy.sexpr import LaplaceDomainVoltage
-from lcapy.texpr import TimeDomainExpression, TimeDomainVoltage
+from lcapy.texpr import TimeDomainExpression
 import unittest
 import sympy as sym
 

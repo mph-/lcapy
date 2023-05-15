@@ -16,7 +16,7 @@ class DiscreteTimeDomainSequence(DiscreteTimeDomain, Sequence):
     """Discrete-time domain sequence."""
 
     var = nsym
-    domain = 'discrete time sequence'
+    domain = 'discrete time'
 
     def DFT(self):
         """Calculate DFT and return as sequence."""
@@ -35,7 +35,7 @@ class DiscreteTimeDomainSequence(DiscreteTimeDomain, Sequence):
             result = result.change(result, domain='discrete fourier')
             results.append(result)
 
-        return self.change(results, domain='discrete fourier sequence')
+        return self.change(results, domain='discrete fourier')
 
     def ZT(self):
         """Calculate z-transform and return as sequence."""
@@ -49,7 +49,7 @@ class DiscreteTimeDomainSequence(DiscreteTimeDomain, Sequence):
             result = z**(-ni) * vals[ni].expr
             result = result.change(result, domain='Z')
             results.append(result)
-        return self.change(results, domain='Z sequence')
+        return self.change(results, domain='Z')
 
 
 def nseq(arg, ni=None, origin=None):
@@ -78,9 +78,3 @@ def nseq(arg, ni=None, origin=None):
     """
 
     return DiscreteTimeDomainSequence(arg, ni, origin)
-
-
-from .expressionclasses import expressionclasses  # nopep8
-
-expressionclasses.register('discrete time sequence',
-                           DiscreteTimeDomainSequence)

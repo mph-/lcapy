@@ -23,6 +23,8 @@ symbolmap = {'s': '(s)',
              'dc': ''}
 
 domainmap = {'constant': 'dc',
+             'constant time': 'dc',
+             'constant frequency response': 'dc',             # ????
              'time': 't',
              'laplace': 's',
              'fourier': 'f',

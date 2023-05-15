@@ -211,10 +211,5 @@ def Omegaexpr(arg, **assumptions):
     return expr_make('norm angular fourier', arg, **assumptions)
 
 
-from .expressionclasses import expressionclasses  # nopep8
-
-classes = expressionclasses.register('norm angular fourier',
-                                     NormAngularFourierDomainExpression)
-
 Omega = NormAngularFourierDomainExpression('Omega')
 Omega.units = uu.rad

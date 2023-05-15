@@ -118,13 +118,5 @@ class AngularFourierNoiseDomainCurrent(AngularFourierNoiseDomainExpression):
     units = 'A/rtrad/s'
 
 
-from .expressionclasses import expressionclasses  # nopep8
-
-classes = expressionclasses.register('angular fourier noise',
-                                     AngularFourierNoiseDomainExpression, None,
-                                     ('voltage', 'current'))
-AngularFourierNoiseDomainVoltage = classes['voltage']
-AngularFourierNoiseDomainCurrent = classes['current']
-
 from .omegaexpr import omega  # nopep8
 from .noisefexpr import FourierNoiseDomainExpression  # nopep8

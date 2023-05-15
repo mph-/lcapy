@@ -1,7 +1,5 @@
 from lcapy import *
-from lcapy.texpr import TimeDomainVoltage, TimeDomainCurrent
-from lcapy.sexpr import (LaplaceDomainVoltage, LaplaceDomainTransferFunction,
-                         LaplaceDomainImpedance, LaplaceDomainAdmittance)
+
 import unittest
 import sympy as sym
 import os

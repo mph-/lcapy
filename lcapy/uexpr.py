@@ -55,8 +55,3 @@ def uexpr(arg, var, **assumptions):
 
     assumptions['var'] = var
     return expr_make('undefined', arg, **assumptions)
-
-
-from .expressionclasses import expressionclasses  # nopep8
-
-expressionclasses.register('undefined', UndefinedDomainExpression)

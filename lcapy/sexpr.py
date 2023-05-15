@@ -826,3 +826,4 @@ s.units = uu.rad / uu.s
 
 from .phasor import PhasorDomainExpression  # nopep8
 from .phasor import PhasorRatioDomainExpression  # nopep8
+from .exprclasses import LaplaceDomainTransferFunction  # nopep8
