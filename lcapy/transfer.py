@@ -19,7 +19,8 @@ def transfer(numer, denom=1, causal=True, **assumptions):
     expr1 = numer / denom
 
     if expr1.is_admittance:
-        return expr1.apply_unit(1 / uu.ohms)
+        expr1.units = 1 / uu.ohms
+        return expr1
 
     try:
         expr1 = expr1.as_transfer()
