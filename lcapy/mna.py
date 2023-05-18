@@ -1,7 +1,7 @@
 """
 This module implements modified nodal analysis (MNA).
 
-Copyright 2014--2022 Michael Hayes, UCECE
+Copyright 2014--2023 Michael Hayes, UCECE
 """
 
 from __future__ import division
@@ -14,6 +14,7 @@ from .voltage import Vtype
 from .current import Itype
 from .systemequations import SystemEquations
 import sympy as sym
+from warnings import warn
 
 # Note, all the maths is performed using sympy expressions and the
 # values and converted to Expr when required.  This is more
@@ -181,8 +182,9 @@ class MNA(object):
             return
 
         if '0' not in self.cct.node_map:
-            raise RuntimeError(
-                'Cannot solve: ground node 0 undefined')
+            gnode = list(self.cct.node_map)[0]
+            warn('Ground node not specified: using node ' + gnode)
+            self.cct._add_ground(gnode)
 
         # Solve for the nodal voltages
         try:

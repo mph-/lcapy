@@ -1,7 +1,7 @@
 """
 This module performs state-space analysis.
 
-Copyright 2021--2022 Michael Hayes, UCECE
+Copyright 2021--2023 Michael Hayes, UCECE
 
 """
 
@@ -142,11 +142,14 @@ class StateSpaceMaker(object):
                         raise ValueError(
                             'Cannot create state-space model since have inductor %s in series with independent current source %s' % (name, elt.name))
 
-        cct = cct
-        sscct = sscct
         # sscct can be analysed in the time domain since it has no
         # reactive components.  However, for large circuits
         # this can take a long time due to inversion of the MNA matrix.
+
+        if '0' not in sscct.node_map:
+            gnode = list(sscct.node_map)[0]
+            warn('Ground node not specified: using node ' + gnode)
+            sscct._add_ground(gnode)
 
         try:
             # Analyse node voltages and branch currents.
