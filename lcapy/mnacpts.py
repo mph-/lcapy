@@ -1539,6 +1539,12 @@ class I(IndependentSource):
         return self._netmake(args=self.cpt.Isc.pre_initial_value())
 
 
+class Idc(I):
+
+    def _ss_model(self):
+        return self._netmake(args='%s' % self.relname.lower())
+
+
 class K(Dummy):
 
     def __init__(self, cct, namespace, name, cpt_type, cpt_id, string,
@@ -1614,7 +1620,7 @@ class L(RLC):
 
         return rnet + '\n' + vnet
 
-    @property
+    @ property
     def I0(self):
         """Initial current (for capacitors only)."""
 
@@ -1622,7 +1628,7 @@ class L(RLC):
             return current(self.cpt.i0 / s)
         return current(0)
 
-    @property
+    @ property
     def L(self):
         return self.cpt.L
 
@@ -1677,11 +1683,11 @@ class O(Dummy):
     def _stamp(self, mna):
         pass
 
-    @property
+    @ property
     def I(self):
         return SuperpositionCurrent(0)
 
-    @property
+    @ property
     def i(self):
         return SuperpositionCurrent(0)(t)
 
@@ -1694,11 +1700,11 @@ class P(Dummy):
     def _stamp(self, mna):
         pass
 
-    @property
+    @ property
     def I(self):
         return SuperpositionCurrent(0)
 
-    @property
+    @ property
     def i(self):
         return SuperpositionCurrent(0)(t)
 
@@ -2207,6 +2213,12 @@ class V(IndependentSource):
         return self._netmake(args=self.cpt.Voc.pre_initial_value())
 
 
+class Vdc(V):
+
+    def _ss_model(self):
+        return self._netmake(args='%s' % self.relname.lower())
+
+
 class W(Dummy):
     """Wire"""
 
@@ -2215,12 +2227,12 @@ class W(Dummy):
     def _stamp(self, mna):
         pass
 
-    @property
+    @ property
     def I(self):
         raise ValueError(
             'Cannot determine current through wire, use a 0 V voltage source')
 
-    @property
+    @ property
     def i(self):
         raise ValueError(
             'Cannot determine current through wire, use a 0 V voltage source')
@@ -2299,7 +2311,6 @@ defcpt('H', CCVS, 'CCVS')
 
 defcpt('sI', I, 's-domain current source')
 defcpt('Isin', I, 'Sinusoidal current source')
-defcpt('Idc', I, 'DC current source')
 defcpt('Istep', I, 'Step current source')
 defcpt('Iac', I, 'AC current source')
 defcpt('Inoise', I, 'Noise current source')
@@ -2379,7 +2390,6 @@ defcpt('Uxor', Logic, 'Xor gate')
 defcpt('Uxnor', Logic, 'Xnor gate')
 defcpt('sV', V, 's-domain voltage source')
 defcpt('Vsin', V, 'Sinusoidal voltage source')
-defcpt('Vdc', V, 'DC voltage source')
 defcpt('Vstep', V, 'Step voltage source')
 defcpt('Vac', V, 'AC voltage source')
 defcpt('Vnoise', V, 'Noise voltage source')
