@@ -1529,7 +1529,7 @@ class I(IndependentSource):
             mna._Is[n2] -= I
 
     def _ss_model(self):
-        return self._netmake(args='%s(t)' % self.relname.lower())
+        return self._netmake(args=self.cpt.isc, ignore_keyword=True)
 
     def _s_model(self, kind):
         return self._netmake(args=self.Isc.laplace(), ignore_keyword=True)
@@ -1537,12 +1537,6 @@ class I(IndependentSource):
     def _pre_initial_model(self):
 
         return self._netmake(args=self.cpt.Isc.pre_initial_value())
-
-
-class Idc(I):
-
-    def _ss_model(self):
-        return self._netmake(args='%s' % self.relname.lower())
 
 
 class K(Dummy):
@@ -2203,7 +2197,7 @@ class V(IndependentSource):
         mna._Es[m] += V
 
     def _ss_model(self):
-        return self._netmake(args='%s(t)' % self.relname.lower())
+        return self._netmake(args=self.cpt.voc, ignore_keyword=True)
 
     def _s_model(self, kind):
         return self._netmake(args=self.cpt.Voc.laplace(), ignore_keyword=True)
@@ -2211,12 +2205,6 @@ class V(IndependentSource):
     def _pre_initial_model(self):
 
         return self._netmake(args=self.cpt.Voc.pre_initial_value())
-
-
-class Vdc(V):
-
-    def _ss_model(self):
-        return self._netmake(args='%s' % self.relname.lower())
 
 
 class W(Dummy):
@@ -2313,6 +2301,7 @@ defcpt('sI', I, 's-domain current source')
 defcpt('Isin', I, 'Sinusoidal current source')
 defcpt('Istep', I, 'Step current source')
 defcpt('Iac', I, 'AC current source')
+defcpt('Idc', I, 'DC current source')
 defcpt('Inoise', I, 'Noise current source')
 
 defcpt('J', NonLinear, 'N JFET transistor')
@@ -2392,6 +2381,7 @@ defcpt('sV', V, 's-domain voltage source')
 defcpt('Vsin', V, 'Sinusoidal voltage source')
 defcpt('Vstep', V, 'Step voltage source')
 defcpt('Vac', V, 'AC voltage source')
+defcpt('Vdc', V, 'DC voltage source')
 defcpt('Vnoise', V, 'Noise voltage source')
 defcpt('VM', O, 'Voltmeter')
 
