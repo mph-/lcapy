@@ -5,6 +5,12 @@ Release notes
 V1.15
 =====
 
+- Chooses ground node if not defined
+
+- Fixes state-space analysis with AC and DC sources
+
+- Statically defines expresssion classes
+
 - Adds `LTIFilter.discretize()`
 
 - Adds `DifferentialEquation.discretize()`
