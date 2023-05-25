@@ -1,7 +1,7 @@
 """This module defines the StateSpace class for representing a linear
 continuous time-invariant system as a state-space model.
 
-Copyright 2021--2022 Michael Hayes, UCECE
+Copyright 2021--2023 Michael Hayes, UCECE
 
 """
 
@@ -101,6 +101,17 @@ class StateSpace(StateSpaceBase):
         where x is the state vector and u is the input vector.
         """
 
+        if len(self.u) == 0 and len(self.x) == 0:
+            return expr('')
+
+        if len(self.u) == 0:
+            return expr(sym.Eq(self.dotx,
+                               sym.MatMul(self._A.sympy, self.x.sympy)))
+
+        if len(self.x) == 0:
+            return expr(sym.Eq(self.dotx,
+                               sym.MatMul(self._B.sympy, self.u.sympy)))
+
         return expr(sym.Eq(self.dotx,
                            sym.MatAdd(sym.MatMul(self._A.sympy, self.x.sympy),
                                       sym.MatMul(self._B.sympy, self.u.sympy)),
@@ -115,6 +126,14 @@ class StateSpace(StateSpaceBase):
         the input vector.
 
         """
+
+        if len(self.u) == 0:
+            return expr(sym.Eq(self.y,
+                               sym.MatMul(self._C.sympy, self.x.sympy)))
+
+        if len(self.x) == 0:
+            return expr(sym.Eq(y,
+                               sym.MatMul(self._D.sympy, self.u.sympy)))
 
         return expr(sym.Eq(self.y,
                            sym.MatAdd(sym.MatMul(self._C.sympy, self.x.sympy),
