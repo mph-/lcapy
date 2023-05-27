@@ -132,7 +132,7 @@ class StateSpace(StateSpaceBase):
                                sym.MatMul(self._C.sympy, self.x.sympy)))
 
         if len(self.x) == 0:
-            return expr(sym.Eq(y,
+            return expr(sym.Eq(self.y,
                                sym.MatMul(self._D.sympy, self.u.sympy)))
 
         return expr(sym.Eq(self.y,
