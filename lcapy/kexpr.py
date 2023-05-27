@@ -146,7 +146,15 @@ def kexpr(arg, **assumptions):
             return arg
         return arg.__class__(arg, **assumptions)
 
-    return DiscreteFourierDomainExpression(arg, **assumptions)
+    from numpy import ndarray
+
+    if isinstance(arg, (list, ndarray)):
+        expr = DiscreteFourierDomainSequence(arg, var=k).as_impulses()
+    else:
+        expr = DiscreteFourierDomainExpression(arg, **assumptions)
+
+    expr = expr.remap_functions()
+    return expr
 
 
 k = DiscreteFourierDomainExpression('k', integer=True)

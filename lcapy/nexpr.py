@@ -285,9 +285,12 @@ def nexpr(arg, **assumptions):
     from numpy import ndarray
 
     if isinstance(arg, (list, ndarray)):
-        return DiscreteTimeDomainSequence(arg, var=n).as_impulses()
+        expr = DiscreteTimeDomainSequence(arg, var=n).as_impulses()
+    else:
+        expr = DiscreteTimeDomainExpression(arg, **assumptions)
 
-    return DiscreteTimeDomainExpression(arg, **assumptions)
+    expr = expr.remap_functions()
+    return expr
 
 
 n = DiscreteTimeDomainExpression('n', integer=True)

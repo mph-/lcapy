@@ -272,8 +272,8 @@ ramp = function_wrap(ramp1)
 
 rampstep = function_wrap(rampstep1)
 
-function_mapping = {sym.Heaviside: UnitStep1,
-                    sym.DiracDelta: UnitImpulse1,
+function_mapping = {sym.Heaviside: us,
+                    sym.DiracDelta: ui,
                     rect1: dtrect,
                     sym.sign: dtsign}
 

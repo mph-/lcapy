@@ -21,6 +21,8 @@ class SequenceExpression(DiscreteExpression):
 
         super(SequenceExpression, self).__init__(val, **assumptions)
 
+    def remap_functions(self):
+
         def remap_continuous_discrete(expr):
 
             def query(expr):
@@ -31,13 +33,13 @@ class SequenceExpression(DiscreteExpression):
                 # The second arg now defaults to 1/2, so we need
                 # to remove it.
                 if expr.func == Heaviside:
-                    return UnitStep(expr.args[0])
-                return function_mapping[expr.func](*expr.args)
+                    return function_mapping[expr.func](expr.args[0]).expr
+                return function_mapping[expr.func](*expr.args).expr
 
             # Use discrete-time function variants, see also functions.py
             return expr.replace(query, value)
 
-        self.expr = remap_continuous_discrete(self.expr)
+        return self.__class__(remap_continuous_discrete(self.expr))
 
     def first_index(self, ni=None):
 
