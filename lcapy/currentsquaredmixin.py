@@ -8,3 +8,4 @@ class CurrentSquaredMixin(Quantity):
     quantity_units = 'A^2'
     is_currentsquared = True
     is_squared = True
+    is_undefined = False

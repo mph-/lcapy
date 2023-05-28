@@ -11,3 +11,4 @@ class TransferMixin(Quantity):
     # but they won't result from circuit analysis.
     is_transfer = True
     is_ratio = True
+    is_undefined = False

@@ -10,6 +10,7 @@ class AdmittanceMixin(Quantity, ImmittanceMixin):
     is_admittance = True
     is_immittance = True
     is_ratio = True
+    is_undefined = False
 
     # Immittances derived from a realisable circuit will be causal but
     # non-causal immittances can also be constructed.  So this might

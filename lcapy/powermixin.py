@@ -7,6 +7,7 @@ class PowerMixin(Quantity):
     quantity_label = 'Power'
     quantity_units = 'W'
     is_power = True
+    is_undefined = False
 
     # TODO: the units are not power in some of the transform domains.
     # For example, in the Fourier domain V * I has units of V/Hz * A/Hz

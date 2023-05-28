@@ -8,3 +8,4 @@ class VoltageSquaredMixin(Quantity):
     quantity_units = 'V^2'
     is_voltagesquared = True
     is_squared = True
+    is_undefined = False

@@ -601,7 +601,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         if alpha < 0 or alpha > 1:
             raise ValueError("alpha must be between 0 and 1 inclusive")
 
-        scale = 1 if self.is_ratio else 1 / dt
+        scale = 1 if self.is_ratio or self.is_undefined else 1 / dt
 
         return self.subs((1 / dt) * (1 - z**-1) / (alpha + (1 - alpha) * z**-1)) * scale
 
@@ -654,7 +654,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         from .discretetime import z
 
-        scale = dt if self.is_ratio else 1
+        scale = dt if self.is_ratio or self.is_undefined else 1
 
         return self.subs((3 / dt) * (z**2 - 1) / (z**2 + 4 * z + 1)) * scale
 
@@ -670,7 +670,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
 
         from .discretetime import z
 
-        scale = dt if self.is_ratio else 1
+        scale = dt if self.is_ratio or self.is_undefined else 1
 
         zeros, poles, K, undef = self._ratfun.as_ZPK()
         result = K * scale
@@ -712,7 +712,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         if h.has(DiracDelta):
             raise ValueError('Impulse response has Dirac-deltas')
 
-        scale = dt if self.is_ratio else 1
+        scale = dt if self.is_ratio or self.is_undefined else 1
 
         hn = h.subs(n * dt)
         H = hn.ZT() * scale
