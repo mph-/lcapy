@@ -259,39 +259,62 @@ class TimeDomainExpression(TimeDomain, Expr):
         expr = expr * Heaviside(t.var)
         return self.__class__(expr)
 
-    def discretize(self, method='bilinear', alpha=0.5):
+    def discretize(self, method=None, alpha=0.5):
         """Convert to a discrete-time approximation:
 
-        : math: `h[n] \approx h(t)`
+        :math:`x(n) \approx K x(t)`
 
-        With the impulse-invariance method, the discrete-time impulse response
-        is related to the continuous-time impulse response by
+        where :math:`K` is a scale factor.
 
-        : math: `h[n] = h_c(n \Delta t)`
+        The default method depends on the expression quantity.  If the
+        quantity is `undefined`, `voltage`, `current,
+        `voltagesquared`, `currentsquared`, or `power`, the default
+        method is `impulse-invariance` and there is no scaling.  This
+        uses:
 
-        Note, when designing digital filters, it is often common to to
-        scale the discrete-time impulse response by the sampling
-        interval:
+        : math: `x[n] = x(n \Delta t)`
+
+        For other quantities, the default method is `bilinear', and
+        the result is scaled by the sampling interval (`Delta t`) as
+        is common for the discrete-time impulse response of digital
+        filters:
 
         : math: `h[n] = \Delta t h_c(n \Delta t)`
 
-        The default method is 'bilinear'.  Other methods are:
-        'impulse-invariance' 'bilinear', 'tustin', 'trapezoidal'
-        'generalized-bilinear', 'gbf' controlled by the parameter
-        `alpha` 'euler', 'forward-diff', 'forward-euler'
+        The methods are: 'impulse-invariance' 'bilinear', 'tustin',
+        'trapezoidal' 'generalized-bilinear', 'gbf' controlled by the
+        parameter `alpha` 'euler', 'forward-diff', 'forward-euler'
         'backward-diff', 'backward-euler' 'simpson', 'matched-Z',
-        'zero-pole-matching'
+        'zero-pole-matching'.  All the methods except
+        `impulse-invariance` are applied in the Laplace domain so the
+        result is unknown for `n < 0` unless the expression is causal.
 
         """
 
         from .sym import dt
         from .symbols import n
 
+        signal = self.is_signal or self.is_squared or \
+            self.is_power or self.is_undefined
+
+        if method is None:
+            if signal:
+                method = 'impulse-invariance'
+            else:
+                method = 'bilinear'
+
         if method in ('impulse-invariance', ):
-            return self.subs(t, n * dt)
+            from .symbols import t
+
+            result = self.subs(t, n * dt)
+            if not signal:
+                result *= dt
+            return result
 
         Hc = self.LT()
         H = Hc.discretize(method=method, alpha=alpha)
+        if self.is_undefined:
+            H /= dt
         return H.IZT()
 
     def dlti_filter(self, method='bilinear'):

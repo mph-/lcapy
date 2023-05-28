@@ -718,16 +718,16 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         H = hn.ZT() * scale
         return H
 
-    def discretize(self, method='bilinear', alpha=0.5):
+    def discretize(self, method=None, alpha=0.5, scale=None):
         """Convert to a discrete-time approximation in the z-domain:
 
         :math:`H(z) \approx K H_c(s)`
 
         where :math:`K` is a scale factor.
 
-        Note, the scaling is different for admittance, impedance, or
-        transfer function expressions compared to voltage, current,
-        and undefined expressions.
+        Note, the default scaling is different for admittance,
+        impedance, transfer function, or undefined expressions
+        compared to voltage and current expressions.
 
         The scaling is chosen so that the discrete-time voltage and
         current expressions have plots similar to the continuous-time
@@ -752,6 +752,14 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         'zero-pole-matching'
 
         """
+
+        signal = self.is_signal or self.is_squared or self.is_power
+
+        if method is None:
+            if signal:
+                method = 'impulse-invariance'
+            else:
+                method = 'bilinear'
 
         if method in ('gbf', 'generalized-bilinear'):
             return self.generalized_bilinear_transform(alpha)
