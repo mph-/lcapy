@@ -84,11 +84,14 @@ class ExprDomain(object):
     def as_superposition(self):
         from .superpositionvoltage import SuperpositionVoltage
         from .superpositioncurrent import SuperpositionCurrent
+        from .super import Superposition
 
         if self.is_voltage:
             return SuperpositionVoltage(self)
         elif self.is_current:
             return SuperpositionCurrent(self)
+        elif self.is_undefined:
+            return Superposition(self)
         raise ValueError(
             'Can only convert voltage or current to superposition')
 
