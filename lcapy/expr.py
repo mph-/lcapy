@@ -1207,7 +1207,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             xunits = x.canonical_units
 
             if (sunits != xunits and self.expr != 0 and x.expr != 0 and not
-                    (state.loose_units and x.is_undefined)):
+                    (state.loose_units and (self.is_undefined or x.is_undefined))):
                 self._incompatible(
                     x, op, ' since the units %s are incompatible with %s' % (self.units, x.units))
 
