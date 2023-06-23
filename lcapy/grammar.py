@@ -95,8 +95,8 @@ TF: TFname Np Nm Ncp Ncm [Value=name]; Ideal transformer (works to DC!)
 TFcore: TFname Np Nm Ncp Ncm core [Value=name]; Transformer with core (works to DC!)
 TFtap: TFname Np Nm Ncp Ncm tap Nt Nt [Value=name]; Tapped transformer (works to DC!)
 TFtapcore: TFname Np Nm Ncp Ncm tapcore Nt Nt [Value=name]; Tapped transformer with core (works to DC!)
-TL: TLname Np Nm Ncp Ncm [Z0=Z0] [Gamma=Gamma] [Length=l]; Transmission line
-TLlossless: TLname Np Nm Ncp Ncm lossless [Z0=Z0] [Gamma=Gamma] [Length=l]; Lossless transmission line
+TL: TLname Np Nm Ncp Ncm [Z0=Z0] [Gamma=Gamma(s)] [Length=l]; Transmission line
+TLlossless: TLname Np Nm Ncp Ncm lossless [Z0=Z0] [Speed=c] [Length=l]; Lossless transmission line
 TP: TPname Np Nm Ncp Ncm; Generic two-port
 TPA: TPname Np Nm Ncp Ncm A A11 A12 A21 A22 [V1] [I1]; A-parameter two-port
 TPB: TPname Np Nm Ncp Ncm B B11 B12 B21 B22 [V2] [I2]; B-parameter two-port
@@ -289,6 +289,7 @@ Vcontrol: name; Control voltage name
 Z0: value; Characteristic impedance
 Gamma: value; Propagation constant
 Length: value; Transmission line length
+Speed: value; Transmission line propagation speed
 Ac: value; Common-mode gain
 Ad: value; Differential gain
 Rf: value; Feedback resistance

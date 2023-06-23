@@ -203,6 +203,9 @@ def _zp2tf(zeros, poles, K=1, var=None):
     else:
         pp = [1 / (var - p) ** poles[p] for p in poles]
 
+    if K == 1:
+        return sym.Mul(*(zz + pp), evaluate=False)
+
     return sym.Mul(K, *(zz + pp), evaluate=False)
 
 

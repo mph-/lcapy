@@ -3613,7 +3613,7 @@ class TL(GeneralTransmissionLine):
 
 
 class LosslessTransmissionLine(GeneralTransmissionLine):
-    """Losslees transmission line
+    """Lossless transmission line
         Z0 (real) characteristic impedance (ohms)
         c  propagation speed (m/s)
         l  transmission line length (m)
