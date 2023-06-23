@@ -1923,8 +1923,9 @@ class TL(Cpt):
 
     def _stamp(self, mna):
 
-        if mna.kind != 's':
-            raise ValueError('Only Laplace domain currently supported for TL')
+        if mna.kind not in ('s', 'dc'):
+            raise ValueError(
+                'Only Laplace or DC domains currently supported for TL')
 
         cpt = self.cpt
 
@@ -1932,10 +1933,17 @@ class TL(Cpt):
         n4, n3, n2, n1 = mna._cpt_node_indexes(self)
 
         # TODO, tweak values if doing phasor analysis
-        A11 = cpt.A11.sympy
-        A12 = cpt.A12.sympy
-        A21 = cpt.A21.sympy
-        A22 = cpt.A22.sympy
+
+        if mna.kind == 'dc':
+            A11 = 1
+            A12 = 0
+            A21 = 0
+            A22 = 1
+        else:
+            A11 = cpt.A11.sympy
+            A12 = cpt.A12.sympy
+            A21 = cpt.A21.sympy
+            A22 = cpt.A22.sympy
 
         # This stamp is the same as an A twoport.
         if n1 >= 0:
