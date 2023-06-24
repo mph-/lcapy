@@ -815,6 +815,17 @@ expression.""")
             return self.time()
         return self
 
+    def limit(self, var, value, dir='+'):
+        """Determine limit of expression(var) at var = value.
+        If `dir == '+'` search from right else if `dir == '-'`
+        search from left."""
+
+        new = self.__class__()
+        for kind, val in self.items():
+            new[kind] = val.limit(var, value, dir)
+
+        return new
+
 
 from .cexpr import ConstantDomainExpression  # nopep8
 from .fexpr import FourierDomainExpression  # nopep8
