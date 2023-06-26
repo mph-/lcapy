@@ -1,6 +1,6 @@
 """This module contains functions for simplifying expressions.
 
-Copyright 2020--2021 Michael Hayes, UCECE
+Copyright 2020--2023 Michael Hayes, UCECE
 
 """
 
@@ -8,6 +8,7 @@ from sympy import Add, Mul, DiracDelta, Heaviside, Integral, re, im
 from sympy import oo, sin, cos, sqrt, atan2, pi, Symbol, solve, Min, Max
 from sympy import cosh, sinh, tanh, exp
 from .extrafunctions import UnitStep, UnitImpulse, rect, dtrect
+from .utils import factor_const
 
 
 def simplify_dirac_delta_product_term(expr):
@@ -49,8 +50,6 @@ def simplify_dirac_delta_product(expr, expand=False):
     if not expr.has(DiracDelta):
         return expr
 
-    # Could also convert delta(a * t) to delta(t) / a
-
     if not expand:
         return simplify_dirac_delta_product_term(expr)
 
@@ -59,16 +58,72 @@ def simplify_dirac_delta_product(expr, expand=False):
     return Add(*[simplify_dirac_delta_product_term(term) for term in terms])
 
 
+def simplify_dirac_delta_convolution(expr):
+
+    if not expr.has(DiracDelta):
+        return expr
+
+    if not expr.has(Integral):
+        return expr
+
+    factors = expr.as_ordered_factors()
+    const = 1
+    rest = 1
+    for factor in factors:
+        if factor.is_constant():
+            const *= factor
+        else:
+            rest *= factor
+
+    if not isinstance(rest, Integral):
+        return expr
+
+    factors = rest.args[0].as_ordered_factors()
+    if len(factors) != 2:
+        return expr
+
+    limits = rest.args[1]
+
+    factor1 = factors[0]
+    factor2 = factors[1]
+
+    if factor1.func is DiracDelta:
+        pass
+    elif factor2.func is DiracDelta:
+        factor1, factor2 = factor2, factor1
+    else:
+        return expr
+
+    dvar = limits[0]
+    arg = factor1.args[0]
+    if len(arg.args) != 2 or arg.func is not Add:
+        return expr
+    if arg.args[1].func is not Mul and arg.args[1].args[0] != -1:
+        return expr
+    if arg.args[1].args[1] != dvar:
+        return expr
+
+    var = arg.args[0]
+
+    if (var > limits[2]) or (var < limits[1]):
+        return var
+
+    return const * factor2.subs(dvar, var)
+
+
 def simplify_dirac_delta(expr, var=None):
 
     if not expr.has(DiracDelta):
         return expr
 
     expr = simplify_dirac_delta_product(expr)
-    if var is not None:
 
+    expr = simplify_dirac_delta_convolution(expr)
+
+    if var is not None:
         # Convert delta(a * t) to delta(t) / a
         expr = expr.expand(diracdelta=True, wrt=var)
+
     return expr
 
 
