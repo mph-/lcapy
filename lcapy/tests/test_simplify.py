@@ -62,6 +62,12 @@ class LcapyCoreTester(unittest.TestCase):
         self.assertEqual(a.simplify_dirac_delta(), DiracDelta(
             t) / 3, "simplify_dirac_delta scale")
 
+        self.assertEqual(delta(t).convolve(cos(t)).simplify(), cos(t),
+                         "delta(t).convolve(cos(t))")
+
+        self.assertEqual(cos(t).convolve(delta(t)).simplify(), cos(t),
+                         "cos(t).convolve(delta(t))")
+
     def test_simplify_conjugates(self):
         """Test simplify_conjugates"""
 

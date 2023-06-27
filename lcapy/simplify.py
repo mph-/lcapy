@@ -96,19 +96,23 @@ def simplify_dirac_delta_convolution(expr):
 
     dvar = limits[0]
     arg = factor1.args[0]
-    if len(arg.args) != 2 or arg.func is not Add:
-        return expr
-    if arg.args[1].func is not Mul and arg.args[1].args[0] != -1:
-        return expr
-    if arg.args[1].args[1] != dvar:
-        return expr
 
-    var = arg.args[0]
+    # Case 1:  I = dirac(var - dvar) * f(dvar)
+    if (len(arg.args) == 2 and arg.func is Add and
+        arg.args[1].func is Mul and
+        arg.args[1].args[0] == -1 and arg.args[1].args[1] == dvar and
+            arg.args[0] <= limits[2] and arg.args[0] >= limits[1]):
+        return const * factor2.subs(dvar, arg.args[0])
 
-    if (var > limits[2]) or (var < limits[1]):
-        return var
+    # Case 2:  I = dirac(dvar) * f(var - dvar)
+    # Cannot determine if limits[2] >= 0 if symbolic but if limits[1] == 0
+    # then I == 0 if limits[2] < 0.
+    if (len(factor1.args) == 1 and arg == dvar and
+        limits[1].is_constant() and limits[1] <= 0
+            and ((limits[2].is_constant() and limits[2] <= 0) or limits[1] == 0)):
+        return const * factor2.subs(dvar, 0)
 
-    return const * factor2.subs(dvar, var)
+    return expr
 
 
 def simplify_dirac_delta(expr, var=None):
