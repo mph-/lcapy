@@ -246,15 +246,9 @@ class NetlistMixin(object):
 
     def _new(self):
 
-        from .circuit import Circuit
-        from .netlist import Netlist
-
         # TODO.  Copy or share?
         context = self.context
-        if self.__class__ == Circuit:
-            return Circuit(context=context)
-        # If have OnePort, Network, etc., treat as Netlist
-        return Netlist(context=context)
+        return self.__class__(context=context)
 
     def remove(self, name):
         """Remove specified element or elements specified in list."""
