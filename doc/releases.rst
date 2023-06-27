@@ -2,6 +2,25 @@
 Release notes
 =============
 
+V1.16
+=====
+
+- Support transmission line analysis at DC
+
+- Fixes lossless transmission line parameters
+
+- Add `limit()` method to superposition expressions
+
+- Simplify convolutions with Dirac delta
+
+- Uses impulse-invariance method with no scaling for signals with
+  `discretize()`
+
+- Checks for no state variables or outputs for state-space analysis
+
+- Fixes `is_undefined` attribute for expressions
+
+
 V1.15
 =====
 

@@ -1,6 +1,8 @@
-"""This module provides the SubNetlist class.
+"""This module provides the SubNetlist class.  It provides circuit
+analysis for a single domain quantity.  It is for internal use only.
+The Netlist class is for users.
 
-Copyright 2020--2022 Michael Hayes, UCECE
+Copyright 2020--2023 Michael Hayes, UCECE
 
 """
 

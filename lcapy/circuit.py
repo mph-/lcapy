@@ -24,15 +24,17 @@ the node name or number as index, for example,
 >>> cct['fred'].V.pprint()
 >>> cct[1].V.pprint()
 
-Copyright 2014--2020 Michael Hayes, UCECE
+Copyright 2014--2023 Michael Hayes, UCECE
 """
 
 from .netlist import Netlist
+from .netfile import NetfileMixin
+
 
 __all__ = ('Circuit', )
 
 
-class Circuit(Netlist):
+class Circuit(Netlist, NetfileMixin):
 
     """The Circuit class is used for describing networks using
     netlists.  Despite the name, it does not require a closed path.
@@ -61,13 +63,13 @@ class Circuit(Netlist):
     sequentially for each component type: W#1, W#2, etc.
 
     The circuit can be displayed using:
-    cct.draw()
+    >>> cct.draw()
 
     The schematic can be saved to a file using:
-    cct.draw('schematic.pdf')
+    >>> cct.draw('schematic.pdf')
 
     The transform domain voltages across a component can be found using:
-    cct.V1.V
+    >>> cct.V1.V
 
     This is found using modified nodal analysis for each type of
     independent source in the circuit (AC, DC, transient, noise).
@@ -75,7 +77,7 @@ class Circuit(Netlist):
     is modified.
 
     The transform domain currents through a component can be found using:
-    cct.R1.I
+    >>> cct.R1.I
 
     The transform domain nodal voltages with respect to the ground node (0)
     can be found using:
@@ -83,25 +85,20 @@ class Circuit(Netlist):
 
     The time domain voltages and currents are displayed using
     lowercase attributes v and i.  For example,
-    cct.C1.v
-
-    Note that the answer assumes that all the dependent sources are
-    zero for t < 0 and that all the inductors and capacitors have no
-    initial currents and voltages.  Thus the Heaviside(t) factor
-    should be ignored and replaced with the condition t >= 0.
+    >>> cct.C1.v.  This is equivalent to >>> cct.C1.V(t).
 
     The impedance between nodes 2 and 0 can be found using:
-    Z = cct.impedance(2, 0)
+    >>> Z = cct.impedance(2, 0)
 
     The open-circuit voltage between nodes 2 and 0 can be found using:
-    Z = cct.Voc(2, 0)
+    >>> Z = cct.Voc(2, 0)
 
     The Thevenin equivalent circuit between nodes 2 and 0 can be found
     using:
-    thevenin = cct.Thevenin(2, 0)
+    >>> thevenin = cct.Thevenin(2, 0)
 
     The s-domain model can be drawn using:
-    cct.s_model().draw()
+    >>> cct.s_model().draw()
 
     """
 

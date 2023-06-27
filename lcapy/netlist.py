@@ -1,7 +1,7 @@
-"""This module provides support for the common aspects of Circuit and
-Network classes.
+"""This module provides the Netlist class.  It could be rolled into
+the Circuit class.
 
-Copyright 2014--2021 Michael Hayes, UCECE
+Copyright 2014--2023 Michael Hayes, UCECE
 
 """
 
@@ -17,7 +17,6 @@ from .superpositioncurrent import SuperpositionCurrent
 from .current import Iname
 from .netlistmixin import NetlistMixin
 from .netlistsimplifymixin import NetlistSimplifyMixin
-from .netfile import NetfileMixin
 from .expr import Expr, expr
 from .subnetlist import SubNetlist
 from .mna import Nodedict, Branchdict
@@ -43,7 +42,7 @@ class Transformdomains(dict):
         return super(Transformdomains, self).__getitem__(key)
 
 
-class Netlist(NetlistMixin, NetlistSimplifyMixin, NetfileMixin):
+class Netlist(NetlistMixin, NetlistSimplifyMixin):
     """This class handles a generic netlist with multiple sources.
     During analysis, subnetlists are created for each source kind (dc,
     ac, transient, etc).  Since linearity is assumed, superposition is
