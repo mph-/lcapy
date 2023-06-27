@@ -6,14 +6,15 @@ Copyright 2020--2023 Michael Hayes, UCECE
 
 """
 
+from .symbols import omega
+from .state import state
 from .mna import MNA
 from .netlistmixin import NetlistMixin
 from .netlistsimplifymixin import NetlistSimplifyMixin
-from .state import state
-from .symbols import omega
+from .netfile import NetfileMixin
 
 
-class SubNetlist(NetlistMixin, NetlistSimplifyMixin):
+class SubNetlist(NetlistMixin, NetlistSimplifyMixin, NetfileMixin):
     """This is a representation of a netlist for a particular
     transformation domain, such as ac, dc, transient, or noise."""
 
