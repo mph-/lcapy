@@ -292,6 +292,12 @@ class LaplaceTransformer(UnilateralForwardTransformer):
         if expr == 1:
             return const / s
 
+        # Handle exp(alpha * t)
+        if expr.is_Function and expr.func == sym.exp:
+            arg = expr.args[0] / t
+            if not arg.has(t):
+                return const / (s - arg)
+
         if expr.has(sym.Integral):
             return self.integral(expr, t, s) * const
 
