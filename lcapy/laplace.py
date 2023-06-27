@@ -17,7 +17,7 @@ undefined functions such as v(t) to V(s).
 
 These functions are for internal use by Lcapy.
 
-Copyright 2016--2022 Michael Hayes, UCECE
+Copyright 2016--2023 Michael Hayes, UCECE
 
 """
 
@@ -288,6 +288,9 @@ class LaplaceTransformer(UnilateralForwardTransformer):
 
         tsym = sympify(str(t))
         expr = expr.replace(tsym, t)
+
+        if expr == 1:
+            return const / s
 
         if expr.has(sym.Integral):
             return self.integral(expr, t, s) * const
