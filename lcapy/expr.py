@@ -3615,8 +3615,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         cannot be factored into ZPK form with a constant delay.
         For example, sometimes SymPy gives:
 
-            ⎛    s⋅τ     ⎞ - s⋅τ
-            ⎝V₁⋅ℯ - V₂⎠⋅ℯ
+            ⎛    s⋅τ   ⎞  - s⋅τ
+            ⎝V₁⋅ℯ - V₂ ⎠⋅ℯ
         I = ────────────────────
                s⋅(L⋅s + R)
 
@@ -3627,8 +3627,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         I.as_ordered_terms()
 
-        ⎡⎛    s⋅τ     ⎞ - s⋅τ⎤
-        ⎢⎝V₁⋅ℯ - V₂⎠⋅ℯ    ⎥
+        ⎡⎛    s⋅τ  ⎞  - s⋅τ  ⎤
+        ⎢⎝V₁⋅ℯ - V₂⎠⋅ℯ       ⎥
         ⎢────────────────────⎥
         ⎣    s⋅(L⋅s + R)     ⎦
 
