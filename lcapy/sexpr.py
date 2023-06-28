@@ -15,7 +15,7 @@ from .expr import Expr, symbol, expr, ExprDict, ExprList, exprcontainer, expr_ma
 from .differentialequation import DifferentialEquation
 from .units import u as uu
 from .functions import sqrt, DiracDelta, Function
-from sympy import limit, exp, Poly, Derivative, Integral, div, oo, Eq, Expr as symExpr
+from sympy import limit, exp, Poly, Derivative, Integral, div, oo, Eq, Expr as symExpr, cosh, sinh
 from warnings import warn
 
 
@@ -158,7 +158,13 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         try:
             return self.inverse_laplace(**assumptions)
         except ValueError:
-            return self.as_sum().inverse_laplace(**assumptions)
+            pass
+
+        # Should roll into inverse_laplace.c
+        if self.has(sinh) or self.has(cosh):
+            return self.rewrite(exp).as_sum().inverse_laplace(**assumptions)
+
+        return self.as_sum().inverse_laplace(**assumptions)
 
     def laplace(self, **assumptions):
         """Convert to s-domain."""
