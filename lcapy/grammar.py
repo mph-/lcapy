@@ -270,7 +270,7 @@ Ns: node; Source node
 Nt: node; Tap node
 Nodelist: nodelist; List of nodes
 Phase: value; AC phase
-Freq: value; AC frequency
+Freq: value; AC angular frequency (rad/s)
 Vo: value; DC voltage offset
 Va: value; Sinewave voltage amplitude
 Io: value; DC current offset

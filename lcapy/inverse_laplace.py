@@ -531,7 +531,8 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             expr2, delay2 = self.delay_factor(expr1, s)
             if not expr2.has(sym.exp):
                 # Simplify can make things worse, e.g., 1 - exp(-5 *s)
-                # becomes exp(-5 * s) * (exp(5 * s) - 1)
+                # becomes exp(-5 * s) * (exp(5 * s) - 1).  This needs
+                # fixing in Sympy.
                 expr = expr2
                 delay = delay2
 
