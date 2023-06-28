@@ -2217,15 +2217,20 @@ class NetlistMixin(object):
     def description(self):
         """Return a message describing how circuit is solved."""
 
-        def describe_sources(sources):
+        def describe_sources(sources, omega=None):
             sources_string = ', '.join(sources)
             if len(sources) == 1:
-                return 'source %s' % sources_string
-            return 'sources %s' % sources_string
+                s = 'source %s' % sources_string
+            else:
+                s = 'sources %s' % sources_string
 
-        def describe_analysis(method, sources):
+            if omega is not None:
+                s += ' at angular frequency ' + str(omega)
+            return s
+
+        def describe_analysis(method, sources, omega=None):
             return '%s analysis is used for %s.\n' % (method,
-                                                      describe_sources(sources))
+                                                      describe_sources(sources, omega))
 
         if self.is_switching:
             return '''This has switches and thus is time variant.  Use the convert_IVP(t) method to convert to an initial value problem, specifying the time when to evaluate the switches.'''
@@ -2248,7 +2253,7 @@ class NetlistMixin(object):
 
         for kind, sources in groups.items():
             if not isinstance(kind, str):
-                s += describe_analysis('Phasor', sources)
+                s += describe_analysis('Phasor', sources, kind)
             elif kind[0] == 'n':
                 s += describe_analysis('Noise', sources)
             elif kind == 'dc':
