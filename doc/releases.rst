@@ -5,11 +5,17 @@ Release notes
 V1.16
 =====
 
-- Support transmission line analysis at DC
+- Fixes AC netlist sources with specified angular frequency using `omega=`
+
+- Improves inverse Laplace transforms for cosh and sinh
+
+- Speeds up some common inverse Laplace transforms and avoid `polar_lift()` for `exp()`
+
+- Supports transmission line analysis at DC
 
 - Fixes lossless transmission line parameters
 
-- Add `limit()` method to superposition expressions
+- Adds `limit()` method to superposition expressions
 
 - Simplify convolutions with Dirac delta
 

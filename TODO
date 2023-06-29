@@ -133,6 +133,10 @@ an answer that appears valid for DC.
 
 34. Add warning if S has unknown kind
 
+35. Handle DC plus transient.  When convert to Laplace domain, loose
+causality since both parts lumped together.
+
+
 Testing
 =======
 
