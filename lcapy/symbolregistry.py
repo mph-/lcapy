@@ -31,8 +31,13 @@ class SymbolRegistry(AttrDict):
         if state.notify_symbol_add:
             print("Adding symbol '%s'" % name)
 
+        # Don't override if expr symbol
+        if kind == 'expr' and name in kinds:
+            return kinds[name]
+
         self[name] = symbol
         kinds[name] = kind
+
         return symbol
 
     def add(self, name: str, kind='user', override=True,
