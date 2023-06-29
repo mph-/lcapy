@@ -367,10 +367,13 @@ class Cpt(ImmittanceMixin):
         namespace = '.'.join(parts[0:-1])
 
         fmtargs = []
-        for arg in args:
+        for m, arg in enumerate(args):
             # Ignore initial value if not defined.
             if arg is None:
-                continue
+                if m == len(args) - 1:
+                    continue
+                arg = 0
+
             fmtargs.append(self._arg_format(arg))
 
         if len(fmtargs) == 1 and fmtargs[0] == relname:
