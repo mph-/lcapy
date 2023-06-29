@@ -51,7 +51,7 @@ I: Iname Np Nm [Value=name]; Current source
 sI: Iname Np Nm s [Value=name]; s-domain current source
 Idc: Iname Np Nm dc [Value=name]; DC current source
 Istep: Iname Np Nm step [Value=name]; Step current source
-Iac: Iname Np Nm ac [Value=name] [Phase] [Freq]; AC current source
+Iac: Iname Np Nm ac [Value=name] [Phase] [Omega]; AC current source
 Isin: Iname Np Nm sin Io Ia fo [td] [alpha] [Phase]; Sinusoidal current source
 Inoise: Iname Np Nm noise [Value=name] [NID]; Noise current source
 J: Jname Nd Ng Ns [Value=name]; N channel JFET
@@ -150,7 +150,7 @@ V: Vname Np Nm [Value=name]; Voltage source
 sV: Vname Np Nm s [Value=name]; s-domain voltage source
 Vdc: Vname Np Nm dc [Value=name]; DC voltage source
 Vstep: Vname Np Nm step [Value=name]; Step voltage source
-Vac: Vname Np Nm ac [Value=name] [Phase] [Freq]; AC voltage source
+Vac: Vname Np Nm ac [Value=name] [Phase] [Omega]; AC voltage source
 Vsin: Vname Np Nm sin Vo Va fo [td] [alpha] [Phase]; Sinusoidal voltage source
 Vnoise: Vname Np Nm noise [Value=name] [NID]; Noise voltage source
 VM: VMname Np Nm; Voltmeter
@@ -270,7 +270,7 @@ Ns: node; Source node
 Nt: node; Tap node
 Nodelist: nodelist; List of nodes
 Phase: value; AC phase
-Freq: value; AC angular frequency (rad/s)
+Omega: value; AC angular frequency (rad/s)
 Vo: value; DC voltage offset
 Va: value; Sinewave voltage amplitude
 Io: value; DC current offset
