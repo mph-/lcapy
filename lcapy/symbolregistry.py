@@ -1,6 +1,6 @@
 """This module maintains a registry of symbols.
 
-Copyright 2022 Michael Hayes, UCECE
+Copyright 2022--2023 Michael Hayes, UCECE
 
 """
 
@@ -9,9 +9,12 @@ from .attrdict import AttrDict
 from warnings import warn
 
 # Cannot add attributes to SymPy symbols since the Symbol
-# class defines __slots__ = ().  So perhaps use facade for
-# symbols that includes the symbol kind?
-kinds = {}
+# class defines __slots__ = ().   So we maintain a separate dict
+# for the component kinds.
+# Perhaps use facade for symbols that includes the symbol kind?
+# Note, cannot duck-type symbol_kinds onto SymbolRegistry object.
+# This fails with subs.
+symbol_kinds = {}
 
 
 class SymbolRegistry(AttrDict):
@@ -19,10 +22,14 @@ class SymbolRegistry(AttrDict):
     a single symbol of a given name.
 
     The symbol kinds are:
-    'domain' defined by Lcapy for domain variables
-    'misc' defined by Lcapy for misc. variables, such as nu
-    'user' defined by the user using `symbol()` or `symbols()`
-    'expr' defined by the user using `expr()`
+    'domain' defined explicitly by Lcapy for domain variables
+    'misc' defined explicitly by Lcapy for misc. variables, such as f0
+    'user' defined explicitly by the user using `symbol()` or `symbols()`
+    'expr' defined implicitly by the user using `expr()`.
+
+    Note `expr` symbols do not overwrite symbols of the same name that
+    are defined explicitly.
+
     """
 
     def register(self, name, symbol, kind='user'):
@@ -31,12 +38,12 @@ class SymbolRegistry(AttrDict):
         if state.notify_symbol_add:
             print("Adding symbol '%s'" % name)
 
-        # Don't override if expr symbol
-        if kind == 'expr' and name in kinds:
-            return kinds[name]
+        # Don't override if symbol is expr kind.
+        if kind == 'expr' and name in symbol_kinds:
+            return symbol_kinds[name]
 
         self[name] = symbol
-        kinds[name] = kind
+        symbol_kinds[name] = kind
 
         return symbol
 
@@ -49,7 +56,7 @@ class SymbolRegistry(AttrDict):
             if not override:
                 return symbol
 
-            if kinds[name] == 'domain' and not force:
+            if symbol_kinds[name] == 'domain' and not force:
                 raise ValueError(
                     'Cannot override domain symbol %s without force=True' % name)
 
@@ -98,7 +105,7 @@ class SymbolRegistry(AttrDict):
 
         syms = self.__class__()
         for name, sym in self.items():
-            if kinds[name] == kind:
+            if symbol_kinds[name] == kind:
                 syms[name] = sym
         return syms
 
@@ -150,6 +157,6 @@ class SymbolRegistry(AttrDict):
         """Return the symbol kind or 'unknown' if unknown."""
 
         try:
-            return kinds[name]
+            return symbol_kinds[name]
         except:
             return 'unknown'
