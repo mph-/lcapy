@@ -404,7 +404,7 @@ and the system matrices are
    ⎢    ⎥
    ⎣0  0⎦
 
-Since the CMOS device is non-linear, there is no analytic solution and a numerical solution is required.  This can be achieved using the SciPy `ivp_solve` function.
+Since the CMOS device is non-linear, there is no analytic solution and a numerical solution is required.  This can be achieved using the SciPy `solve_ivp` function.
 
    >>> A = array(((-Rpkg / Lpkg, 1 / Lpkg, -1 / Lpkg, 0),
                   (-1 / Ccomp, 0, 0, 0),

@@ -323,7 +323,7 @@ Evaluation of the DFT can be prevented by setting `evaluate=False`,
 Discrete-frequency (k-domain) expressions
 =========================================
 
-Lcapy refers to discrete-frequency expressions as k-domain expressions.  They are of class `DiscreteFourierDomainExpression` and can be created explicitly using the k-domain variable `n`.  For example::
+Lcapy refers to discrete-frequency expressions as k-domain expressions.  They are of class `DiscreteFourierDomainExpression` and can be created explicitly using the k-domain variable `k`.  For example::
 
    >>> 2 * u(k) + delta(k - 1)
    2⋅u[k] + δ[k - 1]
@@ -431,7 +431,10 @@ The DTFT converts an n-domain or z-domain expression into the f-domain (continuo
 
    X_{\frac{1}{\Delta t}}(f) = \sum_{n=-\infty}^{\infty} x(n) e^{-2 \mathrm{j} \pi n \Delta t f}
 
-If the signal :math:`x(n)` is causal, the DTFT can be found by substituting :math:`z = \exp(-2 \mathrm{j} \pi \Delta t f)` into the z-transform of :math:`x(n)`.
+If :math:`x(n)` is the impulse response of a causal and
+stable DLTI system, the DTFT can be found by substituting :math:`z =
+\exp(-2 \mathrm{j} \pi \Delta t f)` into the z-transform of
+:math:`x(n)`.
 
 Here is an example::
 
@@ -588,6 +591,8 @@ The DFT converts an n-domain expression to a k-domain expression.  The definitio
 
    X(k) = \sum_{k=0}^{N - 1} x(n) e^{\frac{-\mathrm{j} 2\pi k n}{N}}
 
+Note, both :math:`x(n)` and :math:`X(k)` are assumed to periodic with period :math:`N`, i.e., :math:`x(n + m N) = x(n)` for integer :math:`m`.
+
 
 Inverse discrete Fourier transform (IDFT)
 -----------------------------------------
@@ -598,6 +603,7 @@ The IDFT converts a k-domain expression to an n-domain expression.  The definiti
 
    x(n) = \frac{1}{N} \sum_{k=0}^{N - 1} X(k) e^{\frac{\mathrm{j} 2 \pi k n}{N}}
 
+Again, both :math:`x(n)` and :math:`X(k)` are assumed to periodic with period :math:`N`, i.e., :math:`x(n + m N) = x(n)` for integer :math:`m`.
 
 
 Bilinear transform
