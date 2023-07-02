@@ -269,3 +269,14 @@ class Netlist(NetlistMixin, NetlistSimplifyMixin):
 
         """
         return SubNetlist(self, 'laplace')
+
+    @property
+    def undefined_symbols(self):
+
+        symbols = []
+        for k, elt in self.elements.items():
+            cpt = elt.cpt
+            for arg in cpt.args:
+                symbols += expr(arg).symbols
+
+        return symbols
