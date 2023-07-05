@@ -14,7 +14,7 @@ from .sym import fsym, ssym, tsym, omegasym, j, pi
 from .units import u as uu
 from sympy import Expr as symExpr
 
-__all__ = ()
+__all__ = ('AngularFrequencyResponseDomainExpression', )
 
 
 class AngularFrequencyResponseDomainExpression(AngularFrequencyResponseDomain, Expr):

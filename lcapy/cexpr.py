@@ -21,6 +21,9 @@ from .admittancemixin import AdmittanceMixin
 from .impedancemixin import ImpedanceMixin
 from .transfermixin import TransferMixin
 
+__all__ = ('ConstantDomainExpression', 'ConstantTimeDomainExpression',
+           'ConstantFrequencyResponseDomainExpression', 'cexpr')
+
 
 class ConstantExpr(Expr):
 

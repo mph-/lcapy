@@ -9,7 +9,7 @@ from .domains import UndefinedDomain
 from .sym import usersymbol
 from warnings import warn
 
-__all__ = ('uexpr', )
+__all__ = ('UndefinedDomainExpression', 'uexpr', )
 
 
 class UndefinedDomainExpression(UndefinedDomain, Expr):

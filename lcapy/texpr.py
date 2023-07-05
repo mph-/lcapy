@@ -17,7 +17,7 @@ from .units import u as uu
 from sympy import Heaviside, Derivative, Integral, limit, Expr as symExpr
 
 
-__all__ = ('texpr', )
+__all__ = ('TimeDomainExpression', 'texpr', )
 
 
 class TimeDomainExpression(TimeDomain, Expr):

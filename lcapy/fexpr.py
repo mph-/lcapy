@@ -17,6 +17,8 @@ from .units import u as uu
 from .utils import factor_const
 from sympy import Integral, Expr as symExpr
 
+__all__ = ('FourierDomainExpression', 'fexpr')
+
 
 class FourierDomainExpression(FourierDomain, Expr):
 

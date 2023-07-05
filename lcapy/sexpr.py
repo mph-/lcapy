@@ -19,7 +19,7 @@ from sympy import limit, exp, Poly, Derivative, Integral, div, oo, Eq, Expr as s
 from warnings import warn
 
 
-__all__ = ('sexpr', 'zp2tf', 'tf', 'pr2tf')
+__all__ = ('LaplaceDomainExpression', 'sexpr', 'zp2tf', 'tf', 'pr2tf')
 
 
 class LaplaceDomainExpression(LaplaceDomain, Expr):
