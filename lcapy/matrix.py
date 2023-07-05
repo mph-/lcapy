@@ -70,6 +70,22 @@ class Matrix(sym.Matrix):
 
         return expr(item, rational=False)
 
+    def __repr__(self):
+        """This is called by repr(expr).  It is used, e.g., when printing
+        in the debugger."""
+
+        s = self.__class__.__name__ + '(('
+
+        rowreprs = []
+
+        for r in range(self.rows):
+            rowreprs.append(
+                '(' + ', '.join([repr(elt) for elt in self[r, :]]) + ')')
+
+        reprs = ',\n'.join(rowreprs)
+
+        return s + reprs + '))'
+
     def _repr_pretty_(self, p, cycle):
         """This is used by jupyter notebooks to display an expression using
         unicode."""
