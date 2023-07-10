@@ -671,3 +671,9 @@ with a discrete-time impulse response
       ⎝      ⎝2⋅C⋅R + Δₜ⎠                          ⎠
    ─────────────────────────────────────────────────
                (2⋅C⋅R - Δₜ)⋅(2⋅C⋅R + Δₜ)
+
+
+Discrete-time systems
+=====================
+
+See :ref:`discrete_time_systems`.

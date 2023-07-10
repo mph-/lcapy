@@ -357,6 +357,9 @@ Alternatively, specific states can be removed.  For example::
      >>> ss2 = ss.reduce(elim_states=[1, 3])
 
 
+
+.. _discrete_time_systems:
+
 =====================
 Discrete-time systems
 =====================

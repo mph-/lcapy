@@ -243,42 +243,6 @@ class NetlistMixin(object):
             new._add(cpt._copy())
         return new
 
-    def expand(self):
-        """Expand the netlist, replacing complicated components with simpler
-        components."""
-
-        new = self._new()
-
-        for cpt in self._elements.values():
-            new._add(cpt._expand())
-        return new
-
-    def _new(self):
-
-        # TODO.  Copy or share?
-        context = self.context
-        return self.__class__(context=context)
-
-    def remove(self, name):
-        """Remove specified element or elements specified in list."""
-
-        if isinstance(name, (list, tuple)):
-            for name1 in name:
-                self.remove(name1)
-            return self
-
-        self._invalidate()
-
-        if name not in self._elements:
-            raise ValueError('Unknown component: ' + name)
-
-        cpt = self._elements[name]
-        for node in cpt.nodes:
-            node.remove(cpt)
-
-        self._elements.pop(name, None)
-        return self
-
     @property
     def super_nodes(self):
         """Super nodes are nodes linked by voltage sources."""

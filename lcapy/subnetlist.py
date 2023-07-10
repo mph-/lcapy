@@ -16,7 +16,9 @@ from .netfile import NetfileMixin
 
 class SubNetlist(NetlistMixin, NetlistSimplifyMixin, NetfileMixin):
     """This is a representation of a netlist for a particular
-    transformation domain, such as ac, dc, transient, or noise."""
+    transformation domain, such as ac, dc, transient, or noise.  It is
+    for internal use only.  Unlike Netlist, SubNetlist is not mutable.
+    """
 
     def __new__(cls, netlist, kind):
 
