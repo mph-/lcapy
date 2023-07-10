@@ -193,6 +193,39 @@ class Netlist(NetlistMixin, NetlistSimplifyMixin):
         self._Idict = result
         return result
 
+    def _add_ground(self, node):
+
+        if '0' not in self.nodes:
+            self.add('W %s 0' % node)
+
+    def _add_test_voltage_source(self, Np, Nm):
+
+        self._add('V? %s %s {DiracDelta(t)}' % (Np, Nm))
+        return self.last_added()
+
+    def _add_test_current_source(self, Np, Nm):
+
+        self._add('I? %s %s {DiracDelta(t)}' % (Np, Nm))
+        return self.last_added()
+
+    def _cpt_add(self, cpt):
+
+        if cpt.name in self._elements:
+            warn('Overriding component %s' % cpt.name)
+            # Need to search lists and update component.
+            # For example, remove nodes that are only connected
+            # to this component.
+        else:
+            # Check that this name won't conflict with an attr.
+            # For example, cannot have name V or I.  Perhaps
+            # rename these attributes?
+            if hasattr(self, cpt.name):
+                raise ValueError('Invalid component name %s' % cpt.name)
+
+        self._elements[cpt.name] = cpt
+
+        self._namespace_add(cpt.namespace)
+
     def get_I(self, name, nowarn=False):
         """Current through component (time-domain)"""
 

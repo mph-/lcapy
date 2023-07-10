@@ -1450,13 +1450,13 @@ Other circuit methods
 
 - `pre_initial_model()`   Convert circuit to pre-initial model.
 
-- `ac()`           Create subnetlist for AC components of independent sources.
+- `ac()`           Create netlist for AC components of independent sources.
 
-- `dc()`           Create subnetlist for DC components of independent sources.
+- `dc()`           Create netlist for DC components of independent sources.
 
-- `transient()`    Create subnetlist for transient components of independent sources.
+- `transient()`    Create netlist for transient components of independent sources.
 
-- `laplace()`      Create subnetlist with Laplace representations of independent source values.
+- `laplace()`      Create netlist with Laplace representations of independent source values.
 
 
 Plotting

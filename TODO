@@ -136,6 +136,7 @@ an answer that appears valid for DC.
 35. Handle DC plus transient.  When convert to Laplace domain, loose
 causality since both parts lumped together.
 
+36. Warn if no DC path to ground for DC analysis
 
 Testing
 =======
