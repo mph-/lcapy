@@ -181,10 +181,12 @@ class MNA(object):
         if hasattr(self, '_Vdict'):
             return
 
-        if '0' not in self.cct.node_map:
-            gnode = list(self.cct.node_map)[0]
+        cct = self.cct
+
+        if '0' not in cct.node_map:
+            gnode = list(cct.node_map)[0]
             warn('Ground node not specified: using node ' + gnode)
-            self.cct._add_ground(gnode)
+            cct._add_ground(gnode)
 
         # Solve for the nodal voltages
         try:
@@ -195,7 +197,7 @@ class MNA(object):
 
         results = symsimplify(Ainv * self._Z)
 
-        results = results.subs(self.cct.context.symbols)
+        results = results.subs(cct.context.symbols)
 
         # Handle capacitors at DC by assuming an infinite resistance
         # in parallel.
@@ -203,11 +205,11 @@ class MNA(object):
             results = results.limit(eps, 0)
 
         branchdict = {}
-        for elt in self.cct.elements.values():
+        for elt in cct.elements.values():
             if elt.type in ('K', 'Cable') or elt.ignore:
                 continue
-            n1 = self.cct.node_map[elt.node_names[0]]
-            n2 = self.cct.node_map[elt.node_names[1]]
+            n1 = cct.node_map[elt.node_names[0]]
+            n2 = cct.node_map[elt.node_names[1]]
             branchdict[elt.name] = (n1, n2)
 
         vtype = Vtype(self.kind)
@@ -216,16 +218,16 @@ class MNA(object):
         if vtype.is_phasor_domain:
             assumptions.set('omega', self.kind)
         elif self.kind in ('s', 'ivp'):
-            assumptions.set('ac', self.cct.is_ac)
-            assumptions.set('dc', self.cct.is_dc)
-            assumptions.set('causal', self.cct.is_causal)
+            assumptions.set('ac', cct.is_ac)
+            assumptions.set('dc', cct.is_dc)
+            assumptions.set('causal', cct.is_causal)
         elif isinstance(self.kind, str) and self.kind[0] == 'n':
             assumptions.set('nid', self.kind)
 
         # Create dictionary of node voltages
         self._Vdict = Nodedict()
         self._Vdict['0'] = vtype(0, **assumptions)
-        for n in self.cct.nodes:
+        for n in cct.nodes:
             index = self._node_index(n)
             if index >= 0:
                 self._Vdict[n] = vtype(
@@ -233,22 +235,22 @@ class MNA(object):
             else:
                 self._Vdict[n] = vtype(0, **assumptions)
 
-        num_nodes = len(self.cct.node_list) - 1
+        num_nodes = len(cct.node_list) - 1
 
         # Create dictionary of branch currents through elements
         self._Idict = Branchdict()
         for m, key in enumerate(self.unknown_branch_currents):
             I = results[m + num_nodes]
-            if key in self.cct.elements and self.cct.elements[key].is_source:
+            if key in cct.elements and cct.elements[key].is_source:
                 I = -I
             self._Idict[key] = itype(I, **assumptions).simplify()
 
         # Calculate the branch currents.  These should be lazily
         # evaluated as required.
-        for elt in self.cct.elements.values():
+        for elt in cct.elements.values():
             if elt.type in ('R', 'NR', 'C'):
-                n1 = self.cct.node_map[elt.node_names[0]]
-                n2 = self.cct.node_map[elt.node_names[1]]
+                n1 = cct.node_map[elt.node_names[0]]
+                n2 = cct.node_map[elt.node_names[1]]
                 V1, V2 = self._Vdict[n1], self._Vdict[n2]
                 I = (V1.expr - V2.expr - elt.V0.expr) / elt.Z.expr
                 self._Idict[elt.name] = itype(I, **assumptions).simplify()
