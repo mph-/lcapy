@@ -1218,11 +1218,17 @@ class Eopamp(DependentSource):
         else:
             onode = self._dummy_node()
 
-        # FIXME: if opamp drawn to right, VCVS needs to be drawn down and so on
+        opts = self.opts.copy()
+        # If opamp drawn to right, VCVS needs to be drawn down and so on
+        # FIXME: this needs more work
+        if 'right' in opts:
+            opts.remove('right')
+            opts.add('down')
+
         vcvs = self._netmake_expand('E',
                                     nodes=(onode, self.relnodes[1],
                                            self.relnodes[2], self.relnodes[3]),
-                                    args=(Ad, Ac))
+                                    args=(Ad, Ac), opts=opts)
         if Roval == 0:
             return vcvs
 
