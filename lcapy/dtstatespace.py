@@ -100,8 +100,20 @@ class DTStateSpace(StateSpaceBase):
         where x is the state vector and u is the input vector.
         """
 
-        return expr(sym.Eq(self.xnext, sym.MatAdd(sym.MatMul(self._A, self.x),
-                                                  sym.MatMul(self._B, self.u)),
+        if len(self.u) == 0 and len(self.x) == 0:
+            return expr('')
+
+        if len(self.u) == 0:
+            return expr(sym.Eq(self.xnext,
+                               sym.MatMul(self._A.sympy, self.x.sympy)))
+
+        if len(self.x) == 0:
+            return expr(sym.Eq(self.xnext,
+                               sym.MatMul(self._B.sympy, self.u.sympy)))
+
+        return expr(sym.Eq(self.xnext,
+                           sym.MatAdd(sym.MatMul(self._A.sympy, self.x.sympy),
+                                      sym.MatMul(self._B.sympy, self.u.sympy)),
                            evaluate=False))
 
     def output_equations(self):
@@ -113,9 +125,17 @@ class DTStateSpace(StateSpaceBase):
         the input vector.
 
         """
+        if len(self.u) == 0:
+            return expr(sym.Eq(self.y,
+                               sym.MatMul(self._C.sympy, self.x.sympy)))
 
-        return expr(sym.Eq(self.y, sym.MatAdd(sym.MatMul(self._C, self.x),
-                                              sym.MatMul(self._D, self.u)),
+        if len(self.x) == 0:
+            return expr(sym.Eq(self.y,
+                               sym.MatMul(self._D.sympy, self.u.sympy)))
+
+        return expr(sym.Eq(self.y,
+                           sym.MatAdd(sym.MatMul(self._C.sympy, self.x.sympy),
+                                      sym.MatMul(self._D.sympy, self.u.sympy)),
                            evaluate=False))
 
     @property
