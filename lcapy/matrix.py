@@ -141,9 +141,14 @@ class Matrix(sym.Matrix):
 
         return expr(super(Matrix, self).det())
 
-    def discretize(self, method=None, alpha=0.5):
+    def discretize(self, method=None, alpha=0.5, drop_dt=False):
 
-        def f(x): return expr(x).discretize(method, alpha).sympy
+        def f(x):
+            result = expr(x).discretize(method, alpha)
+            if drop_dt:
+                result = result.drop_dt()
+            return result.sympy
+
         return self.applyfunc(f)
 
     def norm(self):

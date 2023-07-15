@@ -140,6 +140,8 @@ causality since both parts lumped together.
 
 37. Limit for sinc.  SymPy needs _as_leading_term() method.
 
+38. Implement Matrix class since SymPy is deprecating storing non SymPy objects in a SymPy Matrix.
+
 
 Testing
 =======

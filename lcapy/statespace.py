@@ -254,6 +254,7 @@ class StateSpace(StateSpaceBase):
     def generalized_bilinear_transform(self, alpha=0.5):
 
         from .sym import dt
+        from .symbols import n
         from .dtstatespace import DTStateSpace
 
         if alpha < 0 or alpha > 1:
@@ -268,11 +269,16 @@ class StateSpace(StateSpaceBase):
         Cd = (Minv.T * self.C.T).T
         Dd = self.D + alpha * self.C * Bd
 
+        ud = self._u.discretize(drop_dt=True)
+        yd = self._y.discretize(drop_dt=True)
+        xd = self._x.discretize(drop_dt=True)
+        x0d = self._x0.discretize(drop_dt=True)
+
         return DTStateSpace(Ad, Bd, Cd, Dd,
-                            DiscreteTimeDomainMatrix(self._u.discretize()),
-                            DiscreteTimeDomainMatrix(self._y.discretize()),
-                            DiscreteTimeDomainMatrix(self._x.discretize()),
-                            DiscreteTimeDomainMatrix(self._x0.discretize()))
+                            DiscreteTimeDomainMatrix(ud),
+                            DiscreteTimeDomainMatrix(yd),
+                            DiscreteTimeDomainMatrix(xd),
+                            DiscreteTimeDomainMatrix(x0d))
 
     def discretize(self, method='bilinear', alpha=0.5):
         """Convert to a discrete-time state space approximation.
@@ -292,7 +298,7 @@ class StateSpace(StateSpaceBase):
         else:
             raise ValueError('Unsupported method %s' % method)
 
-    @ classmethod
+    @classmethod
     def from_circuit(cls, cct, node_voltages=None, branch_currents=None):
 
         from .statespacemaker import StateSpaceMaker

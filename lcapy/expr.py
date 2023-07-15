@@ -2754,6 +2754,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         result.part = self.part
         return result
 
+    def drop_dt(self):
+        """Replace V(n * dt) with V(n)"""
+
+        return self
+
     def integrate(self, arg=None, **kwargs):
         """Integrate expression.
 

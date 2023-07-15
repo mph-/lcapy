@@ -1,7 +1,7 @@
 """This module provides the DiscreteTimeDomainExpression class to
 represent discrete-time expressions.
 
-Copyright 2020--2022 Michael Hayes, UCECE
+Copyright 2020--2023 Michael Hayes, UCECE
 
 """
 
@@ -264,6 +264,26 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
         from .symbols import F
 
         return self.DTFT(F, **assumptions)
+
+    def drop_dt(self):
+        """Replace V(n * dt) with V(n)"""
+
+        from .sym import AppliedUndef, nsym, dt
+
+        def query(expr):
+
+            if not isinstance(expr, AppliedUndef):
+                return False
+            arg = expr.args[0]
+            args = arg.args
+            return arg.is_Mul and args[1] == dt and args[0] == nsym
+
+        def value(expr):
+
+            return expr.subs(nsym * dt, nsym)
+
+        result = self.sympy.replace(query, value)
+        return self.__class__(result, **self.assumptions)
 
 
 def nexpr(arg, **assumptions):
