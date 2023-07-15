@@ -268,12 +268,11 @@ class StateSpace(StateSpaceBase):
         Cd = (Minv.T * self.C.T).T
         Dd = self.D + alpha * self.C * Bd
 
-        # FIXME for u, y, x, x0.
         return DTStateSpace(Ad, Bd, Cd, Dd,
-                            DiscreteTimeDomainMatrix(self._u),
-                            DiscreteTimeDomainMatrix(self._y),
-                            DiscreteTimeDomainMatrix(self._x),
-                            DiscreteTimeDomainMatrix(self._x0))
+                            DiscreteTimeDomainMatrix(self._u.discretize()),
+                            DiscreteTimeDomainMatrix(self._y.discretize()),
+                            DiscreteTimeDomainMatrix(self._x.discretize()),
+                            DiscreteTimeDomainMatrix(self._x0.discretize()))
 
     def discretize(self, method='bilinear', alpha=0.5):
         """Convert to a discrete-time state space approximation.
@@ -293,7 +292,7 @@ class StateSpace(StateSpaceBase):
         else:
             raise ValueError('Unsupported method %s' % method)
 
-    @classmethod
+    @ classmethod
     def from_circuit(cls, cct, node_voltages=None, branch_currents=None):
 
         from .statespacemaker import StateSpaceMaker

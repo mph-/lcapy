@@ -1,7 +1,7 @@
 """
 This module implements the Lcapy Matrix class.
 
-Copyright 2019--2022 Michael Hayes, UCECE
+Copyright 2019--2023 Michael Hayes, UCECE
 """
 
 import sympy as sym
@@ -141,6 +141,11 @@ class Matrix(sym.Matrix):
 
         return expr(super(Matrix, self).det())
 
+    def discretize(self, method=None, alpha=0.5):
+
+        def f(x): return expr(x).discretize(method, alpha).sympy
+        return self.applyfunc(f)
+
     def norm(self):
 
         return expr(super(Matrix, self).norm())
@@ -179,12 +184,12 @@ class Matrix(sym.Matrix):
         def f(x): return expr(x).subs(*args, **kwargs).sympy
         return self.applyfunc(f)
 
-    @ property
+    @property
     def conj(self):
         """Complex conjugate; for compatilibility with Expr conj is an attribute."""
         return self._new(self.rows, self.cols, [x.conj for x in self])
 
-    @ property
+    @property
     def symbols(self):
 
         symbols = {}
@@ -192,16 +197,16 @@ class Matrix(sym.Matrix):
             symbols.update(expr(elt).symbols)
         return symbols
 
-    @ property
+    @property
     def sympy(self):
 
         return sym.Matrix(self.rows, self.cols, [x.sympy for x in self])
 
-    @ property
+    @property
     def expr(self):
         return self.sympy
 
-    @ property
+    @property
     def is_complex(self):
 
         for x in self:
@@ -229,7 +234,7 @@ class Matrix(sym.Matrix):
                 result[i, j] = self[i, j].evaluate(arg)
         return result
 
-    @ property
+    @property
     def numpy(self):
         """Return NumPy array; not a NumPy matrix."""
         return self.evaluate()

@@ -8,7 +8,7 @@ Note there are two types:
 Note, impedance(3)(s) gives 3 but voltage(3)(s) gives 3 / s.
 Similarly, voltage(3)(t) gives 3 but impedance(3)(t) gives 3 * delta)(t)
 
-Copyright 2014--2022 Michael Hayes, UCECE
+Copyright 2014--2023 Michael Hayes, UCECE
 
 """
 
@@ -104,6 +104,10 @@ class ConstantExpr(Expr):
         from .sexpr import s
         # This can be optimized!
         return self(s).response(xvector, tvector)
+
+    def discretize(self, method=None, alpha=0.5):
+
+        return self
 
 
 class ConstantDomainExpression(ConstantDomain, ConstantExpr):
