@@ -151,6 +151,12 @@ class Matrix(sym.Matrix):
 
         return self.applyfunc(f)
 
+    def next_timestep(self):
+
+        def f(x): return expr(x).next_timestep()
+
+        return self.applyfunc(f)
+
     def norm(self):
 
         return expr(super(Matrix, self).norm())

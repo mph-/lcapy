@@ -41,8 +41,7 @@ class DTStateSpace(StateSpaceBase):
     @cached_property
     def xnext(self):
         """Time derivative of state variable vector."""
-        return DiscreteTimeDomainMatrix([nexpr('x_%d(n + 1)' % i) for i in
-                                         range(self.Nx)])
+        return self.x.next_timestep()
 
     @property
     def x0(self):

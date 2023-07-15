@@ -2759,6 +2759,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         return self
 
+    def next_timestep(self):
+        """Replace n with n + 1"""
+
+        return self
+
     def integrate(self, arg=None, **kwargs):
         """Integrate expression.
 

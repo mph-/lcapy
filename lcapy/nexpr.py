@@ -285,6 +285,14 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
         result = self.sympy.replace(query, value)
         return self.__class__(result, **self.assumptions)
 
+    def next_timestep(self):
+        """Replace n with n + 1"""
+
+        from .sym import nsym
+
+        result = self.sympy.replace(nsym, nsym + 1)
+        return self.__class__(result, **self.assumptions)
+
 
 def nexpr(arg, **assumptions):
     """Create nExpr object.  If `arg` is nsym return n"""
