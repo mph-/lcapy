@@ -138,6 +138,9 @@ causality since both parts lumped together.
 
 36. Warn if no DC path to ground for DC analysis
 
+37. Limit for sinc.  SymPy needs _as_leading_term() method.
+
+
 Testing
 =======
 

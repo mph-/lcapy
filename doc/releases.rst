@@ -2,6 +2,26 @@
 Release notes
 =============
 
+V1.17
+=====
+
+- Adds `discretize()` method to `Matrix`
+
+- Fixes discretization for continuous-time to discrete-time state space
+
+- `Netlist` `dc()`, `ac()`, `transient()`, and `laplace()` methods return `Netlist`
+
+- `SubNetlist` immutable
+
+- Fixes `repr()` for `Matrix`
+
+- Adds `undefined_symbols` to `Netlist`
+
+- Renames `kinds` as `symbol_kinds`
+
+- Prevents pre-defined symbols being overwritten by symbols found in an expression
+
+
 V1.16
 =====
 
