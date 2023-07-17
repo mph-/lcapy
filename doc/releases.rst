@@ -5,6 +5,8 @@ Release notes
 V1.17
 =====
 
+- Fixes Fourier transform for time shift
+
 - Adds `discretize()` method to `Matrix`
 
 - Fixes discretization for continuous-time to discrete-time state space

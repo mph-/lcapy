@@ -68,13 +68,13 @@ class LcapyTester(unittest.TestCase):
         # u(t)
         self.assertEqual(u(t).FT(), DiracDelta(f) / 2 + 1 / (j * 2 * pi * f))
         # TODO teach SymPy that sign(t) + 1 = 2 * u(t)
-        #self.assertEqual(u(t).FT().IFT(), u(t))
+        # self.assertEqual(u(t).FT().IFT(), u(t))
 
         # t * u(t)
         self.assertEqual((t * u(t)).FT(), -1 / (2 * pi * f) **
                          2 + j * DiracDelta(f, 1) / (4 * pi))
         # TODO teach SymPy that sign(t) + 1 = 2 * u(t)
-        #self.assertEqual((t * u(t)).FT().IFT(), t * u(t))
+        # self.assertEqual((t * u(t)).FT().IFT(), t * u(t))
 
         # sign(t)
         self.assertEqual(sign(t).FT(), 1 / (j * pi * f))
@@ -104,14 +104,25 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(trap(t, 0).FT(), sinc(f))
         self.assertEqual(trap(t, 0.5).FT(), 0.5 * sinc(0.5 * f) * sinc(f))
 
+        # Time shift
+        # rect(t - 2)
+        self.assertEqual(rect(t - 2).FT(), sinc(f) * exp(-j * 4 * pi * f))
+        self.assertEqual(rect(t - 2).FT().IFT(), rect(t - 2))
+
+        # Frequency shift
+        # rect(t) * exp(j * 4 * pi * t)
+        self.assertEqual((rect(t) * exp(j * 4 * pi * t)).FT(), sinc(f - 2))
+        self.assertEqual((rect(t) * exp(j * 4 * pi * t)).FT().IFT(),
+                         (rect(t) * exp(j * 4 * pi * t)))
+
     def test_fourier_convolution(self):
 
         a = expr('Integral(3 * x(t - tau) * y(tau), (tau, -oo, oo))')
         A = a(f)
         self.assertEqual(A, expr('3 * X(f) * Y(f)'), "3 * X * Y")
-        #self.assertEqual(A(t), a, "a(f)(t)")
+        # self.assertEqual(A(t), a, "a(f)(t)")
 
         a = expr('Integral(3 * x(tau) * y(t - tau), (tau, -oo, oo))')
         A = a(f)
         self.assertEqual(A, expr('3 * X(f) * Y(f)'), "3 * X * Y")
-        #self.assertEqual(A(t), a, "a(f)(t)")
+        # self.assertEqual(A(t), a, "a(f)(t)")

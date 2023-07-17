@@ -8,7 +8,7 @@ by using Dirac deltas.  For example, a, cos(a * t), sin(a * t), exp(j
 * a * t).
 
 
-Copyright 2016--2022 Michael Hayes, UCECE
+Copyright 2016--2023 Michael Hayes, UCECE
 
 """
 
@@ -199,6 +199,7 @@ class FourierTransformer(BilateralForwardTransformer):
                     other *= factor
 
         sf = -f if self.is_inverse else f
+        st = -t if self.is_inverse else t
 
         if other != 1 and exps == 1:
             if other == t:
@@ -299,7 +300,7 @@ class FourierTransformer(BilateralForwardTransformer):
             if scale != 1 or shift != 0:
                 result = self.term(expr2, t, f / scale) / abs(scale)
                 if shift != 0:
-                    result *= exp(-I * 2 * pi * f / scale * shift)
+                    result *= exp(I * 2 * pi * sf / scale * shift)
                 return const * result
 
             if expr.is_Function and expr.args[0] == t:
@@ -316,14 +317,14 @@ class FourierTransformer(BilateralForwardTransformer):
             return const * self.sympy(expr, t, sf)
 
         args = exps.args[0]
-        foo = args / t
+        foo = args / st
         if foo.has(t):
             # Have exp(a * t**n), SymPy might be able to handle this
             return const * self.sympy(expr, t, sf)
 
         if exps != 1 and foo.has(I):
             if other == 1:
-                return const1 * DiracDelta(sf - foo / (I * 2 * pi))
+                return const1 * DiracDelta(f - foo / (I * 2 * pi))
             Q = self.term(other, t, f)
             return const1 * Q.subs(f, (f - foo / (I * 2 * pi)))
 
