@@ -2,11 +2,11 @@
 
 :math:`x(- m + n) \longleftrightarrow z^{- m} X(z)`
 
-:math:`\cos{\left(2 \pi \Delta_{t} f_{0} n \right)} \longleftrightarrow \frac{z \left(z - \cos{\left(2 \pi \Delta_{t} f_{0} \right)}\right)}{z^{2} - 2 z \cos{\left(2 \pi \Delta_{t} f_{0} \right)} + 1}`
+:math:`\cos{\left(2 \pi \Delta_{t} f0 n \right)} \longleftrightarrow \frac{z \left(z - \cos{\left(2 \pi \Delta_{t} f0 \right)}\right)}{z^{2} - 2 z \cos{\left(2 \pi \Delta_{t} f0 \right)} + 1}`
 
-:math:`\sin{\left(2 \pi \Delta_{t} f_{0} n \right)} \longleftrightarrow \frac{z \sin{\left(2 \pi \Delta_{t} f_{0} \right)}}{z^{2} - 2 z \cos{\left(2 \pi \Delta_{t} f_{0} \right)} + 1}`
+:math:`\sin{\left(2 \pi \Delta_{t} f0 n \right)} \longleftrightarrow \frac{z \sin{\left(2 \pi \Delta_{t} f0 \right)}}{z^{2} - 2 z \cos{\left(2 \pi \Delta_{t} f0 \right)} + 1}`
 
-:math:`e^{2 \mathrm{j} \pi \Delta_{t} f_{0} n} \longleftrightarrow \frac{z}{z - e^{2 \mathrm{j} \pi \Delta_{t} f_{0}}}`
+:math:`e^{2 \mathrm{j} \pi \Delta_{t} f0 n} \longleftrightarrow \frac{z}{z - e^{2 \mathrm{j} \pi \Delta_{t} f0}}`
 
 :math:`1 \longleftrightarrow \frac{1}{1 - \frac{1}{z}}`
 
