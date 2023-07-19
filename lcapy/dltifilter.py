@@ -17,6 +17,9 @@ from .sym import oo, j, pi, dt
 import sympy as sym
 
 
+# TODO: convert lowpass form to highpass with H(-z)
+
+
 class DLTIFilter(object):
 
     def __init__(self, b, a):

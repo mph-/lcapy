@@ -324,7 +324,7 @@ class LTIFilter(object):
             sk = omega0 * exp(j * (2 * k + N - 1) * pi / (2 * N))
             numer *= omega0
             # Rewrite exp as cos to improve simplification.  For some reason
-            # sympy does not simplify exp(-j pi / 4).
+            # SymPy does not simplify exp(-j * pi / 4).
             sk = sk.rewrite(cos)
             denom *= (s - sk)
 

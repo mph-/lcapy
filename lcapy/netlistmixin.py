@@ -2164,7 +2164,7 @@ class NetlistMixin(object):
                                                       describe_sources(sources, omega))
 
         if self.is_switching:
-            return '''This has switches and thus is time variant.  Use the convert_IVP(t) method to convert to an initial value problem, specifying the time when to evaluate the switches.'''
+            return 'This has switches and thus is time variant.  Use the convert_IVP(t) method to convert to an initial value problem, specifying the time when to evaluate the switches.'
 
         groups = self.independent_source_groups(
             transform=not self.is_time_domain)
@@ -2173,8 +2173,7 @@ class NetlistMixin(object):
             return 'There are no non-zero independent sources so everything is zero.\n'
 
         if self.is_IVP:
-            return 'This has initial conditions for %s so is an initial value '
-            'problem solved in the Laplace-domain using Laplace transforms.\n' \
+            return 'This has initial conditions for %s so is an initial value problem solved in the Laplace-domain using Laplace transforms.\n' \
                 % ', '.join(self.ics)
             return
 
