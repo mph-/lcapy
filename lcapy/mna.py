@@ -184,9 +184,7 @@ class MNA(object):
         cct = self.cct
 
         if '0' not in cct.node_map:
-            gnode = list(cct.node_map)[0]
-            warn('Ground node not specified: using node ' + gnode)
-            cct._add_ground(gnode)
+            raise ValueError('No ground node specified.')
 
         # Solve for the nodal voltages
         try:

@@ -193,10 +193,16 @@ class Netlist(NetlistMixin, NetlistSimplifyMixin):
         self._Idict = result
         return result
 
-    def _add_ground(self, node):
+    def _add_ground(self, node=None):
 
-        if '0' not in self.nodes:
-            self.add('W %s 0' % node)
+        if '0' in self.nodes:
+            return
+
+        if node is None:
+            node = list(self.node_map)[0]
+            warn('Ground node not specified: using node ' + node)
+
+        self.add('W %s 0' % node)
 
     def _add_test_voltage_source(self, Np, Nm):
 
@@ -229,6 +235,7 @@ class Netlist(NetlistMixin, NetlistSimplifyMixin):
     def get_I(self, name, nowarn=False):
         """Current through component (time-domain)"""
 
+        self._add_ground()
         subs = self._subs_make(nowarn=nowarn)
 
         result = SuperpositionCurrent()
@@ -246,6 +253,7 @@ class Netlist(NetlistMixin, NetlistSimplifyMixin):
     def _get_Vd(self, Np, Nm=None, nowarn=False):
         """This does not check nodes."""
 
+        self._add_ground()
         subs = self._subs_make(nowarn=nowarn)
 
         result = SuperpositionVoltage()

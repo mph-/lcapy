@@ -315,6 +315,7 @@ class NetlistMixin(object):
         `pos` specifies where to position the labels (see docs)
         """
 
+        self._add_ground()
         if cpts is None:
             cpts = []
             for elt in self._elements.values():
@@ -340,7 +341,7 @@ class NetlistMixin(object):
             new.add(net)
         return new
 
-    def annotate_voltages(self, cpts, domainvar=None,
+    def annotate_voltages(self, cpts=None, domainvar=None,
                           eng_format=True, evalf=True, num_digits=3,
                           show_units=True, pos=''):
         """Annotate specified list of component names `cpts` with voltage.
@@ -362,6 +363,7 @@ class NetlistMixin(object):
         `pos` specifies where to position the labels (see docs)
         """
 
+        self._add_ground()
         if cpts is None:
             cpts = []
             for elt in self._elements.values():
@@ -420,6 +422,7 @@ class NetlistMixin(object):
 
         """
 
+        self._add_ground()
         if nodes is None:
             nodes = self.node_list
         elif not isiterable(nodes):
