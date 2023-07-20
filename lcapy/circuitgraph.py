@@ -190,18 +190,19 @@ class CircuitGraph(object):
             ret.append(foo)
         return ret
 
-    def draw(self, filename=None):
+    def draw(self, filename=None, axes=None):
         """Use matplotlib to draw circuit graph."""
 
         from matplotlib.pyplot import subplots, savefig
 
-        fig, ax = subplots(1)
+        if axes is None:
+            fig, axes = subplots(1)
 
         G = self.G
         pos = nx.spring_layout(G)
 
         labels = dict(zip(G.nodes(), G.nodes()))
-        nx.draw_networkx(G, pos, ax, labels=labels)
+        nx.draw_networkx(G, pos, axes, labels=labels)
 
         edge_labels = dict([((u, v), d['name'])
                             for u, v, d in G.edges(data=True)])
@@ -245,7 +246,8 @@ class CircuitGraph(object):
         cloops = []
 
         # Map node names to equipotential node names.
-        node_names = [self.cct.node_map[node_name] for node_name in elt.node_names]
+        node_names = [self.cct.node_map[node_name]
+                      for node_name in elt.node_names]
 
         for n, loop in enumerate(loops):
 
