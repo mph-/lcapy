@@ -196,13 +196,13 @@ class Netlist(NetlistMixin, NetlistSimplifyMixin):
     def _add_ground(self, node=None):
 
         if '0' in self.nodes:
-            return
+            return None
 
         if node is None:
             node = list(self.node_map)[0]
             warn('Ground node not specified: using node ' + node)
 
-        self.add('W %s 0' % node)
+        return self.add('W %s 0' % node)
 
     def _add_test_voltage_source(self, Np, Nm):
 
@@ -339,17 +339,20 @@ class Netlist(NetlistMixin, NetlistSimplifyMixin):
         return self.__class__(context=context)
 
     def remove(self, name):
-        """Remove specified element or elements specified in list."""
+        """Remove specified element by name or elements specified in list."""
+
+        if name is None:
+            return self
 
         if isinstance(name, (list, tuple)):
             for name1 in name:
                 self.remove(name1)
             return self
 
-        self._invalidate()
-
         if name not in self._elements:
             raise ValueError('Unknown component: ' + name)
+
+        self._invalidate()
 
         cpt = self._elements[name]
         for node in cpt.nodes:
