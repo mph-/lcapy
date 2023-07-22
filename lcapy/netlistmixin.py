@@ -315,10 +315,11 @@ class NetlistMixin(object):
         `pos` specifies where to position the labels (see docs)
         """
 
-        self._add_ground()
+        cct = self.copy()
+        groundwire = cct._add_ground()
         if cpts is None:
             cpts = []
-            for elt in self._elements.values():
+            for elt in cct._elements.values():
                 if (elt.is_resistor or elt.is_capacitor or
                         elt.is_inductor or elt.is_voltage_source):
                     cpts.append(elt.name)
@@ -329,7 +330,7 @@ class NetlistMixin(object):
             domainvar = t
 
         new = self._new()
-        for cpt in self._elements.values():
+        for cpt in cct._elements.values():
             net = cpt._copy()
             if cpt.name in cpts:
                 I = cpt.I(domainvar)
@@ -339,6 +340,7 @@ class NetlistMixin(object):
                 net += ', %s={$%s$}' % (label, I.latex_with_units(
                     eng_format=eng_format, evalf=evalf, num_digits=num_digits, show_units=show_units))
             new.add(net)
+        new.remove(groundwire.name)
         return new
 
     def annotate_voltages(self, cpts=None, domainvar=None,
@@ -363,10 +365,11 @@ class NetlistMixin(object):
         `pos` specifies where to position the labels (see docs)
         """
 
-        self._add_ground()
+        cct = self.copy()
+        groundwire = cct._add_ground()
         if cpts is None:
             cpts = []
-            for elt in self._elements.values():
+            for elt in cct._elements.values():
                 if (elt.is_resistor or elt.is_capacitor or
                         elt.is_inductor or elt.is_current_source):
                     cpts.append(elt.name)
@@ -375,7 +378,7 @@ class NetlistMixin(object):
             domainvar = t
 
         new = self._new()
-        for cpt in self._elements.values():
+        for cpt in cct._elements.values():
             net = cpt._copy()
             if cpt.name in cpts:
                 V = cpt.V(domainvar)
@@ -385,6 +388,7 @@ class NetlistMixin(object):
                 net += 'v%s={$%s$}' % (pos, V.latex_with_units(eng_format=eng_format,
                                        evalf=evalf, num_digits=num_digits, show_units=show_units))
             new.add(net)
+        new.remove(groundwire.name)
         return new
 
     def annotate_node_voltages(self, nodes=None, domainvar=None,
@@ -422,9 +426,10 @@ class NetlistMixin(object):
 
         """
 
-        self._add_ground()
+        cct = self.copy()
+        groundwire = cct._add_ground()
         if nodes is None:
-            nodes = self.node_list
+            nodes = cct.node_list
         elif not isiterable(nodes):
             nodes = (nodes, )
 
@@ -433,7 +438,7 @@ class NetlistMixin(object):
 
         new = self.copy()
         for node in nodes:
-            v = self[node].V(domainvar)
+            v = cct[node].V(domainvar)
             if evalf:
                 v = v.evalf(num_digits)
 
@@ -445,6 +450,7 @@ class NetlistMixin(object):
                 vstr = 'V_{%s}=' % node + vstr
 
             new.add('A%s %s; l={%s}, anchor=%s' % (node, node, vstr, anchor))
+        new.remove(groundwire.name)
         return new
 
     def annotate_voltage(self, cpts, domainvar=None, pos=''):
