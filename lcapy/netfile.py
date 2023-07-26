@@ -131,36 +131,40 @@ class NetfileMixin(object):
 
         return list(self.elements.keys())[-1]
 
-    def netfile_add(self, filename):
-        """Add the nets from file with specified filename"""
+    def netfile_add(self, pathname):
+        """Add the nets from file with specified pathname"""
 
-        self.dirname = dirname(filename)
-        self._netfile_add(filename)
+        from os.path import expanduser
 
-    def _netfile_add(self, filename, namespace=''):
-        """Add the nets from file with specified filename"""
+        pathname = expanduser(pathname)
+
+        self.dirname = dirname(pathname)
+        self._netfile_add(pathname)
+
+    def _netfile_add(self, pathname, namespace=''):
+        """Add the nets from file with specified pathname"""
 
         netfile = None
 
         try:
-            netfile = open(filename, 'r')
+            netfile = open(pathname, 'r')
         except:
             pass
 
         if netfile is None:
             try:
-                netfile = open(filename + '.sch', 'r')
+                netfile = open(pathname + '.sch', 'r')
             except:
                 pass
 
         if netfile is None:
             try:
-                netfile = open(join(self.dirname, filename), 'r')
+                netfile = open(join(self.dirname, pathname), 'r')
             except:
                 pass
 
         if netfile is None:
-            raise FileNotFoundError('Could not open ' + filename)
+            raise FileNotFoundError('Could not open ' + pathname)
 
         lines = netfile.readlines()
         netfile.close()
