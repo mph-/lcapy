@@ -1,7 +1,7 @@
 """This module provides the CausalChecker, ACChecker, and DCChecker
 classes as used by the is_causal, is_ac, and is_dc functions.
 
-Copyright 2020--2021 Michael Hayes, UCECE
+Copyright 2020--2023 Michael Hayes, UCECE
 
 """
 
@@ -81,9 +81,7 @@ class DCChecker(object):
 
 
 class ACChecker(object):
-    """This looks for real ac signals; it does not work for complex ac
-
-signals."""
+    """This looks for real ac signals; it does not work for complex ac signals."""
 
     def _find_freq_phase(self, expr):
 
@@ -146,7 +144,7 @@ signals."""
         # Convert exp(-j*x*t) + exp(j*x*t) into 2 * cos(x) etc.
         expr = sym.exptrigsimp(expr.rewrite(cos))
 
-        terms = expr.as_ordered_terms()
+        terms = expr.expand().as_ordered_terms()
         if len(terms) > 1:
             return self._is_sum_ac(terms)
 
