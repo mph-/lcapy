@@ -59,6 +59,8 @@ def parse_nodes(nodesstr):
     nodesstr = nodesstr[1:-1]
     entries = split_parens(nodesstr, ',')
     for entry in entries:
+        if entry == '':
+            continue
         parts = entry.split('@')
         node_name = parts[0].strip()
         # Ignore ()
