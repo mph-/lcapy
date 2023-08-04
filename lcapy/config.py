@@ -47,12 +47,12 @@ greek_letter_names = ('alpha', 'beta', 'gamma', 'delta', 'epislon',
 
 words = greek_letter_names
 
-# Can be 'GE', 'LU', 'ADJ', 'LDL', 'CH', 'DM-GE', 'DM-LU', 'DM-charpoly'
-# Note, the DM methods require the git version of sympy otherwise
+# Can be 'GE', 'LU', 'ADJ', 'LDL', 'CH', 'DM'
+# Note, the DM method requires a new version of sympy otherwise
 # the fallback method is used.
 try:
     from sympy.polys.domainmatrix import DomainMatrix
-    matrix_inverse_method = 'DM-charpoly'
+    matrix_inverse_method = 'DM'
 except:
     matrix_inverse_method = 'ADJ'
 
