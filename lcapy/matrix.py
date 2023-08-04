@@ -302,16 +302,16 @@ of size %dx%d""" % (N, N, N))
         except:
             return M.inv(method='GE')
 
-    elif method.startswith('DM-'):
+    elif method == 'DM':
         try:
-            # This is experimental and requires sympy to be built from
-            # git.  It only works for rational function fields but
+            # This is experimental and requires a new version of sympy.
+            # It only works for rational function fields but
             # fails for polynomial rings.  The latter can be handled
             # by converting it to a field, however, we just fall back
             # on a standard method.
             from sympy.polys.domainmatrix import DomainMatrix
             dM = DomainMatrix.from_list_sympy(*M.shape, rows=M.tolist())
-            return dM.inv(method=method[3:]).to_Matrix()
+            return dM.inv().to_Matrix()
         except:
             method = matrix_inverse_fallback_method
 
