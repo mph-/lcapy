@@ -130,8 +130,15 @@ class ACChecker(object):
             A2, p2 = check2.amp, check2.phase
             x = A1 * cos(p1) + A2 * cos(p2)
             y = A1 * sin(p1) + A2 * sin(p2)
-            check.phase = atan2(y, x)
-            check.amp = sqrt(x**2 + y**2)
+            if y == 0:
+                check.phase = 0
+                check.amp = x
+            elif x == 0:
+                check.phase = pi / 2
+                check.amp = y
+            else:
+                check.phase = atan2(y, x)
+                check.amp = sqrt(x**2 + y**2)
 
         self.freq = check.freq
         self.omega = check.omega

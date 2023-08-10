@@ -5,6 +5,9 @@ Release notes
 V1.18
 =====
 
+- Simplify phase and amplitude for phasors
+
+- Fix matrix inverse for new SymPy
 
 V1.17
 =====
