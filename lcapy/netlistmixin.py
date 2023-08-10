@@ -340,7 +340,8 @@ class NetlistMixin(object):
                 net += ', %s={$%s$}' % (label, I.latex_with_units(
                     eng_format=eng_format, evalf=evalf, num_digits=num_digits, show_units=show_units))
             new.add(net)
-        new.remove(groundwire.name)
+        if groundwire is not None:
+            new.remove(groundwire.name)
         return new
 
     def annotate_voltages(self, cpts=None, domainvar=None,
@@ -388,7 +389,8 @@ class NetlistMixin(object):
                 net += 'v%s={$%s$}' % (pos, V.latex_with_units(eng_format=eng_format,
                                        evalf=evalf, num_digits=num_digits, show_units=show_units))
             new.add(net)
-        new.remove(groundwire.name)
+        if groundwire is not None:
+            new.remove(groundwire.name)
         return new
 
     def annotate_node_voltages(self, nodes=None, domainvar=None,
@@ -450,7 +452,8 @@ class NetlistMixin(object):
                 vstr = 'V_{%s}=' % node + vstr
 
             new.add('A%s %s; l={%s}, anchor=%s' % (node, node, vstr, anchor))
-        new.remove(groundwire.name)
+        if groundwire is not None:
+            new.remove(groundwire.name)
         return new
 
     def annotate_voltage(self, cpts, domainvar=None, pos=''):
