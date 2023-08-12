@@ -20,7 +20,6 @@ class Node(ImmittanceMixin):
         self.cct = cct
         self._name = name
         self.pos = None
-        self.port = False
         parts = name.split('_')
         self.rootname = parts[0] if name[0] != '_' else name
         self.primary = len(parts) == 1
@@ -92,8 +91,6 @@ class Node(ImmittanceMixin):
 
     def append(self, cpt):
 
-        if cpt.type in ('P', ):
-            self.port = True
         if cpt.type not in ('A', ):
             self._count += 1
 
@@ -181,7 +178,15 @@ class Node(ImmittanceMixin):
     def is_port(self):
         """Return True if node is a port"""
 
-        return self._port
+        for cpt in self.connected:
+            if cpt.type == 'P':
+                return True
+        return False
+
+    @property
+    def port(self):
+
+        return self.is_port
 
     @property
     def is_dangling(self):
