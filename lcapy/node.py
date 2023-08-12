@@ -94,7 +94,7 @@ class Node(ImmittanceMixin):
 
         if cpt.type in ('P', ):
             self.port = True
-        if cpt.type not in ('A', 'O', 'P'):
+        if cpt.type not in ('A', ):
             self._count += 1
 
         self._connected.append(cpt)
@@ -109,7 +109,7 @@ class Node(ImmittanceMixin):
             if c.name == cpt.name:
                 self._connected.remove(c)
                 break
-        if cpt.type not in ('A', 'O', 'P'):
+        if cpt.type not in ('A', ):
             self._count -= 1
 
         if self.count == 0:
@@ -118,7 +118,7 @@ class Node(ImmittanceMixin):
     @property
     def count(self):
         """Number of elements electrically connected to the node.  This
-        includes wires but not open-circuits, ports, and annotations.
+        includes wires but not annotations.
 
         """
 
