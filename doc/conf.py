@@ -44,7 +44,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Lcapy'
-copyright = u'2014--2022, Michael Hayes'
+copyright = u'2014--2023, Michael Hayes'
 
 print('Version ' + __version__)
 

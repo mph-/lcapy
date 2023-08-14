@@ -375,6 +375,13 @@ Networks can be randomly generated with the `random_network` function.  This is 
 This example generates a DC network with four resistors, two-voltage sources, and no capacitors or inductors.   The `kind` argument can be `ac`, `dc`, or `transient`.   The number of parallel connections can be specified with the `num_parallel` argument.
 
 
+If you want to assign integer random values for the component values, use something like:
+
+   >>> defs = {}
+   ... for p in net.params:
+   ...    defs[p] = int((rand(1) + 1) * 10)
+   ... net2 = net.subs(defs)
+
 
 Network analysis examples
 =========================
