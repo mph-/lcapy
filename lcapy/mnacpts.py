@@ -1624,7 +1624,7 @@ class L(RLC):
 
         return rnet + '\n' + vnet
 
-    @ property
+    @property
     def I0(self):
         """Initial current (for capacitors only)."""
 
@@ -1632,7 +1632,7 @@ class L(RLC):
             return current(self.cpt.i0 / s)
         return current(0)
 
-    @ property
+    @property
     def L(self):
         return self.cpt.L
 
@@ -1687,11 +1687,11 @@ class O(Dummy):
     def _stamp(self, mna):
         pass
 
-    @ property
+    @property
     def I(self):
         return SuperpositionCurrent(0)
 
-    @ property
+    @property
     def i(self):
         return SuperpositionCurrent(0)(t)
 
@@ -1704,11 +1704,11 @@ class P(Dummy):
     def _stamp(self, mna):
         pass
 
-    @ property
+    @property
     def I(self):
         return SuperpositionCurrent(0)
 
-    @ property
+    @property
     def i(self):
         return SuperpositionCurrent(0)(t)
 
@@ -2233,12 +2233,12 @@ class W(Dummy):
     def _stamp(self, mna):
         pass
 
-    @ property
+    @property
     def I(self):
         raise ValueError(
             'Cannot determine current through wire, use a 0 V voltage source')
 
-    @ property
+    @property
     def i(self):
         raise ValueError(
             'Cannot determine current through wire, use a 0 V voltage source')
