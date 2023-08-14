@@ -3831,7 +3831,7 @@ class Efdopamp(Chip):
 
 class Einamp(Eopamp):
     """Instrumentation amplifier created with E netlist type.
-       See also Uinamp for a fully differential opamp created
+       See also Uinamp for an instrumentation amplifier created
        with the U netlist type."""
 
     can_scale = True
