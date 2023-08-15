@@ -267,17 +267,17 @@ simulation (additional components can be drawn, see
 
    `kname Np Nm k`
 
-   `kname Np Nm k u0` Here `u0` is the initial speed.  If this is specified then the circuit is solved as an initial value problem.
+   `kname Np Nm k f0` Here `f0` is the initial force.  If this is specified then the circuit is solved as an initial value problem.
 
 - Mechanical mass:
 
    `mname Np Nm m`
 
-   `mname Np Nm m f0` Here `f0` is the initial force.  If this is specified then the circuit is solved as an initial value problem.
+   `mname Np Nm m u0` Here `u0` is the initial velocity.  If this is specified then the circuit is solved as an initial value problem.
 
 - Mechanical damper:
 
-   `rname Np Nm r`
+   `rname Np Nm r` Here `r` is the friction coefficient.
 
 - Reluctance:
 
@@ -1235,21 +1235,32 @@ Mechanical netlists
 ===================
 
 Linear mechanical networks comprising masses, springs, and dampers can
-be simulated.  The mechanical analogue II (impedance analogue) is
-employed where voltage is equivalent to force and current is
-equivalent to speed.  Thus a mass is analogous to an inductor, a
-spring is analogous to a capacitor, and a damper is analogous to a
-resistor.
+be simulated.  The mechanical analogue I (mobility analogue) is
+employed where voltage is equivalent to speed and current is
+equivalent to force.  Thus a mass is analogous to a capacitor, a
+spring is analogous to a inductor, and a damper (dashpot) is analogous
+to a resistor.
+
+With this analogue d'Alemberts law is equivalent to Kirchhoff's
+current law.  Thus a point in the mechanical system is equivalent to a
+node in the electrical circuit.  However, mechanical impedance is
+equivalent to electrical admittance.
 
 For example,
    >>> a = Circuit("""
    k 1 2; right
    r 2 3; right
    m 3 4; right""")
-   >>> Z = a.impedance(1, 4)
-   >>> Z(s).partfrac()
-              1
-   m⋅s + r + ───
-             k⋅s
+   >>> Zm = a.admittance(1, 4)
+   >>> Zm
+       k⋅s
+   ────────────
+   k⋅s   k    2
+   ─── + ─ + s
+    r    m
 
-With this analogue d'Alemberts law is equivalent to Kirchhoff's voltage law.  Thus every loop in the electrical circuit is analogous to a point in the mechanical system.   This also means that series combinations transform to parallel combinations and vice-versa.
+
+The mechanical analogue II (impedance analogue) has the advantage that
+mechanical impedance is equivalent to electrical impedance.  However,
+series mechanical components need to be modelled as parallel
+electrical components and vice-versa.

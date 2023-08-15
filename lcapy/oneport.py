@@ -1575,15 +1575,20 @@ class P(O):
 class Mass(C):
     """Mass
 
-    Mass mval, initial force f0"""
+    Mass mval, initial velocity v0"""
     pass
 
 
 class Spring(L):
     """Spring
 
-    Spring constant kval, initial velocity v0"""
-    pass
+    Spring constant kval, initial force f0"""
+
+    def __init__(self, kval='k', f0=None, **kwargs):
+
+        Lval = 1 / cexpr(kval)
+
+        super().__init__(Lval, f0, **kwargs)
 
 
 class Damper(G):
