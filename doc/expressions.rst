@@ -2770,7 +2770,7 @@ Network synthesis
 Lcapy has experimental support for a number of network synthesis.
 This produces a network model from an s-domain impedance or admittance
 expression.  There are many methods, some specifically for simple
-network such as R-L networks, and more general methods including
+networks such as R-L networks, and more general methods including
 Foster and Cauer synthesis.
 
     >>> Z = impedance((4*s**2 + 3 * s + one / 6) / (s**2 + 2 * s / 3))
@@ -2781,9 +2781,12 @@ Foster and Cauer synthesis.
 
     :math:`\frac{4 s^{2} + 3 s + \frac{1}{6}}{s^{2} + \frac{2 s}{3}}`
 
-    >>> n.draw(form='ladder')
+    >>> n.draw(layout='ladder')
 
-Note, in this example `one` is used to avoid generating a floating-point number `1 / 6`.
+.. image:: examples/networks/cauer1.png
+   :width: 6cm
+
+Note, in this example, `one` is used to avoid generating a floating-point number `1 / 6`.
 An alternative approach to use quotes around the expression (see :ref:`floating-point`)::
 
     >>> Z = impedance('(4*s**2 + 3 * s + 1 / 6) / (s**2 + 2 * s / 3)')
