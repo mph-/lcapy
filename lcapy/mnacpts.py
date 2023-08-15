@@ -2403,11 +2403,12 @@ defcpt('Vdc', V, 'DC voltage source')
 defcpt('Vnoise', V, 'Noise voltage source')
 defcpt('VM', O, 'Voltmeter')
 
-# Let's choose mechanical analogue II (the impedance analogue) where
-# force is equivalent to voltage and velocity is equivalent to
-# current.  With this analogy parallel and serial have to be switched.
-defcpt('m', L, 'Mass')
-defcpt('k', C, 'Spring')
+# Mechanical analogue I (the mobility analogue) where
+# force is equivalent to current and velocity is equivalent to
+# voltage.  With this analogy Kirchhoff's current law is equivalent
+# to D'alembert's law.
+defcpt('m', C, 'Mass')
+defcpt('k', L, 'Spring')
 defcpt('r', R, 'Damper')
 
 # Append classes defined in this module but not imported.

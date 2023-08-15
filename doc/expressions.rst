@@ -2781,15 +2781,26 @@ Foster and Cauer synthesis.
 
     :math:`\frac{4 s^{2} + 3 s + \frac{1}{6}}{s^{2} + \frac{2 s}{3}}`
 
-    >>> n.draw(layout='ladder')
+    >>> n.draw()
 
 .. image:: examples/networks/cauer1.png
-   :width: 6cm
+   :width: 9cm
 
-Note, in this example, `one` is used to avoid generating a floating-point number `1 / 6`.
-An alternative approach to use quotes around the expression (see :ref:`floating-point`)::
+
+Note, in this example, `one` is used to avoid generating a floating-point number `1 / 6`. An alternative approach to use quotes around the expression (see :ref:`floating-point`)::
 
     >>> Z = impedance('(4*s**2 + 3 * s + 1 / 6) / (s**2 + 2 * s / 3)')
+
+Here's another example::
+    >>> n2 = Z.network('fosterI')
+    >>> n2
+    R(4) + (R(1/8) | C(12)) + C(4)
+    >>> n2.draw()
+
+.. image:: examples/networks/foster1.png
+   :width: 9cm
+
+
 
 
 .. _special-functions:

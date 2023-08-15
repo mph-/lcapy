@@ -1572,24 +1572,24 @@ class P(O):
     pass
 
 
-class Mass(L):
+class Mass(C):
     """Mass
 
-    Mass mval, initial velocity v0"""
+    Mass mval, initial force f0"""
     pass
 
 
-class Spring(C):
+class Spring(L):
     """Spring
 
-    Spring constant kval, initial force f0"""
+    Spring constant kval, initial velocity v0"""
     pass
 
 
-class Damper(R):
+class Damper(G):
     """Damper
 
-    Friction coeff rval"""
+    Friction coeff val"""
     pass
 
 
