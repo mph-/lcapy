@@ -26,7 +26,7 @@ domain concepts.  A phasor ratio can be inferred from the Laplace
 domain by substituting jomega (or jw) for s, where omega is the
 angular frequency of the phasor.
 
-Copyright 2014--2022 Michael Hayes, UCECE
+Copyright 2014--2023 Michael Hayes, UCECE
 
 """
 
@@ -43,7 +43,8 @@ from sympy import Expr as symExpr
 from warnings import warn
 
 
-__all__ = ('phasor', 'phasor_ratio')
+__all__ = ('PhasorDomainExpression',
+           'PhasorRatioDomainExpression', 'phasor', 'phasor_ratio')
 
 # The phasor domain is different from the Fourier and Laplace domain
 # since there is an implicit angular frequency.  This is only needed
