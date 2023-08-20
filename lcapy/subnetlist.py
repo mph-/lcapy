@@ -28,13 +28,14 @@ class SubNetlist(NetlistMixin, NetlistSimplifyMixin, NetfileMixin):
         obj.kind = kind
         obj.__class__ = cls
         obj._analysis = obj.analyse()
+        obj.solver_method = netlist.solver_method
         return obj
 
     def __init__(self, netlist, kind):
         """ kind can be 't', 'dc', 's', 'time', 'ivp', 'n*' or omega,
         where 'n*' is a noise identifer and omega is an angular frequency."""
 
-        self.mna = MNA(self)
+        self.mna = MNA(self, self.solver_method)
 
         if not isinstance(kind, str):
             return

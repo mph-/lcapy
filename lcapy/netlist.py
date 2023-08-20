@@ -21,6 +21,7 @@ from .expr import Expr, expr
 from .subnetlist import SubNetlist
 from .mna import Nodedict, Branchdict
 from .symbols import omega
+from .config import solver_method
 from copy import copy
 from warnings import warn
 
@@ -55,6 +56,7 @@ class Netlist(NetlistMixin, NetlistSimplifyMixin):
         super(Netlist, self).__init__(filename, context, allow_anon=allow_anon)
         self._invalidate()
         self.kind = 'super'
+        self.solver_method = solver_method
 
     def _groups(self):
         """Return dictionary of source groups keyed by domain.

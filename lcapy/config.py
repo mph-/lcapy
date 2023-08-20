@@ -57,6 +57,7 @@ except:
     matrix_inverse_method = 'ADJ'
 
 matrix_inverse_fallback_method = 'ADJ'
+solver_method = 'LU'
 
 
 # Allow 1 + s, etc.

@@ -7,7 +7,7 @@ Copyright 2014--2023 Michael Hayes, UCECE
 from __future__ import division
 from .assumptions import Assumptions
 from .vector import Vector
-from .matrix import Matrix, matrix_inverse
+from .matrix import Matrix
 from .sym import symsimplify, eps
 from .expr import ExprDict, expr
 from .voltage import Vtype
@@ -64,10 +64,11 @@ class MNA(object):
 
     """
 
-    def __init__(self, cct):
+    def __init__(self, cct, solver_method):
 
         self.cct = cct
         self.kind = cct.kind
+        self.solver_method = solver_method
 
         if cct.elements == {}:
             raise ValueError('No elements to analyse')
@@ -188,12 +189,10 @@ class MNA(object):
 
         # Solve for the nodal voltages
         try:
-            Ainv = matrix_inverse(self._A)
+            results = self._A.solve(self._Z, method=self.solver_method)
         except ValueError:
             message = self._failure_reasons()
             raise ValueError(message)
-
-        results = symsimplify(Ainv * self._Z)
 
         results = results.subs(cct.context.symbols)
 
