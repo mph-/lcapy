@@ -133,7 +133,8 @@ class Matrix(sym.Matrix):
 
     def inv(self, method='default'):
 
-        Minv = matrix_inverse(sym.Matrix(self), method=method)
+        mat = self.sympy
+        Minv = matrix_inverse(mat, method=method)
 
         return self.__class__(Minv)
 
@@ -307,10 +308,13 @@ of size %dx%d""" % (N, N, N))
             # This is experimental and requires a new version of sympy.
             # It only works for rational function fields but
             # fails for polynomial rings.  The latter can be handled
-            # by converting it to a field, however, we just fall back
-            # on a standard method.
-            from sympy.polys.domainmatrix import DomainMatrix
-            dM = DomainMatrix.from_list_sympy(*M.shape, rows=M.tolist())
+            # by converting it to a field.
+            try:
+                return M.to_DM().to_field().inv().to_Matrix()
+            except:
+                from sympy.polys.domainmatrix import DomainMatrix
+                dM = DomainMatrix.from_list_sympy(
+                    *M.shape, rows=M.tolist()).to_field()
             return dM.inv().to_Matrix()
         except:
             method = matrix_inverse_fallback_method
