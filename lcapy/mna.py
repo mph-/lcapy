@@ -7,7 +7,7 @@ Copyright 2014--2023 Michael Hayes, UCECE
 from __future__ import division
 from .assumptions import Assumptions
 from .vector import Vector
-from .matrix import Matrix
+from .matrix import Matrix, matrix_solve
 from .sym import symsimplify, eps
 from .expr import ExprDict, expr
 from .voltage import Vtype
@@ -195,7 +195,7 @@ class MNA(object):
 
         # Solve for the nodal voltages
         try:
-            results = self._A.solve(self._Z, method=solver_method)
+            results = matrix_solve(self._A, self._Z, method=solver_method)
         except ValueError:
             message = self._failure_reasons()
             raise ValueError(message)

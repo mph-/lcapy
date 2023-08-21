@@ -321,6 +321,23 @@ of size %dx%d""" % (N, N, N))
 
     return M.inv(method=method)
 
+
+def matrix_solve(M, b, method='default'):
+
+    from .config import solver_method
+
+    N = M.shape[0]
+    if N >= 11:
+        warn("""
+This may take a while...  Solving a system of equations is O(%d^3) for a matrix
+of size %dx%d""" % (N, N, N))
+
+    if method == 'default':
+        method = solver_method
+
+    x = M.solve(b, method=method)
+    return x
+
     def canonical(self):
 
         return self.applyfunc(self._typewrap.canonical)
