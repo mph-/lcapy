@@ -187,9 +187,15 @@ class MNA(object):
         if '0' not in cct.node_map:
             raise ValueError('No ground node specified.')
 
+        solver_method = self.solver_method
+        # Hack to overcome simplification of sqrt with noise circuits
+        # For example, opamp-noninverting-amplifier-noise1.py
+        if isinstance(self.kind, str) and self.kind[0] == 'n':
+            solver_method = 'ADJ'
+
         # Solve for the nodal voltages
         try:
-            results = self._A.solve(self._Z, method=self.solver_method)
+            results = self._A.solve(self._Z, method=solver_method)
         except ValueError:
             message = self._failure_reasons()
             raise ValueError(message)
