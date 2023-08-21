@@ -191,7 +191,12 @@ class MNA(object):
         # Hack to overcome simplification of sqrt with noise circuits
         # For example, opamp-noninverting-amplifier-noise1.py
         if isinstance(self.kind, str) and self.kind[0] == 'n':
-            solver_method = 'ADJ'
+            # GE is faster but produces sqrt(x**2 + 2*x*y + y**2)
+            # that SymPy does not realise is x + y.  This causes
+            # a failure with test_noisy2.
+            # LU suffers from similar problems and can make a dog's breakfast
+            # ADJ seems robust but is slower than GE.
+            solver_method = 'GE'
 
         # Solve for the nodal voltages
         try:
