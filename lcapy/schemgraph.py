@@ -673,6 +673,12 @@ class Graph(dict):
         path = GraphPath()
         gnode = from_gnode
         while gnode.next is not None:
+            if gnode.next.to_gnode == gnode:
+                msg = "The %s schematic graph is dodgy, probably a component is attached to the wrong nodes or a direction attribute is bogus.\n" % self.name
+                if self.debug:
+                    msg += str(self)
+                raise RuntimeError(msg)
+
             path.append(gnode.next)
             gnode = gnode.next.to_gnode
 
