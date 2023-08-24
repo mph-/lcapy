@@ -57,7 +57,9 @@ except:
     matrix_inverse_method = 'ADJ'
 
 matrix_inverse_fallback_method = 'ADJ'
-solver_method = 'LU'
+# Can be 'GJ' (Gauss-Jordan), 'LU', 'QR', 'CRAMER'.  It can also
+# be one of the matrix inverse methods, e.g., 'ADJ', 'DM', etc.
+solver_method = 'DM'
 
 
 # Allow 1 + s, etc.
