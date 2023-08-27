@@ -2814,7 +2814,25 @@ class TP(TPB):
     pass
 
 
-class Chain(TwoPortBModel):
+class TwoPortThing(TwoPortBModel):
+
+    def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
+                  dir='right'):
+
+        if hasattr(self, 'tp'):
+            return self.tp._net_make(netlist, n1, n2, n3, n4, dir)
+
+        return super()._net_make(netlist, n1, n2, n3, n4)
+
+    def as_chain(self):
+        """Convert to a chain of simple Series and Shunt twoports."""
+
+        if hasattr(self, 'tp'):
+            return self.tp
+        raise ValueError('Cannot convert to chain of simple twoports.')
+
+
+class Chain(TwoPortThing):
     """Connect two-port networks in a chain (aka cascade)"""
 
     def __init__(self, *args):
@@ -3086,16 +3104,16 @@ class InverseHybrid2(TwoPortGModel):
         return '\n'.join(nets)
 
 
-class Series(TwoPortBModel):
+class Series(TwoPortThing):
     """
     Two-port comprising a single one-port in series configuration
     ::
 
            +---------+
-         --+   OP    +---
+         --+   OP    +--
            +---------+
 
-         ----------------
+         ---------------
 
     Note, this has a singular Y matrix.
     """
@@ -3124,12 +3142,12 @@ class Series(TwoPortBModel):
         return '\n'.join(nets)
 
 
-class Shunt(TwoPortBModel):
+class Shunt(TwoPortThing):
     """
     Two-port comprising a single one-port in shunt configuration
     ::
 
-         -----+----
+         -----+-----
               |
             +-+-+
             |   |
@@ -3137,7 +3155,7 @@ class Shunt(TwoPortBModel):
             |   |
             +-+-+
               |
-         -----+----
+         -----+-----
 
     Note, this has a singular Z matrix.
     """
@@ -3166,7 +3184,7 @@ class Shunt(TwoPortBModel):
         return '\n'.join(nets)
 
 
-class Transformer(TwoPortBModel):
+class Transformer(TwoPortThing):
     """Transformer voltage gain alpha, current gain 1 / alpha.
     Note, alpha = 1 / a where a is the turns ratio defined as the
     number of primary turns to the number of secondary turns, a = N_2 / N_1.
@@ -3181,7 +3199,7 @@ class Transformer(TwoPortBModel):
         self.args = (alpha, )
 
 
-class IdealTransformer(TwoPortBModel):
+class IdealTransformer(TwoPortThing):
     """Ideal transformer voltage gain alpha, current gain 1 / alpha.
     Note, alpha = 1 / a where a is the turns ratio defined as the
     number of primary turns to the number of secondary turns, a = N_2 / N_1.
@@ -3201,7 +3219,7 @@ class TF(Transformer):
     pass
 
 
-class IdealGyrator(TwoPortBModel):
+class IdealGyrator(TwoPortThing):
     """Ideal gyrator with gyration resistance R.
 
     A gyrator converts a voltage to current and a current to voltage.
@@ -3214,7 +3232,7 @@ class IdealGyrator(TwoPortBModel):
         self.args = (R, )
 
 
-class VoltageFollower(TwoPortBModel):
+class VoltageFollower(TwoPortThing):
     """Voltage follower"""
 
     def __init__(self):
@@ -3223,7 +3241,7 @@ class VoltageFollower(TwoPortBModel):
         self.args = ()
 
 
-class VoltageAmplifier(TwoPortBModel):
+class VoltageAmplifier(TwoPortThing):
     """Voltage amplifier"""
 
     def __init__(self, Av=1, Af=0, Yin=0, Zout=0):
@@ -3238,7 +3256,7 @@ class VoltageAmplifier(TwoPortBModel):
         self.args = (Av, Af, Yin, Zout)
 
 
-class IdealVoltageAmplifier(TwoPortBModel):
+class IdealVoltageAmplifier(TwoPortThing):
     """Ideal voltage amplifier"""
 
     def __init__(self, Av=1):
@@ -3249,7 +3267,7 @@ class IdealVoltageAmplifier(TwoPortBModel):
         self.args = (Av, )
 
 
-class IdealDelay(TwoPortBModel):
+class IdealDelay(TwoPortThing):
     """Ideal buffered delay"""
 
     def __init__(self, delay=0):
@@ -3260,7 +3278,7 @@ class IdealDelay(TwoPortBModel):
         self.args = (delay, )
 
 
-class IdealVoltageDifferentiator(TwoPortBModel):
+class IdealVoltageDifferentiator(TwoPortThing):
     """Voltage differentiator"""
 
     def __init__(self, Av=1):
@@ -3271,7 +3289,7 @@ class IdealVoltageDifferentiator(TwoPortBModel):
         self.args = (Av, )
 
 
-class IdealVoltageIntegrator(TwoPortBModel):
+class IdealVoltageIntegrator(TwoPortThing):
     """Ideal voltage integrator"""
 
     def __init__(self, Av=1):
@@ -3282,7 +3300,7 @@ class IdealVoltageIntegrator(TwoPortBModel):
         self.args = (Av, )
 
 
-class CurrentFollower(TwoPortBModel):
+class CurrentFollower(TwoPortThing):
     """Current follower"""
 
     def __init__(self):
@@ -3291,7 +3309,7 @@ class CurrentFollower(TwoPortBModel):
         self.args = ()
 
 
-class IdealCurrentAmplifier(TwoPortBModel):
+class IdealCurrentAmplifier(TwoPortThing):
     """Ideal current amplifier"""
 
     def __init__(self, Ai=1):
@@ -3302,7 +3320,7 @@ class IdealCurrentAmplifier(TwoPortBModel):
         self.args = (Ai, )
 
 
-class IdealCurrentDifferentiator(TwoPortBModel):
+class IdealCurrentDifferentiator(TwoPortThing):
     """Ideal current differentiator"""
 
     def __init__(self, Ai=1):
@@ -3313,7 +3331,7 @@ class IdealCurrentDifferentiator(TwoPortBModel):
         self.args = (Ai, )
 
 
-class IdealCurrentIntegrator(TwoPortBModel):
+class IdealCurrentIntegrator(TwoPortThing):
     """Ideal current integrator"""
 
     def __init__(self, Ai=1):
@@ -3324,7 +3342,7 @@ class IdealCurrentIntegrator(TwoPortBModel):
         self.args = (Ai, )
 
 
-class OpampInverter(TwoPortBModel):
+class OpampInverter(TwoPortThing):
     """Opamp inverter"""
 
     def __init__(self, R1, R2):
@@ -3338,7 +3356,7 @@ class OpampInverter(TwoPortBModel):
         self.args = (R1, R2)
 
 
-class OpampIntegrator(TwoPortBModel):
+class OpampIntegrator(TwoPortThing):
     """Inverting opamp integrator"""
 
     def __init__(self, R1, C1):
@@ -3351,7 +3369,7 @@ class OpampIntegrator(TwoPortBModel):
         self.args = (R1, C1)
 
 
-class OpampDifferentiator(TwoPortBModel):
+class OpampDifferentiator(TwoPortThing):
     """Inverting opamp differentiator"""
 
     def __init__(self, R1, C1):
@@ -3364,20 +3382,20 @@ class OpampDifferentiator(TwoPortBModel):
         self.args = (R1, C1)
 
 
-class TSection(TwoPortBModel):
+class TSection(TwoPortThing):
     """T (Y) section
     ::
 
-           +---------+       +---------+
-         --+   OP1   +---+---+   OP3   +---
-           +---------+   |   +---------+
-                       +-+-+
-                       |   |
-                       |OP2|
-                       |   |
-                       +-+-+
-                         |
-         ----------------+-----------------
+            +---------+       +---------+
+          --+   OP1   +---+---+   OP3   +--
+            +---------+   |   +---------+
+                        +-+-+
+                        |   |
+                        |OP2|
+                        |   |
+                        +-+-+
+                          |
+          ----------------+----------------
 
       The Z matrix for a resistive T section is
       [ R1 + R2, R2     ]
@@ -3401,7 +3419,7 @@ class TSection(TwoPortBModel):
         return PiSection(*OPV)
 
 
-class TwinTSection(TwoPortBModel):
+class TwinTSection(TwoPortThing):
     """Twin T section
     ::
 
@@ -3437,7 +3455,7 @@ class TwinTSection(TwoPortBModel):
         self.args = (OP1a, OP2a, OP3a, OP1b, OP2b, OP3b)
 
 
-class BridgedTSection(TwoPortBModel):
+class BridgedTSection(TwoPortThing):
     """Bridged T section
         ::
 
@@ -3466,7 +3484,7 @@ class BridgedTSection(TwoPortBModel):
         self.args = (OP1, OP2, OP3, OP4)
 
 
-class PiSection(TwoPortBModel):
+class PiSection(TwoPortThing):
     """Pi (delta) section
     ::
 
@@ -3497,7 +3515,7 @@ class PiSection(TwoPortBModel):
         return TSection(*OPV)
 
 
-class LSection(TwoPortBModel):
+class LSection(TwoPortThing):
     """L Section
     ::
 
@@ -3521,7 +3539,7 @@ class LSection(TwoPortBModel):
         self.args = (OP1, OP2)
 
 
-class Ladder(TwoPortBModel):
+class Ladder(TwoPortThing):
     """(Unbalanced) ladder network with alternating Series and Shunt
     networks chained
     ::
@@ -3569,7 +3587,7 @@ class Ladder(TwoPortBModel):
         # voltage and total current.
 
 
-class GeneralTransmissionLine(TwoPortBModel):
+class GeneralTransmissionLine(TwoPortThing):
     """General transmission line
 
     Z0    characteristic impedance (ohms)
