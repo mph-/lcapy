@@ -82,6 +82,8 @@ class CircuitGraph(object):
     def connected_cpts(self, node):
         """Components connected to specified node."""
 
+        node = str(node)
+
         for node1, edges in self.node_edges(node).items():
             if node1.startswith('*'):
                 for elt in self.connected_cpts(node1):
@@ -95,6 +97,8 @@ class CircuitGraph(object):
 
     def connected(self, node):
         """Set of component names connected to specified node."""
+
+        node = str(node)
 
         return set([cpt.name for cpt in self.connected_cpts(node)])
 
@@ -226,11 +230,14 @@ class CircuitGraph(object):
     def node_edges(self, node):
         """Return edges connected to specified node."""
 
+        node = str(node)
         return self.G[node]
 
     def component(self, node1, node2):
         """Return component connected between specified nodes."""
 
+        node1 = str(node1)
+        node2 = str(node2)
         name = self.G.get_edge_data(node1, node2)['name']
         if name.startswith('W'):
             return None
