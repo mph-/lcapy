@@ -304,20 +304,20 @@ of size %dx%d""" % (N, N, N))
             return M.inv(method='GE')
 
     elif method == 'DM':
+        # This is experimental and requires a new version of sympy.
+        # It only works for rational function fields but
+        # fails for polynomial rings.  The latter can be handled
+        # by converting it to a field.
         try:
-            # This is experimental and requires a new version of sympy.
-            # It only works for rational function fields but
-            # fails for polynomial rings.  The latter can be handled
-            # by converting it to a field.
+            return M.to_DM().to_field().inv().to_Matrix()
+        except:
             try:
-                return M.to_DM().to_field().inv().to_Matrix()
-            except:
                 from sympy.polys.domainmatrix import DomainMatrix
                 dM = DomainMatrix.from_list_sympy(
                     *M.shape, rows=M.tolist()).to_field()
-            return dM.inv().to_Matrix()
-        except:
-            method = matrix_inverse_fallback_method
+                return dM.inv().to_Matrix()
+            except:
+                method = matrix_inverse_fallback_method
 
     return M.inv(method=method)
 
