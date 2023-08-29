@@ -33,6 +33,34 @@ def canonical_loop(cycle):
     return new_cycle
 
 
+class Edges(list):
+
+    def __str__(self):
+
+        return '\n'.join([str(edge) for edge in self])
+
+    def __repr__(self):
+
+        return self.__class__.__name__ + '([' + ', '.join(repr(edge) for edge in self) + '])'
+
+
+class Edge:
+
+    def __init__(self, from_node, to_node, cpt_name):
+
+        self.from_node = from_node
+        self.to_node = to_node
+        self.cpt_name = cpt_name
+
+    def __str__(self):
+
+        return str(self.from_node) + '->' + str(self.to_node) + ' : ' + self.cpt_name
+
+    def __repr__(self):
+
+        return "%s(%s, %s, '%s')" % (self.__class__.__name__, self.from_node, self.to_node, self.cpt_name)
+
+
 class CircuitGraph(object):
 
     @classmethod
@@ -84,15 +112,15 @@ class CircuitGraph(object):
 
         node = str(node)
 
-        for node1, edges in self.node_edges(node).items():
+        for node1, edges in self.node_edges1(node).items():
             if node1.startswith('*'):
                 for elt in self.connected_cpts(node1):
                     yield elt
                 continue
 
-            for key, edge in edges.items():
-                if not edge.startswith('W'):
-                    elt = self.cct.elements[edge]
+            for key, cptname in edges.items():
+                if not cptname.startswith('W'):
+                    elt = self.cct.elements[cptname]
                     yield elt
 
     def connected(self, node):
@@ -102,10 +130,15 @@ class CircuitGraph(object):
 
         return set([cpt.name for cpt in self.connected_cpts(node)])
 
+    def _digraph(self):
+
+        DG = nx.DiGraph(self.G)
+        return DG
+
     def all_loops(self):
 
         # This adds forward and backward edges.
-        DG = nx.DiGraph(self.G)
+        DG = self._digraph()
         cycles = list(nx.simple_cycles(DG))
 
         loops = []
@@ -122,7 +155,7 @@ class CircuitGraph(object):
         loops = self.all_loops()
         sets = [set(loop) for loop in loops]
 
-        DG = nx.DiGraph(self.G)
+        DG = self._digraph()
 
         rejects = []
         for i in range(len(sets)):
@@ -227,11 +260,20 @@ class CircuitGraph(object):
 
         return self.G.nodes()
 
-    def node_edges(self, node):
+    def node_edges1(self, node):
         """Return edges connected to specified node."""
 
         node = str(node)
         return self.G[node]
+
+    def node_edges(self, node):
+        """Return list of edges connected to specified node."""
+
+        edges = Edges()
+
+        for node1, edge in self.node_edges1(node).items():
+            edges.append(Edge(node, node1, edge['name']))
+        return edges
 
     def component(self, node1, node2):
         """Return component connected between specified nodes."""
@@ -276,7 +318,7 @@ class CircuitGraph(object):
 
         return cloops
 
-    @property
+    @ property
     def components(self):
         """Return list of component names."""
 
@@ -367,7 +409,7 @@ class CircuitGraph(object):
 
         return set(parallel)
 
-    @property
+    @ property
     def node_connectivity(self):
         """Return node connectivity for graph.  If the connectivity is 0,
         then there are disconnected components.  If there is a component
@@ -375,7 +417,7 @@ class CircuitGraph(object):
 
         return nx.node_connectivity(self.G)
 
-    @property
+    @ property
     def is_connected(self):
         """Return True if all components are connected."""
 
@@ -404,32 +446,32 @@ class CircuitGraph(object):
             L.add_edge(*edge, name=data['name'])
         return CircuitGraph(self.cct, L)
 
-    @property
+    @ property
     def num_parts(self):
 
         if self.is_connected:
             return 1
         raise ValueError('TODO, calculate number of separate graphs')
 
-    @property
+    @ property
     def num_nodes(self):
         """The number of nodes in the graph."""
 
         return len(self.G.nodes)
 
-    @property
+    @ property
     def num_branches(self):
         """The number of branches (edges) in the graph."""
 
         return len(self.G.edges)
 
-    @property
+    @ property
     def rank(self):
         """The required number of node voltages for nodal analysis."""
 
         return self.num_nodes - self.num_parts
 
-    @property
+    @ property
     def nullity(self):
         """For a planar circuit, this is equal to the number of meshes in the graph."""
 

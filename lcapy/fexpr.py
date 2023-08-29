@@ -1,18 +1,19 @@
 """This module provides the FourierDomainExpression class to represent
 f-domain (Fourier domain) expressions.
 
-Copyright 2014--2021 Michael Hayes, UCECE
+Copyright 2014--2023 Michael Hayes, UCECE
 
 """
 
 from __future__ import division
 from .domains import FourierDomain
+from .functions import integrate
 from .inverse_fourier import inverse_fourier_transform
 from .inverse_dtft import IDTFT
 from .expr import Expr, expr, expr_make
 from .state import state, validate
 from .sym import fsym, ssym, tsym, omegasym, pi
-from .sym import nsym, dt
+from .sym import nsym, dt, oo
 from .units import u as uu
 from .utils import factor_const
 from sympy import Integral, Expr as symExpr
@@ -47,6 +48,15 @@ class FourierDomainExpression(FourierDomain, Expr):
 
     def as_expr(self):
         return FourierDomainExpression(self)
+
+    @property
+    def energy(self):
+        """Return signal energy."""
+
+        E = integrate(abs(self)**2, (f, -oo, oo))
+
+        # FIXME: result should not be a Fourier-domain expression
+        return E
 
     def inverse_fourier(self, evaluate=True, **assumptions):
         """Attempt inverse Fourier transform."""

@@ -8,7 +8,7 @@ Copyright 2014--2023 Michael Hayes, UCECE
 from __future__ import division
 from .domains import TimeDomain
 from .expr import Expr, expr_make
-from .functions import exp
+from .functions import exp, integrate
 from .state import state, validate
 from .sym import fsym, omegasym, ssym, tsym, j, oo
 from .laplace import laplace_transform
@@ -76,6 +76,18 @@ class TimeDomainExpression(TimeDomain, Expr):
 
     def as_expr(self):
         return TimeDomainExpression(self)
+
+    @property
+    def energy(self):
+        """Return signal energy."""
+
+        # TODO: teach SymPy improper integral of rect and sinc functions
+
+        # Only need abs for complex signal.
+        E = integrate(abs(self)**2, (t, -oo, oo))
+
+        # FIXME: result should not be a time-domain expression
+        return E
 
     def infer_assumptions(self):
 
