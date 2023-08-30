@@ -2566,6 +2566,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         See also simplify_terms and simplify_factors."""
 
+        if hasattr(self, '_simplified'):
+            return self
+
         if self.has(AppliedUndef) and not \
            (self.has(sym.Integral) or self.has(sym.Derivative)):
             # This might be dodgy...  It replaces v(t) with v to help
@@ -2574,10 +2577,13 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             # the dependence is lost.
 
             new, defs = self.remove_undefs(return_mappings=True)
-            return new.simplify(**kwargs).subs(defs)
+            ret = new.simplify(**kwargs).subs(defs)
+        else:
+            ret = symsimplify(self.expr, **kwargs)
+            ret = self.__class__(ret, **self.assumptions)
 
-        ret = symsimplify(self.expr, **kwargs)
-        return self.__class__(ret, **self.assumptions)
+        ret._simplified = True
+        return ret
 
     def simplify_units(self):
         """Simplify units into canonical form."""
