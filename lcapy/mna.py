@@ -239,7 +239,7 @@ class MNA(object):
             index = self._node_index(n)
             if index >= 0:
                 self._Vdict[n] = vtype(
-                    results[index], **assumptions).simplify()
+                    results[index], **assumptions).optsimplify()
             else:
                 self._Vdict[n] = vtype(0, **assumptions)
 
@@ -251,7 +251,7 @@ class MNA(object):
             I = results[m + num_nodes]
             if key in cct.elements and cct.elements[key].is_source:
                 I = -I
-            self._Idict[key] = itype(I, **assumptions).simplify()
+            self._Idict[key] = itype(I, **assumptions).optsimplify()
 
         # Calculate the branch currents.  These should be lazily
         # evaluated as required.
@@ -261,7 +261,7 @@ class MNA(object):
                 n2 = cct.node_map[elt.node_names[1]]
                 V1, V2 = self._Vdict[n1], self._Vdict[n2]
                 I = (V1.expr - V2.expr - elt.V0.expr) / elt.Z.expr
-                self._Idict[elt.name] = itype(I, **assumptions).simplify()
+                self._Idict[elt.name] = itype(I, **assumptions).optsimplify()
             elif elt.type in ('I', ):
                 self._Idict[elt.name] = elt.Isc
 

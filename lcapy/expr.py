@@ -3447,6 +3447,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         return self._ratfun.Ddegree
 
+    def optsimplify(self):
+
+        return self
+
     def prune_HOT(self, degree):
         """Prune higher order terms if expression is a polynomial
         so that resultant approximate expression has the desired degree."""
