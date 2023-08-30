@@ -8,7 +8,7 @@ from __future__ import division
 from .assumptions import Assumptions
 from .vector import Vector
 from .matrix import Matrix, matrix_solve
-from .sym import symsimplify, eps
+from .sym import eps
 from .expr import ExprDict, expr
 from .voltage import Vtype
 from .current import Itype
@@ -210,6 +210,7 @@ class MNA(object):
         # Handle capacitors at DC by assuming an infinite resistance
         # in parallel.
         if results.has(eps):
+            # Perhaps this should be lazily done when needed
             results = results.limit(eps, 0)
 
         branchdict = {}
@@ -239,7 +240,7 @@ class MNA(object):
             index = self._node_index(n)
             if index >= 0:
                 self._Vdict[n] = vtype(
-                    results[index], **assumptions).optsimplify()
+                    results[index], **assumptions)
             else:
                 self._Vdict[n] = vtype(0, **assumptions)
 
@@ -251,7 +252,7 @@ class MNA(object):
             I = results[m + num_nodes]
             if key in cct.elements and cct.elements[key].is_source:
                 I = -I
-            self._Idict[key] = itype(I, **assumptions).optsimplify()
+            self._Idict[key] = itype(I, **assumptions)
 
         # Calculate the branch currents.  These should be lazily
         # evaluated as required.
@@ -261,7 +262,7 @@ class MNA(object):
                 n2 = cct.node_map[elt.node_names[1]]
                 V1, V2 = self._Vdict[n1], self._Vdict[n2]
                 I = (V1.expr - V2.expr - elt.V0.expr) / elt.Z.expr
-                self._Idict[elt.name] = itype(I, **assumptions).optsimplify()
+                self._Idict[elt.name] = itype(I, **assumptions)
             elif elt.type in ('I', ):
                 self._Idict[elt.name] = elt.Isc
 
