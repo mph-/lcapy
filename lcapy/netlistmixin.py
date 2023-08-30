@@ -674,7 +674,7 @@ class NetlistMixin(object):
         """Return open-circuit transform-domain voltage between nodes Np and
         Nm."""
 
-        return self.get_Vd(Np, Nm, **kwargs)
+        return self._get_Vd(Np, Nm, **kwargs)
 
     def voc(self, Np, Nm=None):
         """Return open-circuit t-domain voltage between nodes Np and Nm."""
