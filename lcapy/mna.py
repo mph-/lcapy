@@ -177,7 +177,7 @@ class MNA(object):
         return message + '\n    ' + '\n    '.join(reasons)
 
     def _solve(self):
-        """Solve network."""
+        """Solve network.  This does not simplify the results."""
 
         if hasattr(self, '_Vdict'):
             return
