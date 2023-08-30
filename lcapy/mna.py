@@ -189,14 +189,16 @@ class MNA(object):
 
         solver_method = self.solver_method
         # Hack to overcome simplification of sqrt with noise circuits
-        # For example, opamp-noninverting-amplifier-noise1.py
-        if isinstance(self.kind, str) and self.kind[0] == 'n':
+        # if using LU solver. For example,
+        # opamp-noninverting-amplifier-noise1.py
+        if (solver_method in ('LU', 'GE') and isinstance(self.kind, str)
+                and self.kind[0] == 'n'):
             # GE is faster but produces sqrt(x**2 + 2*x*y + y**2)
             # that SymPy does not realise is x + y.  This causes
             # a failure with test_noisy2.
             # LU suffers from similar problems and can make a dog's breakfast
             # ADJ seems robust but is slower than GE.
-            solver_method = 'GE'
+            solver_method = 'ADJ'
 
         # Solve for the nodal voltages
         try:
@@ -210,7 +212,7 @@ class MNA(object):
         # Handle capacitors at DC by assuming an infinite resistance
         # in parallel.
         if results.has(eps):
-            # Perhaps this should be lazily done when needed
+            # Perhaps this should be lazily done if needed
             results = results.limit(eps, 0)
 
         branchdict = {}
