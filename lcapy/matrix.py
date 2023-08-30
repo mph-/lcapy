@@ -330,8 +330,14 @@ def matrix_solve(M, b, method='default'):
         method = solver_method
 
     if method == 'DM':
-        Minv = matrix_inverse(M, method)
-        x = Minv * b
+        try:
+            sol_num, sol_den = M.to_DM().solve_den(b.to_DM())
+            x = (sol_num.to_field() / sol_den).to_Matrix()
+        except:
+            # Fallback
+            Minv = matrix_inverse(M, method)
+            x = Minv * b
+        return x
     else:
         N = M.shape[0]
         if N >= 10:
