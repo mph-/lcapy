@@ -2559,14 +2559,18 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         return self.__class__(rest), self.__class__(deltaexpr)
 
-    def simplify(self, **kwargs):
+    def simplify(self, force=False, **kwargs):
         """Simplify expression.
 
         This throws the kitchen sink at the problem but can be slow.
 
+        The result is cached so the second call in `expr.simplify().simplify()`
+        has no effect.  Use `expr.simplify().simplify(force=True)` to
+        force a second round of simplification.
+
         See also simplify_terms and simplify_factors."""
 
-        if hasattr(self, '_simplified'):
+        if not force and hasattr(self, '_simplified'):
             return self
 
         if self.has(AppliedUndef) and not \
