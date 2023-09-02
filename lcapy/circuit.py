@@ -95,7 +95,7 @@ class Circuit(Netlist, NetfileMixin):
 
     The Thevenin equivalent circuit between nodes 2 and 0 can be found
     using:
-    >>> thevenin = cct.Thevenin(2, 0)
+    >>> thevenin = cct.thevenin(2, 0)
 
     The s-domain model can be drawn using:
     >>> cct.s_model().draw()
