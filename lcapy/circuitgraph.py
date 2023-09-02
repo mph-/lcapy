@@ -43,6 +43,16 @@ class Edges(list):
 
         return self.__class__.__name__ + '([' + ', '.join(repr(edge) for edge in self) + '])'
 
+    def has_node(self, node):
+
+        if self == []:
+            return False
+
+        for edge in self:
+            if edge.from_node == node:
+                return True
+        return edge.to_node == node
+
 
 class Edge:
 
@@ -274,6 +284,12 @@ class CircuitGraph(object):
         for node1, edge in self.node_edges1(node).items():
             edges.append(Edge(node, node1, edge['name']))
         return edges
+
+    def remove_edges(self, edges):
+
+        G = self.G
+        for edge in edges:
+            G.remove_edge(edge.from_node, edge.to_node)
 
     def component(self, node1, node2):
         """Return component connected between specified nodes."""
