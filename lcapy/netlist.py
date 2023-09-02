@@ -363,11 +363,20 @@ class Netlist(NetlistMixin, NetlistSimplifyMixin):
         self._elements.pop(name, None)
         return self
 
-    def as_ladder(self, N1p, N1m, N2p, N2m):
+    def as_ladder(self, N1p, N1m, N2p=None, N2m=None):
         """Return two-port unbalanced ladder network or `None` if the netlist
-        does not have a ladder topology between the specified nodes."""
+        does not have a ladder topology between the specified nodes.
+
+        The input port is defined by the nodes `N1p` and `N1m`.
+        The output port is defined by the nodes `N2p` and `N2m`.
+
+        The nodes `N1p` and `N1m` must be the same."""
 
         from lcapy.laddernetworkmaker import LadderNetworkMaker
+
+        N1p, N1m, N2p, N2m = self._parse_node_args4(N1p, N1m, N2p, N2m,
+                                                    'as_ladder')
+        N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
 
         lm = LadderNetworkMaker(self)
 

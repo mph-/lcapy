@@ -646,7 +646,7 @@ class NetlistMixin(object):
                     pass
                 if arg1 not in self.elements.values():
                     raise ValueError('Unknown component %s' % arg1)
-                if arg1.is_voltage_source:
+                if name != 'as_ladder' and arg1.is_voltage_source:
                     # The killed voltage source will short the applied signal.
                     raise ValueError(
                         "Cannot determine transfer function across voltage source %s; you will need to remove it, e.g., new = cct.remove('%s')" % (arg1, arg1))

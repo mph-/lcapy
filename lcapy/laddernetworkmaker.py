@@ -66,10 +66,8 @@ class LadderNetworkMaker:
 
         """
 
-        N1p = str(N1p)
-        N1m = str(N1m)
-        N2p = str(N2p)
-        N2m = str(N2m)
+        # Rename nodes to the unique nodes used in the circuitgraph
+        N1p, N1m, N2p, N2m = self.cg.canonical_nodes(N1p, N1m, N2p, N2m)
 
         parts = []
 
@@ -122,11 +120,21 @@ class LadderNetworkMaker:
         self.cg.remove_edges(path)
 
     def make(self, N1p, N1m, N2p, N2m):
+        """Return two-port unbalanced ladder network or `None` if the netlist
+        does not have a ladder topology between the specified nodes.
+
+        The input port is defined by the nodes `N1p` and `N1m`.
+        The output port is defined by the nodes `N2p` and `N2m`.
+
+        The nodes `N1p` and `N1m` must be the same."""
 
         foo = self.find(N1p, N1m, N2p, N2m)
 
         if foo == []:
             return None
+
+        if foo[-1] == []:
+            foo = foo[0:-1]
 
         from lcapy.oneport import Ser, Par
         from lcapy.twoport import Ladder

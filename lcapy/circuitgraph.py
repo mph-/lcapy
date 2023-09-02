@@ -498,3 +498,7 @@ class CircuitGraph(object):
         import pdb
         pdb.set_trace()
         return self
+
+    def canonical_nodes(self, *node_names):
+
+        return [self.node_map[str(node_name)] for node_name in node_names]
