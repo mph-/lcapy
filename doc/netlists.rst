@@ -338,15 +338,18 @@ Autonaming
 
 Components (except for wires and open-circuits) must have unique names
 otherwise the previous definition is over-written.  For some netlists,
-choosing unique names can be tedious and so if the name is a `?` a
+choosing unique names can be tedious and so if the name is a `?`, a
 unique name is automatically generated.  For example::
 
-    C2 1 2
-    C? 2 3
-    C? 3 4
-    C3 4 5
+   C2 1 2
+   C? 2 3
+   C? 3 4
+   C3 4 5
 
-In this example, the second capacitor is named as `C1` and the third capacitor is named `C3` since `C1` has been previously define.  However, the fourth capacitor also has the name `C3 and so it overrides the previous definition.
+In this example, the second capacitor is named as `C1` and the third
+capacitor is named `C3` since `C1` has been previously defined.
+However, the fourth capacitor also has the name `C3 and so it
+overrides the previous definition.
 
 
 Circuit attributes
@@ -697,6 +700,37 @@ The methods are:
 - `Yparams(N1p, N1m, N2p, N2m)` Returns the two-port Y-parameters matrix.  See :ref:`Y-parameters` and `twoport()`.
 
 - `Zparams(N1p, N1m, N2p, N2m)` Returns the two-port Z-parameters matrix.  See :ref:`Z-parameters` and `twoport()`.
+
+- `ladder(N1p, N1m, N2p, N2m)` Returns an s-domain two-port model, for
+  circuits with a ladder toplogy, defined by nodes `N1p`, `N1m`,
+  `N2p`, and `N2m`, where `V1 = V[N1p] - V[N1m]`, and `V2 = V[N2p] -
+  V[N2m]`.  Note, `N1m` has to be the same as `N2m`.
+
+The `ladder()` method is useful for large circuits with an unbalanced ladder topology since it does not compute all the node voltages of the circuit and so is much faster than the other methods.  For example, consider the ladder network:
+
+
+.. image:: examples/netlists/ladder1.png
+   :width: 16cm
+
+
+The voltage gain transfer function can be found using::
+
+   >>> ladder = cct.ladder(1, 0, 14, 0)
+   >>> ladder
+   Ladder(R(R1) + L(L1), C(C1) | R(R2), R(R3) + L(L2), C(C2) | R(R4))
+   >>> H = ladder.voltage_gain
+
+Note, if the extracted ladder network is only a subsection of the original circuit, the voltage gain will not be correct due to the neglected loading of the ignored components.  For example::
+
+   >>> subladder = cct.ladder(1, 0, 6, 0)
+   >>> subladder
+   Ladder(R(R1) + L(L1), C(C1) | R(R2))
+   >>> subladder.voltage_gain.simplify()
+                   R₂
+   ──────────────────────────────
+   R₂ + (L₁⋅s + R₁)⋅(C₁⋅R₂⋅s + 1)
+
+This has ignored the components R3, L2, C2, and R4.
 
 
 Circuit multi-port methods
