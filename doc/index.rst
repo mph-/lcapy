@@ -23,7 +23,7 @@ _
 If you have suggestions for improvements, please create an issue at
 https://github.com/mph-/lcapy/issues.
 
-For a graphical user interface, see https://github.com/mph-/lcapy-gui.
+For a graphical user interface, see https://github.com/mph-/lcapy-gui or https://pypi.org/project/lcapygui/
 
 If you are using Lcapy for teaching, please email to `''.join(reversed(['nz', '.', 'ac', '.', 'canterbury', '@', 'hayes', '.', 'michael']))`.
 

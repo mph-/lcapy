@@ -415,6 +415,8 @@ circuit elements (Components).  For example,
 - `is_connected`  all components are connected
 
 
+.. _circuit_methods:
+
 Circuit methods
 ---------------
 
@@ -604,6 +606,8 @@ Circuit methods
 
 - `unconnected_nodes` Returns list of names of nodes that are unconnected
 
+
+.. _circuit_twoport_methods:
 
 Circuit two-port methods
 ------------------------
@@ -1264,6 +1268,8 @@ This is the same as the previous example but with a different resistor value giv
 .. image:: examples/netlists/circuit-VRLC2-vr.png
    :width: 15cm
 
+
+.. _mechanical_netlists:
 
 Mechanical netlists
 ===================

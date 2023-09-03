@@ -5,9 +5,34 @@ Release notes
 V1.18
 =====
 
-- Simplify phase and amplitude for phasors
+- Adds `energy()` method to time and frequency domain expressions
 
-- Fix matrix inverse for new SymPy
+- `simplify()` caches the result so `expr.simplify().simplify()` is
+  equivalent to `expr.simplify()`.  For repeated simplification use
+  `expr.simplify().simplify(force=True)`
+
+- Circuit analysis does not call `simplify()` on results
+
+- Adds `ladder()` method to `Circuit`.  This can be used to quickly
+  find a transfer function or impedance of a ladder network (see
+  :ref:`circuit_twoport_methods`)
+
+- Adds `solver_method` attribute to `Circuit` to select the method
+  used to solve the system of equations
+
+- Attempts new SymPy domain matrix solver (this is orders of magnitude
+  faster to solve some circuits but needs the development version of SymPy)
+
+- Fixes drawing of twoports created with `LSection`, `Ladder`, etc.
+
+- Switches to mechanical analogue I (mobility analogue where voltage
+  is equivalent to velocity and current is equivalent to force, see
+  :ref:`mechanical_netlists`)
+
+- Simplifies phase and amplitude for phasors
+
+- Only shows units for numbers
+
 
 V1.17
 =====
@@ -20,7 +45,7 @@ V1.17
 
 - `Netlist` `dc()`, `ac()`, `transient()`, and `laplace()` methods return `Netlist`
 
-- `SubNetlist` immutable
+- `SubNetlist` is now immutable
 
 - Fixes `repr()` for `Matrix`
 
@@ -130,7 +155,6 @@ V1.13
 - Adds current/voltage equations for Y and Z
 
 - Adds FT of abs(t)
-
 
 
 V1.12
