@@ -128,7 +128,7 @@ class LadderNetworkMaker:
 
         The nodes `N1p` and `N1m` must be the same."""
 
-        foo = self._find4(N1p, N1m, N2p, N2m)
+        foo = self._find(N1p, N1m, N2p, N2m)
 
         if foo == []:
             return None
