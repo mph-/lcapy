@@ -7,10 +7,11 @@ Copyright 2014--2022 Michael Hayes, UCECE
 
 from __future__ import division
 from .domains import AngularFourierDomain
-from .inverse_fourier import inverse_fourier_transform
 from .expr import Expr, expr, expr_make
+from .functions import integrate
+from .inverse_fourier import inverse_fourier_transform
 from .state import state, validate
-from .sym import fsym, ssym, tsym, omegasym, omega0sym, j, pi
+from .sym import fsym, ssym, tsym, omegasym, omega0sym, j, pi, oo
 from .units import u as uu
 from sympy import Expr as symExpr
 
@@ -44,6 +45,15 @@ class AngularFourierDomainExpression(AngularFourierDomain, Expr):
 
     def as_expr(self):
         return AngularFourierDomainExpression(self)
+
+    @property
+    def energy(self):
+        """Return signal energy."""
+
+        E = integrate(abs(self)**2, (omega, -oo, oo)) / (2 * pi)
+
+        # FIXME: result should not be an angular Fourier-domain expression
+        return E
 
     def inverse_fourier(self, **assumptions):
         """Attempt inverse Fourier transform."""

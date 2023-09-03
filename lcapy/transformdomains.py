@@ -1,6 +1,5 @@
 """This module provides the TransformDomains class.
 
-
 Copyright 2023 Michael Hayes, UCECE
 
 """

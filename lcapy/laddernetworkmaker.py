@@ -52,7 +52,7 @@ class LadderNetworkMaker:
                 edge = next_edges[1]
             path.append(edge)
 
-    def find(self, N1p, N1m, N2p, N2m):
+    def _find(self, N1p, N1m, N2p, N2m):
         """Convert a circuit into an unbalanced ladder network.
         The input port is defined by the nodes `N1p` and `N1m`.
         The output port is defined by the nodes `N2p` and `N2m`.
@@ -100,7 +100,7 @@ class LadderNetworkMaker:
             node = edge.to_node
             parts.append(opts)
 
-            # Find all the parallel paths
+            # _Find all the parallel paths
             opts = []
             edges = cg.node_edges(node)
             for edge in edges:
@@ -128,7 +128,7 @@ class LadderNetworkMaker:
 
         The nodes `N1p` and `N1m` must be the same."""
 
-        foo = self.find(N1p, N1m, N2p, N2m)
+        foo = self._find4(N1p, N1m, N2p, N2m)
 
         if foo == []:
             return None

@@ -7,10 +7,10 @@ Copyright 2014--2023 Michael Hayes, UCECE
 
 from __future__ import division
 from .domains import FourierDomain
-from .functions import integrate
-from .inverse_fourier import inverse_fourier_transform
-from .inverse_dtft import IDTFT
 from .expr import Expr, expr, expr_make
+from .functions import integrate
+from .inverse_dtft import IDTFT
+from .inverse_fourier import inverse_fourier_transform
 from .state import state, validate
 from .sym import fsym, ssym, tsym, omegasym, pi
 from .sym import nsym, dt, oo
