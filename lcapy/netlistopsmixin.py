@@ -121,6 +121,14 @@ class NetlistOpsMixin:
             ladder((N1p, N1m), cpt2)
             ladder(cpt1, (N2p, N2m))
 
+        This method can be used to generate a transfer function, for example:
+
+        `cct.ladder(1, 0, 10, 0).voltage_gain`
+
+        This can be much faster than using `cct.voltage_gain(1, 0, 10, 0)`
+        for circuits with a large ladder topology, since the latter method needs
+        to determine all the node voltages.
+
         """
 
         from lcapy.laddernetworkmaker import LadderNetworkMaker

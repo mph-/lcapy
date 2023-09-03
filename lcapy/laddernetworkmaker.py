@@ -143,7 +143,8 @@ class LadderNetworkMaker:
         for p in foo:
             pars = []
             for q in p:
-                cpts = [self.cct[q1.cpt_name].cpt for q1 in q]
+                cpts = [
+                    self.cct[q1.cpt_name].cpt for q1 in q if q1.cpt_name[0] != 'W']
                 if len(cpts) != 1:
                     cpt = Ser(*cpts)
                 else:
