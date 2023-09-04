@@ -215,6 +215,12 @@ class NetlistMixin(object):
         return self.analysis.causal
 
     @property
+    def is_connected(self):
+        """Return True if all components are connected."""
+
+        return self.cg.is_connected
+
+    @property
     def is_dc(self):
         """Return True if all independent sources are DC and not an
         initial value problem.  The initial value problem may collapse

@@ -123,12 +123,6 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         return list(self._elements.keys())
 
     @property
-    def is_connected(self):
-        """Return True if all components are connected."""
-
-        return self.cg.is_connected
-
-    @property
     def kinds(self):
         """Return list of transform domain kinds required to analyse the netlist."""
         return list(self.sub.keys())
