@@ -15,11 +15,8 @@ class LadderNetworkMaker:
         self.cg = CircuitGraph.from_circuit(cct)
         self.debug = debug
 
-    def follow_series_path(self, edge, quit_node):
-
-        return self.follow_series_path_to(edge, None, quit_node)
-
-    def follow_series_path_to(self, edge, dest_node, quit_node=None):
+    def follow_series_path(self, edge, dest_node, quit_node=None):
+        """Follow series path to `dest_node."""
 
         if self.debug:
             print('to:', dest_node)
@@ -89,7 +86,7 @@ class LadderNetworkMaker:
                 raise ValueError('Too many edges')
             edge = edges[0]
 
-            path = self.follow_series_path(edge, N2p)
+            path = self.follow_series_path(edge, None, N2p)
             if path == []:
                 return []
             if self.debug:
@@ -104,7 +101,7 @@ class LadderNetworkMaker:
             opts = []
             edges = cg.node_edges(node)
             for edge in edges:
-                path = self.follow_series_path_to(edge, N2m, N2p)
+                path = self.follow_series_path(edge, N2m, N2p)
                 if path != []:
                     if self.debug:
                         print('parallel: ' + ', '.join([str(e) for e in path]))

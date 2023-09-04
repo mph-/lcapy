@@ -334,7 +334,7 @@ class CircuitGraph(object):
 
         return cloops
 
-    @ property
+    @property
     def components(self):
         """Return list of component names."""
 
@@ -425,7 +425,7 @@ class CircuitGraph(object):
 
         return set(parallel)
 
-    @ property
+    @property
     def node_connectivity(self):
         """Return node connectivity for graph.  If the connectivity is 0,
         then there are disconnected components.  If there is a component
@@ -433,7 +433,7 @@ class CircuitGraph(object):
 
         return nx.node_connectivity(self.G)
 
-    @ property
+    @property
     def is_connected(self):
         """Return True if all components are connected."""
 
@@ -462,32 +462,32 @@ class CircuitGraph(object):
             L.add_edge(*edge, name=data['name'])
         return CircuitGraph(self.cct, L)
 
-    @ property
+    @property
     def num_parts(self):
 
         if self.is_connected:
             return 1
         raise ValueError('TODO, calculate number of separate graphs')
 
-    @ property
+    @property
     def num_nodes(self):
         """The number of nodes in the graph."""
 
         return len(self.G.nodes)
 
-    @ property
+    @property
     def num_branches(self):
         """The number of branches (edges) in the graph."""
 
         return len(self.G.edges)
 
-    @ property
+    @property
     def rank(self):
         """The required number of node voltages for nodal analysis."""
 
         return self.num_nodes - self.num_parts
 
-    @ property
+    @property
     def nullity(self):
         """For a planar circuit, this is equal to the number of meshes in the graph."""
 

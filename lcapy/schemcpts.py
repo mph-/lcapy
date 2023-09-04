@@ -1582,7 +1582,7 @@ class FixedCpt(Cpt):
 
     can_stretch = False
 
-    @ property
+    @property
     def centre(self):
         # Look for centre pin.
         for node in self.nodes:
