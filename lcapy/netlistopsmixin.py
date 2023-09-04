@@ -247,6 +247,10 @@ class NetlistOpsMixin:
             transfer(cpt1, (N2p, N2m))
         """
 
+        ladder = self._ladder(N1p, N1m, N2p, N2m)
+        if ladder is not None:
+            return ladder.voltage_gain
+
         N1p, N1m, N2p, N2m = self._parse_node_args4(N1p, N1m, N2p, N2m,
                                                     'transfer')
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
