@@ -94,7 +94,8 @@ from .functions import exp, sqrt, Eq, MatMul, MatAdd
 # Z matrix for specific cases.
 
 __all__ = ('Chain', 'Par2', 'Ser2', 'Hybrid2', 'InverseHybrid2',
-           'Series', 'Shunt', 'Transformer', 'IdealTransformer', 'IdealGyrator',
+           'Series', 'Shunt', 'SeriesAlt', 'SeriesPair',
+           'Transformer', 'IdealTransformer', 'IdealGyrator',
            'VoltageFollower', 'VoltageAmplifier',
            'IdealVoltageAmplifier', 'IdealDelay',
            'IdealVoltageDifferentiator', 'IdealVoltageIntegrator',
@@ -102,7 +103,8 @@ __all__ = ('Chain', 'Par2', 'Ser2', 'Hybrid2', 'InverseHybrid2',
            'IdealCurrentDifferentiator', 'IdealCurrentIntegrator',
            'OpampInverter', 'OpampIntegrator', 'OpampDifferentiator',
            'TSection', 'TwinTSection', 'BridgedTSection', 'PiSection',
-           'LSection', 'LSectionAlt', 'CSection', 'Ladder', 'LadderAlt',
+           'LSection', 'LSectionAlt', 'CSection', 'BoxSection',
+           'Ladder', 'LadderAlt',
            'GeneralTxLine', 'LosslessTxLine', 'TL',
            'TxLine', 'GeneralTransmissionLine', 'LosslessTransmissionLine',
            'TransmissionLine', 'AMatrix', 'BMatrix', 'GMatrix', 'HMatrix',
@@ -3183,6 +3185,45 @@ class SeriesAlt(TwoPortThing):
         return '\n'.join(nets)
 
 
+class SeriesPair(TwoPortThing):
+    """
+    Two-port comprising a pair of one-ports in series configuration
+    ::
+
+           +---------+
+         --+   OP1   +--
+           +---------+
+
+           +---------+
+         --+   OP2   +--
+           +---------+
+
+    Note, this has a singular Y matrix.  Electrically it is equivalent
+    to a series combination of OP1 and OP2, but it is useful for drawing
+    OP1 aligned with OP2.
+
+    """
+
+    def __init__(self, OP1, OP2):
+
+        _check_oneport_args((OP1, OP2))
+        self.tp = Series(OP1).chain(SeriesAlt(OP2))
+        super(SeriesPair, self).__init__(self.tp)
+        self.args = (OP1, OP2)
+
+    def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
+                  dir='right'):
+
+        n2, n1, n4, n3 = netlist._make_nodes(n2, n1, n4, n3)
+
+        nets = []
+        nets.append(self.args[0]._net_make(netlist, n1, n3, dir='right'))
+        nets.append(self.args[1]._net_make(netlist, n2, n4, dir='right'))
+        nets.append('O %s %s; down' % (n1, n2))
+        nets.append('O %s %s; down' % (n3, n4))
+        return '\n'.join(nets)
+
+
 class Shunt(TwoPortThing):
     """
     Two-port comprising a single one-port in shunt configuration
@@ -3627,26 +3668,35 @@ class CSection(TwoPortThing):
     def __init__(self, OP1, OP2, OP3):
 
         _check_oneport_args((OP1, OP2, OP3))
-        self.tp = Series(OP1).chain(SeriesAlt(OP2)).chain(Shunt(OP2))
+        self.tp = SeriesPair(OP1, OP2).chain(Shunt(OP3))
         super(CSection, self).__init__(self.tp)
         self.args = (OP1, OP2, OP3)
 
-    def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
-                  dir='right'):
 
-        # If use the default method, OP1 and OP2 are not aligned.
+class BoxSection(TwoPortThing):
+    """Box Section
+    ::
 
-        n2, n1, n4, n3, n6, n5 = netlist._make_nodes(
-            n2, n1, n4, n3, None, None)
+                  +---------+
+        -----+----+   OP2   +---+-----
+             |    +---------+   |
+           +-+-+              +-+-+
+           |   |              |   |
+           |OP1|              |OP4|
+           |   |              |   |
+           +-+-+              +-+-+
+             |    +---------+   |
+         ----+----+  OP3    +---+----
+                  +---------+
 
-        nets = []
-        nets.append(self.args[0]._net_make(netlist, n1, n3, dir='right'))
-        nets.append(self.args[1]._net_make(netlist, n2, n4, dir='right'))
-        nets.append(self.args[2]._net_make(netlist, n3, n4, dir='down'))
-        nets.append('O %s %s; down' % (n1, n2))
-        nets.append('W %s %s; right=0.5' % (n3, n5))
-        nets.append('W %s %s; right=0.5' % (n4, n6))
-        return '\n'.join(nets)
+    """
+
+    def __init__(self, OP1, OP2, OP3, OP4):
+
+        _check_oneport_args((OP1, OP2, OP3, OP4))
+        self.tp = Shunt(OP1).chain(SeriesPair(OP2, OP3)).chain(Shunt(OP4))
+        super(BoxSection, self).__init__(self.tp)
+        self.args = (OP1, OP2, OP3, OP4)
 
 
 class Ladder(TwoPortThing):
