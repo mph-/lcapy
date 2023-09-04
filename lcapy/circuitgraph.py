@@ -72,7 +72,10 @@ class Edge:
 
 
 class Path(Edges):
-    pass
+
+    def __str__(self):
+
+        return ', '.join([str(e) for e in self])
 
 
 class CircuitGraph(object):
