@@ -102,7 +102,7 @@ __all__ = ('Chain', 'Par2', 'Ser2', 'Hybrid2', 'InverseHybrid2',
            'IdealCurrentDifferentiator', 'IdealCurrentIntegrator',
            'OpampInverter', 'OpampIntegrator', 'OpampDifferentiator',
            'TSection', 'TwinTSection', 'BridgedTSection', 'PiSection',
-           'LSection', 'LSectionAlt', 'Ladder', 'LadderAlt',
+           'LSection', 'LSectionAlt', 'CSection', 'Ladder', 'LadderAlt',
            'GeneralTxLine', 'LosslessTxLine', 'TL',
            'TxLine', 'GeneralTransmissionLine', 'LosslessTransmissionLine',
            'TransmissionLine', 'AMatrix', 'BMatrix', 'GMatrix', 'HMatrix',
@@ -2961,7 +2961,7 @@ class Ser2(TwoPortZModel):
         self._check_twoport_args(args)
 
         # Need to be more rigorous.
-        if isinstance(args[1], (Series, LSection, TSection)):
+        if isinstance(args[1], (Series, LSection, LSectionAlt, TSection)):
             warn('This can violate the port condition')
 
         arg = args[0]
@@ -3138,6 +3138,46 @@ class Series(TwoPortThing):
         nets = []
         nets.append(self.args[0]._net_make(netlist, n1, n3, dir='right'))
         nets.append('W %s %s; right' % (n2, n4))
+        nets.append('O %s %s; down' % (n1, n2))
+        nets.append('O %s %s; down' % (n3, n4))
+        return '\n'.join(nets)
+
+
+class SeriesAlt(TwoPortThing):
+    """
+    Two-port comprising a single one-port in series configuration
+    ::
+
+         ---------------
+
+           +---------+
+         --+   OP    +--
+           +---------+
+
+    Note, this has a singular Y matrix.  It is equivalent to `Series` but
+    is drawn differently.
+
+    """
+
+    def __init__(self, OP):
+
+        _check_oneport_args((OP, ))
+
+        super(SeriesAlt, self).__init__(BMatrix.Zseries(OP.Z.laplace()),
+                                        V2b=LaplaceDomainVoltage(
+            OP.Voc.laplace()),
+            I2b=LaplaceDomainCurrent(0))
+        self.OP = OP
+        self.args = (OP, )
+
+    def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
+                  dir='right'):
+
+        n2, n1, n4, n3 = netlist._make_nodes(n2, n1, n4, n3)
+
+        nets = []
+        nets.append(self.args[0]._net_make(netlist, n2, n4, dir='right'))
+        nets.append('W %s %s; right' % (n1, n3))
         nets.append('O %s %s; down' % (n1, n2))
         nets.append('O %s %s; down' % (n3, n4))
         return '\n'.join(nets)
@@ -3562,6 +3602,51 @@ class LSectionAlt(TwoPortThing):
         self.tp = Series(OP1).chain(Shunt(OP2))
         super(LSection, self).__init__(self.tp)
         self.args = (OP1, OP2)
+
+
+class CSection(TwoPortThing):
+    """C Section
+    ::
+
+          +---------+
+       ---+   OP1   +---+----
+          +---------+   |
+                      +-+-+
+                      |   |
+                      |   |
+                      |OP3|
+                      |   |
+                      +-+-+
+                        |
+          +---------+   |
+       ---+   OP2   +---+----
+          +---------+
+
+    """
+
+    def __init__(self, OP1, OP2, OP3):
+
+        _check_oneport_args((OP1, OP2, OP3))
+        self.tp = Series(OP1).chain(SeriesAlt(OP2)).chain(Shunt(OP2))
+        super(CSection, self).__init__(self.tp)
+        self.args = (OP1, OP2, OP3)
+
+    def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
+                  dir='right'):
+
+        # If use the default method, OP1 and OP2 are not aligned.
+
+        n2, n1, n4, n3, n6, n5 = netlist._make_nodes(
+            n2, n1, n4, n3, None, None)
+
+        nets = []
+        nets.append(self.args[0]._net_make(netlist, n1, n3, dir='right'))
+        nets.append(self.args[1]._net_make(netlist, n2, n4, dir='right'))
+        nets.append(self.args[2]._net_make(netlist, n3, n4, dir='down'))
+        nets.append('O %s %s; down' % (n1, n2))
+        nets.append('W %s %s; right=0.5' % (n3, n5))
+        nets.append('W %s %s; right=0.5' % (n4, n6))
+        return '\n'.join(nets)
 
 
 class Ladder(TwoPortThing):
