@@ -3582,6 +3582,48 @@ class Ladder(TwoPortThing):
             return TSection(*self.args)
         return self
 
+
+class Ladder2(TwoPortThing):
+    """(Unbalanced) ladder network with alternating Shunt and Series
+    networks chained
+    ::
+
+                  +---------+
+        -----+----+ args[0] +---+-----
+             |    +---------+   |
+           +-+-+              +-+-+
+           |   |              |   |
+           |OP1|              |   |  args[1]
+           |   |              |   |
+           +-+-+              +-+-+
+             |                  |
+        -----+------------------+-----
+    """
+
+    def __init__(self, OP1, *args):
+
+        _check_oneport_args((OP1, ) + args)
+
+        self.tp = Shunt(OP1)
+
+        for m, arg in enumerate(args):
+
+            if m & 1:
+                self.tp = self.tp.chain(Shunt(arg))
+            else:
+                self.tp = self.tp.chain(Series(arg))
+
+        super(Ladder2, self).__init__(self.tp)
+        self.args = (OP1, ) + args
+
+    def simplify(self):
+
+        if len(self.args) == 1:
+            return Shunt(self.args[0])
+        elif len(self.args) == 3:
+            return PiSection(*self.args)
+        return self
+
         # A Ladder of voltage sources and current sources
         # collapses to a single Lsection comprised of the total
         # voltage and total current.
