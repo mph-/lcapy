@@ -1,5 +1,5 @@
 L1 1 3 {L_1 - M * a}; right, i>^=i_1
-L3 3 0_3 {M * a}; down=1.5
+L3 3 0_3 {M * a}; down
 P1 1 0; down, v_=v_1
 W 0 0_3; right
 W 0_3 0_4; right
