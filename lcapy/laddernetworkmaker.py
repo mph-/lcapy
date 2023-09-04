@@ -100,7 +100,7 @@ class LadderNetworkMaker:
             foo = foo[0:-1]
 
         from lcapy.oneport import Ser, Par
-        from lcapy.twoport import Ladder, Ladder2
+        from lcapy.twoport import Ladder, LadderAlt
 
         args = []
         for p in foo:
@@ -124,7 +124,7 @@ class LadderNetworkMaker:
             args.append(cpt)
 
         if args[0] is None:
-            return Ladder2(*args[1:])
+            return LadderAlt(*args[1:])
 
         return Ladder(*args)
 

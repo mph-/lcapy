@@ -102,7 +102,8 @@ __all__ = ('Chain', 'Par2', 'Ser2', 'Hybrid2', 'InverseHybrid2',
            'IdealCurrentDifferentiator', 'IdealCurrentIntegrator',
            'OpampInverter', 'OpampIntegrator', 'OpampDifferentiator',
            'TSection', 'TwinTSection', 'BridgedTSection', 'PiSection',
-           'LSection', 'Ladder', 'GeneralTxLine', 'LosslessTxLine', 'TL',
+           'LSection', 'Ladder', 'LadderAlt',
+           'GeneralTxLine', 'LosslessTxLine', 'TL',
            'TxLine', 'GeneralTransmissionLine', 'LosslessTransmissionLine',
            'TransmissionLine', 'AMatrix', 'BMatrix', 'GMatrix', 'HMatrix',
            'SMatrix', 'TMatrix', 'YMatrix', 'ZMatrix',
@@ -3583,7 +3584,7 @@ class Ladder(TwoPortThing):
         return self
 
 
-class Ladder2(TwoPortThing):
+class LadderAlt(TwoPortThing):
     """(Unbalanced) ladder network with alternating Shunt and Series
     networks chained
     ::
@@ -3613,7 +3614,7 @@ class Ladder2(TwoPortThing):
             else:
                 self.tp = self.tp.chain(Series(arg))
 
-        super(Ladder2, self).__init__(self.tp)
+        super(LadderAlt, self).__init__(self.tp)
         self.args = (OP1, ) + args
 
     def simplify(self):
