@@ -35,6 +35,7 @@ class LadderNetworkMaker:
 
         cg = self.cg
         node = N1p
+        initial = True
 
         while True:
 
@@ -45,19 +46,26 @@ class LadderNetworkMaker:
             edges = cg.node_edges(node)
 
             if len(edges) != 1:
-                raise ValueError('Too many edges')
-            edge = edges[0]
+                if initial:
+                    # No initial series branch
+                    parts.append([])
+                else:
+                    raise ValueError('Too many edges from %s' % node)
+            else:
+                edge = edges[0]
 
-            path = self.cg.series_path(edge, None, N2p)
-            if path == []:
-                return []
-            if self.debug:
-                print('series: ' + ', '.join([str(e) for e in path]))
-            opts.append(path)
-            self.remove_path(path)
-            edge = path[-1]
-            node = edge.to_node
-            parts.append(opts)
+                path = self.cg.series_path(edge, None, N2p)
+                if path == []:
+                    return []
+                if self.debug:
+                    print('series: ' + str(path))
+                opts.append(path)
+                self.cg.remove_edges(path)
+                edge = path[-1]
+                node = edge.to_node
+                parts.append(opts)
+
+            initial = False
 
             # _Find all the parallel paths
             opts = []
@@ -66,17 +74,13 @@ class LadderNetworkMaker:
                 path = self.cg.series_path(edge, N2m, N2p)
                 if path != []:
                     if self.debug:
-                        print('parallel: ' + ', '.join([str(e) for e in path]))
+                        print('parallel: ' + str(path))
                     opts.append(path)
-                    self.remove_path(path)
+                    self.cg.remove_edges(path)
             parts.append(opts)
 
             if node == N2p:
                 return parts
-
-    def remove_path(self, path):
-
-        self.cg.remove_edges(path)
 
     def make(self, N1p, N1m, N2p, N2m):
         """Return two-port unbalanced ladder network or `None` if the netlist
@@ -96,7 +100,7 @@ class LadderNetworkMaker:
             foo = foo[0:-1]
 
         from lcapy.oneport import Ser, Par
-        from lcapy.twoport import Ladder
+        from lcapy.twoport import Ladder, Ladder2
 
         args = []
         for p in foo:
@@ -110,11 +114,17 @@ class LadderNetworkMaker:
                     cpt = cpts[0]
                 pars.append(cpt)
 
-            if len(pars) != 1:
-                cpt = Par(*pars)
-            else:
+            if len(pars) == 0:
+                cpt = None
+            elif len(pars) == 1:
                 cpt = pars[0]
+            else:
+                cpt = Par(*pars)
+
             args.append(cpt)
+
+        if args[0] is None:
+            return Ladder2(*args[1:])
 
         return Ladder(*args)
 
