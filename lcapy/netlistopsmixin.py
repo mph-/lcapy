@@ -6,6 +6,10 @@ Copyright 2023 Michael Hayes, UCECE
 
 """
 
+# TODO: Optimise oneport in a similar manner to ladder.  This will avoid
+# solving for all nodal voltages.  Voc, ISc, impedance, and admittance
+# can then be sped up using the oneport.
+
 from .admittance import admittance
 from .current import current
 from .impedance import impedance
@@ -60,6 +64,10 @@ class NetlistOpsMixin:
 
         """
 
+        ladder = self._ladder(N1p, N1m, N2p, N2m)
+        if ladder is not None:
+            return ladder.current_gain
+
         N1p, N1m, N2p, N2m = self._parse_node_args4(N1p, N1m, N2p, N2m,
                                                     'current_gain')
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
@@ -105,6 +113,14 @@ class NetlistOpsMixin:
         """Return short-circuit t-domain current between nodes Np and Nm."""
 
         return self.Isc(Np, Nm).time()
+
+    def _ladder(self, N1p, N1m, N2p=None, N2m=None):
+
+        # TODO: determine point at which it is more efficient to
+        # find ladder network
+        if len(self.elements) < 6:
+            return None
+        return self.ladder(N1p, N1m, N2p, N2m)
 
     def ladder(self, N1p, N1m, N2p=None, N2m=None):
         """Return two-port unbalanced ladder network or `None` if the netlist
@@ -323,6 +339,10 @@ class NetlistOpsMixin:
 
         """
 
+        ladder = self._ladder(N1p, N1m, N2p, N2m)
+        if ladder is not None:
+            return ladder.transadmittance
+
         N1p, N1m, N2p, N2m = self._parse_node_args4(N1p, N1m, N2p, N2m,
                                                     'transadmittance')
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
@@ -350,6 +370,10 @@ class NetlistOpsMixin:
             transimpedance((N1p, N1m), cpt2)
             transimpedance(cpt1, (N2p, N2m))
         """
+
+        ladder = self._ladder(N1p, N1m, N2p, N2m)
+        if ladder is not None:
+            return ladder.transimpedance
 
         N1p, N1m, N2p, N2m = self._parse_node_args4(N1p, N1m, N2p, N2m,
                                                     'transadmittance')
@@ -385,6 +409,10 @@ class NetlistOpsMixin:
             voltage_gain((N1p, N1m), cpt2)
             voltage_gain(cpt1, (N2p, N2m))
         """
+
+        ladder = self._ladder(N1p, N1m, N2p, N2m)
+        if ladder is not None:
+            return ladder.voltage_gain
 
         # This is the same as transfer.
         N1p, N1m, N2p, N2m = self._parse_node_args4(N1p, N1m, N2p, N2m,
