@@ -92,6 +92,8 @@ from .functions import exp, sqrt, Eq, MatMul, MatAdd
 # Thus it is advantageous to represent two-ports by the A (or B)
 # matrix.  However, things will go wrong when we transform to the Y or
 # Z matrix for specific cases.
+#
+# 4. Split this into separate modules.
 
 __all__ = ('Chain', 'Par2', 'Ser2', 'Hybrid2', 'InverseHybrid2',
            'Series', 'Shunt', 'SeriesAlt', 'SeriesPair',
@@ -3646,7 +3648,7 @@ class LSectionAlt(TwoPortThing):
 
 
 class CSection(TwoPortThing):
-    """C Section
+    """C Section.   This is a balanced version of `LSection`.
     ::
 
           +---------+
@@ -3674,7 +3676,7 @@ class CSection(TwoPortThing):
 
 
 class HSection(TwoPortThing):
-    """H Section
+    """H Section.  This is a balanced version of `TSection`.
     ::
 
           +---------+        +---------+
@@ -3703,7 +3705,7 @@ class HSection(TwoPortThing):
 
 
 class BoxSection(TwoPortThing):
-    """Box Section
+    """Box Section.  This is a balanced version of `PiSection`.
     ::
 
                   +---------+

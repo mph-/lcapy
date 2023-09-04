@@ -197,7 +197,7 @@ Network functions
 
 - `parallel()` connect one-port components in parallel.  This is similar to `Par()` but is robust to `None` components and single components in parallel.
 
-- `ladder()` connect one-port components as a one-port ladder network.  This is an alternating sequence of series and parallel connections.   For example,
+- `ladder()` connect one-port components as a one-port ladder network.  This is an alternating sequence of series and parallel connections.   For example:
 
    >>> ladder(R(1), C(2), R(3))
    R(1) + (C(1) | R(3))
@@ -221,7 +221,7 @@ Note that the parallel operator is `|` instead of the usual `||`.
    >>> Rtot.simplify()
    R(10/3)
 
-The result can be performed symbolically, for example,
+The result can be performed symbolically, for example:
 
    >>> from lcapy import *
    >>> Rtot = R('R_1') | R('R_2')
@@ -257,7 +257,7 @@ Norton and Thevenin transformations
 -----------------------------------
 
 A Norton or Thevenin equivalent network can be created using the
-`norton` or `thevenin` methods.  For example,
+`norton` or `thevenin` methods.  For example:
 
    >>> from lcapy import Vdc, R
    >>> a = Vdc(1) + R(2)
@@ -341,7 +341,7 @@ For example,
    :width: 3cm
 
 
-The network components have optional keyword arguments (kwargs) that specify schematic attributes, for example,
+The network components have optional keyword arguments (kwargs) that specify schematic attributes, for example:
 
    >>> (R(2, color='blue') + C(3, color='green')).draw()
 
@@ -352,7 +352,7 @@ The network components have optional keyword arguments (kwargs) that specify sch
 Network synthesis
 =================
 
-Networks can be created using network synthesis techniques given an impedance or admittance expression, for example,
+Networks can be created using network synthesis techniques given an impedance or admittance expression, for example:
 
     >>> Z = impedance(4*s**2 + 3 * s + 1 / 6) / (s**2 + 2 * s / 3)
     >>> Z.network()
@@ -531,7 +531,7 @@ An A-parameter two-port model is created with:
 By default `V1a=0` and `I1a=0`.
 
 There are optional keyword arguments (kwargs) to specify schematic attributes,
-for example,
+for example:
 
    >>> n = TP(l='Two-port', fill='blue')
 
@@ -592,11 +592,11 @@ Shunt two-port
 .. image:: examples/schematics/shunt.png
    :width: 5cm
 
-A shunt two-port has a single one-port argument, `Shunt(OP)`, for example,
+A shunt two-port has a single one-port argument, `Shunt(OP)`, for example:
 
    >>> n = Shunt(R('R1'))
 
-The A-parameters can be found using::
+The A-parameters are::
 
    >>> n.Amodel.params
    ⎡1   0⎤
@@ -615,7 +615,7 @@ Series two-port
    :width: 5cm
 
 A series two-port has a single one-port argument, `Series(OP)`, for
-example
+example:
 
    >>> n = Series(L('L1'))
 
@@ -629,19 +629,44 @@ The A-parameters can be found using::
 The Z-parameters do not exist for a `Series` two-port.
 
 
+Series-pair two-port
+--------------------
+
+.. image:: examples/schematics/seriespair.png
+   :width: 5cm
+
+A series-pair two-port is a balanced version of a series two-port.
+It has two one-port arguments, `SeriesPair(OP1, OP2)`, for example:
+
+   >>> n = SeriesPair(L('L1/2'), L('L1/2'))
+
+The A-parameters can be found using::
+
+   >>> n.Amodel.params
+   ⎡1  L₁⋅s⎤
+   ⎢       ⎥
+   ⎣0   1  ⎦
+
+Electrically, `SeriesPair` is the same as `Series` chained to another
+`Series` two-port.  The Z-parameters do not exist for a `SeriesPair`
+two-port; the same as for a `Series` two-port.
+
+
 L-section two-port
 ------------------
 
 .. image:: examples/schematics/lsection.png
    :width: 5.5cm
 
-An L-section two-port has two one-port arguments, `LSection(OP1, OP2)`, for example,
+An L-section two-port has two one-port arguments, `LSection(OP1, OP2)`, for example:
 
    >>> n = LSection(L('L1'), R('R1'))
 
 This is equivalent to chaining a shunt two-port to a series two-port:
 
    >>> n = Series(L('L1').chain(Shunt(R('R1')))
+
+For a balanced version of `PiSection` use `CSection`.
 
 
 T-section two-port
@@ -650,9 +675,11 @@ T-section two-port
 .. image:: examples/schematics/tsection.png
    :width: 8cm
 
-A T-section (also known as a Y-section) two-port has three one-port arguments, `TSection(OP1, OP2, OP3)`, for example
+A T-section (also known as a Y-section) two-port has three one-port arguments, `TSection(OP1, OP2, OP3)`, for example:
 
    >>> n = TSection(L('L1'), R('R1'), C('C1'))
+
+For a balanced version of `PiSection` use `HSection`.
 
 
 Pi-section two-port
@@ -661,9 +688,31 @@ Pi-section two-port
 .. image:: examples/schematics/pisection.png
    :width: 7cm
 
-A pi-section two-port has three one-port arguments, `PiSection(OP1, OP2, OP3)`, for example
+A pi-section two-port has three one-port arguments, `PiSection(OP1, OP2, OP3)`, for example:
 
    >>> n = PiSection(L('L1'), R('R1'), C('C1'))
+
+For a balanced version of `PiSection` use `BoxSection`.
+
+
+Ladder two-port
+---------------
+
+.. image:: examples/schematics/ladder.png
+   :width: 12cm
+
+A ladder two-port has one or more one-port arguments, `Ladder(OP1,
+OP2, OP3, ...)`.  The first argument is considered a `Series` element,
+the second is considered a `Shunt` element, the third is considered a
+`Series` element and so on.  For example:
+
+   >>> n = Ladder(L('L1'), R('R1'), C('C1'))
+
+The `LadderAlt` class is similar to `Ladder` but the alternating
+sequence of elements starts with a `Shunt` element.   For example:
+
+.. image:: examples/schematics/ladderalt.png
+   :width: 10cm
 
 
 Transmission lines
@@ -699,9 +748,15 @@ List of two-ports
 
 - `Shunt`
 - `Series`
+- `SeriesAlt`
+- `SeriesPair`
 - `LSection`
+- `LSectionAlt`
 - `TSection`
 - `PiSection`
+- `CSection`
+- `HSection`
+- `BoxSection`
 - `GenericTwoPort`
 - `IdealTransformer`
 - `IdealGyrator`
@@ -721,6 +776,7 @@ List of two-ports
 - `TwinTSection`
 - `BridgedTSection`
 - `Ladder`
+- `LadderAlt`
 - `GeneralTransmissionLine`
 - `LosslessTransmissionLine`
 - `TransmissionLine`
@@ -925,7 +981,7 @@ Two-port network models
 Lcapy describes two-port networks in the Laplace domain using A, B, G,
 H, S, T, Y, and Z matrices.  Note, for some network configurations some of these matrices can be singular.
 
-Each model can be converted to the other parameterisations, for example,
+Each model can be converted to the other parameterisations, for example:
 
 >>> A = TPA()
 >>> TPA.params

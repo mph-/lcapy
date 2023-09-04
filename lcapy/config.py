@@ -45,7 +45,9 @@ greek_letter_names = ('alpha', 'beta', 'gamma', 'delta', 'epislon',
                       'mu', 'nu', 'xi', 'omicron', 'pi', 'rho', 'sigma', 'tau',
                       'upsilon', 'phi', 'chi', 'psi', 'omega')
 
-words = greek_letter_names
+initialisms = ('OP', 'TP')
+
+words = greek_letter_names + initialisms
 
 # Can be 'GE', 'LU', 'ADJ', 'LDL', 'CH', 'DM'
 # Note, the DM method requires a new version of sympy otherwise
