@@ -71,6 +71,10 @@ class Edge:
         return "%s(%s, %s, '%s')" % (self.__class__.__name__, self.from_node, self.to_node, self.cpt_name)
 
 
+class Path(Edges):
+    pass
+
+
 class CircuitGraph(object):
 
     @classmethod
@@ -116,6 +120,7 @@ class CircuitGraph(object):
         self.cct = cct
         self.node_map = cct.node_map
         self.G = G
+        self.debug = False
 
     def connected_cpts(self, node):
         """Components connected to specified node."""
@@ -502,3 +507,37 @@ class CircuitGraph(object):
     def canonical_nodes(self, *node_names):
 
         return [self.node_map[str(node_name)] for node_name in node_names]
+
+    def series_path(self, edge, dest_node, quit_node=None):
+        """Follow series path to `dest_node."""
+
+        if self.debug:
+            print('to:', dest_node)
+
+        path = Path()
+        path.append(edge)
+
+        while True:
+            if self.debug:
+                print(edge)
+            node = edge.to_node
+
+            if node == quit_node:
+                if dest_node is not None:
+                    return Path()
+                return path
+
+            if node == dest_node:
+                return path
+
+            next_edges = self.node_edges(node)
+            if self.debug:
+                print('next: ' + ', '.join([str(e) for e in next_edges]))
+            if len(next_edges) != 2:
+                if dest_node is None:
+                    return path
+                return Path()
+            edge = next_edges[0]
+            if edge.from_node == node:
+                edge = next_edges[1]
+            path.append(edge)

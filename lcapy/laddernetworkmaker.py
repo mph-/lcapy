@@ -2,10 +2,6 @@ from lcapy import Circuit
 from lcapy.circuitgraph import Edges, CircuitGraph
 
 
-class Path(Edges):
-    pass
-
-
 class LadderNetworkMaker:
     """This class converts a circuit into an unbalanced ladder network."""
 
@@ -14,40 +10,6 @@ class LadderNetworkMaker:
         self.cct = cct
         self.cg = CircuitGraph.from_circuit(cct)
         self.debug = debug
-
-    def follow_series_path(self, edge, dest_node, quit_node=None):
-        """Follow series path to `dest_node."""
-
-        if self.debug:
-            print('to:', dest_node)
-
-        path = Path()
-        path.append(edge)
-
-        while True:
-            if self.debug:
-                print(edge)
-            node = edge.to_node
-
-            if node == quit_node:
-                if dest_node is not None:
-                    return Path()
-                return path
-
-            if node == dest_node:
-                return path
-
-            next_edges = self.cg.node_edges(node)
-            if self.debug:
-                print('next: ' + ', '.join([str(e) for e in next_edges]))
-            if len(next_edges) != 2:
-                if dest_node is None:
-                    return path
-                return Path()
-            edge = next_edges[0]
-            if edge.from_node == node:
-                edge = next_edges[1]
-            path.append(edge)
 
     def _find(self, N1p, N1m, N2p, N2m):
         """Convert a circuit into an unbalanced ladder network.
@@ -86,7 +48,7 @@ class LadderNetworkMaker:
                 raise ValueError('Too many edges')
             edge = edges[0]
 
-            path = self.follow_series_path(edge, None, N2p)
+            path = self.cg.series_path(edge, None, N2p)
             if path == []:
                 return []
             if self.debug:
@@ -101,7 +63,7 @@ class LadderNetworkMaker:
             opts = []
             edges = cg.node_edges(node)
             for edge in edges:
-                path = self.follow_series_path(edge, N2m, N2p)
+                path = self.cg.series_path(edge, N2m, N2p)
                 if path != []:
                     if self.debug:
                         print('parallel: ' + ', '.join([str(e) for e in path]))
