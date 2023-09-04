@@ -102,7 +102,7 @@ __all__ = ('Chain', 'Par2', 'Ser2', 'Hybrid2', 'InverseHybrid2',
            'IdealCurrentDifferentiator', 'IdealCurrentIntegrator',
            'OpampInverter', 'OpampIntegrator', 'OpampDifferentiator',
            'TSection', 'TwinTSection', 'BridgedTSection', 'PiSection',
-           'LSection', 'Ladder', 'LadderAlt',
+           'LSection', 'LSectionAlt', 'Ladder', 'LadderAlt',
            'GeneralTxLine', 'LosslessTxLine', 'TL',
            'TxLine', 'GeneralTransmissionLine', 'LosslessTransmissionLine',
            'TransmissionLine', 'AMatrix', 'BMatrix', 'GMatrix', 'HMatrix',
@@ -3540,6 +3540,30 @@ class LSection(TwoPortThing):
         self.args = (OP1, OP2)
 
 
+class LSectionAlt(TwoPortThing):
+    """Alternative L Section
+    ::
+
+                +---------+
+       -----+---+   OP2   +---
+            |   +---------+
+          +-+-+
+          |   |
+          |OP1|
+          |   |
+          +-+-+
+            |
+       -----+-----------------
+    """
+
+    def __init__(self, OP1, OP2):
+
+        _check_oneport_args((OP1, OP2))
+        self.tp = Series(OP1).chain(Shunt(OP2))
+        super(LSection, self).__init__(self.tp)
+        self.args = (OP1, OP2)
+
+
 class Ladder(TwoPortThing):
     """(Unbalanced) ladder network with alternating Series and Shunt
     networks chained
@@ -3585,7 +3609,7 @@ class Ladder(TwoPortThing):
 
 
 class LadderAlt(TwoPortThing):
-    """(Unbalanced) ladder network with alternating Shunt and Series
+    """Alternative (unbalanced) ladder network with alternating Shunt and Series
     networks chained
     ::
 
@@ -3621,6 +3645,8 @@ class LadderAlt(TwoPortThing):
 
         if len(self.args) == 1:
             return Shunt(self.args[0])
+        elif len(self.args) == 2:
+            return LSectionAlt(*self.args)
         elif len(self.args) == 3:
             return PiSection(*self.args)
         return self
