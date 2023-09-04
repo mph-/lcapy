@@ -50,7 +50,7 @@ class LadderNetworkMaker:
                     # No initial series branch
                     parts.append([])
                 else:
-                    raise ValueError('Too many edges from %s' % node)
+                    return []
             else:
                 edge = edges[0]
 
