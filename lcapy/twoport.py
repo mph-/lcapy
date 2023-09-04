@@ -103,7 +103,7 @@ __all__ = ('Chain', 'Par2', 'Ser2', 'Hybrid2', 'InverseHybrid2',
            'IdealCurrentDifferentiator', 'IdealCurrentIntegrator',
            'OpampInverter', 'OpampIntegrator', 'OpampDifferentiator',
            'TSection', 'TwinTSection', 'BridgedTSection', 'PiSection',
-           'LSection', 'LSectionAlt', 'CSection', 'BoxSection',
+           'LSection', 'LSectionAlt', 'CSection', 'BoxSection', 'HSection',
            'Ladder', 'LadderAlt',
            'GeneralTxLine', 'LosslessTxLine', 'TL',
            'TxLine', 'GeneralTransmissionLine', 'LosslessTransmissionLine',
@@ -3671,6 +3671,35 @@ class CSection(TwoPortThing):
         self.tp = SeriesPair(OP1, OP2).chain(Shunt(OP3))
         super(CSection, self).__init__(self.tp)
         self.args = (OP1, OP2, OP3)
+
+
+class HSection(TwoPortThing):
+    """H Section
+    ::
+
+          +---------+        +---------+
+       ---+   OP1   +---+----+   OP4   +---
+          +---------+   |    +---------+
+                      +-+-+
+                      |   |
+                      |   |
+                      |OP3|
+                      |   |
+                      +-+-+
+                        |
+          +---------+   |    +---------+
+       ---+   OP2   +---+----+   OP5   +---
+          +---------+        +---------+
+
+    """
+
+    def __init__(self, OP1, OP2, OP3, OP4, OP5):
+
+        _check_oneport_args((OP1, OP2, OP3, OP4, OP5))
+        self.tp = SeriesPair(OP1, OP2).chain(
+            Shunt(OP3)).chain(SeriesPair(OP4, OP5))
+        super(HSection, self).__init__(self.tp)
+        self.args = (OP1, OP2, OP3, OP4, OP5)
 
 
 class BoxSection(TwoPortThing):
