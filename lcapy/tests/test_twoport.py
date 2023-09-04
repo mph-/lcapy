@@ -381,3 +381,44 @@ class LcapyTester(unittest.TestCase):
             for attr in attrs:
                 self.assertEqual(vals[attr], getattr(
                     params, attr), 'Mismatch for %s.%s' % (model, attr))
+
+    def test_circuit_to_ladder(self):
+
+        a = Circuit("""
+P1 1 2; down=1.5
+W1 1 3; right
+C1 3 4; down=1.5
+W2 4 2; left
+R1 3 5; right=1.5
+W3 4 6; right=1.5
+C2 5 6; down=1.5
+R2 5 7; right=1.5
+W4 6 8; right=1.5
+P2 7 8; down=1.5
+""")
+        l = a.ladder('P1', 'P2')
+        self.assertEqual(l.args[0].C, C('C1').C, 'args[0]')
+
+        Vgain1 = l.voltage_gain.simplify()
+        Vgain = expr('1 / (C2 * R1 * s + 1)')
+
+        self.assertEqual(Vgain, Vgain1, 'voltage gain')
+
+    def test_circuit_to_alt_ladder(self):
+
+        a = Circuit("""
+R1 3 5; right=1.5
+W3 4 6; right=1.5
+R2 5 7; right=1.5
+W4 6 8; right=1.5
+P2 7 8; down=1.5
+P1 3 4; down=1.5
+C1 5 6; down=1.5
+""")
+        l = a.ladder('P1', 'P2')
+        self.assertEqual(l.args[0].R, R('R1').R, 'args[0]')
+
+        Vgain1 = l.voltage_gain.simplify()
+        Vgain = expr('1 / (C1 * R1 * s + 1)')
+
+        self.assertEqual(Vgain, Vgain1, 'voltage gain')
