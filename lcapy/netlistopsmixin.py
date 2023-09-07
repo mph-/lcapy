@@ -120,7 +120,7 @@ class NetlistOpsMixin:
         # find ladder network
         if len(self.elements) < 6:
             return None
-        return self.ladder(N1p, N1m, N2p, N2m)
+        return self.kill().ladder(N1p, N1m, N2p, N2m)
 
     def ladder(self, N1p, N1m, N2p=None, N2m=None):
         """Return two-port unbalanced ladder network or `None` if the netlist
