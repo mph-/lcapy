@@ -91,6 +91,13 @@ class LadderNetworkMaker:
 
         The nodes `N1p` and `N1m` must be the same."""
 
+        if self.cct.dependent_sources != []:
+            return None
+        if self.cct.mutual_inductances != []:
+            return None
+        if self.cct.transformers != []:
+            return None
+
         foo = self._find(N1p, N1m, N2p, N2m)
 
         if foo == []:
