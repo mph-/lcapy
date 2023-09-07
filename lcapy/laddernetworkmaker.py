@@ -93,7 +93,7 @@ class LadderNetworkMaker:
 
         if self.cct.dependent_sources != []:
             return None
-        if self.cct.mutual_inductances != []:
+        if self.cct.mutual_couplings != []:
             return None
         if self.cct.transformers != []:
             return None

@@ -345,10 +345,10 @@ class NetlistMixin(object):
         return dict((key, cpt) for key, cpt in self.elements.items() if cpt.has_ic is False)
 
     @property
-    def mutual_couplingss(self):
+    def mutual_couplings(self):
         """Return list of mutual couplingss."""
 
-        return self.analysis.mutual_couplingss
+        return self.analysis.mutual_couplings
 
     @property
     def node_list(self):
