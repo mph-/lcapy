@@ -102,7 +102,7 @@ class NetlistMixin(object):
 
     @property
     def capacitors(self):
-        """Return dictionary of capacitors."""
+        """Return list of capacitors."""
 
         return self.components.capacitors
 
@@ -128,13 +128,13 @@ class NetlistMixin(object):
 
     @property
     def current_sources(self):
-        """Return dictionary of current_sources."""
+        """Return list of current_sources."""
 
         return self.components.current_sources
 
     @property
     def dependent_sources(self):
-        """Return dictionary of dependent sources."""
+        """Return list of dependent sources."""
 
         return self.analysis.dependent_sources
 
@@ -229,19 +229,19 @@ class NetlistMixin(object):
 
     @property
     def ics(self):
-        """Return dictionary of components with initial conditions."""
+        """Return list of components with initial conditions."""
 
         return self.analysis.ics
 
     @property
     def independent_sources(self):
-        """Return dictionary of independent sources (this does not include
+        """Return list of independent sources (this does not include
         implicit sources due to initial conditions)."""
 
         return self.analysis.independent_sources
 
     def independent_source_groups(self, transform=False):
-        """Return dictionary of source groups.  Each group is a list of
+        """Return list of source groups.  Each group is a list of
         sourcenames that can be analysed at the same time.  Noise
         sources have separate groups since they are assumed to be
         uncorrelated.  The source groups are keyed by the names of
@@ -284,7 +284,7 @@ class NetlistMixin(object):
 
     @property
     def inductors(self):
-        """Return dictionary of inductors."""
+        """Return list of inductors."""
 
         return self.components.inductors
 
@@ -345,6 +345,12 @@ class NetlistMixin(object):
         return dict((key, cpt) for key, cpt in self.elements.items() if cpt.has_ic is False)
 
     @property
+    def mutual_couplingss(self):
+        """Return list of mutual couplingss."""
+
+        return self.analysis.mutual_couplingss
+
+    @property
     def node_list(self):
         """Determine list of sorted unique node names, e.g.,
         ['0', '1', '2']."""
@@ -384,7 +390,7 @@ class NetlistMixin(object):
 
     @property
     def reactances(self):
-        """Return dictionary of reactances."""
+        """Return list of reactances."""
 
         return self.analysis.reactances
 
@@ -413,20 +419,20 @@ class NetlistMixin(object):
 
     @property
     def sources(self):
-        """Return dictionary of all sources (this does not include
+        """Return list of all sources (this does not include
         implicit sources due to initial conditions)."""
 
         return self.dependent_sources + self.independent_sources
 
     @property
     def transformers(self):
-        """Return dictionary of transformers."""
+        """Return list of transformers."""
 
         return self.components.transformers
 
     @property
     def voltage_sources(self):
-        """Return dictionary of voltage_sources."""
+        """Return list of voltage_sources."""
 
         return self.components.voltage_sources
 

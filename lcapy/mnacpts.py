@@ -41,6 +41,7 @@ class Cpt(ImmittanceMixin):
     dependent_source = False
     independent_source = False
     reactive = False
+    mututal_coupling = False
     need_branch_current = False
     need_extra_branch_current = False
     need_control_current = False
@@ -1550,6 +1551,8 @@ class I(IndependentSource):
 
 
 class K(Dummy):
+
+    mututal_coupling = True
 
     def __init__(self, cct, namespace, name, cpt_type, cpt_id, string,
                  opts_string, nodes, keyword, *args):

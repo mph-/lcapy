@@ -1,7 +1,7 @@
 """
 This module collects information about a circuit.
 
-Copyright 2022 Michael Hayes, UCECE
+Copyright 2022--203 Michael Hayes, UCECE
 
 """
 
@@ -23,6 +23,7 @@ class Analysis:
         self.control_sources = []
         self.reactances = []
         self.ics = []
+        self.mutual_couplings = []
 
         for eltname, elt in cct.elements.items():
             if elt.need_control_current:
@@ -50,6 +51,8 @@ class Analysis:
             if elt.reactive:
                 self.reactive = True
                 self.reactances.append(eltname)
+            if elt.mutual_coupling:
+                self.mutual_couplings.append(eltname)
 
         num_sources = len(self.independent_sources)
 
