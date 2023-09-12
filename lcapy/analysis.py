@@ -34,7 +34,7 @@ class Analysis:
                     self.ics.append(eltname)
                 if not elt.zeroic:
                     self.zeroic = False
-            if elt.independent_source:
+            if elt.is_independent_source:
                 self.independent_sources.append(eltname)
                 if elt.has_s_transient:
                     self.has_s = True
@@ -46,12 +46,12 @@ class Analysis:
                     self.dc_count += 1
                 if not elt.is_causal:
                     self.causal = False
-            if elt.dependent_source:
+            if elt.is_dependent_source:
                 self.dependent_sources.append(eltname)
-            if elt.reactive:
+            if elt.is_reactive:
                 self.reactive = True
                 self.reactances.append(eltname)
-            if elt.mutual_coupling:
+            if elt.is_mutual_coupling:
                 self.mutual_couplings.append(eltname)
 
         num_sources = len(self.independent_sources)

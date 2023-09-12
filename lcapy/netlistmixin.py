@@ -261,7 +261,7 @@ class NetlistMixin(object):
 
         groups = {}
         for eltname, elt in self.elements.items():
-            if not elt.independent_source:
+            if not elt.is_independent_source:
                 continue
             cpt = elt.cpt
             if cpt.is_voltage_source:

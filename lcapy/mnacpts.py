@@ -27,7 +27,6 @@ import sympy as sym
 from warnings import warn
 
 __all__ = ()
-
 module = sys.modules[__name__]
 
 cptaliases = {'E': 'VCVS', 'F': 'CCCS',
@@ -38,19 +37,19 @@ cptaliases = {'E': 'VCVS', 'F': 'CCCS',
 
 class Cpt(ImmittanceMixin):
 
-    dependent_source = False
-    independent_source = False
-    reactive = False
-    mutual_coupling = False
     need_branch_current = False
     need_extra_branch_current = False
     need_control_current = False
-    directive = False
+    is_directive = False
     flip_branch_current = False
     ignore = False
     add_series = False
     add_parallel = False
     equipotential_nodes = ()
+    is_dependent_source = False
+    is_independent_source = False
+    is_reactive = False
+    is_mutual_coupling = False
     is_open_circuit = False
     is_port = False
     is_switch = False
@@ -499,17 +498,7 @@ class Cpt(ImmittanceMixin):
     @property
     def is_source(self):
         """Return True if component is a source (dependent or independent)"""
-        return self.dependent_source or self.independent_source
-
-    @property
-    def is_dependent_source(self):
-        """Return True if component is a dependent source"""
-        return self.dependent_source
-
-    @property
-    def is_independent_source(self):
-        """Return True if component is an independent source"""
-        return self.independent_source
+        return self.is_dependent_source or self.is_independent_source
 
     @property
     def _source_IV(self):
@@ -642,12 +631,12 @@ class Cpt(ImmittanceMixin):
     @property
     def is_dependent_voltage_source(self):
         """Return True if component is a dependent voltage source."""
-        return self.cpt.is_voltage_source and self.dependent_source
+        return self.cpt.is_voltage_source and self.is_dependent_source
 
     @property
     def is_independent_voltage_source(self):
         """Return True if component is a independent voltage source."""
-        return self.cpt.is_voltage_source and self.independent_source
+        return self.cpt.is_voltage_source and self.is_independent_source
 
     @property
     def is_current_source(self):
@@ -658,12 +647,12 @@ class Cpt(ImmittanceMixin):
     @property
     def is_dependent_current_source(self):
         """Return True if component is a dependent current source."""
-        return self.cpt.is_current_source and self.dependent_source
+        return self.cpt.is_current_source and self.is_dependent_source
 
     @property
     def is_independent_current_source(self):
         """Return True if component is a independent current source."""
-        return self.cpt.is_current_source and self.independent_source
+        return self.cpt.is_current_source and self.is_independent_source
 
     @property
     def zeroic(self):
@@ -936,7 +925,8 @@ class Dummy(Cpt):
 
 
 class XX(Dummy):
-    directive = True
+
+    is_directive = True
     ignore = True
 
     def _stamp(self, mna):
@@ -960,7 +950,7 @@ class A(Cpt):
 
 class IndependentSource(Cpt):
 
-    independent_source = True
+    is_independent_source = True
 
     def _zero(self):
         """Zero value of the source.  For a voltage source this makes it a
@@ -976,7 +966,7 @@ class IndependentSource(Cpt):
 
 class DependentSource(Dummy):
 
-    dependent_source = True
+    is_dependent_source = True
 
     def _zero(self):
         return self._copy()
@@ -1078,7 +1068,7 @@ class RC(RLC):
 
 class C(RC):
 
-    reactive = True
+    is_reactive = True
     add_parallel = True
 
     @property
@@ -1151,7 +1141,7 @@ class C(RC):
 class CPE(RC):
 
     # If n == 0, then not reactive
-    reactive = True
+    is_reactive = True
 
     pass
 
@@ -1552,7 +1542,7 @@ class I(IndependentSource):
 
 class K(Dummy):
 
-    mutual_coupling = True
+    is_mutual_coupling = True
 
     def __init__(self, cct, namespace, name, cpt_type, cpt_id, string,
                  opts_string, nodes, keyword, *args):
@@ -1596,7 +1586,7 @@ class K(Dummy):
 class L(RLC):
 
     need_branch_current = True
-    reactive = True
+    is_reactive = True
     add_series = True
 
     def _r_model(self):
@@ -1931,7 +1921,7 @@ class TFtap(Cpt):
 class TL(Cpt):
     """Transmission line"""
 
-    reactive = True
+    is_reactive = True
     need_branch_current = True
 
     def _stamp(self, mna):
@@ -2250,20 +2240,20 @@ class W(Dummy):
 class XT(Misc):
     """Crystal"""
 
-    reactive = True
+    is_reactive = True
 
 
 class Y(RC):
     """Admittance"""
 
-    reactive = True
+    is_reactive = True
     add_parallel = True
 
 
 class Z(RC):
     """Impedance"""
 
-    reactive = True
+    is_reactive = True
     add_series = True
 
 
