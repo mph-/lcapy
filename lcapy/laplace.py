@@ -145,10 +145,24 @@ class LaplaceTransformer(UnilateralForwardTransformer):
         f2 = expr2.args[1]
         # TODO: apply similarity theorem if have f(a * tau) etc.
 
-        if (f1.args[0] == var and f2.args[0] == t - var):
+        def f_of_var(x):
+
+            syms = x.free_symbols
+            return var in syms and t not in syms
+
+        def f_of_t_minus_var(x):
+
+            w = sym.symbols('wxx', real=True)
+            xx = x.subs(t, w + var)
+            xx = sym.simplify(xx)
+
+            syms = xx.free_symbols
+            return w in syms and var not in syms
+
+        if f_of_t_minus_var(f2) and f_of_var(f1):
             F1 = self.term(f1, var, s)
             F2 = self.term(f2.subs(t - var, t), t, s)
-        elif (f2.args[0] == var and f1.args[0] == t - var):
+        elif f_of_t_minus_var(f1) and f_of_var(f2):
             F1 = self.term(f1.subs(t - var, t), t, s)
             F2 = self.term(f2, var, s)
         else:
