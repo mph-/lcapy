@@ -108,8 +108,7 @@ class DLTIFilter(object):
         return cls(bn, an)
 
     def transfer_function(self):
-        """Return discrete-time impulse response (transfer function) in
-        z-domain.
+        """Return discrete-time transfer function:
 
                                     -1              -M
                 Y(z)    b[0] + b[1]z  + ... + b[M] z
@@ -117,6 +116,8 @@ class DLTIFilter(object):
                 X(z)                -1              -N
                         a[0] + a[1]z  + ... + a[N] z
 
+        where `M` is the degree of the numerator and `N` is the degree of
+        the denominator.
         """
 
         from .sym import zsym
@@ -199,10 +200,14 @@ class DLTIFilter(object):
         return tau.simplify().general()
 
     def difference_equation(self, inputsym='x', outputsym='y'):
-        """
-             difference_equation(inputsym='x', outputsym='y')
-             Return difference equation.
-             y[n] is a function of x[n-i] and y[n-i]     i>=0
+        """Return difference equation in the form:
+
+         a[0]*y[n] = b[0]*x[n] + b[1]*x[n-1] + ... + b[M]*x[n-M]
+                               - a[1]*y[n-1] - ... - a[N]*y[n-N]
+
+        where `M` is the degree of the transfer function numerator and
+        `N` is the degree of the transfer function denominator.
+
         """
 
         rhs = 0 * n
