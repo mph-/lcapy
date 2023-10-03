@@ -87,8 +87,9 @@ class DLTIFilter(object):
         dn = D.coeffs()
 
         if len(nn) > len(dn):
+            # Have improper transfer function
             warn("System not causal")
-            an = dn
+            an = ExprList((len(nn) - len(dn)) * [0] + dn)
             bn = nn
         else:
             bn = ExprList((len(dn) - len(nn)) * [0] + nn)
@@ -101,7 +102,7 @@ class DLTIFilter(object):
         while bn[-1] == 0:
             bn = bn[0:-1]
 
-        if normalize_a0:
+        if normalize_a0 and an[0] != 0:
             bn = [bx / an[0] for bx in bn]
             an = [ax / an[0] for ax in an]
 
@@ -210,15 +211,22 @@ class DLTIFilter(object):
 
         """
 
+        lhs = 0 * n
         rhs = 0 * n
 
         for m, bn in enumerate(self.b):
             rhs += bn * Function(inputsym)(n - m)
 
-        for m, an in enumerate(self.a[1:]):
-            rhs -= an * Function(outputsym)(n - (m + 1))
+        use_lhs = True
+        for m, an in enumerate(self.a):
+            x = an * Function(outputsym)(n - m)
+            if use_lhs:
+                lhs += x
+            else:
+                rhs -= x
+            if an != 0:
+                use_lhs = False
 
-        lhs = self.a[0] * expr('y(n)')
         return DifferenceEquation(lhs, rhs, inputsym, outputsym)
 
     def zdomain_initial_response(self, ic=None, xic=None, left=True,
