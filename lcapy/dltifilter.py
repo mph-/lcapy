@@ -15,6 +15,7 @@ from .transfer import transfer
 from .utils import isiterable
 from .sym import oo, j, pi, dt
 import sympy as sym
+from warnings import warn
 
 
 # TODO: convert lowpass form to highpass with H(-z)
@@ -86,11 +87,12 @@ class DLTIFilter(object):
         dn = D.coeffs()
 
         if len(nn) > len(dn):
-            # Perhaps just warn?
-            raise ValueError("System not causal")
-
-        bn = ExprList((len(dn) - len(nn)) * [0] + nn)
-        an = dn
+            warn("System not causal")
+            an = dn
+            bn = nn
+        else:
+            bn = ExprList((len(dn) - len(nn)) * [0] + nn)
+            an = dn
 
         # Remove trailing zero coefficients.  Could call cancel before
         # determing coeffs to reduce order of numerator and denominator.
@@ -107,32 +109,35 @@ class DLTIFilter(object):
 
     def transfer_function(self):
         """Return discrete-time impulse response (transfer function) in
-        z-domain."""
+        z-domain.
+
+                                    -1              -M
+                Y(z)    b[0] + b[1]z  + ... + b[M] z
+         H(z) = ---- = --------------------------------
+                X(z)                -1              -N
+                        a[0] + a[1]z  + ... + a[N] z
+
+        """
 
         from .sym import zsym
 
         a = self.a.sympy
         b = self.b.sympy
 
-        Nl = len(a)
-        Nr = len(b)
+        N = len(a)
+        M = len(b)
 
         # Numerator of H(z)
-        num = sym.S.Zero
-        for i in range(Nr):
-            num += b[i] * zsym**(-i)
+        numer = sym.S.Zero
+        for i in range(M):
+            numer += b[i] * zsym**(-i)
 
         # Denominator for H(z)
-        denom = a[0] * zsym**0
-        for k in range(1, Nl):
-            az = a[k] * zsym**(-k)
-            denom += az
+        denom = sym.S.Zero
+        for k in range(N):
+            denom += a[k] * zsym**(-k)
 
-        # Collect with respect to positive powers of the variable z
-        num = sym.collect(sym.expand(num * zsym**Nl), zsym)
-        denom = sym.collect(sym.expand(denom * zsym**Nl), zsym)
-
-        Hz = expr(sym.simplify(num / denom))
+        Hz = transfer(numer, denom)
         Hz.is_causal = True
         return Hz
 
