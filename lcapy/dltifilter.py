@@ -74,8 +74,13 @@ class DLTIFilter(object):
         return cls(b, a)
 
     @classmethod
-    def from_transfer_function(cls, H, normalize_a0=True):
-        """Create LTIFilter given a transfer function."""
+    def from_transfer_function(cls, H, normalize=True):
+        """Create LTIFilter given a transfer function.
+
+        If `normalize` is True then normalize all the
+        numerator and denominator coefficients by the first non-zero
+        denominator coefficient.
+        """
 
         H = transfer(H)
         if not H.is_rational_function:
@@ -102,9 +107,15 @@ class DLTIFilter(object):
         while bn[-1] == 0:
             bn = bn[0:-1]
 
-        if normalize_a0 and an[0] != 0:
-            bn = [bx / an[0] for bx in bn]
-            an = [ax / an[0] for ax in an]
+        if normalize:
+
+            # Use first non-zero coeff as normalizer to handle cases
+            # where a[0] = 0.
+            for norm in an:
+                if norm != 0:
+                    break
+            bn = [bx / norm for bx in bn]
+            an = [ax / norm for ax in an]
 
         return cls(bn, an)
 
