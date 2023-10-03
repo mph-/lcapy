@@ -14,7 +14,7 @@ from .sym import fsym, omegasym, ssym, tsym, j, oo
 from .laplace import laplace_transform
 from .fourier import fourier_transform
 from .units import u as uu
-from sympy import Heaviside, Derivative, Integral, limit, Expr as symExpr
+from sympy import Heaviside, limit, Expr as symExpr
 
 
 __all__ = ('TimeDomainExpression', 'texpr', )
