@@ -100,11 +100,10 @@ class DLTIFilter(object):
             bn = ExprList((len(dn) - len(nn)) * [0] + nn)
             an = dn
 
-        # Remove trailing zero coefficients.  Could call cancel before
-        # determing coeffs to reduce order of numerator and denominator.
-        while an[-1] == 0:
+        # Remove trailing zero coefficients.  This is equivalent
+        # to calling cancel on the transfer function.
+        while an[-1] == 0 and bn[-1] == 0:
             an = an[0:-1]
-        while bn[-1] == 0:
             bn = bn[0:-1]
 
         if normalize:

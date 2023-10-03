@@ -2,6 +2,14 @@
 Release notes
 =============
 
+V1.19
+=====
+
+- Allows non-causal DLTI filters
+
+- Fixes conversion of discrete-time transfer function to DLTI filter
+
+
 V1.18
 =====
 
