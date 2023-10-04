@@ -203,16 +203,15 @@ def plot_pole_zero(obj, **kwargs):
     ylabel = kwargs.pop('ylabel', 'Im(%s)' % obj.var)
     title = kwargs.pop('title', None)
 
-    cycler = ax._get_lines.prop_cycler
-    color = next(cycler)['color']
-
-    color = kwargs.pop('color', color)
+    color = kwargs.pop('color', None)
     pole_color = kwargs.pop('pole_color', color)
     zero_color = kwargs.pop('zero_color', color)
 
-    ax.plot(z.real * xscale, z.imag * yscale,
-            'o', color=zero_color, fillstyle=fillstyle, **kwargs)
+    lines = ax.plot(z.real * xscale, z.imag * yscale,
+                    'o', color=zero_color, fillstyle=fillstyle, **kwargs)
     annotate(ax, zeros)
+    if pole_color is None:
+        pole_color = lines[0].get_color()
     ax.plot(p.real * xscale, p.imag * yscale,
             'x', color=pole_color, fillstyle=fillstyle, **kwargs)
     annotate(ax, poles)
