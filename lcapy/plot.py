@@ -721,7 +721,7 @@ def plot_sequence(obj, ni, plot_type=None, polar=False, **kwargs):
     color = kwargs.pop('color', None)
 
     markerline, stemlines, baseline = ax.stem(
-        ni * xscale, v * yscale, use_line_collection=True, **kwargs)
+        ni * xscale, v * yscale, **kwargs)
     if color is not None:
         stemlines.set_color(color)
         markerline.set_color(color)

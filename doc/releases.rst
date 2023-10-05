@@ -5,6 +5,8 @@ Release notes
 V1.19
 =====
 
+- Adds compatibility changes for matplotlib 3.8.0
+
 - Allows non-causal DLTI filters
 
 - Fixes conversion of discrete-time transfer function to DLTI filter
