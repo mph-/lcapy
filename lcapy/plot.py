@@ -245,6 +245,9 @@ def plotit(ax, obj, f, V, plot_type=None, deltas=None, log_magnitude=False,
     if plot_type == 'real':
         V = V.real
         part = 'real part'
+    elif plot_type == 'real-default':
+        V = V.real
+        part = ''
     elif plot_type == 'imag':
         V = V.imag
         part = 'imag part'
@@ -379,7 +382,7 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
 
     if not V.dtype == complex:
         if plot_type is None:
-            plot_type = 'real'
+            plot_type = 'real-default'
 
     elif obj.part == '':
         if plot_type is None:
@@ -409,14 +412,8 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
         plot1_type = 'radians'
     elif plot_type in ('phase-degrees', 'degrees'):
         plot1_type = 'degrees'
-    elif plot_type == 'abs':
-        plot1_type = 'abs'
-    elif plot_type == 'real':
-        plot1_type = 'real'
-    elif plot_type == 'imag':
-        plot1_type = 'imag'
-    elif plot_type == 'dB':
-        plot1_type = 'dB'
+    elif plot_type in ('abs', 'real', 'imag', 'dB', 'real-default'):
+        plot1_type = plot_type
     else:
         raise RuntimeError('Internal error')
 
