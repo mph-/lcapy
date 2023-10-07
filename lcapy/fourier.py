@@ -291,6 +291,26 @@ class FourierTransformer(BilateralForwardTransformer):
                     return -I * const * pi * tanh(pi**2 * sf)
             elif other.is_Function and other.func == tanh and other.args[0] == t:
                 return -I * const * pi / sinh(pi**2 * sf)
+            elif (other.is_Mul and other.args[0] == t and
+                  other.args[1].is_Pow and other.args[1].args[1] == -1 and
+                  other.args[1].args[0].is_Add and
+                  not (other.args[1].args[0].args[0] / t).has(t) and
+                  not other.args[1].args[0].args[1].has(t)):
+                a = other.args[1].args[0].args[0] / t
+                b = other.args[1].args[0].args[1] * I
+
+                # t / (a * t - j * b)
+                return const * (DiracDelta(sf) / a - 2 * pi * b / a**2 * exp(2 * pi * b / a * sf) * Heaviside(f))
+            elif (other.is_Mul and other.args[0] == t and
+                  other.args[1].is_Pow and other.args[1].args[1] == -1 and
+                  other.args[1].args[0].is_Add and
+                  not (other.args[1].args[0].args[1] / t).has(t) and
+                  not other.args[1].args[0].args[0].has(t)):
+                b = other.args[1].args[0].args[0] * I
+                a = other.args[1].args[0].args[1] / t
+
+                # t / (j * b - a * t)
+                return const * (DiracDelta(sf) / a - 2 * pi * b / a**2 * exp(2 * pi * b / a * sf) * Heaviside(f))
 
             if expr == t * DiracDelta(t, 1):
                 return const * sf / (-I * 2 * pi)
