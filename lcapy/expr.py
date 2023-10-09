@@ -3582,6 +3582,14 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         `approximate_order` methods.
         """
 
+        terms = self.expand().as_ordered_terms()
+        if len(terms) > 1:
+            result = 0
+            for term in terms:
+                result += term.approximate(method,
+                                           order, numer_order, defs, threshold)
+            return result
+
         result = self.approximate_fractional_power(method=method,
                                                    order=order)
         result = result.approximate_exp(method=method,
