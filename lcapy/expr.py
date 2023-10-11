@@ -39,7 +39,7 @@ from .simplify import simplify_rect, simplify_unit_impulse, simplify_conjugates
 from .simplify import expand_hyperbolic_trig
 from .approximate import (approximate_fractional_power, approximate_exp,
                           approximate_hyperbolic_trig, approximate_dominant,
-                          approximate_order)
+                          approximate_order, approximate_taylor)
 from .config import heaviside_zero, unitstep_zero
 from collections import OrderedDict
 from warnings import warn
@@ -3568,6 +3568,16 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         expr = approximate_order(N.sympy, self.var, order) / \
             approximate_order(D.sympy, self.var, order)
+        return self.__class__(expr, **self.assumptions)
+
+    def approximate_taylor(self, var0, degree):
+        """Approximate expression using a Taylor series
+        around `self.var = var0` to degree `degree`."""
+
+        from .expr import expr
+
+        var0 = expr(var0)
+        expr = approximate_taylor(self.sympy, self.var, var0.sympy, degree)
         return self.__class__(expr, **self.assumptions)
 
     def approximate(self, method='pade', order=1, numer_order=None, defs=None,

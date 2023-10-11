@@ -1,11 +1,12 @@
 """This module contains functions for approximating expressions.
 
-Copyright 2021 Michael Hayes, UCECE
+Copyright 2021--23 Michael Hayes, UCECE
 
 """
 
 from .simplify import expand_hyperbolic_trig
-from sympy import exp
+from sympy import exp, diff
+from math import factorial
 
 
 def approximate_fractional_power(expr, method='pade', order=2):
@@ -23,6 +24,7 @@ def approximate_fractional_power(expr, method='pade', order=2):
 
         if not expr.is_Pow:
             return False
+        # TODO handle (b * v)**a
         if expr.args[0] != v:
             return False
         if expr.args[1].is_Number and not expr.args[1].is_Integer:
@@ -166,3 +168,21 @@ def approximate_order(expr, var, order):
     from sympy import O
 
     return (expr.expand() + O(var ** (order + 1))).removeO()
+
+
+def approximate_taylor(expr, var, var0, degree):
+    """Approximate expression using a Taylor series
+    around `var = var0` to degree `degree`."""
+
+    result = expr.subs(var, var0)
+
+    prev = expr
+
+    for n in range(degree):
+
+        prev = diff(prev, var)
+
+        result += prev.subs(var, var0) * \
+            (var - var0)**(n + 1) / factorial(n + 1)
+
+    return result
