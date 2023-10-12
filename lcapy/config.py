@@ -33,7 +33,8 @@ functions = ('heaviside', 'diracdelta', 'conjugate', 'sqrt', 'exp',
              'acos', 'atan', 'atan2', 'acot', 'sinh', 'cosh', 'tanh',
              'asinh', 'acosh', 'atanh', 'gcd', 'abs', 'unitimpulse',
              'arg', 'sign', 'rect', 'sinc', 'sincn', 'sincu', 'trap',
-             'tri', 'ramp', 'rampstep', 'dtrect', 'dtsign', 'psinc')
+             'tri', 'ramp', 'rampstep', 'dtrect', 'dtsign', 'psinc',
+             'besselj', 'bessely', 'besseli', 'besselk', 'hankel1', 'hankel2')
 
 subscripts = ('in', 'out', 'ref', 'rms', 'load', 'source', 'avg',
               'mean', 'peak', 'pk', 'pk-pk', 'pp', 'min', 'max', 'src', 'bat',
