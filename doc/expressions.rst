@@ -2170,6 +2170,8 @@ Note, some higher order approximations can be unstable.  For example, the step-r
 
 - `approximate_order(order)` approximate expression by reducing order to specified order
 
+- `approximate_taylor(x0, order)` approximate expression with a Taylor's series expansion around `x0`.
+
 - `approximate(method, order, numer_order)` applies many of the approximations.
 
 - `prune_HOT(degree)` prunes higher order terms if expression is a polynomial so that resultant approximate expression has the desired degree.

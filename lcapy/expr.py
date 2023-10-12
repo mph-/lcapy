@@ -161,6 +161,13 @@ class ExprContainer(object):
 
         return self.expr
 
+    def as_polynomial(self, var):
+
+        result = 0
+        for m, x in enumerate(reversed(self)):
+            result += x * var**m
+        return result
+
     def evaluate(self):
         """Evaluate each element to convert to floating point.
         This may change..."""

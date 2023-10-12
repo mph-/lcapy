@@ -5,6 +5,10 @@ Release notes
 V1.19
 =====
 
+- Adds `as_polynomial()` to `ExprTuple` and `ExprList`
+
+- Adds `approximate_taylor()` to `Expr`
+
 - Adds compatibility changes for matplotlib 3.8.0
 
 - Allows non-causal DLTI filters
