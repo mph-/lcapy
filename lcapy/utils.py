@@ -45,7 +45,7 @@ def term_const(expr, var):
 
     rest = sym.S.One
     const = sym.S.Zero
-    for term in expr.as_ordered_terms():
+    for term in expr.expand().as_ordered_terms():
         # Cannot use factor.is_constant() since SymPy 1.2, 1.3
         # barfs for Heaviside(t) and DiracDelta(t)
         if not term.has(var):
@@ -125,7 +125,7 @@ def as_sum_terms(expr, var):
     N, D = as_N_D(expr, var)
     N = N.simplify()
 
-    return [term / D for term in N.expand().as_ordered_terms()]
+    return [term / D for term in N.expand().expand().as_ordered_terms()]
 
 
 def as_sum(expr, var):
@@ -181,7 +181,7 @@ def factor_expr(expr, factor):
 def separate_dirac_delta(expr):
     """Separate Dirac delta terms from expression."""
 
-    terms = expr.as_ordered_terms()
+    terms = expr.expand().as_ordered_terms()
     deltas = []
     rest = 0
 
@@ -202,7 +202,7 @@ def split_dirac_delta(expr):
     For example, u(t) + DiractDelta(t, 1) returns [u(t), 0, DiracDelta(t, 1)]
     """
 
-    terms = expr.as_ordered_terms()
+    terms = expr.expand().as_ordered_terms()
     parts = {}
     rest = 0
 
@@ -244,10 +244,10 @@ def remove_images(expr, var, dt, m1=0, m2=0):
     const, expr1 = factor_const(expr, var)
 
     result = sym.S.Zero
-    terms = expr1.as_ordered_terms()
+    terms = expr1.expand().as_ordered_terms()
 
     if len(terms) > 1:
-        for term in expr1.as_ordered_terms():
+        for term in expr1.expand().as_ordered_terms():
             result += remove_images(term, var, dt, m1, m2)
         return const * result
 
@@ -368,7 +368,7 @@ def expand_functions(expr, var):
             return const * expand_functions(new_expr, var)
         return const * new_expr
 
-    terms = expr.as_ordered_terms()
+    terms = expr.expand().as_ordered_terms()
     if len(terms) == 1:
         return const * expr
 
