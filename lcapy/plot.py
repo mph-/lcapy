@@ -60,7 +60,7 @@ def plot_deltas(ax, t, deltas, var, plot_type='real', color='k'):
         t0 = solve(expr.args[0], var)[0]
 
         const = complex(const)
-        if plot_type in ('real', 'default'):
+        if plot_type in ('real', 'real-default'):
             const = const.real
         elif plot_type == 'imag':
             const = const.imag
@@ -366,7 +366,7 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
     # as real, imag, phase, magnitude.  If this is defined,
     # `plot_type` is ignored.
 
-    plot1_type = 'default'
+    plot1_type = 'real-default'
     plot2_type = None
 
     V = obj.evaluate(f)
