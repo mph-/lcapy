@@ -5,6 +5,8 @@ Release notes
 V1.19
 =====
 
+- Fixes abs value of expression with Dirac delta
+
 - Adds `as_polynomial()` to `ExprTuple` and `ExprList`
 
 - Adds `approximate_taylor()` to `Expr`

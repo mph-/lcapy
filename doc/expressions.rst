@@ -2652,11 +2652,30 @@ Plot customisation
 
 The `plot()` method has a number of generic keyword arguments to customise the plots.   These include:
 
+- `axes` defines the axes to use; if undefined a new figure is created
+
+- `color` sets the color
+
+- `dbmin` sets the minimum dB value
+
+- `dbmax` sets the maximum dB value
+
+- `figsize` sets the figure size
+
+- `linestyle` sets the linestyle
+
+- `linestyle2` sets the linestyle for the second plot (e.g., phase)
+
+- `title` sets the title string
+
+- `unwrap` enables phase unwrapping
+
 - `xlabel` sets the xlabel string
 
 - `ylabel` sets the ylabel string
 
-- `title` sets the title string
+- `ylabel2` sets the second ylabel (right hand side) string
+
 
 For example::
 

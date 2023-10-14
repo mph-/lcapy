@@ -228,8 +228,9 @@ def plot_pole_zero(obj, **kwargs):
     return ax
 
 
-def plotit(ax, obj, f, V, plot_type=None, deltas=None, log_magnitude=False,
-           log_frequency=False, norm=False, dbmin=-120, unwrap=False, **kwargs):
+def plotit(ax, obj, f, V, plot_type=None, deltas=None,
+           log_magnitude=False, log_frequency=False, norm=False,
+           dbmin=-120, dbmax=None, unwrap=False, **kwargs):
 
     plots = {(True, True): ax.loglog,
              (True, False): ax.semilogy,
@@ -256,10 +257,19 @@ def plotit(ax, obj, f, V, plot_type=None, deltas=None, log_magnitude=False,
         part = 'magnitude'
     elif plot_type == 'dB':
         Vabs = abs(V)
-        Vmin = 10**(dbmin / 20)
-        if np.all(Vabs < Vmin):
-            warn('All values below dbmin')
-        Vabs[Vabs < Vmin] = Vmin
+
+        if dbmin is not None:
+            Vmin = 10**(dbmin / 20)
+            if np.all(Vabs < Vmin):
+                warn('All values below dbmin=%s' % dbmin)
+            Vabs[Vabs < Vmin] = Vmin
+
+        if dbmax is not None:
+            Vmax = 10**(dbmax / 20)
+            if np.all(Vabs > Vmax):
+                warn('All values below dbmax=%s' % dbmax)
+            Vabs[Vabs > Vmax] = Vmax
+
         V = 20 * np.log10(Vabs)
         part = 'magnitude'
         units = 'dB'
@@ -340,6 +350,7 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
         log_frequency = True
 
     dbmin = kwargs.pop('dbmin', -120)
+    dbmax = kwargs.pop('dbmax', None)
     label = kwargs.pop('label', None)
     nyticks = kwargs.pop('nyticks', None)
     color2 = kwargs.pop('color2', None)
@@ -433,7 +444,8 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
     lines = plotit(ax, obj, f, V, plot1_type, deltas,
                    log_frequency=log_frequency,
                    log_magnitude=log_magnitude, norm=norm,
-                   label=label, dbmin=dbmin, unwrap=unwrap, **kwargs)
+                   label=label, dbmin=dbmin, dbmax=dbmax,
+                   unwrap=unwrap, **kwargs)
 
     if plot2_type is None:
         return ax
@@ -469,10 +481,18 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
 
     if plot1_type == 'dB':
         Vabs = abs(V)
-        Vmin = 10**(dbmin / 20)
-        if np.all(Vabs < Vmin):
-            warn('All values below dbmin')
-        Vabs[Vabs < Vmin] = Vmin
+
+        if dbmin is not None:
+            Vmin = 10**(dbmin / 20)
+            if np.all(Vabs < Vmin):
+                warn('All values below dbmin=%s' % dbmin)
+            Vabs[Vabs < Vmin] = Vmin
+
+        if dbmax is not None:
+            Vmax = 10**(dbmax / 20)
+            if np.all(Vabs > Vmax):
+                warn('All values below dbmax=%s' % dbmax)
+            Vabs[Vabs > Vmax] = Vmax
 
         m = np.isinf(Vabs)
         if any(m):
@@ -480,11 +500,14 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
             Vabs[m] = 1e30
 
         dB = 20 * np.log10(Vabs)
-        dBmin = min(dB)
-        dBmax = max(dB)
 
-        ymin = np.floor(dBmin / 10) * 10
-        ymax = np.ceil(dBmax / 10) * 10
+        if dbmin is None:
+            dbmin = min(dB)
+        if dbmax is None:
+            dbmax = max(dB)
+
+        ymin = np.floor(dbmin / 10) * 10
+        ymax = np.ceil(dbmax / 10) * 10
         yrange = ymax - ymin
 
         if False:
