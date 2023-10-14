@@ -387,6 +387,14 @@ def is_sympy(expr):
     return isinstance(expr, (Symbol, Expr, AppliedUndef))
 
 
+def symcheck(expr):
+
+    for arg in expr.args:
+        if hasattr(arg, 'sympy'):
+            breakpoint()
+        symcheck(arg)
+
+
 def symdebug(expr, s='', indent=0):
     """See also the SymPy function srepr."""
 
