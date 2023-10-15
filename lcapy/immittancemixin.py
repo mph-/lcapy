@@ -90,11 +90,10 @@ class ImmittanceMixin(object):
         return self.impedance
 
     def network(self, form='default'):
-        """Synthesise a network with an equivalent impedance.
-        `form` includes: cauerI, cauerII, fosterI, fosterII.
-
-        Note some methods generate networks with negative value
-        components."""
+        """Synthesise a network with an equivalent impedance.  `form`
+        includes: cauerI, cauerII, fosterI, fosterII, seriesRLC,
+        seriesGC, parallelRLC, seriesRC, seriesRL, parallelRC,
+        parallelRL, parallelGC.  The default is CauerI."""
 
         from .synthesis import network
 

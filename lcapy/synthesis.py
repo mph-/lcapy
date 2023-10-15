@@ -129,6 +129,9 @@ class Synthesis(object):
         lexpr = lexpr.partfrac()
         d = lexpr.expr.collect(var, evaluate=False)
 
+        if len(d) > 3:
+            raise ValueError('Not series RLC, degree > 2')
+
         net = None
         a = d.pop(1, None)
         if a is not None:
@@ -249,7 +252,11 @@ class Synthesis(object):
         return net
 
     def parallelRLC(self, lexpr):
-        """Y = s * C + 1 / R + 1 / (s * L)"""
+        """Y = s * C + 1 / R + 1 / (s * L)
+
+        or Z = (s / C) / (s**2 + s / (C * R) + 1 / (C * L)).
+
+        """
 
         if lexpr == 0:
             raise ValueError('Not parallel RLC')
@@ -257,6 +264,9 @@ class Synthesis(object):
         var = lexpr.var
         yexpr = (1 / lexpr).partfrac()
         d = yexpr.expr.collect(var, evaluate=False)
+
+        if len(d) > 3:
+            raise ValueError('Not parallel RLC, degree > 2')
 
         Rnet = None
         Lnet = None
@@ -304,6 +314,11 @@ class Synthesis(object):
 
         net = None
         for term in expr.as_ordered_terms():
+            # Convert R - R**2/(L*(s + R/L))) to L*R*s/(L*s + R)
+            # and handle mess from partfrac
+            term = term.simplify()
+
+            # This requires s / (s**2 + a*s + b)
             net = series(net, self.parallelRLC(LaplaceDomainExpression(term)))
         return net
 
@@ -313,6 +328,7 @@ class Synthesis(object):
 
         net = None
         for term in expr.as_ordered_terms():
+            term = term.simplify()
             net = parallel(net, self.seriesRLC(
                 LaplaceDomainExpression(1 / term)))
         return net
@@ -371,5 +387,12 @@ class Synthesis(object):
 
 
 def network(lexpr, form='default'):
+    """Synthesise a network with an equivalent impedance.  `form`
+    includes: cauerI, cauerII, fosterI, fosterII, seriesRLC, seriesGC,
+    parallelRLC, seriesRC, seriesRL, parallelRC, parallelRL,
+    parallelGC.  The default is CauerI.
+
+    Note some methods generate networks with negative value
+    components."""
 
     return Synthesis().network(lexpr, form)

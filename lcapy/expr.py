@@ -2137,6 +2137,18 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             # For some reason the new lambdify will convert a float
             # argument to complex
 
+            def besseli(mu, arg):
+                """Modified Bessel function."""
+
+                from scipy.special import iv
+                return iv(mu, arg)
+
+            def besselj(mu, arg):
+                """Bessel function."""
+
+                from scipy.special import jv
+                return jv(mu, arg)
+
             def exp(arg):
 
                 # Hack to handle exp(-a * t) * Heaviside(t) for t < 0
@@ -2288,6 +2300,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                                'UnitImpulse': unitimpulse,
                                'UnitStep': unitstep,
                                'dtrect': dtrect, 'dtsign': dtsign,
+                               'besseli': besseli, 'besselj': besselj,
                                'sinc': sinc, 'sincn': sincn,
                                'sincu': sincu, 'psinc': psinc,
                                'rect': rect, 'tri': tri, 'trap': trap,

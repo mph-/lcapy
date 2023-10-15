@@ -1,7 +1,7 @@
 """This module wraps SymPy functions and provides a few others.
 The underlying SymPy function is obtained with the sympy attribute.
 
-Copyright 2014--2022 Michael Hayes, UCECE
+Copyright 2014--2023 Michael Hayes, UCECE
 """
 
 from .units import u as uu
@@ -17,7 +17,7 @@ __all__ = ('conjugate', 'sqrt', 'exp', 'log', 'log10', 'sin', 'cos',
            'ramp', 'rampstep', 'Sum', 'dtrect', 'dtsign', 'Piecewise',
            'Eq', 'Ne', 'Lt', 'Le', 'Gt', 'Ge', 'Derivative',
            'Integral', 'Max', 'Min', 're', 'im', 'MatMul', 'MatAdd',
-           'degrees', 'radians', 'limit')
+           'degrees', 'radians', 'limit', 'besseli', 'besselj')
 
 from .extrafunctions import Degrees as Degrees1
 from .extrafunctions import Radians as Radians1
@@ -271,6 +271,10 @@ trap = function_wrap(trap1)
 ramp = function_wrap(ramp1)
 
 rampstep = function_wrap(rampstep1)
+
+besseli = function_wrap(sym.besseli)
+
+besselj = function_wrap(sym.besselj)
 
 function_mapping = {sym.Heaviside: us,
                     sym.DiracDelta: ui,
