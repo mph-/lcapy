@@ -467,7 +467,7 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
     except AttributeError:
         ax2 = ax.twinx()
         ax.ax2 = ax2
-    kwargs['axes'] = ax2
+
     kwargs.pop('color', None)
 
     plotit(ax2, obj, f, V, plot2_type, deltas, log_frequency=log_frequency,
