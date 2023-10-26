@@ -2319,7 +2319,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 try:
                     result = func1(arg)
                 except ZeroDivisionError:
-                    result = complex(expr.limit(var, arg))
+                    expr_limit = expr.limit(var, arg)
+                    result = complex(expr_limit)
 
                 # If get NaN evaluate limit.  This helps for sin(t) / t.
                 if np.isnan(result):

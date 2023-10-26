@@ -5,6 +5,10 @@ Release notes
 V1.19
 =====
 
+- Adds `dbmax` argument to plots
+
+- Adds besseli and besselj functions
+
 - Fixes abs value of expression with Dirac delta
 
 - Adds `as_polynomial()` to `ExprTuple` and `ExprList`
@@ -16,6 +20,11 @@ V1.19
 - Allows non-causal DLTI filters
 
 - Fixes conversion of discrete-time transfer function to DLTI filter
+
+- Adds Fourier transform of impedance for parallel R-L network
+
+- Improves finding convolutions for Laplace transforms
+
 
 
 V1.18
