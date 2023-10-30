@@ -45,6 +45,10 @@ class LoopAnalysis(object):
 
     >>> la.matrix_equations().pprint()
 
+    This only works for dc, ac, or laplace domains.  For example,
+
+    >>> LoopAnalysis(cct.laplace()).matrix_equations().pprint()
+
     """
 
     @classmethod
@@ -209,9 +213,10 @@ class LoopAnalysis(object):
 
     def _analyse(self):
 
-        if self.kind == 'time':
+        if self.kind in ('t', 'time'):
             raise ValueError(
-                'Cannot put time domain equations into matrix form')
+                'Cannot put time domain equations into matrix form.  '
+                'Convert to dc, ac, or laplace domain first.')
 
         subsdict = {}
         for m, i in enumerate(self._unknowns):

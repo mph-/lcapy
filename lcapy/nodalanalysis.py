@@ -6,7 +6,6 @@ Copyright 2019--2022 Michael Hayes, UCECE
 """
 
 from .circuitgraph import CircuitGraph
-from .tmatrix import TimeDomainMatrix
 from .expr import equation, ExprTuple
 from .systemequations import SystemEquations
 import sympy as sym
@@ -40,6 +39,10 @@ class NodalAnalysis(object):
     be solved:
 
     >>> na.matrix_equations().pprint()
+
+    This only works for dc, ac, or laplace domains.  For example,
+
+    >>> NodalAnalysis(cct.laplace()).matrix_equations().pprint()
 
     """
 
@@ -161,9 +164,10 @@ class NodalAnalysis(object):
 
     def _analyse(self):
 
-        if self.kind == 'time':
+        if self.kind in ('t', 'time'):
             raise ValueError(
-                'Cannot put time domain equations into matrix form')
+                'Cannot put time domain equations into matrix form.  '
+                'Convert to dc, ac, or laplace domain first.')
 
         subsdict = {}
         for node, v in self._unknowns.items():
