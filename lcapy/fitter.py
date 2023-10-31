@@ -38,7 +38,7 @@ class Fitter(object):
         ranges = {}
         for symbol in self.symbols:
             # Perhaps make (-inf, inf) for unbounded
-            # but will need to need to fix initial guess.
+            # but will need to fix initial guess.
             ranges[symbol] = (-1e9, 1e9)
         return ranges
 

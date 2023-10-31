@@ -313,7 +313,7 @@ class ExprDict(ExprPrint, ExprContainer, ExprMisc, OrderedDict):
         return new
 
     def subs(self, *args, **kwargs):
-        """Substitute symbols for each expression in dict.
+        """Substitute symbols in the expression.
 
         `args` is either:
         - two arguments, e.g. foo.subs(old, new)

@@ -966,10 +966,25 @@ class NetlistMixin(object):
         pdb.set_trace()
         return self
 
-    def subs(self, subs_dict):
-        """Substitute values using dictionary of substitutions.
+    def subs(self, *args):
+        """Substitute symbols in the netlist.
 
-        For example, b = a.subs({'R1': 1e3, 'R2': 9e3})"""
+        `args` is either:
+        - two arguments, e.g. foo.subs(old, new)
+        - one dict or set argument whose key/value items correspond to
+          old/new pairs.
+
+        For example, `b = a.subs({'R1': 1e3, 'R2': 9e3})`
+
+        Note, this does not substitute component names.
+        """
+
+        if len(args) > 2:
+            raise ValueError('Too many args')
+        if len(args) == 2:
+            subs_dict = {args[0]: args[1]}
+        else:
+            subs_dict = args[0]
 
         new = self._new()
 
