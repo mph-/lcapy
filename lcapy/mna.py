@@ -272,7 +272,14 @@ class MNA(object):
     def A(self):
         """Return A matrix for MNA"""
 
-        return Matrix(self._A)
+        ret = Matrix(self._A)
+
+        # Could cache
+        if ret.has(eps):
+            # Should only do this after inverse...  It is more rigorous
+            # if don't evaluate limit.
+            ret = ret.limit(eps, 0)
+        return ret
 
     @property
     def B(self):
@@ -352,7 +359,7 @@ class MNA(object):
 
         If `invert` is True, evaluate the matrix inverse."""
 
-        sys = SystemEquations(self._A, self._Z, self.X)
+        sys = SystemEquations(self.A, self._Z, self.X)
         return sys.format(form, invert)
 
     def equations(self, inverse=False):
