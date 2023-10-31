@@ -714,6 +714,37 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
 
         return self.annotate(cpts, color=color)
 
+    def matrix_equations(self, form='default', invert=False):
+        """Return modified nodal analysis equations in matrix form.
+
+        Forms can be:
+         'default'
+         'A y = b'
+         'b = A y'
+         'Ainv b = y'
+         'y = Ainv b'
+
+        If `invert` is True, evaluate the matrix inverse."""
+
+        mna = self.modified_nodal_analysis()
+        return mna.matrix_equations(form, invert)
+
+    def modified_nodal_analysis(self):
+        """Perform modified nodal analysis for this netlist.  This is
+        cached."""
+
+        if hasattr(self, '_mna'):
+            return self._mna
+
+        if self.kind in ('time', 'super'):
+            raise ValueError(
+                'Cannot put time domain equations into matrix form.  '
+                'Convert to dc, ac, or laplace domain first.')
+
+        self._mna = SubNetlist(self, self.kind).mna
+
+        return self._mna
+
     def nodal_analysis(self):
         """Perform nodal analysis for this netlist.   This is cached."""
 
@@ -810,6 +841,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         """
 
         new = self._new()
+        new.kind = kind
 
         for cpt in self._elements.values():
             net = cpt._select(kind)

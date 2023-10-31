@@ -22,6 +22,13 @@ class SubNetlist(NetlistMixin, NetlistSimplifyMixin, NetfileMixin):
 
     def __new__(cls, netlist, kind):
 
+        kinds = ('t', 'dc', 's', 'time', 'ivp', 'laplace')
+        if not isinstance(kind, str) or kind[0] == 'n':
+            pass
+        elif kind not in kinds:
+            raise ValueError('Expected one of %s for kind, got %s' %
+                             (', '.join(kinds), kind))
+
         obj = netlist.select(kind=kind)
         # Need own context to avoid conflicts with Vn1 and Vn1(s), etc.
         obj.context = state.new_context()
@@ -36,15 +43,6 @@ class SubNetlist(NetlistMixin, NetlistSimplifyMixin, NetfileMixin):
         where 'n*' is a noise identifer and omega is an angular frequency."""
 
         self.mna = MNA(self, self.solver_method)
-
-        if not isinstance(kind, str):
-            return
-        if kind[0] == 'n':
-            return
-        kinds = ('t', 'dc', 's', 'time', 'ivp', 'laplace')
-        if kind not in kinds:
-            raise ValueError('Expected one of %s for kind, got %s' %
-                             (', '.join(kinds), kind))
 
     def get_I(self, name):
         """Current through component"""

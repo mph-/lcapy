@@ -572,7 +572,8 @@ class NetlistMixin(object):
     def _invalidate(self):
 
         for attr in ('_sch', '_sub', '_Vdict', '_Idict', '_analysis',
-                     '_node_map', '_ss', '_node_list', '_branch_list', '_cg'):
+                     '_node_map', '_ss', '_node_list', '_branch_list', '_cg',
+                     '_mna', '_la', '_na'):
             try:
                 delattr(self, attr)
             except:
