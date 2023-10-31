@@ -33,13 +33,16 @@ class Fitter(object):
             defs[r[0]] = params[m]
         return defs
 
-    def _make_ranges(self):
+    def _make_ranges(self, positive=False):
+
+        val_min = 0 if positive else -1e9
+        val_max = 1e9
 
         ranges = {}
         for symbol in self.symbols:
             # Perhaps make (-inf, inf) for unbounded
             # but will need to fix initial guess.
-            ranges[symbol] = (-1e9, 1e9)
+            ranges[symbol] = (val_min, val_max)
         return ranges
 
     def model(self, params, x, ranges):
@@ -177,10 +180,11 @@ class Fitter(object):
         else:
             return self._optimize_minimize(x, y, ranges, method, **kwargs)
 
-    def optimize(self, x, y, ranges=None, method='trf', iterations=1, **kwargs):
+    def optimize(self, x, y, ranges=None, method='trf', iterations=1,
+                 positive=False, **kwargs):
 
         if ranges is None:
-            ranges = self._make_ranges()
+            ranges = self._make_ranges(positive)
 
         iscomplex = iscomplexobj(y)
 
