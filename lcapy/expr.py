@@ -3836,6 +3836,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         `ranges` is a dictionary of the search ranges keyed by the parameter name,
         `Ns` is the number of steps per range for the 'brute' optimizer,
         `iterations` is the number of iterations to use for outlier removal.
+        `positive` sets the minimum parameter value to zero for parameters
+        not specified in `ranges`
+        `param_min` sets the minimum parameter value for parameters
+        not specified in `ranges`
+        `param_max` sets the maximum parameter value for parameters
+        not specified in `ranges`
 
         The returned result is a `FitterResult` object.   This has attributes:
         `params` a dictionary of the estimated parameter values keyed by parameter name,
@@ -3852,6 +3858,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         >>> results.rmse
         3.489526384702217e-22
         `
+
         """
 
         from .fitter import fit

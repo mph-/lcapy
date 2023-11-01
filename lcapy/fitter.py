@@ -1,7 +1,7 @@
 """This module provides the Fitter class.  This uses optimization
 techniques to find the parameters of an expression that best fits measured data.
 
-Copyright 2022 Michael Hayes, UCECE
+Copyright 2022--2023 Michael Hayes, UCECE
 
 """
 
@@ -11,10 +11,15 @@ from numpy import iscomplexobj, hstack, zeros, sqrt
 
 class FitterResult(object):
 
-    def __init__(self, params, rmse):
+    def __init__(self, params, rmse, expr):
 
         self.params = params
         self.rmse = rmse
+        self.expr = expr.subs(params)
+
+    def __call__(self, arg):
+
+        return self.expr.evaluate(arg)
 
 
 class Fitter(object):
@@ -33,18 +38,22 @@ class Fitter(object):
             defs[r[0]] = params[m]
         return defs
 
-    def _make_ranges(self, ranges, positive=False):
-
-        val_min = 0 if positive else -1e9
-        val_max = 1e9
+    def _make_ranges(self, ranges, positive, param_min=None, param_max=None):
+        """Create missing ranges."""
 
         if ranges is None:
             ranges = {}
+
+        if param_min is None:
+            param_min = 0 if positive else -1e9
+        if param_max is None:
+            param_max = 1e9
+
         for symbol in self.symbols:
             if symbol not in ranges:
                 # Perhaps make (-inf, inf) for unbounded
                 # but will need to fix initial guess.
-                ranges[symbol] = (val_min, val_max)
+                ranges[symbol] = (param_min, param_max)
         return ranges
 
     def model(self, params, x, ranges):
@@ -88,7 +97,7 @@ class Fitter(object):
                                        finish=finish, full_output=1)
 
         defs = self._make_defs(params, ranges)
-        return FitterResult(defs, rmse)
+        return FitterResult(defs, rmse, self.expr)
 
     def _optimize_curvefit(self, x, y, ranges=None, method='trf', ftol=1e-14, xtol=1e-14,
                            maxfev=1e5, **kwargs):
@@ -131,7 +140,7 @@ class Fitter(object):
         rmse = ((y - yp)**2).mean()
 
         defs = self._make_defs(params, ranges)
-        return FitterResult(defs, rmse)
+        return FitterResult(defs, rmse, self.expr)
 
     def _optimize_minimize(self, x, y, ranges=None, method='Nelder-Mead', **kwargs):
 
@@ -169,7 +178,7 @@ class Fitter(object):
         rmse = ((y - yp)**2).mean()
 
         defs = self._make_defs(params, ranges)
-        return FitterResult(defs, rmse)
+        return FitterResult(defs, rmse, self.expr)
 
     def _optimize1(self, x, y, ranges=None, method='trf', **kwargs):
 
@@ -183,9 +192,9 @@ class Fitter(object):
             return self._optimize_minimize(x, y, ranges, method, **kwargs)
 
     def optimize(self, x, y, ranges=None, method='trf', iterations=1,
-                 positive=False, **kwargs):
+                 positive=False, param_min=None, param_max=None, **kwargs):
 
-        ranges = self._make_ranges(ranges, positive)
+        ranges = self._make_ranges(ranges, positive, param_min, param_max)
 
         iscomplex = iscomplexobj(y)
 
