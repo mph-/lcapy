@@ -2056,6 +2056,8 @@ If the argument is a scalar the returned result is a Python float or complex typ
 Simplification
 --------------
 
+Simplification of some expressions takes a long time.  Thus, as a rule, Lcapy does not automatically simplify expressions.
+
 Lcapy has the following simplification methods:
 
 - `doit()` evaluates a summation or integral, for example::
@@ -2071,6 +2073,9 @@ Lcapy has the following simplification methods:
    2⋅cos(3) + 1
 
 - `simplify_dirac_delta()` simplifies Dirac deltas.
+
+   >>> expr('a(t) * delta(t)').simplify_dirac_delta()
+   a(0)⋅δ(t)
 
 - `simplify_heaviside()` simplifies Heaviside unit steps, for example::
 
@@ -2089,7 +2094,7 @@ Lcapy has the following simplification methods:
    >>> (3 * sin(omega0 * t) + 4 * cos(omega0 * t)).simplify_sin_cos()
    5⋅cos(ω₀⋅t - atan(3/4))
 
-- `simplify_terms()`  simplifies each term separately.
+- `simplify_terms()` simplifies each term separately.
 
 - `simplify_units()` simplifies the units of an expression, for example, `V/A` becomes `ohms`.
 
@@ -2228,8 +2233,8 @@ initial guess.
 `dogbox`, `Nelder-Mead`, `Powell`, `trf` (default), and many others.
 See SciPy `scipy.optimize.curve_fit`, `scipy.optimize.brute`, and
 `scipy.optimize.minimize` for other methods and parameters.  Note, the
-`brute` method is good for finding a global optimum but its execution
-time is exponential in the number of parameters.
+`brute` (brute force) method is good for finding a global optimum but
+its execution time is exponential in the number of parameters.
 
 A typical application is finding the model parameters given measured
 impedance data.  For example, consider a series R, L, C network model
