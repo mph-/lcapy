@@ -62,7 +62,8 @@ class Fitter(object):
 
         return self.expr.subs(defs).evaluate(x)
 
-    def _optimize_brute(self, x, y, ranges=None, Ns=10, finish='fmin', **kwargs):
+    def _optimize_brute(self, x, y, ranges=None, Ns=10, finish='fmin',
+                        **kwargs):
 
         kwargs.pop('method', None)
         self.verbose = kwargs.pop('verbose', 0)
@@ -99,8 +100,9 @@ class Fitter(object):
         defs = self._make_defs(params, ranges)
         return FitterResult(defs, rmse, self.expr)
 
-    def _optimize_curvefit(self, x, y, ranges=None, method='trf', ftol=1e-14, xtol=1e-14,
-                           maxfev=1e5, **kwargs):
+    def _optimize_curvefit(self, x, y, ranges=None, method='trf',
+                           ftol=1e-14, xtol=1e-14, maxfev=1e5,
+                           **kwargs):
 
         kwargs.pop('Ns', None)
         kwargs.pop('finish', None)
@@ -142,7 +144,8 @@ class Fitter(object):
         defs = self._make_defs(params, ranges)
         return FitterResult(defs, rmse, self.expr)
 
-    def _optimize_minimize(self, x, y, ranges=None, method='Nelder-Mead', **kwargs):
+    def _optimize_minimize(self, x, y, ranges=None,
+                           method='Nelder-Mead', **kwargs):
 
         kwargs.pop('Ns', None)
         kwargs.pop('finish', None)
@@ -245,7 +248,8 @@ class Fitter(object):
 
 def fit(expr, x, y, ranges, method='trf', Ns=10, **kwargs):
 
-    return Fitter(expr).optimize(x, y, ranges=ranges, method=method, Ns=Ns, **kwargs)
+    return Fitter(expr).optimize(x, y, ranges=ranges, method=method,
+                                 Ns=Ns, **kwargs)
 
 
 def test1():
