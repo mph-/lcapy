@@ -7,14 +7,13 @@ Copyright 2022--2023 Michael Hayes, UCECE
 
 from scipy.optimize import brute, fmin, curve_fit, minimize
 from numpy import iscomplexobj, hstack, zeros, sqrt
-from .expr import ExprDict
 
 
 class FitterResult(object):
 
     def __init__(self, params, rmse, expr):
 
-        self.params = ExprDict(params)
+        self.params = params
         self.rmse = rmse
         self.expr = expr.subs(params)
 
