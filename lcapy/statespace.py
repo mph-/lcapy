@@ -13,7 +13,7 @@ from .tmatrix import TimeDomainMatrix
 from .nmatrix import DiscreteTimeDomainMatrix
 from .statespacebase import StateSpaceBase
 from .texpr import t, texpr
-from .expr import expr
+from .equation import Equation
 from .sym import ssym
 import sympy as sym
 
@@ -102,20 +102,19 @@ class StateSpace(StateSpaceBase):
         """
 
         if len(self.u) == 0 and len(self.x) == 0:
-            return expr('')
+            return Equation(None, None)
 
         if len(self.u) == 0:
-            return expr(sym.Eq(self.dotx,
-                               sym.MatMul(self._A.sympy, self.x.sympy)))
+            return Equation(self.dotx,
+                            sym.MatMul(self._A.sympy, self.x.sympy))
 
         if len(self.x) == 0:
-            return expr(sym.Eq(self.dotx,
-                               sym.MatMul(self._B.sympy, self.u.sympy)))
+            return Equation(self.dotx,
+                            sym.MatMul(self._B.sympy, self.u.sympy))
 
-        return expr(sym.Eq(self.dotx,
-                           sym.MatAdd(sym.MatMul(self._A.sympy, self.x.sympy),
-                                      sym.MatMul(self._B.sympy, self.u.sympy)),
-                           evaluate=False))
+        return Equation(self.dotx,
+                        sym.MatAdd(sym.MatMul(self._A.sympy, self.x.sympy),
+                                   sym.MatMul(self._B.sympy, self.u.sympy)))
 
     def output_equations(self):
         """System of output equations:
@@ -128,17 +127,16 @@ class StateSpace(StateSpaceBase):
         """
 
         if len(self.u) == 0:
-            return expr(sym.Eq(self.y,
-                               sym.MatMul(self._C.sympy, self.x.sympy)))
+            return Equation(self.y,
+                            sym.MatMul(self._C.sympy, self.x.sympy))
 
         if len(self.x) == 0:
-            return expr(sym.Eq(self.y,
-                               sym.MatMul(self._D.sympy, self.u.sympy)))
+            return Equation(self.y,
+                            sym.MatMul(self._D.sympy, self.u.sympy))
 
-        return expr(sym.Eq(self.y,
-                           sym.MatAdd(sym.MatMul(self._C.sympy, self.x.sympy),
-                                      sym.MatMul(self._D.sympy, self.u.sympy)),
-                           evaluate=False))
+        return Equation(self.y,
+                        sym.MatAdd(sym.MatMul(self._C.sympy, self.x.sympy),
+                                   sym.MatMul(self._D.sympy, self.u.sympy)))
 
     @property
     def g(self):

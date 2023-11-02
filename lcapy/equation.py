@@ -10,6 +10,8 @@ from sympy import Eq
 
 class Equation(ExprPrint, ExprMisc):
 
+    is_Equality = True
+
     def __init__(self, lhs, rhs):
 
         self.lhs = expr(lhs)
@@ -20,3 +22,7 @@ class Equation(ExprPrint, ExprMisc):
         """Return expression for printing."""
 
         return Eq(self.lhs.sympy, self.rhs.sympy)
+
+    # TODO add transform
+
+    # TODO, perhaps add canonical, etc.
