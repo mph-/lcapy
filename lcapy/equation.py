@@ -23,6 +23,18 @@ class Equation(ExprPrint, ExprMisc):
 
         return Eq(self.lhs.sympy, self.rhs.sympy)
 
-    # TODO add transform
-
     # TODO, perhaps add canonical, etc.
+
+    def __call__(self, arg, **assumptions):
+        """Transform domain."""
+
+        from .transform import call
+
+        return Equation(call(self.lhs, arg, **assumptions),
+                        call(self.rhs, arg, **assumptions))
+
+    @property
+    def symbols(self):
+        """Return dictionary of symbols in the equation keyed by name."""
+
+        return self.lhs.symbols + self.rhs.symbols

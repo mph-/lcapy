@@ -139,6 +139,9 @@ class LcapyLatexPrinter(LatexPrinter):
         from .expr import Expr
         from .sequence import Sequence
 
+        if hasattr(expr, '_pexpr'):
+            expr = expr._pexpr
+
         if isinstance(expr, Expr):
             expr = expr.expr
 
@@ -272,6 +275,9 @@ class LcapyPrettyPrinter(PrettyPrinter):
 
         from .expr import Expr
         from .sequence import Sequence
+
+        if hasattr(expr, '_pexpr'):
+            expr = expr._pexpr
 
         if isinstance(expr, Expr):
             expr = expr.expr
