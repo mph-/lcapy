@@ -136,14 +136,10 @@ class LcapyLatexPrinter(LatexPrinter):
 
     def _print(self, expr, exp=None):
 
-        from .expr import Expr
         from .sequence import Sequence
 
         if hasattr(expr, '_pexpr'):
             expr = expr._pexpr
-
-        if isinstance(expr, Expr):
-            expr = expr.expr
 
         if isinstance(expr, Sequence):
             return self._print_Sequence(expr)
@@ -273,14 +269,10 @@ class LcapyPrettyPrinter(PrettyPrinter):
 
     def _print(self, expr, exp=None):
 
-        from .expr import Expr
         from .sequence import Sequence
 
         if hasattr(expr, '_pexpr'):
             expr = expr._pexpr
-
-        if isinstance(expr, Expr):
-            expr = expr.expr
 
         if isinstance(expr, Sequence):
             return self._print_Sequence(expr)
