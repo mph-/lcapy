@@ -69,7 +69,7 @@ class LoopAnalysis(object):
         elif len(source_groups) == 1:
             self.kind = list(source_groups)[0]
         else:
-            self.kind = 'time'
+            self.kind = cct.kind
 
         self._equations = self._make_equations()
 

@@ -67,7 +67,7 @@ class NodalAnalysis(object):
         elif len(source_groups) == 1:
             self.kind = list(source_groups)[0]
         else:
-            self.kind = 'time'
+            self.kind = cct.kind
 
         self.node_prefix = node_prefix
 
