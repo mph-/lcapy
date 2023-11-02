@@ -8,7 +8,6 @@ Copyright 2019--2022 Michael Hayes, UCECE
 from .circuitgraph import CircuitGraph
 from .expr import equation, ExprTuple
 from .systemequations import SystemEquations
-from .equality import Equality
 import sympy as sym
 
 __all__ = ('NodalAnalysis', )

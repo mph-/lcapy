@@ -19,7 +19,8 @@ from .vector import Vector
 from .matrix import Matrix
 from .oneport import OnePort, I, V, Y, Z
 from .network import Network
-from .functions import exp, sqrt, Eq, MatMul, MatAdd
+from .functions import exp, sqrt, MatMul, MatAdd
+from .equation import Equation
 
 # TODO:
 # 1. Defer the choice of the two-port model.  For example, a T section
@@ -678,8 +679,7 @@ class AMatrix(TwoPortMatrix):
         return cls((('A_11', 'A_12'), ('A_21', 'A_22')))
 
     def equation(self):
-        return Eq(Matrix(('V1', 'I1')), MatMul(self, Matrix(('V2', '-I2'))),
-                  evaluate=False)
+        return Equation(Matrix(('V1', 'I1')), MatMul(self, Matrix(('V2', '-I2'))))
 
     @property
     def Aparams(self):
@@ -885,8 +885,7 @@ class BMatrix(TwoPortMatrix):
         return cls((('B_11', 'B_12'), ('B_21', 'B_22')))
 
     def equation(self):
-        return Eq(Matrix(('V2', '-I2')), MatMul(self, Matrix(('V1', 'I1'))),
-                  evaluate=False)
+        return Equation(Matrix(('V2', '-I2')), MatMul(self, Matrix(('V1', 'I1'))))
 
     @property
     def Aparams(self):
@@ -1184,8 +1183,7 @@ class GMatrix(TwoPortMatrix):
         return cls((('G_11', 'G_12'), ('G_21', 'G_22')))
 
     def equation(self):
-        return Eq(Matrix(('I1', 'V2')), MatMul(self, Matrix(('V1', 'I2'))),
-                  evaluate=False)
+        return Equation(Matrix(('I1', 'V2')), MatMul(self, Matrix(('V1', 'I2'))))
 
     @property
     def Aparams(self):
@@ -1241,8 +1239,7 @@ class HMatrix(TwoPortMatrix):
         return cls((('H_11', 'H_12'), ('H_21', 'H_22')))
 
     def equation(self):
-        return Eq(Matrix(('V1', 'I2')), MatMul(self, Matrix(('I1', 'V2'))),
-                  evaluate=False)
+        return Equation(Matrix(('V1', 'I2')), MatMul(self, Matrix(('I1', 'V2'))))
 
     @property
     def Aparams(self):
@@ -1293,8 +1290,7 @@ class SMatrix(TwoPortMatrix):
         return cls((('S_11', 'S_12'), ('S_21', 'S_22')))
 
     def equation(self):
-        return Eq(Matrix(('b1', 'b2')), MatMul(self, Matrix(('a1', 'a2'))),
-                  evaluate=False)
+        return Equation(Matrix(('b1', 'b2')), MatMul(self, Matrix(('a1', 'a2'))))
 
     @property
     def Aparams(self):
@@ -1340,8 +1336,7 @@ class TMatrix(TwoPortMatrix):
 
     # Note, another convention uses a1, b1 in terms of b2, a2.
     def equation(self):
-        return Eq(Matrix(('b1', 'a1')), MatMul(self, Matrix(('a2', 'b2'))),
-                  evaluate=False)
+        return Equation(Matrix(('b1', 'a1')), MatMul(self, Matrix(('a2', 'b2'))))
 
     @property
     def Aparams(self):
@@ -1387,8 +1382,7 @@ class YMatrix(TwoPortMatrix):
         return cls((('Y_11', 'Y_12'), ('Y_21', 'Y_22')))
 
     def equation(self):
-        return Eq(Matrix(('I1', 'I2')), MatMul(self, Matrix(('V1', 'V2'))),
-                  evaluate=False)
+        return Equation(Matrix(('I1', 'I2')), MatMul(self, Matrix(('V1', 'V2'))))
 
     @property
     def Ysc(self):
@@ -1478,8 +1472,7 @@ class ZMatrix(TwoPortMatrix):
         return cls((('Z_11', 'Z_12'), ('Z_21', 'Z_22')))
 
     def equation(self):
-        return Eq(Matrix(('V1', 'V2')), MatMul(self, Matrix(('I1', 'I2'))),
-                  evaluate=False)
+        return Equation(Matrix(('V1', 'V2')), MatMul(self, Matrix(('I1', 'I2'))))
 
     @property
     def Aparams(self):
@@ -2187,12 +2180,11 @@ class TwoPort(Network, TwoPortMixin):
         sources = self.sources.expr
 
         if sources[0] == 0 and sources[1] == 0:
-            return expr(sym.Eq(output, sym.MatMul(params, input),
-                               evaluate=False))
+            return Equation(output, sym.MatMul(params, input))
 
-        return expr(sym.Eq(output,
-                           sym.MatAdd(sym.MatMul(params, input),
-                                      sources), evaluate=False))
+        return Equation(output,
+                        sym.MatAdd(sym.MatMul(params, input),
+                                   sources))
 
 
 class TwoPortBModel(TwoPort):
