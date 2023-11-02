@@ -1,5 +1,12 @@
+"""This module provides the SystemEquations class.
+
+Copyright 2023 Michael Hayes, UCECE
+
+"""
+
+
 import sympy as sym
-from .expr import expr
+from .expr import equation
 
 
 class SystemEquations(object):
@@ -29,25 +36,23 @@ class SystemEquations(object):
         If `invert` is True, the A matrix is inverted."""
 
         if form == 'A y = b':
-            return expr(sym.Eq(sym.MatMul(self.A, self.y), self.b), evaluate=False)
+            return equation(sym.MatMul(self.A, self.y), self.b)
 
         elif form == 'b = A y':
-            return expr(sym.Eq(self.b, sym.MatMul(self.A, self.y)), evaluate=False)
+            return equation(self.b, sym.MatMul(self.A, self.y))
 
         elif form in ('y = Ainv b', 'default'):
             if invert:
-                return expr(sym.Eq(self.y, sym.MatMul(self.Ainv, self.b),
-                                   evaluate=False))
+                return equation(self.y, sym.MatMul(self.Ainv, self.b))
 
-            return expr(sym.Eq(self.y, sym.MatMul(sym.Pow(self.A, -1), self.b),
-                               evaluate=False))
+            return equation(self.y, sym.MatMul(sym.Pow(self.A, -1), self.b))
 
         elif form == 'Ainv b = y':
             if invert:
-                return expr(sym.Eq(sym.MatMul(self.Ainv, self.b), self.y,
-                                   evaluate=False))
+                return equation(sym.MatMul(self.Ainv, self.b), self.y,
+                                evaluate=False)
 
-            return expr(sym.Eq(sym.MatMul(sym.Pow(self.A, -1), self.b), self.y,
-                               evaluate=False))
+            return equation(sym.MatMul(sym.Pow(self.A, -1), self.b), self.y,
+                            evaluate=False)
         else:
             raise ValueError('Unknown form %s' % form)

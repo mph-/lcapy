@@ -3174,9 +3174,6 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         See also general, partfrac, standard, timeconst, and ZPK
 
         """
-        if self.is_Equality:
-            return equation(self.lhs.canonical(), self.rhs.canonical())
-
         if not self.expr.has(self.var):
             return self
         if self._ratfun is None:
@@ -3190,9 +3187,6 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         (5 * s**2 + 10 * s + 5) / (s**2 + 4)
 
         See also canonical, partfrac, standard, timeconst, and ZPK."""
-
-        if self.is_Equality:
-            return equation(self.lhs.general(), self.rhs.general())
 
         if self._ratfun is None:
             return self.copy()
@@ -3214,10 +3208,6 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         See also canonical, standard, general, timeconst, and ZPK."""
 
         pairs = pairs or combine_conjugates
-
-        if self.is_Equality:
-            return equation(self.lhs.partfrac(pairs, damping, method),
-                            self.rhs.partfrac(pairs, damping, method))
 
         try:
             if self._ratfun is None:
@@ -3246,10 +3236,6 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         pairs = pairs or combine_conjugates
 
-        if self.is_Equality:
-            return equation(self.lhs.recippartfrac(pairs, damping, method),
-                            self.rhs.recippartfrac(pairs, damping, method))
-
         if self._ratfun is None:
             return self.copy()
 
@@ -3275,9 +3261,6 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         """
 
-        if self.is_Equality:
-            return equation(self.lhs.standard(), self.rhs.standard())
-
         if self._ratfun is None:
             return self.copy()
         return self.__class__(self._ratfun.standard(), **self.assumptions)
@@ -3295,18 +3278,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         See also timeconst_terms, canonical, general, standard,
         partfrac and ZPK."""
 
-        if self.is_Equality:
-            return equation(self.lhs.timeconst(), self.rhs.timeconst())
-
         if self._ratfun is None:
             return self.copy()
         return self.__class__(self._ratfun.timeconst(), **self.assumptions)
 
     def timeconst_terms(self):
         """Convert each term of expression into time constant form."""
-
-        if self.is_Equality:
-            return equation(self.lhs.timeconst_terms(), self.rhs.timeconst_terms())
 
         result = 0
         for term in self.expr.as_ordered_terms():
@@ -3329,8 +3306,6 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         See also canonical, general, standard, partfrac, and timeconst.
 
         """
-        if self.is_Equality:
-            return equation(self.lhs.ZPK(), self.rhs.ZPK())
 
         if self._ratfun is None:
             return self.copy()
@@ -3351,9 +3326,6 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         """
 
-        if self.is_Equality:
-            return equation(self.lhs.factored(), self.rhs.factored())
-
         if self._ratfun is None:
             return self.copy()
         return self.__class__(self._ratfun.ZPK(pairs), **self.assumptions)
@@ -3365,9 +3337,6 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         s / (s**2 + 4) + 5 / (s**2 + 4)
 
         See also canonical, general, partfrac, timeconst, and ZPK."""
-
-        if self.is_Equality:
-            return equation(self.lhs.expandcanonoical(), self.rhs.expandcanonical())
 
         if self._ratfun is None:
             return self.copy()
@@ -3978,10 +3947,6 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if not self.has(AppliedUndef):
             return self
 
-        if self.is_Equality:
-            return equation(self.lhs.zero_initial_conditions(),
-                            self.rhs.zero_initial_conditions())
-
         result = 0
         expr = self.sympy
         terms = expr.as_ordered_terms()
@@ -4156,6 +4121,7 @@ def equation(lhs, rhs, inputsym='x', outputsym='y', **assumptions):
     can be obtained with the `lhs` and `rhs` attributes."""
 
     from .differenceequation import DifferenceEquation
+    from .equation import Equation
 
     lhs = expr(lhs)
     rhs = expr(rhs)
@@ -4165,9 +4131,7 @@ def equation(lhs, rhs, inputsym='x', outputsym='y', **assumptions):
     if diff.is_discrete_time_domain:
         return DifferenceEquation(lhs, rhs, inputsym, outputsym, **assumptions)
 
-    cls = lhs.__class__
-
-    return cls(sym.Eq(lhs.expr, rhs.expr, evaluate=False), **assumptions)
+    return Equation(lhs, rhs)
 
 
 def symbol(name, **assumptions):
