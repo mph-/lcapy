@@ -241,6 +241,13 @@ class NodalAnalysis(object):
         unknowns = self.unknowns(s)
         return self.nodal_equations()(s).solve(unknowns)
 
+    def pdb(self):
+        """Enter the python debugger."""
+
+        import pdb
+        pdb.set_trace()
+        return self
+
 
 from .expr import ExprDict, expr  # nopep8
 from .voltage import Vname  # nopep8

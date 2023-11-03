@@ -289,6 +289,13 @@ class LoopAnalysis(object):
         unknowns = self.unknowns(s)
         return self.mesh_equations()(s).solve(unknowns)
 
+    def pdb(self):
+        """Enter the python debugger."""
+
+        import pdb
+        pdb.set_trace()
+        return self
+
 
 from .expr import ExprList, ExprDict, expr  # nopep8
 from .current import Iname  # nopep8
