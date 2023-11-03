@@ -44,7 +44,8 @@ class StateSpace(StateSpaceBase):
     @cached_property
     def dotx(self):
         """Time derivative of state variable vector."""
-        return TimeDomainMatrix([Derivative(x1, t) for x1 in self.x])
+
+        return TimeDomainMatrix([Derivative(x1, t) for x1 in self.x.sympy])
 
     @property
     def x0(self):

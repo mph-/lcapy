@@ -38,4 +38,4 @@ class Equation(ExprPrint, ExprMisc):
     def symbols(self):
         """Return dictionary of symbols in the equation keyed by name."""
 
-        return self.lhs.symbols + self.rhs.symbols
+        return dict(self.lhs.symbols, **self.rhs.symbols)
