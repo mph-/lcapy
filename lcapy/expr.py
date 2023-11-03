@@ -4128,8 +4128,12 @@ def equation(lhs, rhs, inputsym='x', outputsym='y', **assumptions):
     # Check if lhs and rhs compatible.
     diff = lhs - rhs
 
-    if diff.is_discrete_time_domain:
-        return DifferenceEquation(lhs, rhs, inputsym, outputsym, **assumptions)
+    # FIXME
+    try:
+        if diff.is_discrete_time_domain:
+            return DifferenceEquation(lhs, rhs, inputsym, outputsym, **assumptions)
+    except AttributeError:
+        pass
 
     return Equation(lhs, rhs)
 

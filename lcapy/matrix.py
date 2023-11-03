@@ -6,7 +6,7 @@ Copyright 2019--2023 Michael Hayes, UCECE
 
 import sympy as sym
 from copy import copy
-from .expr import expr
+from .expr import expr, delcapify
 from .sym import simplify
 from .printing import pprint, latex, pretty
 from warnings import warn
@@ -52,6 +52,11 @@ class Matrix(sym.Matrix):
 
     # _sympify is called for each matrix element when a matrix is created.
     _sympify = staticmethod(msympify)
+
+    def __new__(cls, *args, **kwargs):
+
+        newargs = delcapify(args)
+        return super(Matrix, cls).__new__(cls, *newargs, **kwargs)
 
     def __getitem__(self, key):
 
