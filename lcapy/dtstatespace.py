@@ -103,14 +103,14 @@ class DTStateSpace(StateSpaceBase):
             return Equation(None, None)
 
         if len(self.u) == 0:
-            return Equation(self.xnext,
+            return Equation(self.xnext.sympy,
                             sym.MatMul(self._A.sympy, self.x.sympy))
 
         if len(self.x) == 0:
-            return Equation(self.xnext,
+            return Equation(self.xnext.sympy,
                             sym.MatMul(self._B.sympy, self.u.sympy))
 
-        return Equation(self.xnext,
+        return Equation(self.xnext.sympy,
                         sym.MatAdd(sym.MatMul(self._A.sympy, self.x.sympy),
                                    sym.MatMul(self._B.sympy, self.u.sympy)))
 

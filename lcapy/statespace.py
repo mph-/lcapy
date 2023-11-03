@@ -15,7 +15,8 @@ from .statespacebase import StateSpaceBase
 from .texpr import t, texpr
 from .equation import Equation
 from .sym import ssym
-import sympy as sym
+from sympy import diag, eye, MatMul, MatAdd, Derivative
+
 
 # Note, need to be careful with simplification since a pole can
 # cancel a zero.
@@ -43,7 +44,7 @@ class StateSpace(StateSpaceBase):
     @cached_property
     def dotx(self):
         """Time derivative of state variable vector."""
-        return TimeDomainMatrix([sym.Derivative(x1, t) for x1 in self.x])
+        return TimeDomainMatrix([Derivative(x1, t) for x1 in self.x])
 
     @property
     def x0(self):
@@ -105,16 +106,16 @@ class StateSpace(StateSpaceBase):
             return Equation(None, None)
 
         if len(self.u) == 0:
-            return Equation(self.dotx,
-                            sym.MatMul(self._A.sympy, self.x.sympy))
+            return Equation(self.dotx.sympy,
+                            MatMul(self._A.sympy, self.x.sympy))
 
         if len(self.x) == 0:
-            return Equation(self.dotx,
-                            sym.MatMul(self._B.sympy, self.u.sympy))
+            return Equation(self.dotx.sympy,
+                            MatMul(self._B.sympy, self.u.sympy))
 
-        return Equation(self.dotx,
-                        sym.MatAdd(sym.MatMul(self._A.sympy, self.x.sympy),
-                                   sym.MatMul(self._B.sympy, self.u.sympy)))
+        return Equation(self.dotx.sympy,
+                        MatAdd(MatMul(self._A.sympy, self.x.sympy),
+                               MatMul(self._B.sympy, self.u.sympy)))
 
     def output_equations(self):
         """System of output equations:
@@ -128,15 +129,15 @@ class StateSpace(StateSpaceBase):
 
         if len(self.u) == 0:
             return Equation(self.y,
-                            sym.MatMul(self._C.sympy, self.x.sympy))
+                            MatMul(self._C.sympy, self.x.sympy))
 
         if len(self.x) == 0:
             return Equation(self.y,
-                            sym.MatMul(self._D.sympy, self.u.sympy))
+                            MatMul(self._D.sympy, self.u.sympy))
 
         return Equation(self.y,
-                        sym.MatAdd(sym.MatMul(self._C.sympy, self.x.sympy),
-                                   sym.MatMul(self._D.sympy, self.u.sympy)))
+                        MatAdd(MatMul(self._C.sympy, self.x.sympy),
+                               MatMul(self._D.sympy, self.u.sympy)))
 
     @property
     def g(self):
@@ -147,7 +148,7 @@ class StateSpace(StateSpaceBase):
     def Phi(self):
         """s-domain state transition matrix."""
 
-        M = LaplaceDomainMatrix(sym.eye(self.Nx) * ssym - self._A.sympy)
+        M = LaplaceDomainMatrix(eye(self.Nx) * ssym - self._A.sympy)
         return LaplaceDomainMatrix(M.inv())
 
     @cached_property
@@ -160,7 +161,7 @@ class StateSpace(StateSpaceBase):
 
         `lambda(s) = |s * I - A|`"""
 
-        M = LaplaceDomainMatrix(sym.eye(self.Nx) * ssym - self._A.sympy)
+        M = LaplaceDomainMatrix(eye(self.Nx) * ssym - self._A.sympy)
         return LaplaceDomainExpression(M.det()).simplify()
 
     @cached_property
@@ -180,7 +181,7 @@ class StateSpace(StateSpaceBase):
         # return L
 
         e = self.eigenvalues
-        return LaplaceDomainMatrix(sym.diag(*e))
+        return LaplaceDomainMatrix(diag(*e))
 
     @cached_property
     def M(self):
@@ -258,7 +259,7 @@ class StateSpace(StateSpaceBase):
         if alpha < 0 or alpha > 1:
             raise ValueError("alpha must be between 0 and 1 inclusive")
 
-        I = sym.eye(self.Nx)
+        I = eye(self.Nx)
         M = I - alpha * dt * self.A
         Minv = M.inv()
 
