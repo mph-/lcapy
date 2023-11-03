@@ -17,13 +17,6 @@ class Equation(ExprPrint, ExprMisc):
         self.lhs = expr(lhs)
         self.rhs = expr(rhs)
 
-    @property
-    def _pexpr(self):
-        """Return expression for printing."""
-
-        # FIXME, If lhs == rhs, SymPy prints True
-        return Eq(self.lhs.sympy, self.rhs.sympy)
-
     # TODO, perhaps add canonical, etc.
 
     def __call__(self, arg, **assumptions):

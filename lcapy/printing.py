@@ -110,7 +110,12 @@ class LcapyStrPrinter(StrPrinter):
 
     def _print(self, expr, exp=None):
 
+        from .equation import Equation
         from .expr import Expr
+
+        if isinstance(expr, Equation):
+            return self._print_Equation(expr)
+
         if isinstance(expr, Expr):
             expr = expr.expr
 
@@ -121,6 +126,10 @@ class LcapyStrPrinter(StrPrinter):
         except:
             pass
         return super(LcapyStrPrinter, self)._print(expr)
+
+    def _print_Equation(self, eq):
+
+        return self._print(eq.lhs) + ',' + self._print(eq.rhs)
 
     def _print_Symbol(self, expr):
         # Do not canonicalise name since this is required for name
@@ -136,13 +145,16 @@ class LcapyLatexPrinter(LatexPrinter):
 
     def _print(self, expr, exp=None):
 
+        from .equation import Equation
         from .sequence import Sequence
-
-        if hasattr(expr, '_pexpr'):
-            expr = expr._pexpr
 
         if isinstance(expr, Sequence):
             return self._print_Sequence(expr)
+        elif isinstance(expr, Equation):
+            return self._print_Equation(expr)
+
+        if hasattr(expr, '_pexpr'):
+            expr = expr._pexpr
 
         # Convert sym.I to j etc.
         try:
@@ -154,6 +166,10 @@ class LcapyLatexPrinter(LatexPrinter):
         if exp is None:
             return super(LcapyLatexPrinter, self)._print(expr)
         return super(LcapyLatexPrinter, self)._print(expr, exp=exp)
+
+    def _print_Equation(self, eq):
+
+        return self._print(eq.lhs) + ' = ' + self._print(eq.rhs)
 
     def _print_Sequence(self, seq):
 
@@ -270,12 +286,15 @@ class LcapyPrettyPrinter(PrettyPrinter):
     def _print(self, expr, exp=None):
 
         from .sequence import Sequence
-
-        if hasattr(expr, '_pexpr'):
-            expr = expr._pexpr
+        from .equation import Equation
 
         if isinstance(expr, Sequence):
             return self._print_Sequence(expr)
+        elif isinstance(expr, Equation):
+            return self._print_Equation(expr)
+
+        if hasattr(expr, '_pexpr'):
+            expr = expr._pexpr
 
         try:
             if expr in pretty_expr_map:
@@ -283,6 +302,17 @@ class LcapyPrettyPrinter(PrettyPrinter):
         except:
             pass
         return super(LcapyPrettyPrinter, self)._print(expr)
+
+    def _print_Equation(self, eq):
+
+        from sympy.printing.pretty.stringpict import prettyForm, stringPict
+
+        op = prettyForm(' = ')
+
+        l = self._print(eq.lhs)
+        r = self._print(eq.rhs)
+        pform = prettyForm(*stringPict.next(l, op, r), binding=prettyForm.OPEN)
+        return pform
 
     def _print_Sequence(self, seq):
         from sympy.printing.pretty.stringpict import prettyForm, stringPict
