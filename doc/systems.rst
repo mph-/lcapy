@@ -257,7 +257,7 @@ Continuous-time state-space representation
 Lcapy has two state-space representations: `StateSpace` for
 continuous-time linear time-invariant systems and `DTStateSpace` for
 discrete-time linear time-invariant systems.  Both representations
-share many methods and attributes.
+share many methods and attributes, see :ref:`state-space-analysis`.
 
 A state-space object is created from the state matrix, `A`, input
 matrix, `B`, output matrix `C`, and feed-through matrix `D`::
