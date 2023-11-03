@@ -12,9 +12,9 @@ from .smatrix import LaplaceDomainMatrix
 from .tmatrix import TimeDomainMatrix
 from .nmatrix import DiscreteTimeDomainMatrix
 from .statespacebase import StateSpaceBase
-from .texpr import t, texpr
+from .texpr import texpr
 from .equation import Equation
-from .sym import ssym
+from .sym import ssym, tsym
 from sympy import diag, eye, MatMul, MatAdd, Derivative
 
 
@@ -45,7 +45,7 @@ class StateSpace(StateSpaceBase):
     def dotx(self):
         """Time derivative of state variable vector."""
 
-        return TimeDomainMatrix([Derivative(x1, t) for x1 in self.x.sympy])
+        return TimeDomainMatrix([Derivative(x1, tsym) for x1 in self.x.sympy])
 
     @property
     def x0(self):

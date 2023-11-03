@@ -315,7 +315,7 @@ The system of equations can be formulated in matrix form as :math:`\mathbf{A} \m
    ⎢                    2                       2⎥
    ⎣                C₂⋅s                    C₂⋅s ⎦
 
-The system of equations can be shown in a number of forms: `y = Ainv b`, `Ainv b = y`, `A y = b`, and `b = A y`.  The `invert` argument calculates the inverse of the `A` matrix.
+The system of equations can be shown in a number of forms: `y = Ainv b`, `Ainv b = y`, `A y = b`, and `b = A y`.  The `inverse` argument calculates the inverse of the `A` matrix.
 
 The matrix is returned by the `A` attribute, the vector of unknowns by the `y` attribute, and the result vector by the `b` attribute.
 
@@ -425,7 +425,7 @@ The system of equations can be formulated in matrix form as :math:`\mathbf{A} \m
    ⎢ 0             0                  ────         ──── + ────⎥
    ⎣                                  R₂⋅s         R₃⋅s   R₂⋅s⎦
 
-The system of equations can be shown in a number of forms: `y = Ainv b`, `Ainv b = y`, `A y = b`, and `b = A y`.  The `invert` argument calculates the inverse of the `A` matrix.
+The system of equations can be shown in a number of forms: `y = Ainv b`, `Ainv b = y`, `A y = b`, and `b = A y`.  The `invert` argument calculates the inverse of the `A` matrix (see :ref:`system-of-equations`).
 
 The matrix is returned by the `A` attribute, the vector of unknowns by the `y` attribute, and the result vector by the `b` attribute.
 
@@ -508,6 +508,7 @@ The equations are similar for the transient response:
                ⎜⎢                             ⎥⎟
                ⎝⎣ 0    1      -1      0  -L₁⋅s⎦⎠
 
+See :ref:`system-of-equations` for formatting of the equations.
 
 .. _state-space-analysis:
 
@@ -938,3 +939,12 @@ between accuracy and stability.
 Here's an example of using the backward-Euler integration method:
 
    >>> results = cct.sim(tv, integrator='backward-euler')
+
+
+.. _system-of-equations:
+
+
+System of equations
+===================
+
+A system of equations can be shown in a number of forms: `y = Ainv b`, `Ainv b = y`, `A y = b`, and `b = A y`.  The `invert` argument calculates the inverse of the `A` matrix (see :ref:`system-of-equations`).

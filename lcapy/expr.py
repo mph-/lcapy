@@ -4201,8 +4201,9 @@ def delcapify(expr):
         for key, val in expr.items():
             ret[delcapify(key)] = delcapify(val)
         return ret
-    elif hasattr(expr, 'expr'):
-        return expr.expr
+    elif hasattr(expr, 'sympy'):
+        # Note, SymPy functions have an expr attribute
+        return expr.sympy
 
     return expr
 
