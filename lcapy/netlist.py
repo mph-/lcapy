@@ -970,3 +970,50 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
                 if active_time < tmax and active_time not in times:
                     times.append(active_time)
         return sorted(times)
+
+    def branch_currents(self):
+        """Return list of branch current names."""
+
+        branch_list = self.branch_list
+
+        prefix = 'I'
+        if self.kind in ('t', 'time', 'super'):
+            prefix = 'i'
+
+        current_list = []
+        for branch in branch_list:
+            current_list.append(prefix + branch)
+
+        return current_list
+
+    def branch_currents_vector(self):
+
+        from .vector import Vector
+
+        return Vector(self.branch_currents())
+
+    def evidence_matrix(self):
+
+        from .matrix import Matrix
+        from sympy import zeros
+
+        cct = self
+
+        branch_list = cct.branch_list
+        current_list = self.branch_currents
+
+        nodes = list(cct.equipotential_nodes)
+        node_map = cct.node_map
+
+        mat = Matrix(zeros(len(nodes), len(branch_list)))
+
+        for m, cpt_name in enumerate(branch_list):
+            cpt = cct[cpt_name]
+            node1, node2 = cpt.nodes[0:2]
+            n1 = nodes.index(node_map[node1.name])
+            n2 = nodes.index(node_map[node2.name])
+
+            mat[n1, m] = 1
+            mat[n2, m] = -1
+
+        return mat
