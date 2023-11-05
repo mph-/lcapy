@@ -33,7 +33,7 @@ class NetlistOpsMixin:
         new = self.kill()
         new._add_ground(Nm)
         test = new._add_test_voltage_source(Np, Nm)
-        If = new[test].I
+        If = -new[test].I
 
         return admittance(If.laplace().sympy)
 
@@ -102,8 +102,7 @@ class NetlistOpsMixin:
         else:
             new.add('Vshort_ %s %s 0' % (Np, Nm))
 
-        # Negate current since Vshort is a considered a source.
-        Isc = -new.get_I('Vshort_', **kwargs)
+        Isc = new.get_I('Vshort_', **kwargs)
 
         new.remove('Vshort_')
 

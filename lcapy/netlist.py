@@ -15,7 +15,6 @@ from .config import solver_method
 from .current import Iname, current
 from .deprecation import LcapyDeprecationWarning
 from .expr import Expr, expr
-from .impedance import impedance
 from .mna import Nodedict, Branchdict
 from .mnacpts import Cpt
 from .netlistmixin import NetlistMixin

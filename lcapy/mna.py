@@ -253,7 +253,8 @@ class MNA(object):
         for m, key in enumerate(self.unknown_branch_currents):
             I = results[m + num_nodes]
             if key in cct.elements and cct.elements[key].is_source:
-                I = -I
+                warn('Sign of current changed')
+                # I = -I
             self._Idict[key] = itype(I, **assumptions)
 
         # Calculate the branch currents.  These should be lazily

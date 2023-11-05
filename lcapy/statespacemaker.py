@@ -180,8 +180,7 @@ class StateSpaceMaker(object):
                 x0 = elt.cpt.i0
             else:
                 # Capacitors  i = C dv/dt  so need i through the C
-                # The current is negated since it is from a source V_Cx
-                expr = -sscct[name].i / elt.cpt.C
+                expr = sscct[name].i / elt.cpt.C
                 var = sscct[name].voc
                 x0 = elt.cpt.v0
 

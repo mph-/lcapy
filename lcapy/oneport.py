@@ -108,7 +108,9 @@ class OnePort(Network, ImmittanceMixin):
 
     @property
     def Isc(self):
-        """Short-circuit current."""
+        """Short-circuit current.  This is the current flowing out
+        of the positive node of the network, through a wire, and back
+        to the negative node of the network."""
         if self._Isc is not None:
             return self._Isc
         return self.Voc._mul(self.admittance)
@@ -211,7 +213,9 @@ class OnePort(Network, ImmittanceMixin):
 
     @property
     def isc(self):
-        """Short-circuit time-domain current."""
+        """Short-circuit time-domain current.  This is the current flowing out
+        of the positive node of the network, through a wire, and back
+        to the negative node of the network."""
         return self.Isc.time()
 
     @property
