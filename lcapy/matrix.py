@@ -192,6 +192,8 @@ class Matrix(sym.Matrix):
         return self.applyfunc(f)
 
     def simplify(self):
+        # The SymPy method does the simplification in-place.  It does
+        # not return anything.
 
         return self.applyfunc(simplify)
 
