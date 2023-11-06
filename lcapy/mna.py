@@ -267,7 +267,7 @@ class MNA(object):
                 I = (V1.expr - V2.expr - elt.V0.expr) / elt.Z.expr
                 self._Idict[elt.name] = itype(I, **assumptions)
             elif elt.type in ('I', ):
-                self._Idict[elt.name] = elt.Isc
+                self._Idict[elt.name] = -elt.Isc
 
     @property
     def A(self):

@@ -669,16 +669,14 @@ class Cpt(ImmittanceMixin):
     @property
     def I(self):
         """Current through component.  The current is defined to be into the
-        positive node for passive devices and out of the positive node
-        for sources."""
+        positive node."""
 
         return self.cct.get_I(self.name)
 
     @property
     def i(self):
         """Time-domain current through component.  The current is
-        defined to be into the positive node for passive devices and
-        out of the positive node for sources."""
+        defined to be into the positive node."""
 
         return self.cct.get_i(self.name)
 
