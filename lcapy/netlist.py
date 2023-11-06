@@ -970,8 +970,9 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
                     times.append(active_time)
         return sorted(times)
 
-    def branch_currents(self):
-        """Return list of branch current names."""
+    def branch_current_names(self):
+        """Return vector of branch current names of the form i_cptname
+        for the time-domain and of the form I_cptname othwerwise."""
 
         branch_list = self.branch_list
 
@@ -985,13 +986,38 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
 
         return current_list
 
-    def branch_currents_vector(self):
+    def branch_current_name_vector(self):
+        """Return vector of branch current names of the form i_cptname
+        for the time-domain and of the form I_cptname othwerwise."""
 
         from .vector import Vector
 
         return Vector(self.branch_currents())
 
+    def branch_currents(self):
+        """Return vector of branch currents."""
+
+        from .vector import Vector
+
+        return Vector([self[b].i for b in self.branch_list])
+
+    def branch_voltages(self):
+        """Return vector of branch voltages."""
+
+        from .vector import Vector
+
+        return Vector([self[b].v for b in self.branch_list])
+
     def evidence_matrix(self):
+        """Return the evidence matrix.  This has a size NxM where
+        N is the number of nodes and M is the number of branches.
+
+        An element is 1 for currents entering a node from a branch, -1
+        for currents leaving a node from a branch, and zero otherwise.
+
+        Note, each column sums to zero.
+
+        """
 
         from .matrix import Matrix
         from sympy import zeros
