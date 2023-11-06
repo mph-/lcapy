@@ -191,6 +191,10 @@ class Matrix(sym.Matrix):
         def f(x): return expr(x).rewrite(*args, **hints).sympy
         return self.applyfunc(f)
 
+    def simplify(self):
+
+        return self.applyfunc(simplify)
+
     def subs(self, *args, **kwargs):
         """Substitute variables in expression, see sympy.subs for usage."""
 
