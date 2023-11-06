@@ -332,7 +332,20 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
 
         return self.get_Vd(Np, Nm).time()
 
-    def ac(self):
+    def ac_omega_list(self):
+        """Return list of the angular frequencies of the sources in
+        the netlist."""
+
+        omega_list = []
+        for group in self.independent_source_groups(True).keys():
+            if group in ('dc', 's'):
+                continue
+            if isinstance(group, str) and group[0] == 'n':
+                continue
+            omega_list.append(group)
+        return omega_list
+
+    def ac(self, omega=None):
         """Return netlist for ac components of independent sources
         for angular frequency omega.
 
