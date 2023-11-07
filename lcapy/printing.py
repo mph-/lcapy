@@ -207,21 +207,21 @@ class LcapyLatexPrinter(LatexPrinter):
         tex = r"%s\left(%s\right)" % (latex_expr_map[sym.Heaviside],
                                       self._print(expr.args[0]))
         if exp:
-            tex = r"\left(%s\right)^{%s}" % (tex, exp)
+            tex = r"{%s}^{%s}" % (tex, exp)
         return tex
 
     def _print_UnitImpulse(self, expr, exp=None):
 
         tex = r"\delta\left[%s\right]" % self._print(expr.args[0])
         if exp:
-            tex = r"\delta\left[%s\right]^{%s}" % (tex, exp)
+            tex = r"{%s}^{%s}" % (tex, exp)
         return tex
 
     def _print_UnitStep(self, expr, exp=None):
 
         tex = r"u\left[%s\right]" % self._print(expr.args[0])
         if exp:
-            tex = r"u\left[%s\right]^{%s}" % (tex, exp)
+            tex = r"{%s}^{%s}" % (tex, exp)
         return tex
 
     def _print_dtrect(self, expr, exp=None):
@@ -229,7 +229,7 @@ class LcapyLatexPrinter(LatexPrinter):
         tex = r"\mathop{\mathrm{rect}}\left[%s\right]" % self._print(
             expr.args[0])
         if exp:
-            tex = r"\mathop{\mathrm{rect}}\left[%s\right]^{%s}" % (tex, exp)
+            tex = r"{%s}^{%s}" % (tex, exp)
         return tex
 
     def _print_dtsign(self, expr, exp=None):
@@ -237,7 +237,7 @@ class LcapyLatexPrinter(LatexPrinter):
         tex = r"\mathop{\mathrm{sign}}\left[%s\right]" % self._print(
             expr.args[0])
         if exp:
-            tex = r"\mathop{\mathrm{sign}}\left[%s\right]^{%s}" % (tex, exp)
+            tex = r"{%s}^{%s}" % (tex, exp)
         return tex
 
     def _print_symbol_name(self, name):
@@ -274,11 +274,14 @@ class LcapyLatexPrinter(LatexPrinter):
 
         return self._print_symbol_name(expr.name)
 
-    def _print_AppliedUndef(self, expr):
+    def _print_AppliedUndef(self, expr, exp=None):
 
         s = self._print_symbol_name(expr.func.__name__)
         args = [str(self._print(arg)) for arg in expr.args]
-        return '%s(%s)' % (s, ','.join(args))
+        tex = '%s(%s)' % (s, ','.join(args))
+        if exp:
+            tex = r"{%s}^{%s}" % (tex, exp)
+        return tex
 
 
 class LcapyPrettyPrinter(PrettyPrinter):
