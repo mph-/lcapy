@@ -847,3 +847,19 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(len(c.remove_disconnected().elements),
                          2, 'disconnected')
+
+    def test_branches(self):
+
+        a = Circuit("""
+        V1 1 0
+        R 1 0""")
+
+        bi = a.branch_currents()(t)
+        bv = a.branch_voltages()(t)
+        c = a.branch_list
+
+        self.assertEqual(bv[0], voltage('V1'), c[0] + ' voltage')
+        self.assertEqual(bv[1], voltage('V1'), c[1] + ' voltage')
+
+        self.assertEqual(bi[0], current('-V1 / R'), c[0] + ' current')
+        self.assertEqual(bi[1], current('V1 / R'), c[1] + ' current')

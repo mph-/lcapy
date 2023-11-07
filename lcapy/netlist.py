@@ -1042,6 +1042,8 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         `Vector(cct.branch_voltages()(t))`.
         """
 
+        return ExprList([self[b].V for b in self.branch_list])
+
     def evidence_matrix(self):
         """Return the evidence matrix.  This has a size NxM where
         N is the number of nodes and M is the number of branches.
