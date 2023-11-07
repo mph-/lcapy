@@ -1026,16 +1026,19 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         """Return list of branch currents.  Each element is a
         SuperpositionVoltage object.
 
-        If you want a vector of time domain expressions use_sympy
+        If you want a vector of time-domain expressions use
         `Vector(cct.branch_currents()(t))`.
         """
 
         return ExprList([self[b].I for b in self.branch_list])
 
     def branch_voltages(self):
-        """Return list of branch voltages."""
+        """Return list of branch voltages.  Each element is a
+        SuperpositionVoltage object.
 
-        return ExprList([self[b].V for b in self.branch_list])
+        If you want a vector of time-domain expressions use
+        `Vector(cct.branch_voltages()(t))`.
+        """
 
     def evidence_matrix(self):
         """Return the evidence matrix.  This has a size NxM where
