@@ -14,7 +14,7 @@ from .admittance import admittance
 from .config import solver_method
 from .current import Iname, current
 from .deprecation import LcapyDeprecationWarning
-from .expr import Expr, expr
+from .expr import Expr, expr, ExprList
 from .mna import Nodedict, Branchdict
 from .mnacpts import Cpt
 from .netlistmixin import NetlistMixin
@@ -45,6 +45,11 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         self._invalidate()
         self.kind = 'super'
         self.solver_method = solver_method
+
+    @property
+    def _time_kind(self):
+
+        return self.kind in ('super', 'time', 't')
 
     def _groups(self):
         """Return dictionary of source groups keyed by domain.
@@ -1000,7 +1005,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         branch_list = self.branch_list
 
         prefix = 'I'
-        if self.kind in ('t', 'time', 'super'):
+        if self._time_kind:
             prefix = 'i'
 
         current_list = []
@@ -1018,18 +1023,19 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         return Vector(self.branch_currents())
 
     def branch_currents(self):
-        """Return vector of branch currents."""
+        """Return list of branch currents.  Each element is a
+        SuperpositionVoltage object.
 
-        from .vector import Vector
+        If you want a vector of time domain expressions use_sympy
+        `Vector(cct.branch_currents()(t))`.
+        """
 
-        return Vector([self[b].i for b in self.branch_list])
+        return ExprList([self[b].I for b in self.branch_list])
 
     def branch_voltages(self):
-        """Return vector of branch voltages."""
+        """Return list of branch voltages."""
 
-        from .vector import Vector
-
-        return Vector([self[b].v for b in self.branch_list])
+        return ExprList([self[b].V for b in self.branch_list])
 
     def evidence_matrix(self):
         """Return the evidence matrix.  This has a size NxM where
