@@ -12,6 +12,7 @@ from .sym import eps
 from .expr import ExprDict, expr
 from .voltage import Vtype
 from .current import Itype
+from .state import state
 from .systemequations import SystemEquations
 import sympy as sym
 from warnings import warn
@@ -252,9 +253,9 @@ class MNA(object):
         self._Idict = Branchdict()
         for m, key in enumerate(self.unknown_branch_currents):
             I = results[m + num_nodes]
-            if key in cct.elements and cct.elements[key].is_source:
-                warn('Sign of current changed')
-                # I = -I
+            if (state.sign_convention == 'hybrid' and
+                    key in cct.elements and cct.elements[key].is_source):
+                I = -I
             self._Idict[key] = itype(I, **assumptions)
 
         # Calculate the branch currents.  These should be lazily
@@ -267,7 +268,10 @@ class MNA(object):
                 I = (V1.expr - V2.expr - elt.V0.expr) / elt.Z.expr
                 self._Idict[elt.name] = itype(I, **assumptions)
             elif elt.type in ('I', ):
-                self._Idict[elt.name] = -elt.Isc
+                I = -elt.Isc
+                if state.sign_convention == 'hybrid':
+                    I = -I
+                self._Idict[elt.name] = I
 
     @property
     def A(self):
