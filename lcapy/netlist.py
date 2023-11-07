@@ -338,9 +338,19 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
 
         See also: dc, transient, laplace.
         """
-        # Could look at all the ac frequencies and if there is only
-        # one use that?  If have multiple ac frequencies should issue
-        # warning.
+        if omega is None:
+
+            omega_list = self.ac_omega_list()
+            if len(omega_list) > 1:
+                omega = omega_list[0]
+                warn('Netlist has multiple AC frequencies: %s, using %s' %
+                     (omega_list, omega))
+            elif len(omega_list) == 1:
+                omega = omega_list[0]
+            else:
+                # Dummy, it could be anything.
+                omega = 1
+
         return self.select(omega)
 
     def annotate_currents(self, cpts=None, domainvar=None, flow=False,
