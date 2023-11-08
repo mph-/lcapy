@@ -197,7 +197,7 @@ class Matrix(sym.Matrix):
         ret = self.copy()
         # The SymPy method does the simplification in-place.  It does
         # not return anything.
-        super(Matrix, self).simplify()
+        super(Matrix, ret).simplify()
         return ret
 
     def subs(self, *args, **kwargs):
