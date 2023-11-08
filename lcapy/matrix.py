@@ -192,10 +192,13 @@ class Matrix(sym.Matrix):
         return self.applyfunc(f)
 
     def simplify(self):
+        """Simplify the elements of the matrix."""
+
+        ret = self.copy()
         # The SymPy method does the simplification in-place.  It does
         # not return anything.
-
-        return self.applyfunc(simplify)
+        super(Matrix, self).simplify()
+        return ret
 
     def subs(self, *args, **kwargs):
         """Substitute variables in expression, see sympy.subs for usage."""
@@ -205,7 +208,7 @@ class Matrix(sym.Matrix):
 
     @property
     def conj(self):
-        """Complex conjugate; for compatilibility with Expr conj is an attribute."""
+        """Complex conjugate; for compatilibility with Expr, conj is an attribute."""
         return self._new(self.rows, self.cols, [x.conj for x in self])
 
     @property
