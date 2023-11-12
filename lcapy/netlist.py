@@ -14,8 +14,7 @@ from .admittance import admittance
 from .config import solver_method
 from .current import Iname, current
 from .deprecation import LcapyDeprecationWarning
-from .expr import Expr, expr
-from .impedance import impedance
+from .expr import Expr, expr, ExprList
 from .mna import Nodedict, Branchdict
 from .mnacpts import Cpt
 from .netlistmixin import NetlistMixin
@@ -25,7 +24,7 @@ from .simulator import Simulator
 from .subnetlist import SubNetlist
 from .superpositionvoltage import SuperpositionVoltage
 from .superpositioncurrent import SuperpositionCurrent
-from .symbols import j, s, t, omega
+from .symbols import j, s, t, omega, omega0
 from .transformdomains import TransformDomains
 from .utils import isiterable
 from copy import copy
@@ -46,6 +45,11 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         self._invalidate()
         self.kind = 'super'
         self.solver_method = solver_method
+
+    @property
+    def _time_kind(self):
+
+        return self.kind in ('super', 'time', 't')
 
     def _groups(self):
         """Return dictionary of source groups keyed by domain.
@@ -347,10 +351,12 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
 
     def ac(self, omega=None):
         """Return netlist for ac components of independent sources
-        for angular frequency omega.
+        for angular frequency `omega`.  If `omega` is undefined,
+        the angular frequency `omega0` is used.
 
         See also: dc, transient, laplace.
         """
+
         if omega is None:
 
             omega_list = self.ac_omega_list()
@@ -378,15 +384,15 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         `flow` (default False) if True annotates current as a flow
 
         `eng_format` (default True) if True use engineering format if
-        the current is a number, e.g., 100\,mV instead of 0.1\,V
+        the current is a number, e.g., 100\, mV instead of 0.1\, V
 
         `evalf` (default True) if True prints floating point
         numbers as decimals otherwise they are shown as rationals
 
-        `show_units` (default True) if True applies the units (e.g.,
+        `show_units` (default True) if True applies the units(e.g.,
         V for volts)
 
-        `pos` specifies where to position the labels (see docs)
+        `pos` specifies where to position the labels(see docs)
         """
 
         cct = self.copy()
@@ -429,15 +435,15 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         `pos` specifies where to position the labels, see docs
 
         `eng_format` (default True) if True use engineering format if
-        the voltage is a number, e.g., 100\,mV instead of 0.1\,V
+        the voltage is a number, e.g., 100\, mV instead of 0.1\, V
 
         `evalf` (default True) if True prints floating point
         numbers as decimals otherwise they are shown as rationals
 
-        `show_units` (default True) if True applies the units (e.g.,
+        `show_units` (default True) if True applies the units(e.g.,
         V for volts)
 
-        `pos` specifies where to position the labels (see docs)
+        `pos` specifies where to position the labels(see docs)
         """
 
         cct = self.copy()
@@ -483,10 +489,10 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         (e.g., `t` for time-domain, `s` for Laplace-domain)
 
         `label_voltages` (default False) if True prefixes the
-        annotation with V1= for node 1, etc.
+        annotation with V1 = for node 1, etc.
 
         `eng_format` (default True) if True use engineering format if
-        the voltage is a number, e.g., 100\,mV instead of 0.1\,V
+        the voltage is a number, e.g., 100\, mV instead of 0.1\, V
 
         `evalf` (default True) if True prints floating point
         numbers as decimals otherwise they are shown as rationals
@@ -494,7 +500,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         `num_digits` (default 3) specfies the number of digits to print
         for floating point numbers
 
-        `show_units` (default True) if True applies the units (e.g.,
+        `show_units` (default True) if True applies the units(e.g.,
         V for volts)
 
         `anchor` (default 'south west') specifies the position of the
@@ -994,13 +1000,14 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
                     times.append(active_time)
         return sorted(times)
 
-    def branch_currents(self):
-        """Return list of branch current names."""
+    def branch_current_names(self):
+        """Return vector of branch current names of the form i_cptname
+        for the time-domain and of the form I_cptname othwerwise."""
 
         branch_list = self.branch_list
 
         prefix = 'I'
-        if self.kind in ('t', 'time', 'super'):
+        if self._time_kind:
             prefix = 'i'
 
         current_list = []
@@ -1009,13 +1016,44 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
 
         return current_list
 
-    def branch_currents_vector(self):
+    def branch_current_name_vector(self):
+        """Return vector of branch current names of the form i_cptname
+        for the time-domain and of the form I_cptname othwerwise."""
 
         from .vector import Vector
 
         return Vector(self.branch_currents())
 
+    def branch_currents(self):
+        """Return list of branch currents.  Each element is a
+        SuperpositionVoltage object.
+
+        If you want a vector of time-domain expressions use
+        `Vector(cct.branch_currents()(t))`.
+        """
+
+        return ExprList([self[b].I for b in self.branch_list])
+
+    def branch_voltages(self):
+        """Return list of branch voltages.  Each element is a
+        SuperpositionVoltage object.
+
+        If you want a vector of time-domain expressions use
+        `Vector(cct.branch_voltages()(t))`.
+        """
+
+        return ExprList([self[b].V for b in self.branch_list])
+
     def evidence_matrix(self):
+        """Return the evidence matrix.  This has a size NxM where
+        N is the number of nodes and M is the number of branches.
+
+        An element is 1 for currents entering a node from a branch, -1
+        for currents leaving a node from a branch, and zero otherwise.
+
+        Note, each column sums to zero.
+
+        """
 
         from .matrix import Matrix
         from sympy import zeros
