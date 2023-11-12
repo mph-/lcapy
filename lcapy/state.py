@@ -90,8 +90,8 @@ class State(object):
         self.pdb_on_warn = False
         self.error_on_warn = False
 
-        # 'hybrid' or 'passive'
-        self.sign_convention = 'passive'
+        # 'passive', 'active', 'hybrid', None for default ('passive')
+        self.current_sign_convention = None
 
     def new_context(self):
 

@@ -3,8 +3,11 @@
 Copyright 2020--2023 Michael Hayes, UCECE
 
 """
+from .deprecation import LcapyDeprecationWarning
 from .expr import expr
+from .state import state
 from .classmap import domain_kind_to_symbol, domain_kind_quantity_to_class
+from warnings import warn
 
 
 def Iname(name, kind, cache=False):
@@ -64,3 +67,37 @@ def phasorcurrent(arg, omega=None, **assumptions):
     from .phasor import phasor
 
     return phasor(arg, omega, **assumptions).as_current()
+
+
+def current_sign(I, is_source):
+    """Manipulate the sign of the current according to the current sign
+    convention specified by `state.current_sign_convention`."""
+
+    sign_convention = state.current_sign_convention
+
+    if sign_convention is None:
+        sign_convention = 'hybrid'
+
+        if is_source:
+            state.sign_convention = sign_convention
+            warn(
+                """The default hybrid sign convention for currents is deprecated and will default to the passive sign convenention in the next version of Lcapy.  This only affects the sign of the current through sources.  For example, given the netlist
+
+I1 1 0
+R1 1 0
+
+the hybrid sign convention gives `I1.i` as `I1` and the passive sign
+convention gives `I1.i` as -I1.
+
+To select the passive sign convention use:
+`from lcapy import state; state.current_sign_convention = 'passive'`
+
+To select the hybrid sign convention use:
+`from lcapy import state; state.current_sign_convention = 'hybrid'`
+
+""")
+
+    if ((sign_convention == 'hybrid' and is_source)
+            or sign_convention == 'active'):
+        return -I
+    return I

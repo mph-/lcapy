@@ -1,4 +1,5 @@
 from lcapy import *
+from lcapy.current import current_sign
 
 import unittest
 import sympy as sym
@@ -266,9 +267,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.is_dc, False, "DC incorrect")
         self.assertEqual(a.is_ac, True, "AC incorrect")
         self.assertEqual(a.R1.I, a.L1.I, "currents different")
-        I = -a.V1.I
-        if state.sign_convention == 'hybrid':
-            I = -I
+        I = current_sign(-a.V1.I, True)
         self.assertEqual(I, a.L1.I, "currents different")
 
     def test_VRC2(self):
@@ -316,8 +315,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.R1.v, TimeDomainVoltage(
             '5*cos(t)'), "R1 voltage incorrect")
         i = current(-5 * cos(t))
-        if state.sign_convention == 'hybrid':
-            i = -i
+        i = current_sign(i, True)
         self.assertEqual(a.V1.i, i, "V1 current incorrect")
         self.assertEqual(a.R1.i, TimeDomainCurrent(
             '5*cos(t)'), "R1 current incorrect")
@@ -352,9 +350,7 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(a.is_IVP, True, "Initial value problem incorrect")
         self.assertEqual(a.R.I, a.C.I, "R + C current different")
-        I = -a.V.I
-        if state.sign_convention == 'hybrid':
-            I = - I
+        I = current_sign(-a.V.I, True)
         self.assertEqual(I, a.C.I, "V + C current different")
         self.assertEqual(a.V.V,  a.R.V + a.C.V, "KVL fail")
 
@@ -366,9 +362,7 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(a.is_IVP, True, "Initial value problem incorrect")
         self.assertEqual(a.R.I, a.C.I, "R + C current different")
-        I = -a.V.I
-        if state.sign_convention == 'hybrid':
-            I = -I
+        I = current_sign(-a.V.I, True)
         self.assertEqual(I, a.C.I, "V + C current different")
         self.assertEqual(a.V.V,  a.R.V + a.C.V, "KVL fail")
 
@@ -383,9 +377,7 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(a.is_IVP, True, "Initial value problem incorrect")
         self.assertEqual(a.R.I, a.L.I, "R + L current different")
-        I = -a.V.I
-        if state.sign_convention == 'hybrid':
-            I = -I
+        I = current_sign(-a.V.I, True)
         self.assertEqual(I, a.L.I, "V + L current different")
         self.assertEqual(a.V.V,  a.R.V + a.L.V, "KVL fail")
 
@@ -397,9 +389,7 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(a.is_IVP, True, "Initial value problem incorrect")
         self.assertEqual(a.R.I, a.L.I, "R + L current different")
-        I = -a.V.I
-        if state.sign_convention == 'hybrid':
-            I = -I
+        I = current_sign(-a.V.I, True)
         self.assertEqual(I, a.L.I, "V + L current different")
         self.assertEqual(a.V.V,  a.R.V + a.L.V, "KVL fail")
 
@@ -878,8 +868,6 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(bv[0], voltage('V1'), c[0] + ' voltage')
         self.assertEqual(bv[1], voltage('V1'), c[1] + ' voltage')
 
-        i = current('-V1 / R')
-        if state.sign_convention == 'hybrid':
-            i = -i
+        i = current_sign(current('-V1 / R'), True)
         self.assertEqual(bi[0], i, c[0] + ' current')
         self.assertEqual(bi[1], current('V1 / R'), c[1] + ' current')
