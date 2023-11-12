@@ -8,9 +8,10 @@ Copyright 2021--2023 Michael Hayes, UCECE
 from .mnacpts import I, V, C, L
 from .expr import expr
 from .matrix import Matrix
+from .mna import current_sign
 from .tmatrix import TimeDomainMatrix
 from .voltage import voltage
-from .current import current
+from .current import current, current_sign
 from .statespace import StateSpace
 from .circuitgraph import CircuitGraph
 from .state import state
@@ -181,9 +182,7 @@ class StateSpaceMaker(object):
                 x0 = elt.cpt.i0
             else:
                 # Capacitors  i = C dv/dt  so need i through the C
-                expr = sscct[name].i / elt.cpt.C
-                if state.sign_convention == 'hybrid':
-                    expr = -expr
+                expr = current_sign(sscct[name].i / elt.cpt.C, True)
                 var = sscct[name].voc
                 x0 = elt.cpt.v0
 

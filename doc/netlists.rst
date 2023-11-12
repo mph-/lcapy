@@ -770,9 +770,7 @@ Each Component object has a number of attributes, including:
 
 - `i` time-domain current through component
 
-Lcapy uses the passive sign convention.  Thus for a passive device (R,
-L, C), current flows into the positive node, and for a source (V, I),
-current flows out of the positive node.
+Lcapy supports different :ref:`current_sign_convention`s.
 
 Note, the above attributes are influenced by other components in the
 circuit.  The following attributes assume that the component is not in
@@ -953,6 +951,45 @@ Component methods
 - `open_circuit()` Applies open circuit in series with the component.  The name of the open circuit component is returned.
 
 - `short_circuit()` Applies short circuit across the component using a 0 V voltage source.  The name of the voltage source is returned.
+
+
+
+.. _current_sign_convention:
+
+Current sign convention
+=======================
+
+Lcapy supports three current sign conventions:
+
+- passive
+
+Current flows into the positive node.   This is the most common convention.
+However, note, the current of a source is negative:
+
+    >>> a = Circuit("""
+    ... I1 1 0
+    ... R1 1 0""")
+    >>> a.I1.i
+    -I₁
+    >>> a.R1.i
+    I₁
+
+- active
+
+Current flows into the negative node.   This is not common.
+
+- hybrid (default)
+
+For a passive device (R, L, C), current flows into the positive node,
+and for a source (V, I), current flows out of the positive node.
+
+
+The default current sign convention is passive.  However, this is deprecated and will change to passive in a future release of Lcapy.   The sign convention can be switched to passive using:
+
+    >>> from lcapy.state import state
+    >>> state.current_sign_convention = 'passive'
+
+Note, this will not change results previously computed and cached for a netlist.
 
 
 Nodes

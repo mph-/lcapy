@@ -11,8 +11,7 @@ from .matrix import Matrix, matrix_solve
 from .sym import eps
 from .expr import ExprDict, expr
 from .voltage import Vtype
-from .current import Itype
-from .state import state
+from .current import Itype, current_sign
 from .systemequations import SystemEquations
 import sympy as sym
 from warnings import warn
@@ -252,10 +251,8 @@ class MNA(object):
         # Create dictionary of branch currents through elements
         self._Idict = Branchdict()
         for m, key in enumerate(self.unknown_branch_currents):
-            I = results[m + num_nodes]
-            if (state.sign_convention == 'hybrid' and
-                    key in cct.elements and cct.elements[key].is_source):
-                I = -I
+            I = current_sign(
+                results[m + num_nodes], cct.elements[key].is_source)
             self._Idict[key] = itype(I, **assumptions)
 
         # Calculate the branch currents.  These should be lazily
@@ -268,9 +265,7 @@ class MNA(object):
                 I = (V1.expr - V2.expr - elt.V0.expr) / elt.Z.expr
                 self._Idict[elt.name] = itype(I, **assumptions)
             elif elt.type in ('I', ):
-                I = -elt.Isc
-                if state.sign_convention == 'hybrid':
-                    I = -I
+                I = current_sign(-elt.Isc, True)
                 self._Idict[elt.name] = I
 
     @property
