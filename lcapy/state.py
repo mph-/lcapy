@@ -91,7 +91,7 @@ class State(object):
         self.error_on_warn = False
 
         # 'passive', 'active', 'hybrid', None for default ('hybrid')
-        self.current_sign_convention = 'passive'
+        self.current_sign_convention = None
 
     def new_context(self):
 
