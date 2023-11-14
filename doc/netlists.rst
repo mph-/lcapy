@@ -469,6 +469,26 @@ Circuit methods
    the negative specified node is connected to ground.  The new
    netlist is returned.
 
+- `branch_currents()` returns an `ExprList` of the branch currents,
+  where each element is `SuperpositionCurrent`.  Thus to get the
+  branch currents in the time-domain:
+
+      >>> bi = cct.branch_currents()(t)
+
+- `branch_current_names()` returns an `ExprList` of the branch current
+  names.  Each element has the form `i_cptname` for the time-domain
+  and of the form `I_cptname` othwerwise.
+
+- `branch_voltages()` returns an `ExprList` of the branch voltages,
+    where each element is `SuperpositionVoltage`.  Thus to get the
+  branch voltages in the Laplace-domain:
+
+      >>> bV = cct.branch_voltages()(s)
+
+- `branch_voltage_names()` returns an `ExprList` of the branch voltage
+  names.  Each element has the form `i_cptname` for the time-domain
+  and of the form `I_cptname` othwerwise.
+
 - `convert_IVP(t)` Returns a new circuit suitable for solving as an
   initial value problem.  Any switches in the circuit are evaluated at
   the specified time `t`.  Note, when solving the IVP, time is
@@ -476,6 +496,12 @@ Circuit methods
   specified for `t`.
 
 - `describe()` Prints message describing how netlist is solved
+
+- `evidence_matrix()` Returns the evidence matrix.  This has a size
+  `NxM` where `N` is the number of nodes and `M` is the number of
+  branches.  An element is 1 for currents entering a node from a
+  branch, -1 for currents leaving a node from a branch, and zero
+  otherwise. Note, each column sums to zero.
 
 - `has()` Returns True if component in netlist
 
