@@ -2203,10 +2203,13 @@ optimization.  This is performed by the `estimate()` method.  For example:
     {'a': 1.0295857498103738, 'tau': 9.617626581003838}
     >>> results.rmse
     0.0022484512868559342
+    >>> vve = results(tv)
+    >>> fig, axes = subplots(1)
+    >>> axes.plot(tv, vv, '.')
+    >>> axes.plot(tv, vve)
 
 .. image:: examples/plotting/fit1.png
    :width: 12cm
-
 
 Here's another example using the frequency domain:
 
@@ -2228,6 +2231,11 @@ The `ranges` argument is a dictionary of search ranges (specified as a
 tuple) for each unknown parameter in the expression.  For the curve
 fitting methods, the average of each search range is used as the
 initial guess.
+
+Note, not all the parameter ranges need to be specified.  If all the
+parameters are known to be positive, just use
+
+    >>> results = e.estimate(tv, vv, positive=True)
 
 `estimate()` has a `method` argument.  This can be `brute`, `lm`,
 `dogbox`, `Nelder-Mead`, `Powell`, `trf` (default), and many others.
