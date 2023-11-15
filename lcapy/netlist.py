@@ -1001,7 +1001,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         return sorted(times)
 
     def branch_current_names(self):
-        """Return vector of branch current names of the form i_cptname
+        """Return `ExprList` of branch current names of the form i_cptname
         for the time-domain and of the form I_cptname othwerwise."""
 
         branch_list = self.branch_list
@@ -1010,22 +1010,14 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         if self._time_kind:
             prefix = 'i'
 
-        current_list = []
+        current_name_list = ExprList()
         for branch in branch_list:
-            current_list.append(prefix + branch)
+            current_name_list.append(prefix + branch)
 
-        return current_list
-
-    def branch_current_name_vector(self):
-        """Return vector of branch current names of the form i_cptname
-        for the time-domain and of the form I_cptname othwerwise."""
-
-        from .vector import Vector
-
-        return Vector(self.branch_currents())
+        return current_name_list
 
     def branch_currents(self):
-        """Return list of branch currents.  Each element is a
+        """Return `ExprList` of branch currents.  Each element is a
         SuperpositionVoltage object.
 
         If you want a vector of time-domain expressions use
@@ -1034,8 +1026,24 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
 
         return ExprList([self[b].I for b in self.branch_list])
 
+    def branch_voltage_names(self):
+        """Return `ExprList` of branch voltage names of the form v_cptname
+        for the time-domain and of the form V_cptname othwerwise."""
+
+        branch_list = self.branch_list
+
+        prefix = 'V'
+        if self._time_kind:
+            prefix = 'v'
+
+        voltage_name_list = ExprList()
+        for branch in branch_list:
+            voltage_name_list.append(prefix + branch)
+
+        return voltage_name_list
+
     def branch_voltages(self):
-        """Return list of branch voltages.  Each element is a
+        """Return `ExprList` of branch voltages.  Each element is a
         SuperpositionVoltage object.
 
         If you want a vector of time-domain expressions use
