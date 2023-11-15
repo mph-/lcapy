@@ -2,6 +2,41 @@
 Release notes
 =============
 
+V1.20
+=====
+
+- Deprecates hybrid current sign convention.  This will change to the passive
+  sign convention (PSC).   To switch to the PSC:
+
+  >>> from lcapy.state import state
+  >>> state.current_sign_convention = 'passive'
+
+  To silence the warnings and use the hybrid sign convention:
+
+  >>> from lcapy.state import state
+  >>> state.current_sign_convention = 'hybrid'
+
+- Chooses default angular frequency for `Netlist.ac()`
+
+- Warns if have multiple angular frequencies for `Netlist.ac()`
+
+- Fixes LaTeX output for undefined functions raised to a power
+
+- Adds `Netlist.branch_voltages()` and `Netlist.branch_currents()` methods
+
+- Adds `Netlist.evidence_matrix()` method
+
+- Adds `Equation` class for equations
+
+- Adds default ranges for `Expr.estimate()`
+
+- Adds two argument form for `Circuit.subs()`
+
+- Removes epsilon from `MNA.equations()`
+
+- Fixes `Matrix` class to ensure all elements are SymPy objects
+
+
 V1.19
 =====
 
