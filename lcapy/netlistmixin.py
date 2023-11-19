@@ -21,6 +21,7 @@ from .state import state
 from .symbols import j, s, omega
 from .voltage import Vname
 from . import mnacpts
+from .cache import lru_cache, cached_property
 from collections import OrderedDict
 from warnings import warn
 
@@ -81,24 +82,18 @@ class NetlistMixin(object):
     @property
     def analysis(self):
 
-        if not hasattr(self, '_analysis'):
-            self._analysis = self.analyse()
+        return self.analyse()
 
-        return self._analysis
-
-    @property
+    @cached_property
     def branch_list(self):
         """Determine list of names of branch elements, e.g.,
         ['C1', 'V1', 'R1', 'R2']."""
 
-        if hasattr(self, '_branch_list'):
-            return self._branch_list
-
-        self._branch_list = []
+        branch_list = []
         for key, elt in self.elements.items():
             if elt.type not in ('W', 'O', 'P', 'K', 'XX'):
-                self._branch_list.append(elt.name)
-        return self._branch_list
+                branch_list.append(elt.name)
+        return branch_list
 
     @property
     def capacitors(self):
@@ -350,13 +345,10 @@ class NetlistMixin(object):
 
         return self.analysis.mutual_couplings
 
-    @property
+    @cached_property
     def node_list(self):
         """Determine list of sorted unique node names, e.g.,
         ['0', '1', '2']."""
-
-        if hasattr(self, '_node_list'):
-            return self._node_list
 
         # Extract unique nodes.
         node_list = list(self.equipotential_nodes.keys())
@@ -365,16 +357,12 @@ class NetlistMixin(object):
         if '0' in node_list:
             node_list.insert(0, node_list.pop(node_list.index('0')))
 
-        self._node_list = node_list
         return node_list
 
-    @property
+    @cached_property
     def node_map(self):
         """Create dictionary mapping node names to the unique
         equipotential node names."""
-
-        if hasattr(self, '_node_map'):
-            return self._node_map
 
         enodes = self.equipotential_nodes
 
@@ -385,7 +373,6 @@ class NetlistMixin(object):
             for node in nodes:
                 node_map[node] = key
 
-        self._node_map = node_map
         return node_map
 
     @property
@@ -398,10 +385,10 @@ class NetlistMixin(object):
     def sch(self):
         """Generate schematic of subnetlist."""
 
-        from .schematic import Schematic
+        # Don't cache schematic; need to remove splitting of implicit nodes
+        # from the draw method otherwise a.draw(); a.draw() fails.
 
-        if hasattr(self, '_sch'):
-            return self._sch
+        from .schematic import Schematic
 
         sch = Schematic(allow_anon=self.allow_anon)
 
@@ -411,10 +398,6 @@ class NetlistMixin(object):
 
         sch.subnetlists = self.subnetlists
 
-        # Don't cache schematic; need to remove splitting of implicit nodes
-        # from the draw method otherwise a.draw(); a.draw() fails.
-        #
-        # self._sch = sch
         return sch
 
     @property
@@ -571,13 +554,32 @@ class NetlistMixin(object):
 
     def _invalidate(self):
 
-        for attr in ('_sch', '_sub', '_Vdict', '_Idict', '_analysis',
-                     '_node_map', '_ss', '_node_list', '_branch_list', '_cg',
-                     '_mna', '_la', '_na'):
-            try:
-                delattr(self, attr)
-            except:
-                pass
+        caches = ('nodal_analysis', 'mesh_analysis', 'modified_nodal_analysis',
+                  'circuit_graph', '_subs_make', 'analyse')
+        for cache in caches:
+            getattr(self, cache).cache_clear()
+
+        # Cached properties
+        try:
+            del self.branch_list
+        except:
+            pass
+        try:
+            del self.node_list
+        except:
+            pass
+        try:
+            del self.Vdict
+        except:
+            pass
+        try:
+            del self.Idict
+        except:
+            pass
+        try:
+            del self.node_map
+        except:
+            pass
 
     def _kill(self, sourcenames):
 
@@ -681,6 +683,7 @@ class NetlistMixin(object):
                 names.append(name)
         return names
 
+    @lru_cache(1)
     def analyse(self):
 
         return Analysis(self, self.components)
@@ -775,16 +778,13 @@ class NetlistMixin(object):
 
         return self.simplify(explain=True, modify=False)
 
+    @lru_cache(1)
     def circuit_graph(self):
         """Generate circuit graph for this netlist.   This is cached."""
 
         from .circuitgraph import CircuitGraph
 
-        if hasattr(self, '_cg'):
-            return self._cg
-
-        self._cg = CircuitGraph.from_circuit(self)
-        return self._cg
+        return CircuitGraph.from_circuit(self)
 
     def copy(self):
         """Create a copy of the netlist"""
@@ -1008,6 +1008,7 @@ class NetlistMixin(object):
         This is experimental!"""
 
         new = self._new()
+        self.kind = 'dc'
 
         for cpt in self._elements.values():
             net = cpt._r_model()
@@ -1018,6 +1019,7 @@ class NetlistMixin(object):
         """"Create Laplace-domain model."""
 
         new = self._new()
+        new.kind = kind
 
         for cpt in self._elements.values():
             net = cpt._s_model(kind)

@@ -27,6 +27,7 @@ from .superpositioncurrent import SuperpositionCurrent
 from .symbols import j, s, t, omega, omega0
 from .transformdomains import TransformDomains
 from .utils import isiterable
+from .cache import lru_cache, cached_property
 from copy import copy
 from warnings import warn
 
@@ -101,10 +102,8 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         else:
             return self.independent_source_groups(transform=True)
 
+    @lru_cache(1)
     def _subs_make(self, nowarn=False):
-
-        if hasattr(self, '_sub'):
-            return self._sub
 
         cct = self.expand()
         groups = cct._groups()
@@ -116,7 +115,6 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         if sub == {} and not nowarn:
             warn('Netlist has no sources')
 
-        self._sub = sub
         return sub
 
     @property
@@ -218,14 +216,9 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
 
         return symbols
 
-    @property
+    @cached_property
     def Idict(self):
         """Return dictionary of branch currents for each transform domain"""
-
-        try:
-            return self._Idict
-        except AttributeError:
-            pass
 
         result = Branchdict()
         for sub in self.sub.values():
@@ -233,17 +226,11 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
                 if node not in result:
                     result[node] = SuperpositionCurrent()
                 result[node].add(value)
-        self._Idict = result
         return result
 
-    @property
+    @cached_property
     def Vdict(self):
         """Return dictionary of node voltages for each transform domain"""
-
-        try:
-            return self._Vdict
-        except AttributeError:
-            pass
 
         result = Nodedict()
         for sub in self.sub.values():
@@ -252,7 +239,6 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
                     result[node] = SuperpositionVoltage()
                 result[node].add(value)
 
-        self._Vdict = result
         return result
 
     def _add_ground(self, node=None):
@@ -758,32 +744,28 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         mna = self.modified_nodal_analysis()
         return mna.matrix_equations(form, invert)
 
+    @lru_cache(1)
     def modified_nodal_analysis(self):
         """Perform modified nodal analysis for this netlist.  This is
         cached."""
-
-        if hasattr(self, '_mna'):
-            return self._mna
 
         if self.kind in ('time', 'super'):
             raise ValueError(
                 'Cannot put time domain equations into matrix form.  '
                 'Convert to dc, ac, or laplace domain first.')
 
-        self._mna = SubNetlist(self, self.kind).mna
+        return SubNetlist(self, self.kind).mna
 
-        return self._mna
+    @lru_cache(1)
+    def nodal_analysis(self, node_prefix=''):
+        """Perform nodal analysis for this netlist.   This is cached.
 
-    def nodal_analysis(self):
-        """Perform nodal analysis for this netlist.   This is cached."""
+        Use `node_prefix` to distingish between nodal voltages and
+        voltage source voltages."""
 
         from .nodalanalysis import NodalAnalysis
 
-        if hasattr(self, '_na'):
-            return self._na
-
-        self._na = NodalAnalysis.from_circuit(self)
-        return self._na
+        return NodalAnalysis.from_circuit(self, node_prefix=node_prefix)
 
     def noisy_except(self, *args, T='T'):
         """Return a new circuit with all but the specified resistors in series
@@ -842,6 +824,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
 
         return self.mesh_analysis()
 
+    @lru_cache(1)
     def mesh_analysis(self):
         """Perform mesh analysis for this netlist.   This is cached.
 
@@ -850,11 +833,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
 
         from .loopanalysis import LoopAnalysis
 
-        if hasattr(self, '_la'):
-            return self._la
-
-        self._la = LoopAnalysis.from_circuit(self)
-        return self._la
+        return LoopAnalysis.from_circuit(self)
 
     def save(self, filename):
         """Save netlist to file."""
