@@ -1,7 +1,7 @@
 """This module performs nodal analysis.  It is primarily for showing
 the equations rather than for evaluating them.
 
-Copyright 2019--2022 Michael Hayes, UCECE
+Copyright 2019--2023 Michael Hayes, UCECE
 
 """
 
@@ -9,6 +9,7 @@ from .circuitgraph import CircuitGraph
 from .expr import equation, ExprTuple
 from .systemequations import SystemEquations
 import sympy as sym
+from warnings import warn
 
 __all__ = ('NodalAnalysis', )
 
@@ -73,6 +74,8 @@ class NodalAnalysis(object):
 
         self._unknowns = self._make_unknowns()
 
+        self._check_unknowns()
+
         self._y = matrix(
             [val for key, val in self._unknowns.items() if key != '0'])
 
@@ -97,7 +100,26 @@ class NodalAnalysis(object):
             else:
                 unknowns[node] = Vname('V%s%s' % (self.node_prefix, node),
                                        self.kind)
+
         return unknowns
+
+    def _check_unknowns(self):
+        """Look for nodal voltage names that are the same as a voltage
+        source name."""
+
+        unknowns = []
+        for u in self._unknowns.values():
+            if u == 0:
+                continue
+            unknowns.append(u.name)
+
+        conflicts = []
+        for src in self.cct.independent_sources:
+            if src in unknowns:
+                conflicts.append(src)
+        if conflicts != []:
+            warn('Have nodal voltage name conflict with sources for %s; suggest using node_prefix' %
+                 ', '.join(conflicts))
 
     def _make_equations(self):
 
