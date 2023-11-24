@@ -16,3 +16,4 @@ unit_tests/coverage
 *.egg-info/
 misc/*
 issues/*
+testing/*
