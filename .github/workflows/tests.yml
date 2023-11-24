@@ -44,7 +44,7 @@ jobs:
         pip install .[test]
         python -c "from lcapy import show_version; show_version()"
     - name: Run tests
-      run: nosetests
+      run: pytest
 
   checks:
     runs-on: ubuntu-22.04
