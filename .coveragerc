@@ -1,0 +1,6 @@
+[run]
+branch = True
+data_file = ./testing/.coverage
+
+[html]
+directory = ./testing/htmlcov

@@ -21,11 +21,12 @@ upload: package
 
 .PHONY: test
 test: lcapy/*.py
-	nosetests -s --pdb
+	pytest -s --pdb -o cache_dir=test/.pytest_cache
 
 .PHONY: cover
 cover: lcapy/*.py
-	nosetests --pdb --with-coverage --cover-package=lcapy --cover-html
+	coverage run -m pytest -s --pdb --pyargs lcapy -o cache_dir="./testing/.pytest_cache"
+	coverage html
 
 .PHONY: doc
 release: doc push
@@ -59,5 +60,5 @@ doc:
 
 .PHONY: clean
 clean:
-	-rm -rf build lcapy.egg-info dist
+	-rm -rf build lcapy.egg-info dist testing
 	cd doc; make clean

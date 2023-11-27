@@ -268,7 +268,7 @@ Expressions have a `debug()` method that prints the representation of the expres
 Testing
 =======
 
-If you fix a problem, please add a test in `lcapy/lcapy/tests`.  These use the nose format, see https://pythontesting.net/framework/nose/nose-introduction/  The tests can be run using:
+If you fix a problem, please add a test in `lcapy/lcapy/tests`.  These use the pytest format, see https://docs.pytest.org  The tests can be run using:
 
 .. code-block:: console
 
@@ -280,7 +280,7 @@ Specific tests can be run using:
 
 .. code-block:: console
 
-    $ nosetests3 --pdb lcapy/tests/test_laplace.py
+    $ pytest --pdb lcapy/tests/test_laplace.py
 
 With the --pdb option, the Python debugger is entered on failure:
 

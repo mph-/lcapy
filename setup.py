@@ -7,7 +7,7 @@ __version__ = '1.21dev'
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
-tests_require = ['nose', 'flake8', 'flake8-bugbear',
+tests_require = ['pytest', 'flake8', 'flake8-bugbear',
                  'flake8-comprehensions', 'flake8-requirements']
 
 

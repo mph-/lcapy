@@ -307,7 +307,7 @@ Debugging
 
 The Python debugger (pdb) can be invoked when a unit test fails using::
 
-   $ nosetests3 --pdb
+   $ pytest --pdb
    
 
 Expressions
