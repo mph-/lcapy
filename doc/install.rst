@@ -127,7 +127,11 @@ Installation for development
 
    $ pip3 install flake8 flake8-bugbear flake8-requirements flake8-comprehensions
 
-7. For coverage analysis
+7. To run unit tests
+
+   $ pip3 install pytest
+
+8. For coverage analysis
 
 .. code-block:: console
 
