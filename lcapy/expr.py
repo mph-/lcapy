@@ -2626,8 +2626,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     def simplify_factors(self, **kwargs):
         """Simplify factors in expression individually."""
 
-        result = 0
-        for factor in self.expr.as_ordered_factors():
+        factors = self.expr.as_ordered_factors()
+        result = factors[0]
+
+        for factor in factors[1:]:
             result *= symsimplify(factor, **kwargs)
         return self.__class__(result, **self.assumptions)
 
