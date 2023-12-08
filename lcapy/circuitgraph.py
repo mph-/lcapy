@@ -2,7 +2,7 @@
 This module provides a class to represent circuits as graphs.
 This is primarily for loop analysis but is also used for nodal analysis.
 
-Copyright 2019--2022 Michael Hayes, UCECE
+Copyright 2019--2023 Michael Hayes, UCECE
 
 """
 
@@ -300,10 +300,20 @@ class CircuitGraph(object):
             G.remove_edge(edge.from_node, edge.to_node)
 
     def component(self, node1, node2):
-        """Return component connected between specified nodes."""
+        """Return component connected between specified nodes.
+        Note, the way the graph is constructed there is only
+        a single component between nodes since dummy nodes are
+        added if there are components in parallel.
+        """
 
         node1 = str(node1)
         node2 = str(node2)
+
+        if node1 not in self.nodes:
+            raise ValueError('Unknown node ' + node1)
+        if node2 not in self.nodes:
+            raise ValueError('Unknown node ' + node2)
+
         name = self.G.get_edge_data(node1, node2)['name']
         if name.startswith('W'):
             return None
@@ -508,11 +518,12 @@ class CircuitGraph(object):
         return self
 
     def canonical_nodes(self, *node_names):
+        """Return list of canonical node names."""
 
         return [self.node_map[str(node_name)] for node_name in node_names]
 
     def series_path(self, edge, dest_node, quit_node=None):
-        """Follow series path to `dest_node."""
+        """Follow series path to `dest_node`."""
 
         if self.debug:
             print('to:', dest_node)
@@ -544,3 +555,24 @@ class CircuitGraph(object):
             if edge.from_node == node:
                 edge = next_edges[1]
             path.append(edge)
+
+    def map_nodes(self, *node_names):
+        """Map the circuit nodes to the circuitgraph nodes."""
+
+        mnodes = []
+        for node in node_names:
+            node_name = str(node)
+            if node_name not in self.node_map:
+                raise ValueError('Unknown node ' + node_name)
+            mnodes.append(self.node_map[node_name])
+        return mnodes
+
+    def across_nodes(self, node1, node2):
+        """Return list of components that are connected
+        across nodes `node1` and `node2`."""
+
+        node1, node2 = self.map_nodes(node1, node2)
+        cpt = self.component(node1, node2)
+        if cpt is None:
+            return []
+        return self.in_parallel(cpt.name)

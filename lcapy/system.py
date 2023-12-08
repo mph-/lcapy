@@ -20,7 +20,7 @@ except ImportError:
 
 # System dependent functions
 
-# Note, sometime in 2018 ImageMagick's convert program by default
+# Note, sometime in 2018, ImageMagick's convert program by default
 # disallowed pdf file conversions.  A work-around is to edit
 # /etc/ImageMagick-6/policy.xml to enable this conversion.
 

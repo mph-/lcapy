@@ -21,7 +21,8 @@ upload: package
 
 .PHONY: test
 test: lcapy/*.py
-	pytest -s --pdb -o cache_dir=test/.pytest_cache
+	# pytest -s --pdb -o cache_dir=test/.pytest_cache
+	pytest --pdb lcapy/tests
 
 .PHONY: cover
 cover: lcapy/*.py
