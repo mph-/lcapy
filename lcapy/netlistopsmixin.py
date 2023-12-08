@@ -61,9 +61,14 @@ class NetlistOpsMixin:
 
         """
 
-        ladder = self._ladder(N1p, N1m, N2p, N2m)
-        if ladder is not None:
-            return ladder.current_gain
+        try:
+            # Finding the transfer function for a ladder network
+            # is faster but is not necessary
+            ladder = self._ladder(N1p, N1m, N2p, N2m)
+            if ladder is not None:
+                return ladder.current_gain
+        except:
+            pass
 
         N1p, N1m, N2p, N2m = self._parse_node_args4(N1p, N1m, N2p, N2m,
                                                     'current_gain')
@@ -243,9 +248,14 @@ class NetlistOpsMixin:
             transfer(cpt1, (N2p, N2m))
         """
 
-        ladder = self._ladder(N1p, N1m, N2p, N2m)
-        if ladder is not None:
-            return ladder.voltage_gain
+        try:
+            # Finding the transfer function for a ladder network
+            # is faster but is not necessary
+            ladder = self._ladder(N1p, N1m, N2p, N2m)
+            if ladder is not None:
+                return ladder.voltage_gain
+        except:
+            pass
 
         N1p, N1m, N2p, N2m = self._parse_node_args4(N1p, N1m, N2p, N2m,
                                                     'transfer')
@@ -339,9 +349,14 @@ class NetlistOpsMixin:
 
         """
 
-        ladder = self._ladder(N1p, N1m, N2p, N2m)
-        if ladder is not None:
-            return ladder.transadmittance
+        try:
+            # Finding the transfer function for a ladder network
+            # is faster but is not necessary
+            ladder = self._ladder(N1p, N1m, N2p, N2m)
+            if ladder is not None:
+                return ladder.transadmittance
+        except:
+            pass
 
         N1p, N1m, N2p, N2m = self._parse_node_args4(N1p, N1m, N2p, N2m,
                                                     'transadmittance')
@@ -371,9 +386,14 @@ class NetlistOpsMixin:
             transimpedance(cpt1, (N2p, N2m))
         """
 
-        ladder = self._ladder(N1p, N1m, N2p, N2m)
-        if ladder is not None:
-            return ladder.transimpedance
+        try:
+            # Finding the transfer function for a ladder network
+            # is faster but is not necessary
+            ladder = self._ladder(N1p, N1m, N2p, N2m)
+            if ladder is not None:
+                return ladder.transimpedance
+        except:
+            pass
 
         N1p, N1m, N2p, N2m = self._parse_node_args4(N1p, N1m, N2p, N2m,
                                                     'transadmittance')
@@ -410,9 +430,14 @@ class NetlistOpsMixin:
             voltage_gain(cpt1, (N2p, N2m))
         """
 
-        ladder = self._ladder(N1p, N1m, N2p, N2m)
-        if ladder is not None:
-            return ladder.voltage_gain
+        try:
+            # Finding the transfer function for a ladder network
+            # is faster but is not necessary
+            ladder = self._ladder(N1p, N1m, N2p, N2m)
+            if ladder is not None:
+                return ladder.voltage_gain
+        except:
+            pass
 
         # This is the same as transfer.
         N1p, N1m, N2p, N2m = self._parse_node_args4(N1p, N1m, N2p, N2m,
