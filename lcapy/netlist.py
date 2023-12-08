@@ -557,15 +557,26 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         return new
 
     def apply_test_voltage_source(self, Np, Nm=None):
-        """This copies the netlist, kills all the sources, and applies a Dirac
-        delta test voltage source across the specified nodes.  If the
-        netlist is not connected to ground, the negative specified
-        node is connected to ground.  The new netlist is returned."""
+        """This copies the netlist, removes any voltage sources across the
+        specified nodes, kills all the remaining sources, and applies
+        a Dirac delta test voltage source across the specified nodes.
+        If the netlist is not connected to ground, the negative
+        specified node is connected to ground.  The new netlist is
+        returned.
+
+        """
 
         Np, Nm = self._parse_node_args2(Np, Nm)
         Np, Nm = self._check_nodes(Np, Nm)
 
-        new = self.kill()
+        new = self.copy()
+        for name in self.cg.across_nodes(Np, Nm):
+            if self[name].is_voltage_source:
+                warn('Removing voltage source %s across input nodes %s, %s' %
+                     (name, Np, Nm))
+                new.remove(name)
+
+        new = new.kill()
         new._add_ground(Nm)
         new._add_test_voltage_source(Np, Nm)
         return new

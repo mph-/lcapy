@@ -314,7 +314,11 @@ class CircuitGraph(object):
         if node2 not in self.nodes:
             raise ValueError('Unknown node ' + node2)
 
-        name = self.G.get_edge_data(node1, node2)['name']
+        try:
+            name = self.G.get_edge_data(node1, node2)['name']
+        except TypeError:
+            return None
+
         if name.startswith('W'):
             return None
         return self.cct.elements[name]
