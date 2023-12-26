@@ -1289,7 +1289,11 @@ These can be augmented by explicit voltage, current, and flow labels.  One-port 
 
 - l=label -- component label
 
+- l2=label1 and label2 -- vertically stack labels label1 and label2
+
 - a=label -- annotation
+
+- a2=label1 and label2 -- vertically stack annotations label1 and label2
 
 - t=label -- inner label
 
@@ -1306,7 +1310,7 @@ employed.  For example,
 >>> cct.add('R1 1 2; right, i=$I_1$, v=$V_{R_1}$')
 
 Lcapy will try to automatically switch to math-mode if it detects a
-math-mode command.  Use `\mathrm{}` to ensure text is kept in a Roman text font rather than an italic math font.
+math-mode command.  Use `\\mathrm{}` to ensure text is kept in a Roman text font rather than an italic math font.
 
 The component label and annotation positions are controlled with the
 `^` and `_` attributes.  The `^` attribute positions the label above

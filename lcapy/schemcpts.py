@@ -140,7 +140,9 @@ class Cpt(object):
     flow_keys = ('f', 'f_', 'f^', 'f_>',  'f_<', 'f^>', 'f^<',
                  'f>_', 'f<_', 'f>^', 'f<^', 'f>', 'f<')
     label_keys = ('l', 'l_', 'l^')
+    label2_keys = ('l2', 'l2_', 'l2^')
     annotation_keys = ('a', 'a_', 'a^')
+    annotation2_keys = ('a2', 'a2_', 'a2^')
     inner_label_keys = ('t', )
     connection_keys = ('input', 'output', 'bidir', 'pad')
     ground_keys = ('ground', 'sground', 'rground',
@@ -162,8 +164,9 @@ class Cpt(object):
                  'anchor', 'def', 'nodes')
     label_opt_keys = ('label_values', 'label_ids', 'annotate_values')
 
-    special_keys = voltage_keys + current_keys + flow_keys + label_keys + \
-        inner_label_keys + annotation_keys + misc_keys + \
+    special_keys = voltage_keys + current_keys + flow_keys +\
+        label_keys + label2_keys + inner_label_keys + \
+        annotation_keys + annotation2_keys + misc_keys + \
         implicit_keys + label_opt_keys + connection_keys
 
     node_special_keys = ('label', 'l', 'anchor')
@@ -1334,15 +1337,26 @@ class Cpt(object):
         return {}
 
     def opts_str_list(self, choices):
-        """Format voltage, current, or label string as a key-value pair
-        and return list of strings"""
+        """Format voltage, current, label, or annotation string as a key-value
+        pair and return list of strings"""
 
         def fmt(key, val):
-            label = latex_format_label(val)
-            if label == '':
-                label = '{}'
-            if not (label[0] == '{' and label[-1] == '}'):
-                label = '{' + label + '}'
+
+            if len(val) > 1 and val[0] == '{' and val[-1] == '}':
+                val = val[1:-1]
+
+            if key in self.label2_keys + self.annotation2_keys:
+                parts = val.split(' and ')
+                if len(parts) > 2:
+                    raise ValueError('Can only have one and in %s for %s label'
+                                     % (val, key))
+                elif len(parts) < 2:
+                    raise ValueError('Missing and in %s for %s label'
+                                     % (val, key))
+                label = ' and '.join([latex_format_label(part)
+                                      for part in parts])
+            else:
+                label = latex_format_label(val)
 
             return '%s=%s' % (key, label)
 
@@ -1350,7 +1364,8 @@ class Cpt(object):
                 if key in choices]
 
     def opts_str(self, choices):
-        """Format voltage, current, or label string as a key-value pair"""
+        """Format voltage, current, label, or annotation string as a key-value
+        pair"""
 
         return ','.join(self.opts_str_list(choices))
 
@@ -1371,7 +1386,7 @@ class Cpt(object):
     @property
     def annotation_str(self):
 
-        return self.opts_str(self.annotation_keys)
+        return self.opts_str(self.annotation_keys + self.annotation2_keys)
 
     @property
     def flow_str(self):
@@ -1381,12 +1396,12 @@ class Cpt(object):
     @property
     def label_str(self):
 
-        return self.opts_str(self.label_keys)
+        return self.opts_str(self.label_keys + self.label2_keys)
 
     @property
     def label_str_list(self):
 
-        return self.opts_str_list(self.label_keys)
+        return self.opts_str_list(self.label_keys + self.label2_keys)
 
     @property
     def inner_label_str(self):
