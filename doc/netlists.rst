@@ -420,6 +420,9 @@ circuit elements (Components).  For example,
 Circuit methods
 ---------------
 
+- `across_nodes(Np, Nm)` Returns a set of component names that are
+  connected directly between nodes `Np` and `Nm`
+
 - `admittance(Np, Nm)` Returns the driving-point admittance between
   nodes `Np` and `Nm` and `admittance(cpt)` returns the driving-point
   admittance between the nodes of the specified component
@@ -509,9 +512,9 @@ Circuit methods
   nodes `Np` and `Nm` and `impedance(cpt)` returns the driving-point
   impedance between the nodes of the specified component
 
-- `in_parallel()` Returns a list of sets of component names that are connected in parallel
+- `in_parallel(component_name)` Returns a set of component names that are connected in parallel with `component_name`
 
-- `in_series()` Returns a list of sets of component names that are connected in series
+- `in_series(component_name)` Returns a set of component names that are connected in series with `component_name`
 
 - `kill()` Kills specified independent sources (voltage sources
   become short-circuits and current sources become open-circuits)

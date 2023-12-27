@@ -388,11 +388,14 @@ class Synthesis(object):
 
 def network(lexpr, form='default'):
     """Synthesise a network with an equivalent impedance.  `form`
-    includes: cauerI, cauerII, fosterI, fosterII, seriesRLC, seriesGC,
-    parallelRLC, seriesRC, seriesRL, parallelRC, parallelRL,
-    parallelGC.  The default is CauerI.
+    includes: cauerI, cauerII, fosterI (foster series), fosterII
+    (foster parallel), seriesRLC, seriesGC, parallelRLC, seriesRC,
+    seriesRL, parallelRC, parallelRL, parallelGC.  The default is
+    CauerI.
 
     Note some methods generate networks with negative value
-    components."""
+    components.
+
+    """
 
     return Synthesis().network(lexpr, form)

@@ -572,11 +572,13 @@ class CircuitGraph(object):
         return mnodes
 
     def across_nodes(self, node1, node2):
-        """Return list of components that are connected
-        across nodes `node1` and `node2`."""
+        """Return set of component names that are connected directly across
+        nodes `node1` and `node2`.
+
+        """
 
         node1, node2 = self.map_nodes(node1, node2)
         cpt = self.component(node1, node2)
         if cpt is None:
-            return []
+            return set()
         return self.in_parallel(cpt.name)

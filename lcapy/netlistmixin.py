@@ -688,6 +688,14 @@ class NetlistMixin(object):
 
         return Analysis(self, self.components)
 
+    def across_nodes(self, node1, node2):
+        """Return set of components that are connected directly across nodes
+        `node1` and `node2`.
+
+        """
+
+        return self.cg.across_nodes(node1, node2)
+
     def augment_node_map(self, node_map=None):
         """Create a mapping dict for all nodes."""
 
@@ -836,8 +844,11 @@ class NetlistMixin(object):
         return cpt in self.elements
 
     def in_parallel(self, cpt=None):
-        """Return set of cpts in parallel with specified cpt.  If no cpt
-        specified, return list of sets of parallel cpts."""
+        """Return set of component names in parallel with specified component
+        name.  If no component name specified, return list of sets of
+        parallel cpts.
+
+        """
 
         if cpt is None:
             return self._in_parallel_all()
@@ -852,8 +863,11 @@ class NetlistMixin(object):
         return list(names)
 
     def in_series(self, cpt=None):
-        """Return set of cpts in series with specified cpt.  If no cpt
-        specified, return list of sets of series cpts."""
+        """Return set of component_names in series with specified component
+        name.  If no component name specified, return list of sets of
+        series cpts.
+
+        """
 
         if cpt is None:
             return self._in_series_all()
