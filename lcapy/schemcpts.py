@@ -1345,6 +1345,18 @@ class Cpt(object):
             if len(val) > 1 and val[0] == '{' and val[-1] == '}':
                 val = val[1:-1]
 
+            # Circuitikz does not handle \\ in labels.  As a hack
+            # convert l to l2 and a to a2.   Note, l2 and a2 can only
+            # support two lines.
+            parts = val.split(r'\\', 1)
+            if len(parts) == 2:
+                if key in self.label_keys:
+                    key = key.replace('l', 'l2')
+                    val = ' and '.join(parts)
+                elif key in self.annotation.keys:
+                    key = key.replace('a', 'a2')
+                    val = ' and '.join(parts)
+
             if key in self.label2_keys + self.annotation2_keys:
                 parts = val.split(' and ')
                 if len(parts) > 2:
