@@ -85,6 +85,10 @@ def main(argv=None):
                         default=None,
                         help='delimiter between component name and value')
 
+    parser.add_argument('--label-flip', action='store_true',
+                        dest='label_flip', default=None,
+                        help="flip label position")
+
     parser.add_argument('--node-label-anchor', type=str,
                         default=None,
                         help='control the positioning of the node labels')
@@ -283,6 +287,7 @@ def main(argv=None):
                  label_ids=args.label_ids,
                  label_values=args.label_values,
                  label_delimiter=args.label_delimiter,
+                 label_flip=args.label_flip,
                  autoground=args.autoground,
                  annotate_values=args.annotate_values,
                  filename=outfilename, scale=args.scale,

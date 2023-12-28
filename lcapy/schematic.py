@@ -88,6 +88,7 @@ class SchematicOpts(Opts):
              'label_values': True,
              'label_ids': True,
              'label_delimiter': '=',
+             'label_flip': False,
              'annotate_values': False,
              'label_nodes': 'primary',
              'anchor': 'south east',

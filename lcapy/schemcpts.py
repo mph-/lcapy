@@ -165,7 +165,7 @@ class Cpt(object):
                  'mirrorinputs', 'autoground', 'xoffset', 'yoffset',
                  'anchor', 'def', 'nodes')
     label_opt_keys = ('label_values', 'label_ids', 'annotate_values',
-                      'label_delimiter')
+                      'label_delimiter', 'label_flip')
 
     all_label_keys = voltage_keys + current_keys + flow_keys + \
         label_keys + label2_keys + inner_label_keys + \
@@ -1656,7 +1656,8 @@ class Bipole(StretchyCpt):
                                         ', '.join(self.styles.keys())))
                 tikz_cpt += self.styles[self.style]
 
-        flip = False
+        flip = check_boolean(kwargs.get('label_flip', False))
+
         if self.type in ('V', 'I', 'E', 'F', 'G', 'H', 'BAT'):
             # The node order has changed with different versions of
             # Circuitikz.  First there was the `old` order for
@@ -1670,7 +1671,7 @@ class Bipole(StretchyCpt):
             if self.left or self.down:
                 # Draw label on LHS for vertical cpt and below
                 # for horizontal cpt.
-                flip = True
+                flip = not flip
 
         dargs = self.opts.as_list(self.special_keys, **kwargs)
 
