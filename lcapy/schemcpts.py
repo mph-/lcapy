@@ -10,6 +10,8 @@ import sys
 import numpy as np
 from .opts import Opts
 from .schemmisc import Pos, Steps
+from .label import Label
+from .labels import Labels
 from .latex import latex_format_label
 from .config import implicit_default
 
@@ -164,9 +166,11 @@ class Cpt(object):
                  'anchor', 'def', 'nodes')
     label_opt_keys = ('label_values', 'label_ids', 'annotate_values')
 
-    special_keys = voltage_keys + current_keys + flow_keys +\
+    all_label_keys = voltage_keys + current_keys + flow_keys + \
         label_keys + label2_keys + inner_label_keys + \
-        annotation_keys + annotation2_keys + misc_keys + \
+        annotation_keys + annotation2_keys
+
+    special_keys = all_label_keys + misc_keys + \
         implicit_keys + label_opt_keys + connection_keys
 
     node_special_keys = ('label', 'l', 'anchor')
@@ -219,6 +223,11 @@ class Cpt(object):
 
         # Drawing hints
         self.opts = Opts(opts_string)
+
+        self.labels = Labels()
+        for key, val in self.opts.items():
+            if key in self.all_label_keys:
+                self.labels.add(key, val)
 
         # List of node names specified as component arguments.  For example,
         # given R 1 2, node_names = ['1', '2'].
@@ -843,7 +852,13 @@ class Cpt(object):
         dargs.append(style)
         dargs = ', '.join([arg for arg in dargs if arg != ''])
 
-        s = r'  \draw[%s] (%s) to (%s);''\n' % (dargs, pos1, pos2)
+        # l= is used to define node label.  This might be a mistake...
+        self.labels.label = None
+        args = self.labels.args()
+
+        args.append('n=' + self.s)
+
+        s = self.draw_cpt(pos1, pos2, 'short', args, dargs)
         return s
 
     def draw_stepped_wire(self, pos1, steps, dargs=None,
@@ -1148,14 +1163,7 @@ class Cpt(object):
             return ''
         node.label_drawn = True
 
-        # TODO, format user defined label
-        label = node.opts.get('l', node.opts.get('label', node.label))
-
-        # Perhaps override if have a user defined label.
         if not node.show_label(label_nodes):
-            return ''
-
-        if False and node.parent:
             return ''
 
         anchor = self.anchor_opt(self, anchor)
@@ -1163,7 +1171,7 @@ class Cpt(object):
         dargs = [] if dargs is None else dargs
         dargs.append('anchor=' + anchor)
 
-        s = self.draw_cptnode(node.s, dargs=dargs, label=label)
+        s = self.draw_cptnode(node.s, dargs=dargs, label=node.label)
         return s
 
     def draw_node_labels(self, **kwargs):
@@ -1335,90 +1343,6 @@ class Cpt(object):
 
     def parse_pindefs(self):
         return {}
-
-    def opts_str_list(self, choices):
-        """Format voltage, current, label, or annotation string as a key-value
-        pair and return list of strings"""
-
-        def fmt(key, val):
-
-            if len(val) > 1 and val[0] == '{' and val[-1] == '}':
-                val = val[1:-1]
-
-            # Circuitikz does not handle \\ in labels.  As a hack
-            # convert l to l2 and a to a2.   Note, l2 and a2 can only
-            # support two lines.
-            parts = val.split(r'\\', 1)
-            if len(parts) == 2:
-                if key in self.label_keys:
-                    key = key.replace('l', 'l2')
-                    val = ' and '.join(parts)
-                elif key in self.annotation.keys:
-                    key = key.replace('a', 'a2')
-                    val = ' and '.join(parts)
-
-            if key in self.label2_keys + self.annotation2_keys:
-                parts = val.split(' and ')
-                if len(parts) > 2:
-                    raise ValueError('Can only have one and in %s for %s label'
-                                     % (val, key))
-                elif len(parts) < 2:
-                    raise ValueError('Missing and in %s for %s label'
-                                     % (val, key))
-                label = ' and '.join([latex_format_label(part)
-                                      for part in parts])
-            else:
-                label = latex_format_label(val)
-
-            return '%s=%s' % (key, label)
-
-        return [fmt(key, val) for key, val in self.opts.items()
-                if key in choices]
-
-    def opts_str(self, choices):
-        """Format voltage, current, label, or annotation string as a key-value
-        pair"""
-
-        return ','.join(self.opts_str_list(choices))
-
-    @property
-    def voltage_str(self):
-
-        return self.opts_str(self.voltage_keys)
-
-    @property
-    def current_str(self):
-
-        if 'ir' in self.opts:
-            label = self.opts.pop('ir')
-            self.opts.add('i_<=' + label)
-
-        return self.opts_str(self.current_keys)
-
-    @property
-    def annotation_str(self):
-
-        return self.opts_str(self.annotation_keys + self.annotation2_keys)
-
-    @property
-    def flow_str(self):
-
-        return self.opts_str(self.flow_keys)
-
-    @property
-    def label_str(self):
-
-        return self.opts_str(self.label_keys + self.label2_keys)
-
-    @property
-    def label_str_list(self):
-
-        return self.opts_str_list(self.label_keys + self.label2_keys)
-
-    @property
-    def inner_label_str(self):
-
-        return self.opts_str(self.inner_label_keys)
 
     def args_str(self, **kwargs):
 
@@ -1651,9 +1575,11 @@ class Bipole(StretchyCpt):
     pins = {'+': ('lx', -0.5, 0),
             '-': ('rx', 0.5, 0)}
 
-    def label_make(self, label_pos='', **kwargs):
+    def label_make(self, flip=False, **kwargs):
 
         # TODO merge with label
+
+        label_pos = '^' if flip else '_'
 
         label_values = check_boolean(kwargs.get('label_values', True))
         label_ids = check_boolean(kwargs.get('label_ids', True))
@@ -1675,16 +1601,6 @@ class Bipole(StretchyCpt):
             label_str = r'l%s=%s' % (label_pos, self.value_label)
         else:
             label_str = ''
-
-        # Override label if specified.
-        if self.label_str != '':
-            label_str = self.label_str
-
-        if self.inner_label_str != '':
-            label_str += ',t=' + self.inner_label_str
-
-        if self.annotation_str != '':
-            label_str += ',' + self.annotation_str
 
         return label_str
 
@@ -1736,9 +1652,7 @@ class Bipole(StretchyCpt):
                                         ', '.join(self.styles.keys())))
                 tikz_cpt += self.styles[self.style]
 
-        label_pos = '_'
-        voltage_pos = '^'
-
+        flip = False
         if self.type in ('V', 'I', 'E', 'F', 'G', 'H', 'BAT'):
             # The node order has changed with different versions of
             # Circuitikz.  First there was the `old` order for
@@ -1752,38 +1666,20 @@ class Bipole(StretchyCpt):
             if self.left or self.down:
                 # Draw label on LHS for vertical cpt and below
                 # for horizontal cpt.
-                label_pos = '^'
-                voltage_pos = '_'
-
-        annotation_pos = voltage_pos
-
-        # Add modifier to place voltage label on other side
-        # from component identifier label.
-        if 'v' in self.opts:
-            self.opts['v' + voltage_pos] = self.opts.pop('v')
-
-        # Reversed voltage.
-        if 'vr' in self.opts:
-            self.opts['v' + voltage_pos + '>'] = self.opts.pop('vr')
-
-        current_pos = label_pos
-        # Add modifier to place current label on other side
-        # from voltage marks.
-        if 'i' in self.opts:
-            self.opts['i' + current_pos] = self.opts.pop('i')
-
-        # Reversed current.
-        if 'ir' in self.opts:
-            self.opts['i' + current_pos + '<'] = self.opts.pop('ir')
-
-        if 'l' in self.opts:
-            self.opts['l' + label_pos] = self.opts.pop('l')
-
-        if 'a' in self.opts:
-            self.opts['a' + annotation_pos] = self.opts.pop('a')
+                flip = True
 
         dargs = self.opts.as_list(self.special_keys, **kwargs)
-        args = [self.voltage_str, self.current_str, self.flow_str]
+
+        args = []
+        # Create default label if not overridden
+        if not self.labels.label:
+            label_str = self.label_make(flip, **kwargs)
+            if label_str != '':
+                parts = label_str.split('=', 1)
+                self.labels.label = Label(*parts)
+
+        # Add the specified labels
+        args.extend(self.labels.args())
 
         if self.mirror:
             args.append('mirror')
@@ -1794,8 +1690,6 @@ class Bipole(StretchyCpt):
             args.append('bipoles/length=%.2fcm' % (
                 self.sch.cpt_size * self.scale))
 
-        label_str = self.label_make(label_pos, **kwargs)
-        args.append(label_str)
         args.append('n=' + self.s)
 
         s = self.draw_cpt(n1.s, n2.s, tikz_cpt, args, dargs)
@@ -2509,14 +2403,14 @@ class SP(FixedCpt):
         s = r'  \draw (%s) node[mixer, xscale=%s, yscale=%s, rotate=%s] {};''\n' % (
             centre, xscale, yscale, self.angle)
         s += self.draw_label(q[0], **kwargs)
-        s += r'  \draw (%s) node[] {$%s$};''\n' % (q[1], self.labels[0])
+        s += r'  \draw (%s) node[] {$%s$};''\n' % (q[1], self.splabels[0])
 
         if self.mirror:
-            s += r'  \draw (%s) node[] {$%s$};''\n' % (q[4], self.labels[0])
+            s += r'  \draw (%s) node[] {$%s$};''\n' % (q[4], self.splabels[0])
         else:
-            s += r'  \draw (%s) node[] {$%s$};''\n' % (q[2], self.labels[1])
-        if len(self.labels) > 2:
-            s += r'  \draw (%s) node[] {$%s$};''\n' % (q[3], self.labels[2])
+            s += r'  \draw (%s) node[] {$%s$};''\n' % (q[2], self.splabels[1])
+        if len(self.splabels) > 2:
+            s += r'  \draw (%s) node[] {$%s$};''\n' % (q[3], self.splabels[2])
         return s
 
 
@@ -2539,31 +2433,31 @@ class SP3(SP):
 class SPpp(SP3):
     """Summing point"""
 
-    labels = '++'
+    splabels = '++'
 
 
 class SPpm(SP3):
     """Summing point"""
 
-    labels = '+-'
+    splabels = '+-'
 
 
 class SPppp(SP):
     """Summing point"""
 
-    labels = '+++'
+    splabels = '+++'
 
 
 class SPpmm(SP):
     """Summing point"""
 
-    labels = '+--'
+    splabels = '+--'
 
 
 class SPppm(SP):
     """Summing point"""
 
-    labels = '++-'
+    splabels = '++-'
 
 
 class TL(StretchyCpt):
@@ -3913,7 +3807,7 @@ class Eamp(Chip):
         if not self.nowires:
             s += r'  \draw (%s.out) |- (%s);''\n' % (self.s,
                                                      self.node('out').s)
-            s += r'  \draw (%s.-) |- (%s);''\n' % (self.s, self.node('in').s)
+            s += r'  \draw (%s.in) |- (%s);''\n' % (self.s, self.node('in').s)
         s += self.draw_label(centre.s, **kwargs)
         return s
 
@@ -4134,25 +4028,11 @@ class Wire(Bipole):
                                        endarrow=endarrow,
                                        dargs=dargs)
 
-        if self.voltage_str != '':
+        if self.labels.voltage:
             # Well there can be an EMF if a changing magnetic flux passes
             # through the loop.
-            warn('There is no voltage drop across an ideal wire!')
+            warn('Ignoring voltage label; there is no voltage drop across an ideal wire!')
 
-        if self.current_str != '' or self.label_str != '' or self.flow_str != '':
-            # FIXME, we don't really want the wire drawn since this
-            # can clobber the arrow.  We just want the current
-            # annotation and/or the label.
-
-            # To handle multiple labels, we need to draw separate wires.
-            for label_str in self.label_str_list:
-                s += r'  \draw[%s] (%s) [short, %s, %s, %s] to (%s);''\n' % (
-                    self.args_str(**kwargs), n1.s, self.current_str,
-                    self.flow_str, label_str, n2.s)
-            if self.label_str_list == []:
-                s += r'  \draw[%s] (%s) [short, %s, %s] to (%s);''\n' % (
-                    self.args_str(**kwargs), n1.s, self.current_str,
-                    self.flow_str, n2.s)
         return s
 
 
