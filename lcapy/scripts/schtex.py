@@ -81,7 +81,11 @@ def main(argv=None):
                         dest='label_values', default=None,
                         help="label values")
 
-    parser.add_argument('--node_label_anchor', type=str,
+    parser.add_argument('--label-delimiter', type=str,
+                        default=None,
+                        help='delimiter between component name and value')
+
+    parser.add_argument('--node-label-anchor', type=str,
                         default=None,
                         help='control the positioning of the node labels')
 
@@ -278,6 +282,7 @@ def main(argv=None):
                  draw_nodes=args.draw_nodes,
                  label_ids=args.label_ids,
                  label_values=args.label_values,
+                 label_delimiter=args.label_delimiter,
                  autoground=args.autoground,
                  annotate_values=args.annotate_values,
                  filename=outfilename, scale=args.scale,

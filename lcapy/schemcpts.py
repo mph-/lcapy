@@ -164,7 +164,8 @@ class Cpt(object):
                  'nodots', 'draw_nodes', 'label_nodes', 'nodraw',
                  'mirrorinputs', 'autoground', 'xoffset', 'yoffset',
                  'anchor', 'def', 'nodes')
-    label_opt_keys = ('label_values', 'label_ids', 'annotate_values')
+    label_opt_keys = ('label_values', 'label_ids', 'annotate_values',
+                      'label_delimiter')
 
     all_label_keys = voltage_keys + current_keys + flow_keys + \
         label_keys + label2_keys + inner_label_keys + \
@@ -1575,34 +1576,37 @@ class Bipole(StretchyCpt):
     pins = {'+': ('lx', -0.5, 0),
             '-': ('rx', 0.5, 0)}
 
-    def label_make(self, flip=False, **kwargs):
+    def label_make(self, **kwargs):
+
+        label = None
+        annotation = None
 
         # TODO merge with label
-
-        label_pos = '^' if flip else '_'
 
         label_values = check_boolean(kwargs.get('label_values', True))
         label_ids = check_boolean(kwargs.get('label_ids', True))
         annotate_values = check_boolean(kwargs.get('annotate_values', False))
+        delimiter = kwargs.get('label_delimiter', '=')
+
+        if delimiter == '\\':
+            delimiter = '\\\\'
 
         # Generate default label.
         if (label_ids and label_values and self.id_label != ''
-                and self.value_label and self.id_label != self.value_label):
-            if annotate_values:
-                annotate_pos = {'': '', '^': '_', '_': '^'}[label_pos]
-                label_str = r'l%s={%s},a%s={%s}' % (label_pos, self.id_label,
-                                                    annotate_pos, self.value_label)
+                and self.value_label != ''
+                and self.id_label != self.value_label):
+            if annotate_values or delimiter == '_':
+                label = Label('l', self.id_label)
+                annotation = Label('a', self.value_label)
             else:
-                label_str = r'l%s={%s}{=%s}' % (label_pos, self.id_label,
-                                                self.value_label)
+                label = Label('l', '{' + self.id_label +
+                              delimiter + self.value_label + '}')
         elif label_ids and self.id_label != '':
-            label_str = r'l%s=%s' % (label_pos, self.id_label)
+            label = Label('l', self.id_label)
         elif label_values and self.value_label != '':
-            label_str = r'l%s=%s' % (label_pos, self.value_label)
-        else:
-            label_str = ''
+            label = Label('l', self.value_label)
 
-        return label_str
+        return label, annotation
 
     def draw(self, **kwargs):
 
@@ -1673,13 +1677,14 @@ class Bipole(StretchyCpt):
         args = []
         # Create default label if not overridden
         if not self.labels.label:
-            label_str = self.label_make(flip, **kwargs)
-            if label_str != '':
-                parts = label_str.split('=', 1)
-                self.labels.label = Label(*parts)
+            label, annotation = self.label_make(**kwargs)
+            if label:
+                self.labels.label = label
+            if annotation:
+                self.labels.annotation = annotation
 
         # Add the specified labels
-        args.extend(self.labels.args())
+        args.extend(self.labels.args(flip))
 
         if self.mirror:
             args.append('mirror')

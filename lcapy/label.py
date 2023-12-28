@@ -1,6 +1,3 @@
-from .latex import latex_format_label
-
-
 class Label:
 
     def __init__(self, key, val):
@@ -12,12 +9,10 @@ class Label:
         if len(parts) == 2:
             if key[0] == 'l':
                 key = key.replace('l', 'l2')
-                val = ' and '.join([latex_format_label(val) for val in parts])
+                val = ' and '.join(parts)
             elif key[0] == 'a':
                 key = key.replace('a', 'a2')
-                val = ' and '.join([latex_format_label(val) for val in parts])
-        else:
-            val = latex_format_label(val)
+                val = ' and '.join(parts)
 
         self.key = key
         self.val = val
