@@ -107,7 +107,7 @@ def plot_deltas(ax, t, deltas, var, plot_type='real', color='k'):
         ax.text(t0 + T / 100, y1 + ymax / 100, '%.*g' % (3, y))
 
 
-def plot_pole_zero(obj, **kwargs):
+def plot_pole_zero(obj, xmin=None, xmax=None, ymin=None, ymax=None, **kwargs):
     """This is a helper function for a pole zero plot.  It is better
     to use the `plot()` method of a LaplaceDomainExpression."""
 
@@ -139,48 +139,52 @@ def plot_pole_zero(obj, **kwargs):
         ax.add_artist(Circle((0, 0), 1, color='blue',
                       linestyle='--', fill=False))
 
-    x_min = a.real.min()
-    x_max = a.real.max()
-    y_min = a.imag.min()
-    y_max = a.imag.max()
+    if xmin is None:
+        xmin = a.real.min() if len(a) else -1
+    if xmax is None:
+        xmax = a.real.max() if len(a) else 1
+    if ymin is None:
+        ymin = a.imag.min() if len(a) else -1
+    if ymax is None:
+        ymax = a.imag.max() if len(a) else 1
 
     if unitcircle:
-        if x_min > -1:
-            x_min = -1
-        if x_max < 1:
-            x_max = 1
-        if y_min > -1:
-            y_min = -1
-        if y_max < 1:
-            y_max = 1
+        if xmin > -1:
+            xmin = -1
+        if xmax < 1:
+            xmax = 1
+        if ymin > -1:
+            ymin = -1
+        if ymax < 1:
+            ymax = 1
 
-    x_extra, y_extra = 0.0, 0.0
-    x_min = x_min * xscale
-    x_max = x_max * xscale
-    y_min = y_min * yscale
-    y_max = y_max * yscale
+    xextra, yextra = 0.0, 0.0
+    xmin = xmin * xscale
+    xmax = xmax * xscale
+    ymin = ymin * yscale
+    ymax = ymax * yscale
 
     # This needs tweaking for better bounds.
     if len(a) >= 2:
-        x_extra, y_extra = 0.1 * (x_max - x_min), 0.1 * (y_max - y_min)
-    if x_extra == 0:
-        x_extra += 1.0
-    if y_extra == 0:
-        y_extra += 1.0
+        xextra, yextra = 0.1 * (xmax - xmin), 0.1 * (ymax - ymin)
+    if xextra == 0:
+        xextra += 1.0
+    if yextra == 0:
+        yextra += 1.0
 
-    x_min -= 0.5 * x_extra
-    x_max += 0.5 * x_extra
+    xmin -= 0.5 * xextra
+    xmax += 0.5 * xextra
     if unitcircle:
         bbox = ax.get_window_extent()
         aspect = bbox.width / bbox.height
 
-        x_min *= aspect
-        x_max *= aspect
+        xmin *= aspect
+        xmax *= aspect
 
     ax.axis('equal')
-    ax.set_xlim(x_min, x_max)
+    ax.set_xlim(xmin, xmax)
     # overconstrained so ignored
-    #ax.set_ylim(y_min - 0.5 * y_extra, y_max + 0.5 * y_extra)
+    #ax.set_ylim(ymin - 0.5 * yextra, ymax + 0.5 * yextra)
 
     def annotate(axes, poles, offset=None):
         if offset is None:
@@ -238,8 +242,8 @@ def plotit(ax, obj, f, V, plot_type=None, deltas=None,
              (False, False): ax.plot}
 
     label = ''
-    if hasattr(obj, 'quantity_label'):
-        label = obj.quantity_label
+    if hasattr(obj, 'quantitylabel'):
+        label = obj.quantitylabel
     part = obj.part
     units = str(obj.units)
 
@@ -783,7 +787,8 @@ def plot_phasor(obj, **kwargs):
     return ax
 
 
-def plot_nyquist(obj, f, norm=False, **kwargs):
+def plot_nyquist(obj, f, norm=False, xmin=None, xmax=None, ymin=None, ymax=None,
+                 **kwargs):
     """This is a helper function for a Nyquist plot.  It is better to use
     the `nyquist_plot()` method of a LaplaceDomainExpression."""
 
@@ -839,33 +844,37 @@ def plot_nyquist(obj, f, norm=False, **kwargs):
         color = lines[0].get_color()
         ax.plot(V.real, V.imag, color=color)
 
-    x_min = V.real.min()
-    x_max = V.real.max()
-    y_min = V.imag.min()
-    y_max = V.imag.max()
+    if xmin is None:
+        xmin = V.real.min()
+    if xmax is None:
+        xmax = V.real.max()
+    if ymin is None:
+        ymin = V.imag.min()
+    if ymax is None:
+        ymax = V.imag.max()
 
     if unitcircle:
-        if x_min > -1:
-            x_min = -1
-        if x_max < 1:
-            x_max = 1
-        if y_min > -1:
-            y_min = -1
-        if y_max < 1:
-            y_max = 1
+        if xmin > -1:
+            xmin = -1
+        if xmax < 1:
+            xmax = 1
+        if ymin > -1:
+            ymin = -1
+        if ymax < 1:
+            ymax = 1
 
-    x_extra, y_extra = 1.0, 1.0
-    x_min -= 0.5 * x_extra
-    x_max += 0.5 * x_extra
+    xextra, yextra = 1.0, 1.0
+    xmin -= 0.5 * xextra
+    xmax += 0.5 * xextra
     if unitcircle:
         bbox = ax.get_window_extent()
         aspect = bbox.width / bbox.height
 
-        x_min *= aspect
-        x_max *= aspect
+        xmin *= aspect
+        xmax *= aspect
 
     ax.axis('equal')
-    #ax.set_xlim(x_min, x_max)
+    #ax.set_xlim(xmin, xmax)
 
     xlabel = kwargs.pop('xlabel', 'Re')
     ylabel = kwargs.pop('ylabel', 'Im')
