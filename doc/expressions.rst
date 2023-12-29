@@ -2834,7 +2834,10 @@ Here's another example::
 .. image:: examples/networks/foster1.png
    :width: 9cm
 
-
+The network form can be 'cauerI', 'cauerII', 'fosterI' (foster
+series), 'fosterII' (foster parallel), 'seriesRLC', 'seriesGC',
+'parallelRLC', 'seriesRC', 'seriesRL', 'parallelRC', 'parallelRL', or
+'parallelGC'.  The default is 'CauerI'.
 
 
 .. _special-functions:

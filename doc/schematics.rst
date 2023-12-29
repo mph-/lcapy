@@ -1309,8 +1309,14 @@ employed.  For example,
 
 >>> cct.add('R1 1 2; right, i=$I_1$, v=$V_{R_1}$')
 
+Math-mode labels need to be enclosed in `$...$`.  Words in sub- and
+superscripts are converted into a roman font using `mathrm`.  This
+feature is also activated if the label is not enclosed in `$...$` but
+includes an `^` or `_`.
+
 Lcapy will try to automatically switch to math-mode if it detects a
-math-mode command.  Use `\\mathrm{}` to ensure text is kept in a Roman text font rather than an italic math font.
+math-mode command.  Use `\\mathrm{}` to ensure text is kept in a Roman
+text font rather than an italic math font.
 
 The component label and annotation positions are controlled with the
 `^` and `_` attributes.  The `^` attribute positions the label above
@@ -1362,9 +1368,16 @@ example,
 .. image:: examples/schematics/voltage_labels1.png
    :width: 8cm
 
+An exception is for open-circuit or port components where the voltage label is drawn directly between the nodes.
+
 The direction of the voltage labels depends on the `voltage dir`
 attribute.  This can be `RP` for rising potential or `EF` for electric
 field.  `RP` is the default.
+
+Voltage labels can be annotated between pairs of nodes using an
+open-circuit component.   For example,
+
+    >>> O1 1 0; down, v=V_1
 
 
 Current and flow labels
@@ -1403,17 +1416,59 @@ say in a label, enclose the field in braces.  For example:
 
     >>> C1 1 0 100e-12; down, size=1.5, v={5\,kV}
 
-Math-mode labels need to be enclosed in `$...$`.  There is an
-experimental feature that is activated when the label starts with a
-single un-matched `$`.  In this case, Lcapy tries to generate a nice LaTeX label.
-For example, words in sub- and superscripts are converted into a roman
-font using `mathrm`.  This feature is also activated if the label is
-not enclosed in `$...$` but includes an `^` or `_`.
+.. _label_formatting:
 
-Voltage labels can be annotated between pairs of nodes using an
-open-circuit component.   For example,
+Label formatting
+----------------
 
-    >>> O1 1 0; down, v=V_1
+Component labels are comprised of a component name and a component value.  If the names are the same, the component value is not shown.  Display of the component name is controlled by the `label_ids` attribute and display of the component value is controlled by the `label_values` attribute.
+
+If both the component name and component value are displayed, they are separated by the `label_delimiter` attribute.  This can be any string and defaults to '='.  For example:
+
+.. literalinclude:: examples/schematics/label_delimiter1.sch
+
+.. image:: examples/schematics/label_delimiter1.png
+   :width: 3cm
+
+The component name and value can be stacked using '\\\\' as the delimiter, for example:
+
+.. literalinclude:: examples/schematics/label_delimiter3.sch
+
+.. image:: examples/schematics/label_delimiter3.png
+   :width: 3cm
+
+The component name and value can be displayed on either side of the component using the 'a' (annotate) delimiter, for example,
+
+.. literalinclude:: examples/schematics/label_delimiter2.sch
+
+.. image:: examples/schematics/label_delimiter2.png
+   :width: 3cm
+
+The component name and value can be overridden with the 'l' attribute.
+
+
+.. _label_placement:
+
+Label placement
+---------------
+
+The component label placement depends on the direction the component is drawn.
+For a component drawn to the right, the label is placed below the
+component and the voltage label is placed above the component, for example:
+
+.. literalinclude:: examples/schematics/labels_loop.sch
+
+.. image:: examples/schematics/labels_loop.png
+   :width: 3cm
+
+This labels position be swapped using the `label_flip` attribute, for example:
+
+.. literalinclude:: examples/schematics/labels_loop_flip.sch
+
+.. image:: examples/schematics/labels_loop_flip.png
+   :width: 3cm
+
+The annotation label is placed on the other side of the component to the component label.  However, this can conflict with the voltage label.
 
 
 .. _node_annotations:
@@ -1644,6 +1699,10 @@ Here is a list of the schematic attributes:
 - `label_nodes`: specifies which nodes to label (default `primary`).  Its argument can either be `all`, `alpha` (node names starting with a letter), `none`, or `primary` (node names not starting with an underscore).
 
 - `label_ids`: specifies whether component ids are drawn (default `true`).
+
+- `label_delimiter`: controls the formatting of labels.  The default is '='.  This produces something like `V1=10 V`.  If the delimiter is '\\' a stacked label is created with the component name above the component value.  If the delimiter is '_', the component name and value are placed on opposite sides of the component.
+
+- `label_flip`: flips the position of the label.
 
 - `label_values`: specifies whether component values are drawn (default `true`).
 
@@ -1909,6 +1968,10 @@ The drawing can be customised using the following options:
 - `label-nodes` controls whether the node names are shown.  The argument can be 'none', 'alpha', 'pins', 'primary', 'all', or a list of comma separated node names in braces.
 
 - `label-values` controls whether the component values are shown.
+
+- `label-delimiter` controls the formatting of labels.  The default is '='.  This produces something like `V1=10 V`.  If the delimiter is '\\' a stacked label is created with the component name above the component value.  If the delimiter is '_', the component name and value are placed on opposite sides of the component.
+
+- `label-flip` flips the position of the label.
 
 - `node-label-anchor`: specifies where the node is relative to the node label (default `south east`).
 

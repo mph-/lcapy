@@ -2,11 +2,25 @@
 Release notes
 =============
 
+V1.21
+=====
+
+- Adds `across_nodes()`
+
+- Removes voltage source across input nodes when trying to determine a transfer function
+
+- Fixes `simplify_factors()`
+
+- Switches to using pytest
+
+- Warns if node voltage name conflicts with a voltage source
+
+
 V1.20
 =====
 
 - Deprecates hybrid current sign convention.  This will change to the passive
-  sign convention (PSC).   To switch to the PSC:
+  sign convention (PSC).  To switch to the PSC:
 
   >>> from lcapy.state import state
   >>> state.current_sign_convention = 'passive'
