@@ -5,7 +5,7 @@ Release notes
 V1.21
 =====
 
-- Adds `label_delimiter` and `label_flip` attributes for schematics
+- Adds `label_style` and `label_flip` attributes for schematics
 
 - Adds `across_nodes()`
 
