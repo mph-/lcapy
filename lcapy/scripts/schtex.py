@@ -81,9 +81,9 @@ def main(argv=None):
                         dest='label_values', default=None,
                         help="label values")
 
-    parser.add_argument('--label-delimiter', type=str,
+    parser.add_argument('--label-style', type=str,
                         default=None,
-                        help='delimiter between component name and value')
+                        help='label style: aligned, stacked, split, value, or name')
 
     parser.add_argument('--label-flip', action='store_true',
                         dest='label_flip', default=None,
@@ -286,7 +286,7 @@ def main(argv=None):
                  draw_nodes=args.draw_nodes,
                  label_ids=args.label_ids,
                  label_values=args.label_values,
-                 label_delimiter=args.label_delimiter,
+                 label_style=args.label_style,
                  label_flip=args.label_flip,
                  autoground=args.autoground,
                  annotate_values=args.annotate_values,

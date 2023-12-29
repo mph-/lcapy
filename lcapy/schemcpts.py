@@ -165,7 +165,7 @@ class Cpt(object):
                  'mirrorinputs', 'autoground', 'xoffset', 'yoffset',
                  'anchor', 'def', 'nodes')
     label_opt_keys = ('label_values', 'label_ids', 'annotate_values',
-                      'label_delimiter', 'label_flip')
+                      'label_style', 'label_flip')
 
     all_label_keys = voltage_keys + current_keys + flow_keys + \
         label_keys + label2_keys + inner_label_keys + \
@@ -1581,24 +1581,33 @@ class Bipole(StretchyCpt):
         label = None
         annotation = None
 
-        # TODO merge with label
-
         label_values = check_boolean(kwargs.get('label_values', True))
         label_ids = check_boolean(kwargs.get('label_ids', True))
         annotate_values = check_boolean(kwargs.get('annotate_values', False))
-        delimiter = kwargs.get('label_delimiter', '=')
+        style = kwargs.get('label_style', '=')
+
+        if style == 'stacked':
+            delimiter = '\\\\'
+        elif style == 'aligned':
+            delimiter = '='
+        elif style == 'split':
+            pass
+        elif style == 'name':
+            label_ids = True
+            label_values = False
+        elif style == 'value':
+            label_ids = False
+            label_values = True
+        else:
+            raise ValueError('Unknown label_style ' + style)
 
         id_label = latex_format_label(self.id_label)
         value_label = latex_format_label(self.value_label)
 
-        # Avoid unexpected behaviour
-        if delimiter == '\\':
-            delimiter = '\\\\'
-
         # Generate default label.
         if (label_ids and label_values and id_label != ''
                 and value_label != '' and id_label != value_label):
-            if annotate_values or delimiter == 'a':
+            if annotate_values or style == 'split':
                 label = Label('l', id_label)
                 annotation = Label('a', value_label)
             else:

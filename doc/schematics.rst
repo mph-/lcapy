@@ -1423,26 +1423,44 @@ Label formatting
 
 Component labels are comprised of a component name and a component value.  If the names are the same, the component value is not shown.  Display of the component name is controlled by the `label_ids` attribute and display of the component value is controlled by the `label_values` attribute.
 
-If both the component name and component value are displayed, they are separated by the `label_delimiter` attribute.  This can be any string and defaults to '='.  For example:
+There are several label formatting styles controlled by the
+`label_style` attribute:
 
-.. literalinclude:: examples/schematics/label_delimiter1.sch
+- 'aligned': The component name and component value are separated by
+  '=':
 
-.. image:: examples/schematics/label_delimiter1.png
-   :width: 3cm
+.. literalinclude:: examples/schematics/label_aligned.sch
 
-The component name and value can be stacked using '\\\\' as the delimiter, for example:
+.. image:: examples/schematics/label_aligned.png
+   :width: 2.5cm
 
-.. literalinclude:: examples/schematics/label_delimiter3.sch
+- 'stacked': The component name is displayed above the component value:
 
-.. image:: examples/schematics/label_delimiter3.png
-   :width: 3cm
+.. literalinclude:: examples/schematics/label_stacked.sch
 
-The component name and value can be displayed on either side of the component using the 'a' (annotate) delimiter, for example,
+.. image:: examples/schematics/label_stacked.png
+   :width: 2.5cm
 
-.. literalinclude:: examples/schematics/label_delimiter2.sch
+- 'split': The component name and value are displayed on either side of the component using the 'split' style:
 
-.. image:: examples/schematics/label_delimiter2.png
-   :width: 3cm
+.. literalinclude:: examples/schematics/label_split.sch
+
+.. image:: examples/schematics/label_split.png
+   :width: 2.5cm
+
+- 'name': Only the component name is displayed:
+
+.. literalinclude:: examples/schematics/label_name.sch
+
+.. image:: examples/schematics/label_name.png
+   :width: 2.5cm
+
+- 'value': Only the component value is displayed.
+
+.. literalinclude:: examples/schematics/label_value.sch
+
+.. image:: examples/schematics/label_value.png
+   :width: 2.5cm
 
 The component name and value can be overridden with the 'l' attribute.
 
@@ -1459,14 +1477,14 @@ component and the voltage label is placed above the component, for example:
 .. literalinclude:: examples/schematics/labels_loop.sch
 
 .. image:: examples/schematics/labels_loop.png
-   :width: 3cm
+   :width: 4cm
 
 This labels position be swapped using the `label_flip` attribute, for example:
 
 .. literalinclude:: examples/schematics/labels_loop_flip.sch
 
 .. image:: examples/schematics/labels_loop_flip.png
-   :width: 3cm
+   :width: 4cm
 
 The annotation label is placed on the other side of the component to the component label.  However, this can conflict with the voltage label.
 

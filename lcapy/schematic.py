@@ -87,7 +87,7 @@ class SchematicOpts(Opts):
             {'draw_nodes': 'primary',
              'label_values': True,
              'label_ids': True,
-             'label_delimiter': '=',
+             'label_style': 'aligned',
              'label_flip': False,
              'annotate_values': False,
              'label_nodes': 'primary',
@@ -633,6 +633,7 @@ class Schematic(NetfileMixin):
            'label_ids': True to show component ids
            'label_values': True to display component values
            'label_delimiter': Delimiter between component name and value
+           'label_flip': Place label on other side of component
            'annotate_values': True to display component values as separate label
            'draw_nodes': True to show all nodes,
              False or 'none' to show no nodes,
