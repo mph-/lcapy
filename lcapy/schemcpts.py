@@ -1588,23 +1588,28 @@ class Bipole(StretchyCpt):
         annotate_values = check_boolean(kwargs.get('annotate_values', False))
         delimiter = kwargs.get('label_delimiter', '=')
 
+        id_label = latex_format_label(self.id_label)
+        value_label = latex_format_label(self.value_label)
+
+        # Avoid unexpected behaviour
         if delimiter == '\\':
             delimiter = '\\\\'
 
         # Generate default label.
-        if (label_ids and label_values and self.id_label != ''
-                and self.value_label != ''
-                and self.id_label != self.value_label):
-            if annotate_values or delimiter == '_':
-                label = Label('l', self.id_label)
-                annotation = Label('a', self.value_label)
+        if (label_ids and label_values and id_label != ''
+                and value_label != '' and id_label != value_label):
+            if annotate_values or delimiter == 'a':
+                label = Label('l', id_label)
+                annotation = Label('a', value_label)
             else:
-                label = Label('l', '{' + self.id_label +
-                              delimiter + self.value_label + '}')
-        elif label_ids and self.id_label != '':
-            label = Label('l', self.id_label)
-        elif label_values and self.value_label != '':
-            label = Label('l', self.value_label)
+                val = id_label + delimiter + value_label
+                if '=' in val:
+                    val = '{' + val + '}'
+                label = Label('l', val)
+        elif label_ids and id_label != '':
+            label = Label('l', id_label)
+        elif label_values and value_label != '':
+            label = Label('l', value_label)
 
         return label, annotation
 

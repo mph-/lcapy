@@ -1,4 +1,5 @@
 from .label import Label
+from .latex import latex_format_label
 
 
 class Labels:
@@ -13,6 +14,8 @@ class Labels:
         self.label = None
 
     def add(self, key, val):
+
+        val = latex_format_label(val)
 
         if key[0] == 'a':
             self.annotation = Label(key, val)

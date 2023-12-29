@@ -62,6 +62,8 @@ def latex_str(string):
 
 def latex_format_label(s):
 
+    s = str(s)
+
     if s == '':
         return s
 
