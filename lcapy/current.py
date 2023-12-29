@@ -81,7 +81,7 @@ def current_sign(I, is_source):
         if is_source:
             state.sign_convention = sign_convention
             warn(
-                """The default hybrid sign convention for currents is deprecated and will default to the passive sign convenention in the next version of Lcapy.  This only affects the sign of the current through sources.  For example, given the netlist
+                """The default hybrid sign convention for currents is deprecated and will default to the passive sign convention in the next version of Lcapy.  This only affects the sign of the current through sources.  For example, given the netlist
 
 I1 1 0
 R1 1 0
