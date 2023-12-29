@@ -5,6 +5,8 @@ Release notes
 V1.21
 =====
 
+- Adds `label_delimiter` and `label_flip` attributes for schematics
+
 - Adds `across_nodes()`
 
 - Removes voltage source across input nodes when trying to determine a transfer function
