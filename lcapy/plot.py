@@ -151,6 +151,13 @@ def plot_pole_zero(obj, xlim=None, ylim=None, **kwargs):
                 xlim[1] = 1
         xlim[0] = xlim[0] * xscale
         xlim[1] = xlim[1] * xscale
+
+        # Include origin
+        if xlim[0] > 0:
+            xlim[0] = 0
+        if xlim[1] < 0:
+            xlim[1] = 0
+
         if len(a) >= 2:
             xextra = 0.1 * (xlim[1] - xlim[0])
         if xextra == 0:
@@ -177,6 +184,13 @@ def plot_pole_zero(obj, xlim=None, ylim=None, **kwargs):
                 ylim[1] = 1
         ylim[0] = ylim[0] * yscale
         ylim[1] = ylim[1] * yscale
+
+        # Include origin
+        if ylim[0] > 0:
+            ylim[0] = 0
+        if ylim[1] < 0:
+            ylim[1] = 0
+
         if len(a) >= 2:
             yextra = 0.1 * (ylim[1] - ylim[0])
         if yextra == 0:
