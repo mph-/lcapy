@@ -1586,7 +1586,9 @@ class Bipole(StretchyCpt):
         annotate_values = check_boolean(kwargs.get('annotate_values', False))
         style = kwargs.get('label_style', '=')
 
-        if style == 'stacked':
+        if style == 'none':
+            return label, annotation
+        elif style == 'stacked':
             delimiter = '\\\\'
         elif style == 'aligned':
             delimiter = '='
