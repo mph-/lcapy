@@ -861,9 +861,9 @@ def plot_nyquist(obj, f, norm=False, xlim=None, ylim=None, **kwargs):
         ax.plot(V.real, V.imag, color=color)
 
     if xlim is None:
-        xlim = (V.real.min(), V.real.max())
+        xlim = [V.real.min(), V.real.max()]
     if ylim is None:
-        ylim = (V.imag.min(), V.imag.max())
+        ylim = [V.imag.min(), V.imag.max()]
 
     if unitcircle:
         if xlim[0] > -1:

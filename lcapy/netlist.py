@@ -753,7 +753,8 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
 
         If `invert` is True, evaluate the matrix inverse."""
 
-        mna = self.modified_nodal_analysis()
+        cct = self.expand()
+        mna = cct.modified_nodal_analysis()
         return mna.matrix_equations(form, invert)
 
     @lru_cache(1)
