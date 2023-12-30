@@ -40,11 +40,12 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
 
     """
 
-    def __init__(self, filename=None, context=None, allow_anon=False):
+    def __init__(self, filename=None, context=None,
+                 allow_anon=False, kind='super'):
 
         super(Netlist, self).__init__(filename, context, allow_anon=allow_anon)
         self._invalidate()
-        self.kind = 'super'
+        self.kind = kind
         self.solver_method = solver_method
 
     @property
@@ -674,7 +675,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
 
         # TODO.  Copy or share?
         context = self.context
-        return self.__class__(context=context)
+        return self.__class__(context=context, kind=self.kind)
 
     def remove(self, name):
         """Remove specified element by name or elements specified in list."""
