@@ -153,6 +153,12 @@ def plot_pole_zero(obj, xlim=None, ylim=None, **kwargs):
         xlim[0] = xlim[0] * xscale
         xlim[1] = xlim[1] * xscale
 
+        # Include origin
+        if xlim[0] > 0:
+            xlim[0] = 0
+        if xlim[1] < 0:
+            xlim[1] = 0
+
         if len(a) >= 2:
             xextra = extra_scale * (xlim[1] - xlim[0])
         if xextra == 0:
@@ -164,12 +170,6 @@ def plot_pole_zero(obj, xlim=None, ylim=None, **kwargs):
 
         xlim[0] -= xextra
         xlim[1] += xextra
-
-        # Include origin
-        if xlim[0] > 0:
-            xlim[0] = 0
-        if xlim[1] < 0:
-            xlim[1] = 0
 
         if unitcircle:
             bbox = ax.get_window_extent()
@@ -189,6 +189,12 @@ def plot_pole_zero(obj, xlim=None, ylim=None, **kwargs):
         ylim[0] = ylim[0] * yscale
         ylim[1] = ylim[1] * yscale
 
+        # Include origin
+        if ylim[0] > 0:
+            ylim[0] = 0
+        if ylim[1] < 0:
+            ylim[1] = 0
+
         if len(a) >= 2:
             yextra = extra_scale * (ylim[1] - ylim[0])
         if yextra == 0:
@@ -198,12 +204,6 @@ def plot_pole_zero(obj, xlim=None, ylim=None, **kwargs):
 
         ylim[0] -= yextra
         ylim[1] += yextra
-
-        # Include origin
-        if ylim[0] > 0:
-            ylim[0] = 0
-        if ylim[1] < 0:
-            ylim[1] = 0
 
     ax.set_xlim(*xlim)
     ax.set_ylim(*ylim)
