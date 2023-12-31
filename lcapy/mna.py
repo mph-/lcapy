@@ -359,7 +359,9 @@ class MNA(object):
 
         If `invert` is True, evaluate the matrix inverse."""
 
-        sys = SystemEquations(self.A, self._Z, self.X)
+        from .expr import delcapify
+
+        sys = SystemEquations(self._A, self._Z, delcapify(self.X))
         return sys.format(form, invert)
 
     def equations(self, inverse=False):
