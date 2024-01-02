@@ -1,7 +1,7 @@
 """This module defines and draws the schematic components using
 circuitikz.   The components are defined at the bottom of this file.
 
-Copyright 2015--2023 Michael Hayes, UCECE
+Copyright 2015--2024 Michael Hayes, UCECE
 """
 
 from __future__ import print_function
@@ -78,6 +78,8 @@ module = sys.modules[__name__]
 
 # TODO, this has evolved into a can of words and could do with a
 # complete rewrite.
+
+# Note, the tikz origin is in the lower left corner
 
 
 def check_boolean(value):
@@ -2172,12 +2174,15 @@ class Transistor(FixedCpt):
 
     @property
     def pins(self):
+
         if (self.kind is not None
             and (self.kind.startswith('pigfet')
                  or self.kind.startswith('nigfet'))):
-            xpins = [[self.npins2, self.inpins2], [self.ppins2, self.ippins2]]
+            xpins = [[self.normal_pins2, self.invert_pins2],
+                     [self.mirror_pins2, self.mirror_invert_pins2]]
         else:
-            xpins = [[self.npins, self.inpins], [self.ppins, self.ippins]]
+            xpins = [[self.normal_pins, self.invert_pins],
+                     [self.mirror_pins, self.mirror_invert_pins]]
         if (self.classname in ('Qpnp', 'Mpmos', 'Jpjf')
             or self.kind in ('pmos', 'pmosd', 'pfetd', 'pfet',
                              'pfetd-bodydiode', 'pfet-bodydiode'
@@ -2246,20 +2251,20 @@ class Transistor(FixedCpt):
 class BJT(Transistor):
     """BJT"""
 
-    node_pinnames = ('e', 'b', 'c')
+    node_pinnames = ('c', 'b', 'e')
     aliases = {'emitter': 'e', 'base': 'b', 'collector': 'c'}
-    ppins = {'e': ('lx', 0.55, 0),
-             'b': ('lx', 0, 0.5),
-             'c': ('lx', 0.55, 1)}
-    npins = {'e': ('lx', 0.55, 1),
-             'b': ('lx', 0, 0.5),
-             'c': ('lx', 0.55, 0)}
-    ippins = {'e': ('lx', 0, 0),
-              'b': ('lx', 0.55, 0.5),
-              'c': ('lx', 0, 1)}
-    inpins = {'e': ('lx', 0, 1),
-              'b': ('lx', 0.55, 0.5),
-              'c': ('lx', 0, 0)}
+    normal_pins = {'e': ('lx', 0.55, 0),
+                   'b': ('lx', 0, 0.5),
+                   'c': ('lx', 0.55, 1)}
+    mirror_pins = {'e': ('lx', 0.55, 1),
+                   'b': ('lx', 0, 0.5),
+                   'c': ('lx', 0.55, 0)}
+    invert_pins = {'e': ('lx', 0, 0),
+                   'b': ('lx', 0.55, 0.5),
+                   'c': ('lx', 0, 1)}
+    mirror_invert_pins = {'e': ('lx', 0, 1),
+                          'b': ('lx', 0.55, 0.5),
+                          'c': ('lx', 0, 0)}
     kinds = {'npn': 'npn',
              'pnp': 'pnp',
              'bodydiode': '-bodydiode',
@@ -2278,18 +2283,18 @@ class JFET(Transistor):
 
     node_pinnames = ('d', 'g', 's')
     aliases = {'drain': 'd', 'gate': 'g', 'source': 's'}
-    ppins = {'d': ('lx', 0.55, 0),
-             'g': ('lx', 0, 0.645),
-             's': ('lx', 0.55, 1)}
-    npins = {'d': ('lx', 0.55, 1),
-             'g': ('lx', 0, 0.355),
-             's': ('lx', 0.55, 0)}
-    ippins = {'d': ('lx', 0, 0),
-              'g': ('lx', 0.55, 0.645),
-              's': ('lx', 0, 1)}
-    inpins = {'d': ('lx', 0, 1),
-              'g': ('lx', 0.55, 0.355),
-              's': ('lx', 0, 0)}
+    normal_pins = {'d': ('lx', 0.55, 0),
+                   'g': ('lx', 0, 0.645),
+                   's': ('lx', 0.55, 1)}
+    mirror_pins = {'d': ('lx', 0.55, 1),
+                   'g': ('lx', 0, 0.355),
+                   's': ('lx', 0.55, 0)}
+    invert_pins = {'d': ('lx', 0, 0),
+                   'g': ('lx', 0.55, 0.645),
+                   's': ('lx', 0, 1)}
+    mirror_invert_pins = {'d': ('lx', 0, 1),
+                          'g': ('lx', 0.55, 0.355),
+                          's': ('lx', 0, 0)}
 
 
 class MOSFET(Transistor):
@@ -2297,30 +2302,30 @@ class MOSFET(Transistor):
 
     node_pinnames = ('d', 'g', 's')
     aliases = {'drain': 'd', 'gate': 'g', 'source': 's'}
-    ppins = {'d': ('lx', 0.55, 0),
-             'g': ('lx', 0, 0.5),
-             's': ('lx', 0.55, 1)}
-    npins = {'d': ('lx', 0.55, 1),
-             'g': ('lx', 0, 0.5),
-             's': ('lx', 0.55, 0)}
-    ippins = {'d': ('lx', 0, 0),
-              'g': ('lx', 0.55, 0.5),
-              's': ('lx', 0, 1)}
-    inpins = {'d': ('lx', 0, 1),
-              'g': ('lx', 0.55, 0.5),
-              's': ('lx', 0, 0)}
-    ppins2 = {'d': ('lx', 0.55, 0),
-              'g': ('lx', 0, 0.645),
-              's': ('lx', 0.55, 1)}
-    npins2 = {'d': ('lx', 0.55, 1),
-              'g': ('lx', 0, 0.355),
-              's': ('lx', 0.55, 0)}
-    ippins2 = {'d': ('lx', 0, 0),
-               'g': ('lx', 0.55, 0.645),
-               's': ('lx', 0, 1)}
-    inpins2 = {'d': ('lx', 0, 1),
-               'g': ('lx', 0.55, 0.355),
-               's': ('lx', 0, 0)}
+    normal_pins = {'d': ('lx', 0.55, 1),
+                   'g': ('lx', 0, 0.5),
+                   's': ('lx', 0.55, 0)}
+    mirror_pins = {'d': ('lx', 0.55, 0),
+                   'g': ('lx', 0, 0.5),
+                   's': ('lx', 0.55, 1)}
+    invert_pins = {'d': ('lx', 0, 1),
+                   'g': ('lx', 0.55, 0.5),
+                   's': ('lx', 0, 0)}
+    mirror_invert_pins = {'d': ('lx', 0, 0),
+                          'g': ('lx', 0.55, 0.5),
+                          's': ('lx', 0, 1)}
+    normal_pins2 = {'d': ('lx', 0.55, 1),
+                    'g': ('lx', 0, 0.645),
+                    's': ('lx', 0.55, 0)}
+    mirror_pins2 = {'d': ('lx', 0.55, 0),
+                    'g': ('lx', 0, 0.355),
+                    's': ('lx', 0.55, 1)}
+    invert_pins2 = {'d': ('lx', 0, 1),
+                    'g': ('lx', 0.55, 0.645),
+                    's': ('lx', 0, 0)}
+    mirror_invert_pins2 = {'d': ('lx', 0, 0),
+                           'g': ('lx', 0.55, 0.355),
+                           's': ('lx', 0, 1)}
     kinds = {'nmos': 'nmos', 'pmos': 'pmos',
              'nmosd': 'nmosd', 'pmosd': 'pmosd',
              'nfet': 'nfet', 'pfet': 'pfet',
@@ -2395,18 +2400,18 @@ class SP(FixedCpt):
     can_mirror = True
 
     node_pinnames = ('in1', 'in2', 'out', 'in3')
-    ppins = {'in1': ('lx', -0.25, 0),
-             'in2': ('bx', 0, -0.25),
-             'out': ('rx', 0.25, 0),
-             'in3': ('tx', 0, 0.25)}
-    npins = {'in1': ('lx', -0.25, 0),
-             'in2': ('tx', 0, 0.25),
-             'out': ('rx', 0.25, 0),
-             'in3': ('bx', 0, -0.25)}
+    normal_pins = {'in1': ('lx', -0.25, 0),
+                   'in2': ('bx', 0, -0.25),
+                   'out': ('rx', 0.25, 0),
+                   'in3': ('tx', 0, 0.25)}
+    mirror_pins = {'in1': ('lx', -0.25, 0),
+                   'in2': ('tx', 0, 0.25),
+                   'out': ('rx', 0.25, 0),
+                   'in3': ('bx', 0, -0.25)}
 
     @property
     def pins(self):
-        return self.npins if self.mirror else self.ppins
+        return self.mirror_pins if self.mirror else self.normal_pins
 
     def draw(self, **kwargs):
 
@@ -2440,16 +2445,16 @@ class SP3(SP):
     """Summing point"""
 
     node_pinnames = ('in1', 'in2', 'out')
-    ppins = {'in1': ('lx', -0.25, 0),
-             'in2': ('bx', 0, -0.25),
-             'out': ('rx', 0.25, 0)}
-    npins = {'in1': ('lx', -0.25, 0),
-             'in2': ('tx', 0, 0.25),
-             'out': ('rx', 0.25, 0)}
+    normal_pins = {'in1': ('lx', -0.25, 0),
+                   'in2': ('bx', 0, -0.25),
+                   'out': ('rx', 0.25, 0)}
+    mirror_pins = {'in1': ('lx', -0.25, 0),
+                   'in2': ('tx', 0, 0.25),
+                   'out': ('rx', 0.25, 0)}
 
     @property
     def pins(self):
-        return self.npins if self.mirror else self.ppins
+        return self.mirror_pins if self.mirror else self.normal_pins
 
 
 class SPpp(SP3):
@@ -2768,16 +2773,17 @@ class SPDT(FixedCpt):
 
     node_pinnames = ('p', 'n', 'common')
     aliases = {'+': 'p', '-': 'n'}
-    ppins = {'p': ('lx', 0, 0.169),
-             'n': ('rx', 0.632, 0.338),
-             'common': ('lx', 0.632, 0)}
-    npins = {'p': ('lx', 0.632, 0.169),
-             'n': ('rx', 0, 0.338),
-             'common': ('lx', 0, 0)}
+    normal_pins = {'p': ('lx', 0, 0.169),
+                   'n': ('rx', 0.632, 0.338),
+                   'common': ('lx', 0.632, 0)}
+    invert_pins = {'p': ('lx', 0.632, 0.169),
+                   'n': ('rx', 0, 0.338),
+                   'common': ('lx', 0, 0)}
 
     @property
     def pins(self):
-        return self.npins if self.invert else self.ppins
+        # The mirror pins are at the same locations as the normal pins
+        return self.invert_pins if self.invert else self.normal_pins
 
     def draw(self, **kwargs):
 
@@ -3656,33 +3662,33 @@ class Eopamp(Chip):
     # The Nm node is not used (ground).
     node_pinnames = ('out', '', 'in+', 'in-')
 
-    ppins = {'out': ('rx', 1.25, 0.0),
-             'in+': ('lx', -1.25, 0.5),
-             'in-': ('lx', -1.25, -0.5),
-             'vdd': ('t', 0, 0.5),
-             'vdd2': ('t', -0.45, 0.755),
-             'vss2': ('b', -0.45, -0.755),
-             'vss': ('b', 0, -0.5),
-             'ref': ('b', 0.45, -0.245),
-             'r+': ('l', -0.85, 0.25),
-             'r-': ('l', -0.85, -0.25)}
+    normal_pins = {'out': ('rx', 1.25, 0.0),
+                   'in+': ('lx', -1.25, 0.5),
+                   'in-': ('lx', -1.25, -0.5),
+                   'vdd': ('t', 0, 0.5),
+                   'vdd2': ('t', -0.45, 0.755),
+                   'vss2': ('b', -0.45, -0.755),
+                   'vss': ('b', 0, -0.5),
+                   'ref': ('b', 0.45, -0.245),
+                   'r+': ('l', -0.85, 0.25),
+                   'r-': ('l', -0.85, -0.25)}
 
-    npins = {'out': ('rx', 1.25, 0.0),
-             'in-': ('lx', -1.25, 0.5),
-             'in+': ('lx', -1.25, -0.5),
-             'vdd': ('t', 0, 0.5),
-             'vdd2': ('t', -0.45, 0.755),
-             'vss2': ('b', -0.45, -0.755),
-             'vss': ('b', 0, -0.5),
-             'ref': ('b', 0.45, -0.245),
-             'r-': ('l', -0.85, 0.25),
-             'r+': ('l', -0.85, -0.25)}
+    mirror_pins = {'out': ('rx', 1.25, 0.0),
+                   'in-': ('lx', -1.25, 0.5),
+                   'in+': ('lx', -1.25, -0.5),
+                   'vdd': ('t', 0, 0.5),
+                   'vdd2': ('t', -0.45, 0.755),
+                   'vss2': ('b', -0.45, -0.755),
+                   'vss': ('b', 0, -0.5),
+                   'ref': ('b', 0.45, -0.245),
+                   'r-': ('l', -0.85, 0.25),
+                   'r+': ('l', -0.85, -0.25)}
 
     pinlabels = {'vdd': 'VDD', 'vss': 'VSS'}
 
     @property
     def pins(self):
-        return self.npins if (self.mirrorinputs ^ self.mirror) else self.ppins
+        return self.mirror_pins if (self.mirrorinputs ^ self.mirror) else self.normal_pins
 
     def draw(self, **kwargs):
 
@@ -3723,31 +3729,31 @@ class Efdopamp(Chip):
 
     node_pinnames = ('out+', 'out-', 'in+', 'in-', 'ocm')
 
-    ppins = {'out+': ('r', 0.85, -0.5),
-             'out-': ('r', 0.85, 0.5),
-             'in+': ('l', -1.25, 0.5),
-             'ocm': ('l', -0.85, 0),
-             'in-': ('l', -1.25, -0.5),
-             'vdd': ('t', -0.25, 0.645),
-             'vss': ('b', -0.25, -0.645),
-             'r+': ('l', -0.85, 0.25),
-             'r-': ('l', -0.85, -0.25)}
+    normal_pins = {'out+': ('r', 0.85, -0.5),
+                   'out-': ('r', 0.85, 0.5),
+                   'in+': ('l', -1.25, 0.5),
+                   'ocm': ('l', -0.85, 0),
+                   'in-': ('l', -1.25, -0.5),
+                   'vdd': ('t', -0.25, 0.645),
+                   'vss': ('b', -0.25, -0.645),
+                   'r+': ('l', -0.85, 0.25),
+                   'r-': ('l', -0.85, -0.25)}
 
-    npins = {'out-': ('r', 0.85, -0.5),
-             'out+': ('r', 0.85, 0.5),
-             'in-': ('l', -1.25, 0.5),
-             'ocm': ('l', -0.85, 0),
-             'in+': ('l', -1.25, -0.5),
-             'vdd': ('t', -0.25, 0.645),
-             'vss': ('b', -0.25, -0.645),
-             'r-': ('l', -0.85, 0.25),
-             'r+': ('l', -0.85, -0.25)}
+    mirror_pins = {'out-': ('r', 0.85, -0.5),
+                   'out+': ('r', 0.85, 0.5),
+                   'in-': ('l', -1.25, 0.5),
+                   'ocm': ('l', -0.85, 0),
+                   'in+': ('l', -1.25, -0.5),
+                   'vdd': ('t', -0.25, 0.645),
+                   'vss': ('b', -0.25, -0.645),
+                   'r-': ('l', -0.85, 0.25),
+                   'r+': ('l', -0.85, -0.25)}
 
     pinlabels = {'vdd': 'VDD', 'vss': 'VSS'}
 
     @property
     def pins(self):
-        return self.npins if (self.mirrorinputs ^ self.mirror) else self.ppins
+        return self.mirror_pins if (self.mirrorinputs ^ self.mirror) else self.normal_pins
 
     def draw(self, **kwargs):
 
@@ -3845,33 +3851,33 @@ class Uopamp(Chip):
     auxiliary.update(Chip.auxiliary)
     required_auxiliary = ('lin+', 'lin-', 'mid')
 
-    ppins = {'out': ('r', 0.5, 0.0),
-             'in+': ('l', -0.5, 0.25),
-             'in-': ('l', -0.5, -0.25),
-             'vdd': ('t', 0, 0.25),
-             'vdd2': ('t', -0.225, 0.365),
-             'vss2': ('b', -0.225, -0.365),
-             'vss': ('b', 0, -0.25),
-             'ref': ('b', 0.225, -0.135),
-             'r+': ('l', -0.5, 0.125),
-             'r-': ('l', -0.5, -0.125)}
+    normal_pins = {'out': ('r', 0.5, 0.0),
+                   'in+': ('l', -0.5, 0.25),
+                   'in-': ('l', -0.5, -0.25),
+                   'vdd': ('t', 0, 0.25),
+                   'vdd2': ('t', -0.225, 0.365),
+                   'vss2': ('b', -0.225, -0.365),
+                   'vss': ('b', 0, -0.25),
+                   'ref': ('b', 0.225, -0.135),
+                   'r+': ('l', -0.5, 0.125),
+                   'r-': ('l', -0.5, -0.125)}
 
-    npins = {'out': ('r', 0.5, 0.0),
-             'in-': ('l', -0.5, 0.25),
-             'in+': ('l', -0.5, -0.25),
-             'vdd': ('t', 0, 0.25),
-             'vdd2': ('t', -0.225, 0.365),
-             'vss2': ('b', -0.225, -0.365),
-             'vss': ('b', 0, -0.25),
-             'ref': ('b', 0.225, -0.135),
-             'r-': ('l', -0.5, 0.125),
-             'r+': ('l', -0.5, -0.125)}
+    mirror_pins = {'out': ('r', 0.5, 0.0),
+                   'in-': ('l', -0.5, 0.25),
+                   'in+': ('l', -0.5, -0.25),
+                   'vdd': ('t', 0, 0.25),
+                   'vdd2': ('t', -0.225, 0.365),
+                   'vss2': ('b', -0.225, -0.365),
+                   'vss': ('b', 0, -0.25),
+                   'ref': ('b', 0.225, -0.135),
+                   'r-': ('l', -0.5, 0.125),
+                   'r+': ('l', -0.5, -0.125)}
 
     pinlabels = {'vdd': 'VDD', 'vss': 'VSS'}
 
     @property
     def pins(self):
-        return self.npins if self.mirrorinputs else self.ppins
+        return self.mirror_pins if self.mirrorinputs else self.normal_pins
 
     @property
     def path(self):
@@ -3906,27 +3912,27 @@ class Ufdopamp(Chip):
     auxiliary.update(Chip.auxiliary)
     required_auxiliary = ('lin+', 'lin-', 'lout+', 'lout-', 'mid')
 
-    ppins = {'out-': ('r', 0.1, 0.2),
-             'out+': ('r', 0.1, -0.2),
-             'in+': ('l', -0.5, 0.2),
-             'in-': ('l', -0.5, -0.2),
-             'vdd': ('t', -0.1, 0.3),
-             'vss': ('b', -0.1, -0.3),
-             'ocm': ('l', -0.5, 0)}
+    normal_pins = {'out-': ('r', 0.1, 0.2),
+                   'out+': ('r', 0.1, -0.2),
+                   'in+': ('l', -0.5, 0.2),
+                   'in-': ('l', -0.5, -0.2),
+                   'vdd': ('t', -0.1, 0.3),
+                   'vss': ('b', -0.1, -0.3),
+                   'ocm': ('l', -0.5, 0)}
 
-    npins = {'out+': ('r', 0.1, +0.2),
-             'out-': ('r', 0.1, -0.2),
-             'in-': ('l', -0.5, 0.2),
-             'in+': ('l', -0.5, -0.2),
-             'vdd': ('t', -0.1, 0.3),
-             'vss': ('b', -0.1, -0.3),
-             'ocm': ('l', -0.5, 0)}
+    mirror_pins = {'out+': ('r', 0.1, +0.2),
+                   'out-': ('r', 0.1, -0.2),
+                   'in-': ('l', -0.5, 0.2),
+                   'in+': ('l', -0.5, -0.2),
+                   'vdd': ('t', -0.1, 0.3),
+                   'vss': ('b', -0.1, -0.3),
+                   'ocm': ('l', -0.5, 0)}
 
     pinlabels = {'vdd': 'VDD', 'vss': 'VSS'}
 
     @property
     def pins(self):
-        return self.npins if self.mirrorinputs else self.ppins
+        return self.mirror_pins if self.mirrorinputs else self.normal_pins
 
     @property
     def path(self):
@@ -3959,27 +3965,27 @@ class Uinamp(Uopamp):
                  'lin-': ('c', -0.375, -0.3)}
     auxiliary.update(Chip.auxiliary)
 
-    ppins = {'out': ('r', 0.5, 0.0),
-             'in+': ('l', -0.5, 0.3),
-             'in-': ('l', -0.5, -0.3),
-             'vdd': ('t', 0, 0.25),
-             'vdd2': ('t', -0.225, 0.365),
-             'vss2': ('b', -0.225, -0.365),
-             'vss': ('b', 0, -0.25),
-             'ref': ('b', 0.225, -0.135),
-             'r+': ('l', -0.5, 0.2),
-             'r-': ('l', -0.5, -0.2)}
+    normal_pins = {'out': ('r', 0.5, 0.0),
+                   'in+': ('l', -0.5, 0.3),
+                   'in-': ('l', -0.5, -0.3),
+                   'vdd': ('t', 0, 0.25),
+                   'vdd2': ('t', -0.225, 0.365),
+                   'vss2': ('b', -0.225, -0.365),
+                   'vss': ('b', 0, -0.25),
+                   'ref': ('b', 0.225, -0.135),
+                   'r+': ('l', -0.5, 0.2),
+                   'r-': ('l', -0.5, -0.2)}
 
-    npins = {'out': ('r', 0.5, 0.0),
-             'in-': ('l', -0.5, 0.3),
-             'in+': ('l', -0.5, -0.3),
-             'vdd': ('t', 0, 0.25),
-             'vdd2': ('t', -0.225, 0.365),
-             'vss2': ('b', -0.225, -0.365),
-             'vss': ('b', 0, -0.25),
-             'ref': ('b', 0.225, -0.135),
-             'r-': ('l', -0.5, 0.2),
-             'r+': ('l', -0.5, -0.2)}
+    mirror_pins = {'out': ('r', 0.5, 0.0),
+                   'in-': ('l', -0.5, 0.3),
+                   'in+': ('l', -0.5, -0.3),
+                   'vdd': ('t', 0, 0.25),
+                   'vdd2': ('t', -0.225, 0.365),
+                   'vss2': ('b', -0.225, -0.365),
+                   'vss': ('b', 0, -0.25),
+                   'ref': ('b', 0.225, -0.135),
+                   'r-': ('l', -0.5, 0.2),
+                   'r+': ('l', -0.5, -0.2)}
 
 
 class Uisoamp(Ufdopamp):
