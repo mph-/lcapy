@@ -1,6 +1,6 @@
 """This module provides the SystemEquations class.
 
-Copyright 2023 Michael Hayes, UCECE
+Copyright 2023--2024 Michael Hayes, UCECE
 
 """
 
@@ -33,6 +33,7 @@ class SystemEquations(object):
          Ainv b = y
          y = Ainv b
 
+
         If `invert` is True, the A matrix is inverted."""
 
         if form == 'A y = b':
@@ -45,14 +46,18 @@ class SystemEquations(object):
             if invert:
                 return equation(self.y, sym.MatMul(self.Ainv, self.b))
 
-            return equation(self.y, sym.MatMul(sym.Pow(self.A, -1), self.b))
+            # Shown as A^{-1}; inverse not computed
+            Ainv = sym.Pow(self.A, -1)
+            return equation(self.y, sym.MatMul(Ainv, self.b))
 
         elif form == 'Ainv b = y':
             if invert:
                 return equation(sym.MatMul(self.Ainv, self.b), self.y,
                                 evaluate=False)
 
-            return equation(sym.MatMul(sym.Pow(self.A, -1), self.b), self.y,
+            # Shown as A^{-1}; inverse not computed
+            Ainv = sym.Pow(self.A, -1)
+            return equation(sym.MatMul(Ainv, self.b), self.y,
                             evaluate=False)
         else:
             raise ValueError('Unknown form %s' % form)
