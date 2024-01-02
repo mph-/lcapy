@@ -2185,7 +2185,7 @@ class Transistor(FixedCpt):
                      [self.mirror_pins, self.mirror_invert_pins]]
         if (self.classname in ('Qpnp', 'Mpmos', 'Jpjf')
             or self.kind in ('pmos', 'pmosd', 'pfetd', 'pfet',
-                             'pfetd-bodydiode', 'pfet-bodydiode'
+                             'pfetd-bodydiode', 'pfet-bodydiode',
                              'pigfetd', 'pigfete', 'pigfetebulk')):
             pins = xpins[not self.mirror][self.invert]
         else:
@@ -2283,18 +2283,18 @@ class JFET(Transistor):
 
     node_pinnames = ('d', 'g', 's')
     aliases = {'drain': 'd', 'gate': 'g', 'source': 's'}
-    normal_pins = {'d': ('lx', 0.55, 0),
+    normal_pins = {'d': ('lx', 0.55, 1),
+                   'g': ('lx', 0, 0.335),
+                   's': ('lx', 0.55, 0)}
+    mirror_pins = {'d': ('lx', 0.55, 0),
                    'g': ('lx', 0, 0.645),
                    's': ('lx', 0.55, 1)}
-    mirror_pins = {'d': ('lx', 0.55, 1),
-                   'g': ('lx', 0, 0.355),
-                   's': ('lx', 0.55, 0)}
-    invert_pins = {'d': ('lx', 0, 0),
-                   'g': ('lx', 0.55, 0.645),
-                   's': ('lx', 0, 1)}
-    mirror_invert_pins = {'d': ('lx', 0, 1),
-                          'g': ('lx', 0.55, 0.355),
-                          's': ('lx', 0, 0)}
+    invert_pins = {'d': ('lx', 0, 1),
+                   'g': ('lx', 0.55, 0.335),
+                   's': ('lx', 0, 0)}
+    mirror_invert_pins = {'d': ('lx', 0, 0),
+                          'g': ('lx', 0.55, 0.645),
+                          's': ('lx', 0, 1)}
 
 
 class MOSFET(Transistor):
@@ -2315,16 +2315,16 @@ class MOSFET(Transistor):
                           'g': ('lx', 0.55, 0.5),
                           's': ('lx', 0, 1)}
     normal_pins2 = {'d': ('lx', 0.55, 1),
-                    'g': ('lx', 0, 0.645),
+                    'g': ('lx', 0, 0.355),
                     's': ('lx', 0.55, 0)}
     mirror_pins2 = {'d': ('lx', 0.55, 0),
-                    'g': ('lx', 0, 0.355),
+                    'g': ('lx', 0, 0.645),
                     's': ('lx', 0.55, 1)}
     invert_pins2 = {'d': ('lx', 0, 1),
-                    'g': ('lx', 0.55, 0.645),
+                    'g': ('lx', 0.55, 0.335),
                     's': ('lx', 0, 0)}
     mirror_invert_pins2 = {'d': ('lx', 0, 0),
-                           'g': ('lx', 0.55, 0.355),
+                           'g': ('lx', 0.55, 0.645),
                            's': ('lx', 0, 1)}
     kinds = {'nmos': 'nmos', 'pmos': 'pmos',
              'nmosd': 'nmosd', 'pmosd': 'pmosd',
