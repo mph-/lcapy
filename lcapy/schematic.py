@@ -12,7 +12,7 @@ This module performs schematic drawing using circuitikz from a netlist::
     ... W 0.2 0.2; right''')
     >>> sch.draw()
 
-Copyright 2014--2023 Michael Hayes, UCECE
+Copyright 2014--2024 Michael Hayes, UCECE
 """
 
 # Strings starting with ;; are schematic options.  They are parsed in
@@ -666,7 +666,10 @@ class Schematic(NetfileMixin):
         # Remove options that may be overridden by arguments to draw
         for elt in self.elements.values():
             for key in list(elt.opts):
-                if key in kwargs:
+                # Unfortunately there is a conflict between the global
+                # style option (american, etc) and a local style
+                # option (full, stroke, etc.)
+                if key in kwargs and key != 'style':
                     elt.opts.remove(key)
 
         # Default options
