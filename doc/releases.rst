@@ -5,6 +5,12 @@ Release notes
 V1.21
 =====
 
+- Fixes diode styles
+
+- Fixes transistor drawing
+
+- Improves pole-zero plots
+
 - Adds `label_style` and `label_flip` attributes for schematics
 
 - Adds `across_nodes()`
