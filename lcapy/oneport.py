@@ -954,13 +954,32 @@ class L(OnePort):
 
 
 class C(OnePort):
-    """Capacitor
+    """
+    Defines a simple linear one-port capacitor.
 
+    Parameters
+    ----------
+    Cval
+        Capacitance
+    v0
+        Initial Voltage
 
-    Capacitance Cval, initial voltage v0
+    Attributes
+    ----------
+    C
+        TODO: What is this?
+    v0
+        Initial Voltage
+    zeroic : bool
+        Indicates w if initial voltage v0 is zero volts
+
     """
 
     is_capacitor = True
+    """
+    bool: Indicates if the component is a capacitor
+    
+    """
 
     def __init__(self, Cval='C', v0=None, **kwargs):
 
@@ -993,13 +1012,16 @@ class C(OnePort):
         kind : str
             't', 'time', or 'super' for time domain, 's' or 'laplace' for Laplace domain
 
+        Returns
+        -------
+        TimeDomainCurrent or LaplaceDomainCurrent
+            Expression for current through the capacitor
 
         Examples
         --------
         >>> from lcapy import C, t, s
         >>> C(2).current_equation(5)
         2*Derivative(5, t)
-
 
         """
 
@@ -1011,8 +1033,28 @@ class C(OnePort):
         return SuperpositionCurrent(SuperpositionVoltage(v).select(kind) / self._Zkind(kind)).select(kind)
 
     def voltage_equation(self, i, kind='t'):
-        """Return expression for voltage across component given
-        applied current."""
+        """
+        Return expression for voltage across component given applied current.
+
+        Parameters
+        ----------
+        i : int or float
+            Applied current
+        kind : str
+            't', 'time', or 'super' for time domain, 's' or 'laplace' for Laplace domain
+
+        Returns
+        -------
+        TimeDomainVoltage or LaplaceDomainVoltage
+            Expression for voltage across the capacitor
+
+        Examples
+        --------
+        >>> from lcapy import C, t, s
+        >>> C(2).voltage_equation(5)
+        Integral(5, (tau, -oo, t))/2
+
+        """
 
         from .sym import tausym
 
@@ -1020,14 +1062,14 @@ class C(OnePort):
             u = tausym
             i = expr(i).subs(t, u)
             if self.has_ic:
-                return SuperpositionVoltage(Integral(i, (u, 0, tsym)) / self.C).select(kind) + expr(self.v0)
+                greg =  SuperpositionVoltage(Integral(i, (u, 0, tsym)) / self.C).select(kind) + expr(self.v0)
 
-            return SuperpositionVoltage(Integral(i, (u, -oo, tsym)) / self.C).select(kind)
+            steven =  SuperpositionVoltage(Integral(i, (u, -oo, tsym)) / self.C).select(kind)
         elif kind in ('s', 'laplace'):
-            return SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Zkind(kind) + self.v0 / s).select(kind)
+            barry = SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Zkind(kind) + self.v0 / s).select(kind)
 
-        return SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Zkind(kind)).select(kind)
-
+        walt =  SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Zkind(kind)).select(kind)
+        pass
 
 class CPE(OnePort):
     """Constant phase element
