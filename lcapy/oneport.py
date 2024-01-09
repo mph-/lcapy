@@ -2,13 +2,13 @@
 This module supports simple linear one-port networks based on the
 following ideal components:
 
-V independent voltage source
-I independent current source
-R resistor
-C capacitor
-L inductor
+| V  independent voltage source
+| I  independent current source
+| R  resistor
+| C  capacitor
+| L  inductor
 
-These components are converted to s-domain models and so capacitor and
+These components are converted to s-domain models so capacitor and
 inductor components can be specified with initial voltage and
 currents, respectively, to model transient responses.
 
@@ -956,7 +956,9 @@ class L(OnePort):
 class C(OnePort):
     """Capacitor
 
-    Capacitance Cval, initial voltage v0"""
+
+    Capacitance Cval, initial voltage v0
+    """
 
     is_capacitor = True
 
@@ -981,8 +983,25 @@ class C(OnePort):
         self.zeroic = self.v0 == 0
 
     def current_equation(self, v, kind='t'):
-        """Return expression for current through component given
-        applied voltage."""
+        """
+        Return expression for current through component given applied voltage.
+
+        Parameters
+        ----------
+        v : int or float
+            Applied voltage
+        kind : str
+            't', 'time', or 'super' for time domain, 's' or 'laplace' for Laplace domain
+
+
+        Examples
+        --------
+        >>> from lcapy import C, t, s
+        >>> C(2).current_equation(5)
+        2*Derivative(5, t)
+
+
+        """
 
         if kind in ('t', 'time', 'super'):
             return SuperpositionCurrent(self.C * Derivative(v, t)).select(kind)
