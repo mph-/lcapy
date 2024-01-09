@@ -473,16 +473,16 @@ class Superposition(SuperpositionDomain, ExprDict):
 
     def select(self, kind):
         """Select a component of the signal representation by kind where:
-        'super' : the entire superposition
-        'time' :  the time domain representation (equivalent to self.time())
-        'laplace' :  the laplace domain representation (equivalent to self.laplace())
-        'ivp' :  the s-domain representation (equivalent to self.laplace())
-        'dc' : the DC component
-        omega : the AC component with angular frequency omega
-        's' : the transient component in the s-domain
-        'n' : the noise component
-        't' : the time-domain transient component (this may or may not
-              include the DC and AC components).
+
+        - ``'super'`` : the entire superposition
+        - ``'time'`` :  the time domain representation (equivalent to self.time())
+        - ``'laplace'`` :  the laplace domain representation (equivalent to self.laplace())
+        - ``'ivp'`` :  the s-domain representation (equivalent to self.laplace())
+        - ``'dc'`` : the DC component
+        - ``'omega'`` : the AC component with angular frequency omega
+        - ``'s'`` : the transient component in the s-domain
+        - ``'n'`` : the noise component
+        - ``'t'`` : the time-domain transient component (this may or may not include the DC and AC components).
 
         """
 

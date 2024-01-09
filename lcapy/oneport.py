@@ -77,6 +77,41 @@ class OnePort(Network, ImmittanceMixin):
     _Voc = None
     _Isc = None
 
+    def __add__(self, OP):
+        """Series combination"""
+
+        return Ser(self, OP)
+
+    def __or__(self, OP):
+        """Parallel combination"""
+
+        return Par(self, OP)
+
+    @property
+    def admittance(self):
+        if self._Y is not None:
+            return self._Y
+        return 1 / self.impedance
+
+    @property
+    def has_parallel_V(self):
+        return self.is_voltage_source
+
+    @property
+    def has_series_I(self):
+        return self.is_current_source
+
+    @property
+    def i(self):
+        """Open-circuit time-domain current.  Except for a current source this
+        is zero."""
+        return self.I.time()
+
+    @property
+    def I(self):
+        """Open-circuit current.  Except for a current source this is zero."""
+        return SuperpositionCurrent(0)
+
     @property
     def impedance(self):
         if self._Z is not None:
@@ -90,10 +125,35 @@ class OnePort(Network, ImmittanceMixin):
         raise ValueError('_Isc, _Voc, _Y, or _Z undefined for %s' % self)
 
     @property
-    def admittance(self):
-        if self._Y is not None:
-            return self._Y
-        return 1 / self.impedance
+    def isc(self):
+        """Short-circuit time-domain current.  This is the current flowing out
+        of the positive node of the network, through a wire, and back
+        to the negative node of the network."""
+        return self.Isc.time()
+
+    @property
+    def Isc(self):
+        """Short-circuit current.  This is the current flowing out
+        of the positive node of the network, through a wire, and back
+        to the negative node of the network."""
+        if self._Isc is not None:
+            return self._Isc
+        return self.Voc._mul(self.admittance)
+
+    @property
+    def v(self):
+        """Open-circuit time-domain voltage."""
+        return self.voc
+
+    @property
+    def V(self):
+        """Open-circuit voltage."""
+        return self.Voc
+
+    @property
+    def voc(self):
+        """Open-circuit time-domain voltage."""
+        return self.Voc.time()
 
     @property
     def Voc(self):
@@ -107,47 +167,32 @@ class OnePort(Network, ImmittanceMixin):
         raise ValueError('_Isc, _Voc, _Y, or _Z undefined for %s' % self)
 
     @property
-    def Isc(self):
-        """Short-circuit current.  This is the current flowing out
-        of the positive node of the network, through a wire, and back
-        to the negative node of the network."""
-        if self._Isc is not None:
-            return self._Isc
-        return self.Voc._mul(self.admittance)
+    def z(self):
+        """Impedance impulse-response."""
+        return self.impedance.time()
 
     @property
-    def V(self):
-        """Open-circuit voltage."""
-        return self.Voc
+    def y(self):
+        """Admittance impulse-response."""
+        return self.admittance.time()
 
-    @property
-    def I(self):
-        """Open-circuit current.  Except for a current source this is zero."""
-        return SuperpositionCurrent(0)
+    def _Zkind(self, kind):
 
-    @property
-    def i(self):
-        """Open-circuit time-domain current.  Except for a current source this
-        is zero."""
-        return self.I.time()
-
-    def __add__(self, OP):
-        """Series combination"""
-
-        return Ser(self, OP)
-
-    def __or__(self, OP):
-        """Parallel combination"""
-
-        return Par(self, OP)
-
-    @property
-    def has_series_I(self):
-        return self.is_current_source
-
-    @property
-    def has_parallel_V(self):
-        return self.is_voltage_source
+        # This is for determining impedances
+        if not isinstance(kind, str):
+            # AC
+            domain = kind
+        elif kind in ('super', 'time', 't'):
+            domain = 't'
+        elif kind in ('laplace', 'ivp', 's'):
+            domain = 's'
+        elif kind == 'dc':
+            domain = 0
+        elif kind.startswith('n'):
+            domain = 'f'
+        else:
+            raise RuntimeError('Unhandled circuit kind ' + kind)
+        return self.Z(domain)
 
     def chain(self, TP):
         """Chain to a two-port.  This is experimental."""
@@ -161,20 +206,21 @@ class OnePort(Network, ImmittanceMixin):
 
         return TP.source(self)
 
-    def series(self, OP):
-        """Series combination"""
+    def expand(self):
 
-        return Ser(self, OP)
-
-    def parallel(self, OP):
-        """Parallel combination"""
-
-        return Par(self, OP)
+        return self
 
     def ladder(self, *args):
         """Create (unbalanced) ladder network"""
 
         return Ladder(self, *args)
+
+    def load(self, OP2):
+
+        if not issubclass(OP2.__class__, OnePort):
+            raise TypeError('Load argument not ', OnePort)
+
+        return LoadCircuit(self, OP2)
 
     def lsection(self, OP2):
         """Create L section (voltage divider)"""
@@ -184,85 +230,31 @@ class OnePort(Network, ImmittanceMixin):
 
         return LSection(self, OP2)
 
-    def tsection(self, OP2, OP3):
-        """Create T section"""
+    def noise_model(self):
+        """Convert to noise model."""
 
-        if not issubclass(OP2.__class__, OnePort):
-            raise TypeError('Argument not ', OnePort)
+        from .symbols import omega
 
-        if not issubclass(OP3.__class__, OnePort):
-            raise TypeError('Argument not ', OnePort)
+        if not isinstance(self, (R, G, Y, Z)):
+            return self
 
-        return TSection(self, OP2, OP3)
-
-    def expand(self):
-
+        R1 = self.R
+        if R1 != 0:
+            Vn = Vnoise('sqrt(4 * k_B * T * %s)' % R1(j * omega))
+            return self + Vn
         return self
 
-    def load(self, OP2):
+        def current_equation(self, v, kind='t'):
+            """Return expression for current through component given
+            applied voltage."""
 
-        if not issubclass(OP2.__class__, OnePort):
-            raise TypeError('Load argument not ', OnePort)
+            raise NotImplementedError('current_equation not defined')
 
-        return LoadCircuit(self, OP2)
+        def voltage_equation(self, i, kind='t'):
+            """Return expression for voltage across component given
+            applied current."""
 
-    @property
-    def voc(self):
-        """Open-circuit time-domain voltage."""
-        return self.Voc.time()
-
-    @property
-    def isc(self):
-        """Short-circuit time-domain current.  This is the current flowing out
-        of the positive node of the network, through a wire, and back
-        to the negative node of the network."""
-        return self.Isc.time()
-
-    @property
-    def v(self):
-        """Open-circuit time-domain voltage."""
-        return self.voc
-
-    @property
-    def z(self):
-        """Impedance impulse-response."""
-        return self.impedance.time()
-
-    @property
-    def y(self):
-        """Admittance impulse-response."""
-        return self.admittance.time()
-
-    def thevenin(self):
-        """Simplify to a Thevenin network"""
-
-        new = self.simplify()
-        Voc = new.Voc
-        Z = new.impedance
-
-        if Voc.is_superposition and not Z.is_real:
-            warn('Detected superposition with reactive impedance, using s-domain.')
-            Z1 = Z
-            V1 = Voc.laplace()
-        elif Voc.is_ac:
-            Z1 = Z.subs(j * Voc.ac_keys()[0])
-            V1 = Voc.select(Voc.ac_keys()[0])
-        elif Voc.is_dc:
-            Z1 = Z.subs(0)
-            V1 = Voc(0)
-        else:
-            V1 = Voc
-            Z1 = Z
-
-        V1 = V1.cpt()
-        Z1 = Z1.cpt()
-
-        if Voc == 0:
-            return Z1
-        if Z == 0:
-            return V1
-
-        return Ser(Z1, V1)
+            raise NotImplementedError('voltage_equation not defined')
 
     def norton(self):
         """Simplify to a Norton network"""
@@ -295,6 +287,11 @@ class OnePort(Network, ImmittanceMixin):
 
         return Par(Y1, I1)
 
+    def parallel(self, OP):
+        """Parallel combination"""
+
+        return Par(self, OP)
+
     def s_model(self):
         """Convert to s-domain."""
 
@@ -318,49 +315,52 @@ class OnePort(Network, ImmittanceMixin):
             return Y(self._Y)
         raise RuntimeError('Internal error')
 
-    def noise_model(self):
-        """Convert to noise model."""
+    def series(self, OP):
+        """Series combination"""
 
-        from .symbols import omega
+        return Ser(self, OP)
 
-        if not isinstance(self, (R, G, Y, Z)):
-            return self
+    def thevenin(self):
+        """Simplify to a Thevenin network"""
 
-        R1 = self.R
-        if R1 != 0:
-            Vn = Vnoise('sqrt(4 * k_B * T * %s)' % R1(j * omega))
-            return self + Vn
-        return self
+        new = self.simplify()
+        Voc = new.Voc
+        Z = new.impedance
 
-        def current_equation(self, v, kind='t'):
-            """Return expression for current through component given
-            applied voltage."""
-
-            raise NotImplementedError('current_equation not defined')
-
-        def voltage_equation(self, i, kind='t'):
-            """Return expression for voltage across component given
-            applied current."""
-
-            raise NotImplementedError('voltage_equation not defined')
-
-    def _Zkind(self, kind):
-
-        # This is for determining impedances
-        if not isinstance(kind, str):
-            # AC
-            domain = kind
-        elif kind in ('super', 'time', 't'):
-            domain = 't'
-        elif kind in ('laplace', 'ivp', 's'):
-            domain = 's'
-        elif kind == 'dc':
-            domain = 0
-        elif kind.startswith('n'):
-            domain = 'f'
+        if Voc.is_superposition and not Z.is_real:
+            warn('Detected superposition with reactive impedance, using s-domain.')
+            Z1 = Z
+            V1 = Voc.laplace()
+        elif Voc.is_ac:
+            Z1 = Z.subs(j * Voc.ac_keys()[0])
+            V1 = Voc.select(Voc.ac_keys()[0])
+        elif Voc.is_dc:
+            Z1 = Z.subs(0)
+            V1 = Voc(0)
         else:
-            raise RuntimeError('Unhandled circuit kind ' + kind)
-        return self.Z(domain)
+            V1 = Voc
+            Z1 = Z
+
+        V1 = V1.cpt()
+        Z1 = Z1.cpt()
+
+        if Voc == 0:
+            return Z1
+        if Z == 0:
+            return V1
+
+        return Ser(Z1, V1)
+
+    def tsection(self, OP2, OP3):
+        """Create T section"""
+
+        if not issubclass(OP2.__class__, OnePort):
+            raise TypeError('Argument not ', OnePort)
+
+        if not issubclass(OP3.__class__, OnePort):
+            raise TypeError('Argument not ', OnePort)
+
+        return TSection(self, OP2, OP3)
 
 
 class ParSer(OnePort):
@@ -1072,19 +1072,35 @@ class C(OnePort):
         pass
 
 class CPE(OnePort):
-    """Constant phase element
+    """
+    Constant phase element
 
-    This has an impedance 1 / (s**alpha * K).  When alpha == 0, the CPE is
-    equivalent to a resistor of resistance 1 / K.  When alpha == 1, the CPE is
-    equivalent to a capacitor of capacitance K.
+    This has an impedance ``1 / s ** alpha * K``.
 
-    When alpha == 0.5 (default), the CPE is a Warburg element.
+    - When ``alpha == 0``, the CPE is equivalent to a resistor of resistance 1 / K.
+    - When ``alpha == 1``, the CPE is equivalent to a capacitor of capacitance K.
+    - When ``alpha == 0.5`` (default), the CPE is a Warburg element.
 
-    The phase of the impedance is -pi * alpha / 2.
+    The phase of the impedance is ``-pi * alpha / 2``.
 
-    Note, when alpha is non-integral, the impedance cannot be represented
-    as a rational function and so there are no poles or zeros.  So
-    don't be suprised if Lcapy throws an occasional wobbly."""
+    Parameters
+    ----------
+    K
+        Equivalent Capacitance or Conductance
+    alpha : float
+        Exponent, with value from 0 to 1
+
+    Attributes
+    ----------
+    K
+        Equivalent Capacitance or Conductance
+    alpha : float
+        Exponent, with value from 0 to 1
+
+    Notes
+    -----
+    When alpha is non-integral, the impedance cannot be represented as a rational function and so there
+    are no poles or zeros. So don't be surprised if Lcapy throws an occasional wobbly."""
 
     def __init__(self, K, alpha=0.5, **kwargs):
 
@@ -1099,7 +1115,15 @@ class CPE(OnePort):
 
 
 class Y(OnePort):
-    """General admittance."""
+    """
+    General admittance.
+
+    Parameters
+    ----------
+    Yval : float or str
+        Admittance value
+
+    """
 
     def __init__(self, Yval='Y', **kwargs):
 
@@ -1109,14 +1133,36 @@ class Y(OnePort):
         self._Y = Yval
 
     def current_equation(self, v, kind='t'):
-        """Return expression for current through component given
-        applied voltage."""
+        """
+        Return expression for current through component given applied voltage.
+
+        Parameters
+        ----------
+        v : int or float
+            Applied voltage
+        kind : str
+            The chosen representation of the equation.
+
+            See :func:`lcapy.super.Superposition.select` for a description of the different representations supported.
+
+        """
 
         return SuperpositionCurrent(SuperpositionVoltage(v).select(kind) / self._Z).select(kind)
 
     def voltage_equation(self, i, kind='t'):
-        """Return expression for voltage across component given
-        applied current."""
+        """
+        Return expression for voltage across component given applied current.
+
+        Parameters
+        ----------
+        i : int or float
+            Applied current
+        kind : str
+            The chosen representation of the equation.
+
+            See :func:`lcapy.super.Superposition.select` for a description of the different representations supported.
+
+        """
 
         return SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Z).select(kind)
 
