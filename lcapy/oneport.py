@@ -49,21 +49,31 @@ class OnePort(Network, ImmittanceMixin):
     """One-port network
 
     There are four major types of OnePort:
-       VoltageSource
-       CurrentSource
-       Impedance
-       Admittance
-       ParSer for combinations of OnePort
 
-    Attributes: Y, Z, Voc, Isc, y, z, voc, isc
-      Y = Y(s)  admittance
-      Z = Z(s)  impedance
-      Voc       open-circuit voltage in appropriate transform domain
-      Isc       short-circuit current in appropriate transform domain
-      y = y(t)  impulse response of admittance
-      z = z(t)  impulse response of impedance
-      voc = voc(t) open-circuit voltage time response
-      isc = isc(t) short-circuit current time response
+    - VoltageSource
+    - CurrentSource
+    - Impedance
+    - Admittance
+    - ParSer for combinations of OnePort
+
+    Attributes
+    ----------
+    Y
+        ``Y(s)`` admittance
+    Z
+        ``Z(s)`` impedance
+    Voc
+        open-circuit voltage in appropriate transform domain
+    Isc
+        short-circuit current in appropriate transform domain
+    y
+        ``y(t)`` impulse response of admittance
+    z
+        ``z(t)`` impulse response of impedance
+    voc
+        ``voc(t)`` open-circuit voltage time response
+    isc
+        ``isc(t)`` short-circuit current time response
     """
 
     # Dimensions and separations of component with horizontal orientation.
@@ -89,6 +99,14 @@ class OnePort(Network, ImmittanceMixin):
 
     @property
     def admittance(self):
+        """
+        Admittance of the one-port.
+
+        Returns
+        -------
+        Admittance of the one-port. :math:`Y = \\frac{1}{Z}`.
+
+        """
         if self._Y is not None:
             return self._Y
         return 1 / self.impedance
@@ -103,13 +121,20 @@ class OnePort(Network, ImmittanceMixin):
 
     @property
     def i(self):
-        """Open-circuit time-domain current.  Except for a current source this
-        is zero."""
+        """
+        Open-circuit time-domain current.
+        Except for a current source this is zero.
+
+        """
         return self.I.time()
 
     @property
     def I(self):
-        """Open-circuit current.  Except for a current source this is zero."""
+        """
+        Open-circuit current.
+        Except for a current source this is zero.
+
+        """
         return SuperpositionCurrent(0)
 
     @property
@@ -126,16 +151,24 @@ class OnePort(Network, ImmittanceMixin):
 
     @property
     def isc(self):
-        """Short-circuit time-domain current.  This is the current flowing out
-        of the positive node of the network, through a wire, and back
-        to the negative node of the network."""
+        """
+        Short-circuit time-domain current.
+
+        This is the current flowing out of the positive node of the network,
+        through a wire, and back to the negative node of the network.
+
+        """
         return self.Isc.time()
 
     @property
     def Isc(self):
-        """Short-circuit current.  This is the current flowing out
-        of the positive node of the network, through a wire, and back
-        to the negative node of the network."""
+        """
+        Short-circuit current.
+
+        This is the current flowing out of the positive node of the network,
+        through a wire, and back to the negative node of the network.
+
+        """
         if self._Isc is not None:
             return self._Isc
         return self.Voc._mul(self.admittance)
@@ -157,7 +190,16 @@ class OnePort(Network, ImmittanceMixin):
 
     @property
     def Voc(self):
-        """Open-circuit voltage."""
+        """
+        Open-circuit voltage.
+
+        Raises
+        ------
+        ValueError
+            If the open-circuit voltage is undefined for the one-port.
+
+            This occurs when ``Isc``, ``Voc``, ``Y``, or ``Z`` is ``None``.
+        """
         if self._Voc is not None:
             return self._Voc
         if self._Isc is not None:
@@ -826,10 +868,27 @@ class Ser(ParSer):
 
 
 class R(OnePort):
-    """Resistor"""
+    """
+    Defines a simple linear one-port resistor
+
+    Parameters
+    ----------
+    Rval
+        Resistance value
+
+    """
 
     is_resistor = True
+    """
+    bool: Indicates the component is a resistor
+    
+    """
     is_noiseless = False
+    """
+        bool: Indicates the resistor is not noiseless.
+        For noiseless resistor see :class:`lcapy.oneport.NR`.
+
+    """
 
     def __init__(self, Rval='R', **kwargs):
 
@@ -839,15 +898,41 @@ class R(OnePort):
         self._Z = impedance(self._R, causal=True)
 
     def current_equation(self, v, kind='t'):
-        """Return expression for current through component given
-        applied voltage."""
+        """
+        Return expression for current through component given applied voltage.
+
+        Parameters
+        ----------
+        v
+            Applied voltage
+        kind : str
+            The chosen representation of the equation.
+
+            See :func:`lcapy.super.Superposition.select` for a description of the different representations supported.
+
+        Returns
+        -------
+        Expression for current through the resistor
+
+        """
 
         return SuperpositionCurrent(SuperpositionVoltage(v).select(kind) / self._Z).select(kind)
 
-    def voltage_equation(self, i, kind='t'):
-        """Return expression for voltage across component given
-        applied current."""
 
+    def voltage_equation(self, i, kind='t'):
+        """
+        Return expression for voltage across component given applied current.
+
+        Parameters
+        ----------
+        i
+            Applied current
+        kind : str
+            The chosen representation of the equation.
+
+            See :func:`lcapy.super.Superposition.select` for a description of the different representations supported.
+
+        """
         return SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Z).select(kind)
 
 
@@ -855,6 +940,11 @@ class NR(R):
     """Noiseless resistor"""
 
     is_noiseless = True
+    """
+        bool: Indicates the resistor is noiseless.
+        For regular resistor see :class:`lcapy.oneport.R`.
+
+    """
 
 
 class G(OnePort):
@@ -977,7 +1067,7 @@ class C(OnePort):
 
     is_capacitor = True
     """
-    bool: Indicates if the component is a capacitor
+    bool: Indicates the component is a capacitor
     
     """
 
@@ -1007,15 +1097,16 @@ class C(OnePort):
 
         Parameters
         ----------
-        v : int or float
+        v
             Applied voltage
         kind : str
-            't', 'time', or 'super' for time domain, 's' or 'laplace' for Laplace domain
+            The chosen representation of the equation.
+
+            See :func:`lcapy.super.Superposition.select` for a description of the different representations supported.
 
         Returns
         -------
-        TimeDomainCurrent or LaplaceDomainCurrent
-            Expression for current through the capacitor
+        Expression for current through the capacitor
 
         Examples
         --------
@@ -1038,15 +1129,16 @@ class C(OnePort):
 
         Parameters
         ----------
-        i : int or float
+        i
             Applied current
         kind : str
-            't', 'time', or 'super' for time domain, 's' or 'laplace' for Laplace domain
+            The chosen representation of the equation.
+
+            See :func:`lcapy.super.Superposition.select` for a description of the different representations supported.
 
         Returns
         -------
-        TimeDomainVoltage or LaplaceDomainVoltage
-            Expression for voltage across the capacitor
+        Expression for voltage across the capacitor
 
         Examples
         --------
@@ -1062,13 +1154,13 @@ class C(OnePort):
             u = tausym
             i = expr(i).subs(t, u)
             if self.has_ic:
-                greg =  SuperpositionVoltage(Integral(i, (u, 0, tsym)) / self.C).select(kind) + expr(self.v0)
+                return SuperpositionVoltage(Integral(i, (u, 0, tsym)) / self.C).select(kind) + expr(self.v0)
 
-            steven =  SuperpositionVoltage(Integral(i, (u, -oo, tsym)) / self.C).select(kind)
+            return SuperpositionVoltage(Integral(i, (u, -oo, tsym)) / self.C).select(kind)
         elif kind in ('s', 'laplace'):
-            barry = SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Zkind(kind) + self.v0 / s).select(kind)
+            return SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Zkind(kind) + self.v0 / s).select(kind)
 
-        walt =  SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Zkind(kind)).select(kind)
+        return SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Zkind(kind)).select(kind)
         pass
 
 class CPE(OnePort):
@@ -1120,7 +1212,7 @@ class Y(OnePort):
 
     Parameters
     ----------
-    Yval : float or str
+    Yval
         Admittance value
 
     """
@@ -1138,7 +1230,7 @@ class Y(OnePort):
 
         Parameters
         ----------
-        v : int or float
+        v
             Applied voltage
         kind : str
             The chosen representation of the equation.
@@ -1155,7 +1247,7 @@ class Y(OnePort):
 
         Parameters
         ----------
-        i : int or float
+        i
             Applied current
         kind : str
             The chosen representation of the equation.
