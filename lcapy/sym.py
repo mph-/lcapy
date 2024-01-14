@@ -244,8 +244,11 @@ def sympify1(arg, symbols=None, evaluate=True, override=False, rational=True,
             gdict = symbol_dict
         else:
             gdict = global_dict
-        return parse(arg, symbols, evaluate=evaluate,
-                     local_dict=symbols, global_dict=gdict, **assumptions)
+        try:
+            return parse(arg, symbols, evaluate=evaluate,
+                         local_dict=symbols, global_dict=gdict, **assumptions)
+        except SyntaxError:
+            raise SyntaxError('Invalid expression %s' % arg)
 
     return sym.sympify(arg, rational=rational, locals=symbols,
                        evaluate=evaluate)
