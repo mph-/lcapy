@@ -2,17 +2,17 @@
 This module supports simple linear one-port networks based on the
 following ideal components:
 
-| V  independent voltage source
-| I  independent current source
-| R  resistor
-| C  capacitor
-| L  inductor
+| V - independent voltage source
+| I - independent current source
+| R - resistor
+| C - capacitor
+| L - inductor
 
 These components are converted to s-domain models so capacitor and
 inductor components can be specified with initial voltage and
 currents, respectively, to model transient responses.
 
-One-ports can either be connected in series (+) or parallel (|) to
+One-ports can either be connected in series (``+``) or parallel (``|``) to
 create a new one-port.
 
 Copyright 2014--2022 Michael Hayes, UCECE
@@ -46,7 +46,8 @@ def _check_oneport_args(args):
 
 
 class OnePort(Network, ImmittanceMixin):
-    """One-port network
+    """
+    One-port network
 
     There are four major types of OnePort:
 
