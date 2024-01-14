@@ -91,7 +91,7 @@ class Node(ImmittanceMixin):
 
     def append(self, cpt):
 
-        if cpt.type not in ('A', ):
+        if cpt.type not in ('A', 'O'):
             self._count += 1
 
         self._connected.append(cpt)
@@ -106,7 +106,7 @@ class Node(ImmittanceMixin):
             if c.name == cpt.name:
                 self._connected.remove(c)
                 break
-        if cpt.type not in ('A', ):
+        if cpt.type not in ('A', 'O'):
             self._count -= 1
 
         if self.count == 0:
