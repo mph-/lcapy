@@ -57,31 +57,29 @@ class OnePort(Network, ImmittanceMixin):
     - Admittance
     - ParSer for combinations of OnePort
 
-    Attributes
-    ----------
-    Y
-        ``Y(s)`` admittance
-    Z
-        ``Z(s)`` impedance
-    Voc
-        open-circuit voltage in appropriate transform domain
-    Isc
-        short-circuit current in appropriate transform domain
-    y
-        ``y(t)`` impulse response of admittance
-    z
-        ``z(t)`` impulse response of impedance
-    voc
-        ``voc(t)`` open-circuit voltage time response
-    isc
-        ``isc(t)`` short-circuit current time response
     """
 
     # Dimensions and separations of component with horizontal orientation.
     height = 0.3
+    """
+    Height of the component in a Horizontal orientation
+    
+    """
     hsep = 0.5
+    """
+    Height separation between components in a Horizontal orientation
+    
+    """
     width = 1
+    """
+    Width of the component in a Horizontal orientation
+    
+    """
     wsep = 0.25
+    """
+    Width separation between components in a Horizontal orientation
+
+    """
 
     _Z = None
     _Y = None
@@ -114,10 +112,27 @@ class OnePort(Network, ImmittanceMixin):
 
     @property
     def has_parallel_V(self):
+        """
+        Determines if the one-port has a parallel voltage source.
+
+        Returns
+        -------
+        bool
+            True if the one-port has a parallel voltage source.
+
+        """
         return self.is_voltage_source
 
     @property
     def has_series_I(self):
+        """
+        Determines if the one-port has a series current source.
+        Returns
+        -------
+        bool
+            True if the one-port has a series current source.
+
+        """
         return self.is_current_source
 
     @property
@@ -140,6 +155,23 @@ class OnePort(Network, ImmittanceMixin):
 
     @property
     def impedance(self):
+        """
+        Impedance of the one-port.
+
+        Returns
+        -------
+        impedance Z
+
+        Raises
+        ------
+        ValueError
+            If the impedance is undefined for the one-port.
+
+            This occurs when ``Isc``, ``Voc``, ``Y``, or ``Z`` is ``None``,
+                as there is no way to calculate impedance for the source.
+
+        """
+
         if self._Z is not None:
             return self._Z
         if self._Y is not None:
@@ -164,7 +196,7 @@ class OnePort(Network, ImmittanceMixin):
     @property
     def Isc(self):
         """
-        Short-circuit current.
+        Short-circuit current in appropriate transform domain.
 
         This is the current flowing out of the positive node of the network,
         through a wire, and back to the negative node of the network.
@@ -192,7 +224,7 @@ class OnePort(Network, ImmittanceMixin):
     @property
     def Voc(self):
         """
-        Open-circuit voltage.
+        Open-circuit voltage in appropriate transform domain.
 
         Raises
         ------
@@ -407,7 +439,9 @@ class OnePort(Network, ImmittanceMixin):
 
 
 class ParSer(OnePort):
-    """Parallel/serial class"""
+    """
+    Parallel/serial class
+    """
 
     def __str__(self):
 
@@ -435,7 +469,22 @@ class ParSer(OnePort):
         return '$%s$' % self.latex()
 
     def pretty(self, **kwargs):
+        """
+        'Pretty' string representation of the component.
 
+        Returns
+        -------
+        str
+            A string representation of the component.
+
+        Examples
+        --------
+        >>> print(Par(R(3), R(2)).simplify())
+        R(ConstantDomainExpression(6/5))
+        >>> print(Par(R(3), R(2)).simplify().pretty())
+        R(6/5)
+
+        """
         str = ''
 
         for m, arg in enumerate(self.args):
@@ -452,11 +501,27 @@ class ParSer(OnePort):
         return str
 
     def pprint(self):
+        """
+        Prints a pretty string representation of the component to the console.
 
+        Examples
+        --------
+        >>> print(Par(R(3), R(2)).simplify())
+        R(ConstantDomainExpression(6/5))
+        >>> Par(R(3), R(2)).simplify().pprint()
+        R(6/5)
+
+        """
         print(self.pretty())
 
     def latex(self):
-
+        """
+        :math:`\\LaTeX` string representation of the component.
+        Returns
+        -------
+        str
+            A latex string representation of the component.
+        """
         str = ''
 
         for m, arg in enumerate(self.args):
@@ -548,12 +613,28 @@ class ParSer(OnePort):
             raise TypeError('Undefined class')
 
     def simplify(self, deep=True):
-        """Perform simple simplifications, such as parallel resistors,
-        series inductors, etc., rather than collapsing to a Thevenin
-        or Norton network.
+        """
+        Performs simple simplifications.
 
-        This does not expand compound components such as crystal
-        or ferrite bead models.  Use expand() first.
+        These simplifications may include parallel resistors, series inductors, etc.,
+        rather than collapsing to a Thevenin or Norton network.
+
+        Parameters
+        ----------
+        deep
+            TODO: appears unused
+
+        Warnings
+        --------
+        This does not expand compound components such as crystal or ferrite bead models. Use :meth:`expand` first.
+
+        Examples
+        --------
+        >>> Par(Par(R(3), R(2)), I(2)).pprint()
+        R(3) | R(2) | I(2)
+        >>> Par(Par(R(3), R(2)), I(2)).simplify().pprint()
+        R(6/5) | I(2)
+
         """
 
         # Simplify args (recursively) and combine operators if have
@@ -616,8 +697,11 @@ class ParSer(OnePort):
         return self
 
     def expand(self):
-        """Expand compound components such as crystals or ferrite bead
-        models into R, L, G, C, V, I"""
+        """
+        Expand compound components such as crystals or ferrite bead models into
+            :class:`R`, :class:`L`, :class:`G`, :class:`C`, :class:`V`, :class:`I`.
+
+        """
 
         newargs = []
         for m, arg in enumerate(self.args):
@@ -627,29 +711,67 @@ class ParSer(OnePort):
         return self.__class__(*newargs)
 
     def s_model(self):
-        """Convert to s-domain."""
+        """
+        Converts the model to s-domain.
+
+        Returns
+        -------
+        The s-domain model.
+
+        """
         args = [arg.s_model() for arg in self.args]
         return (self.__class__(*args))
 
     def noise_model(self):
-        """Convert to noise model."""
+        """
+        Convert to noise model representation.
+
+        Returns
+        -------
+        The noise model representation.
+
+        """
         args = [arg.noise_model() for arg in self.args]
         return (self.__class__(*args))
 
     @property
     def Isc(self):
+        """
+        Short circuit current
+
+        Returns
+        -------
+        The short circuit current.
+
+        """
         return self.cct.Isc(1, 0)
 
     @property
     def Voc(self):
+        """
+        Open circuit voltage
+
+        Returns
+        -------
+        The open circuit voltage.
+
+        """
         return self.cct.Voc(1, 0)
 
 
 class Par(ParSer):
-    """Parallel class"""
+    """
+    Parallel class
+
+    Defines a pair or more of one-port networks in parallel.
+
+    """
 
     _operator = '|'
     is_parallel = True
+    """bool: Indicates the component is in parallel.
+    
+    """
 
     def __init__(self, *args):
 
@@ -892,7 +1014,6 @@ class R(OnePort):
     """
 
     def __init__(self, Rval='R', **kwargs):
-
         self.kwargs = kwargs
         self.args = (Rval, )
         self._R = cexpr(Rval)
