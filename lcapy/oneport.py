@@ -761,20 +761,47 @@ class ParSer(OnePort):
 
 class Par(ParSer):
     """
-    Parallel class
-
     Defines a pair or more of one-port networks in parallel.
+
+
+    Parameters
+    ----------
+    args : tuple[OnePort, ...]
+        Tuple of components declared in parallel.
+
+    Attributes
+    ----------
+    args : tuple[OnePort, ...]
+        Tuple of components declared in parallel.
+
+    Raises
+    ------
+    ValueError
+        If less than two arguments are provided.
+    ValueError
+        If two voltage sources are connected in parallel.
+
+    Warns
+    -----
+    Redundant Component
+        A component may be considered redundant if it is in parallel with a voltage source.
+
+    Warnings
+    --------
+    A minimum of two arguments are required to define a parallel circuit.
 
     """
 
     _operator = '|'
+    """ str: The operator used to represent the parallel operation in a string.
+    
+    """
     is_parallel = True
-    """bool: Indicates the component is in parallel.
+    """bool: Indicates the component is a parallel combination of components.
     
     """
 
     def __init__(self, *args):
-
         if len(args) < 2:
             raise ValueError('Par requires at least two args')
 
@@ -797,7 +824,15 @@ class Par(ParSer):
 
     @property
     def width(self):
+        """
+        Provides the width of the parallel circuit, which is the largest width of the components in parallel.
 
+        Returns
+        -------
+        float
+            The width of the parallel circuit.
+
+        """
         total = 0
         for arg in self.args:
             val = arg.width
@@ -807,7 +842,15 @@ class Par(ParSer):
 
     @property
     def height(self):
+        """
+        Provides the height of the parallel circuit, which is the sum of the heights of the components in parallel.
 
+        Returns
+        -------
+        float
+            The height of the parallel circuit.
+
+        """
         total = 0
         for arg in self.args:
             total += arg.height
@@ -877,6 +920,15 @@ class Par(ParSer):
 
     @property
     def has_parallel_V(self):
+        """
+        Determines if the one-port has a parallel voltage source.
+
+        Returns
+        -------
+        bool
+            True if any parallel components have a parallel voltage source, or are themselves a voltage source.
+
+        """
 
         for cpt1 in self.args:
             if cpt1.has_parallel_V:
@@ -885,6 +937,17 @@ class Par(ParSer):
 
     @property
     def admittance(self):
+        """
+        Admittance :math:`Y` of the parallel circuit.
+
+        This is the sum of the admittances of the components in parallel.
+
+        Returns
+        -------
+        float
+            The admittance :math:`Y` of the parallel circuit.
+
+        """
         Y = 0
         for arg in self.args:
             Y += arg.admittance
@@ -892,10 +955,32 @@ class Par(ParSer):
 
     @property
     def impedance(self):
+        """
+        Impedance :math:`Z` of the parallel circuit.
+
+        This is :math:`\\frac{1}{Y}`, or the inverse of the sum of the admittance of the parallel circuit.
+
+        Returns
+        -------
+        float
+            The impedance :math:`Z` of the parallel circuit.
+
+        """
         return 1 / self.admittance
 
     @property
     def Isc(self):
+        """
+        Short circuit current :math:`I_{sc}` of the parallel circuit.
+
+        This is the sum of the short circuit currents of the components in parallel.
+
+        Returns
+        -------
+        float
+            The short circuit current :math:`I_{sc}` of the parallel circuit.
+
+        """
         I = 0
         for arg in self.args:
             I += arg.Isc
@@ -903,10 +988,45 @@ class Par(ParSer):
 
 
 class Ser(ParSer):
-    """Series class"""
+    """
+    Defines a pair or more of one-port networks in series.
+
+    Parameters
+    ----------
+    args : tuple[OnePort, ...]
+        Tuple of components declared in series.
+
+    Attributes
+    ----------
+    args : tuple[OnePort, ...]
+        Tuple of components declared in series.
+
+    Raises
+    ------
+    ValueError
+        If less than two arguments are provided.
+    ValueError
+        If two current sources are connected in series.
+
+    Warns
+    -----
+    Redundant Component
+        A component may be considered redundant if it is in series with a current source.
+
+    Warnings
+    --------
+    A minimum of two arguments are required to define a parallel circuit.
+
+    """
 
     _operator = '+'
+    """ str: The operator used to represent the series operation in a string.
+
+    """
     is_series = True
+    """bool: Indicates the component is a series combination of components.
+
+    """
 
     def __init__(self, *args):
 
@@ -932,7 +1052,15 @@ class Ser(ParSer):
 
     @property
     def height(self):
+        """
+        Provides the height of the series circuit, which is the largest height of the components in series.
 
+        Returns
+        -------
+        float
+            The height of the series circuit.
+
+        """
         total = 0
         for arg in self.args:
             val = arg.height
@@ -942,7 +1070,15 @@ class Ser(ParSer):
 
     @property
     def width(self):
+        """
+        Provides the width of the series circuit, which is the sum of the widths of the components in series.
 
+        Returns
+        -------
+        float
+            The width of the series circuit.
+
+        """
         total = 0
         for arg in self.args:
             total += arg.width
@@ -966,6 +1102,15 @@ class Ser(ParSer):
 
     @property
     def has_series_I(self):
+        """
+        Determines if the one-port has a series current source.
+
+        Returns
+        -------
+        bool
+            True if any series components have a series current source, or are themselves a current source.
+
+        """
         for cpt1 in self.args:
             if cpt1.has_series_I:
                 return True
@@ -973,10 +1118,32 @@ class Ser(ParSer):
 
     @property
     def admittance(self):
+        """
+        Admittance :math:`Y` of the series circuit.
+
+        This is :math:`\\frac{1}{Z}`, or the inverse of the sum of the impedance of the series circuit.
+
+        Returns
+        -------
+        float
+            The admittance :math:`Y` of the series circuit.
+
+        """
         return 1 / self.impedance
 
     @property
     def impedance(self):
+        """
+        Impedance :math:`Z` of the series circuit.
+
+        This is the sum of the impedances of the components in series.
+
+        Returns
+        -------
+        float
+            The impedance :math:`Z` of the series circuit.
+
+        """
         Z = 0
         for arg in self.args:
             Z += arg.impedance
@@ -984,6 +1151,18 @@ class Ser(ParSer):
 
     @property
     def Voc(self):
+        """
+        Open circuit voltage :math:`V_{oc}` of the series circuit.
+
+        This is the sum of the open circuit voltages of the components in series.
+
+        Returns
+        -------
+        float
+            The open circuit voltage :math:`V_{oc}` of the series circuit.
+
+        """
+
         V = 0
         for arg in self.args:
             V += arg.Voc
@@ -996,8 +1175,13 @@ class R(OnePort):
 
     Parameters
     ----------
-    Rval
+    Rval : int or float or str
         Resistance value
+
+    Attributes
+    ----------
+    args : tuple[int or float or str]
+        Resistance value, or, placeholder value 'R'
 
     """
 
@@ -1025,7 +1209,7 @@ class R(OnePort):
 
         Parameters
         ----------
-        v
+        v : str or float
             Applied voltage
         kind : str
             The chosen representation of the equation.
