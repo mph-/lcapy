@@ -345,7 +345,7 @@ class LcapyPrettyPrinter(PrettyPrinter):
         s = prettyForm(*s.parens('{', '}', ifascii_nougly=True))
         return s
 
-    def _print_Symbol(self, expr, bold_name=False):
+    def _print_Symbol(self, expr, *args, **kwargs):
 
         expr = sym.Symbol(canonical_name(expr.name))
         parts = expr.name.split('_')
@@ -355,7 +355,8 @@ class LcapyPrettyPrinter(PrettyPrinter):
             # the subscripts.  Note, Sympy converts 'v_C1' into
             # 'v_C_1' so we need to clean up.
             expr.name = parts[0] + '_' + ''.join(parts[1:])
-        s = super(LcapyPrettyPrinter, self)._print_Symbol(expr, bold_name)
+        s = super(LcapyPrettyPrinter, self)._print_Symbol(
+            expr, *args, **kwargs)
         return s
 
     def _print_Piecewise(self, expr):
