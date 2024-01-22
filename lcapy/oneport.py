@@ -61,23 +61,19 @@ class OnePort(Network, ImmittanceMixin):
 
     # Dimensions and separations of component with horizontal orientation.
     height = 0.3
-    """
-    Height of the component in a Horizontal orientation
+    """float : Height of the component in a Horizontal orientation
     
     """
     hsep = 0.5
-    """
-    Height separation between components in a Horizontal orientation
+    """float : Height separation between components in a Horizontal orientation
     
     """
     width = 1
-    """
-    Width of the component in a Horizontal orientation
+    """float : Width of the component in a Horizontal orientation
     
     """
     wsep = 0.25
-    """
-    Width separation between components in a Horizontal orientation
+    """float : Width separation between components in a Horizontal orientation
 
     """
 
@@ -793,11 +789,11 @@ class Par(ParSer):
     """
 
     _operator = '|'
-    """ str: The operator used to represent the parallel operation in a string.
+    """str : The operator used to represent the parallel operation in a string.
     
     """
     is_parallel = True
-    """bool: Indicates the component is a parallel combination of components.
+    """bool : Indicates the component is a parallel combination of components.
     
     """
 
@@ -1020,11 +1016,11 @@ class Ser(ParSer):
     """
 
     _operator = '+'
-    """ str: The operator used to represent the series operation in a string.
+    """ str : The operator used to represent the series operation in a string.
 
     """
     is_series = True
-    """bool: Indicates the component is a series combination of components.
+    """bool : Indicates the component is a series combination of components.
 
     """
 
@@ -1186,13 +1182,12 @@ class R(OnePort):
     """
 
     is_resistor = True
-    """
-    bool: Indicates the component is a resistor
+    """bool : Indicates the component is a resistor
     
     """
     is_noiseless = False
     """
-        bool: Indicates the resistor is not noiseless.
+    bool : Indicates the resistor is not noiseless.
         For noiseless resistor see :class:`lcapy.oneport.NR`.
 
     """
@@ -1243,24 +1238,50 @@ class R(OnePort):
 
 
 class NR(R):
-    """Noiseless resistor"""
+    """
+    Noiseless resistor
+
+    As :mod:`lcapy.oneport.R` but noiseless.
+
+    """
 
     is_noiseless = True
     """
-        bool: Indicates the resistor is noiseless.
-        For regular resistor see :class:`lcapy.oneport.R`.
+        bool : Indicates the resistor is noiseless.
+            For regular resistor see :class:`lcapy.oneport.R`.
 
     """
 
 
 class G(OnePort):
-    """Conductor"""
+    """
+    Conductor
+
+    Parameters
+    ----------
+    Gval : int or float or str
+        Conductance value
+
+    Attributes
+    ----------
+    args : tuple[int or float or str]
+        Conductance value, or, placeholder value 'G'
+
+
+    """
 
     is_conductor = True
+    """bool : Indicates the component is a conductor
+    
+    """
     is_noiseless = False
+    """
+    bool : Indicates the conductor is not noiseless.
+        For noiseless conductor see :class:`lcapy.oneport.NG`.
+    
+    """
 
     def __init__(self, Gval='G', **kwargs):
-
         self.kwargs = kwargs
         self.args = (Gval, )
         self._G = cexpr(Gval)
@@ -1276,30 +1297,89 @@ class G(OnePort):
         return 'R? %s %s {%s}; %s' % (n1, n2, 1 / self._G, opts_str)
 
     def current_equation(self, v, kind='t'):
-        """Return expression for current through component given
-        applied voltage."""
+        """
+        Return expression for current through component given applied voltage.
+
+        Parameters
+        ----------
+        v
+            Applied voltage
+        kind : str
+            The chosen representation of the equation.
+            See :func:`lcapy.super.Superposition.select` for a description of the different representations supported.
+
+        Returns
+        -------
+        Expression for current through the conductor
+
+        """
 
         return SuperpositionCurrent(SuperpositionVoltage(v).select(kind) / self._Z).select(kind)
 
     def voltage_equation(self, i, kind='t'):
-        """Return expression for voltage across component given
-        applied current."""
+        """
+        Return expression for voltage across component given applied current.
+
+        Parameters
+        ----------
+        i
+            Applied current
+        kind : str
+            The chosen representation of the equation.
+            See :func:`lcapy.super.Superposition.select` for a description of the different representations supported.
+
+        Returns
+        -------
+        Expression for voltage across the conductor
+
+        """
 
         return SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Z).select(kind)
 
 
 class NG(G):
-    """Noiseless conductor"""
+    """
+    Noiseless conductor
+
+    """
 
     is_noiseless = True
+    """
+    bool : Indicates the conductor is noiseless.
+        For noiseless conductor see :class:`lcapy.oneport.G`.
 
+    """
 
 class L(OnePort):
-    """Inductor
+    """
+    Inductor
 
-    Inductance Lval, initial current i0"""
+    Parameters
+    ----------
+    Lval : int or float or str
+        Inductance value :math:`L`
+    i0 : int or float, optional
+        Initial current :math:`i_0`
+
+    Attributes
+    ----------
+    args : tuple[int or float or str, int or float]
+        a tuple containing the inductance value :math:`L` and the initial current :math:`i_0`
+    L : ConstantDomainExpression
+        constant expression representation of the inductance value :math:`L`
+    i0 : ConstantDomainExpression
+        constant expression representation of the initial current :math:`i_0`
+    has_ic : bool
+        Indicates if the inductor has an initial current :math:`i_0`
+    zeroic : bool
+        Indicates if the initial current :math:`i_0` is zero
+
+    """
 
     is_inductor = True
+    """bool: Indicates the component is an inductor
+    
+    """
 
     def __init__(self, Lval='L', i0=None, **kwargs):
 
@@ -1322,8 +1402,22 @@ class L(OnePort):
         self.zeroic = self.i0 == 0
 
     def current_equation(self, v, kind='t'):
-        """Return expression for current through component given
-        applied voltage."""
+        """
+        Return expression for current through component given applied voltage.
+
+        Parameters
+        ----------
+        v : int or float
+            Applied voltage
+        kind : str
+            The chosen representation of the equation.
+            See :func:`lcapy.super.Superposition.select` for a description of the different representations supported.
+
+        Returns
+        -------
+        Expression for current through the inductor
+
+        """
 
         from .sym import tausym
 
@@ -1339,8 +1433,22 @@ class L(OnePort):
         return SuperpositionCurrent(SuperpositionVoltage(v).select(kind) / self._Zkind(kind)).select(kind)
 
     def voltage_equation(self, i, kind='t'):
-        """Return expression for voltage across component given
-        applied current."""
+        """
+        Return expression for voltage across component given applied current.
+
+        Parameters
+        ----------
+        i : int or float
+            Applied current
+        kind : str
+            The chosen representation of the equation.
+            See :func:`lcapy.super.Superposition.select` for a description of the different representations supported.
+
+        Returns
+        -------
+        Expression for voltage across the inductor
+
+        """
 
         if kind in ('t', 'time', 'super'):
             return SuperpositionVoltage(self.L * Derivative(i, t)).select(kind)
