@@ -1171,12 +1171,12 @@ class R(OnePort):
 
     Parameters
     ----------
-    Rval : int or float or str
+    Rval :  int or float or complex or str
         Resistance value
 
     Attributes
     ----------
-    args : tuple[int or float or str]
+    args : tuple[ int or float or complex or str]
         Resistance value, or, placeholder value 'R'
 
     """
@@ -1259,12 +1259,12 @@ class G(OnePort):
 
     Parameters
     ----------
-    Gval : int or float or str
+    Gval :  int or float or complex or str
         Conductance value
 
     Attributes
     ----------
-    args : tuple[int or float or str]
+    args : tuple[ int or float or complex or str]
         Conductance value, or, placeholder value 'G'
 
 
@@ -1356,14 +1356,14 @@ class L(OnePort):
 
     Parameters
     ----------
-    Lval : int or float or str
+    Lval :  int or float or complex or str
         Inductance value :math:`L`
     i0 : int or float, optional
         Initial current :math:`i_0`
 
     Attributes
     ----------
-    args : tuple[int or float or str, int or float]
+    args : tuple[ int or float or complex or str, int or float or complex]
         a tuple containing the inductance value :math:`L` and the initial current :math:`i_0`
     L : ConstantDomainExpression
         constant expression representation of the inductance value :math:`L`
@@ -1622,12 +1622,17 @@ class CPE(OnePort):
 
 class Y(OnePort):
     """
-    General admittance.
+    General admittance :math:`Y`
 
     Parameters
     ----------
-    Yval
-        Admittance value
+    Yval :  int or float or complex or str
+        Admittance value :math:`Y`
+
+    Attributes
+    ----------
+    args : tuple[ int or float or complex or str]
+        Admittance value :math:`Y`
 
     """
 
@@ -1648,8 +1653,11 @@ class Y(OnePort):
             Applied voltage
         kind : str
             The chosen representation of the equation.
-
             See :func:`lcapy.super.Superposition.select` for a description of the different representations supported.
+
+        Returns
+        -------
+        Expression for current through the component
 
         """
 
@@ -1665,7 +1673,6 @@ class Y(OnePort):
             Applied current
         kind : str
             The chosen representation of the equation.
-
             See :func:`lcapy.super.Superposition.select` for a description of the different representations supported.
 
         """
@@ -1674,7 +1681,20 @@ class Y(OnePort):
 
 
 class Z(OnePort):
-    """General impedance."""
+    """
+    General impedance :math:`Z`
+
+    Parameters
+    ----------
+    Zval : int or float or complex or str
+        Impedance value :math:`Z`
+
+    Attributes
+    ----------
+    args : tuple[int or float or complex or str]
+        Impedance value :math:`Z`
+
+    """
 
     def __init__(self, Zval='Z', **kwargs):
 
@@ -1684,14 +1704,43 @@ class Z(OnePort):
         self._Z = Zval
 
     def current_equation(self, v, kind='t'):
-        """Return expression for current through component given
-        applied voltage."""
+        """
+        Return expression for current through component given applied voltage.
+
+        Parameters
+        ----------
+        v : str or float
+            Applied voltage
+        kind : str
+            The chosen representation of the equation.
+            See :func:`lcapy.super.Superposition.select` for a description of the different representations supported.
+
+        Returns
+        -------
+        Expression for current through the impedance
+
+        """
 
         return SuperpositionCurrent(SuperpositionVoltage(v).select(kind) / self._Z).select(kind)
 
     def voltage_equation(self, i, kind='t'):
-        """Return expression for voltage across component given
-        applied current."""
+        """
+        Return expression for voltage across component given applied current.
+
+        Parameters
+        ----------
+        i : str or float
+            Applied current
+        kind : str
+            The chosen representation of the equation.
+
+            See :func:`lcapy.super.Superposition.select` for a description of the different representations supported.
+
+        Returns
+        -------
+        Expression for current voltage across the impedance
+
+        """
 
         return SuperpositionVoltage(SuperpositionCurrent(i).select(kind) * self._Z).select(kind)
 
@@ -1699,20 +1748,63 @@ class Z(OnePort):
 class VoltageSourceBase(OnePort):
 
     is_voltage_source = True
+    """bool : Indicates the component is a voltage source
+    
+    """
     cpt_type = 'V'
+    """str : The type of component, in this case 'V' for voltage source 
+    
+    """
     is_noisy = False
+    """bool : Indicates the voltage source is not noisy.
+    
+    """
 
     def voltage_equation(self, i, kind='t'):
-        """Return expression for voltage across component given
-        applied current."""
+        """
+        Return expression for voltage across component given applied current.
+
+        Parameters
+        ----------
+        i : int or float or complex
+            Applied current :math:`i`
+        kind : str
+            The chosen representation of the equation.
+            See :func:`lcapy.super.Superposition.select` for a description of the different representations supported.
+
+        Returns
+        -------
+        Expression for voltage across the voltage source
+
+        Warnings
+        --------
+        Input current ``i`` appears to be ignored when creating the voltage equation.
+
+        """
 
         return SuperpositionVoltage(self.voc).select(kind)
 
 
 class sV(VoltageSourceBase):
-    """Arbitrary s-domain voltage source"""
+    """
+    Arbitrary s-domain voltage source
+
+    Parameters
+    ----------
+    Vval : int or float or complex
+        Voltage value :math:`v`
+
+    Attributes
+    ----------
+    args : tuple[int or float or complex]
+        Voltage value :math:`v`
+
+    """
 
     netkeyword = 's'
+    """str : The netlist keyword to define the voltage source type
+
+    """
 
     def __init__(self, Vval, **kwargs):
 
@@ -1723,7 +1815,20 @@ class sV(VoltageSourceBase):
 
 
 class V(VoltageSourceBase):
-    """Arbitrary voltage source"""
+    """
+    Arbitrary voltage source :math:`V`
+
+    Parameters
+    ----------
+    Vval : int or float or complex
+        Voltage value :math:`V`
+
+    Attributes
+    ----------
+    args : tuple[int or float or complex]
+        Voltage value :math:`V`
+
+    """
 
     def __init__(self, Vval='V', **kwargs):
 
@@ -1733,9 +1838,27 @@ class V(VoltageSourceBase):
 
 
 class Vstep(VoltageSourceBase):
-    """Step voltage source (s domain voltage of v / s)."""
+    """
+    Step voltage source (s domain voltage of v / s).
+
+    Parameters
+    ----------
+    v : int or float or complex
+        Voltage value :math:`v`
+
+    Attributes
+    ----------
+    args : tuple[int or float or complex]
+        Voltage value :math:`v`
+    v0 : int or float or complex
+        Initial Voltage :math:`v_0`
+
+    """
 
     netkeyword = 'step'
+    """str : The netlist keyword to define the voltage source type
+
+    """
 
     def __init__(self, v, **kwargs):
 
@@ -1748,10 +1871,29 @@ class Vstep(VoltageSourceBase):
 
 
 class Vdc(VoltageSourceBase):
-    """DC voltage source (note a DC voltage source of voltage V has
-    an s domain voltage of V / s)."""
+    """
+    DC voltage source
+
+    (note a DC voltage source of voltage V has an s domain voltage of V / s).
+
+    Parameters
+    ----------
+    Vval : int or float or complex
+        Voltage value :math:`V`
+
+    Attributes
+    ----------
+    args : tuple[int or float or complex]
+        Voltage value :math:`V`
+    v0 : int or float or complex
+        Initial Voltage :math:`v_0`
+
+    """
 
     netkeyword = 'dc'
+    """str : The netlist keyword to define the voltage source type
+    
+    """
 
     def __init__(self, Vval, **kwargs):
 
@@ -1763,13 +1905,47 @@ class Vdc(VoltageSourceBase):
 
     @property
     def voc(self):
+        """
+        Open circuit voltage :math:`V_{oc}` of the DC voltage source.
+
+        Returns
+        -------
+        Expression for the open circuit voltage :math:`V_{oc}`.
+
+        """
         return voltage(self.v0)
 
 
 class Vac(VoltageSourceBase):
-    """AC voltage source."""
+    """
+    AC voltage source.
+
+    Parameters
+    ----------
+    V : int or float
+        Voltage value :math:`V`
+    phi : int or float
+        Phase angle :math:`\phi`
+    omega : int or float
+        Angular frequency :math:`\omega`
+
+    Attributes
+    ----------
+    args
+        A tuple containing Voltage value :math:`V`, phase angle :math:`\phi`, and angular frequency :math:`\omega`
+    v0
+        Initial Voltage :math:`v_0`
+    omega
+        Angular frequency :math:`\omega`
+    phi
+        Phase angle :math:`\phi`
+
+    """
 
     netkeyword = 'ac'
+    """str : The netlist keyword to define the voltage source type
+
+    """
 
     def __init__(self, V, phi=None, omega=None, **kwargs):
 
@@ -1803,14 +1979,38 @@ class Vac(VoltageSourceBase):
 
     @property
     def voc(self):
+        """
+        Open circuit voltage :math:`V_{oc}` of the AC voltage source.
+
+        Returns
+        -------
+        Expression for the open circuit voltage :math:`V_{oc}`.
+
+        """
         return voltage(self.v0 * cos(self.omega * t + self.phi))
 
 
 class Vnoise(VoltageSourceBase):
-    """Noise voltage source."""
+    """
+    Noise voltage source.
+
+    Parameters
+    ----------
+    V : int or float
+        Voltage value :math:`V`
+    nid
+        Noise Identifier
+
+    """
 
     netkeyword = 'noise'
+    """str : The netlist keyword to define the voltage source type
+
+    """
     is_noisy = True
+    """bool : Indicates the voltage source is noisy.
+    
+    """
 
     def __init__(self, V, nid=None, **kwargs):
 
