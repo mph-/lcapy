@@ -1998,8 +1998,13 @@ class Vnoise(VoltageSourceBase):
     ----------
     V : int or float
         Voltage value :math:`V`
-    nid
+    nid : optional
         Noise Identifier
+
+    Attributes
+    ----------
+    args
+        A tuple containing Voltage value :math:`V` and noise identifier ``nid``
 
     """
 
@@ -2021,7 +2026,15 @@ class Vnoise(VoltageSourceBase):
 
 
 class v(VoltageSourceBase):
-    """Arbitrary t-domain voltage source"""
+    """
+    Arbitrary t-domain voltage source
+
+    Parameters
+    ----------
+    vval : int or float
+        Voltage value :math:`v`
+
+    """
 
     def __init__(self, vval, **kwargs):
 
