@@ -3,7 +3,7 @@
 """This module provides the Expr class.  This attempts to create a
 consistent interface to SymPy's expressions.
 
-Copyright 2014--2023 Michael Hayes, UCECE
+Copyright 2014--2024 Michael Hayes, UCECE
 
 """
 
@@ -2412,7 +2412,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         except:
             pass
 
-        return evaluate_expr(expr, var, arg)
+        try:
+            return evaluate_expr(expr, var, arg)
+        except:
+            return evaluate_expr(expr.simplify(), var, arg)
 
     def has(self, *patterns):
         """Test whether any subexpressions matches any of the patterns.  For example,
