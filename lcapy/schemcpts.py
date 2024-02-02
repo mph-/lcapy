@@ -1594,6 +1594,8 @@ class Bipole(StretchyCpt):
             delimiter = '\\\\'
         elif style == 'aligned':
             delimiter = '='
+        elif style == 'equals':
+            delimiter = '='
         elif style == 'split':
             pass
         elif style == 'name':
