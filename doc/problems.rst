@@ -196,13 +196,21 @@ Lcapy can be slow for large problems due to the computational complexity of the 
 
 The results from slow computations are cached to improve the speed.
 
-Some SymPy operations can take an unexpectedly long time, for example, `limit()`.   With some versions of SymPy, matrix inversions are really slow.
+Some SymPy operations can take an unexpectedly long time, for example, `limit()`.  With some versions of SymPy, symbolic matrix inversions are really slow.
 
 
 Working with SymPy
 ------------------
 
 Lcapy wraps many of SymPy's methods but if you know how to use SymPy, you can extract the underlying SymPy expression using the `sympy` attribute of an Lcapy expression.
+
+Most SymPy functions have Lcapy equivalents.  You can mix Lcapy and Sympy expressions with the result being an Lcapy expression.
+
+
+Printing
+--------
+
+Importing Lcapy intercepts SymPy printing, thus the Sympy Functions `pretty()` and `latex()` work on Lcapy objects.  Note, Lcapy objects have `pretty()` and `latex()` methods.
 
 
 SymPy differences
