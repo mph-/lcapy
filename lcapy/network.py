@@ -1,4 +1,6 @@
 """
+Base class for OnePort and TwoPort classes.
+
 Copyright 2014--2022 Michael Hayes, UCECE
 """
 
