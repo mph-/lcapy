@@ -16,6 +16,7 @@ One-ports can either be connected in series (``+``) or parallel (``|``) to
 create a new one-port.
 
 Copyright 2014--2022 Michael Hayes, UCECE
+
 """
 
 from __future__ import division
