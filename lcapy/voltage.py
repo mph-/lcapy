@@ -1,6 +1,7 @@
-"""This module provides voltage support.
+"""
+This module provides voltage support.
 
-Copyright 2020--2023 Michael Hayes, UCECE
+Copyright 2020--2024 Michael Hayes, UCECE
 
 """
 from .expr import expr
@@ -27,6 +28,7 @@ def Vtype(kind):
 
 
 def voltage(arg, **assumptions):
+    """Create a voltage object from the specified arg."""
 
     expr1 = expr(arg, **assumptions)
 

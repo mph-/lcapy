@@ -1,6 +1,7 @@
-"""This module provides current support.
+"""
+This module provides current support.
 
-Copyright 2020--2023 Michael Hayes, UCECE
+Copyright 2020--2024 Michael Hayes, UCECE
 
 """
 from .deprecation import LcapyDeprecationWarning
@@ -30,6 +31,7 @@ def Itype(kind):
 
 
 def current(arg, **assumptions):
+    """Create a current object from the specified arg."""
 
     expr1 = expr(arg, **assumptions)
 

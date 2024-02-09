@@ -1,7 +1,7 @@
 """
-Base class for OnePort and TwoPort classes.
+This module provides the Network sub class for OnePort and TwoPort classes.
 
-Copyright 2014--2022 Michael Hayes, UCECE
+Copyright 2014--2024 Michael Hayes, UCECE
 """
 
 from __future__ import division

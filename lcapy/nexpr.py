@@ -1,7 +1,7 @@
 """This module provides the DiscreteTimeDomainExpression class to
 represent discrete-time expressions.
 
-Copyright 2020--2023 Michael Hayes, UCECE
+Copyright 2020--2024 Michael Hayes, UCECE
 
 """
 
@@ -15,6 +15,7 @@ from .dft import DFT
 from .seqexpr import SequenceExpression
 from .nseq import DiscreteTimeDomainSequence, nseq
 from sympy import Sum, summation, limit
+from numpy import ndarray
 
 
 __all__ = ('nexpr', )
@@ -295,7 +296,7 @@ class DiscreteTimeDomainExpression(DiscreteTimeDomain, SequenceExpression):
 
 
 def nexpr(arg, **assumptions):
-    """Create nExpr object.  If `arg` is nsym return n"""
+    """Create DiscreteTimeDomainExpression object.  If `arg` is nsym return n"""
 
     from .expr import Expr
 
@@ -309,8 +310,6 @@ def nexpr(arg, **assumptions):
 
     if isinstance(arg, str) and arg.startswith('{'):
         return nseq(arg)
-
-    from numpy import ndarray
 
     if isinstance(arg, (list, ndarray)):
         expr = DiscreteTimeDomainSequence(arg, var=n).as_impulses()

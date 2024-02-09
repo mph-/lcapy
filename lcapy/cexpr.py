@@ -1,4 +1,5 @@
-"""This module provides the ConstantDomainExpression class to
+"""
+This module provides the ConstantDomainExpression class to
 represent constant expressions.
 
 Note there are two types:
@@ -173,7 +174,7 @@ class ConstantFrequencyResponseDomainExpression(ConstantFrequencyResponseDomain,
 
 
 def cexpr(arg, frequency=False, **assumptions):
-    """Create Lcapy constant expression from `arg`.
+    """Create Lcapy ConstantDomainExpression object.
 
     By default, `arg` is assumed to be positive.  If symbols in the
     `arg` are known to be negative, use `cexpr(arg, positive=False)`.

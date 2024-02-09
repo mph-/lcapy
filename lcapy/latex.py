@@ -1,7 +1,8 @@
-"""This module provides the Latex class for formatting
-values and labels.
+"""
+This module provides the Latex class for formatting values and
+labels.
 
-Copyright 2020--2023 Michael Hayes, UCECE
+Copyright 2020--2024 Michael Hayes, UCECE
 
 """
 

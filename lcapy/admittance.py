@@ -1,6 +1,6 @@
 """This module provides admittance support.
 
-Copyright 2019--2022 Michael Hayes, UCECE
+Copyright 2019--2024 Michael Hayes, UCECE
 
 """
 from __future__ import division
@@ -9,7 +9,7 @@ from .sexpr import LaplaceDomainExpression
 
 
 def admittance(arg, causal=True, **assumptions):
-    """Create an admittance class for the specified admittance.
+    """Create an admittance object from the specified arg.
 
     Y(omega) = G(omega) + j * B(omega)
 

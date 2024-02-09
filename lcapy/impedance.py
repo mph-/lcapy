@@ -1,6 +1,6 @@
 """This module provides impedance support.
 
-Copyright 2019--2022 Michael Hayes, UCECE
+Copyright 2019--2024 Michael Hayes, UCECE
 
 """
 from __future__ import division
@@ -9,7 +9,7 @@ from .sexpr import LaplaceDomainExpression
 
 
 def impedance(arg, causal=True, **assumptions):
-    """Create an impedance class for the specified impedance.
+    """Create an impedance object from the specified arg.
 
     Z(omega) = R(omega) + j * X(omega)
 

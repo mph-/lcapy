@@ -1,7 +1,7 @@
 """This module provides the DiscreteFourierDomainExpression class to
  represent k-domain (discrete Fourier domain) expressions.
 
-Copyright 2020--2021 Michael Hayes, UCECE
+Copyright 2020--2024 Michael Hayes, UCECE
 
 """
 
@@ -15,6 +15,8 @@ from .seqexpr import SequenceExpression
 from .kseq import DiscreteFourierDomainSequence
 from .inverse_dft import IDFT
 from sympy import Sum
+from numpy import ndarray
+
 
 __all__ = ('kexpr', )
 
@@ -134,7 +136,8 @@ class DiscreteFourierDomainExpression(DiscreteFourierDomain, SequenceExpression)
 
 
 def kexpr(arg, **assumptions):
-    """Create kExpr object.  If `arg` is ksym return k"""
+    """Create DiscreteFourierDomainExpression object.  If `arg` is ksym
+    return k"""
 
     from .expr import Expr
 
@@ -145,8 +148,6 @@ def kexpr(arg, **assumptions):
         if assumptions == {}:
             return arg
         return arg.__class__(arg, **assumptions)
-
-    from numpy import ndarray
 
     if isinstance(arg, (list, ndarray)):
         expr = DiscreteFourierDomainSequence(arg, var=k).as_impulses()
