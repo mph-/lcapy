@@ -28,7 +28,7 @@ sys.path.insert(0, os.path.abspath('..'))
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 #extensions = ['sphinx.ext.autodoc', 'sphinx.ext.imgmath']
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.mathjax']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.autosummary', 'sphinx.ext.mathjax', 'sphinx.ext.napoleon',]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -44,7 +44,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Lcapy'
-copyright = u'2014--2023, Michael Hayes'
+copyright = u'2014--2024, Michael Hayes'
 
 print('Version ' + __version__)
 
@@ -79,7 +79,7 @@ exclude_patterns = ['_build']
 
 # If true, the current module name will be prepended to all description
 # unit titles (such as .. function::).
-#add_module_names = True
+# add_module_names = True
 
 # If true, sectionauthor and moduleauthor directives will be shown in the
 # output. They are ignored by default.
@@ -96,7 +96,7 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'default'
+html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -245,3 +245,12 @@ texinfo_documents = [
 
 # How to display URL addresses: 'footnote', 'no', or 'inline'.
 #texinfo_show_urls = 'footnote'
+
+# -- Options for autodoc -------------------------------------------------------
+
+autosummary_generate = True  # Turn on sphinx.ext.autosummary
+
+# File name mapping for autosummary to avoid name clashes, e.g. where lcapy.oneport.V was overwritte
+#   by lcapy.oneport.v, rename lcapy.oneport.v.html to lcapy.oneport.v_t-domain.html
+autosummary_filename_map = {'lcapy.oneport.v':'lcapy.oneport.v_t-domain',
+                            'lcapy.oneport.i':'lcapy.oneport.i_t-domain',}

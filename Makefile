@@ -3,6 +3,12 @@ install:
 	#python3 setup.py install
 	pip3 install .
 
+.PHONY: install-extras
+install-extras:
+	pip3 install -e ".[doc]"
+	pip3 install -e ".[test]"
+	pip3 install -e ".[release]"
+
 .PHONY: package
 package:
 	python3 setup.py sdist bdist_wheel

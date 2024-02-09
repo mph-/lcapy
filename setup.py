@@ -33,7 +33,7 @@ setup(name='lcapy',
       python_requires='>=3.7',  # >=3.6 should still work but not tested
       extras_require={
           'test': tests_require,
-          'doc': ['sphinx', 'ipython'],
+          'doc': ['sphinx', 'ipython', 'sphinx-rtd-theme'],
           'release': ['wheel', 'twine'],
       },
       tests_require=tests_require,
