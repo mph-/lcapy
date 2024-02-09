@@ -5,6 +5,14 @@ Release notes
 V1.21
 =====
 
+- Updates docstrings
+
+- Improves autosummary for docs
+
+- Calls simplify if evaluate fails
+
+- Fixes node count
+
 - Fixes diode styles
 
 - Fixes transistor drawing
