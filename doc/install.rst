@@ -12,7 +12,7 @@ Lcapy requires the following Python packages: scipy, sympy, numpy, matplotlib, n
 
 For schematic drawing you require:
 
-1. pdflatex
+1. pdflatex (https://www.latex-project.org/get/)
 
 2. CircuiTikZ (https://www.ctan.org/pkg/circuitikz or
    https://circuitikz.github.io/circuitikz/).  Unfortunately,
