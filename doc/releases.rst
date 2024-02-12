@@ -5,6 +5,8 @@ Release notes
 V1.21
 =====
 
+- Switches to passive sign convention
+
 - Updates docstrings
 
 - Improves autosummary for docs

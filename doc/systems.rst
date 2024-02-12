@@ -83,6 +83,7 @@ The filter's differential equation is found with the `differential_equation()` m
                   d
    a₀⋅y(t) = - a₁⋅──(y(t)) + b₀⋅x(t)
                   dt
+
 The input and output symbols can be changed with the `inputsym` and `outputsym` arguments.
 
 The response due to intial conditions is found with the `initial_response()` method:

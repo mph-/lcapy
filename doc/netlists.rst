@@ -327,9 +327,9 @@ symbolic.  The ground node is designated `0`.
 Here `Z0` is the characteristic impedance, `gamma` is the propagation constant (`s / c` for a lossless line of speed `c`), and `length` is the length.
 
 If the value is not explicitly specified, the component name is used.
-For example,
+For example::
 
-   `C1 1 0` is equivalent to `C1 1 0 C1`
+    `C1 1 0` is equivalent to `C1 1 0 C1`
 
 .. _autonaming:
 
@@ -341,15 +341,12 @@ otherwise the previous definition is over-written.  For some netlists,
 choosing unique names can be tedious and so if the name is a `?`, a
 unique name is automatically generated.  For example::
 
-   C2 1 2
-   C? 2 3
-   C? 3 4
-   C3 4 5
+    C2 1 2
+    C? 2 3
+    C? 3 4
+    C3 4 5
 
-In this example, the second capacitor is named as `C1` and the third
-capacitor is named `C3` since `C1` has been previously defined.
-However, the fourth capacitor also has the name `C3 and so it
-overrides the previous definition.
+In this example, the second capacitor is named as `C1` and the third capacitor is named `C3` since `C1` has been previously defined. However, the fourth capacitor also has the name `C3` and so it overrides the previous definition.
 
 
 Circuit attributes
@@ -483,8 +480,7 @@ Circuit methods
   and of the form `I_cptname` othwerwise.
 
 - `branch_voltages()` returns an `ExprList` of the branch voltages,
-    where each element is `SuperpositionVoltage`.  Thus to get the
-  branch voltages in the Laplace-domain:
+    where each element is `SuperpositionVoltage`.  Thus to get the branch voltages in the Laplace-domain:
 
       >>> bV = cct.branch_voltages()(s)
 
@@ -799,7 +795,7 @@ Each Component object has a number of attributes, including:
 
 - `i` time-domain current through component
 
-Lcapy supports different :ref:`current_sign_convention`s.
+Lcapy supports different :ref:`current_sign_convention` s.
 
 Note, the above attributes are influenced by other components in the
 circuit.  The following attributes assume that the component is not in
