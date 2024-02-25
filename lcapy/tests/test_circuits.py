@@ -871,3 +871,20 @@ class LcapyTester(unittest.TestCase):
         i = current_sign(current('-V1 / R'), True)
         self.assertEqual(bi[0], i, c[0] + ' current')
         self.assertEqual(bi[1], current('V1 / R'), c[1] + ' current')
+
+
+    def test_nodes(self):
+
+        a = Circuit("""
+R 1 2
+C 2 3
+L 4 5""")
+
+        self.assertEqual(a['3'].count, 1, 'connections count')
+        self.assertEqual(len(a['1'].connected), 1, 'connected count')
+
+        a['2'].name = '7'
+        self.assertEqual(a['7'].count, 2, 'rename new connections count')
+
+        a['4'].name = '3'
+        self.assertEqual(a['3'].count, 2, 'rename existing connections count')

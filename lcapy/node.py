@@ -1,6 +1,6 @@
 """This module provides support for nodes.
 
-Copyright 2020--2023 Michael Hayes, UCECE
+Copyright 2020--2024 Michael Hayes, UCECE
 
 """
 
@@ -47,7 +47,16 @@ class Node(ImmittanceMixin):
 
     @name.setter
     def name(self, name):
-        # Use new node name for nodes
+        """Rename node name."""
+        # There are two cases:
+        # 1. The node name is new so just have a simple rename
+        # 2. The node name exists so need to rename and update connected
+        # components.
+
+        if name in self.cct.nodes:
+            self._connected.extend(self.cct.nodes[name]._connected)
+            self._count += self.cct.nodes[name]._count
+
         self.cct.nodes[name] = self.cct.nodes.pop(self._name)
         self._name = name
 
@@ -144,6 +153,18 @@ class Node(ImmittanceMixin):
         """Return list of components connected to the node."""
 
         return self._connected
+
+    @property
+    def connected_nodes(self):
+        """Return list of nodes that are connected to the node
+        by a component."""
+
+        nodes = []
+        for cpt in self._connected:
+            for node in cpt.nodes:
+                if node is not self and node not in nodes:
+                    nodes.append(node)
+        return nodes
 
     def is_connected(self, cpt):
         """Return True if cpt is connected to the node."""
