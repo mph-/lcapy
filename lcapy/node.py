@@ -48,17 +48,121 @@ class Node(ImmittanceMixin):
     @name.setter
     def name(self, name):
         """Rename node name."""
-        # There are two cases:
-        # 1. The node name is new so just have a simple rename
-        # 2. The node name exists so need to rename and update connected
-        # components.
+
+        return self.rename(name)
+
+    def _rename1(self, name):
+        # Case 1.  The name is new and is applied to all components
 
         if name in self.cct.nodes:
-            self._connected.extend(self.cct.nodes[name]._connected)
-            self._count += self.cct.nodes[name]._count
+            raise ValueError('Node %s is not new' % name)
 
         self.cct.nodes[name] = self.cct.nodes.pop(self._name)
         self._name = name
+
+    def _rename2(self, name):
+        # Case 2.  The name is not new and is applied to all components
+
+        if name not in self.cct.nodes:
+            raise ValueError('Node %s is new' % name)
+
+        self._connected.extend(self.cct.nodes[name]._connected)
+        self._count += self.cct.nodes[name]._count
+
+        self.cct.nodes[name] = self.cct.nodes.pop(self._name)
+        self._name = name
+
+    def _rename3(self, name, cpts):
+        # Case 3.  The name is new and is applied to some of the components
+
+        if name in self.cct.nodes:
+            raise ValueError('Node %s is not new' % name)
+
+        new_node = Node(self.cct, name)
+        self.cct.nodes[name] = new_node
+
+        for cpt in cpts:
+            for m, node in enumerate(cpt.nodes):
+                if node.name == self.name:
+                    if cpt.type not in ('A', 'O'):
+                        self._count -= 1
+                    new_node.append(cpt)
+                    cpt.nodes[m] = new_node
+
+    def _rename4(self, name, cpts):
+        # Case 4.  The name is not new and is applied to some of the components
+
+        if name not in self.cct.nodes:
+            raise ValueError('Node %s is new' % name)
+
+        new_node = self.cct.nodes[name]
+        self.cct.nodes[name] = new_node
+
+        for cpt in cpts:
+            for m, node in enumerate(cpt.nodes):
+                if node.name == self.name:
+                    if cpt.type not in ('A', 'O'):
+                        self._count -= 1
+                    new_node.append(cpt)
+                    cpt.nodes[m] = new_node
+
+    def rename(self, name, cpts=None):
+        """Rename node name if connected to a component in the list cpts or if
+        cpts is None."""
+
+        # Case 1. The name is new and is applied to all components
+        # Case 2. The name is not new and is applied to all components
+        # Case 3. The name is new and is applied to some of the components
+        # Case 4. The name is not new and is applied to some of the components
+        #
+        # all and some applies to the components that are connected
+        # to this node
+
+        if cpts is None:
+            if name not in self.cct.nodes:
+                # Case 1.
+                self._rename1(name)
+                return
+            else:
+                # Case 2.
+                self._rename2(name)
+                return
+
+        # Convert names to cpts
+        if not isinstance(cpts, (list, tuple)):
+            cpts = [cpts]
+
+        tcpts = []
+        for cpt in cpts:
+            if isinstance(cpt, str):
+                tcpts.append(self.cct[cpt])
+            else:
+                tcpts.append(cpt)
+        cpts = tcpts
+
+        other = []
+        for cpt in self.connected:
+            if cpt not in cpts:
+                other.append(cpt)
+
+        if other == []:
+            # Case 1
+            if name not in self.cct.nodes:
+                self._rename1(name)
+                return
+
+            # Case 2
+            self._rename2(name)
+            return
+
+        # Case 3
+        if name not in self.cct.nodes:
+            self._rename3(name, cpts)
+            return
+
+        # Case 4
+        self._rename4(name, cpts)
+        return
 
     @property
     def x(self):

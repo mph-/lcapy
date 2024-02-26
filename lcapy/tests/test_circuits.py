@@ -883,8 +883,18 @@ L 4 5""")
         self.assertEqual(a['3'].count, 1, 'connections count')
         self.assertEqual(len(a['1'].connected), 1, 'connected count')
 
+        # Case 1
         a['2'].name = '7'
-        self.assertEqual(a['7'].count, 2, 'rename new connections count')
+        self.assertEqual(a['7'].count, 2, 'node rename case1')
 
+        # Case 2
         a['4'].name = '3'
-        self.assertEqual(a['3'].count, 2, 'rename existing connections count')
+        self.assertEqual(a['3'].count, 2, 'node rename case2')
+
+        # Case 3
+        a['3'].rename('4', 'C')
+        self.assertEqual(a['4'].count, 1, 'node rename case3')
+
+        # case 4
+        a['7'].rename('5', 'R')
+        self.assertEqual(a['5'].count, 2, 'node rename case4')
