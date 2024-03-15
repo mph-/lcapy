@@ -204,6 +204,10 @@ To use Lcapy in Google Colab, run the following commands in the Colab notebook:
 ```
 This will install all the required packages to run Lcapy on Colab.
 
+<a target="_blank" href="https://colab.research.google.com/github/OIEIEIO/lcapy/blob/master/doc/examples/notebooks/mosfet-switch1.ipynb">
+  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+</a>
+
 Documentation
 -------------
 
