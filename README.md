@@ -202,6 +202,8 @@ To use Lcapy in Google Colab, run the following commands in the Colab notebook:
 !sudo apt install dvipng
 !pip install lcapy
 ```
+This will install all the required packages to run Lcapy on Colab.
+
 Documentation
 -------------
 
