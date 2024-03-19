@@ -189,6 +189,23 @@ Lcapy can be used with [Jupyter Notebooks](https://jupyter.org/).  For a number 
 
 - [State-space analysis](https://github.com/mph-/lcapy/blob/master/doc/examples/notebooks/state-space1.ipynb)
 
+Installation in Google Colab
+----------------------------
+
+To use Lcapy in Google Colab, run the following commands in the Colab notebook:
+
+```
+!pip install pdflatex
+!sudo apt-get install texlive-latex-recommended
+!sudo apt install texlive-latex-extra
+!sudo apt install dvipng
+!pip install lcapy
+```
+This will install all the required packages to run Lcapy on Colab.
+
+<a target="_blank" href="https://colab.research.google.com/github/OIEIEIO/lcapy/blob/master/doc/examples/notebooks/mosfet-switch1.ipynb">
+  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+</a>
 
 Documentation
 -------------
