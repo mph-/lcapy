@@ -195,7 +195,6 @@ Installation in Google Colab
 To use Lcapy in Google Colab, run the following commands in the Colab notebook:
 
 ```
-!pip install folium==0.2.1
 !pip install pdflatex
 !sudo apt-get install texlive-latex-recommended
 !sudo apt install texlive-latex-extra
