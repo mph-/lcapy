@@ -1500,9 +1500,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             return self.__mul__(self)
         elif x == -1:
             return self.__rtruediv__(1)
-        elif self.quantity != 'undefined':
-            raise ValueError('Cannot compute %s(%s) ** %s' %
-                             (self.__class__.__name__, self, x))
+
+        # elif self.quantity != 'undefined':
+        #    raise ValueError('Cannot compute %s(%s) ** %s' %
+        #                     (self.__class__.__name__, self, x))
 
         if not isinstance(x, Expr):
             x = expr(x)
