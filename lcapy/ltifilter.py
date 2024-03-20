@@ -280,8 +280,10 @@ class LTIFilter(object):
 
     @classmethod
     def bessel(cls, N=2, Wn=omega0, btype='lowpass'):
-        """Create a Bessel filter of specified order `N`
-        and angular cut-off frequency Wn."""
+        """Create a Bessel-Thomson (maximally flat delay) filter of specified
+        order `N` and angular cut-off frequency Wn.
+
+        """
 
         from math import factorial
 
@@ -312,8 +314,10 @@ class LTIFilter(object):
 
     @classmethod
     def butterworth(cls, N=2, Wn=omega0, btype='lowpass'):
-        """Create a Butterworth filter of specified order `N`
-        and angular cut-off frequency Wn."""
+        """Create a Butterworth (maximally flat amplitude) filter of specified
+        order `N` and angular cut-off frequency Wn.
+
+        """
 
         # TODO, add band-pass and band-stop with list for Wn.
         omega0 = Wn
