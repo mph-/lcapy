@@ -228,6 +228,8 @@ class Cpt(object):
         # Drawing hints
         self.opts = Opts(opts_string)
 
+        self._process_opts()
+
         self.labels = Labels()
         for key, val in self.opts.items():
             if key in self.all_label_keys:
@@ -246,7 +248,7 @@ class Cpt(object):
 
         self.auxiliary_node_names = auxiliary_node_names
 
-        self._process_opts()
+
 
     def _process_opts(self):
 
@@ -1699,7 +1701,6 @@ class Bipole(StretchyCpt):
                 # for horizontal cpt.
                 flip = not flip
 
-        breakpoint()
         dargs = self.opts.as_list(self.special_keys, **kwargs)
 
         args = []
