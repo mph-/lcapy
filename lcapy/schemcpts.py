@@ -14,6 +14,7 @@ from .label import Label
 from .labels import Labels
 from .latex import latex_format_label
 from .config import implicit_default
+from .parser import split
 
 module = sys.modules[__name__]
 
@@ -267,11 +268,16 @@ class Cpt(object):
         for opt in self.opts.copy():
             if opt in defines:
                 self.opts.pop(opt)
-                parts = defines[opt].split('=', 1)
-                if len(parts) == 2:
-                    self.opts[parts[0]] = parts[1]
-                else:
-                    self.opts[parts[0]] = ''
+
+                defs = split(defines[opt], ',')
+
+                for def1 in defs:
+                    def1 = def1.strip()
+                    parts = def1.split('=', 1)
+                    if len(parts) == 2:
+                        self.opts[parts[0]] = parts[1]
+                    else:
+                        self.opts[parts[0]] = ''
 
     def check_nodes(self):
 
@@ -1693,6 +1699,7 @@ class Bipole(StretchyCpt):
                 # for horizontal cpt.
                 flip = not flip
 
+        breakpoint()
         dargs = self.opts.as_list(self.special_keys, **kwargs)
 
         args = []
