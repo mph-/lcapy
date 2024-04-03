@@ -9,8 +9,14 @@ from .node import Node
 
 
 class Nodes(AttrDict):
+    """An instance of this stores all the defined Nodes for a circuit as a
+    dictionary.  Elements in the direction can also be accessed as
+    attributes.  Each Node has a list of associated components.
+
+    """
 
     def add(self, node_name, cpt, cct):
+        """Add a new node with associated component and circuit."""
 
         if node_name in self:
             node = self[node_name]
@@ -20,9 +26,19 @@ class Nodes(AttrDict):
         node.append(cpt)
         return node
 
-    def _remove(self, node_name):
-        """Remove node from dict of nodes.  Note, it is best to use Node.remove;
-        this will not remove the Node until all uses are removed."""
+    def remove(self, node_name, cpt):
+        """Detach node from component and delete the node
+        if there are no more uses."""
+
+        if node_name not in self:
+            raise ValueError('Cannot remove unknown node', node_name)
+        node = self[node_name]
+        node.remove(cpt)
+
+    def _delete(self, node_name):
+        """Delete node from dict of nodes.  Note, it is best to use remove
+        since this will not delete the Node until all uses are
+        removed."""
 
         node = self[node_name]
         if len(node.connected) != 0:
