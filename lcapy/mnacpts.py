@@ -1040,6 +1040,10 @@ class RC(RLC):
         # through the L.
         n1, n2 = mna._cpt_node_indexes(self)
 
+        if self.type == 'm':
+            if n1 != -1 and n2 != -1:
+                warn('Mass %s should have one node grounded' % self)
+
         if self.type == 'C' and mna.kind == 'dc':
             # Assume a conductance of eps in parallel with the
             # capacitor.  After the matrix inversion, the limit
