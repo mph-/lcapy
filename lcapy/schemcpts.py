@@ -166,7 +166,7 @@ class Cpt(object):
                  'nowires', 'nolabels', 'steps', 'free', 'fliplr', 'flipud',
                  'nodots', 'draw_nodes', 'label_nodes', 'nodraw',
                  'mirrorinputs', 'autoground', 'xoffset', 'yoffset',
-                 'anchor', 'def', 'nodes')
+                 'anchor', 'def', 'nodes', 'cloud')
     label_opt_keys = ('label_values', 'label_ids', 'annotate_values',
                       'label_style', 'label_flip')
 
@@ -247,7 +247,6 @@ class Cpt(object):
             auxiliary_node_names.append(prefix + pin)
 
         self.auxiliary_node_names = auxiliary_node_names
-
 
 
     def _process_opts(self):
@@ -1951,7 +1950,7 @@ class Shape(FixedCpt):
         for node in self.nodes:
             node.pin = not self.fakepin(node.basename)
 
-    def draw(self, **kwargs):
+    def draw(self, scale=1, **kwargs):
 
         if not self.check():
             return ''
@@ -1978,9 +1977,9 @@ class Shape(FixedCpt):
             args_str += ', draw'
 
         # shape border rotate rotates the box but not the text
-        s = r'  \draw (%s) node[%s, thick, inner sep=0pt, minimum width=%.2fcm, minimum height=%.2fcm, text width=%.2fcm, align=center, shape border rotate=%s, %s] (%s) {%s};''\n' % (
+        s = r'  \draw (%s) node[%s, thick, inner sep=0pt, minimum width=%.2fcm, minimum height=%.2fcm, text width=%.2fcm, align=center, shape border rotate=%s, %s, scale=%s] (%s) {%s};''\n' % (
             self.centre, self.shape, self.width, self.height,
-            text_width, self.angle, args_str, self.s, label)
+            text_width, self.angle, args_str, scale, self.s, label)
         return s
 
 
@@ -2995,7 +2994,13 @@ class TwoPort(Shape):
 
     def draw(self, **kwargs):
 
-        s = super(TwoPort, self).draw(**kwargs)
+        cloud = self.boolattr('cloud')
+        scale = self.scale
+        if cloud:
+            self.shape = 'cloud'
+            scale *= 1.07
+
+        s = super(TwoPort, self).draw(**kwargs, scale=scale)
         s += r'  \draw (%s) -- (%s);''\n' % (self.node('in+').s,
                                              self.node('wnw').s)
         s += r'  \draw (%s) -- (%s);''\n' % (self.node('in-').s,
