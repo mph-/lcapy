@@ -166,7 +166,7 @@ class Cpt(object):
                  'nowires', 'nolabels', 'steps', 'free', 'fliplr', 'flipud',
                  'nodots', 'draw_nodes', 'label_nodes', 'nodraw',
                  'mirrorinputs', 'autoground', 'xoffset', 'yoffset',
-                 'anchor', 'def', 'nodes', 'cloud')
+                 'anchor', 'def', 'nodes', 'shape')
     label_opt_keys = ('label_values', 'label_ids', 'annotate_values',
                       'label_style', 'label_flip')
 
@@ -2994,10 +2994,9 @@ class TwoPort(Shape):
 
     def draw(self, **kwargs):
 
-        cloud = self.boolattr('cloud')
+        self.shape = self.opts.get('shape', self.shape)
         scale = self.scale
-        if cloud:
-            self.shape = 'cloud'
+        if self.shape == 'cloud':
             scale *= 1.07
 
         s = super(TwoPort, self).draw(**kwargs, scale=scale)
