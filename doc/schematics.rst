@@ -852,6 +852,29 @@ The ground wires can be removed using the `nowires` attribute:
 For more generic transmission lines see :ref:`cables`.
 
 
+Two-port networks
+-----------------
+
+A generic two-port network is described using:
+
+     TPname Np Nm Ncp Ncm
+
+Ncp and Ncm define the positive and negative nodes of the control
+(input) port.  Here's an example:
+
+.. literalinclude:: examples/schematics/twoport1.sch
+
+.. image:: examples/schematics/twoport1.png
+   :width: 8cm
+
+Here's another example:
+
+.. literalinclude:: examples/schematics/twoport2.sch
+
+.. image:: examples/schematics/twoport2.png
+   :width: 8cm
+
+
 Mechanical components
 ---------------------
 
