@@ -2996,6 +2996,8 @@ class TwoPort(Shape):
 
         self.shape = self.opts.get('shape', self.shape)
         scale = self.scale
+        # TODO, change scaling if cloud puffs is specified
+        # (the default is 10) or if aspect != 1.
         if self.shape == 'cloud':
             scale *= 1.07
 
@@ -4240,6 +4242,8 @@ defcpt('TFtapcore', TFtap, 'Tapped transformer with core', 'transformer core')
 defcpt('TP', TwoPort, 'Two port', '')
 defcpt('TPA', TwoPort, 'A-parameter two port', '')
 defcpt('TPB', TwoPort, 'B-parameter two port', '')
+defcpt('TPG', TwoPort, 'G-parameter two port', '')
+defcpt('TPH', TwoPort, 'H-parameter two port', '')
 defcpt('TPY', TwoPort, 'Y-parameter two port', '')
 defcpt('TPZ', TwoPort, 'Z-parameter two port', '')
 
