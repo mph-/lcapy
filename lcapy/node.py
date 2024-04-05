@@ -50,7 +50,7 @@ class Node(ImmittanceMixin):
     def name(self, name):
         """Rename node name."""
 
-        return self.rename(name)
+        self.rename(name)
 
     @property
     def x(self):
@@ -216,6 +216,7 @@ class Node(ImmittanceMixin):
 
         self.cct.nodes[name] = self.cct.nodes.pop(self._name)
         self._name = name
+        return self
 
     def _rename2(self, name):
         # Case 2.  The name is not new and is applied to all components
@@ -228,6 +229,7 @@ class Node(ImmittanceMixin):
 
         self.cct.nodes[name] = self.cct.nodes.pop(self._name)
         self._name = name
+        return self
 
     def _rename3(self, name, cpts):
         # Case 3.  The name is new and is applied to some of the components
@@ -245,6 +247,7 @@ class Node(ImmittanceMixin):
                         self._count -= 1
                     new_node.append(cpt)
                     cpt.nodes[m] = new_node
+        return new_node
 
     def _rename4(self, name, cpts):
         # Case 4.  The name is not new and is applied to some of the components
@@ -262,10 +265,11 @@ class Node(ImmittanceMixin):
                         self._count -= 1
                     new_node.append(cpt)
                     cpt.nodes[m] = new_node
+        return new_node
 
     def rename(self, name, cpts=None):
         """Rename node name if connected to a component in the list cpts or if
-        cpts is None."""
+        cpts is None.  Return new node."""
 
         # Case 1. The name is new and is applied to all components
         # Case 2. The name is not new and is applied to all components
@@ -278,12 +282,10 @@ class Node(ImmittanceMixin):
         if cpts is None:
             if name not in self.cct.nodes:
                 # Case 1.
-                self._rename1(name)
-                return
+                return self._rename1(name)
             else:
                 # Case 2.
-                self._rename2(name)
-                return
+                return self._rename2(name)
 
         # Convert names to cpts
         if not isinstance(cpts, (list, tuple)):
@@ -305,21 +307,17 @@ class Node(ImmittanceMixin):
         if other == []:
             # Case 1
             if name not in self.cct.nodes:
-                self._rename1(name)
-                return
+                return self._rename1(name)
 
             # Case 2
-            self._rename2(name)
-            return
+            return self._rename2(name)
 
         # Case 3
         if name not in self.cct.nodes:
-            self._rename3(name, cpts)
-            return
+            return self._rename3(name, cpts)
 
         # Case 4
-        self._rename4(name, cpts)
-        return
+        return self._rename4(name, cpts)
 
     @property
     def count(self):

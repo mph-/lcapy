@@ -35,6 +35,16 @@ class Nodes(AttrDict):
         node = self[node_name]
         node.remove(cpt)
 
+    def rename(self, old_node_name, new_node_name, cpts=None):
+        """Rename old node name to new node name if the old node is connected
+        to a component in the list cpts or if cpts is None.  Returns
+        the new node."""
+
+        if old_node_name not in self:
+            raise ValueError('Cannot rename unknown node', old_node_name)
+        node = self[old_node_name]
+        return node.rename(new_node_name, cpts)
+
     def _delete(self, node_name):
         """Delete node from dict of nodes.  Note, it is best to use remove
         since this will not delete the Node until all uses are
