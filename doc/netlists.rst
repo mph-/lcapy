@@ -637,9 +637,10 @@ Circuit methods
 Circuit two-port methods
 ------------------------
 
-Circuits have a number of two-port methods.  The ports are specified
-by component name or a tuple of node names.  Note, currents are
-defined to be flowing into the positive node of a port:
+Circuits have a number of two-port methods, primarily for determining
+transfer functions.  The ports are specified by component name or a
+tuple of node names.  Note, currents are defined to be flowing into
+the positive node of a port:
 
 .. image:: examples/netlists/transfer1.png
    :width: 10cm
@@ -689,28 +690,28 @@ The methods are:
 - `voltage_gain(N1p, N1m, N2p, N2m)` Returns the s-domain transfer
   function `V2(s) / V1(s)`, for the ports defined by nodes `N1p`,
   `N1m`, `N2p`, and `N2m` where `V1 = V[N1p] - V[N1m]` and `V2 =
-  V[N2p] - V[N2m]`.  See also `transfer()`.
+  V[N2p] - V[N2m]`.  See also `transfer()` and :ref:`voltage-gain`.
 
 - `current_gain(N1p, N1m, N2p, N2m)` Returns the s-domain transfer
   function `I2(s) / I1(s)`, for the ports defined by nodes `N1p`,
   `N1m`, `N2p`, and `N2m`.  `I1(s)` is a test current injected into
   node `N1p` from node `N1m`.  `I2(s)` is the short-circuit current
   flowing into `N2p` from `N1p` as is the convention with two-ports.
-  See also `transfer()`.
+  See also `transfer()` and :ref:`current-gain`.
 
 - `transadmittance(N1p, N1m, N2p, N2m)` Returns the s-domain
   transadmittance function `I2(s) / V1(s)`, for the ports defined by
   nodes `N1p`, `N1m`, `N2p`, and `N2m`.  `V1(s)` is a test voltage
   applied between nodes `N1p` and `N1m`.  `I2(s)` is the short-circuit
   current flowing into `N2p` from `N1p` as is the convention with
-  two-ports.  See also `transfer()`.
+  two-ports.  See also `transfer()` and :ref:`transadmittance`.
 
 - `transimpedance(N1p, N1m, N2p, N2m)` Returns the s-domain
   transimpedance function `V2(s) / I1(s)`, for the ports defined by
   nodes `N1p`, `N1m`, `N2p`, and `N2m`.  `I1(s)` is a test current
   injected into node `N1p` from node `N1m`.  `V2(s)` is the
   open-circuit voltage measured between `N2p` and `N1p`.  See also
-  `transfer()`.
+  `transfer()` and :ref:`transimpedance`.
 
 - `twoport(N1p, N1m, N2p, N2m, model='B')` Returns an s-domain two-port model defined by nodes `N1p`, `N1m`, `N2p`, and `N2m`, where `I1` is the current flowing into `N1p` and out of `N1m`, `I2` is the current flowing into `N2p` and out of `N2m`, `V1 = V[N1p] -  V[N1m]`, and `V2 = V[N2p] - V[N2m]`.  `model` can be `A`, `B`, `G`, `H`, `Y`, or `Z`.
 
@@ -1366,3 +1367,102 @@ The mechanical analogue II (impedance analogue) has the advantage that
 mechanical impedance is equivalent to electrical impedance.  However,
 series mechanical components need to be modelled as parallel
 electrical components and vice-versa.
+
+
+Transfer functions
+==================
+
+Transfer functions are calculated in the Laplace domain with
+independent sources killed (voltage sources become short circuits and
+current sources become open circuits) and initial conditions set to
+zero.  There are four types of transfer function: voltage gain,
+current gain, transimpedance, and transadmittance.  In each case, the
+network is considered a two-port network, with an input port and an
+output port.  Positive currents are assumed to flow into the positive
+node of a port.
+
+.. image:: examples/schematics/tf_twoport.png
+   :width: 8cm
+
+
+.. _voltage-gain:
+
+Voltage gain
+------------
+
+.. image:: examples/schematics/tf_voltage_gain.png
+   :width: 8cm
+
+The voltage gain transfer function is defined as
+
+:math:`H_{ijmn}(s) = \left.\frac{V_{mn}(s)}{V_{ij}(s)}\right|_{\mbox{zero ICs}}`
+
+where :math:`V_{ij}(s)` is the Laplace domain voltage of a source
+applied between nodes :math:`i` and :math:`j` and :math:`V_{mn}(s)` is
+the Laplace domain open-circuit voltage measured between nodes :math:`m` and
+:math:`n`.  This assumes that independent sources in the network are
+killed and that the initial conditions (capacitor voltages and
+inductor currents) are set to zero.
+
+
+.. _current-gain:
+
+Current gain
+------------
+
+.. image:: examples/schematics/tf_current_gain.png
+   :width: 8cm
+
+The current gain transfer function is defined as
+
+:math:`G_{ijmn}(s) = \left.\frac{I_{mn}(s)}{I_{ij}(s)}\right|_{\mbox{zero ICs}}`
+
+where :math:`I_{ij}(s)` is the Laplace domain current of a source
+applied between nodes :math:`i` and :math:`j` and :math:`I_{mn}(s)` is
+the Laplace domain short-circuit current measured between nodes
+:math:`m` and :math:`n`.  This assumes that independent sources in the
+network are killed and that the initial conditions (capacitor currents
+and inductor currents) are set to zero.  Note, due to the definition
+of current flow, the current gain is -1 if the input port is the same
+as the output port.
+
+
+.. _transimpedance:
+
+Transimpedance
+--------------
+
+.. image:: examples/schematics/tf_transimpedance.png
+   :width: 8cm
+
+The transimpedance transfer function is defined as
+
+:math:`Z_{ijmn}(s) = \left.\frac{V_{mn}(s)}{I_{ij}(s)}\right|_{\mbox{zero ICs}}`
+
+where :math:`I_{ij}(s)` is the Laplace domain current of a source
+applied between nodes :math:`i` and :math:`j` and :math:`V_{mn}(s)` is
+the Laplace domain open-circuit voltage measured between nodes
+:math:`m` and :math:`n`.  This assumes that independent sources in the
+network are killed and that the initial conditions (capacitor voltages
+and inductor currents) are set to zero.
+
+
+.. _transadmittance:
+
+Transadmittance
+---------------
+
+.. image:: examples/schematics/tf_transadmittance.png
+   :width: 8cm
+
+
+The transadmittance transfer function is defined as
+
+:math:`Y_{ijmn}(s) = \left.\frac{I_{mn}(s)}{V_{ij}(s)}\right|_{\mbox{zero ICs}}`
+
+where :math:`V_{ij}(s)` is the Laplace domain voltage of a source
+applied between nodes :math:`i` and :math:`j` and :math:`I_{mn}(s)` is
+the Laplace domain short-circuit current measured between nodes :math:`m` and
+:math:`n`.  This assumes that independent sources in the network are
+killed and that the initial conditions (capacitor voltages and
+inductor currents) are set to zero.

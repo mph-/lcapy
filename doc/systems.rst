@@ -131,7 +131,7 @@ Continuous-time linear time invariant filter methods
 - `step_response()` returns continuous time-domain step response
 - `initial_response()` returns continuous time-domain response due to initial conditions
 - `response()` returns continuous time-domain response due to input signal and initial conditions
-- `transfer_fnction()` creates s-domain transfer function
+- `transfer_function()` creates s-domain transfer function
 - `sdomain_initial_response()` returns s-domain response due to initial conditions
 - `group_delay()` returns the group delay as function of frequency, `f`
 
