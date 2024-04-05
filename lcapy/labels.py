@@ -23,7 +23,7 @@ class Labels:
             self.flow = Label(key, val)
         elif key[0] == 'i':
             if key == 'ir':
-                key = key + '<'
+                key = 'i' + '<'
             self.current = Label(key, val)
         elif key[0] == 'l':
             self.label = Label(key, val)
