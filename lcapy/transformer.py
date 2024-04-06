@@ -101,6 +101,15 @@ class BilateralForwardTransformer(Transformer):
 
     def doit(self, expr, var, conjvar, evaluate=True, cache=True, **kwargs):
 
+        def doit1(terms):
+            result = 0
+
+            for term in terms:
+                sterm = self.simplify_term(term, var)
+                ret = self.term(sterm, var, conjvar, **kwargs)
+                result += ret
+            return result
+
         const, expr = factor_const(expr, var)
 
         key = self.key(expr, var, conjvar, **kwargs)
@@ -110,12 +119,20 @@ class BilateralForwardTransformer(Transformer):
         expr = self.rewrite(expr, var)
 
         terms = expr.as_ordered_terms()
-        result = 0
+        try:
+            result = doit1(terms)
+        except ValueError:
+            from .ratfun import Ratfun
 
-        for term in terms:
-            sterm = self.simplify_term(term, var)
-            ret = self.term(sterm, var, conjvar, **kwargs)
-            result += ret
+            terms = expr.expand().as_ordered_terms()
+            terms2 = []
+            for term in terms:
+                try:
+                    terms2.extend(Ratfun(term, var).partfrac().expand().as_ordered_terms())
+                except:
+                    terms2.append(term)
+
+            result = doit1(terms2)
 
         self.cache[key] = result
         return const * result

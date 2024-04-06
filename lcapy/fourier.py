@@ -48,8 +48,7 @@ class FourierTransformer(BilateralForwardTransformer):
             self.error()
 
         if isinstance(result, FourierTransform):
-            self.error(
-                'Try using partfrac() for partial fraction expansion first.')
+            self.error()
 
         return result
 
