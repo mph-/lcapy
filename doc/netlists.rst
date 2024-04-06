@@ -1337,17 +1337,17 @@ This is the same as the previous example but with a different resistor value giv
 Mechanical netlists
 ===================
 
-Linear mechanical networks comprising masses, springs, and dampers can
-be simulated.  The mechanical analogue I (mobility analogue) is
-employed where voltage is equivalent to speed and current is
-equivalent to force.  Thus a mass is analogous to a capacitor, a
-spring is analogous to a inductor, and a damper (dashpot) is analogous
-to a resistor.
+LTI mechanical networks comprising masses, springs, and dampers can be
+simulated.  Lcapy uses the mechanical-electrical analogue I (mobility
+or admittance analogue) where voltage is equivalent to speed and
+current is equivalent to force.  Thus a mass is analogous to a
+capacitor, a spring is analogous to a inductor, and a damper (dashpot)
+is analogous to a resistor.
 
 With this analogue d'Alemberts law is equivalent to Kirchhoff's
 current law.  Thus a point in the mechanical system is equivalent to a
-node in the electrical circuit.  However, mechanical impedance is
-equivalent to electrical admittance.
+node in the electrical circuit.  Note, that capacitors representing
+masses must have one terminal grounded.
 
 For example,
    >>> a = Circuit("""
@@ -1363,23 +1363,23 @@ For example,
     r    m
 
 
-The mechanical analogue II (impedance analogue) has the advantage that
-mechanical impedance is equivalent to electrical impedance.  However,
-series mechanical components need to be modelled as parallel
-electrical components and vice-versa.
+The mechanical-electrical analogue II (impedance analogue) has the
+advantage that mechanical impedance is equivalent to electrical
+impedance.  However, series mechanical components need to be modelled
+as parallel electrical components and vice-versa.
 
 
 Transfer functions
 ==================
 
-Transfer functions are calculated in the Laplace domain with
-independent sources killed (voltage sources become short circuits and
-current sources become open circuits) and initial conditions set to
-zero.  There are four types of transfer function: voltage gain,
-current gain, transimpedance, and transadmittance.  In each case, the
-network is considered a two-port network, with an input port and an
-output port.  Positive currents are assumed to flow into the positive
-node of a port.
+Transfer functions are calculated for LTI systems in the Laplace
+domain with independent sources killed (voltage sources become short
+circuits and current sources become open circuits) and initial
+conditions set to zero.  There are four types of transfer function:
+voltage gain, current gain, transimpedance, and transadmittance.  In
+each case, the network is considered a two-port network, with an input
+port and an output port.  Positive currents are assumed to flow into
+the positive node of a port.
 
 .. image:: examples/schematics/tf_twoport.png
    :width: 8cm

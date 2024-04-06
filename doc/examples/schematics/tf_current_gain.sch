@@ -1,4 +1,4 @@
-TP 3 4 1 2; right, shape=cloud, l=Independent source free network, fill=blue!10
+TP 3 4 1 2; right, shape=cloud, l=Independent source free LTI network, fill=blue!10
 W 3 m; right=0.5
 W 4 n; right=0.5
 W i 1; right=0.5
