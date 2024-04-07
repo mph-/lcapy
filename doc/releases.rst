@@ -2,6 +2,24 @@
 Release notes
 =============
 
+V1.22
+=====
+
+- Improves 'Node' infrastructure for lcapy-gui
+
+- Handles more Fourier transforms by splitting into partial fractions
+
+- Fixes ir label
+
+- Adds cloud shape for two-port schematics
+
+- Fixes labels in defs
+
+- Allows pow of transfer and similar quantities
+
+- Fixes node renaming
+
+
 V1.21
 =====
 
