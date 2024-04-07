@@ -5,6 +5,7 @@ Copyright 2020--2024 Michael Hayes, UCECE
 """
 
 from .immittancemixin import ImmittanceMixin
+from copy import copy
 
 
 class DummyNode:
@@ -190,6 +191,13 @@ class Node(ImmittanceMixin):
 
         self._connected.append(cpt)
 
+    def clone(self, name):
+        """Create a copy of the node but with a new name."""
+
+        node = Node(self.cct, name)
+        node.pos = copy(self.pos)
+        return node
+
     def remove(self, cpt):
         """Detach component from node.  If no other components
         are attached, the node is deleted."""
@@ -237,7 +245,7 @@ class Node(ImmittanceMixin):
         if name in self.cct.nodes:
             raise ValueError('Node %s is not new' % name)
 
-        new_node = Node(self.cct, name)
+        new_node = self.clone(name)
         self.cct.nodes[name] = new_node
 
         for cpt in cpts:
