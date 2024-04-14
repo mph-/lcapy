@@ -17,7 +17,8 @@ __all__ = ('conjugate', 'sqrt', 'exp', 'log', 'log10', 'sin', 'cos',
            'ramp', 'rampstep', 'Sum', 'dtrect', 'dtsign', 'Piecewise',
            'Eq', 'Ne', 'Lt', 'Le', 'Gt', 'Ge', 'Derivative',
            'Integral', 'Max', 'Min', 're', 'im', 'MatMul', 'MatAdd',
-           'degrees', 'radians', 'limit', 'besseli', 'besselj')
+           'degrees', 'radians', 'limit', 'besseli', 'besselj',
+           'erf', 'erfc')
 
 from .extrafunctions import Degrees as Degrees1
 from .extrafunctions import Radians as Radians1
@@ -275,6 +276,10 @@ rampstep = function_wrap(rampstep1)
 besseli = function_wrap(sym.besseli)
 
 besselj = function_wrap(sym.besselj)
+
+erf = function_wrap(sym.erf)
+
+erfc = function_wrap(sym.erfc)
 
 function_mapping = {sym.Heaviside: us,
                     sym.DiracDelta: ui,

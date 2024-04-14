@@ -17,6 +17,8 @@ Copyright 2016--2023 Michael Hayes, UCECE
 # Simplify  (-j * DiracDelta(f - 1) + j * DiracDelta(f + 1)).inverse_fourier()
 # This should give 2 * sin(2 * pi * t)
 
+# Add exp(-pi*(a * (t-tau))**2)
+
 from sympy.core.function import AppliedUndef
 from sympy import sympify, pi, exp, I, oo, S, sign, sin, cos, sinh, cosh, tanh
 from sympy import DiracDelta, Heaviside, FourierTransform, Integral
