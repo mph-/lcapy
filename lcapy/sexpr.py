@@ -242,10 +242,14 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
     def transient_response(self, tvector=None):
         """Evaluate transient (impulse) response."""
 
-        if tvector is None:
-            return self.time()
+        expr = self.time()
+        # Note, this will change if the expr is manipulated
+        expr.quantity_label = 'Impulse response'
 
-        return self.time().evaluate(tvector)
+        if tvector is not None:
+            expr = expr.evaluate(tvector)
+
+        return expr
 
     def impulse_response(self, tvector=None):
         """Evaluate transient (impulse) response."""
@@ -256,7 +260,10 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         """Evaluate step response."""
 
         H = self.__class__(self / self.var, **self.assumptions)
-        return H.transient_response(tvector)
+        expr = H.transient_response(tvector)
+        # Note, this will change if the expr is manipulated
+        expr.quantity_label = 'Step response'
+        return expr
 
     def frequency_response(self, **assumptions):
         """Convert to frequency response domain.  Note, this is similar to the
