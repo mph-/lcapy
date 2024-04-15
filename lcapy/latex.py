@@ -91,7 +91,7 @@ def latex_format_label(s):
         s2 = s2.replace(macro, '')
 
     # If have _, ^, \frac, etc.  need to be in math-mode.  Should
-    # prevent lcapy generating such strings and warn user to explicity
+    # prevent lcapy generating such strings and warn user to explicitly
     # use math mode.  The tricky part is that arbitrary signals may
     # have math symbols, say sqrt.
     math_symbols = ('_',  '^', '\\')
