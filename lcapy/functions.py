@@ -281,6 +281,8 @@ erf = function_wrap(sym.erf)
 
 erfc = function_wrap(sym.erfc)
 
+factorial = function_wrap(sym.factorial)
+
 function_mapping = {sym.Heaviside: us,
                     sym.DiracDelta: ui,
                     rect1: dtrect,

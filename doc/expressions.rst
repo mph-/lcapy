@@ -211,8 +211,8 @@ Lcapy has the following built-in functions: `sin`, `cos`, `tan`,
 `log10`, `sign`, `conjugate`, `rect`, `dtrect`, `sinc`, `sincn`,
 `sincu`, `tri`, `trap`, `Heaviside`, `H`, `u`, `DiracDelta`, `delta`,
 `unitimpulse`, `unitstep`, `Piecewise`, `Derivative`, `Integral`,
-`integrate`, `diff`, `besseli`, `besselj`, `erf`, `erfc`, `Min`, and
-`Max` among others.
+`integrate`, `diff`, `besseli`, `besselj`, `erf`, `erfc`, `factorial`,
+`Min`, and `Max` among others.
 
 Other SymPy functions can be converted to Lcapy functions using the
 `Function` class, for example:
