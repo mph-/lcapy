@@ -2010,10 +2010,13 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         N = R.N
 
         if N.imag == 0:
-            if N.real >= 0:
-                dst = expr(0)
+            if N.real.is_number:
+                if N.real >= 0:
+                    dst = expr(0)
+                else:
+                    dst = expr(sym.pi)
             else:
-                dst = expr(sym.pi)
+                dst = atan2(N.imag, N.real)
         else:
             if N.real != 0:
                 G = gcd(N.real, N.imag)
