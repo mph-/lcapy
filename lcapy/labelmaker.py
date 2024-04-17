@@ -30,7 +30,7 @@ class LabelMaker:
             name = name + '_{%s}' % subscript
         return latex_format_label('$' + name + '$')
 
-    def make(self, cpt):
+    def make(self, cpt, label_ports=False):
 
         # There are two possible labels for a component:
         # 1. Component name, e.g., R1
@@ -39,14 +39,17 @@ class LabelMaker:
         id_label = self._format_name(cpt.type, cpt.id)
         value_label = None
 
-        if cpt.type in ('A', 'O', 'P', 'W') or id_label.find('#') != -1:
+        if cpt.type == 'P' and not label_ports:
+            id_label = None
+
+        elif cpt.type in ('A', 'O', 'W') or id_label.find('#') != -1:
             id_label = None
 
         if cpt.type in ('A', 'S', 'SW', 'U'):
             value_label = ''
 
         unify = False
-        if cpt.args != ():
+        if len(cpt.args):
 
             # TODO, extend for mechanical and acoustical components.
             units_map = {'V': 'V', 'I': 'A', 'R': '$\Omega$',
