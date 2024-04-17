@@ -322,7 +322,7 @@ class StateSpaceBase(object):
 
         # Replicate duplicated eigenvalues and return as a list.
         for v, n in roots.items():
-            for m in range(n):
+            for m in range(n.sympy):
                 e.append(v)
         return ExprList(e)
 

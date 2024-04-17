@@ -2914,7 +2914,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
             rootsdict = {}
             for root, n in roots.items():
-                rootsdict[expr(root, units=units)] = n
+                rootsdict[expr(root, units=units)] = expr(n)
             return expr(rootsdict)
 
         def _wrap_list(roots):
