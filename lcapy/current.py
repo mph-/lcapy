@@ -62,7 +62,7 @@ def noisecurrent(arg, **assumptions):
     nid = assumptions.get('nid', None)
     positive = assumptions.get('positive', True)
 
-    return current(arg, nid=None, positive=positive, **assumptions)
+    return current(arg, nid=nid, positive=positive, **assumptions)
 
 
 def phasorcurrent(arg, omega=None, **assumptions):

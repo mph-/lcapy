@@ -59,7 +59,7 @@ def noisevoltage(arg, **assumptions):
     nid = assumptions.get('nid', None)
     positive = assumptions.get('positive', True)
 
-    return voltage(arg, nid=None, positive=positive, **assumptions)
+    return voltage(arg, nid=nid, positive=positive, **assumptions)
 
 
 def phasorvoltage(arg, omega=None, **assumptions):
