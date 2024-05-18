@@ -17,8 +17,8 @@ __all__ = ('conjugate', 'sqrt', 'exp', 'log', 'log10', 'sin', 'cos',
            'ramp', 'rampstep', 'Sum', 'dtrect', 'dtsign', 'Piecewise',
            'Eq', 'Ne', 'Lt', 'Le', 'Gt', 'Ge', 'Derivative',
            'Integral', 'Max', 'Min', 're', 'im', 'MatMul', 'MatAdd',
-           'degrees', 'radians', 'limit', 'besseli', 'besselj',
-           'erf', 'erfc')
+           'Mul', 'Pow', 'degrees', 'radians', 'limit', 'besseli',
+           'besselj', 'erf', 'erfc')
 
 from .extrafunctions import Degrees as Degrees1
 from .extrafunctions import Radians as Radians1
@@ -230,6 +230,8 @@ Ge = function_wrap(sym.Ge)
 Add = function_wrap(sym.Add)
 
 Mul = function_wrap(sym.Mul)
+
+Pow = function_wrap(sym.Pow)
 
 MatAdd = function_wrap(sym.MatAdd)
 
