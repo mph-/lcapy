@@ -1,10 +1,11 @@
 """This module provides transfer function support.
 
-Copyright 2020--2023 Michael Hayes, UCECE
+Copyright 2020--2024 Michael Hayes, UCECE
 
 """
 from .expr import expr
 from .units import u as uu
+from .functions import Mul, Pow
 
 
 def transfer(numer, denom=1, causal=True, **assumptions):
@@ -16,7 +17,12 @@ def transfer(numer, denom=1, causal=True, **assumptions):
 
     numer = numer.zero_initial_conditions()
     denom = denom.zero_initial_conditions()
-    expr1 = numer / denom
+
+    if False:
+        expr1 = numer / denom
+    else:
+        # Avoid pole-zero cancellation by deferring evaluation
+        expr1 = Mul(numer, Pow(denom, -1), evaluate=False)
 
     if expr1.is_admittance:
         expr1.units = 1 / uu.ohms

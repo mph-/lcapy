@@ -145,6 +145,8 @@ causality since both parts lumped together.
 
 38. Implement Matrix class since SymPy is deprecating storing non SymPy objects in a SymPy Matrix.
 
+39. Avoid pole-zero cancellation for a transfer function derived from a differential or difference equation.
+
 
 Testing
 =======
