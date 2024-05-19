@@ -946,6 +946,28 @@ class A(Cpt):
     pass
 
 
+class AM(Cpt):
+
+    # Model ammeter as a 0 V voltage source so can determine
+    # the current.
+
+    need_branch_current = True
+    flip_branch_current = True
+    add_series = True
+
+    def _stamp(self, mna):
+
+        n1, n2 = mna._cpt_node_indexes(self)
+        m = mna._cpt_branch_index(self)
+
+        if n1 >= 0:
+            mna._B[n1, m] += 1
+            mna._C[m, n1] += 1
+        if n2 >= 0:
+            mna._B[n2, m] -= 1
+            mna._C[m, n2] -= 1
+
+
 class IndependentSource(Cpt):
 
     is_independent_source = True
@@ -2287,7 +2309,6 @@ def make(classname, parent, namespace, name, cpt_type, cpt_id,
 # Dynamically create classes.
 defcpt('A', Misc, 'Annotation')
 defcpt('ADC', Misc, 'ADC')
-defcpt('AM', W, 'Ammeter')
 defcpt('ANT', Misc, 'Antenna')
 
 defcpt('BAT', V, 'Battery')
