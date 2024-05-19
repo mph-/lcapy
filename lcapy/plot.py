@@ -211,16 +211,16 @@ def plot_pole_zero(obj, xlim=None, ylim=None, **kwargs):
     if unitcircle:
         ax.axis('equal')
 
-    def annotate(axes, poles, offset=None):
+    def annotate(axes, roots, offset=None):
         if offset is None:
             xlim = axes.get_xlim()
             offset = (xlim[1] - xlim[0]) / 40
 
-        for pole, num in poles.items():
+        for pole, num in roots.items():
             if num > 1:
                 p = pole.cval
                 axes.text(p.real * xscale + offset,
-                          p.imag * yscale + offset, '%d' % num)
+                          p.imag * yscale + offset, '%d' % num.sympy)
 
     # Marker size.  Unfortunately, the default is too small
     # but if the user wants a size of 6 set in rcParams, they are out of luck...
