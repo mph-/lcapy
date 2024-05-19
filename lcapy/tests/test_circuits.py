@@ -876,9 +876,9 @@ class LcapyTester(unittest.TestCase):
     def test_nodes(self):
 
         a = Circuit("""
-R 1 2
-C 2 3
-L 4 5""")
+        R 1 2
+        C 2 3
+        L 4 5""")
 
         self.assertEqual(a['3'].count, 1, 'connections count')
         self.assertEqual(len(a['1'].connected), 1, 'connected count')
@@ -898,3 +898,13 @@ L 4 5""")
         # case 4
         a['7'].rename('5', 'R')
         self.assertEqual(a['5'].count, 2, 'node rename case4')
+
+    def test_AM(self):
+
+        cct = Circuit("""
+        V 1 0 10
+        R 1 2 5
+        AM 2 0""")
+
+        self.assertEqual(cct.AM.I, 2, 'ammeter current')
+        self.assertEqual(cct.AM.V, 0, 'ammeter voltage')
