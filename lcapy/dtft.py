@@ -2,9 +2,9 @@
 
  It calculates the discrete-time Fourier transform using:
 
-   X(f) = \sum_{n=\infty}^{\infty} x(n) e^{-j * 2 * \pi * n * dt * f}
+   X(f) = \sum_{n=-\infty}^{\infty} x(n) e^{-j * 2 * \pi * n * dt * f}
 
-Copyright 2021--2022 Michael Hayes, UCECE
+Copyright 2021--2024 Michael Hayes, UCECE
 
 """
 
@@ -177,7 +177,7 @@ class DTFTTransformer(BilateralForwardTransformer):
                            Xm * sym.exp(sym.I * cc))
             return const / 2 * res
 
-        # Handle cos(b*n+c)*x(n)    o--o   1/2 (exp(-jc)* X(W+b) + X(W-b) * exp(jc))
+        # Handle cos(b*n+c)*x(n)    o--o   1/2 (exp(-jc) * X(W+b) + X(W-b) * exp(jc))
         elif is_multiplied_with(expr, n, 'cos(n)', xn_fac):
             expr /= xn_fac[-1]
             ref = xn_fac[-1].args
