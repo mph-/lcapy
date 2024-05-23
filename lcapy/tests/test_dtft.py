@@ -59,3 +59,9 @@ class LcapyTester(unittest.TestCase):
         m = symbol('m', integer=True)
         # Produces infinite recursion on comparison
         #self.assertEqual(X, Y, "x(n).DTFT(F)")
+
+        x = cos(2 * pi * f0 * n * dt)
+        X = x.DTFT(f, images=0)
+
+        X1 = (DiracDelta(f - f0) + DiracDelta(f + f0)) / (2 * dt)
+        self.assertEqual(X, X1, "cos(2 * pi * f0 * n * dt)")
