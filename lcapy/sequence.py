@@ -153,20 +153,18 @@ class Sequence(ExprList, SeqDomain):
             '- operator not supported for %s: use .as_array()' % self.__class__.__name__)
 
     def __add__(self, x):
-        """Concatenate with sequence x."""
+        """If x is a sequence, add sequences elementwise, otherwise
+        add x to each element of the sequence."""
 
-        self._check_compatible(x)
-        if self.quantity == 'undefined':
-            cls = x.__class__
-        else:
-            cls = self.__class__
-
-        return cls(super(Sequence, self).__add__(x))
+        return self.add(x)
 
     def __mul__(self, x):
+        """If x is a sequence, multiply sequences elementwise, otherwise
+        multiply x to each element of the sequence."""
+
         """Replicate x times."""
 
-        return self.__class__(super(Sequence, self).__mul__(x))
+        return self.multiply(x)
 
     def __lshift__(self, m):
 
@@ -205,6 +203,54 @@ class Sequence(ExprList, SeqDomain):
             return expr(0)
 
         return super(Sequence, self).__getitem__(nindex)
+
+    def add(self, x):
+        """If x is a sequence, add sequences elementwise, otherwise
+        add x to each element of the sequence."""
+
+        if isinstance(x, Sequence):
+            n1 = min(self.n[0], x.n[0])
+            n2 = max(self.n[-1], x.n[-1])
+            n = list(range(n1, n2 + 1))
+            vals = []
+            for m in n:
+                vals.append(self[m] + x[m])
+        else:
+            vals = [val + x for val in self.vals]
+            n = self.n
+        return self.__class__(vals, n)
+
+    def append(self, x):
+        """Concatenate with sequence x."""
+
+        self._check_compatible(x)
+        if self.quantity == 'undefined':
+            cls = x.__class__
+        else:
+            cls = self.__class__
+
+        return cls(super(Sequence, self).__add__(x))
+
+    def multiply(self, x):
+        """If x is a sequence, multiply sequences elementwise, otherwise
+        multiply x to each element of the sequence."""
+
+        if isinstance(x, Sequence):
+            n1 = min(self.n[0], x.n[0])
+            n2 = max(self.n[-1], x.n[-1])
+            n = list(range(n1, n2 + 1))
+            vals = []
+            for m in n:
+                vals.append(self[m] * x[m])
+        else:
+            vals = [val * x for val in self.vals]
+            n = self.n
+        return self.__class__(vals, n)
+
+    def replicate(self, x):
+        """Replicate x times."""
+
+        return self.__class__(super(Sequence, self).__mul__(x))
 
     @property
     def origin(self):
