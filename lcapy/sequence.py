@@ -731,6 +731,14 @@ class Sequence(ExprList, SeqDomain):
 
         return self.__class__(self.vals, ni)
 
+    def truncate(self, size):
+        """Truncate sequence length to `size` samples."""
+
+        if len(self.vals) < size:
+            raise ValueError('Sequence too short for truncation')
+
+        return self.__class__(self.vals[0: size], self.n[0: size])
+
     def zeroextend(self):
         """Extend sequence by adding zeros so that the origin
         is included.  This is used for printing."""
