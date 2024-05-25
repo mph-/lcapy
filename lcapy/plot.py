@@ -767,6 +767,9 @@ def plot_sequence(obj, ni, plot_type=None, polar=False, **kwargs):
     yscale = kwargs.pop('yscale', 1)
     title = kwargs.pop('title', None)
     color = kwargs.pop('color', None)
+    unfilled = kwargs.pop('unfilled', False)
+    markersize = kwargs.pop('markersize', None)
+    markerfacecolor = kwargs.pop('markerfacecolor', None)
 
     markerline, stemlines, baseline = ax.stem(
         ni * xscale, v * yscale, **kwargs)
@@ -775,6 +778,15 @@ def plot_sequence(obj, ni, plot_type=None, polar=False, **kwargs):
         markerline.set_color(color)
     else:
         color = stemlines.get_color()
+
+    if unfilled:
+        markerline.set_markerfacecolor('none')
+        if markerfacecolor is None:
+            markerline.set_markerfacecolor('white')
+    if markersize is not None:
+        markerline.set_markersize(markersize)
+    if markerfacecolor is not None:
+        markerline.set_markerfacecolor(markerfacecolor)
 
     # Ensure integer ticks.
     ax.xaxis.set_major_locator(MaxNLocator(integer=True))

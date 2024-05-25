@@ -590,6 +590,9 @@ class Sequence(ExprList, SeqDomain):
         ylabel - the y-axis label
         xscale - the x-axis scaling, say for plotting as ms
         yscale - the y-axis scaling, say for plotting mV
+        unfilled - the markers are unfilled
+        markersize - sets the size of the marker
+        markerfacecolor - sets the marker color
         in addition to those supported by the matplotlib plot command.
 
         The plot axes are returned.
