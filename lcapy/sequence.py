@@ -399,14 +399,14 @@ class Sequence(ExprList, SeqDomain):
         vals = self.vals
 
         m1 = 0
-        while vals[m1] == 0:
+        while m1 < len(vals) and vals[m1] == 0:
             m1 += 1
 
         m2 = len(vals) - 1
         if vals[m2] != 0:
             return self.__class__(vals[m1:], self.n[m1:])
 
-        while vals[m2] == 0:
+        while m2 >= 0 and vals[m2] == 0:
             m2 -= 1
         return self.__class__(vals[m1:m2 + 1], self.n[m1:m2 + 1])
 
@@ -676,8 +676,11 @@ class Sequence(ExprList, SeqDomain):
     def convolve(self, h, mode='full'):
         """Convolve with h."""
 
+        from numpy import arange
+
         x = self
-        h = Sequence(h)
+        if not isinstance(h, Sequence):
+            h = Sequence(h)
 
         Lx = x.extent
         Lh = h.extent
@@ -690,7 +693,9 @@ class Sequence(ExprList, SeqDomain):
         else:
             raise ValueError('Unknown mode ' + mode)
 
-        return x.lfilter(h, a=[1])
+        y = x.lfilter(h, a=[1])
+        y.n = list(arange(len(y)) + x.n[0] + h.n[0])
+        return y
 
     def delay(self, m=0):
         """Return a new sequence delayed by an integer number of samples `m`.

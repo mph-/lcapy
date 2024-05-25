@@ -77,6 +77,16 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(h.ZT(), zseq((1, 2 / z)), "ZT")
         self.assertEqual(h.ZT().IZT(), h, "ZT/IZT")
 
+        y = seq((1, 4, 10, 16, 17, 12), origin=3)
+        self.assertEqual(x.convolve(a), y, "convolve")
+        self.assertEqual(a.convolve(x), y, "convolve")
+
+        w = seq((1, 4, 9))
+        a = seq((1, 2, 3))
+        self.assertEqual(a * x, w, "multiply")
+        self.assertEqual(w / x, a, "divide")
+        self.assertEqual(w + a - w, a, "add/sub")
+
     def test_zexpr(self):
 
         H = z / (z - 1)
