@@ -1,6 +1,6 @@
 """This module creates sequences.
 
-Copyright 2020--2022 Michael Hayes, UCECE
+Copyright 2020--2024 Michael Hayes, UCECE
 
 """
 
@@ -20,8 +20,12 @@ def seq(arg, ni=None, origin=None, domain=None):
 
     >>> a = seq((1, 2, 3, 4), (-1, 0, 1, 2))
 
-    If the `ni` argument is not specified, the sequence indices
-    are enumerated from 0.
+    If the `ni` argument is not specified, the sequence indices are
+    enumerated from -`origin` with `origin` having a default value of
+    0.  `origin` defines the element for `n = 0`.  For example,
+
+    >>> seq((1, 2, 3), origin=1)
+    {1, _2, 3}
 
     With a string argument, an underscore indicates the zero sequence
     index:
@@ -31,7 +35,7 @@ def seq(arg, ni=None, origin=None, domain=None):
     The sequence indices can be found using the `n` attribute.
     This returns a list.
 
-    >>> a = seq('{1, _2, 3, 4}').n
+    >>> seq('{1, _2, 3, 4}').n
     [-1, 0, 1, 2]
 
     This function creates a discrete-time domain sequence.  See also
