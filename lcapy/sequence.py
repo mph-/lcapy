@@ -114,6 +114,11 @@ class Sequence(ExprList, SeqDomain):
         self.assumptions = Assumptions()
 
     @property
+    def isempty(self):
+        """True if empty sequence (zero)."""
+        return self.vals == []
+
+    @property
     def vals(self):
         """Return the SymPy values as a list."""
         return list(self)
@@ -366,13 +371,22 @@ class Sequence(ExprList, SeqDomain):
 
         if not isinstance(x, Sequence):
             raise ValueError('Expecting Sequence')
+
+        if self.isempty:
+            return x.n
+        if x.isempty:
+            return self.n
+
         n1 = min(self.n[0], x.n[0])
         n2 = max(self.n[-1], x.n[-1])
         n = list(range(n1, n2 + 1))
         return n
 
     def replicate(self, x):
-        """Replicate x times."""
+        """Replicate x times.
+
+        seq((1, 2, 3)).replicate(2) gives {1, 2, 3, 1, 2, 3}
+        """
 
         return self.__class__(super(Sequence, self).__mul__(x))
 
@@ -682,6 +696,9 @@ class Sequence(ExprList, SeqDomain):
         if not isinstance(h, Sequence):
             h = Sequence(h)
 
+        if self.isempty or h.isempty:
+            return self.__class__(())
+
         Lx = x.extent
         Lh = h.extent
         Ly = Lx + Lh - 1
@@ -715,8 +732,13 @@ class Sequence(ExprList, SeqDomain):
         """Extend sequence by adding zeros so that the origin
         is included.  This is used for printing."""
 
+        if self.isempty:
+            # Empty sequence (all zero)
+            return self.__class__(())
+
         ni = self.n
         vals = self.vals
+
         if ni[0] > 0:
             vals = [0] * ni[0] + vals
             ni = range(0, ni[-1] + 1)
