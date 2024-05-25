@@ -124,9 +124,15 @@ class Sequence(ExprList, SeqDomain):
         return self
 
     def __eq__(self, x):
+        """Test for mathematical equality as far as possible.
+        This cannot be guaranteed since it depends on simplification.
+        Note, SymPy comparison is for structural equality."""
 
         self._check_compatible(x)
-        return self.vals == x.vals and self.n == x.n
+        # Remove zeros from ends of sequences.
+        a = self.prune()
+        b = x.prune()
+        return a.vals == b.vals and a.n == b.n
 
     def _check_compatible(self, x):
 
@@ -164,6 +170,8 @@ class Sequence(ExprList, SeqDomain):
         """If x is a sequence, divide sequences elementwise, otherwise
         divide x from each element of the sequence."""
 
+        # Perhaps this should prune x to avoid division by zero?
+
         if isinstance(x, Sequence):
             n = self._common_n(x)
             vals = []
@@ -192,12 +200,18 @@ class Sequence(ExprList, SeqDomain):
             n = self.n
         return self.__class__(vals, n)
 
+    def __ne__(self, x):
+        """Test for mathematical inequality as far as possible.
+        This cannot be guaranteed since it depends on simplification.
+        Note, SymPy comparison is for structural equality."""
+
+        return not self.__eq__(x)
+
     def __neg__(self):
         """Negate each element of the sequence."""
 
         vals = [-val for val in self.vals]
         return self.__class__(vals, self.n)
-
 
     def __pow__(self, x):
         """If x is a sequence, raise sequence to power of x elementwise,
@@ -220,6 +234,8 @@ class Sequence(ExprList, SeqDomain):
 
     def __rfloordiv__(self, x):
         """Floor divide."""
+
+        # Perhaps this should prune self to avoid division by zero?
 
         if isinstance(x, Sequence):
             n = self._common_n(x)
@@ -271,6 +287,8 @@ class Sequence(ExprList, SeqDomain):
     def __rtruediv__(self, x):
         """Reverse true divide."""
 
+        # Perhaps this should prune self to avoid division by zero?
+
         if isinstance(x, Sequence):
             n = self._common_n(x)
             vals = []
@@ -303,11 +321,13 @@ class Sequence(ExprList, SeqDomain):
         """If x is a sequence, subtract sequences elementwise, otherwise
         subtract x from each element of the sequence."""
 
-        return self._add(-x)
+        return self.__add__(-x)
 
     def __truediv__(self, x):
         """If x is a sequence, divide sequences elementwise, otherwise
         divide x from each element of the sequence."""
+
+        # Perhaps this should prune x to avoid division by zero?
 
         if isinstance(x, Sequence):
             n = self._common_n(x)
