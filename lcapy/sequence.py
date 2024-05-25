@@ -156,17 +156,47 @@ class Sequence(ExprList, SeqDomain):
         """If x is a sequence, add sequences elementwise, otherwise
         add x to each element of the sequence."""
 
-        return self.add(x)
+        if isinstance(x, Sequence):
+            n = self._common_n(x)
+            vals = []
+            for m in n:
+                vals.append(self[m] + x[m])
+        else:
+            vals = [val + x for val in self.vals]
+            n = self.n
+        return self.__class__(vals, n)
+
+    def __floordiv__(self, x):
+        """If x is a sequence, divide sequences elementwise, otherwise
+        divide x from each element of the sequence."""
+
+        if isinstance(x, Sequence):
+            n = self._common_n(x)
+            vals = []
+            for m in n:
+                vals.append(self[m] // x[m])
+        else:
+            vals = [val // x for val in self.vals]
+            n = self.n
+        return self.__class__(vals, n)
+
+    def __lshift__(self, m):
+
+        return self.delay(-m)
 
     def __mul__(self, x):
         """If x is a sequence, multiply sequences elementwise, otherwise
         multiply x to each element of the sequence."""
 
-        return self.multiply(x)
-
-    def __lshift__(self, m):
-
-        return self.delay(-m)
+        if isinstance(x, Sequence):
+            n = self._common_n(x)
+            vals = []
+            for m in n:
+                vals.append(self[m] * x[m])
+        else:
+            vals = [val * x for val in self.vals]
+            n = self.n
+        return self.__class__(vals, n)
 
     def __neg__(self):
         """Negate each element of the sequence."""
@@ -174,9 +204,45 @@ class Sequence(ExprList, SeqDomain):
         vals = [-val for val in self.vals]
         return self.__class__(vals, self.n)
 
+    def __radd__(self, x):
+        """Reverse add."""
+
+        return self.__add__(x)
+
+    def __rfloordiv__(self, x):
+        """Floor divide."""
+
+        if isinstance(x, Sequence):
+            n = self._common_n(x)
+            vals = []
+            for m in n:
+                vals.append(x[m] // self[m])
+        else:
+            vals = [x // val for val in self.vals]
+            n = self.n
+        return self.__class__(vals, n)
+
     def __rshift__(self, m):
 
         return self.delay(m)
+
+    def __rmul__(self, x):
+        """Reverse multiply."""
+
+        return self.__mul__(x)
+
+    def __rtruediv__(self, x):
+        """Reverse true divide."""
+
+        if isinstance(x, Sequence):
+            n = self._common_n(x)
+            vals = []
+            for m in n:
+                vals.append(x[m] / self[m])
+        else:
+            vals = [x / val for val in self.vals]
+            n = self.n
+        return self.__class__(vals, n)
 
     def __str__(self):
 
@@ -200,7 +266,21 @@ class Sequence(ExprList, SeqDomain):
         """If x is a sequence, subtract sequences elementwise, otherwise
         subtract x from each element of the sequence."""
 
-        return self.add(-x)
+        return self._add(-x)
+
+    def __truediv__(self, x):
+        """If x is a sequence, divide sequences elementwise, otherwise
+        divide x from each element of the sequence."""
+
+        if isinstance(x, Sequence):
+            n = self._common_n(x)
+            vals = []
+            for m in n:
+                vals.append(self[m] / x[m])
+        else:
+            vals = [val / x for val in self.vals]
+            n = self.n
+        return self.__class__(vals, n)
 
     def __getitem__(self, n):
         """Note this returns the element with index matching n.
@@ -214,22 +294,6 @@ class Sequence(ExprList, SeqDomain):
 
         return super(Sequence, self).__getitem__(nindex)
 
-    def add(self, x):
-        """If x is a sequence, add sequences elementwise, otherwise
-        add x to each element of the sequence."""
-
-        if isinstance(x, Sequence):
-            n1 = min(self.n[0], x.n[0])
-            n2 = max(self.n[-1], x.n[-1])
-            n = list(range(n1, n2 + 1))
-            vals = []
-            for m in n:
-                vals.append(self[m] + x[m])
-        else:
-            vals = [val + x for val in self.vals]
-            n = self.n
-        return self.__class__(vals, n)
-
     def append(self, x):
         """Concatenate with sequence x."""
 
@@ -241,21 +305,14 @@ class Sequence(ExprList, SeqDomain):
 
         return cls(super(Sequence, self).__add__(x))
 
-    def multiply(self, x):
-        """If x is a sequence, multiply sequences elementwise, otherwise
-        multiply x to each element of the sequence."""
+    def _common_n(self, x):
 
-        if isinstance(x, Sequence):
-            n1 = min(self.n[0], x.n[0])
-            n2 = max(self.n[-1], x.n[-1])
-            n = list(range(n1, n2 + 1))
-            vals = []
-            for m in n:
-                vals.append(self[m] * x[m])
-        else:
-            vals = [val * x for val in self.vals]
-            n = self.n
-        return self.__class__(vals, n)
+        if not isinstance(x, Sequence):
+            raise ValueError('Expecting Sequence')
+        n1 = min(self.n[0], x.n[0])
+        n2 = max(self.n[-1], x.n[-1])
+        n = list(range(n1, n2 + 1))
+        return n
 
     def replicate(self, x):
         """Replicate x times."""
