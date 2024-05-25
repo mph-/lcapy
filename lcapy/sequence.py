@@ -162,13 +162,17 @@ class Sequence(ExprList, SeqDomain):
         """If x is a sequence, multiply sequences elementwise, otherwise
         multiply x to each element of the sequence."""
 
-        """Replicate x times."""
-
         return self.multiply(x)
 
     def __lshift__(self, m):
 
         return self.delay(-m)
+
+    def __neg__(self):
+        """Negate each element of the sequence."""
+
+        vals = [-val for val in self.vals]
+        return self.__class__(vals, self.n)
 
     def __rshift__(self, m):
 
@@ -191,6 +195,12 @@ class Sequence(ExprList, SeqDomain):
             items.append('...')
 
         return r'{%s}' % ', '.join(items)
+
+    def __sub__(self, x):
+        """If x is a sequence, subtract sequences elementwise, otherwise
+        subtract x from each element of the sequence."""
+
+        return self.add(-x)
 
     def __getitem__(self, n):
         """Note this returns the element with index matching n.
