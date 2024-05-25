@@ -143,14 +143,8 @@ class Sequence(ExprList, SeqDomain):
     def __abs__(self):
         """Absolute value of each element."""
 
-        raise ValueError(
-            'abs operator not supported for %s: use .as_array()' % self.__class__.__name__)
-
-    def __neg__(self):
-        """Negation of each element."""
-
-        raise ValueError(
-            '- operator not supported for %s: use .as_array()' % self.__class__.__name__)
+        vals = [abs(val) for val in self.vals]
+        return self.__class__(vals, self.n)
 
     def __add__(self, x):
         """If x is a sequence, add sequences elementwise, otherwise
@@ -204,6 +198,21 @@ class Sequence(ExprList, SeqDomain):
         vals = [-val for val in self.vals]
         return self.__class__(vals, self.n)
 
+
+    def __pow__(self, x):
+        """If x is a sequence, raise sequence to power of x elementwise,
+        otherwise raise each element of the sequence to power of x."""
+
+        if isinstance(x, Sequence):
+            n = self._common_n(x)
+            vals = []
+            for m in n:
+                vals.append(self[m] ** x[m])
+        else:
+            vals = [val ** x for val in self.vals]
+            n = self.n
+        return self.__class__(vals, n)
+
     def __radd__(self, x):
         """Reverse add."""
 
@@ -222,6 +231,20 @@ class Sequence(ExprList, SeqDomain):
             n = self.n
         return self.__class__(vals, n)
 
+    def __rpow__(self, x):
+        """If x is a sequence, raise sequence to power of x elementwise,
+        otherwise raise x to power of each element in the sequence."""
+
+        if isinstance(x, Sequence):
+            n = self._common_n(x)
+            vals = []
+            for m in n:
+                vals.append(x[m] ** self[m])
+        else:
+            vals = [x ** val for val in self.vals]
+            n = self.n
+        return self.__class__(vals, n)
+
     def __rshift__(self, m):
 
         return self.delay(m)
@@ -230,6 +253,20 @@ class Sequence(ExprList, SeqDomain):
         """Reverse multiply."""
 
         return self.__mul__(x)
+
+    def __rsub__(self, x):
+        """If x is a sequence, subtract sequences elementwise, otherwise
+        subtract each element of the sequence from x."""
+
+        if isinstance(x, Sequence):
+            n = self._common_n(x)
+            vals = []
+            for m in n:
+                vals.append(x[m] - self[m])
+        else:
+            vals = [x - val for val in self.vals]
+            n = self.n
+        return self.__class__(vals, n)
 
     def __rtruediv__(self, x):
         """Reverse true divide."""
