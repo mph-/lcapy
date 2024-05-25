@@ -417,7 +417,7 @@ class Sequence(ExprList, SeqDomain):
 
         {1, 2, 3} -> {1, 2, 3, 0, 0, 0}"""
 
-        vals = self.vals
+        vals = list(self.vals)
         n = self.n
 
         zero = expr(0)
