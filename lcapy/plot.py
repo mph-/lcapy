@@ -779,6 +779,8 @@ def plot_sequence(obj, ni, plot_type=None, polar=False, **kwargs):
     else:
         color = stemlines.get_color()
 
+    baseline.set_color('none')
+
     if unfilled:
         markerline.set_markerfacecolor('none')
         if markerfacecolor is None:
