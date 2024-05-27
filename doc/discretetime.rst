@@ -245,6 +245,18 @@ These methods do not modify the sequence but return a new sequence, NumPy ndarra
 - `ZT()` compute z-transform as a sequence
 
 
+Sequence plotting
+-----------------
+
+A sequence can be plotted using the `plot()` method.  For example:
+
+.. literalinclude:: examples/discretetime/seq1-plot.py
+
+.. image:: examples/discretetime/seq1-plot.png
+   :width: 15cm
+
+
+
 Discrete-time (n-domain) expressions
 ====================================
 
