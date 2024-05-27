@@ -2,6 +2,30 @@
 Release notes
 =============
 
+V1.23
+=====
+
+- The + operator performs element addition for sequences rather than concatenation (use `.append()` for the former behaviour)
+
+- The * operator performs element multiplication for sequences rather than repetition (use `.repeat()` for the former behaviour)
+
+- Fixes empty sequences
+
+- Adds `unfilled` option for sequence plots
+
+- Fixes sequence zeropad
+
+- Fixes sequence equality
+
+- Adds sequence abs, negation, subtract, divide, add, multiply, pow
+
+- Fixes current through ammeters
+
+- Fixes phase if have zero imaginary component
+
+- Adds factorial, erf, erfc functions
+
+
 V1.22
 =====
 
