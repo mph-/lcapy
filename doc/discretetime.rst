@@ -128,25 +128,30 @@ ndarray, for example::
    >>> array(x)[0]
    1
 
-Sequences behave like lists and thus the `+` operator concatenates sequences::
-   >>> seq((1, 2, 3)) + seq('{4, 5}')
+Sequences can be combined arithmetically, for example::
+
+   >>> seq((1, 2, 3)) + seq((4, 5)) - 1
+   {_4, 6, 2}
+
+   >>> seq((1, 2, 3)) * seq((4, 5)) * 2
+   {_8, 20, 0}
+
+Note, the sequences are aligned using their sequence indices::
+
+   >>> seq((1, 2, 3)) + seq((4, 5), origin=-3)
    {_1, 2, 3, 4, 5}
 
-Note, this ignores the origins.
+While this can be used to concatenate sequences, it is faster to use the `append()` method::
 
-Similarly, the `*` operator repeats sequences a specified number of times, for example::
+   >>> seq((1, 2, 3)).append(seq((4, 5)))
+   {_1, 2, 3, 4, 5}
 
-   >>> seq((1, 2, 3)) * 2
+Multiple copies of a sequence can be appended using the `repeat()` method::
+
+   >>> seq((1, 2, 3)).repeat(2)
    {_1, 2, 3, 1, 2, 3}
 
-To add sequences element by element, it is necessary to explicitly convert each sequence to an array, add the arrays assuming they are equal length, and convert back to a sequence, for example::
-
-   >>> seq(seq((1, 2, 3)).as_array() + seq('{4, _5, 6}').as_array())
-   {_5, 7, 9}
-
-Note, this ignores the origins.
-
-Sequences can be convolved, for example::
+Sequences can be convolved with the `convolve()` method, for example::
 
    >>> seq((1, 2, 3)).convolve(seq((1, 1))
    {_1, 3, 5, 3}
@@ -430,6 +435,15 @@ The DTFT converts an n-domain or z-domain expression into the f-domain (continuo
 .. math::
 
    X_{\frac{1}{\Delta t}}(f) = \sum_{n=-\infty}^{\infty} x(n) e^{-2 \mathrm{j} \pi n \Delta t f}
+
+
+Note, there are other definitions, for example:
+
+.. math::
+
+   X_{\frac{1}{\Delta t}}(f) = \Delta t \sum_{n=-\infty}^{\infty} x(n) e^{-2 \mathrm{j} \pi n \Delta t f}
+
+
 
 If :math:`x(n)` is the impulse response of a causal and
 stable DLTI system, the DTFT can be found by substituting :math:`z =

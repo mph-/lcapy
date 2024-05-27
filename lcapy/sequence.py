@@ -382,10 +382,10 @@ class Sequence(ExprList, SeqDomain):
         n = list(range(n1, n2 + 1))
         return n
 
-    def replicate(self, x):
-        """Replicate x times.
+    def repeat(self, x):
+        """Repeat sequence x times.
 
-        seq((1, 2, 3)).replicate(2) gives {1, 2, 3, 1, 2, 3}
+        seq((1, 2, 3)).repeat(2) gives {1, 2, 3, 1, 2, 3}
         """
 
         return self.__class__(super(Sequence, self).__mul__(x))

@@ -2,7 +2,15 @@
 
  It calculates the discrete-time Fourier transform using:
 
-   X(f) = \sum_{n=-\infty}^{\infty} x(n) e^{-j * 2 * \pi * n * dt * f}
+   X_{1 / T}(f) = \sum_{n=-\infty}^{\infty} x(n) e^{-j * 2 * \pi * n * T * f}
+
+where T = \delta t.
+
+Note, there are other definitions, for example:
+
+   X_{1 / T}(f) = T \sum_{n=-\infty}^{\infty} x(n) e^{-j * 2 * \pi * n * T * f}
+
+The first version is consistent with the DFT from a units point of view.
 
 Copyright 2021--2024 Michael Hayes, UCECE
 
