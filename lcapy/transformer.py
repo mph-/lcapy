@@ -44,7 +44,12 @@ class Transformer(object):
     def rewrite(self, expr, var):
         return expr
 
-    def transform(self, expr, var, conjvar, evaluate=True, **kwargs):
+    def transform(self, expr, var, conjvar=None, evaluate=True, **kwargs):
+
+        try:
+            expr = expr.sympy
+        except:
+            pass
 
         # Squirrel away original expression for error messages
         self.expr = expr
@@ -56,12 +61,12 @@ class Transformer(object):
 
         # Handle Lcapy symbols for the variable and conjugate variable
         try:
-            var = var.expr
+            var = var.sympy
         except:
             pass
 
         try:
-            conjvar = conjvar.expr
+            conjvar = conjvar.sympy
         except:
             pass
 
@@ -136,6 +141,9 @@ class BilateralForwardTransformer(Transformer):
 
         self.cache[key] = result
         return const * result
+
+    def check(self, expr, var, conjvar):
+        pass
 
 
 class BilateralInverseTransformer(BilateralForwardTransformer):
