@@ -13,6 +13,8 @@ from .fourier import FourierTransformer
 from .sym import j, pi
 import sympy as sym
 
+__all__ = ('IFT', )
+
 
 class InverseFourierTransformer(FourierTransformer):
 
