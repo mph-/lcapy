@@ -14,6 +14,7 @@ from .sym import fsym, omegasym, ssym, tsym, j, oo
 from .laplace import laplace_transform
 from .fourier import fourier_transform
 from .hilbert import hilbert_transform
+from .inverse_hilbert import inverse_hilbert_transform
 from .units import u as uu
 from sympy import Heaviside, limit, Expr as symExpr
 
@@ -380,8 +381,8 @@ class TimeDomainExpression(TimeDomain, Expr):
     def IHT(self, var=None, evaluate=True, **assumptions):
         """Attempt Hilbert transform."""
 
-        result = hilbert_transform(self.expr, self.var,
-                                   evaluate=evaluate)
+        result = inverse_hilbert_transform(self.expr, self.var,
+                                           evaluate=evaluate)
 
         result = self.__class__(result, **assumptions)
         result = result.as_quantity(self.quantity)

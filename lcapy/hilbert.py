@@ -56,6 +56,9 @@ class HilbertTransformer(BilateralForwardTransformer):
 
                 return pi * DiracDelta(arg) / c1
 
+        if len(expr.args) == 0:
+            return const * self.noevaluate(expr, t)
+
         arg = expr.args[0]
 
         if not arg.is_polynomial(t) or not arg.as_poly(t).is_linear:

@@ -1,7 +1,7 @@
 """This module provides the FourierDomainExpression class to represent
 f-domain (Fourier domain) expressions.
 
-Copyright 2014--2023 Michael Hayes, UCECE
+Copyright 2014--2024 Michael Hayes, UCECE
 
 """
 
@@ -9,6 +9,8 @@ from __future__ import division
 from .domains import FourierDomain
 from .expr import Expr, expr, expr_make
 from .functions import integrate
+from .hilbert import hilbert_transform
+from .inverse_hilbert import inverse_hilbert_transform
 from .inverse_dtft import IDTFT
 from .inverse_fourier import inverse_fourier_transform
 from .state import state, validate
@@ -207,6 +209,36 @@ class FourierDomainExpression(FourierDomain, Expr):
 
         from .plot import plot_nichols
         return plot_nichols(self, fvector, log_frequency=log_frequency, **kwargs)
+
+    def hilbert(self, var=None, evaluate=True, **assumptions):
+        """Attempt Hilbert transform. This is an alias for HT."""
+
+        return self.HT(var, evaluate, **assumptions)
+
+    def HT(self, var=None, evaluate=True, **assumptions):
+        """Attempt Hilbert transform."""
+
+        result = hilbert_transform(self.expr, self.var,
+                                   evaluate=evaluate)
+
+        result = self.__class__(result, **assumptions)
+        result = result.as_quantity(self.quantity)
+        return result
+
+    def inverse_hilbert(self, var=None, evaluate=True, **assumptions):
+        """Attempt Hilbert transform. This is an alias for IHT."""
+
+        return self.HT(var, evaluate, **assumptions)
+
+    def IHT(self, var=None, evaluate=True, **assumptions):
+        """Attempt Hilbert transform."""
+
+        result = inverse_hilbert_transform(self.expr, self.var,
+                                           evaluate=evaluate)
+
+        result = self.__class__(result, **assumptions)
+        result = result.as_quantity(self.quantity)
+        return result
 
 
 def fexpr(arg, **assumptions):
