@@ -5,6 +5,8 @@ Release notes
 V1.23
 =====
 
+- Adds Hilbert transforms
+
 - The + operator performs element addition for sequences rather than concatenation (use `.append()` for the former behaviour)
 
 - The * operator performs element multiplication for sequences rather than repetition (use `.repeat()` for the former behaviour)

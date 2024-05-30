@@ -39,6 +39,11 @@ from .simulator import *
 from .randomnetwork import *
 from .nettransform import *
 from .laplace import *
+from .inverse_laplace import *
+from .fourier import *
+from .inverse_fourier import *
+from .hilbert import *
+from .inverse_hilbert import *
 from .dtstatespace import *
 from .statespace import *
 from .vector import *

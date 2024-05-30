@@ -13,6 +13,7 @@ from .state import state, validate
 from .sym import fsym, omegasym, ssym, tsym, j, oo
 from .laplace import laplace_transform
 from .fourier import fourier_transform
+from .hilbert import hilbert_transform
 from .units import u as uu
 from sympy import Heaviside, limit, Expr as symExpr
 
@@ -355,6 +356,37 @@ class TimeDomainExpression(TimeDomain, Expr):
 
         H = self.LT(zero_initial_conditions=True)
         return H.differential_equation(inputsym, outputsym)
+
+    def hilbert(self, var=None, evaluate=True, **assumptions):
+        """Attempt Hilbert transform. This is an alias for HT."""
+
+        return self.HT(var, evaluate, **assumptions)
+
+    def HT(self, var=None, evaluate=True, **assumptions):
+        """Attempt Hilbert transform."""
+
+        result = hilbert_transform(self.expr, self.var,
+                                   evaluate=evaluate)
+
+        result = self.__class__(result, **assumptions)
+        result = result.as_quantity(self.quantity)
+        return result
+
+    def inverse_hilbert(self, var=None, evaluate=True, **assumptions):
+        """Attempt Hilbert transform. This is an alias for IHT."""
+
+        return self.HT(var, evaluate, **assumptions)
+
+    def IHT(self, var=None, evaluate=True, **assumptions):
+        """Attempt Hilbert transform."""
+
+        result = hilbert_transform(self.expr, self.var,
+                                   evaluate=evaluate)
+
+        result = self.__class__(result, **assumptions)
+        result = result.as_quantity(self.quantity)
+        return result
+
 
 
 class TimeDomainImpulseResponse(TimeDomainExpression):

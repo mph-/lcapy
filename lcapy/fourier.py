@@ -28,7 +28,7 @@ from .transformer import BilateralForwardTransformer
 from .utils import factor_const, similarity_shift, expand_functions
 from .extrafunctions import rect, sincn, sincu, trap, tri
 
-__all__ = ('FT', 'IFT')
+__all__ = ('FT', )
 
 
 class FourierTransformer(BilateralForwardTransformer):
