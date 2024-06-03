@@ -284,36 +284,6 @@ def remove_images(expr, var, dt, m1=0, m2=0):
     return const * sym.Sum(expr1.args[0], (sumsym, m1, m2))
 
 
-def pair_conjugates(poles_dict):
-    """Return dictionary of conjugate pole pairs and a dictionary of the
-    remaining single poles."""
-
-    pole_single_dict = poles_dict.copy()
-    pole_pair_dict = {}
-
-    pole_list = list(poles_dict)
-
-    for i, pole in enumerate(pole_list):
-        pole_c = sym.conjugate(pole)
-        # Check for conjugate pole
-        if pole_c in pole_list[i + 1:]:
-            pole_single_dict.pop(pole, None)
-            pole_single_dict.pop(pole_c, None)
-
-            o1 = poles_dict[pole]
-            o2 = poles_dict[pole_c]
-            if o1 == o2:
-                pole_pair_dict[pole, pole_c] = o1
-            elif o1 > o2:
-                pole_pair_dict[pole, pole_c] = o2
-                pole_single_dict[pole] = o1 - o2
-            else:
-                pole_pair_dict[pole, pole_c] = o1
-                pole_single_dict[pole_c] = o2 - o1
-
-    return pole_pair_dict, pole_single_dict
-
-
 def similarity_shift(expr, var):
     """Rewrite foo(a * t + b) as foo(t) and return a, b."""
 

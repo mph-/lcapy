@@ -30,7 +30,7 @@ class Root:
         return self.expr == root.conj
 
 
-def pair_conjugates(roots_dict):
+def pair_conjugates(roots_dict, damping=None):
     """Return dictionary of conjugate root pairs and a dictionary of the
     remaining single roots."""
 
@@ -41,7 +41,7 @@ def pair_conjugates(roots_dict):
 
     P = {}
     for root in root_list:
-        P[root] = Root(root, 1)
+        P[root] = Root(root, 1, damping=damping)
 
     for i, root in enumerate(root_list):
 

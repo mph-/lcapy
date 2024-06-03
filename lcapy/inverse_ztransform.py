@@ -1,13 +1,14 @@
 """This module provides support for the inverse z-transform.  It
 calculates the unilateral inverse z-transform.
 
-Copyright 2021--2022 Michael Hayes, UCECE
+Copyright 2021--2024 Michael Hayes, UCECE
 
 """
 
 from .transformer import UnilateralInverseTransformer
 from .ratfun import Ratfun
-from .utils import factor_const, scale_shift, pair_conjugates
+from .root import pair_conjugates
+from .utils import factor_const, scale_shift
 from .sym import sympify, simplify, miscsymbol, AppliedUndef
 from .utils import factor_const, scale_shift
 from .extrafunctions import UnitImpulse, UnitStep

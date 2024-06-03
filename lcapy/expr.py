@@ -27,9 +27,10 @@ from .sym import nsym, ksym, zsym
 from .state import state, validate
 from .printing import pprint, pretty, print_str, latex
 from .functions import sqrt, log10, atan2, gcd, exp, Function, Eq
+from .root import pair_conjugates
 from .units import units, u as uu, dB
-from .utils import (as_N_D, as_sum, remove_images, pair_conjugates,
-                    split_dirac_delta, expand_functions)
+from .utils import (as_N_D, as_sum, remove_images, split_dirac_delta,
+                    expand_functions)
 import sympy as sym
 from sympy.utilities.lambdify import lambdify
 from sympy import UnevaluatedExpr
@@ -2909,7 +2910,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         symdict.update(funcdict)
         return symdict
 
-    def _fmt_roots(self, roots, aslist=False, pairs=False):
+    def _fmt_roots(self, roots, aslist=False, pairs=False, damping=None):
 
         units = uu.rad / uu.s
 
@@ -2928,7 +2929,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             return expr(rootslist)
 
         if pairs:
-            pairs, singles = pair_conjugates(roots)
+            pairs, singles = pair_conjugates(roots, damping)
             if aslist:
                 return _wrap_list(pairs), _wrap_list(singles)
             else:
@@ -2995,6 +2996,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         at infinity for a rational function with a numerator of degree p
         and a denominator of degree q.
 
+        `damping` can be None, 'over', 'critical', or 'under'.  This
+        is used to make assumptions about quadratic poles of the form
+        `a + sqrt(b - c)`.  For example, with the 'under' assumption,
+        this gets changed to `a + j sqrt(c - b)`, and with the
+        'critical' assumption, this gets changed to `a`.
+
         If `pairs` is True, return two dictionaries.  The first
         contains the conjugate pairs and the second contains the
         others.
@@ -3021,7 +3028,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             else:
                 polesdict[key] = pole.n
 
-        return self._fmt_roots(polesdict, aslist, pairs)
+        return self._fmt_roots(polesdict, aslist, pairs, damping)
 
     def _as_ZPK(self):
 
@@ -3036,7 +3043,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         def def1(defs, symbolname, value, units):
 
-            sym1 = symbol(symbolname, override=False)
+            sym1 = symbol(symbolname, override=False, positive=True)
             defs[symbolname] = expr(value, units=units)
             return sym1
 
@@ -3207,12 +3214,18 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         5 + (5 - 15 * j / 4) / (s + 2 * j) + (5 + 15 * j / 4) / (s - 2 * j)
 
-        If `combine_conjugates` or `pairs` is True then the pair of partial
+        If `combine_conjugates` or `pairs` is True then pairs of partial
         fractions for complex conjugate poles are combined.   This creates
         a sum of biquad sections.
 
         `method` can be 'sub' (substitution method, the default) or
         'ec' (equating cofficients method).
+
+        `damping` can be None, 'over', 'critical', or 'under'.  This
+        is used to make assumptions about quadratic poles of the form
+        `a + sqrt(b - c)`.  For example, with the 'under' assumption,
+        this gets changed to `a + j sqrt(c - b)`, and with the
+        'critical' assumption, this gets changed to `a`.
 
         See also canonical, standard, general, timeconst, and ZPK."""
 
@@ -3237,6 +3250,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         If combine_conjugates is True then the pair of partial
         fractions for complex conjugate poles are combined.
+
+        `damping` can be None, 'over', 'critical', or 'under'.  This
+        is used to make assumptions about quadratic poles of the form
+        `a + sqrt(b - c)`.  For example, with the 'under' assumption,
+        this gets changed to `a + j sqrt(c - b)`, and with the
+        'critical' assumption, this gets changed to `a`.
 
         `method` can be 'sub' (substitution method, the default) or
         'ec' (equating cofficients method).

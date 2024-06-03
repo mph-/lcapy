@@ -1,14 +1,15 @@
 """
 This module provides support for rational functions.
 
-Copyright 2016--2022 Michael Hayes, UCECE
+Copyright 2016--2024 Michael Hayes, UCECE
 """
 
 from __future__ import division
 import sympy as sym
 from .sym import sympify, AppliedUndef
 from .cache import lru_cache, cached_property
-from .utils import pair_conjugates, factor_const
+from .root import Root, pair_conjugates
+from .utils import factor_const
 from warnings import warn
 
 Zero = sym.S.Zero
@@ -61,105 +62,6 @@ def roots(expr, var):
     """Return roots of expression `expr` for variable `var`."""
 
     return polyroots(sym.Poly(expr, var), var)
-
-
-class Pole(object):
-
-    def __init__(self, expr, n, damping=None):
-        self.damping = damping
-        self.n = n
-        self.orig_expr = expr
-        self.d = self._decompose(expr)
-        self.expr = self._rewrite()
-
-    def _decompose_bar(self, expr):
-
-        # Look for scale * sqrt(dexpr) where dexpr = aexpr - bexpr
-
-        dexpr = None
-        scale = One
-
-        for factor in expr.as_ordered_factors():
-            if (factor.is_Pow and factor.args[1] == One / 2 and
-                factor.args[0].is_Add and factor.args[0].args[1].is_Mul and
-                    factor.args[0].args[1].args[0] < 0):
-                if dexpr is not None:
-                    return None
-                dexpr = factor.args[0]
-            else:
-                scale *= factor
-        if dexpr is None:
-            return None
-        return scale, dexpr
-
-    def _decompose_foo(self, expr):
-
-        # Look for offset + scale * sqrt(dexpr) where dexpr = aexpr - bexpr
-
-        offset = Zero
-        scale = One
-        found = False
-        dexpr = None
-
-        for term in expr.as_ordered_terms():
-            p = self._decompose_bar(term)
-            if p is None:
-                offset += term
-            elif dexpr is not None:
-                return None
-            else:
-                scale, dexpr = p
-
-        return offset, scale, dexpr
-
-    def _decompose(self, expr):
-
-        scale = One
-        scale2 = One
-        offset = One
-        dexpr = None
-
-        for factor in expr.as_ordered_factors():
-            if factor.is_Add:
-                p = self._decompose_foo(factor)
-                if p is None:
-                    scale *= factor
-                elif dexpr is not None:
-                    return None
-                else:
-                    offset, scale2, dexpr = p
-            else:
-                scale *= factor
-
-        if dexpr is None:
-            dexpr = Zero
-        return scale, offset, scale2, dexpr
-
-    @property
-    def conj(self):
-        return self.conjugate()
-
-    def conjugate(self):
-        return self._rewrite(conjugate=True)
-
-    def _rewrite(self, conjugate=False):
-
-        if self.damping in (None, 'over') or self.d is None:
-            return self.orig_expr.conjugate() if conjugate else self.orig_expr
-
-        d = self.d
-
-        if self.damping == 'under':
-            if conjugate:
-                return d[0] * (d[1] - 1j * d[2] * sym.sqrt(-d[3]))
-            else:
-                return d[0] * (d[1] + 1j * d[2] * sym.sqrt(-d[3]))
-
-        elif self.damping == 'critical':
-            # This puts constraints on variables since d[2] == 0.
-            return (d[0] * d[1]).conjugate() if conjugate else d[0] * d[1]
-        else:
-            raise ValueError('Unknown damping %s' % self.damping)
 
 
 def as_numer_denom(expr, var):
@@ -358,7 +260,7 @@ class Ratfun(object):
 
     @lru_cache()
     def poles(self, damping=None):
-        """Return poles of expression as a list of Pole objects.
+        """Return poles of expression as a list of Root objects.
         Note this may not find all the poles.
 
         Poles at infinity are not returned.  There will be p - q poles
@@ -371,7 +273,10 @@ class Ratfun(object):
 
         for p, n in roots.items():
 
-            pole = Pole(p, n=n, damping=damping)
+            # Simplify things like -zeta + sqrt(zeta - 1) * sqrt(zeta + 2)
+            p = p.simplify()
+
+            pole = Root(p, n=n, damping=damping)
             for q in poles:
                 if q.expr == pole.expr:
                     q.n += pole.n
@@ -870,6 +775,7 @@ class Ratfun(object):
         # Solve system of equations to find residues.
         R = list(matrix_inverse(A) * sym.Matrix(lc))
 
+        # Residues, poles, order
         return R, P, O
 
     def _find_residues_sub(self, poles, B):
@@ -911,6 +817,7 @@ class Ratfun(object):
                 r = expr.subs(var, P[i]) / sym.factorial(M[i] - O[i])
                 R.append(r)
 
+        # Residues, poles, order
         return R, P, O
 
     def as_QRPO(self, damping=None, method=None):
@@ -961,40 +868,6 @@ class Ratfun(object):
 
         return Q, R, P, O, delay, undef
 
-    def _combine_conjugates(self, R, F, P, O):
-
-        Rnew = []
-        Fnew = []
-
-        for m in range(len(R)):
-
-            r = R[m]
-            if r == 0:
-                continue
-            p = P[m]
-            o = O[m]
-            rc = r.conjugate()
-            pc = p.conjugate()
-
-            has_conjugate = False
-            for n in range(m + 1, len(R)):
-                if o != O[n] or pc != P[n] or rc != R[n]:
-                    continue
-                if o > 1:
-                    continue
-                R[n] = 0
-                has_conjugate = True
-                break
-
-            if has_conjugate:
-                Rnew.append(
-                    ((self.var - pc) * r + (self.var - p) * rc).expand())
-                Fnew.append(((self.var - p) * (self.var - pc)).expand())
-            else:
-                Rnew.append(r)
-                Fnew.append(F[m])
-        return Rnew, Fnew
-
     def as_QRF(self, combine_conjugates=False, damping=None, method=None):
         """Decompose expression into Q, R, F, delay, undef where
 
@@ -1002,9 +875,52 @@ class Ratfun(object):
 
         Q, R, P, O, delay, undef = self.as_QRPO(damping, method)
 
-        F = [(self.var - p)**o for p, o in zip(P, O)]
+        if not combine_conjugates:
+            F = [(self.var - p)**o for p, o in zip(P, O)]
+            return Q, R, F, delay, undef
 
-        if combine_conjugates:
-            R, F = self._combine_conjugates(R, F, P, O)
+        Rnew = []
+        Fnew = []
 
-        return Q, R, F, delay, undef
+        QP = [Root(p, 1, damping) for p in P]
+
+        for m in range(len(R)):
+
+            r, qp, o = R[m], QP[m], O[m]
+            if r is None:
+                continue
+
+            has_conjugate = False
+            # TODO fix for repeated complex poles
+            if o == 1:
+                for n in range(m + 1, len(R)):
+                    qp2 = QP[n]
+                    if not qp.is_conjugate_pair(qp2):
+                        continue
+
+                    # The residues are complex conjugates but this
+                    # is hard to check.
+
+                    rc = R[n]
+                    R[n] = None
+                    has_conjugate = True
+                    break
+
+            p = qp.expr
+            if has_conjugate:
+                pc = qp2.expr
+                Rnew.append(
+                    ((self.var - pc) * r + (self.var - p) * rc).expand())
+                Fnew.append(((self.var - p) * (self.var - pc)).expand())
+            else:
+                Rnew.append(r)
+                Fnew.append((self.var - p)**o)
+
+        return Q, Rnew, Fnew, delay, undef
+
+    def pdb(self):
+        """Enter the python debugger."""
+
+        import pdb
+        pdb.set_trace()
+        return self
