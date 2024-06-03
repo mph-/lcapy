@@ -7,6 +7,7 @@ Copyright 2021--2022 Michael Hayes, UCECE
 
 from .transformer import UnilateralInverseTransformer
 from .ratfun import Ratfun
+from .root import Root
 from .sym import simplify, AppliedUndef
 from .utils import factor_const, scale_shift, as_sum_terms
 from .matrix import matrix_inverse
@@ -142,40 +143,58 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
             return cresult, 0
 
         uresult = 0
-        for m, (p, n, A) in enumerate(zip(P, O, R)):
 
-            # This is zero for the conjugate pole.
-            if R[m] == 0:
+        QP = [Root(p, 1, damping) for p in P]
+
+        for m in range(len(R)):
+
+            r, qp, o = R[m], QP[m], O[m]
+            if r is None:
                 continue
 
-            # Search and remove conjugate pair.
-            has_conjpair = False
-            if p.is_complex and kwargs.get('pairs', True):
-                pc = p.conjugate()
-                Ac = A.conjugate()
-                for m2, p2 in enumerate(P[m + 1:]):
-                    m2 += m + 1
-                    if n == O[m2] and p2 == pc and R[m2] == Ac:
-                        R[m2] = 0
-                        has_conjpair = True
-                        break
+            has_conjugate = False
+            # TODO fix for repeated complex poles
+            if o == 1:
+                for n in range(m + 1, len(R)):
+                    qp2 = QP[n]
+                    if not qp.is_conjugate_pair(qp2):
+                        continue
 
-            if has_conjpair:
-                # Combine conjugate pairs.
-                p = p.expand(complex=True)
-                A = A.expand(complex=True)
-                p_re = sym.re(p)
-                p_im = sym.im(p)
-                A_re = sym.re(A)
-                A_im = sym.im(A)
-                et = sym.exp(p_re * t)
-                result = 2 * A_re * et * sym.cos(p_im * t)
-                result -= 2 * A_im * et * sym.sin(p_im * t)
+                    # The residues are complex conjugates but this
+                    # is hard to check.
+
+                    rc = R[n]
+                    R[n] = None
+                    has_conjugate = True
+                    break
+
+            p = qp.expr
+            if has_conjugate:
+                pc = qp2.expr
+
+                q = (s - pc) * r + (s - p) * rc
+                q = q.simplify()
+
+                alpha = -(p + pc) / 2
+                omega = -(p - pc) / (2 * sym.I)
+
+                b = sym.Poly(q, s).all_coeffs()
+
+                if len(b) == 1:
+                    Ac = 0
+                    As = b[0] / omega
+                else:
+                    Ac = b[0]
+                    As = (b[1] - alpha * Ac) / omega
+
+                result = (Ac * sym.cos(omega * t) + As * sym.sin(omega * t)) * sym.exp(-alpha * t)
+
             else:
-                result = A * sym.exp(p * t)
 
-            if n > 1:
-                result *= t ** (n - 1) / sym.factorial(n - 1)
+                result = r * sym.exp(p * t)
+                if o > 1:
+                    result *= t ** (o - 1) / sym.factorial(o - 1)
+
             uresult += result
 
         # cresult is a sum of Dirac deltas and its derivatives so is known
