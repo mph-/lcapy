@@ -189,6 +189,43 @@ this matrix is singular.   The common reasons for this are:
 5. Nodes are unconnected (use `cct.unconnected_nodes`)
 
 
+Simplification
+--------------
+
+Some expressions are difficult to simplify.  Often this is due to a
+lack of symbol assumptions.  Sometimes, it is better to use the
+`simplify_terms()` method to simplify each term separately.
+
+Some simple circuits have gnarly solutions.  For example, consider the network:
+
+.. image:: examples/networks/RRLC.png
+   :width: 4cm
+
+This has an admittance, `Y(s)`::
+
+             1
+   ─────────────────────
+               1
+   R₀ + ────────────────
+                   1
+        C₁⋅s + ─────────
+               L₁⋅s + R₁
+
+
+which can be written in canonical form as::
+
+        ⎛       2              ⎞
+        ⎜C₁⋅L₁⋅s  + C₁⋅R₁⋅s + 1⎟
+        ⎜──────────────────────⎟
+        ⎝       C₁⋅L₁⋅R₀       ⎠
+   ─────────────────────────────────
+    2   s⋅(C₁⋅R₀⋅R₁ + L₁)   R₀ + R₁
+   s  + ───────────────── + ────────
+             C₁⋅L₁⋅R₀       C₁⋅L₁⋅R₀
+
+Despite this only being second, its inverse Laplace transform is too long to list here.
+
+
 Computation speed
 -----------------
 
