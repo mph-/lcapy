@@ -884,10 +884,11 @@ class Expr(UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
         This will throw an exception if the expression is not a
         rational function."""
 
-        if self._ratfun is None:
+        ratfun = self._ratfun
+        if ratfun is None:
             return False
 
-        return self._ratfun.is_strictly_proper
+        return ratfun.is_strictly_proper
 
     @property
     def is_phase(self):
@@ -1811,6 +1812,13 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             except:
                 self.__ratfun = None
         return self.__ratfun
+
+    def _ratfun_check(self):
+
+        ratfun = self._ratfun
+        if ratfun is None:
+            raise ValueError('Not a rational function: %s' % self)
+        return ratfun
 
     @property
     def ba(self):
@@ -3032,10 +3040,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
     def _as_ZPK(self):
 
-        if self._ratfun is None:
+        ratfun = self._ratfun
+        if ratfun is None:
             return None, None, None, None
 
-        zeros, poles, K, undef = self._ratfun.as_ZPK()
+        zeros, poles, K, undef = ratfun.as_ZPK()
 
         return zeros, poles, K, undef
 
@@ -3192,9 +3201,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         """
         if not self.expr.has(self.var):
             return self
-        if self._ratfun is None:
+
+        ratfun = self._ratfun
+        if ratfun is None:
             return self.copy()
-        return self.__class__(self._ratfun.canonical(factor_const),
+        return self.__class__(ratfun.canonical(factor_const),
                               **self.assumptions)
 
     def general(self):
@@ -3204,9 +3215,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         See also canonical, partfrac, standard, timeconst, and ZPK."""
 
-        if self._ratfun is None:
+        ratfun = self._ratfun
+        if ratfun is None:
             return self.copy()
-        return self.__class__(self._ratfun.general(), **self.assumptions)
+        return self.__class__(ratfun.general(), **self.assumptions)
 
     def partfrac(self, combine_conjugates=False, pairs=False, damping=None,
                  method=None):
@@ -3232,9 +3244,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         pairs = pairs or combine_conjugates
 
         try:
-            if self._ratfun is None:
+            ratfun = self._ratfun
+            if ratfun is None:
                 return self.copy()
-            return self.__class__(self._ratfun.partfrac(pairs, damping, method),
+            return self.__class__(ratfun.partfrac(pairs, damping, method),
                                   **self.assumptions)
         except ValueError:
             return self.as_sum().partfrac(pairs, damping, method)
@@ -3289,9 +3302,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         """
 
-        if self._ratfun is None:
+        ratfun = self._ratfun
+        if ratfun is None:
             return self.copy()
-        return self.__class__(self._ratfun.standard(), **self.assumptions)
+        return self.__class__(ratfun.standard(), **self.assumptions)
 
     def mixedfrac(self):
         """This is an alias for standard and may be deprecated."""
@@ -3306,9 +3320,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         See also timeconst_terms, canonical, general, standard,
         partfrac and ZPK."""
 
-        if self._ratfun is None:
+        ratfun = self._ratfun
+        if ratfun is None:
             return self.copy()
-        return self.__class__(self._ratfun.timeconst(), **self.assumptions)
+        return self.__class__(ratfun.timeconst(), **self.assumptions)
 
     def timeconst_terms(self):
         """Convert each term of expression into time constant form."""
@@ -3335,9 +3350,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         """
 
-        if self._ratfun is None:
+        ratfun = self._ratfun
+        if ratfun is None:
             return self.copy()
-        return self.__class__(self._ratfun.ZPK(combine_conjugates or pairs),
+        return self.__class__(ratfun.ZPK(combine_conjugates or pairs),
                               **self.assumptions)
 
     def factored(self, pairs=False):
@@ -3354,9 +3370,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         """
 
-        if self._ratfun is None:
+        ratfun = self._ratfun
+        if ratfun is None:
             return self.copy()
-        return self.__class__(self._ratfun.ZPK(pairs), **self.assumptions)
+        return self.__class__(ratfun.ZPK(pairs), **self.assumptions)
 
     def expandcanonical(self):
         """Expand in terms for different powers with each term
@@ -3366,9 +3383,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         See also canonical, general, partfrac, timeconst, and ZPK."""
 
-        if self._ratfun is None:
+        ratfun = self._ratfun
+        if ratfun is None:
             return self.copy()
-        return self.__class__(self._ratfun.expandcanonical(), **self.assumptions)
+        return self.__class__(ratfun.expandcanonical(), **self.assumptions)
 
     def expand_functions(self):
         """Expand functions in expression.
@@ -3442,10 +3460,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         This the maximum of the numerator and denominator degrees.
         Note zero has a degree of -inf."""
 
-        if self._ratfun is None:
+        ratfun = self._ratfun
+        if ratfun is None:
             return 1
 
-        return self._ratfun.degree
+        return ratfun.degree
 
     @property
     def Ndegree(self):
@@ -3457,10 +3476,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         """
 
-        if self._ratfun is None:
+        ratfun = self._ratfun
+        if ratfun is None:
             return 1
 
-        return self._ratfun.Ndegree
+        return ratfun.Ndegree
 
     @property
     def Ddegree(self):
@@ -3470,10 +3490,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         Note zero has a degree of -inf."""
 
-        if self._ratfun is None:
+        ratfun = self._ratfun
+        if ratfun is None:
             return 1
 
-        return self._ratfun.Ddegree
+        return ratfun.Ddegree
 
     def prune_HOT(self, degree):
         """Prune higher order terms if expression is a polynomial
@@ -3765,7 +3786,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
     def as_ratfun_delay(self):
 
-        B, A, delay, undef = self._ratfun.as_B_A_delay_undef()
+        ratfun = self._ratfun_check()
+        B, A, delay, undef = ratfun.as_B_A_delay_undef()
         if undef != 1:
             raise ValueError('Have undefined expression %s' % undef)
 
@@ -3773,7 +3795,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
     def _as_B_A_delay_undef(self):
 
-        return self._ratfun.as_B_A_delay_undef()
+        ratfun = self._ratfun_check()
+        return ratfun.as_B_A_delay_undef()
 
     def continued_fraction_inverse_coeffs(self):
         """Convert expression into a continued fraction with inverse
@@ -3970,10 +3993,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         `method` can be 'sub' (substitution method, the default) or
         'ec' (equating cofficients method)."""
 
-        ratfun = self._ratfun
-        if ratfun is None:
-            raise ValueError('Not a rational function', self)
-
+        ratfun = self._ratfun_check()
         return ratfun.as_QRF(pairs, damping, method)
 
     def as_QRPO(self, damping=None, method=None):
@@ -3986,10 +4006,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         """
 
-        ratfun = self._ratfun
-        if ratfun is None:
-            raise ValueError('Not a rational function', self)
-
+        ratfun = self._ratfun_check()
         return ratfun.as_QRPO(damping, method)
 
     def zero_initial_conditions(self):
