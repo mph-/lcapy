@@ -3962,13 +3962,35 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         result = remove_images(self.expr, var, scale, m1, m2)
         return self.__class__(result, **self.assumptions)
 
-    def as_QRD(self):
+    def as_QRF(self, pairs=False, damping=None, method=None):
+        """Decompose expression into Q, R, F, delay, undef where
 
-        return self._ratfun.as_QRD()
+        expression = (Q + sum_n r_n / f_n) * exp(-delay * var) * undef
 
-    def as_QRPO(self):
+        `method` can be 'sub' (substitution method, the default) or
+        'ec' (equating cofficients method)."""
 
-        return self._ratfun.as_QRPO()
+        ratfun = self._ratfun
+        if ratfun is None:
+            raise ValueError('Not a rational function', self)
+
+        return ratfun.as_QRF(pairs, damping, method)
+
+    def as_QRPO(self, damping=None, method=None):
+        """Decompose expression into Q, R, P, O, delay, undef where
+
+        `expression = (Q + sum_n r_n / (var - p_n)**o_n) * exp(-delay * var) * undef`
+
+        `method` can be 'sub' (substitution method, the default) or
+        'ec' (equating cofficients method).
+
+        """
+
+        ratfun = self._ratfun
+        if ratfun is None:
+            raise ValueError('Not a rational function', self)
+
+        return ratfun.as_QRPO(damping, method)
 
     def zero_initial_conditions(self):
 
