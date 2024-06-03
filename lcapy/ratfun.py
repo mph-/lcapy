@@ -871,7 +871,10 @@ class Ratfun(object):
     def as_QRF(self, combine_conjugates=False, damping=None, method=None):
         """Decompose expression into Q, R, F, delay, undef where
 
-        expression = (Q + sum_n r_n / f_n) * exp(-delay * var) * undef"""
+        expression = (Q + sum_n r_n / f_n) * exp(-delay * var) * undef
+
+        `method` can be 'sub' (substitution method, the default) or
+        'ec' (equating cofficients method)."""
 
         Q, R, P, O, delay, undef = self.as_QRPO(damping, method)
 
