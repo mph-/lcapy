@@ -1952,19 +1952,18 @@ This behaviour can be restored using::
   >>> from lcapy import state
   >>> state.zero_initial_conditions = True
 
-With second order systems, the form of the result can be modified using the `damping` argument.  This can be `'under'`, `'over'`, or '`critical`', for example::
+With second order systems, the form of the result can be modified using the `damping` argument.  This can be `'under'`, `'over'`, or `'critical'`, for example::
 
    >>> expr('1/(s**2 + a*s + b)')(t, damping='under', causal=True)
-   ⎛         ⎛               ____________⎞        ⎛               ____________⎞⎞
-   ⎜         ⎜  a           ╱    2       ⎟        ⎜  a           ╱    2       ⎟⎟
-   ⎜       t⋅⎜- ─ - 0.5⋅ⅉ⋅╲╱  - a  + 4⋅b ⎟      t⋅⎜- ─ + 0.5⋅ⅉ⋅╲╱  - a  + 4⋅b  ⎟⎟
-   ⎜         ⎝  2                        ⎠        ⎝  2                        ⎠⎟
-   ⎜1.0⋅ⅉ⋅ℯ                                  ⅉ⋅ℯ                                ⎟
-   ⎜────────────────────────────────────── - ──────────────────────────────────⎟⋅ u(t)
-   ⎜              ____________                           ____________          ⎟
-   ⎜             ╱    2                                 ╱    2                 ⎟
-   ⎝           ╲╱  - a  + 4⋅b                         ╲╱  - a  + 4⋅b           ⎠
-
+      -a⋅t     ⎛     ____________⎞
+      ─────    ⎜    ╱    2       ⎟
+        2      ⎜t⋅╲╱  - a  + 4⋅b ⎟
+   2⋅ℯ     ⋅sin⎜─────────────────⎟⋅u(t)
+               ⎝        2        ⎠
+   ────────────────────────────────────
+                ____________
+               ╱    2
+             ╲╱  - a  + 4⋅b
 
 Compare this with::
 
