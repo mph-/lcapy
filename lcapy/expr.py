@@ -3018,14 +3018,15 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         """
 
-        if self._ratfun is None:
+        ratfun = self._ratfun
+        if ratfun is None:
             # Handle expressions such as A(s) * (1 - exp(-s * T)) / B(s).
             return self.D.roots(aslist, pairs)
 
         try:
             poles = self._poles
         except AttributeError:
-            poles = self._ratfun.poles(damping=damping)
+            poles = ratfun.poles(damping=damping)
             self._poles = poles
 
         polesdict = {}

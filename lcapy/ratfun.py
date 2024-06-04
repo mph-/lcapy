@@ -836,13 +836,15 @@ class Ratfun(object):
         var = self.var
 
         sexpr = Ratfun(expr, var)
-        poles = sexpr.poles(damping=damping)
 
         if damping == 'critical':
             # Critical damping puts constraints on variables.  If
             # these variables do not occur in numerator of expr
             # perhaps the following code will work.
-            raise ValueError('Critical damping not supported')
+            warn('Critical damping not supported')
+            damping = None
+
+        poles = sexpr.poles(damping=damping)
 
         if len(poles) == 0:
             return Q, [], [], [], delay, undef

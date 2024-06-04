@@ -122,8 +122,9 @@ class QuadraticRoot:
                 dexpr = -dexpr
                 scale /= I
         elif damping == 'critical':
-            # This puts constraints on variables in dexpr.
-            dexpr = 0
+            # This puts constraints on variables in dexpr.  For example,
+            # if have sqrt(a - b) then a = b.
+            pass
         elif damping == 'under':
             if not scale.is_imaginary:
                 dexpr = -dexpr
@@ -133,6 +134,9 @@ class QuadraticRoot:
 
         if dexpr == 0:
             return None
+
+        if damping == 'critical':
+            dexpr = 0
 
         return cls(offset, scale, dexpr, damping)
 

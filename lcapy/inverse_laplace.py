@@ -144,6 +144,10 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
 
         uresult = 0
 
+        if damping == 'critical':
+            # This can be gnarly so punt for now.
+            damping = None
+
         QP = [Root(p, 1, damping) for p in P]
 
         for m in range(len(R)):
