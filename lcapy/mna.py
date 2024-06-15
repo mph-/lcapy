@@ -154,7 +154,10 @@ class MNA(object):
             return message + ' Nothing electrically connected to ground.'
 
         if not cct.is_connected:
-            return message + ' Not all nodes are connected.  Use cct.unconnected_nodes() to find them.'
+            unco = cct.unconnected_nodes()
+            if unco != []:
+                return message + 'Unconnected nodes: ' + ', '.join(unco)
+            return message + ' Check for disconnected networks with cct.cg.draw().'
 
         reasons = []
         components = cct.components
