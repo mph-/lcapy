@@ -1164,10 +1164,17 @@ class C(RC):
 
 class CPE(RC):
 
-    # If n == 0, then not reactive
-    is_reactive = True
+    @property
+    def K(self):
+        return self.cpt.K
 
-    pass
+    @property
+    def alpha(self):
+        return self.cpt.alpha
+
+    @property
+    def is_reactive(self):
+        return self.alpha != 0
 
 
 class VCVS(DependentSource):
