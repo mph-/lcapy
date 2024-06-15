@@ -5,6 +5,10 @@ Release notes
 V1.23
 =====
 
+
+
+- Improves conjugate pair matching for inverse Laplace transforms
+
 - Adds Hilbert transforms
 
 - The + operator performs element addition for sequences rather than concatenation (use `.append()` for the former behaviour)
