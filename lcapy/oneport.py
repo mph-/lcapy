@@ -63,15 +63,15 @@ class OnePort(Network, ImmittanceMixin):
     # Dimensions and separations of component with horizontal orientation.
     height = 0.3
     """float : Height of the component in a Horizontal orientation
-    
+
     """
     hsep = 0.5
     """float : Height separation between components in a Horizontal orientation
-    
+
     """
     width = 1
     """float : Width of the component in a Horizontal orientation
-    
+
     """
     wsep = 0.25
     """float : Width separation between components in a Horizontal orientation
@@ -791,11 +791,11 @@ class Par(ParSer):
 
     _operator = '|'
     """str : The operator used to represent the parallel operation in a string.
-    
+
     """
     is_parallel = True
     """bool : Indicates the component is a parallel combination of components.
-    
+
     """
 
     def __init__(self, *args):
@@ -1184,7 +1184,7 @@ class R(OnePort):
 
     is_resistor = True
     """bool : Indicates the component is a resistor
-    
+
     """
     is_noiseless = False
     """
@@ -1273,13 +1273,13 @@ class G(OnePort):
 
     is_conductor = True
     """bool : Indicates the component is a conductor
-    
+
     """
     is_noiseless = False
     """
     bool : Indicates the conductor is not noiseless.
         For noiseless conductor see :class:`lcapy.oneport.NG`.
-    
+
     """
 
     def __init__(self, Gval='G', **kwargs):
@@ -1379,7 +1379,7 @@ class L(OnePort):
 
     is_inductor = True
     """bool: Indicates the component is an inductor
-    
+
     """
 
     def __init__(self, Lval='L', i0=None, **kwargs):
@@ -1483,7 +1483,7 @@ class C(OnePort):
     is_capacitor = True
     """
     bool: Indicates the component is a capacitor
-    
+
     """
 
     def __init__(self, Cval='C', v0=None, **kwargs):
@@ -1606,8 +1606,7 @@ class CPE(OnePort):
 
     Notes
     -----
-    When alpha is non-integral, the impedance cannot be represented as a rational function and so there
-    are no poles or zeros. So don't be surprised if Lcapy throws an occasional wobbly."""
+    When alpha is non-integral, the impedance cannot be represented as a rational function and so there are no poles or zeros.  So don't be surprised if Lcapy throws an occasional wobbly."""
 
     def __init__(self, K, alpha=0.5, **kwargs):
 
@@ -1750,15 +1749,15 @@ class VoltageSourceBase(OnePort):
 
     is_voltage_source = True
     """bool : Indicates the component is a voltage source
-    
+
     """
     cpt_type = 'V'
-    """str : The type of component, in this case 'V' for voltage source 
-    
+    """str : The type of component, in this case 'V' for voltage source
+
     """
     is_noisy = False
     """bool : Indicates the voltage source is not noisy.
-    
+
     """
 
     def voltage_equation(self, i, kind='t'):
@@ -1893,7 +1892,7 @@ class Vdc(VoltageSourceBase):
 
     netkeyword = 'dc'
     """str : The netlist keyword to define the voltage source type
-    
+
     """
 
     def __init__(self, Vval, **kwargs):
@@ -2015,7 +2014,7 @@ class Vnoise(VoltageSourceBase):
     """
     is_noisy = True
     """bool : Indicates the voltage source is noisy.
-    
+
     """
 
     def __init__(self, V, nid=None, **kwargs):
