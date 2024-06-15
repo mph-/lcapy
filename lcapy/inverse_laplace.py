@@ -317,16 +317,9 @@ class InverseLaplaceTransformer(UnilateralInverseTransformer):
         # s**a, s**-a, s**(1+a), s**(1-a), s**-(1+a), s**(a-1)
         # Cannot tell if 1-a is positive.
 
-        if exponent.is_positive:
-            # Unfortunately, SymPy does not seem to support fractional
-            # derivatives...
-            return sym.Derivative(sym.DiracDelta(t), t, exponent,
-                                  evaluate=False)
+        # Note, s**a where a is an integer is already handled.
 
-        if exponent.is_negative:
-            return sym.Pow(t, -exponent - 1) / sym.Gamma(-exponent)
-
-        self.error('Cannot determine sign of exponent')
+        return sym.Pow(t, -(exponent - 1)) / sym.Gamma(-exponent)
 
     def delay_factor(self, expr, var):
 
