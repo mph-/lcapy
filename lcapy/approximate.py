@@ -31,6 +31,10 @@ def approximate_fractional_power(expr, method='pade', order=2):
             return True
         if expr.args[1].is_Symbol and not expr.args[1].is_Integer:
             return True
+        if (expr.args[1].is_Mul and expr.args[1].args[0] == -1
+            and expr.args[1].args[1].is_Symbol
+            and not expr.args[1].args[1].is_Integer):
+            return True
         return False
 
     def value1(expr):
