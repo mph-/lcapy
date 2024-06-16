@@ -299,6 +299,14 @@ class CircuitGraph(object):
         for edge in edges:
             G.remove_edge(edge.from_node, edge.to_node)
 
+    def _check_node(self, node):
+
+        node = str(node)
+
+        if node not in self.nodes:
+            raise ValueError('Unknown node ' + node)
+        return node
+
     def component(self, node1, node2):
         """Return component connected between specified nodes.
         Note, the way the graph is constructed there is only
@@ -306,13 +314,8 @@ class CircuitGraph(object):
         added if there are components in parallel.
         """
 
-        node1 = str(node1)
-        node2 = str(node2)
-
-        if node1 not in self.nodes:
-            raise ValueError('Unknown node ' + node1)
-        if node2 not in self.nodes:
-            raise ValueError('Unknown node ' + node2)
+        node1 = self._check_node(node1)
+        node2 = self._check_node(node2)
 
         try:
             name = self.G.get_edge_data(node1, node2)['name']
@@ -461,8 +464,39 @@ class CircuitGraph(object):
 
         return self.node_connectivity != 0
 
+    def subgraphs(self):
+        """Return list of node name sets.  If the list has more than one
+        set then the network is disjoint."""
+
+        return list(nx.connected_components(self.G))
+
+    def has_path(self, from_node, to_node):
+        """Return True if there is a path from `from_node` to `to_node`."""
+
+        from_node = self._check_node(from_node)
+        to_node = self._check_node(to_node)
+
+        subgraphs = self.subgraphs()
+        for subgraph in subgraphs:
+            if from_node in subgraph and to_node in subgraph:
+                return True
+        return False
+
+    def unreachable(self, node):
+        """Return list of node names that has no path to `node`."""
+
+        node = self._check_node(node)
+        unreachable = []
+
+        subgraphs = self.subgraphs()
+        for subgraph in subgraphs:
+            if node not in subgraph:
+                unreachable.extend(subgraph)
+        return unreachable
+
     def tree(self):
-        """Return minimum spanning tree.  A tree has no loops so no current flows."""
+        """Return minimum spanning tree.  A tree has no loops so no current
+        flows in a tree."""
 
         T = nx.minimum_spanning_tree(self.G)
         return CircuitGraph(self.cct, T)
@@ -565,9 +599,7 @@ class CircuitGraph(object):
 
         mnodes = []
         for node in node_names:
-            node_name = str(node)
-            if node_name not in self.node_map:
-                raise ValueError('Unknown node ' + node_name)
+            node_name = self._check_node(node)
             mnodes.append(self.node_map[node_name])
         return mnodes
 
