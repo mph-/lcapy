@@ -464,9 +464,10 @@ class CircuitGraph(object):
 
         return self.node_connectivity != 0
 
-    def subgraphs(self):
-        """Return list of node name sets.  If the list has more than one
-        set then the network is disjoint."""
+    def networks(self):
+        """Return list of node name sets; one for each network.  If the list
+        has more than one set then the network has disjoint networks
+        of components."""
 
         return list(nx.connected_components(self.G))
 
@@ -476,22 +477,22 @@ class CircuitGraph(object):
         from_node = self._check_node(from_node)
         to_node = self._check_node(to_node)
 
-        subgraphs = self.subgraphs()
-        for subgraph in subgraphs:
-            if from_node in subgraph and to_node in subgraph:
+        networks = self.networks()
+        for network in networks:
+            if from_node in network and to_node in network:
                 return True
         return False
 
-    def unreachable(self, node):
+    def unreachable_nodes(self, node):
         """Return list of node names that has no path to `node`."""
 
         node = self._check_node(node)
         unreachable = []
 
-        subgraphs = self.subgraphs()
-        for subgraph in subgraphs:
-            if node not in subgraph:
-                unreachable.extend(subgraph)
+        networks = self.networks()
+        for network in networks:
+            if node not in network:
+                unreachable.extend(network)
         return unreachable
 
     def tree(self):

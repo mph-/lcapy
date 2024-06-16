@@ -882,6 +882,9 @@ CircuitGraph methods
 
 - `links()` the edges removed from the graph to form the minimum spanning tree.
 
+- `unreachable_nodes(node)` a list of nodes that have no path to `node`.
+
+- `has_path(node1, node2)` returns True if there is a path from `node1` to `node2`.
 
 .. _simulation:
 

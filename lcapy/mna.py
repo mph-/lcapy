@@ -157,7 +157,7 @@ class MNA(object):
             unco = cct.unconnected_nodes()
             if unco != []:
                 return message + 'Unconnected nodes: ' + ', '.join(unco)
-            unreachable = cct.cg.unreachable('0')
+            unreachable = cct.unreachable_nodes('0')
             return message + ' The network is disjoint.  These nodes have no path to node 0: ' + ', '.join(unreachable)
 
         reasons = []

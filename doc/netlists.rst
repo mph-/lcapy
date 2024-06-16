@@ -631,6 +631,8 @@ Circuit methods
 
 - `unconnected_nodes` Returns list of names of nodes that are unconnected
 
+- `unreachable_nodes(node)` Returns list of names of nodes that have no path to `node`.
+
 
 .. _circuit_twoport_methods:
 

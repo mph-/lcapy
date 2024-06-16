@@ -1068,6 +1068,11 @@ class NetlistMixin(object):
 
         return [node.name for node in self.nodes.values() if node.count <= 1]
 
+    def unreachable_nodes(self, node='0'):
+        """Return list of node names that are not reachable from `node`."""
+
+        return self.cg.unreachable_nodes(node)
+
     def Vname(self, name):
         return Vname(name, self.kind)
 
