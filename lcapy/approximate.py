@@ -93,8 +93,8 @@ def _approximate_exp_pade(expr, order=1, numer_order=None):
             numer += scale * arg**k
 
         for k in range(n + 1):
-            scale = (factorial(m + n - k) * factorial(n)
-                     ) // (factorial(k) * factorial(n - k) * factorial(m))
+            scale = (factorial(m + n - k) * factorial(n)) \
+                // (factorial(k) * factorial(n - k) * factorial(m))
             denom += scale * (-arg)**k
 
         return numer / denom
