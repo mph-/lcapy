@@ -2780,7 +2780,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 label += ' (%s)' % self.domain_units
         return label
 
-    def differentiate(self, arg=None):
+    def differentiate(self, arg=None, *symbols, **kwargs):
         """Differentiate expression."""
 
         if arg is None:
@@ -2789,13 +2789,14 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         arg = expr(arg)
         sarg = delcapify(arg)
 
-        result = self.__class__(sym.diff(self.expr, sarg), **self.assumptions)
+        result = self.__class__(sym.diff(self.expr, sarg, *symbols, **kwargs),
+                                **self.assumptions)
         result.units /= arg.units
         return result
 
-    def diff(self, arg=None):
+    def diff(self, arg=None, *symbols, **kwargs):
 
-        return self.differentiate(arg)
+        return self.differentiate(arg, *symbols, **kwargs)
 
     def doit(self, **hints):
         """Evaluate unevaluated functions such as integrals and sums."""
