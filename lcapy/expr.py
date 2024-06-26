@@ -40,7 +40,7 @@ from .simplify import simplify_rect, simplify_unit_impulse, simplify_conjugates
 from .simplify import expand_hyperbolic_trig
 from .approximate import (approximate_fractional_power, approximate_exp,
                           approximate_hyperbolic_trig, approximate_dominant,
-                          approximate_order, approximate_taylor)
+                          approximate_degree, approximate_taylor, approximate_pade)
 from .config import heaviside_zero, unitstep_zero
 from collections import OrderedDict
 from warnings import warn
@@ -3558,70 +3558,91 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         result = approximate_dominant(self.sympy, ndefs, threshold)
         return self.__class__(result, **self.assumptions)
 
-    def approximate_exp(self, method='pade', order=1, numer_order=None):
-        """Approximate exp(a).  The best time-domain response (without a jump)
-        is achieved with 'numer_order == order - 1', where `numer` is
-        the order of the numerator.  The best frequency-domain
-        response is achieved with `numer_order == order`."""
+    def approximate_exp(self, ndegree=2, ddegree=2):
+        """Approximate exp(a) with a Pade approximant order [ndegree,
+        ddegree].
 
-        expr = approximate_exp(self, method, order, numer_order)
+        The best time-domain response (without a jump) is achieved
+        with 'ndegree == ddegree - 1', where `numer` is the degree of
+        the numerator.  The best frequency-domain response is achieved
+        with `ndegree == ddegree`.
+
+        """
+
+        expr = approximate_exp(self, ndegree, ddegree)
         return self.__class__(expr, **self.assumptions)
 
-    def approximate_fractional_power(self, method='pade', order=2):
-        """This is an experimental method to approximate
-        s**a, where a is fractional, with a rational function using
-        a Pade approximant of order `order`."""
+    def approximate_fractional_power(self, ndegree=2, ddegree=2):
+        """Approximate s**a, where a is fractional, with a Pade approximant of
+        order [ndegree, ddegree].
 
-        expr = approximate_fractional_power(self, method, order)
+        """
+
+        expr = approximate_fractional_power(self.sympy, self.var,
+                                            ndegree, ddegree)
         return self.__class__(expr, **self.assumptions)
 
-    def approximate_hyperbolic_trig(self, method='pade', order=1,
-                                    numer_order=None):
-        """Approximate cosh(a), sinh(a), tanh(a) with a rational function using
-        a Pade approximant of order `order`."""
+    def approximate_hyperbolic_trig(self, ndegree=2, ddegree=2):
+        """Approximate cosh(a), sinh(a), tanh(a) with a Pade approximant of
+        order [ndegree, ddegree]."""
 
-        expr = approximate_hyperbolic_trig(self, method, order, numer_order)
+        expr = approximate_hyperbolic_trig(self, ndegree, ddegree)
         return self.__class__(expr, **self.assumptions)
 
-    def approximate_numer_order(self, order):
-        """Reduce order of numerator to `order`.
+    def approximate_numer_degree(self, degree):
+        """Reduce degree of numerator to `degree`.
         Warning, this assumes `self.var` is much smaller than 1."""
 
         N, D = self.as_N_D()
 
-        expr = approximate_order(N.sympy, self.var, order) / D.sympy
+        expr = approximate_degree(N.sympy, self.var, degree) / D.sympy
         return self.__class__(expr, **self.assumptions)
 
-    def approximate_denom_order(self, order):
-        """Reduce order of denominator to `order`.
+    def approximate_denom_degree(self, degree):
+        """Reduce degree of denominator to `degree`.
         Warning, this assumes `self.var` is much smaller than 1."""
 
         N, D = self.as_N_D()
 
-        expr = N.sympy / approximate_order(D.sympy, self.var, order)
+        expr = N.sympy / approximate_degree(D.sympy, self.var, degree)
         return self.__class__(expr, **self.assumptions)
 
-    def approximate_order(self, order):
-        """Reduce order of numerator and denominator to `order`.
+    def approximate_degree(self, degree):
+        """Reduce degree of numerator and denominator to `degree`.
         Warning, this assumes `self.var` is much smaller than 1."""
 
         N, D = self.as_N_D()
 
-        expr = approximate_order(N.sympy, self.var, order) / \
-            approximate_order(D.sympy, self.var, order)
+        expr = approximate_degree(N.sympy, self.var, degree) / \
+            approximate_degree(D.sympy, self.var, degree)
         return self.__class__(expr, **self.assumptions)
 
-    def approximate_taylor(self, var0, degree):
+    def approximate_pade(self, ndegree=2, ddegree=2):
+        """Approximate expression using a Pade series with numerator degree
+        `ndegree` and denominator degree `ddegree`.
+
+        This determines the Pade coeficients from a Taylor series
+        expansion and thus fails if the expression has singularities
+        at the origin.
+
+        """
+
+        expr = approximate_pade(self.sympy, var=self.var,
+                                ndegree=ndegree, ddegree=ddegree)
+        return self.__class__(expr, **self.assumptions)
+
+    def approximate_taylor(self, degree=2, var0=0):
         """Approximate expression using a Taylor series
         around `self.var = var0` to degree `degree`."""
 
         from .expr import expr
 
         var0 = expr(var0)
-        expr = approximate_taylor(self.sympy, self.var, var0.sympy, degree)
+        expr = approximate_taylor(self.sympy, var=self.var,
+                                  degree=degree, var0=var0.sympy)
         return self.__class__(expr, **self.assumptions)
 
-    def approximate(self, method='pade', order=1, numer_order=None, defs=None,
+    def approximate(self, ndegree=2, ddegree=2, method=None, defs=None,
                     threshold=0.01):
         """Approximate an expression.  The order of attempted approximations is:
         1. Fractional powers
@@ -3629,8 +3650,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         3. Hyperbolic trigonometric functions
         4. Dominant terms (if `defs` is defined).
 
-        See also `approximate_numer_order`, `approximate_denom_order`, and
-        `approximate_order` methods.
+        See also `approximate_numer_degree`, `approximate_denom_degree`, and
+        `approximate_degree` methods.
         """
 
         terms = self.expand().as_ordered_terms()
@@ -3638,17 +3659,21 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             result = 0
             for term in terms:
                 result += term.approximate(method,
-                                           order, numer_order, defs, threshold)
+                                           ndegree, ddegree, defs, threshold)
             return result
 
-        result = self.approximate_fractional_power(method=method,
-                                                   order=order)
-        result = result.approximate_exp(method=method,
-                                        order=order,
-                                        numer_order=numer_order)
-        result = result.approximate_hyperbolic_trig(method=method,
-                                                    order=order,
-                                                    numer_order=numer_order)
+        if method == 'taylor':
+            result = self.approximate_taylor(ndegree)
+        elif method == 'pade':
+            result = self.approximate_pade(ndegree, ddegree)
+        else:
+
+            result = self.approximate_fractional_power(ndegree=ndegree,
+                                                       ddegree=ddegree)
+            result = result.approximate_exp(ndegree=ndegree,
+                                            ddegree=ddegree)
+            result = result.approximate_hyperbolic_trig(ndegree=ndegree,
+                                                        ddegree=ddegree)
         if defs is not None:
             result = result.approximate_dominant(defs, threshold)
         return result

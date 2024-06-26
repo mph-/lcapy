@@ -1,24 +1,20 @@
-"""This module contains functions for approximating expressions.
+"""This module contains functions for approximating SymPy expressions.
 
-Copyright 2021--23 Michael Hayes, UCECE
+Copyright 2021--2024 Michael Hayes, UCECE
 
 """
 
 from .simplify import expand_hyperbolic_trig
-from sympy import exp, diff
+from sympy import exp, diff, eye, zeros, Matrix, Poly
 from math import factorial
 
 
-def approximate_fractional_power(expr, method='pade', order=2):
+def approximate_fractional_power(expr, var, ndegree=2, ddegree=2):
     """This is an experimental method to approximate s**a, where a is
-    fractional, with a rational function using a Pade approximant.
+    fractional, with a rational function using a Pade approximant
+    of order [ndegree, ddegree]."""
 
-    """
-
-    if method != 'pade':
-        raise ValueError('Method %s unsupported, must be pade')
-
-    v = expr.var
+    v = var
 
     def query(expr):
 
@@ -51,23 +47,28 @@ def approximate_fractional_power(expr, method='pade', order=2):
         d = v**2 * (a**2 - 3 * a + 2) + v * (8 - a**2) + (a**2 + 3 * a + 2)
         return n / d
 
-    if order == 1:
+    if ndegree != ddegree:
+        raise ValueError('Require ndegree == ddegree')
+
+    if ndegree == 1:
         value = value1
-    elif order == 2:
+    elif ndegree == 2:
         value = value2
     else:
-        raise ValueError('Can only handle order 1 and 2 at the moment')
+        raise ValueError('Can only handle degree 1 and 2 at the moment')
 
-    expr = expr.expr
     expr = expr.replace(query, value)
 
     return expr
 
 
-def _approximate_exp_pade(expr, order=1, numer_order=None):
+def approximate_exp(expr, ndegree=1, ddegree=1):
+    """Approximate exp(a) with Pade approximant.  The best time-domain
+    response (without a jump) is achieved with 'ndegree == ddegree -
+    1'.  The best frequency-domain response is achieved with ndegree
+    == ddegree.
 
-    if numer_order is None:
-        numer_order = order
+    """
 
     def query(expr):
         return expr.is_Function and expr.func == exp
@@ -75,15 +76,15 @@ def _approximate_exp_pade(expr, order=1, numer_order=None):
     def value(expr):
         arg = expr.args[0]
 
-        if order == 1 and numer_order == 1:
+        if ddegree == 1 and ndegree == 1:
             return (2 + arg) / (2 - arg)
-        elif order == 2 and numer_order == 2:
+        elif ddegree == 2 and ndegree == 2:
             return (12 + 6 * arg + arg**2) / (12 - 6 * arg + arg**2)
 
         from math import factorial
 
-        m = numer_order
-        n = order
+        m = ndegree
+        n = ddegree
         numer = 0
         denom = 0
 
@@ -102,24 +103,11 @@ def _approximate_exp_pade(expr, order=1, numer_order=None):
     return expr.replace(query, value)
 
 
-def approximate_exp(expr, method='pade', order=1, numer_order=None):
-    """Approximate exp(a).  The best time-domain response (without a jump)
-    is achieved with 'numer_order == order - 1'.  The best
-    frequency-domain response is achieved with numer_order ==
-    order."""
-
-    if method != 'pade':
-        raise ValueError('Method %s unsupported, must be pade')
-
-    return _approximate_exp_pade(expr, order, numer_order)
-
-
-def approximate_hyperbolic_trig(expr, method='pade', order=1, numer_order=None):
+def approximate_hyperbolic_trig(expr, ndegree=1, ddegree=1):
     """Approximate cosh(a), sinh(a), tanh(a)."""
 
     expr = expand_hyperbolic_trig(expr)
-    return approximate_exp(expr, method=method, order=order,
-                           numer_order=numer_order)
+    return approximate_exp(expr, ndegree=ndegree, ddegree=ddegree)
 
 
 def approximate_dominant_terms(expr, defs, threshold=0.01):
@@ -165,16 +153,31 @@ def approximate_dominant(expr, defs, threshold=0.01):
     return expr.replace(query, value)
 
 
-def approximate_order(expr, var, order):
-    """Approximate expression by reducing order of polynomial to
-    specified order."""
+def approximate_degree(expr, var, degree):
+    """Approximate expression by reducing degree of polynomial to
+    specified degree."""
 
     from sympy import O
 
-    return (expr.expand() + O(var ** (order + 1))).removeO()
+    return (expr.expand() + O(var ** (degree + 1))).removeO()
 
 
-def approximate_taylor(expr, var, var0, degree):
+def approximate_taylor_coeffs(expr, var, degree=1, var0=0):
+
+    coeffs = [expr.subs(var, var0)]
+
+    prev = expr
+
+    for n in range(1, degree + 1):
+
+        prev = diff(prev, var)
+
+        coeffs.append(prev.subs(var, var0) / factorial(n))
+
+    return coeffs
+
+
+def approximate_taylor(expr, var, degree=1, var0=0):
     """Approximate expression using a Taylor series
     around `var = var0` to degree `degree`."""
 
@@ -182,11 +185,51 @@ def approximate_taylor(expr, var, var0, degree):
 
     prev = expr
 
-    for n in range(degree):
+    for n in range(1, degree + 1):
 
         prev = diff(prev, var)
 
         result += prev.subs(var, var0) * \
-            (var - var0)**(n + 1) / factorial(n + 1)
+            (var - var0)**n / factorial(n)
 
     return result
+
+
+def approximate_pade_coeffs_from_taylor_coeffs(a, m):
+
+    N = len(a) - 1
+    n = N - m
+    if n < 0:
+        raise ValueError('Degree %d must be smaller than %d' % (m, N))
+    A = eye(N + 1, n + 1)
+    B = zeros(N + 1, m)
+
+    for col in range(m):
+        for row in range(col + 1, N + 1):
+            B[row, col] = -a[row - col - 1]
+
+    C = A.hstack(A, B)
+    pq = C.solve(Matrix(a))
+    p = pq[:n + 1]
+
+    q = [1]
+    for col in range(1, m + 1):
+        q.append(pq[n + col])
+
+    return p[::-1], q[::-1]
+
+
+def approximate_pade_coeffs(expr, var, ndegree=2, ddegree=2):
+    """Approximate expression using a Pade series with numerator degree
+    `ndegree` and denominator degree `ddegree`."""
+
+    coeffs = approximate_taylor_coeffs(expr, var, ndegree + ddegree)
+
+    return approximate_pade_coeffs_from_taylor_coeffs(coeffs, ddegree)
+
+
+def approximate_pade(expr, var, ndegree=2, ddegree=2):
+
+    p, q = approximate_pade_coeffs(expr, var, ndegree, ddegree)
+
+    return Poly.from_list(p, gens=var) / Poly.from_list(q, gens=var)
