@@ -4,11 +4,11 @@ from matplotlib.pyplot import subplots, style, savefig, show
 from lcapy import *
 
 H = exp(-s)
-Ha11 = H.approximate_exp(order=1)
-Ha12 = H.approximate_exp(order=2, numer_order=1)
-Ha22 = H.approximate_exp(order=2)
-Ha23 = H.approximate_exp(order=3, numer_order=2)
-Ha33 = H.approximate_exp(order=3)
+Ha11 = H.approximate_exp(ddegree=1)
+Ha12 = H.approximate_exp(ddegree=2, ndegree=1)
+Ha22 = H.approximate_exp(ddegree=2)
+Ha23 = H.approximate_exp(ddegree=3, ndegree=2)
+Ha33 = H.approximate_exp(ddegree=3)
 
 tv = np.arange(400) / 400 * 4 - 1
 
