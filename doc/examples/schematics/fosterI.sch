@@ -1,0 +1,32 @@
+# Created by lcapy-tk V0.95.dev0
+; nodes={1@(2, 7), 2@(3.5, 7), 3@(2, 5), 4@(3.5, 5), 5@(2, 6), 6@(3.5, 6), 7@(4.5, 6), 8@(4.5, 5), 9@(4.5, 7), 10@(6, 7), 11@(6, 5), 12@(6, 6), 14@(7, 7), 15@(8.5, 7), 16@(8.5, 6), 17@(8.5, 5), 18@(7, 5), 13@(7, 6), 19@(9.5, 6), 20@(9.5, 7), 21@(11, 7), 22@(11, 6), 23@(11, 5), 24@(9.5, 5), 25@(12, 6), 26@(1, 6)}
+R1 1 2; right=0.75, scale=0.75
+C1 3 4; right=0.75, scale=0.75
+W1 1 5; down=0.5, scale=0.5
+W2 5 3; down=0.5, scale=0.5
+W3 2 6; down=0.5, scale=0.5
+W4 6 4; down=0.5, scale=0.5
+W5 6 7; right=0.5, scale=0.5
+W6 7 8; down=0.5, scale=0.5
+W7 9 7; down=0.5, scale=0.5
+R2 9 10; right=0.75, scale=0.75
+C2 8 11; right=0.75, scale=0.75
+W8 10 12; down=0.5, scale=0.5
+W9 12 11; down=0.5, scale=0.5
+R3 14 15; right=0.75, scale=0.75
+W12 15 16; down=0.5, scale=0.5
+W13 16 17; down=0.5, scale=0.5
+C3 18 17; right=0.75, scale=0.75
+W10 14 13; down=0.5, scale=0.5
+W11 12 13; right=0.5, scale=0.5
+W14 13 18; down=0.5, scale=0.5
+W15 16 19; right=0.5, scale=0.5
+W16 19 20; up=0.5, scale=0.5
+R4 20 21; right=0.75, scale=0.75
+W17 21 22; down=0.5, scale=0.5
+W18 22 23; down=0.5, scale=0.5
+W19 19 24; down=0.5, scale=0.5
+C4 24 23; right=0.75, scale=0.75
+W20 22 25; right=0.5, scale=0.5
+W21 26 5; right=0.5, scale=0.5
+; draw_nodes=connections, label_nodes=none, style=american, voltage_dir=RP, label_style=value
