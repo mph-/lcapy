@@ -3617,9 +3617,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             approximate_degree(D.sympy, self.var, degree)
         return self.__class__(expr, **self.assumptions)
 
-    def approximate_pade(self, ndegree=2, ddegree=2):
+    def approximate_pade(self, ndegree=2, ddegree=2, var0=0):
         """Approximate expression using a Pade series with numerator degree
-        `ndegree` and denominator degree `ddegree`.
+        `ndegree` and denominator degree `ddegree` around
+        `self.var = var0`.
 
         This determines the Pade coeficients from a Taylor series
         expansion and thus fails if the expression has singularities
@@ -3627,8 +3628,12 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         """
 
+        from .expr import expr
+
+        var0 = expr(var0)
         expr = approximate_pade(self.sympy, var=self.var,
-                                ndegree=ndegree, ddegree=ddegree)
+                                ndegree=ndegree, ddegree=ddegree,
+                                var0=var0.sympy)
         return self.__class__(expr, **self.assumptions)
 
     def approximate_taylor(self, degree=2, var0=0):

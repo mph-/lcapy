@@ -219,17 +219,19 @@ def approximate_pade_coeffs_from_taylor_coeffs(a, m):
     return p[::-1], q[::-1]
 
 
-def approximate_pade_coeffs(expr, var, ndegree=2, ddegree=2):
+def approximate_pade_coeffs(expr, var, ndegree=2, ddegree=2, var0=0):
     """Approximate expression using a Pade series with numerator degree
     `ndegree` and denominator degree `ddegree`."""
 
-    coeffs = approximate_taylor_coeffs(expr, var, ndegree + ddegree)
+    coeffs = approximate_taylor_coeffs(expr, var, ndegree + ddegree,
+                                       var0=var0)
 
     return approximate_pade_coeffs_from_taylor_coeffs(coeffs, ddegree)
 
 
-def approximate_pade(expr, var, ndegree=2, ddegree=2):
+def approximate_pade(expr, var, ndegree=2, ddegree=2, var0=0):
 
-    p, q = approximate_pade_coeffs(expr, var, ndegree, ddegree)
+    p, q = approximate_pade_coeffs(expr, var, ndegree, ddegree, var0)
 
-    return Poly.from_list(p, gens=var) / Poly.from_list(q, gens=var)
+    return Poly.from_list(p, gens=var - var0) \
+        / Poly.from_list(q, gens=var - var0)
