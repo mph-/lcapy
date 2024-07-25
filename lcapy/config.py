@@ -35,7 +35,7 @@ functions = ('heaviside', 'diracdelta', 'conjugate', 'sqrt', 'exp',
              'arg', 'sign', 'rect', 'sinc', 'sincn', 'sincu', 'trap',
              'tri', 'ramp', 'rampstep', 'dtrect', 'dtsign', 'psinc',
              'besselj', 'bessely', 'besseli', 'besselk', 'hankel1', 'hankel2',
-             'erf', 'erfc')
+             'erf', 'erfc', 'sec', 'csc')
 
 subscripts = ('in', 'out', 'ref', 'rms', 'load', 'source', 'avg',
               'mean', 'peak', 'pk', 'pk-pk', 'pp', 'min', 'max', 'src', 'bat',
