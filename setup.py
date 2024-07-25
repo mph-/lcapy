@@ -23,7 +23,7 @@ setup(name='lcapy',
       install_requires=['matplotlib',
                         'scipy',
                         'numpy',
-                        'sympy>=1.10.1',  # >=1.7.1 works
+                        'sympy<1.13.0',
                         'networkx',
                         'IPython',
                         'setuptools',
