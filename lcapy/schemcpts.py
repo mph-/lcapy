@@ -147,7 +147,6 @@ class Cpt(object):
     label_keys = ('l', 'l_', 'l^')
     label2_keys = ('l2', 'l2_', 'l2^')
     annotation_keys = ('a', 'a_', 'a^')
-    annotation2_keys = ('a2', 'a2_', 'a2^')
     inner_label_keys = ('t', )
     connection_keys = ('input', 'output', 'bidir', 'pad')
     ground_keys = ('ground', 'sground', 'rground',
@@ -172,7 +171,7 @@ class Cpt(object):
 
     all_label_keys = voltage_keys + current_keys + flow_keys + \
         label_keys + label2_keys + inner_label_keys + \
-        annotation_keys + annotation2_keys
+        annotation_keys
 
     special_keys = all_label_keys + misc_keys + \
         implicit_keys + label_opt_keys + connection_keys
@@ -862,8 +861,10 @@ class Cpt(object):
         dargs.append(style)
         dargs = ', '.join([arg for arg in dargs if arg != ''])
 
-        # l= is used to define node label.  This might be a mistake...
-        self.labels.label = None
+        if self.implicit_key(self.opts):
+            # l= is used to define node label for implicit wires
+            self.labels.label = None
+
         args = self.labels.args()
 
         args.append('n=' + self.s)
