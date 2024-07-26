@@ -151,7 +151,7 @@ class AngularFourierDomainExpression(AngularFourierDomain, Expr):
         from .plot import plot_angular_frequency
         return plot_angular_frequency(self, wvector, **kwargs)
 
-    def bode_plot(self, wvector=None, unwrap=True, **kwargs):
+    def bode_plot(self, wvector=None, unwrap=True, phase='radians', **kwargs):
         """Plot frequency response for a frequency-domain phasor as a Bode
         plot (but without the straight line approximations).  wvector
         specifies the angular frequencies.  If it is a tuple (f1, f2), it sets
@@ -164,7 +164,8 @@ class AngularFourierDomainExpression(AngularFourierDomain, Expr):
         """
 
         from .plot import plot_angular_bode
-        return plot_angular_bode(self, wvector, unwrap=unwrap, **kwargs)
+        return plot_angular_bode(self, wvector, unwrap=unwrap,
+                                 phase=phase, **kwargs)
 
     def nyquist_plot(self, wvector=None, log_frequency=True, **kwargs):
         """Plot frequency response as a Nyquist plot (imaginary part versus

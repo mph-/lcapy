@@ -2,7 +2,7 @@
 to represent F-domain (normalized  Fourier domain)
 expressions.
 
-Copyright 2021--2022 Michael Hayes, UCECE
+Copyright 2021--2024 Michael Hayes, UCECE
 
 """
 
@@ -149,7 +149,7 @@ class NormFourierDomainExpression(NormFourierDomain, Expr):
         return plot_frequency(self, Fvector, plot_type=plot_type,
                               norm=True, **kwargs)
 
-    def bode_plot(self, fvector=None, unwrap=True, **kwargs):
+    def bode_plot(self, fvector=None, unwrap=True, phase='radians', **kwargs):
         """Plot frequency response for a frequency-domain phasor as a Bode
         plot (but without the straight line approximations).  fvector
         specifies the normalised frequencies.  If it is a tuple (f1,
@@ -163,7 +163,8 @@ class NormFourierDomainExpression(NormFourierDomain, Expr):
         """
 
         from .plot import plot_bode
-        return plot_bode(self, fvector, norm=True, unwrap=unwrap, **kwargs)
+        return plot_bode(self, fvector, norm=True, unwrap=unwrap,
+                         phase=phase, **kwargs)
 
     def nyquist_plot(self, fvector=None, log_frequency=False, **kwargs):
         """Plot frequency response as a Nyquist plot (imaginary part versus

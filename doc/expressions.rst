@@ -2587,14 +2587,15 @@ Bode plots are similar to frequency domain plots but plot both the magnitude (in
    :width: 12cm
 
 By default, a Bode plot of a Laplace domain expression is shown with
-linear frequencies (in hertz).  This can be changed to angular
-frequencies (in radians) using the `var=omega` argument to the
-`bode_plot()` method.
+linear frequencies (in hertz) and phase in degrees.  The frequency can
+be changed to angular frequencies (in radians) using the `var=omega`
+argument to the `bode_plot()` method.  The phase can be plotted in
+degrees using `phase='degrees'` or ignored with `phase=None`.
 
 The frequency response of Laplace domain expressions is calculated
 using the substitution :math:`s = j \omega`.  Note, this does not
 correctly calculate the DC component for expressions that have an
-unstable impulse response.
+unstable or marginally stable impulse response.
 
 
 Nyquist plots

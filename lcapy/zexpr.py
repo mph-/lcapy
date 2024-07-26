@@ -1,6 +1,6 @@
 """This module provides the ZDomainExpression class to represent z-domain expressions.
 
-Copyright 2020--2022 Michael Hayes, UCECE
+Copyright 2020--2024 Michael Hayes, UCECE
 
 """
 
@@ -209,7 +209,7 @@ class ZDomainExpression(ZDomain, SequenceExpression):
         from .plot import plot_pole_zero
         return plot_pole_zero(self, **kwargs)
 
-    def bode_plot(self, fvector=None, **kwargs):
+    def bode_plot(self, fvector=None, phase='radians', **kwargs):
         """Plot frequency response for a frequency-domain phasor as a Bode
         plot (but without the straight line approximations), assumong
         `dt=1`.  fvector specifies the frequencies.  If it is a tuple
@@ -221,7 +221,9 @@ class ZDomainExpression(ZDomain, SequenceExpression):
         """
         from .discretetime import dt
 
-        return self.DTFT(causal=True).subs(dt, 1).bode_plot(fvector, **kwargs)
+        return self.DTFT(causal=True).subs(dt, 1).bode_plot(fvector,
+                                                            phase=phase,
+                                                            **kwargs)
 
     def nyquist_plot(self, fvector=None, log_frequency=False, **kwargs):
         """Plot frequency response for a frequency-domain phasor as a Nyquist

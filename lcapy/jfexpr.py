@@ -1,7 +1,7 @@
 """This module provides the FrequencyResponseDomainExpression class to
 represent jf-domain ( frequency frequency domain) expressions.
 
-Copyright 2022 Michael Hayes, UCECE
+Copyright 2022--2024 Michael Hayes, UCECE
 
 """
 
@@ -127,7 +127,7 @@ class FrequencyResponseDomainExpression(FrequencyResponseDomain, Expr):
         from .plot import plot_frequency
         return plot_frequency(self, vvector, **kwargs)
 
-    def bode_plot(self, vvector=None, unwrap=True, **kwargs):
+    def bode_plot(self, vvector=None, unwrap=True, phase='radians', **kwargs):
         """Plot frequency response for a frequency-domain phasor as a Bode
         plot (but without the straight line approximations).  vvector
         specifies the  frequencies.  If it is a tuple (f1, f2), it sets
@@ -140,7 +140,8 @@ class FrequencyResponseDomainExpression(FrequencyResponseDomain, Expr):
         """
 
         from .plot import plot_bode
-        return plot_bode(self, vvector, unwrap=unwrap, **kwargs)
+        return plot_bode(self, vvector, unwrap=unwrap, phase=phase,
+                         **kwargs)
 
     def nyquist_plot(self, vvector=None, log_frequency=True, **kwargs):
         """Plot frequency response as a Nyquist plot (imaginary part versus

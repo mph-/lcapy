@@ -26,7 +26,7 @@ domain concepts.  A phasor ratio can be inferred from the Laplace
 domain by substituting jomega (or jw) for s, where omega is the
 angular frequency of the phasor.
 
-Copyright 2014--2023 Michael Hayes, UCECE
+Copyright 2014--2024 Michael Hayes, UCECE
 
 """
 
@@ -444,7 +444,7 @@ class PhasorRatioDomainExpression(PhasorRatioDomain, PhasorExpression):
 
         return plot_angular_frequency(self, fvector, **kwargs)
 
-    def bode_plot(self, fvector=None, unwrap=True, **kwargs):
+    def bode_plot(self, fvector=None, unwrap=True, phase='radians', **kwargs):
         """Plot frequency response for a frequency-domain phasor as a Bode
         plot (but without the straight line approximations).  fvector
         specifies the frequencies.  If it is a tuple (m1, m2), it sets the
@@ -455,7 +455,7 @@ class PhasorRatioDomainExpression(PhasorRatioDomain, PhasorExpression):
 
         from .plot import plot_bode
 
-        return plot_bode(self, fvector, unwrap=unwrap, **kwargs)
+        return plot_bode(self, fvector, unwrap=unwrap, phase=phase, **kwargs)
 
 
 def phasor(arg, omega=None, **assumptions):

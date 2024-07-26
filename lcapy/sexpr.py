@@ -1,7 +1,7 @@
 """This module provides the LaplaceDomainExpression class to represent
 s-domain (Laplace domain) expressions.
 
-Copyright 2014--2023 Michael Hayes, UCECE
+Copyright 2014--2024 Michael Hayes, UCECE
 
 """
 
@@ -538,7 +538,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         return self.plot(**kwargs)
 
     def bode_plot(self, fvector=None, unwrap=True, var=None, strict=False,
-                  **kwargs):
+                  phase='radians', **kwargs):
         """Plot frequency response for a frequency-domain phasor as a Bode
         plot (but without the straight line approximations).
 
@@ -559,7 +559,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         """
 
         H = self.frequency_response_evaluate(var=var)
-        return H.bode_plot(fvector, unwrap=unwrap, **kwargs)
+        return H.bode_plot(fvector, unwrap=unwrap, phase=phase, **kwargs)
 
     def nyquist_plot(self, fvector=None, var=None, **kwargs):
         """Plot frequency response for a frequency-domain phasor as a Nyquist

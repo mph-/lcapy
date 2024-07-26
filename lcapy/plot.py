@@ -565,14 +565,27 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
     return ax, ax2
 
 
-def plot_bode(obj, f, **kwargs):
-    """This is a helper function for a Bode plot.  It is
-    better to use the `bode_plot()` method of a FourierDomainExpression."""
+def plot_bode(obj, f, phase='radians', **kwargs):
+    """This is a helper function for a Bode plot.  It is better to use the
+    `bode_plot()` method of a FourierDomainExpression or
+    LaplaceDomainExpression.
+
+    """
 
     if 'log_frequency' not in kwargs:
         kwargs['log_frequency'] = True
     if 'unwrap' not in kwargs:
         kwargs['unwrap'] = True
+
+    if 'plot_type' not in kwargs:
+        if phase == 'degrees':
+            kwargs['plot_type'] = 'dB-phase-degrees'
+        elif phase == 'radians':
+            kwargs['plot_type'] = 'dB-phase-radians'
+        elif phase is None:
+            kwargs['plot_type'] = 'dB'
+        else:
+            raise ValueError("phase must be 'radians', 'degrees', or None")
 
     return plot_frequency(obj, f, log_magnitude=True, **kwargs)
 

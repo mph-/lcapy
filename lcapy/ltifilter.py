@@ -1,6 +1,6 @@
 """This module provides continuous-time filter support.
 
-Copyright 2022-2023 Michael Hayes, UCECE
+Copyright 2022-2024 Michael Hayes, UCECE
 
 """
 

@@ -141,7 +141,8 @@ Butterworth filters
 
 Butterworth filters are created with the `Butterworth` class method.  For example::
 
-  >>> B = Butterworth(order=2, Wn=omega0, btype='lowpass')
+  >>> from lcapy.ltifilter import Butterworth
+  >>> B = Butterworth(N=2, Wn=omega0, btype='lowpass')
   >>> B.transfer_function()
             2
           ω₀
@@ -173,7 +174,8 @@ Bessel filters
 
 Bessel filters are created with the `Bessel` class method.  For example::
 
-  >>> B = Bessel(order=2, Wn=omega0, btype='lowpass')
+    >>> from lcapy.ltifilter import Bessel
+  >>> B = Bessel(N=2, Wn=omega0, btype='lowpass')
   >>> B.transfer_function()
               2
           3⋅ω₀

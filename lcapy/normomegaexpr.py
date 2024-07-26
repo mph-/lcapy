@@ -2,7 +2,7 @@
 to represent Omega-domain (normalized angular Fourier domain)
 expressions.
 
-Copyright 2021--2022 Michael Hayes, UCECE
+Copyright 2021--2024 Michael Hayes, UCECE
 
 """
 
@@ -150,7 +150,7 @@ class NormAngularFourierDomainExpression(NormAngularFourierDomain, Expr):
         return plot_angular_frequency(self, Wvector, plot_type=plot_type,
                                       norm=True, **kwargs)
 
-    def bode_plot(self, Wvector=None, unwrap=True, **kwargs):
+    def bode_plot(self, Wvector=None, unwrap=True, phase='radians', **kwargs):
         """Plot frequency response for a frequency-domain phasor as a Bode
         plot (but without the straight line approximations).  Wvector
         specifies the normalised angular frequencies.  If it is a
@@ -166,7 +166,7 @@ class NormAngularFourierDomainExpression(NormAngularFourierDomain, Expr):
 
         from .plot import plot_angular_bode
         return plot_angular_bode(self, Wvector, norm=True, unwrap=unwrap,
-                                 **kwargs)
+                                 phase=phase, **kwargs)
 
     def nyquist_plot(self, Wvector=None, log_frequency=False, **kwargs):
         """Plot frequency response as a Nyquist plot (imaginary part versus
