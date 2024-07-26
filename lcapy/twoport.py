@@ -2274,7 +2274,7 @@ class TwoPortBModel(TwoPort):
         self._params = B
         self._V2b = V2b
         self._I2b = I2b
-        self._sources = Vector(V2b, I2b)
+        self._sources = Vector((V2b, I2b))
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
@@ -2361,7 +2361,7 @@ class TwoPortAModel(TwoPort):
         self._params = A
         self._V1a = V1a
         self._I1a = I1a
-        self._sources = Vector(V1a, I1a)
+        self._sources = Vector((V1a, I1a))
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
@@ -2440,7 +2440,7 @@ class TwoPortGModel(TwoPort):
         self._params = G
         self._I1g = I1g
         self._V2g = V2g
-        self._sources = Vector(I1g, V2g)
+        self._sources = Vector((I1g, V2g))
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
@@ -2537,7 +2537,7 @@ class TwoPortHModel(TwoPort):
         self._params = H
         self._V1h = V1h
         self._I2h = I2h
-        self._sources = Vector(V1h, I2h)
+        self._sources = Vector((V1h, I2h))
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
@@ -2634,7 +2634,7 @@ class TwoPortYModel(TwoPort):
         self._params = Y
         self._I1y = I1y
         self._I2y = I2y
-        self._sources = Vector(I1y, I2y)
+        self._sources = Vector((I1y, I2y))
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
@@ -2726,7 +2726,7 @@ class TwoPortZModel(TwoPort):
         self._params = Z
         self._V1z = V1z
         self._V2z = V2z
-        self._sources = Vector(V1z, V2z)
+        self._sources = Vector((V1z, V2z))
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
                   dir='right'):
@@ -2841,11 +2841,11 @@ class Chain(TwoPortThing):
         arg1 = args[-1]
         B = arg1.Bparams
 
-        foo = Vector(arg1.V2b, arg1.I2b)
+        foo = Vector((arg1.V2b, arg1.I2b))
 
         for arg in reversed(args[0:-1]):
 
-            foo += B * Vector(arg.V2b, arg.I2b)
+            foo += B * Vector((arg.V2b, arg.I2b))
             B = B * arg.Bparams
 
         super(Chain, self).__init__(B, V2b=LaplaceDomainVoltage(foo[0, 0]),

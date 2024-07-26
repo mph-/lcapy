@@ -173,7 +173,7 @@ class ExprContainer(object):
         """Evaluate each element to convert to floating point.
         This may change..."""
 
-        return self.__class__([v.evalf() for v in self])
+        return self.__class__([v.value for v in self])
 
     def evalf(self, n=15):
         """Evaluate each element to convert to floating point values.
@@ -235,11 +235,11 @@ class ExprDict(ExprPrint, ExprContainer, ExprMisc, OrderedDict):
         new = self.__class__()
         for k, v in self.items():
             try:
-                k = k.evalf()
+                k = k.value
             except:
                 pass
             try:
-                v = v.evalf()
+                v = v.value
             except:
                 pass
 
@@ -459,6 +459,13 @@ class ExprList(ExprPrint, list, ExprContainer, ExprMisc):
 
         return [complex(a.cval) for a in self]
 
+    @property
+    def value(self):
+        """Evaluate expression and return as a list of python int, float, or complex values."""
+
+        # TODO, ensure the data types are the same
+        return [float(a.value) for a in self]
+
 
 class ExprTuple(ExprPrint, tuple, ExprContainer, ExprMisc):
     """Facade class for tuple created by sympy."""
@@ -547,6 +554,13 @@ class ExprTuple(ExprPrint, tuple, ExprContainer, ExprMisc):
         """Evaluate expression and return as a tuple of python complex values."""
 
         return tuple([complex(a.cval) for a in self])
+
+    @property
+    def value(self):
+        """Evaluate expression and return as a list of python int, float, or complex values."""
+
+        # TODO, ensure the data types are the same
+        return [float(a.value) for a in self]
 
 
 class Expr(UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
@@ -967,10 +981,29 @@ class Expr(UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
         """Return floating point value of expression if it can be evaluated,
         otherwise the expression.
 
-        This returns an Lcapy Expr object.   If you want a numerical value
-        use expr.fval for a float value or expr.cval for a complex value."""
+        This is equivalant to `evalf` and returns an Lcapy Expr
+        object.  If you want a Python numerical value use expr.fval
+        for a float value or expr.cval for a complex value.
+
+        """
 
         return self.evalf()
+
+    @property
+    def value(self):
+        """Return value that can be represented as a Python int, float, or
+        complex object."""
+
+        if not self.is_constant:
+            raise ValueError('Expression not constant: %s' % self)
+
+        if self.is_integer:
+            return int(self.sympy)
+
+        if self.is_complex:
+            return complex(self.sympy)
+
+        return float(self.sympy)
 
     def evalf(self, n=15, *args, **kwargs):
         """Convert constants in an expression to floats, evaluated to `n`
@@ -2138,6 +2171,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         There can be only one or fewer undefined variables in the expression.
         This is replaced by `arg` and then evaluated to obtain a result.
+
+        See also `fval` and `cval`.
         """
 
         import numpy as np
@@ -2385,24 +2420,25 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             return response
 
         # Use doit to expand Sum, etc.
-        expr = self.doit().expr
+        expr = self.doit()
 
         if not hasattr(self, 'var') or self.var is None:
             symbols = list(expr.free_symbols)
             if arg is None:
                 if len(symbols) == 0:
-                    return expr.evalf()
+                    return expr.value
                 raise ValueError(
                     'Undefined symbols %s in expression %s' % (tuple(symbols), self))
             if len(symbols) == 0:
                 print('Ignoring arg %s' % arg)
-                return expr.evalf()
+                return expr.value
             elif len(symbols) == 1:
-                return evaluate_expr(expr, symbols[0], arg)
+                return evaluate_expr(expr.sympy, symbols[0], arg)
             else:
                 raise ValueError(
                     'Undefined symbols %s in expression %s' % (tuple(symbols), self))
 
+        expr = expr.sympy
         var = self.var
         # Use symbol names to avoid problems with symbols of the same
         # name with different assumptions.

@@ -39,6 +39,11 @@ The floating-point approximation can be found using `fval` attribute for a Pytho
   >>> expr(2 / 3).cval
   (0.16666666666666666+0j)
 
+Alternatively, the `value` attribute converts to a Python int, float, or complex value as appropriate::
+
+  >>> expr(2 / 3).value
+  0.166666666666667
+
 Rational numbers in Lcapy expressions can be converted to SymPy floating-point numbers using the `evalf()` method, with a specified number of decimal places.   For example::
 
   >>> expr('1 / 3 + a').evalf(5)
@@ -962,9 +967,11 @@ An `ExprList` can be converted to a list suitable for sympy using the
    ⎨I(s): ───────, V_L(s): ────────, V_R(s): ───────⎬
    ⎩      L⋅s + R          L⋅s + R           L⋅s + R⎭
 
- - `fval()` evaluates each expression in the list and return a list of Python float values
+ - `fval` evaluates each expression in the list and return a list of Python float values
 
- - `cval()` evaluates each expression in the list and return a list of Python complex values
+ - `cval` evaluates each expression in the list and return a list of Python complex values
+
+ - `value` evaluates each expression in the list and return a list of Python int, float, or complex values
 
 
 Tuples
@@ -1160,6 +1167,9 @@ All Lcapy expressions have the following attributes (see :ref:`expressionsration
 - `symbols` returns dictionary of symbols used in the expression keyed by their names
 
 - `val` returns floating-point number (as Lcapy expression) if expression can be evaluated (see also `fval`, `cval`, and `evalf()`)
+
+ - `value` Return value that can be represented as a Python int, float, or
+        complex object
 
 - `var` returns the underlying SymPy symbol representing the domain
 
