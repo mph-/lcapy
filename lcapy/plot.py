@@ -410,7 +410,7 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
 
     V = obj.evaluate(f)
 
-    types = ['dB-phase', 'dB-radians', 'dB-phase-degrees',
+    types = ['dB-phase', 'dB-radians', 'dB-phase-radians', 'dB-phase-degrees',
              'dB-degrees', 'mag-phase', 'magnitude-phase',
              'mag-phase-degrees', 'magnitude-phase-degrees',
              'real-imag', 'mag', 'magnitude', 'phase', 'radians',
@@ -427,7 +427,7 @@ def plot_frequency(obj, f, plot_type=None, **kwargs):
         if plot_type is None:
             plot_type = 'dB-phase'
 
-    if plot_type in ('dB_phase', 'dB-phase', 'dB-radians'):
+    if plot_type in ('dB_phase', 'dB-phase', 'dB-radians', 'dB-phase-radians'):
         plot1_type = 'dB'
         plot2_type = 'radians'
     elif plot_type in ('dB_phase_degrees', 'dB-phase-degrees',
@@ -579,9 +579,9 @@ def plot_bode(obj, f, phase='radians', **kwargs):
 
     if 'plot_type' not in kwargs:
         if phase == 'degrees':
-            kwargs['plot_type'] = 'dB-phase-degrees'
+            kwargs['plot_type'] = 'dB-degrees'
         elif phase == 'radians':
-            kwargs['plot_type'] = 'dB-phase-radians'
+            kwargs['plot_type'] = 'dB-radians'
         elif phase is None:
             kwargs['plot_type'] = 'dB'
         else:
