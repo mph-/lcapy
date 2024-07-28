@@ -15,20 +15,35 @@ class EngFormatter(object):
         self.hundreds = hundreds
         self.num_digits = num_digits
 
-    def _fmt(self, valstr, unit='', prefix='', space='', mbox_prefix='',
-             mbox_suffix=''):
+    def _fmt(self, valstr, unit='', prefix='', aslatex=True):
 
         if unit == '' and prefix == '':
             return valstr
 
-        return valstr + space + mbox_prefix + prefix + unit + mbox_suffix
+        if not aslatex:
+            return valstr + ' ' + prefix + unit
 
-    def _do(self, value, unit, prefixes, space='', mbox_prefix='',
-            mbox_suffix=''):
+        s = valstr + '\\,'
+        if prefix == 'u':
+            if unit.startswith('$'):
+                s += '\\mu' + unit[1:-1]
+            else:
+                s += '\\mu\\mathrm{' + unit + '}'
+        else:
+            if unit.startswith('$'):
+                s += '\\mathrm{' + prefix + '}' + unit[1:-1]
+            else:
+                s += '\\mathrm{' + prefix + unit + '}'
+        return s
+
+
+    def _do(self, value, unit, aslatex):
+
+        prefixes = ('f', 'p', 'n', 'u', 'm', '', 'k', 'M', 'G', 'T')
 
         value = value
         if value == 0:
-            return self._fmt('0', unit, '', space, mbox_prefix, mbox_suffix)
+            return self._fmt('0', unit, '', aslatex)
 
         m = log10(abs(value))
 
@@ -46,10 +61,10 @@ class EngFormatter(object):
         idx = n + 5
         if idx < 0:
             idx = 0
-            return self._fmt('%e' % value, unit, '', space, mbox_prefix, mbox_suffix)
+            return self._fmt('%e' % value, unit, '', aslatex)
         elif idx >= len(prefixes):
             idx = len(prefixes) - 1
-            return self._fmt('%e' % value, unit, '', space, mbox_prefix, mbox_suffix)
+            return self._fmt('%e' % value, unit, '', aslatex)
 
         if dp < 0:
             dp = 0
@@ -64,24 +79,19 @@ class EngFormatter(object):
             # Remove trailing zeroes after decimal point
             valstr = valstr.rstrip('0').rstrip('.')
 
-        return self._fmt(valstr, unit, prefixes[idx], space,
-                         mbox_prefix, mbox_suffix)
+        return self._fmt(valstr, unit, prefixes[idx], aslatex)
 
     def latex_math(self, value, unit):
-        """Make latex math-mode string."""
+        """This is equivalent to the `latex()` method but encloses in $ $."""
 
         return '$' + self.latex(value, unit) + '$'
 
     def latex(self, value, unit):
-        """Make latex string."""
+        """Make latex string assuming math mode."""
 
-        return self._do(value, unit,
-                        ('f', 'p', 'n', '$\mu$', 'm', '', 'k', 'M', 'G', 'T'),
-                        '\,', r'\mbox{', r'}')
+        return self._do(value, unit, aslatex=True)
 
     def str(self, value, unit):
         """Make string."""
 
-        return self._do(value, unit,
-                        ('f', 'p', 'n', 'u', 'm', '', 'k', 'M', 'G', 'T'),
-                        ' ', '', '')
+        return self._do(value, unit, aslatex=False)

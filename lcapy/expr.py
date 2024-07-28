@@ -110,7 +110,7 @@ class ExprPrint(object):
         print(self.prettyans(name, **kwargs))
 
     def latex(self, **kwargs):
-        """Make latex string."""
+        """Make latex string assuming math mode."""
         return latex(self._pexpr, **kwargs)
 
     def latex_with_units(self, eng_format=False, show_units=True,
@@ -139,11 +139,11 @@ class ExprPrint(object):
 
         s = latex(value, **kwargs)
         if show_units and units != '':
-            s += '\,' + units
+            s += '\\,\\mathrm{' + units + '}'
         return s
 
     def latex_math(self, **kwargs):
-        """Make latex math-mode string."""
+        """This is equivalent to the `latex()` method but encloses in $ $."""
         return '$' + self.latex(**kwargs) + '$'
 
     def latexans(self, name, **kwargs):
