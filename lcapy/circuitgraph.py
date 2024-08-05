@@ -303,7 +303,7 @@ class CircuitGraph(object):
 
         node = str(node)
 
-        if node not in self.nodes:
+        if node not in self.node_map:
             raise ValueError('Unknown node ' + node)
         return node
 
