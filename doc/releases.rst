@@ -2,10 +2,40 @@
 Release notes
 =============
 
-V1.23
+V1.24
 =====
 
+- Simplifies LaTeX strings for matplotlib
 
+- Adds dB-phase-degrees option for plotting
+
+- Adds phase argument for Bode plots
+
+- Supports SymPy-1.13 `Matrix` changes
+
+- Allows wire labels
+
+- Adds Foster RC ladder networks
+
+- Allows Pade approximation around non-zero point
+
+- Makes approximation methods consist
+
+- Renames unreachable to unreachable_nodes
+
+- Prints circuit nodes with no path to ground
+
+- Prints unconnected circuit nodes if MNA fails
+
+- Fixes inverse Laplace transform for fractional power
+
+- Fixes approximation for negative fractional powers
+
+- Adds value attribute to `Expr`
+
+
+V1.23
+=====
 
 - Improves conjugate pair matching for inverse Laplace transforms
 
