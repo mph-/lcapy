@@ -31,7 +31,10 @@ class EngFormatter(object):
                 s += '\\mu\\mathrm{' + unit + '}'
         else:
             if unit.startswith('$'):
-                s += '\\mathrm{' + prefix + '}' + unit[1:-1]
+                if prefix == '':
+                    s += unit[1:-1]
+                else:
+                    s += '\\mathrm{' + prefix + '}' + unit[1:-1]
             else:
                 s += '\\mathrm{' + prefix + unit + '}'
         return s
