@@ -798,7 +798,7 @@ class Cpt(object):
                       'loosely dotted', 'dashed', 'densely dashed',
                       'loosely dashed')
 
-        ignore_keys = self.special_keys + xcolors + linestyles
+        ignore_keys = self.special_keys + xcolors + linestyles + ('color', )
 
         args_list = opts.as_list(ignore_keys, **kwargs)
         # May want to prune
