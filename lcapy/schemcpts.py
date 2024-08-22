@@ -775,6 +775,22 @@ class Cpt(object):
     def midpoint(self, node1, node2):
         return (node1.pos + node2.pos) * 0.5
 
+    def draw_args(self, opts, **kwargs):
+
+        args_list = opts.as_list(self.special_keys, **kwargs)
+        dargs = []
+
+        for arg in args_list:
+            if '/' not in arg:
+                dargs.append(arg)
+        return dargs
+
+    def node_args(self, opts, **kwargs):
+
+        args_list = opts.as_list(self.special_keys, **kwargs)
+        # May want to prune
+        return args_list
+
     def draw_cptnode(self, pos, cpt='', args='', dargs='', label=''):
         """Create a string to draw a tikz node containing a circuitikz
         component `cpt` at position `pos`. `args` is a list or string
@@ -898,7 +914,7 @@ class Cpt(object):
             path += ' %s cycle' % join
 
         if dargs is None:
-            dargs = self.opts.as_list(self.special_keys)
+            dargs = self.draw_args(self.opts)
         if style != '':
             dargs.append(style)
         dargs = ', '.join([arg for arg in dargs if arg != ''])
@@ -911,7 +927,7 @@ class Cpt(object):
     def draw_connection(self, n, kind):
         """Draw connection and label."""
 
-        args = n.opts.as_list(self.special_keys)
+        args = self.draw_args(n.opts)
 
         try:
             scale = float(self.opts[kind])
@@ -951,7 +967,7 @@ class Cpt(object):
 
             opts = n.opts.copy()
             opts.pop('fill', None)
-            args = opts.as_list(self.special_keys)
+            args = self.draw_args(opts)
 
             lpos = self.tf(n.pos, (x, 0), scale=1, angle_offset=angle)
             dargs = ['align=center']
@@ -977,7 +993,7 @@ class Cpt(object):
         elif kind == 'implicit':
             kind = implicit_default
 
-        args = n.opts.as_list(self.special_keys)
+        args = self.draw_args(n.opts)
         pinpos = n.pinpos
 
         if self.type != 'A':
@@ -1031,7 +1047,7 @@ class Cpt(object):
         elif kind == 'implicit':
             kind = implicit_default
 
-        args = n.opts.as_list(self.special_keys)
+        args = self.draw_args(n.opts)
         label = n.opts.get('l', n.opts.get('label', label))
 
         # vss and vdd labels are drawn in the correct place except
@@ -1081,7 +1097,7 @@ class Cpt(object):
         if self.type == 'O':
             return ''
 
-        args = n.opts.as_list(self.special_keys)
+        args = self.draw_args(n.opts)
 
         s = ''
 
@@ -1105,7 +1121,7 @@ class Cpt(object):
         draw_nodes = self.draw_nodes_opt
         if draw_nodes is None:
             draw_nodes = kwargs.get('draw_nodes', True)
-        dargs = self.opts.as_list(self.special_keys, **kwargs)
+        dargs = self.draw_args(self.opts, **kwargs)
 
         s = ''
         for n in self.drawn_nodes:
@@ -1205,7 +1221,7 @@ class Cpt(object):
             else:
                 if node.auxiliary:
                     continue
-                dargs = self.opts.as_list(self.special_keys, **kwargs)
+                dargs = self.draw_args(self.opts, **kwargs)
                 s += self.draw_node_label(node, label_nodes, anchor, dargs)
 
         return s
@@ -1357,7 +1373,7 @@ class Cpt(object):
 
     def args_str(self, **kwargs):
 
-        return ','.join(self.opts.as_list(self.special_keys, **kwargs))
+        return ','.join(self.draw_args(self.opts, **kwargs))
 
     def label(self, keys=None, default=True, **kwargs):
 
@@ -1459,8 +1475,10 @@ class Cpt(object):
         if keys is None:
             keys = self.label_keys
 
+        args = self.draw_args(self.opts, **kwargs)
+
         return self.annotate(pos, self.label(keys, default=default, **kwargs),
-                             self.opts.as_list(self.special_keys, **kwargs))
+                             args)
 
 
 class Unipole(Cpt):
@@ -1494,7 +1512,7 @@ class Unipole(Cpt):
         if self.invert:
             xscale = -xscale
 
-        args = self.opts.as_list(self.special_keys, **kwargs)
+        args = self.draw_args(self.opts, **kwargs)
         if self.angle != 0:
             args.append('rotate=%d' % self.angle)
         if xscale != 1:
@@ -1647,7 +1665,7 @@ class Bipole(StretchyCpt):
             # With this option, draw component as a piece of wire.
             # This is useful for hiding the control voltage source
             # required for a CCVS or a CCCS.
-            dargs = self.opts.as_list(self.special_keys, **kwargs)
+            dargs = self.draw_args(self.opts, **kwargs)
             s = self.draw_wire(n1.s, n2.s, dargs)
             return s
 
@@ -1701,9 +1719,9 @@ class Bipole(StretchyCpt):
                 # for horizontal cpt.
                 flip = not flip
 
-        dargs = self.opts.as_list(self.special_keys, **kwargs)
+        args = self.node_args(self.opts, **kwargs)
+        dargs = self.draw_args(self.opts, **kwargs)
 
-        args = []
         # Create default label if not overridden
         if not self.labels.label:
             label, annotation = self.label_make(**kwargs)
@@ -2803,7 +2821,7 @@ class SPDT(FixedCpt):
         n1, n2, n3 = self.nodes
         centre = n1.pos * 0.5 + (n2.pos + n3.pos) * 0.25
 
-        args = self.opts.as_list(self.special_keys, **kwargs)
+        args = self.draw_args(self.opts, **kwargs)
         if self.angle != 0:
             args.append('rotate=%d' % self.angle)
 
@@ -3629,7 +3647,7 @@ class Gate2(Chip):
 
         centre = self.node('mid')
         q = self.tf(centre.pos, ((-0.3, 0.075)))
-        args = self.opts.as_list(self.special_keys)
+        args = self.draw_args(self.opts, **kwargs)
         args.append('anchor=in 1')
         s = self.draw_cptnode(q, cpt='ieeestd ' + self.kind + ' port',
                               args=args)
@@ -4057,7 +4075,7 @@ class Wire(Bipole):
 
         # TODO, add arrow shapes for earth symbol.
 
-        dargs = self.opts.as_list(self.special_keys, **kwargs)
+        dargs = self.draw_args(self.opts, **kwargs)
 
         if self.steps is None:
             s = self.draw_wire(n1.s, n2.s, style=style,
