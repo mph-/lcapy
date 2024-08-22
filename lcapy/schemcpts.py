@@ -2647,10 +2647,12 @@ class Transformer(TF1):
 
         n1, n2, n3, n4 = self.nodes[0:4]
 
-        s = r'   \draw[%s] (%s) to [inductor, scale=%s] (%s);''\n' % (
-            self.draw_args_str(**kwargs), n3.s, self.scale, n4.s)
-        s += r'   \draw[%s] (%s) to [inductor, scale=%s] (%s);''\n' % (
-            self.draw_args_str(**kwargs), n2.s, self.scale, n1.s)
+        draw_args_str = self.draw_args_str(**kwargs)
+
+        s = self.draw_cpt(n3.s, n4.s, cpt='inductor', args='scale=%s' %
+                          self.scale, dargs=draw_args_str)
+        s += self.draw_cpt(n2.s, n1.s, cpt='inductor', args='scale=%s' %
+                          self.scale, dargs=draw_args_str)
 
         s += super(Transformer, self).draw(link=False, **kwargs)
         return s
@@ -2680,8 +2682,12 @@ class TFtap(TF1):
 
         n1, n2, n3, n4 = self.nodes[0:4]
 
-        s = r'  \draw (%s) to [inductor] (%s);''\n' % (n3.s, n4.s)
-        s += r'  \draw (%s) to [inductor] (%s);''\n' % (n2.s, n1.s)
+        draw_args_str = self.draw_args_str(**kwargs)
+
+        s = self.draw_cpt(n3.s, n4.s, cpt='inductor', args='scale=%s' %
+                          self.scale, dargs=draw_args_str)
+        s += self.draw_cpt(n2.s, n1.s, cpt='inductor', args='scale=%s' %
+                          self.scale, dargs=draw_args_str)
 
         s += super(TFtap, self).draw(link=False, **kwargs)
         return s
