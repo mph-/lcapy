@@ -134,6 +134,10 @@ class Opts(dict):
             kwargs[key] = val
 
         def fmt(key, val):
-            return '%s=%s' % (key, latex_format_label(val))
+            val = latex_format_label(val)
+            if val == '':
+                return key
+            else:
+                return '%s=%s' % (key, val)
 
         return [fmt(key, val) for key, val in kwargs.items() if key not in ignore and '.' not in key]
