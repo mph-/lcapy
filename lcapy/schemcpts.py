@@ -787,7 +787,20 @@ class Cpt(object):
 
     def node_args(self, opts, **kwargs):
 
-        args_list = opts.as_list(self.special_keys, **kwargs)
+        xcolors = ('blue', 'cyan', 'magenta', 'yellow',
+                   'black', 'gray', 'white', 'darkgray',
+                   'lightgray', 'brown', 'lime', 'olive',
+                   'orange', 'pink', 'purple', 'teal', 'violet')
+
+        linestyles = ('ultra thin', 'very thin', 'thin', 'semithick',
+                      'thick', 'very thick', 'ultra thick',
+                      'solid', 'dotted', 'densely dotted',
+                      'loosely dotted', 'dashed', 'densely dashed',
+                      'loosely dashed')
+
+        ignore_keys = self.special_keys + xcolors + linestyles
+
+        args_list = opts.as_list(ignore_keys, **kwargs)
         # May want to prune
         return args_list
 
@@ -1371,7 +1384,7 @@ class Cpt(object):
     def parse_pindefs(self):
         return {}
 
-    def args_str(self, **kwargs):
+    def draw_args_str(self, **kwargs):
 
         return ','.join(self.draw_args(self.opts, **kwargs))
 
@@ -1991,14 +2004,14 @@ class Shape(FixedCpt):
             # This affects the image positioning.
             text_width = self.width
 
-        args_str = self.args_str(**kwargs)
+        draw_args_str = self.draw_args_str(**kwargs)
         if not self.nodraw:
-            args_str += ', draw'
+            draw_args_str += ', draw'
 
         # shape border rotate rotates the box but not the text
         s = r'  \draw (%s) node[%s, thick, inner sep=0pt, minimum width=%.2fcm, minimum height=%.2fcm, text width=%.2fcm, align=center, shape border rotate=%s, %s, scale=%s] (%s) {%s};''\n' % (
             self.centre, self.shape, self.width, self.height,
-            text_width, self.angle, args_str, scale, self.s, label)
+            text_width, self.angle, draw_args_str, scale, self.s, label)
         return s
 
 
@@ -2046,7 +2059,7 @@ class Cable(Shape):
             q = self.tf(centre, ((0.0125, 0)))
 
             s += r'  \draw[%s] (%s) node[cylinder, draw, rotate=%s, minimum width=%scm, minimum height=%scm, xscale=%s] {};''\n' % (
-                self.args_str(**kwargs), q, self.angle, width, length, xscale)
+                self.draw_args_str(**kwargs), q, self.angle, width, length, xscale)
 
         if kind == 'tline':
             s += self.draw_label(centre, **kwargs)
@@ -2261,14 +2274,14 @@ class Transistor(FixedCpt):
         label = self.label_tweak(label, xscale, yscale, self.angle)
 
         s = r'  \draw (%s) node[%s, %s, xscale=%s, yscale=%s, rotate=%d] (%s) {%s};''\n' % (
-            centre, cpt, self.args_str(**kwargs), xscale, yscale,
+            centre, cpt, self.draw_args_str(**kwargs), xscale, yscale,
             self.angle, self.s, label)
 
         # Add additional wires.  These help to compensate for the
         # slight differences in sizes of the different transistors.
         if self.tikz_cpt in ('pnp', 'npn'):
             s += r'  \draw[%s] (%s.C) -- (%s) (%s.B) -- (%s) (%s.E) -- (%s);''\n' % (
-                self.args_str(**kwargs), self.s, n1.s, self.s, n2.s, self.s, n3.s)
+                self.draw_args_str(**kwargs), self.s, n1.s, self.s, n2.s, self.s, n3.s)
         else:
             s += r'  \draw (%s.D) -- (%s) (%s.G) -- (%s) (%s.S) -- (%s);''\n' % (
                 self.s, n1.s, self.s, n2.s, self.s, n3.s)
@@ -2386,7 +2399,7 @@ class MT(Bipole):
         centre = (n1.pos + n2.pos) * 0.5
 
         s = r'  \draw (%s) node[elmech, %s, rotate=%d] (%s) {};''\n' % (
-            centre, self.args_str(**kwargs), self.angle + 90, self.s)
+            centre, self.draw_args_str(**kwargs), self.angle + 90, self.s)
         # Draw label separately, shape border rotate does not seem to work
         s += self.draw_label(centre, **kwargs)
         s += r'  \draw (%s) |- (%s.north);''\n' % (n1.s, self.s)
@@ -2635,9 +2648,9 @@ class Transformer(TF1):
         n1, n2, n3, n4 = self.nodes[0:4]
 
         s = r'   \draw[%s] (%s) to [inductor, scale=%s] (%s);''\n' % (
-            self.args_str(**kwargs), n3.s, self.scale, n4.s)
+            self.draw_args_str(**kwargs), n3.s, self.scale, n4.s)
         s += r'   \draw[%s] (%s) to [inductor, scale=%s] (%s);''\n' % (
-            self.args_str(**kwargs), n2.s, self.scale, n1.s)
+            self.draw_args_str(**kwargs), n2.s, self.scale, n1.s)
 
         s += super(Transformer, self).draw(link=False, **kwargs)
         return s
@@ -2728,7 +2741,7 @@ class Gyrator(FixedCpt):
 
         s = r'  \draw (%s) node[gyrator, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
             self.midpoint(self.nodes[0], self.nodes[3]),
-            self.args_str(**kwargs), 0.95 * self.scale, 0.89 * yscale,
+            self.draw_args_str(**kwargs), 0.95 * self.scale, 0.89 * yscale,
             -self.angle, self.s)
 
         s += self.draw_label(self.centre, **kwargs)
@@ -2760,7 +2773,7 @@ class Triode(FixedCpt):
 
         s = r'  \draw (%s) node[triode, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
             str(mid),
-            self.args_str(**kwargs), 1 * self.scale, 1 * yscale,
+            self.draw_args_str(**kwargs), 1 * self.scale, 1 * yscale,
             0, self.s)
 
         s += self.draw_label(self.centre, **kwargs)
@@ -3079,7 +3092,7 @@ class Chip(Shape):
         label = self.label(**kwargs)
         if label != '':
             s += r'  \draw (%s) node[text width=%.2fcm, align=center, %s] {%s};''\n' % (
-                centre.s, self.width - 0.5, self.args_str(**kwargs), label)
+                centre.s, self.width - 0.5, self.draw_args_str(**kwargs), label)
 
         # Draw clock symbols
         for m, n in enumerate(self.nodes):
@@ -3542,7 +3555,7 @@ class Uinverter(Chip):
         centre = self.node('mid')
         q = self.tf(centre.pos, ((0.45, 0)))
         s += r'  \draw[thick] (%s) node[ocirc, scale=%s, %s] {};''\n' % (
-            q, 1.8 * self.size * self.scale, self.args_str(**kwargs))
+            q, 1.8 * self.size * self.scale, self.draw_args_str(**kwargs))
         return s
 
 
@@ -3573,7 +3586,7 @@ class Udiffdriver(Chip):
         centre = self.node('mid')
         q = self.tf(centre.pos, ((0.05, -0.25)))
         s += r'  \draw[thick] (%s) node[ocirc, scale=%s, %s] {};''\n' % (
-            q, 1.8 * self.size * self.scale, self.args_str(**kwargs))
+            q, 1.8 * self.size * self.scale, self.draw_args_str(**kwargs))
         return s
 
 
@@ -3741,7 +3754,7 @@ class Eopamp(Chip):
         # Note, scale scales by area, xscale and yscale scale by length.
         s = r'  \draw (%s) node[op amp, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
             centre.s,
-            self.args_str(**kwargs), 2 * self.scale * 0.95, yscale,
+            self.draw_args_str(**kwargs), 2 * self.scale * 0.95, yscale,
             -self.angle, self.s)
         if not self.nowires:
             s += r'  \draw (%s.out) |- (%s);''\n' % (self.s,
@@ -3802,7 +3815,7 @@ class Efdopamp(Chip):
             yscale = -yscale
 
         s = r'  \draw (%s) node[fd op amp, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
-            centre.s, self.args_str(**kwargs), 2 * self.scale * 0.95, yscale,
+            centre.s, self.draw_args_str(**kwargs), 2 * self.scale * 0.95, yscale,
             -self.angle, self.s)
         s += r'  \draw (%s.out +) |- (%s);''\n' % (self.s, self.node('out+').s)
         s += r'  \draw (%s.out -) |- (%s);''\n' % (self.s, self.node('out-').s)
@@ -3865,7 +3878,7 @@ class Eamp(Chip):
         # Note, scale scales by area, xscale and yscale scale by length.
         s = r'  \draw (%s) node[buffer, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
             centre.s,
-            self.args_str(**kwargs), 2 * self.scale * 0.95, yscale,
+            self.draw_args_str(**kwargs), 2 * self.scale * 0.95, yscale,
             -self.angle, self.s)
         if not self.nowires:
             s += r'  \draw (%s.out) |- (%s);''\n' % (self.s,
