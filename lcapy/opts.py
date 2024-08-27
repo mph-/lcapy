@@ -124,7 +124,7 @@ class Opts(dict):
 
         return stripped
 
-    def as_list(self, ignore=None, **kwargs):
+    def as_list(self, ignore=None, allow=None, **kwargs):
 
         if ignore is None:
             ignore = []
@@ -140,4 +140,7 @@ class Opts(dict):
             else:
                 return '%s=%s' % (key, val)
 
-        return [fmt(key, val) for key, val in kwargs.items() if key not in ignore and '.' not in key]
+        if allow is None:
+            return [fmt(key, val) for key, val in kwargs.items() if key not in ignore and '.' not in key]
+
+        return [fmt(key, val) for key, val in kwargs.items() if key in allow and '.' not in key]
