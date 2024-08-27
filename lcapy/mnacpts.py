@@ -394,7 +394,8 @@ class Cpt(ImmittanceMixin):
             parts.append(self.keyword[1])
 
         for m, node in enumerate(nodes):
-            parts.append(node.name)
+            name = node if isinstance(node, str) else node.name
+            parts.append(name)
             if not ignore_keyword and self.keyword[0] == m + 1 \
                and self.keyword[1] != '':
                 parts.append(self.keyword[1])
