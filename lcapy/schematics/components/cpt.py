@@ -48,16 +48,6 @@ def angle_choose(pinpos):
     return angle
 
 
-def arrow_map(name):
-
-    try:
-        name = {'tee': '|', 'otri': 'open triangle 60',
-                'tri': 'triangle 60'}[name]
-    except KeyError:
-        pass
-    return name
-
-
 class Cpt(object):
 
     voltage_keys = ('v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<',
@@ -90,6 +80,15 @@ class Cpt(object):
                  'anchor', 'def', 'nodes', 'shape')
     label_opt_keys = ('label_values', 'label_ids', 'annotate_values',
                       'label_style', 'label_flip')
+    color_keys = ('blue', 'cyan', 'magenta', 'yellow',
+                  'black', 'gray', 'white', 'darkgray',
+                  'lightgray', 'brown', 'lime', 'olive',
+                  'orange', 'pink', 'purple', 'teal', 'violet')
+    linestyle_keys = ('ultra thin', 'very thin', 'thin', 'semithick',
+                      'thick', 'very thick', 'ultra thick',
+                      'solid', 'dotted', 'densely dotted',
+                      'loosely dotted', 'dashed', 'densely dashed',
+                      'loosely dashed')
 
     all_label_keys = voltage_keys + current_keys + flow_keys + \
         label_keys + label2_keys + inner_label_keys + \
@@ -699,32 +698,17 @@ class Cpt(object):
 
     def draw_args(self, opts, **kwargs):
 
-        args_list = opts.as_list(self.special_keys, **kwargs)
-        dargs = []
+        allow_keys = self.linestyle_keys
 
-        for arg in args_list:
-            if '/' not in arg:
-                dargs.append(arg)
-        return dargs
+        return opts.as_list(allow=allow_keys, **kwargs)
 
-    def node_args(self, opts, **kwargs):
+    def cpt_args(self, opts, **kwargs):
 
-        xcolors = ('blue', 'cyan', 'magenta', 'yellow',
-                   'black', 'gray', 'white', 'darkgray',
-                   'lightgray', 'brown', 'lime', 'olive',
-                   'orange', 'pink', 'purple', 'teal', 'violet')
+        # Allow draw, fill, color
 
-        linestyles = ('ultra thin', 'very thin', 'thin', 'semithick',
-                      'thick', 'very thick', 'ultra thick',
-                      'solid', 'dotted', 'densely dotted',
-                      'loosely dotted', 'dashed', 'densely dashed',
-                      'loosely dashed')
+        ignore_keys = self.special_keys
 
-        ignore_keys = self.special_keys + xcolors + linestyles + ('color', )
-
-        args_list = opts.as_list(ignore_keys, **kwargs)
-        # May want to prune
-        return args_list
+        return opts.as_list(ignore_keys, **kwargs)
 
     def draw_cptnode(self, pos, cpt='', args='', dargs='', label=''):
         """Create a string to draw a tikz node containing a circuitikz
@@ -783,63 +767,13 @@ class Cpt(object):
         elif cpt != '':
             args = cpt + ', ' + args
 
-        if dargs == '':
-            s = r'  \draw (%s) to [%s] (%s);''\n' % (
-                pos1, args, pos2)
-        else:
-            s = r'  \draw[%s] (%s) to [%s] (%s);''\n' % (
-                dargs, pos1, args, pos2)
-        return s
+        if dargs != '':
+            dargs = '[' + dargs + ']'
+        if args != '':
+            args = ' [' + args + ']'
 
-    def draw_wire(self, pos1, pos2, dargs=None, startarrow='',
-                  endarrow='', style=''):
-        """Create a string to draw a circuitikz wire between positions `pos1`
-        and `pos2`.  `dargs` is a list or string of the draw options.
-
-        The general form of the generated string is:
-
-        \draw[-, dargs] (pos1) to (pos2);
-
-        """
-
-        startarrow = arrow_map(startarrow)
-        endarrow = arrow_map(endarrow)
-
-        cpt = startarrow + '-' + endarrow
-
-        dargs = [] if dargs is None else dargs
-        dargs.insert(0, cpt)
-        dargs.append(style)
-        dargs = ', '.join([arg for arg in dargs if arg != ''])
-
-        if self.implicit_key(self.opts):
-            # l= is used to define node label for implicit wires
-            self.labels.label = None
-
-        args = self.labels.args()
-
-        args.append('n=' + self.s)
-
-        s = self.draw_cpt(pos1, pos2, 'short', args, dargs)
-        return s
-
-    def draw_stepped_wire(self, pos1, steps, dargs=None,
-                          startarrow='', endarrow='', style=''):
-
-        path = '(%s)' % pos1
-        for pos in steps:
-            path += ' to (%s)' % pos
-
-        startarrow = arrow_map(startarrow)
-        endarrow = arrow_map(endarrow)
-        cpt = startarrow + '-' + endarrow
-
-        dargs = [] if dargs is None else dargs
-        dargs.insert(0, cpt)
-        dargs.append(style)
-        dargs = ', '.join([arg for arg in dargs if arg != ''])
-
-        s = r'  \draw[%s] %s;''\n' % (dargs, path)
+        s = r'  \draw%s (%s) to%s (%s);''\n' % (
+            dargs, pos1, args, pos2)
         return s
 
     def draw_path(self, points, style='', join='--', closed=False, dargs=None):
@@ -1309,6 +1243,10 @@ class Cpt(object):
     def draw_args_str(self, **kwargs):
 
         return ','.join(self.draw_args(self.opts, **kwargs))
+
+    def cpt_args_str(self, **kwargs):
+
+        return ','.join(self.cpt_args(self.opts, **kwargs))
 
     def label(self, keys=None, default=True, **kwargs):
 
