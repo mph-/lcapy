@@ -131,7 +131,7 @@ class Bipole(StretchyCpt):
                 # for horizontal cpt.
                 flip = not flip
 
-        args = self.node_args(self.opts, **kwargs)
+        cargs = self.cpt_args(self.opts, **kwargs)
         dargs = self.draw_args(self.opts, **kwargs)
 
         # Create default label if not overridden
@@ -143,18 +143,18 @@ class Bipole(StretchyCpt):
                 self.labels.annotation = annotation
 
         # Add the specified labels
-        args.extend(self.labels.args(flip))
+        cargs.extend(self.labels.args(flip))
 
         if self.mirror:
-            args.append('mirror')
+            cargs.append('mirror')
         if self.invert:
-            args.append('invert')
+            cargs.append('invert')
 
         if self.scale != 1.0:
-            args.append('bipoles/length=%.2fcm' % (
+            cargs.append('bipoles/length=%.2fcm' % (
                 self.sch.cpt_size * self.scale))
 
-        args.append('n=' + self.s)
+        cargs.append('n=' + self.s)
 
-        s = self.draw_cpt(n1.s, n2.s, tikz_cpt, args, dargs)
+        s = self.draw_cpt(n1.s, n2.s, tikz_cpt, cargs, dargs)
         return s

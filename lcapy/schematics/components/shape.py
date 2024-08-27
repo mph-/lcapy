@@ -244,12 +244,12 @@ class Shape(FixedCpt):
             # This affects the image positioning.
             text_width = self.width
 
-        draw_args_str = self.draw_args_str(**kwargs)
+        cpt_args_str = self.cpt_args_str(**kwargs)
         if not self.nodraw:
-            draw_args_str += ', draw'
+            cpt_args_str += ', draw'
 
         # shape border rotate rotates the box but not the text
         s = r'  \draw (%s) node[%s, thick, inner sep=0pt, minimum width=%.2fcm, minimum height=%.2fcm, text width=%.2fcm, align=center, shape border rotate=%s, %s, scale=%s] (%s) {%s};''\n' % (
             self.centre, self.shape, self.width, self.height,
-            text_width, self.angle, draw_args_str, scale, self.s, label)
+            text_width, self.angle, cpt_args_str, scale, self.s, label)
         return s
