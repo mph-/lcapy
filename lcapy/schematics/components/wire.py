@@ -72,7 +72,7 @@ class Wire(Bipole):
         dargs.append(style)
         dargs = ', '.join([arg for arg in dargs if arg != ''])
 
-        s = self.draw_cpt(pos1, pos2, '', dargs, '')
+        s = self.draw_cpt(pos1, pos2, dargs=dargs)
         return s
 
     def draw_stepped_wire(self, pos1, steps, startarrow='',

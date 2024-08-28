@@ -706,7 +706,7 @@ class Cpt(object):
 
         # Allow draw, fill, color
 
-        ignore_keys = self.special_keys
+        ignore_keys = self.special_keys + self.linestyle_keys
 
         return opts.as_list(ignore_keys, **kwargs)
 
