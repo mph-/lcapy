@@ -24,10 +24,10 @@ from .schematics.components.transistor import Transistor
 from .schematics.components.twoport import TwoPort
 from .schematics.components.unipole import Unipole
 from .schematics.components.wire import Wire
-from .schematics.components.chip import Chip, Uchip1313, Uchip2121, Uchip3131
-from .schematics.components.chip import Uchip3333, Uchip2222, Uchip4141
-from .schematics.components.chip import Uchip4444, Uchip8181
-from .schematics.components.chip import Uchip5555, Uchip6666, Uchip7777
+from .schematics.components.chip import Chip, Uchip1313, Uchip2121, Uchip2222
+from .schematics.components.chip import Uchip3131, Uchip3333, Uchip4141
+from .schematics.components.chip import Uchip4444, Uchip5555, Uchip6666
+from .schematics.components.chip import Uchip7777, Uchip8181, Uchip8888
 from .schematics.components.opamp import Eopamp, Efdopamp, Einamp, Eamp
 from .schematics.components.opamp import Uopamp, Ufdopamp, Uinamp, Uisoamp
 

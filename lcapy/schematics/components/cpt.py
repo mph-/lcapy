@@ -80,7 +80,7 @@ class Cpt(object):
                  'anchor', 'def', 'nodes', 'shape')
     label_opt_keys = ('label_values', 'label_ids', 'annotate_values',
                       'label_style', 'label_flip')
-    color_keys = ('blue', 'cyan', 'magenta', 'yellow',
+    color_keys = ('blue', 'cyan', 'magenta', 'yellow', 'green',
                   'black', 'gray', 'white', 'darkgray',
                   'lightgray', 'brown', 'lime', 'olive',
                   'orange', 'pink', 'purple', 'teal', 'violet')
@@ -698,13 +698,14 @@ class Cpt(object):
 
     def draw_args(self, opts, **kwargs):
 
-        allow_keys = self.linestyle_keys
+        # Color keys are passed to both draw_args and cpt_args to
+        # ensure wires are coloured.
+
+        allow_keys = self.linestyle_keys + self.color_keys + ('color', )
 
         return opts.as_list(allow=allow_keys, **kwargs)
 
     def cpt_args(self, opts, **kwargs):
-
-        # Allow draw, fill, color
 
         ignore_keys = self.special_keys + self.linestyle_keys
 
