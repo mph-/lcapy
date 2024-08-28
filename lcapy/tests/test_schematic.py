@@ -25,7 +25,7 @@ class LcapyTester(unittest.TestCase):
   \coordinate (3) at (2.5,0);
   \coordinate (0) at (4.5,0);
   \draw (1) to [R, l_=$1\,\Omega$, n=R1] (2);
-  \draw[-] (2) to [short, n=Wanon1] (3);
+  \draw (2) to (3);
   \draw (3) to [C, l_=$2\,\mathrm{F}$, n=C1] (0);
   \draw (1) node[ocirc] {};
   \draw (0) node[ocirc] {};
