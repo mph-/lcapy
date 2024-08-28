@@ -1,1 +1,1 @@
-W 1 2; startarrow=tri, i=I
+W 1 2; i=I

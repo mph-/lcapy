@@ -1,6 +1,6 @@
 E1 3 0 opamp 1 2; right=2, scale=0.5
 W 3 4; right
-R1 1 2; down
+R1 f g; down=0.5, scale=0.5
 W E1.vdd a; up
 W E1.vdd2 b; up
 W E1.vss c; down
