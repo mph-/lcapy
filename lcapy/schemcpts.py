@@ -30,6 +30,8 @@ from .schematics.components.chip import Uchip4444, Uchip5555, Uchip6666
 from .schematics.components.chip import Uchip7777, Uchip8181, Uchip8888
 from .schematics.components.opamp import Eopamp, Efdopamp, Einamp, Eamp
 from .schematics.components.opamp import Uopamp, Ufdopamp, Uinamp, Uisoamp
+from .schematics.components.adc import Uadc
+from .schematics.components.dac import Udac
 
 
 module = sys.modules[__name__]
@@ -979,35 +981,6 @@ class Umux42(Mux):
             'r2': ('r', 0.25, -0.125)}
 
 
-class Uadc(Chip):
-    """ADC"""
-
-    pins = {'in': ('l', -0.5, 0),
-            'in+': ('l', -0.4375, 0.125),
-            'in-': ('l', -0.4375, -0.125),
-            'vref-': ('l', -0.375, -0.25),
-            'vref+': ('l', -0.375, 0.25),
-            'avss': ('b', -0.1, -0.5),
-            'vss': ('b', 0.1, -0.5),
-            'dvss': ('b', 0.3, -0.5),
-            'clk': ('r', 0.5, -0.25),
-            'data': ('r', 0.5, 0),
-            'fs': ('r', 0.5, 0.25),
-            'dvdd': ('t', 0.3, 0.5),
-            'vdd': ('t', 0.1, 0.5),
-            'avdd': ('t', -0.1, 0.5)}
-
-    pinlabels = {'vref-': 'VREF-', 'vref+': 'VREF+',
-                 'vss': 'VSS', 'vdd': 'VDD',
-                 'dvss': 'DVSS', 'dvdd': 'DVDD',
-                 'avss': 'AVSS', 'avdd': 'AVDD',
-                 'clk': '>', 'data': 'DATA', 'fs': 'FS'}
-
-    @property
-    def path(self):
-        return ((-0.5, 0.0), (-0.25, -0.5), (0.5, -0.5), (0.5, 0.5), (-0.25, 0.5))
-
-
 class Uregulator(Chip):
     """Voltage regulator"""
 
@@ -1018,35 +991,6 @@ class Uregulator(Chip):
             'out': ('r', 0.5, 0)}
 
     pinlabels = {'en': 'E', 'gnd': 'GND'}
-
-
-class Udac(Chip):
-    """DAC"""
-
-    pins = {'out': ('r', 0.5, 0),
-            'out+': ('r', 0.4375, 0.125),
-            'out-': ('r', 0.4375, -0.125),
-            'vref-': ('r', 0.375, -0.25),
-            'vref+': ('r', 0.375, 0.25),
-            'avss': ('b', 0.1, -0.5),
-            'vss': ('b', -0.1, -0.5),
-            'dvss': ('b', -0.3, -0.5),
-            'clk': ('l', -0.5, -0.25),
-            'data': ('l', -0.5, 0),
-            'fs': ('l', -0.5, 0.25),
-            'dvdd': ('t', -0.3, 0.5),
-            'vdd': ('t', -0.1, 0.5),
-            'avdd': ('t', 0.1, 0.5)}
-
-    pinlabels = {'vref-': 'VREF-', 'vref+': 'VREF+',
-                 'vss': 'VSS', 'vdd': 'VDD',
-                 'dvss': 'DVSS', 'dvdd': 'DVDD',
-                 'avss': 'AVSS', 'avdd': 'AVDD',
-                 'clk': '>', 'data': 'DATA', 'fs': 'FS'}
-
-    @property
-    def path(self):
-        return ((-0.5, -0.5), (0.25, -0.5), (0.5, 0), (0.25, 0.5), (-0.5, 0.5))
 
 
 class Udiffamp(Chip):
