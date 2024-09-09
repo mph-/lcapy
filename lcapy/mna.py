@@ -262,7 +262,7 @@ class MNA(object):
         # Calculate the branch currents.  These should be lazily
         # evaluated as required.
         for elt in cct.elements.values():
-            if elt.type in ('R', 'NR', 'C'):
+            if elt.type in ('R', 'NR', 'C', 'Y', 'Z'):
                 n1 = cct.node_map[elt.node_names[0]]
                 n2 = cct.node_map[elt.node_names[1]]
                 V1, V2 = self._Vdict[n1], self._Vdict[n2]
