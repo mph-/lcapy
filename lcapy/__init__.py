@@ -102,10 +102,11 @@ def show_version():
     from numpy import __version__ as numpy_version
     from scipy import __version__ as scipy_version
     from matplotlib import __version__ as matplotlib_version
+    from networkx import __version__ as networkx_version
 
-    print('Python: %s\nSymPy: %s\nNumPy: %s\nMatplotlib: %s\nSciPy: %s\nLcapy: %s' %
+    print('Python: %s\nSymPy: %s\nNumPy: %s\nMatplotlib: %s\nSciPy: %s\nNetworkx: %s\nLcapy: %s' %
           (python_version, sympy_version, numpy_version,
-           matplotlib_version, scipy_version, lcapy_version))
+           matplotlib_version, scipy_version, networkx_version, lcapy_version))
 
 
 # The following is to help sympify deal with j.
