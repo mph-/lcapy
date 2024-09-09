@@ -2278,6 +2278,7 @@ class XT(Misc):
 class Y(RC):
     """Admittance"""
 
+    need_branch_current = True
     is_reactive = True
     add_parallel = True
 
@@ -2285,6 +2286,7 @@ class Y(RC):
 class Z(RC):
     """Impedance"""
 
+    need_branch_current = True
     is_reactive = True
     add_series = True
 

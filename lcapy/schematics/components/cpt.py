@@ -202,6 +202,8 @@ class Cpt(object):
 
     def check_nodes(self):
 
+        from .shape import Shape
+
         # There are 5 cases:
         # 1. node             R1 1 2
         # 2. pin ref          R1 1 U1.in
@@ -248,6 +250,8 @@ class Cpt(object):
                 self.relative_node_names.append(name)
 
     def parse_nodes(self):
+
+        from .shape import Shape
 
         self.allpins = self.pins.copy()
         self.allpins.update(self.auxiliary)
@@ -1354,6 +1358,3 @@ class Cpt(object):
 
         return self.annotate(pos, self.label(keys, default=default, **kwargs),
                              args)
-
-
-from .shape import Shape  # nopep8
