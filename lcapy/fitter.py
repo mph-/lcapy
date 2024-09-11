@@ -248,6 +248,7 @@ class Fitter(object):
 
 def fit(expr, x, y, ranges, method='trf', Ns=10, **kwargs):
 
+    raise Exception("Cut down functionality")
     return Fitter(expr).optimize(x, y, ranges=ranges, method=method,
                                  Ns=Ns, **kwargs)
 

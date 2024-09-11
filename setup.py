@@ -2,7 +2,7 @@
 from setuptools import setup, find_packages
 
 
-__version__ = '1.24'
+__version__ = '1.24+InskaLE.0.9'
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
@@ -21,14 +21,15 @@ setup(name='lcapy',
       url='https://github.com/mph-/lcapy',
       download_url='https://github.com/mph-/lcapy',
       install_requires=['matplotlib',
-                        'scipy',
                         'numpy',
                         'sympy>=1.10.1',  # >=1.7.1 works
                         'networkx',
                         'IPython',
                         'setuptools',
                         'wheel',
-                        'property_cached'
+                        'property_cached',
+                        'schemdraw',
+                        'ordered_set'
                         ],
       python_requires='>=3.7',  # >=3.6 should still work but not tested
       extras_require={

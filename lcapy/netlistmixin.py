@@ -464,7 +464,7 @@ class NetlistMixin(object):
                     subset.add(name1)
             aset -= subset
             if len(subset) > 1:
-                subsets[cpt.type] = subset
+                subsets[cpt.type] = set(list(subset)[0:2])
         return subsets
 
     def _in_parallel_all(self):

@@ -127,3 +127,5 @@ amperes = u.amperes
 ohms = u.ohms
 siemens = u.siemens
 watts = u.watts
+henrys = u.henrys
+farads = u.farads

@@ -71,6 +71,10 @@ from .nodalanalysis import *
 from .loopanalysis import *
 from .exprclasses import *
 from .seqclasses import *
+from .netlistLine import NetlistLine
+from .drawWithSchemdraw import DrawWithSchemdraw
+from .solution import Solution
+from .impedanceConverter import FileToImpedance
 
 import sys
 import pkg_resources
@@ -100,13 +104,11 @@ def show_version():
     from sys import version as python_version
     from sympy import __version__ as sympy_version
     from numpy import __version__ as numpy_version
-    from scipy import __version__ as scipy_version
     from matplotlib import __version__ as matplotlib_version
-    from networkx import __version__ as networkx_version
 
-    print('Python: %s\nSymPy: %s\nNumPy: %s\nMatplotlib: %s\nSciPy: %s\nNetworkx: %s\nLcapy: %s' %
+    print('Python: %s\nSymPy: %s\nNumPy: %s\nMatplotlib: %s\nLcapy: %s' %
           (python_version, sympy_version, numpy_version,
-           matplotlib_version, scipy_version, networkx_version, lcapy_version))
+           matplotlib_version, lcapy_version))
 
 
 # The following is to help sympify deal with j.

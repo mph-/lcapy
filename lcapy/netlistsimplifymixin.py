@@ -3,11 +3,9 @@
 Copyright 2022--2023 Michael Hayes, UCECE
 
 """
-
 from .expr import expr
 from warnings import warn
 from collections import OrderedDict
-
 
 class NetlistSimplifyMixin:
 
@@ -18,6 +16,7 @@ class NetlistSimplifyMixin:
             print(string % subset)
 
         subset_list = list(subset)
+        subset_list.sort()
 
         if add:
             total = expr(0)
@@ -43,7 +42,7 @@ class NetlistSimplifyMixin:
             if explain:
                 print('%s combined IC = %s' % (subset, ic))
 
-        newname = self.namer(name[0] + 't', self.elements)
+        newname = self.namer(name[0] + 'sim', self.elements)
         net1 = elt._new_value(total, ic)
         parts = net1.split(' ', 1)
         net1 = newname + ' ' + parts[1]
@@ -337,6 +336,139 @@ class NetlistSimplifyMixin:
                              explain=explain, modify=modify,
                              series=False, parallel=True, dangling=False,
                              keep_nodes=keep_nodes)
+
+    def get_next_simplify_elements(self, series: bool = False, parallel: bool = False, debug: bool = False) -> list[str]:
+        """
+        The function returns two elements from a list. The list of elements is sorted by name so with the same
+        components in a circuit the order of the returned elements will alway be the same. The elements in the returned
+        list are either in series or in parallel depending on `series` and `parallel`.
+        :param series: if true the function returns the first two elements which are in series.
+        :param parallel: if true the function returns the first two elements which are in parallel.
+        :param debug: prints the returned elements into a textfile named debug.txt
+        :return: a list with two string elements
+        """
+
+        if series and parallel:
+            raise AssertionError('You cannot specify both series and parallel. series || parallel = True')
+        if not series and not parallel:
+            raise AssertionError('You have to specify series or parallel. series || parallel = True')
+
+        net = self.copy()
+
+        if series and net.in_series():
+            elements = list(net.in_series()[0])
+        elif parallel and net.in_parallel():
+            elements = list(net.in_parallel()[0])
+        else:
+            return []
+
+        elements.sort()
+
+        from lcapy import Circuit
+        assert isinstance(net, Circuit)
+
+        for element in elements:
+            if element in net.components.voltage_sources \
+                    or element in net.components.current_sources:
+                elements.remove(element)
+
+        if debug:
+            print(elements[0:2])
+            f = open("debug.txt", "a")
+            f.write(str(elements[0:2])+"\n")
+
+        return elements[0:2]
+
+    def find_new_cpt_name(self, oldCpts: set, newCpts: set) -> str:
+        """
+        takes the components (cpts) of a Circuit before and after simplification and returns the name of the
+        simplified element.
+        :param oldCpts: set(Circuit.cpts) before Circuit.simplify()
+        :param newCpts: set(Circuit.cpts) after Circuit.simplify()
+        :return: string of the new entry
+        """
+        diffComp = newCpts - oldCpts
+        diffComp = [component for component in diffComp if not component[0] == "W"]
+
+        if diffComp:
+            return diffComp[0]
+        else:
+            warn("No simplification performed, might not work as expected", RuntimeWarning)
+            return ""
+
+    def simplify_two_cpts(self, net, selected):
+        """
+        simplifies two selected componentes of a circuit and returns the new Circuit and the name of the simplified
+        component.
+        :param net: Circuit to be simplified
+        :param selected: the thwo components to be simplified
+        :return: the simplified circuit as a circuit and the name of the simplified component as a string
+        """
+        if len(selected) > 2:
+            warn(f"first two components selected, length exceeded 2", RuntimeWarning)
+            selected = selected[0:2]
+
+        oldCpts = set(net.cpts)
+        net = net.simplify(select=selected)
+        newCpts = set(net.cpts)
+        newCptName = self.find_new_cpt_name(oldCpts, newCpts)
+        return net, newCptName
+
+    def simplify_stepwise(self, limit: int = 100, debug: bool = False) -> list[tuple]:
+        """
+        Simplifies the circuit it is called on stepwise and returns a list of tupels which represent all steps
+        that where made to simplify the circuit. The tuple contains the under return specified elements.
+        Return value can be used as Input for Solution()-Object.
+        :param limit: How many iterations are take before aborting the simplification process.
+        :param debug: print debug info in debug.txt
+        :return: a list of tupels with [(Circuit, StepComponent1, StepComponent2, StepComponentsCombined, Relation),...]
+        """
+
+        net = self.copy()
+        steps = [(net, None, None, None, None)]
+
+        if debug:
+            f = open("debug.txt", "a")
+            from datetime import datetime
+            f.write(f"--- [{datetime.now()}] ---------\n")
+            f.close()
+
+        for i in range(0, limit):
+
+            selected = net.get_next_simplify_elements(series=True, debug=debug)
+            if len(selected) > 1:
+                net, newCptName = self.simplify_two_cpts(net, selected=selected)
+                steps.append((net, selected[0], selected[1], newCptName, "series"))
+                continue
+
+            selected = net.get_next_simplify_elements(parallel=True, debug=debug)
+            if len(selected) > 1:
+                net, newCptName = self.simplify_two_cpts(net, selected=selected)
+                steps.append((net, selected[0], selected[1], newCptName, "parallel"))
+                continue
+
+            if net.in_series():
+                lenSeries = len(list(net.in_series()[0]))
+            else:
+                lenSeries = 0
+
+            if net.in_parallel():
+                inParallel = list(net.in_parallel()[0])
+                exclude = net.components.voltage_sources
+                exclude.extend(net.components.current_sources)
+                inParallel = [elem for elem in inParallel if elem not in exclude]
+                lenParallel = len(inParallel)
+            else:
+                lenParallel = 0
+
+            if lenSeries <= 1 and lenParallel <= 1:
+                break
+
+        return steps
+
+
+
+
 
     def simplify(self, select=None, ignore=None, passes=0, series=True,
                  parallel=True, dangling=False, disconnected=False,
