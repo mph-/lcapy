@@ -1,0 +1,27 @@
+name: Auto Rebase Fork
+
+on:
+  schedule:
+    # Runs every day at midnight (adjust as needed)
+    - cron: '0 0 * * *'
+
+jobs:
+  rebase:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout your repo
+      uses: actions/checkout@v2
+      with:
+        ref: main  # Replace 'main' with your default branch
+
+    - name: Set up git
+      run: |
+        git config user.name "GitHub Action"
+        git config user.email "action@github.com"
+    
+    - name: Add upstream repo
+      run: |
+        git remote add upstream https://github.com/<upstream-owner>/<upstream-repo>.git
+        git fetch upstream
+        git rebase upstream/main  # Rebase onto the upstream's main branch
+        git push origin main --force-with-lease  # Push the rebased changes to your fork
