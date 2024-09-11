@@ -17,3 +17,9 @@ unit_tests/coverage
 misc/*
 issues/*
 testing/*
+*.egg-info/
+misc/*
+build
+Non-Lcapy-Files/Solutions
+.idea
+dist
