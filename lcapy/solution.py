@@ -12,7 +12,7 @@ from warnings import warn
 from lcapy import state
 from lcapy.mnacpts import R, L, C, Z
 from lcapy import DrawWithSchemdraw
-from lcapy.jsonExport import JsonExport
+from lcapy.jsonCompValueExport import JsonCompValueExport
 from lcapy.unitWorkAround import UnitWorkAround as uwa
 from typing import Union
 
@@ -277,7 +277,7 @@ class Solution:
         Solution.check_path(path)
         filename = os.path.splitext(filename)[0]
 
-        jsonExport = JsonExport()
+        jsonExport = JsonCompValueExport()
         as_dict = jsonExport.getDictForStep(step, self)
 
         if debug:
