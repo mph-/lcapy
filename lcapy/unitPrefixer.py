@@ -2,10 +2,14 @@ import sympy.core
 from sympy import Mul
 
 import lcapy.state
-from lcapy import ConstantFrequencyResponseDomainExpression as cfrde
-from lcapy import ConstantTimeDomainVoltage as ctdv
 from sympy.physics.units.prefixes import PREFIXES, Prefix
 from typing import Union
+
+from lcapy import ConstantFrequencyResponseDomainExpression as cfrde
+from lcapy import ConstantTimeDomainVoltage as ctdv
+from lcapy import TimeDomainVoltage as tdv
+from lcapy import TimeDomainCurrent as tdc
+
 
 
 class SIUnitPrefixer:
@@ -37,17 +41,18 @@ class SIUnitPrefixer:
         this function assumes all symbols to be 1, to determine the prefix based on the numerical value in the
         expression if it receives a type it can not handle it returns 0
         """
-        sub_dict = {}
+        sub_dict = {sympy.sin: 1, sympy.cos: 1}
 
         for freeSymbol in value.free_symbols:
             sub_dict[freeSymbol] = 1
+
         try:
             if isinstance(value, Mul):
                 if value.is_real:
                     _value = float(value.evalf(subs=sub_dict))
                 else:
                     return 0
-            elif isinstance(value, cfrde):
+            elif isinstance(value, (cfrde, ctdv, tdv, tdc)):
                 if value.expr.is_real:
                     _value = float(value.expr.evalf(subs=sub_dict))
                 else:
@@ -63,7 +68,7 @@ class SIUnitPrefixer:
         return self.prefixes[min(self.prefixes.keys(), key=lambda x: abs(x-exponent))]
 
     def getSIPrefix(self, value: Union[float, int, Mul, cfrde]) -> Prefix:
-        if isinstance(value, (Mul, cfrde)):
+        if isinstance(value, (Mul, cfrde, lcapy.TimeDomainVoltage, lcapy.TimeDomainCurrent)):
             return self._findSIPrefix(self._findExponentMul(value))
         else:
             return self._findSIPrefix(self._findExponentFloatInt(value))
@@ -75,8 +80,8 @@ class SIUnitPrefixer:
         """
 
         if isinstance(value, (Mul, float)):
-            value = expr = value
-        elif isinstance(value, (cfrde, ctdv)):
+            expr = value
+        elif isinstance(value, (cfrde, ctdv, tdv, tdc)):
             value = value
             expr = value.expr_with_units
         elif isinstance(value, int):
@@ -90,8 +95,8 @@ class SIUnitPrefixer:
         prefix = self.getSIPrefix(value)
         exp = prefix._exponent
 
+        # if this function would return value, the evalf() would remove the unit while converting to float
         if abs(exp) >= minExponent:
             return 1.0 * expr * 10**(-exp) * prefix
         else:
-            # if this returns value the evalf() function to convert to float removes the unit
             return expr
