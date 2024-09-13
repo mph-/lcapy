@@ -68,7 +68,7 @@ class Solution:
             if key in self.mapKey.keys():
                 return self._attributes[self.mapKey[key]]
             else:
-                raise AttributeError
+                raise KeyError
 
     def __setitem__(self, key, value):
         self._attributes[key] = value
@@ -80,7 +80,7 @@ class Solution:
             if key in self.mapKey.keys():
                 return self._attributes[self.mapKey[key]]
             else:
-                raise AttributeError
+                raise KeyError
 
     def __setattr__(self, key, value):
         if key.startswith('_'):
