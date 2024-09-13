@@ -56,7 +56,7 @@ class JsonCompValueExport:
         )
         self.latexStr = lambda x: latex(x.evalf(n=self.precision), imaginary_unit="j")
 
-    def updateObjectValues(self, step, solution: 'lcapy.Solution'):
+    def _updateObjectValues(self, step, solution: 'lcapy.Solution'):
         self.name1 = solution[step].cpt1
         self.name2 = solution[step].cpt2
         self.newName = solution[step].newCptName
@@ -96,7 +96,7 @@ class JsonCompValueExport:
             self.convValCptRes, self.cvcrType = ValueToComponent(self.valCptRes, omega_0=self.omega_0)
 
     def getDictForStep(self, step, solution: 'lcapy.Solution'):
-        self.updateObjectValues(step, solution)
+        self._updateObjectValues(step, solution)
 
         if self._isInitialStep():
             return self._handleInitialStep()
@@ -197,7 +197,7 @@ class JsonCompValueExport:
         compType = self.cvc1Type
         assert compType in ["R", "L", "C"]
 
-        equation = self.makeLatexEquation(eqVal1, eqVal2, eqRes, self.thisStep.relation, compType)
+        equation = self._makeLatexEquation(eqVal1, eqVal2, eqRes, self.thisStep.relation, compType)
 
         return JsonExportStepValues(self.name1, self.name2, self.newName, self.thisStep.relation,
                                     eqVal1, eqVal2, eqRes, equation,
@@ -211,7 +211,7 @@ class JsonCompValueExport:
         assert compType == "Z"
         convValCptRes = uwa.addUnit(self.convValCptRes, self.cvcrType)
 
-        equation = self.makeLatexEquation(eqVal1, eqVal2, eqRes, self.thisStep.relation, compType)
+        equation = self._makeLatexEquation(eqVal1, eqVal2, eqRes, self.thisStep.relation, compType)
 
         return JsonExportStepValues(self.name1, self.name2, self.newName, self.thisStep.relation,
                                     eqVal1, eqVal2, eqRes, equation,
@@ -230,7 +230,7 @@ class JsonCompValueExport:
         assert compType == "Z"
         convValCptRes = uwa.addUnit(self.convValCptRes, self.cvcrType)
 
-        equation = self.makeLatexEquation(eqVal1, eqVal2, eqRes, self.thisStep.relation, compType)
+        equation = self._makeLatexEquation(eqVal1, eqVal2, eqRes, self.thisStep.relation, compType)
 
         return JsonExportStepValues(self.name1, self.name2, self.newName, self.thisStep.relation,
                                     eqVal1, eqVal2, eqRes, equation,
@@ -243,13 +243,13 @@ class JsonCompValueExport:
         compType = self.cpt1.type
         assert compType == "Z"
 
-        equation = self.makeLatexEquation(eqVal1, eqVal2, eqRes, self.thisStep.relation, compType)
+        equation = self._makeLatexEquation(eqVal1, eqVal2, eqRes, self.thisStep.relation, compType)
 
         return JsonExportStepValues(self.name1, self.name2, self.newName, self.thisStep.relation,
                                     eqVal1, eqVal2, eqRes, equation,
                                     convVal1=None, convVal2=None, convResult=None).toDict()
 
-    def makeLatexEquation(self, exp1: cfrde, exp2: cfrde, expRslt: cfrde, cptRelation: str, compType: str) \
+    def _makeLatexEquation(self, exp1: cfrde, exp2: cfrde, expRslt: cfrde, cptRelation: str, compType: str) \
             -> str:
 
         if compType not in ["R", "L", "C", "Z"]:
