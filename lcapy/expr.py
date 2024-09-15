@@ -59,13 +59,16 @@ class ExprPrint(object):
         if not hasattr(self, 'expr'):
             return self
 
-        if state.show_units:
-            if state.canonical_units:
-                return self.expr_with_canonical_units
-            else:
-                return self.expr_with_units
-        else:
-            return self.expr
+        try:
+            if state.show_units:
+                if state.canonical_units:
+                    return self.expr_with_canonical_units
+                else:
+                    return self.expr_with_units
+        except AttributeError:
+            pass
+
+        return self.expr
 
     def __repr__(self):
         """This is called by repr(expr).  It is used, e.g., when printing

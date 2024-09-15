@@ -185,6 +185,13 @@ class Cpt(ImmittanceMixin):
     def _arg_format(self, value):
         """Place value string inside curly braces if it contains a delimiter."""
 
+        # Don't use Expr.__str__ since this will add units
+        # if show_units enabled.
+        try:
+            value = value.sympy
+        except AttributeError:
+            pass
+
         string = str(value)
 
         if string.startswith('{'):
