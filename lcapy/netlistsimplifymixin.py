@@ -5,6 +5,7 @@ Copyright 2022--2023 Michael Hayes, UCECE
 """
 from .expr import expr
 from warnings import warn
+from lcapy.componentRelation import ComponentRelation
 from collections import OrderedDict
 
 class NetlistSimplifyMixin:
@@ -438,13 +439,13 @@ class NetlistSimplifyMixin:
             selected = net.get_next_simplify_elements(series=True, debug=debug)
             if len(selected) > 1:
                 net, newCptName = self.simplify_two_cpts(net, selected=selected)
-                steps.append((net, selected[0], selected[1], newCptName, "series"))
+                steps.append((net, selected[0], selected[1], newCptName, ComponentRelation.series.value))
                 continue
 
             selected = net.get_next_simplify_elements(parallel=True, debug=debug)
             if len(selected) > 1:
                 net, newCptName = self.simplify_two_cpts(net, selected=selected)
-                steps.append((net, selected[0], selected[1], newCptName, "parallel"))
+                steps.append((net, selected[0], selected[1], newCptName, ComponentRelation.parallel.value))
                 continue
 
             if net.in_series():

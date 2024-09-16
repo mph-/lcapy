@@ -7,27 +7,7 @@ from lcapy import t
 from lcapy.impedanceConverter import ValueToComponent
 from lcapy.unitPrefixer import SIUnitPrefixer
 from lcapy.unitWorkAround import UnitWorkAround as uwa
-
-
-# ToDo create Enum ComponentRelation and use everywhere for component relations
-class ComponentRelation(Enum):
-    parallel = 'parallel'
-    series = 'series'
-    none = None
-
-    def __eq__(self, other):
-        if isinstance(other, str):
-            return self.value == other
-        elif isinstance(other, ComponentRelation):
-            return self.value == other.value
-        else:
-            raise TypeError
-
-    def to_string(self):
-        return self.__str__()
-
-    def __str__(self):
-        return str(self.value)
+from lcapy.componentRelation import ComponentRelation
 
 
 class JsonVCValueExport:

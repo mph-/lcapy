@@ -253,7 +253,7 @@ class Solution:
         return os.path.join(path, filename + f"_{step}.svg")
 
     def exportStepAsJson(self, step, path: str = None, filename: str ="circuit", debug: bool = False,
-                         simpStep: bool = True, cvStep: bool = True) -> tuple[Union[str, None], Union[str, None]]:
+                         simpStep: bool = True, cvStep: bool = True) -> tuple[str, str]:
         """
         saves a step as a .json File with the following information:
         name1 and name2 -> names of the simplified components
@@ -297,7 +297,7 @@ class Solution:
             with open(fullPathName, "w", encoding="utf-8") as f:
                 json.dump(as_dict, f, ensure_ascii=False, indent=4)
         else:
-            fullPathName = None
+            fullPathName = ""
 
         if cvStep:
             jsonExport = JsonVCValueExport()
@@ -310,7 +310,7 @@ class Solution:
             with open(fullPathNameCV, "w", encoding="utf-8") as f:
                 json.dump(as_dict, f, ensure_ascii=False, indent=4)
         else:
-            fullPathNameCV = None
+            fullPathNameCV = ""
 
         return fullPathName, fullPathNameCV
 
