@@ -6,6 +6,7 @@ from sympy.physics.units.prefixes import PREFIXES, Prefix
 from typing import Union
 
 from lcapy import ConstantFrequencyResponseDomainExpression as cfrde
+from lcapy import LaplaceDomainImpedance as ldi
 from lcapy import ConstantTimeDomainVoltage as ctdv
 from lcapy import TimeDomainVoltage as tdv
 from lcapy import TimeDomainCurrent as tdc
@@ -79,18 +80,17 @@ class SIUnitPrefixer:
         prefixes are sympy.physics.units.prefixes.PREFIXES
         """
 
-        if isinstance(value, (Mul, float)):
+        if isinstance(value, (Mul, float, sympy.core.numbers.Rational)):
             expr = value
-        elif isinstance(value, (cfrde, ctdv, tdv, tdc)):
+        elif isinstance(value, (cfrde, ctdv, tdv, tdc, ldi)):
             value = value
             expr = value.expr_with_units
-        elif isinstance(value, int):
+        elif isinstance(value, (int, sympy.core.numbers.Integer)):
             value = expr = float(value)
         elif value is None:
             return None
         else:
-            raise TypeError("value has to be type float, int or sympy.Mul or "
-                            f"lcapy.ConstantFrequencyResponseDomainExpression not {type(value)}")
+            raise TypeError(f"value has to be type float, int or sympy.Mul or lcapy.ConstantFrequencyResponseDomainExpression not {type(value)}")
 
         prefix = self.getSIPrefix(value)
         exp = prefix._exponent

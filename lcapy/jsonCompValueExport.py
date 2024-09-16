@@ -69,24 +69,6 @@ class JsonCompValueExport:
             self.cpt2 = self.lastStep.circuit[self.name2]
             self.cptRes = self.thisStep.circuit[self.newName]
 
-            # ToDo remove Print in release
-            if self.name1 and self.name2:
-                from lcapy import t
-
-                omega_0 = sympy.Symbol('omega_0')
-
-                state.show_units = False
-                u1 = self.cpt1.V(t).subs(omega_0, self.omega_0)
-                u2 = self.cpt2.V(t).subs(omega_0, self.omega_0)
-                i1 = self.cpt1.I(t).subs(omega_0, self.omega_0)
-                i2 = self.cpt2.I(t).subs(omega_0, self.omega_0)
-
-                print(f"{self.name1} U: {self.latexStr(self.prefixer.getSIPrefixedValue(u1).evalf())}")
-                print(f"{self.name2} U: {self.latexStr(self.prefixer.getSIPrefixedValue(u2).evalf())}")
-                print(f"{self.name1} I: {self.latexStr(self.prefixer.getSIPrefixedValue(i1).evalf())}")
-                print(f"{self.name2} I: {self.latexStr(self.prefixer.getSIPrefixedValue(i2).evalf())}")
-                state.show_units = True
-
             self.valCpt1 = str(solution.getElementSpecificValue(self.cpt1))
             self.valCpt2 = str(solution.getElementSpecificValue(self.cpt2))
             self.valCptRes = str(solution.getElementSpecificValue(self.cptRes))

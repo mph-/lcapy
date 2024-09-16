@@ -13,6 +13,7 @@ from lcapy import state
 from lcapy.mnacpts import R, L, C, Z
 from lcapy import DrawWithSchemdraw
 from lcapy.jsonCompValueExport import JsonCompValueExport
+from lcapy.jsonExportVCValues import JsonVCValueExport
 from lcapy.unitWorkAround import UnitWorkAround as uwa
 from typing import Union
 
@@ -251,7 +252,8 @@ class Solution:
 
         return os.path.join(path, filename + f"_{step}.svg")
 
-    def exportStepAsJson(self, step, path: str = None, filename: str ="circuit", debug: bool = False) -> str:
+    def exportStepAsJson(self, step, path: str = None, filename: str ="circuit", debug: bool = False,
+                         simpStep: bool = True, cvStep: bool = True) -> tuple[Union[str, None], Union[str, None]]:
         """
         saves a step as a .json File with the following information:
         name1 and name2 -> names of the simplified components
@@ -268,28 +270,52 @@ class Solution:
         :param step: a step name e.g. step0, step1, step2, ..., step<n>
         :param path:  path to save the json-File in if None save in current directory
         :param filename: svg-File will be named <filename>_step<n>.svg n = 0 | 1 | ...| len(availableSteps)
+        :param simpStep: if true simplification step info is exported, which components got combined and
+        what values result from that
+        :param cvStep: if true the current and voltages for this step will be exported, for each component in the step
+        voltage, current, impedance and a transformation to R, L, C if possible will be exported
         :return: nothing
         """
 
         if path is None:
             path = ""
 
+        if not simpStep and not cvStep:
+            raise AssertionError("simpStep or cvStep have to be True")
+
         Solution.check_path(path)
         filename = os.path.splitext(filename)[0]
 
-        jsonExport = JsonCompValueExport()
-        as_dict = jsonExport.getDictForStep(step, self)
+        if simpStep:
+            jsonExport = JsonCompValueExport()
+            as_dict = jsonExport.getDictForStep(step, self)
 
-        if debug:
-            print(as_dict)
+            if debug:
+                print(as_dict)
 
-        fullPathName = os.path.join(path, filename) + "_" + step + ".json"
-        with open(fullPathName, "w", encoding="utf-8") as f:
-            json.dump(as_dict, f, ensure_ascii=False, indent=4)
+            fullPathName = os.path.join(path, filename) + "_" + step + ".json"
+            with open(fullPathName, "w", encoding="utf-8") as f:
+                json.dump(as_dict, f, ensure_ascii=False, indent=4)
+        else:
+            fullPathName = None
 
-        return fullPathName
+        if cvStep:
+            jsonExport = JsonVCValueExport()
+            as_dict = jsonExport.getDictForStep(step, self)
 
-    def export(self, path: str = None, filename: str = "circuit", debug: bool = False):
+            if debug:
+                print(as_dict)
+
+            fullPathNameCV = os.path.join(path, filename) + "_" + step + "_CV" + ".json"
+            with open(fullPathNameCV, "w", encoding="utf-8") as f:
+                json.dump(as_dict, f, ensure_ascii=False, indent=4)
+        else:
+            fullPathNameCV = None
+
+        return fullPathName, fullPathNameCV
+
+    def export(self, path: str = None, filename: str = "circuit", debug: bool = False,
+               simpStep: bool = True, cvStep: bool = True):
         """
         save a json-File for each step in available_steps.
         Files are named step<n> n = 0, 1 ..., len(availableSteps)
@@ -298,6 +324,10 @@ class Solution:
         :param debug: print dictionary that is used to create the json-File
         :param path: directory in which to save the json-File in, if None save in current directory
         :param filename: svg-File will be named <filename>_step<n>.svg n = 0,1 ..., len(availableSteps)
+        :param simpStep: if true simplification step info is exported, which components got combined and
+        what values result from that
+        :param cvStep: if true the current and voltages for this step will be exported, for each component in the step
+        voltage, current, impedance and a transformation to R, L, C if possible will be exported
         :return:
         """
 

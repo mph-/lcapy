@@ -7,6 +7,7 @@ from lcapy import state
 from lcapy import Circuit
 import sympy as sp
 from typing import Union
+from lcapy import LaplaceDomainImpedance as ldi
 
 
 def ComponentToImpedance(netlistLine: str,
@@ -105,8 +106,12 @@ def ValueToComponent(value, omega_0: Union[float, str] = None) -> (sp.Mul, str):
     else:
         _omega_0 = lcapy_omega0
 
+    # if it comes in as ldi it has a unit which will be in the str and should not be in there
     if not isinstance(value, str):
-        value = str(value)
+        if isinstance(value, ldi):
+            value = str(value.expr)
+        else:
+            value = str(value)
 
     _value = sp.parse_expr(value, local_dict={'omega_0': _omega_0, 'j': j, 'pi': sp.pi})
     if _value == sp.zoo and _omega_0 == 0:

@@ -1,5 +1,5 @@
 from lcapy import state
-from lcapy import resistance, inductance, capacitance, voltage, impedance
+from lcapy import resistance, inductance, capacitance, voltage, impedance, current
 from lcapy.units import ohms, farads, henrys
 from lcapy.mnacpts import R, C, L, Z
 from typing import Union
@@ -20,6 +20,8 @@ class UnitWorkAround:
             returnVal = impedance(val)
         elif cptType == "V":
             returnVal = voltage(val)
+        elif cptType == "I":
+            returnVal = current(val)
         elif cptType == "W":
             return val
         else:
