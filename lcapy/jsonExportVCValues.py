@@ -28,7 +28,7 @@ class JsonVCValueExport:
         self.simpCircuit: 'lcapy.Circuit' = None
         self.prefixer = SIUnitPrefixer()
         self.precision = precision
-        self.omega_0 = getOmegaFromCircuit(self.circuit, getSourcesFromCircuit(self.circuit))
+        self.omega_0 = None
 
         self.oldNames = {'CompName': None, 'Uname': None, 'Iname': None}
         self.names1 = {'CompName': None, 'Uname': None, 'Iname': None}
@@ -75,6 +75,7 @@ class JsonVCValueExport:
     def _updateObjectValues(self, step: str, solution: 'lcapy.Solution'):
         self.solStep: 'lcapy.solutionStep' = solution[step]
         self.simpCircuit: 'lcapy.Circuit' = solution[step].circuit  # circuit with less elements (n elements)
+        self.omega_0 = getOmegaFromCircuit(self.simpCircuit, getSourcesFromCircuit(self.simpCircuit))
 
         self.oldNames['CompName'] = solution[step].newCptName
         self.names1['CompName'] = solution[step].cpt1
