@@ -229,7 +229,6 @@ class Solution:
             path = ""
 
         Solution.check_path(path)
-        filename = os.path.splitext(filename)[0]
 
         for step in self.available_steps:
             self.drawStep(step, filename=filename, path=path)
@@ -247,6 +246,7 @@ class Solution:
 
         if filename is None:
             filename = self.filename
+        filename = os.path.splitext(filename)[0]
 
         DrawWithSchemdraw(self[step].circuit, fileName=filename + f"_{step}.svg").draw(path=path)
 
