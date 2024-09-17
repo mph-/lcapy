@@ -8,6 +8,7 @@ from lcapy.impedanceConverter import ValueToComponent
 from lcapy.unitPrefixer import SIUnitPrefixer
 from lcapy.unitWorkAround import UnitWorkAround as uwa
 from lcapy.componentRelation import ComponentRelation
+from lcapy.impedanceConverter import getSourcesFromCircuit, getOmegaFromCircuit
 
 
 class JsonVCValueExport:
@@ -27,6 +28,7 @@ class JsonVCValueExport:
         self.simpCircuit: 'lcapy.Circuit' = None
         self.prefixer = SIUnitPrefixer()
         self.precision = precision
+        self.omega_0 = getOmegaFromCircuit(self.circuit, getSourcesFromCircuit(self.circuit))
 
         self.oldNames = {'CompName': None, 'Uname': None, 'Iname': None}
         self.names1 = {'CompName': None, 'Uname': None, 'Iname': None}
@@ -111,9 +113,8 @@ class JsonVCValueExport:
         self.values1['Z'], self.convValue1 = self._checkForConversion(self.circuit[self.names1['CompName']].Z)
         self.values2['Z'], self.convValue2 = self._checkForConversion(self.circuit[self.names2['CompName']].Z)
 
-    @staticmethod
-    def _checkForConversion(value) -> tuple:
-        convValue, convCompType = ValueToComponent(value)
+    def _checkForConversion(self, value) -> tuple:
+        convValue, convCompType = ValueToComponent(value, self.omega_0)
         if 'Z' == convCompType:
             return value, None
         else:
