@@ -306,7 +306,7 @@ class Solution:
             if debug:
                 print(as_dict)
 
-            fullPathNameCV = os.path.join(path, filename) + "_" + step + "_CV" + ".json"
+            fullPathNameCV = os.path.join(path, filename) + "_" + step + "_VC" + ".json"
             with open(fullPathNameCV, "w", encoding="utf-8") as f:
                 json.dump(as_dict, f, ensure_ascii=False, indent=4)
         else:
