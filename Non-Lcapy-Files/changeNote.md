@@ -1,3 +1,9 @@
+## 1.24+InskaLE.0.10
+- updated base lcapy version to 1.24
+- implemented export of branch voltages and currents
+- expressions that are only real or only imaginary get a prefix
+- using base class lcapy.Expr for typecheck instead of listing each subclass
+
 ## 1.22+InskaLE.0.9
 - Internal class NetlistLine uses lcapy parser instead of own implementation to be more robust
 
