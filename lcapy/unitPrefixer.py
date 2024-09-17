@@ -37,7 +37,7 @@ class SIUnitPrefixer:
         return exponent
 
     @staticmethod
-    def _findExponentMul(value: Union[Mul, cfrde]) -> int:
+    def _findExponentMul(value: Union[Mul, cfrde, ctdv, tdv, tdc]) -> int:
         """
         this function assumes all symbols to be 1, to determine the prefix based on the numerical value in the
         expression if it receives a type it can not handle it returns 0
@@ -69,7 +69,7 @@ class SIUnitPrefixer:
         return self.prefixes[min(self.prefixes.keys(), key=lambda x: abs(x-exponent))]
 
     def getSIPrefix(self, value: Union[float, int, Mul, cfrde]) -> Prefix:
-        if isinstance(value, (Mul, cfrde, lcapy.TimeDomainVoltage, lcapy.TimeDomainCurrent)):
+        if isinstance(value, (Mul, cfrde, tdv, tdc, ldi)):
             return self._findSIPrefix(self._findExponentMul(value))
         else:
             return self._findSIPrefix(self._findExponentFloatInt(value))

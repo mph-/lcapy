@@ -12,7 +12,7 @@ from warnings import warn
 from lcapy import state
 from lcapy.mnacpts import R, L, C, Z
 from lcapy import DrawWithSchemdraw
-from lcapy.jsonCompValueExport import JsonCompValueExport
+from lcapy.jsonExportCompValue import JsonCompValueExport
 from lcapy.jsonExportVCValues import JsonVCValueExport
 from lcapy.unitWorkAround import UnitWorkAround as uwa
 from typing import Union

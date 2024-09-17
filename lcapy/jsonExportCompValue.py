@@ -12,7 +12,7 @@ from lcapy.netlistLine import NetlistLine
 from sympy.physics.units import Hz
 from sympy import parse_expr
 from lcapy import omega0, omega
-from lcapy.jsonExportStepValues import JsonExportStepValues
+from lcapy.jsonExportCompStepValues import JsonExportStepValues
 from lcapy.unitWorkAround import UnitWorkAround as uwa
 from lcapy.unitPrefixer import SIUnitPrefixer
 

@@ -20,16 +20,17 @@ class JsonVCValueExport:
     represents all information in the circuit in combination with lcapy.JsonCompValueExport. Has to be split up because
     in the user based mode not all information can be known when those files are generated
     """
-    def __init__(self):
+    def __init__(self, precision=4):
         # this class automatically prefixes every field that includes val or Val in the name and transforms it to
         # a latex string before exporting the dictionary
         self.circuit: 'lcapy.Circuit' = None
         self.simpCircuit: 'lcapy.Circuit' = None
         self.prefixer = SIUnitPrefixer()
+        self.precision = precision
 
-        self.oldName = {'CompName': None, 'Uname': None, 'Iname': None}
-        self.name1 = {'CompName': None, 'Uname': None, 'Iname': None}
-        self.name2 = {'CompName': None, 'Uname': None, 'Iname': None}
+        self.oldNames = {'CompName': None, 'Uname': None, 'Iname': None}
+        self.names1 = {'CompName': None, 'Uname': None, 'Iname': None}
+        self.names2 = {'CompName': None, 'Uname': None, 'Iname': None}
         self.oldValues = {'Z': None, 'U': None, 'I': None}  # values to Component with oldName
         self.values1 = {'Z': None, 'U': None, 'I': None}  # values to Component with name1
         self.values2 = {'Z': None, 'U': None, 'I': None}  # values to Component with name2
@@ -45,9 +46,9 @@ class JsonVCValueExport:
         self._updateObjectValues(step, solution)
 
         as_dict = {
-            'oldName': list(self.oldName.values()),
-            'name1': list(self.name1.values()),
-            'name2': list(self.name2.values()),
+            'oldNames': list(self.oldNames.values()),
+            'names1': list(self.names1.values()),
+            'names2': list(self.names2.values()),
             'oldValues': list(self.oldValues.values()),
             'values1': list(self.values1.values()),
             'values2': list(self.values2.values()),
@@ -63,7 +64,7 @@ class JsonVCValueExport:
                 assert isinstance(as_dict[key], list)
                 for idx, val in enumerate(as_dict[key]):
                     if as_dict[key][idx] is not None:
-                        as_dict[key][idx] = latex(val)
+                        as_dict[key][idx] = self.latexWithPrefix(val)
         except KeyError:
             raise AssertionError(f"A filed which name includes val or Val is not in the export dict. Key: {key}")
 
@@ -73,9 +74,9 @@ class JsonVCValueExport:
         self.solStep: 'lcapy.solutionStep' = solution[step]
         self.simpCircuit: 'lcapy.Circuit' = solution[step].circuit  # circuit with less elements (n elements)
 
-        self.oldName['CompName'] = solution[step].newCptName
-        self.name1['CompName'] = solution[step].cpt1
-        self.name2['CompName'] = solution[step].cpt2
+        self.oldNames['CompName'] = solution[step].newCptName
+        self.names1['CompName'] = solution[step].cpt1
+        self.names2['CompName'] = solution[step].cpt2
 
         if not self._isInitialStep():
             self.circuit: 'lcapy.Circuit' = solution[step].lastStep.circuit  # circuit with more elements (n+1 elements)
@@ -85,24 +86,30 @@ class JsonVCValueExport:
             self._updateZandConvValues()
             self._updateU()
             self._updateI()
-            self._addPrefixes()
             self._updateCompRel()
             self._updateEquations()
+            self._addPrefixes()
+
+    def latexWithPrefix(self, value):
+        prefixedValue = self.prefixer.getSIPrefixedValue(value)
+        evalValue = prefixedValue.evalf(n=self.precision)
+        latexString = latex(evalValue, imaginary_unit="j")
+        return latexString
 
     def _updateUnames(self):
-        self.oldName['Uname'] = 'U' + NetlistLine(str(self.simpCircuit[self.oldName['CompName']])).typeSuffix
-        self.name1['Uname'] = 'U' + NetlistLine(str(self.circuit[self.name1['CompName']])).typeSuffix
-        self.name2['Uname'] = 'U' + NetlistLine(str(self.circuit[self.name2['CompName']])).typeSuffix
+        self.oldNames['Uname'] = 'U' + NetlistLine(str(self.simpCircuit[self.oldNames['CompName']])).typeSuffix
+        self.names1['Uname'] = 'U' + NetlistLine(str(self.circuit[self.names1['CompName']])).typeSuffix
+        self.names2['Uname'] = 'U' + NetlistLine(str(self.circuit[self.names2['CompName']])).typeSuffix
 
     def _updateInames(self):
-        self.oldName['Iname'] = 'I' + NetlistLine(str(self.simpCircuit[self.oldName['CompName']])).typeSuffix
-        self.name1['Iname'] = 'I' + NetlistLine(str(self.circuit[self.name1['CompName']])).typeSuffix
-        self.name2['Iname'] = 'I' + NetlistLine(str(self.circuit[self.name2['CompName']])).typeSuffix
+        self.oldNames['Iname'] = 'I' + NetlistLine(str(self.simpCircuit[self.oldNames['CompName']])).typeSuffix
+        self.names1['Iname'] = 'I' + NetlistLine(str(self.circuit[self.names1['CompName']])).typeSuffix
+        self.names2['Iname'] = 'I' + NetlistLine(str(self.circuit[self.names2['CompName']])).typeSuffix
 
     def _updateZandConvValues(self):
-        self.oldValues['Z'], self.convOldValue = self._checkForConversion(self.simpCircuit[self.oldName['CompName']].Z)
-        self.values1['Z'], self.convValue1 = self._checkForConversion(self.circuit[self.name1['CompName']].Z)
-        self.values2['Z'], self.convValue2 = self._checkForConversion(self.circuit[self.name2['CompName']].Z)
+        self.oldValues['Z'], self.convOldValue = self._checkForConversion(self.simpCircuit[self.oldNames['CompName']].Z)
+        self.values1['Z'], self.convValue1 = self._checkForConversion(self.circuit[self.names1['CompName']].Z)
+        self.values2['Z'], self.convValue2 = self._checkForConversion(self.circuit[self.names2['CompName']].Z)
 
     @staticmethod
     def _checkForConversion(value) -> tuple:
@@ -113,14 +120,14 @@ class JsonVCValueExport:
             return value, uwa.addUnit(convValue, convCompType)
 
     def _updateU(self):
-        self.oldValues['U'] = self.simpCircuit[self.oldName['CompName']].V(t)
-        self.values1['U'] = self.circuit[self.name1['CompName']].V(t)
-        self.values2['U'] = self.circuit[self.name2['CompName']].V(t)
+        self.oldValues['U'] = self.simpCircuit[self.oldNames['CompName']].V(t)
+        self.values1['U'] = self.circuit[self.names1['CompName']].V(t)
+        self.values2['U'] = self.circuit[self.names2['CompName']].V(t)
 
     def _updateI(self):
-        self.oldValues['I'] = self.simpCircuit[self.oldName['CompName']].I(t)
-        self.values1['I'] = self.circuit[self.name1['CompName']].I(t)
-        self.values2['I'] = self.circuit[self.name2['CompName']].I(t)
+        self.oldValues['I'] = self.simpCircuit[self.oldNames['CompName']].I(t)
+        self.values1['I'] = self.circuit[self.names1['CompName']].I(t)
+        self.values2['I'] = self.circuit[self.names2['CompName']].I(t)
 
     def _updateCompRel(self):
         if self.solStep.relation == ComponentRelation.parallel:
@@ -130,13 +137,11 @@ class JsonVCValueExport:
         else:
             self.relation = ComponentRelation.none
 
-    @staticmethod
-    def _makeLatexEquationU(valueZ, valueI, resultU) -> str:
-        return f"{latex(valueZ)} • {latex(valueI)} = {latex(resultU)}"
+    def _makeLatexEquationU(self, valueZ, valueI, resultU) -> str:
+        return f"{self.latexWithPrefix(valueZ)} • {self.latexWithPrefix(valueI)} = {self.latexWithPrefix(resultU)}"
 
-    @staticmethod
-    def _makeLatexEquationI(valueZ, valueU, resultI) -> str:
-        return f"{latex(valueU)} / {latex(valueZ)} = {latex(resultI)}"
+    def _makeLatexEquationI(self, valueZ, valueU, resultI) -> str:
+        return f"{self.latexWithPrefix(valueU)} / {self.latexWithPrefix(valueZ)} = {self.latexWithPrefix(resultI)}"
 
     def _updateEquations(self):
         if self.relation == ComponentRelation.parallel:
