@@ -1,5 +1,6 @@
 import sympy.functions.elementary.complexes
 
+import lcapy
 from lcapy import NetlistLine
 from lcapy import j
 from lcapy import omega0 as lcapy_omega0
@@ -7,7 +8,6 @@ from lcapy import state
 from lcapy import Circuit
 import sympy as sp
 from typing import Union
-from lcapy import LaplaceDomainImpedance as ldi
 
 
 def ComponentToImpedance(netlistLine: str,
@@ -106,9 +106,9 @@ def ValueToComponent(value, omega_0: Union[float, str] = None) -> (sp.Mul, str):
     else:
         _omega_0 = lcapy_omega0
 
-    # if it comes in as ldi it has a unit which will be in the str and should not be in there
+    # if it comes in as lcapy.Expr object it has a unit which will be in the str and should not be in there
     if not isinstance(value, str):
-        if isinstance(value, ldi):
+        if isinstance(value, lcapy.Expr):
             value = str(value.expr)
         else:
             value = str(value)
