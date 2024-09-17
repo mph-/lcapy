@@ -37,11 +37,17 @@ class SIUnitPrefixer:
         return exponent
 
     @staticmethod
-    def _findExponentMul(value: Union[Mul, cfrde, ctdv, tdv, tdc]) -> int:
+    def _findExponentMul(value: Union[Mul, cfrde, ctdv, tdv, tdc, ldi]) -> int:
         """
         this function assumes all symbols to be 1, to determine the prefix based on the numerical value in the
-        expression if it receives a type it can not handle it returns 0
+        expression if it receives a type it can not handle it returns 0. If it receives an expression that is an
+        addition or multiplication one prefix may not be suitable so no prefix is chosen and the function returns 0
         """
+        if isinstance(value, Mul) and value.is_Add:
+            return 0
+        elif not isinstance(value, Mul) and value.expr.is_Add:
+            return 0
+
         sub_dict = {sympy.sin: 1, sympy.cos: 1}
 
         for freeSymbol in value.free_symbols:
@@ -53,7 +59,7 @@ class SIUnitPrefixer:
                     _value = float(value.evalf(subs=sub_dict))
                 else:
                     return 0
-            elif isinstance(value, (cfrde, ctdv, tdv, tdc)):
+            elif isinstance(value, (cfrde, ctdv, tdv, tdc, ldi)):
                 if value.expr.is_real:
                     _value = float(value.expr.evalf(subs=sub_dict))
                 else:

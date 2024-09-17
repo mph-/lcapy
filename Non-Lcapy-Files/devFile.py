@@ -34,7 +34,7 @@ filenames = ["Circuit_inductors.txt",  # 0
              "Circuit_mixed_30.txt",  # 5
              "Circuit_mixed.txt"]  # 6
 
-solve.solve_circuit(filenames[1], filePath="StandardCircuits")
+solve.solve_circuit(filenames[6], filePath="StandardCircuits")
 
 # cct = Circuit("StandardCircuits/Circuit_resistors.txt")
 # print(cct.I(cct.R1))
