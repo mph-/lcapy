@@ -1,10 +1,21 @@
-$curDir = Get-Location
+param (
+[string]$pythonPath
+)
+if($pythonPath){
+    Set-Alias pythonPath $pythonPath
+}
+else{
+    Set-Alias pythonPath python
+}
+$output = [string]::Concat("executing with: ", (Get-Alias pythonPath).Definition, "`npython refers to the standard python installation or the current aktiv venv")
+Write-Output $output
 
+$curDir = Get-Location
 # Make sure the test circuits can be executed before building the Package
 Write-Host "Execute test circuits" -ForegroundColor Green
 Start-Sleep -Milliseconds 500
 Set-Location $PSScriptRoot/Non-Lcapy-Files
-Set-Alias pythonPath C:\Users\yannick.wieland\AppData\Local\Programs\Python\lcapy1_24\Scripts\python.exe
+
 
 pythonPath TestWithStandardCircuits.py
 if ($LASTEXITCODE -ne 0){
@@ -26,3 +37,4 @@ if ($LASTEXITCODE -ne 0){
 }
 
 Set-Location $curDir
+Write-Host "Successfully tested and build package" -ForegroundColor Green
