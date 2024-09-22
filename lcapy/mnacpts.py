@@ -1353,27 +1353,19 @@ class CCCS(DependentSource):
         # with a voltage source.
 
         cname = self.args[0]
+        ccpt = self.cct.elements[cname]
+
+        if not ccpt.is_voltage_source:
+            raise ValueError('The controlling component for %s must be a voltage souce' % self)
+
         n1, n2 = mna._cpt_node_indexes(self)
         m = mna._branch_index(cname)
         F = ConstantDomainExpression(self.args[1]).sympy
 
         if n1 >= 0:
-            mna._B[n1, m] -= F
+            mna._B[n1, m] += F
         if n2 >= 0:
-            mna._B[n2, m] += F
-
-        ccpt = self.cct.elements[cname]
-        if ccpt.is_voltage_source:
-            return
-        # Controlling node indices
-        n3, n4 = [mna._node_index(name) for name in ccpt.node_names[0:2]]
-
-        if n3 >= 0:
-            mna._B[n3, m] += 1
-            mna._C[m, n3] += 1
-        if n4 >= 0:
-            mna._B[n4, m] -= 1
-            mna._C[m, n4] -= 1
+            mna._B[n2, m] -= F
 
     def _kill(self):
         newopts = self.opts.copy()
