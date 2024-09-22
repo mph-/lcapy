@@ -169,7 +169,7 @@ class LcapyTester(unittest.TestCase):
         a.add('F1 3 0 V2 2')
         a.add('R2 3 0 1')
 
-        self.assertEqual2(a.R2.V, V(10).Voc, "Incorrect voltage")
+        self.assertEqual2(a.R2.V, V(-10).Voc, "Incorrect voltage")
 
     def test_CCVS1(self):
         """Check CCVS
