@@ -77,9 +77,12 @@ class JsonVCValueExport:
         self.simpCircuit: 'lcapy.Circuit' = solution[step].circuit  # circuit with less elements (n elements)
         self.omega_0 = getOmegaFromCircuit(self.simpCircuit, getSourcesFromCircuit(self.simpCircuit))
 
-        self.oldNames['CompName'] = solution[step].newCptName
-        self.names1['CompName'] = solution[step].cpt1
-        self.names2['CompName'] = solution[step].cpt2
+        # self.olfName, self.name1, self.name2 ist to access the component in the lcapy circuits
+        # self.oldNames['CompName'], self.names1['CompName'], self.names2['CompName'] ist the adjusted value for the
+        # export and is transformed from e.g. Z1 to R1, L1 or C1
+        self.oldName = self.oldNames['CompName'] = solution[step].newCptName
+        self.name1 = self.names1['CompName'] = solution[step].cpt1
+        self.name2 = self.names2['CompName'] = solution[step].cpt2
 
         if not self._isInitialStep():
             self.circuit: 'lcapy.Circuit' = solution[step].lastStep.circuit  # circuit with more elements (n+1 elements)
@@ -100,36 +103,39 @@ class JsonVCValueExport:
         return latexString
 
     def _updateUnames(self):
-        self.oldNames['Uname'] = 'U' + NetlistLine(str(self.simpCircuit[self.oldNames['CompName']])).typeSuffix
-        self.names1['Uname'] = 'U' + NetlistLine(str(self.circuit[self.names1['CompName']])).typeSuffix
-        self.names2['Uname'] = 'U' + NetlistLine(str(self.circuit[self.names2['CompName']])).typeSuffix
+        self.oldNames['Uname'] = 'U' + NetlistLine(str(self.simpCircuit[self.oldName])).typeSuffix
+        self.names1['Uname'] = 'U' + NetlistLine(str(self.circuit[self.name1])).typeSuffix
+        self.names2['Uname'] = 'U' + NetlistLine(str(self.circuit[self.name2])).typeSuffix
 
     def _updateInames(self):
-        self.oldNames['Iname'] = 'I' + NetlistLine(str(self.simpCircuit[self.oldNames['CompName']])).typeSuffix
-        self.names1['Iname'] = 'I' + NetlistLine(str(self.circuit[self.names1['CompName']])).typeSuffix
-        self.names2['Iname'] = 'I' + NetlistLine(str(self.circuit[self.names2['CompName']])).typeSuffix
+        self.oldNames['Iname'] = 'I' + NetlistLine(str(self.simpCircuit[self.oldName])).typeSuffix
+        self.names1['Iname'] = 'I' + NetlistLine(str(self.circuit[self.name1])).typeSuffix
+        self.names2['Iname'] = 'I' + NetlistLine(str(self.circuit[self.name2])).typeSuffix
 
     def _updateZandConvValues(self):
-        self.oldValues['Z'], self.convOldValue = self._checkForConversion(self.simpCircuit[self.oldNames['CompName']].Z)
-        self.values1['Z'], self.convValue1 = self._checkForConversion(self.circuit[self.names1['CompName']].Z)
-        self.values2['Z'], self.convValue2 = self._checkForConversion(self.circuit[self.names2['CompName']].Z)
+        self.oldValues['Z'], self.convOldValue, compType = self._checkForConversion(self.simpCircuit[self.oldName].Z)
+        self.oldNames['CompName'] = compType + NetlistLine(str(self.simpCircuit[self.oldName])).typeSuffix
+        self.values1['Z'], self.convValue1, compType = self._checkForConversion(self.circuit[self.name1].Z)
+        self.names1['CompName'] = compType + NetlistLine(str(self.circuit[self.name1])).typeSuffix
+        self.values2['Z'], self.convValue2, compType = self._checkForConversion(self.circuit[self.name2].Z)
+        self.names2['CompName'] = compType + NetlistLine(str(self.circuit[self.name2])).typeSuffix
 
     def _checkForConversion(self, value) -> tuple:
         convValue, convCompType = ValueToComponent(value, self.omega_0)
         if 'Z' == convCompType:
-            return value, None
+            return value, None, 'Z'
         else:
-            return value, uwa.addUnit(convValue, convCompType)
+            return value, uwa.addUnit(convValue, convCompType), convCompType
 
     def _updateU(self):
-        self.oldValues['U'] = self.simpCircuit[self.oldNames['CompName']].V(t)
-        self.values1['U'] = self.circuit[self.names1['CompName']].V(t)
-        self.values2['U'] = self.circuit[self.names2['CompName']].V(t)
+        self.oldValues['U'] = self.simpCircuit[self.oldName].V(t)
+        self.values1['U'] = self.circuit[self.name1].V(t)
+        self.values2['U'] = self.circuit[self.name2].V(t)
 
     def _updateI(self):
-        self.oldValues['I'] = self.simpCircuit[self.oldNames['CompName']].I(t)
-        self.values1['I'] = self.circuit[self.names1['CompName']].I(t)
-        self.values2['I'] = self.circuit[self.names2['CompName']].I(t)
+        self.oldValues['I'] = self.simpCircuit[self.oldName].I(t)
+        self.values1['I'] = self.circuit[self.name1].I(t)
+        self.values2['I'] = self.circuit[self.name2].I(t)
 
     def _updateCompRel(self):
         if self.solStep.relation == ComponentRelation.parallel:

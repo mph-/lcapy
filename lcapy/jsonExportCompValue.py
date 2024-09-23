@@ -57,6 +57,8 @@ class JsonCompValueExport:
         self.latexStr = lambda x: latex(x.evalf(n=self.precision), imaginary_unit="j")
 
     def _updateObjectValues(self, step, solution: 'lcapy.Solution'):
+        # the values for name1 and name2 are not final if they are transformable they are adjusted later on
+        # e.g. from Z1 to R1, L1, or C1
         self.name1 = solution[step].cpt1
         self.name2 = solution[step].cpt2
         self.newName = solution[step].newCptName
@@ -74,8 +76,11 @@ class JsonCompValueExport:
             self.valCptRes = str(solution.getElementSpecificValue(self.cptRes))
 
             self.convValCpt1, self.cvc1Type = ValueToComponent(self.valCpt1, omega_0=self.omega_0)
+            self.name1 = self.cvc1Type + NetlistLine(str(self.cpt1)).typeSuffix
             self.convValCpt2, self.cvc2Type = ValueToComponent(self.valCpt2, omega_0=self.omega_0)
+            self.name2 = self.cvc2Type + NetlistLine(str(self.cpt2)).typeSuffix
             self.convValCptRes, self.cvcrType = ValueToComponent(self.valCptRes, omega_0=self.omega_0)
+            self.newName = self.cvcrType + NetlistLine(str(self.cptRes)).typeSuffix
 
     def getDictForStep(self, step, solution: 'lcapy.Solution'):
         self._updateObjectValues(step, solution)
