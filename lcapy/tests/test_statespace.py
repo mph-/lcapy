@@ -128,6 +128,7 @@ class LcapyTester(unittest.TestCase):
         ssd = Z.state_space('DCF')
         #self.assertEqual(ssd.G[0], Z, "G")
 
+    @unittest.skip("depends on scipy, not installed")
     def test_balanced(self):
 
         A = [[1, -2], [3, -4]]

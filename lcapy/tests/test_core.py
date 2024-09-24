@@ -83,6 +83,7 @@ class LcapyCoreTester(unittest.TestCase):
         self.assertEqual2(type(NV), ConstantTimeDomainExpression,
                           "N type incorrect for V.")
 
+    @unittest.skip("depends on scipy, not installed")
     def test_sExpr1(self):
         """Check sExpr1
 
@@ -288,6 +289,7 @@ class LcapyCoreTester(unittest.TestCase):
         self.assertEqual2(A.imag, -7 * omega /
                           (omega**2 + 16), "imag incorrect.")
 
+    @unittest.skip("depends on scipy, not installed")
     def test_tExpr1(self):
         """Check tExpr1
 
@@ -307,6 +309,7 @@ class LcapyCoreTester(unittest.TestCase):
         e = expr('tri(t)')
         self.assertEqual(e, tri(t), "expr('tri(t)'")
 
+    @unittest.skip("depends on scipy, not installed")
     def test_step(self):
         """Check step
 
@@ -320,6 +323,7 @@ class LcapyCoreTester(unittest.TestCase):
                          [0], 0.0, "vector evaluate incorrect.")
         self.assertEqual(a.laplace(), 1 / s, "Laplace transform incorrect.")
 
+    @unittest.skip("depends on scipy, not installed")
     def test_delta(self):
         """Check delta
 
@@ -404,6 +408,7 @@ class LcapyCoreTester(unittest.TestCase):
                          LaplaceDomainVoltage, "Not Vs")
         state.loose_units = loose
 
+    @unittest.skip("depends on scipy, not installed")
     def test_evaluate(self):
         """Check evaluate
 

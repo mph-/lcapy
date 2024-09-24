@@ -11,6 +11,7 @@ class LcapyTester(unittest.TestCase):
 
     """
 
+    @unittest.skip("depends on scipy, not installed")
     def test_functions(self):
 
         self.assertEqual(sinc(0), 1, "sinc(0)")
@@ -60,6 +61,7 @@ class LcapyTester(unittest.TestCase):
                          delta(t - 1),
                          "rect(t / 4) * delta(t - 1)")
 
+    @unittest.skip("depends on scipy, not installed")
     def test_sinc(self):
 
         a = sinc(n).evaluate(2)

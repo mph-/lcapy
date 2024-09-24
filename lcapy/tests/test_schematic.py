@@ -8,6 +8,7 @@ class LcapyTester(unittest.TestCase):
 
     """
 
+    @unittest.skip("depends on scipy, not installed")
     def test_schematic1(self):
 
         a = R(1) + C(2)
@@ -36,6 +37,7 @@ class LcapyTester(unittest.TestCase):
         if content != match:
             raise ValueError('Schematic mismatch')
 
+    @unittest.skip("depends on scipy, not installed")
     def test_schematic2(self):
 
         a = Circuit("""
@@ -70,6 +72,7 @@ C 1 3 3; right""")
         if content != match:
             raise ValueError('Schematic mismatch')
 
+    @unittest.skip("depends on scipy, not installed")
     def test_network_node_positions1(self):
 
         a = R(1) + C(2)
@@ -82,6 +85,7 @@ C 1 3 3; right""")
         self.assertEqual(nodes['3'].pos.x, 2.5, '3 x')
         self.assertEqual(nodes['0'].pos.x, 4.5, '0 x')
 
+    @unittest.skip("depends on scipy, not installed")
     def test_network_node_positions2(self):
 
         a = (R(1) + C(2)) | L(3)
@@ -100,6 +104,7 @@ C 1 3 3; right""")
         self.assertEqual(nodes['9'].pos.x, 5, '9 x')
         self.assertEqual(nodes['0'].pos.x, 5.5, '0 x')
 
+    @unittest.skip("depends on scipy, not installed")
     def test_network_danglin3(self):
 
         a = Circuit("""

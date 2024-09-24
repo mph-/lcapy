@@ -16,6 +16,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(ax.get_ylabel(), 'imag', "y_label incorrect.")
         self.assertEqual(ax.get_title(), 'test', "title incorrect.")
 
+    @unittest.skip("depends on scipy, not installed")
     def test_time_plot(self):
 
         h = cos(2 * pi * t)
@@ -24,6 +25,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(ax.get_ylabel(), 'voltage', "y_label incorrect.")
         self.assertEqual(ax.get_title(), 'test', "title incorrect.")
 
+    @unittest.skip("depends on scipy, not installed")
     def test_frequency_plot(self):
 
         h = cos(2 * pi * t)
@@ -35,6 +37,7 @@ class LcapyTester(unittest.TestCase):
             ax.get_ylabel(), 'voltage spectral density', "y_label incorrect.")
         self.assertEqual(ax.get_title(), 'test', "title incorrect.")
 
+    @unittest.skip("depends on scipy, not installed")
     def test_discrete_time_plot(self):
 
         h = cos(2 * pi * n * 5)

@@ -132,6 +132,7 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a, b, 'noisyomega -> noisyomega')
         self.assertEqual(a, d, 'noisyomega -> noisyf -> noisyomega')
 
+    @unittest.skip("depends on scipy, not installed")
     def test_noisevoltage(self):
 
         V1 = noisevoltage(1)
