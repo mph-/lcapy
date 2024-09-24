@@ -13,7 +13,7 @@ class LcapyTester(unittest.TestCase):
     def test_circuitgraph(self):
         """Test circuitgraph"""
 
-        a = Circuit('lcapy/tests/test2.sch')
+        a = Circuit('test2.sch')
         cg = CircuitGraph.from_circuit(a)
 
         self.assertEqual(cg.in_parallel('L'), set({'L', 'R2'}), "in_parallel")
