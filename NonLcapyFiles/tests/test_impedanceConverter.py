@@ -35,54 +35,54 @@ class TestImpedanceConverter:
 
     def test_R(self):
         # test for dc
-        self.assertType("R_serie_dc", "R")
+        self.assertType("R_series_dc", "R")
         self.assertType("R_parallel_dc", "R")
 
         # test for ac
-        self.assertType("R_serie_ac", "R")
+        self.assertType("R_series_ac", "R")
         self.assertType("R_parallel_ac", "R")
 
     def test_L(self):
         # test for dc
-        self.assertType("L_serie_dc", "L")
+        self.assertType("L_series_dc", "L")
         self.assertType("L_parallel_dc", "L")
 
         # test for ac
-        self.assertType("L_serie_ac", "L")
+        self.assertType("L_series_ac", "L")
         self.assertType("L_parallel_ac", "L")
 
     def test_C(self):
         # test for dc
-        self.assertType("C_serie_dc", "C")
+        self.assertType("C_series_dc", "C")
         self.assertType("C_parallel_dc", "C")
 
         # test for ac
-        self.assertType("C_serie_ac", "C")
+        self.assertType("C_series_ac", "C")
         self.assertType("C_parallel_ac", "C")
 
     def test_RL(self):
         # test for dc
-        self.assertType("RL_serie_dc", "Z")
+        self.assertType("RL_series_dc", "Z")
         self.assertType("RL_parallel_dc", "Z")
 
         # test for ac
-        self.assertType("RL_serie_ac", "Z")
+        self.assertType("RL_series_ac", "Z")
         self.assertType("RL_parallel_ac", "Z")
 
     def test_RC(self):
         # test for dc
-        self.assertType("RC_serie_dc", "Z")
+        self.assertType("RC_series_dc", "Z")
         self.assertType("RC_parallel_dc", "Z")
 
         # test for ac
-        self.assertType("RC_serie_ac", "Z")
+        self.assertType("RC_series_ac", "Z")
         self.assertType("RC_parallel_ac", "Z")
 
     def test_CL(self):
         # test for dc
-        self.assert2Types("CL_serie_dc", "C", "L")
+        self.assert2Types("CL_series_dc", "C", "L")
         self.assert2Types("CL_parallel_dc", "C", "L")
 
         # test for ac
-        self.assert2Types("CL_serie_ac", "C", "L")
+        self.assert2Types("CL_series_ac", "C", "L")
         self.assert2Types("CL_parallel_ac", "C", "L")
