@@ -3,8 +3,8 @@ param (
 )
 if($pythonPath){
     Set-Alias pythonPath $pythonPath
-    $pytestPath = Split-Path -Path pythonPath
-    $pytestPath = Join-Path -Path $pytestPath -ChildPath "pytest.exe"
+    $pytestFolder = Split-Path -Path $pythonPath
+    $pytestPath = Join-Path -Path $pytestFolder -ChildPath "pytest.exe"
     Set-Alias pytest $pytestPath
 }
 else{
