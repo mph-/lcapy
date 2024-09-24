@@ -1,3 +1,6 @@
+## 1.24+inskale.0.11
+- fixed component types in svg and calculation, now display the same component type
+
 ## 1.24+InskaLE.0.10
 - updated base lcapy version to 1.24
 - implemented export of branch voltages and currents
