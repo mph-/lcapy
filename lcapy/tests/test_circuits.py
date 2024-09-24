@@ -843,10 +843,14 @@ class LcapyTester(unittest.TestCase):
         R2 2 3 5
         R3 3 4 15""")
 
-        self.assertEqual(a.simplify().Rt1.R, 30, 'series R')
-        self.assertEqual(a.simplify_series().Rt1.R, 30, 'series R')
-        self.assertEqual(a.simplify_series(
-            ignore=['R3']).Rt1.R, 15, 'series R')
+        from lcapy.componentnamer import ComponentNamer
+        cptNmr = ComponentNamer()
+        cptNmr.reset()
+        self.assertEqual(a.simplify().Rsim2.R, 30, 'series R')
+        cptNmr.reset()
+        self.assertEqual(a.simplify_series(ignore=['R3']).Rsim1.R, 15, 'series R')
+        cptNmr.reset()
+        self.assertEqual(a.simplify_series(ignore=['R2']).Rsim1.R, 25, 'series R')
 
         self.assertEqual(len(a.simplify().remove_dangling_wires().elements),
                          1, 'dangling wires')
@@ -856,19 +860,21 @@ class LcapyTester(unittest.TestCase):
         R2 1 2 60
         R3 1 2 15""")
 
-        self.assertEqual(b.simplify().Rt1.R, 7.5, 'parallel R')
-        self.assertEqual(b.simplify_parallel().Rt1.R, 7.5, 'parallel R')
-        self.assertEqual(b.simplify_parallel(
-            ignore=['R1']).Rt1.R, 12, 'parallel R')
-        self.assertEqual(b.simplify_parallel(
-            select=['R2', 'R3']).Rt1.R, 12, 'parallel R')
+        cptNmr.reset()
+        self.assertEqual(b.simplify().Rsim2.R, 7.5, 'parallel R')
+        cptNmr.reset()
+        self.assertEqual(b.simplify_parallel().Rsim2.R, 7.5, 'parallel R')
+        cptNmr.reset()
+        self.assertEqual(b.simplify_parallel(ignore=['R1']).Rsim1.R, 12, 'parallel R')
+        cptNmr.reset()
+        self.assertEqual(b.simplify_parallel(select=['R2', 'R3']).Rsim1.R, 12, 'parallel R')
 
         c = Circuit("""
         R1 1 2 20
         R2 1 2 60
         R3 3 4 15""")
-
-        self.assertEqual(c.simplify().Rt1.R, 15,
+        cptNmr.reset()
+        self.assertEqual(c.simplify().Rsim1.R, 15,
                          'parallel R with disconnected')
 
         self.assertEqual(len(c.remove_disconnected().elements),
