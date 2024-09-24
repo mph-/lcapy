@@ -16,15 +16,28 @@ Write-Output $output
 
 $startDir = Get-Location
 
-# Make sure the test circuits can be executed before building the Package
-Write-Host "Execute tests" -ForegroundColor Green
-Start-Sleep -Milliseconds 500
-Set-Location $PSScriptRoot/NonLcapyFiles/tests
+# Make sure the tests pass before building the Package
+Write-Host "Execute base lcapy tests" -ForegroundColor Green
+Start-Sleep -Milliseconds 200
+Set-Location $PSScriptRoot/lcapy/tests
+pytest
 
-C:\Users\yannick.wieland\AppData\Local\Programs\Python\lcapy1_24\Scripts\pytest.exe
 if ($LASTEXITCODE -ne 0)
 {
-    Write-Host "An error occured while simplifiing the test circuits" -ForegroundColor Red
+    Write-Host "An error occured while executing lcapy-inskale tests" -ForegroundColor Red
+    Set-Location $startDir
+    return
+}
+
+
+Write-Host "Execute lcapy-inskale tests" -ForegroundColor Green
+Start-Sleep -Milliseconds 200
+Set-Location $PSScriptRoot/NonLcapyFiles/tests
+pytest
+
+if ($LASTEXITCODE -ne 0)
+{
+    Write-Host "An error occured while executing lcapy-inskale tests" -ForegroundColor Red
     Set-Location $startDir
     return
 }
