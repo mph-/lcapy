@@ -1,0 +1,7 @@
+V1 0 1 ac {10} {0} {100}; up
+W 1 2; right
+W 2 3; right
+W 4 5; left
+W 5 0; left
+R1 2 5 {1000}; down
+C2 3 4 {200}; down
