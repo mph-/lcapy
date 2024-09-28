@@ -345,3 +345,8 @@ class Node(ImmittanceMixin):
         s += ', cpts=[%s]' % ', '.join(names) + '\n'
 
         return s
+
+    def pdb(self):
+
+        breakpoint()
+        return self
