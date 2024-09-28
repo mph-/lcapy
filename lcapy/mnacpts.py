@@ -1363,9 +1363,9 @@ class CCCS(DependentSource):
         F = ConstantDomainExpression(self.args[1]).sympy
 
         if n1 >= 0:
-            mna._B[n1, m] += F
+            mna._B[n1, m] -= F
         if n2 >= 0:
-            mna._B[n2, m] -= F
+            mna._B[n2, m] += F
 
     def _kill(self):
         newopts = self.opts.copy()
@@ -1390,13 +1390,13 @@ class VCCS(DependentSource):
         G = ConstantDomainExpression(self.args[0]).sympy
 
         if n1 >= 0 and n3 >= 0:
-            mna._G[n1, n3] -= G
+            mna._G[n1, n3] += G
         if n1 >= 0 and n4 >= 0:
-            mna._G[n1, n4] += G
+            mna._G[n1, n4] -= G
         if n2 >= 0 and n3 >= 0:
-            mna._G[n2, n3] += G
+            mna._G[n2, n3] -= G
         if n2 >= 0 and n4 >= 0:
-            mna._G[n2, n4] -= G
+            mna._G[n2, n4] += G
 
     def _kill(self):
         newopts = self.opts.copy()
@@ -1556,9 +1556,9 @@ class I(IndependentSource):
         I = self.Isc.sympy
 
         if n1 >= 0:
-            mna._Is[n1] += I
+            mna._Is[n1] -= I
         if n2 >= 0:
-            mna._Is[n2] -= I
+            mna._Is[n2] += I
 
     def _ss_model(self):
         return self._netmake(args=self.cpt.isc, ignore_keyword=True)
@@ -1696,7 +1696,7 @@ class L(RLC):
     def _ss_model(self):
         # Perhaps mangle name to ensure it does not conflict
         # with another current source?
-        return self._netmake_variant('I_', args='-i_%s(t)' % self.relname)
+        return self._netmake_variant('I_', args='i_%s(t)' % self.relname)
 
     def _pre_initial_model(self):
 

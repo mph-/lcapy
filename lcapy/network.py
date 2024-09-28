@@ -146,6 +146,10 @@ class Network(object):
 
         opts_str = self._opts_str(dir)
         name = netlistmaker._make_name(cpt_type, self.args)
+
+        if cpt_type in ('I', ):
+            n1, n2 = n2, n1
+
         if net.netkeyword != '':
             return '%s %s %s %s %s; %s' % (name, n1, n2, net.netkeyword,
                                            netlistmaker._netargs(net), opts_str)

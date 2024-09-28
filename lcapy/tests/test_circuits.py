@@ -127,7 +127,7 @@ class LcapyTester(unittest.TestCase):
 
         """
         a = Circuit()
-        a.add('I1 1 0 2')
+        a.add('I1 0 1 2')
         a.add('R1 1 0 1')
 
         self.assertEqual2(a.R1.V, V(2).Voc, "Incorrect voltage")
@@ -153,7 +153,7 @@ class LcapyTester(unittest.TestCase):
         a = Circuit()
         a.add('V1 1 0 2')
         a.add('R1 1 0 1')
-        a.add('G1 2 0 1 0 3')
+        a.add('G1 0 2 1 0 3')
         a.add('R2 2 0 1')
 
         self.assertEqual2(a.R2.V, V(6).Voc, "Incorrect voltage")
@@ -169,7 +169,7 @@ class LcapyTester(unittest.TestCase):
         a.add('F1 3 0 V2 2')
         a.add('R2 3 0 1')
 
-        self.assertEqual2(a.R2.V, V(-10).Voc, "Incorrect voltage")
+        self.assertEqual2(a.R2.V, V(10).Voc, "Incorrect voltage")
 
     def test_CCVS1(self):
         """Check CCVS
@@ -437,7 +437,7 @@ class LcapyTester(unittest.TestCase):
 
         a = Circuit("""
         V 2 1 dc
-        I 1 0 dc
+        I 0 1 dc
         R 2 0""")
 
         self.assertEqual(a.R.v, voltage('I * R'), "R voltage incorrect")
@@ -448,7 +448,7 @@ class LcapyTester(unittest.TestCase):
 
         a = Circuit("""
         V 1 0 dc
-        I 1 0 dc
+        I 0 1 dc
         R 1 0""")
 
         self.assertEqual(a.R.v, voltage('V'), "R voltage incorrect")

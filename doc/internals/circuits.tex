@@ -24,6 +24,10 @@
 \renewcommand{\vec}[1]{\mathbf{#1}}
 
 
+\newcommand{\Isc}{I_{\mathrm{sc}}}
+\newcommand{\Voc}{V_{\mathrm{oc}}}
+
+
 \begin{document}
 
 
@@ -51,7 +55,7 @@ where the vector of unknowns, $\vec{X}$, includes the currents,
 $\vec{J}$, through the independent voltage sources,
 %
 \begin{equation}
-  \mat{X} =   
+  \mat{X} =
   \begin{bmatrix}
     \vec{V} \\ \vec{J}
   \end{bmatrix}.
@@ -61,7 +65,7 @@ The vector of knowns, $\vec{Z}$, includes the voltages, $\vec{E}$,
 produced by the independent voltage sources,
 %
 \begin{equation}
-    \mat{Z} =   
+    \mat{Z} =
   \begin{bmatrix}
     \vec{I} \\ \vec{E}
   \end{bmatrix},
@@ -106,16 +110,87 @@ currents through voltage sources:
     \mat{C} & \mat{D} \\
   \end{bmatrix}^{-1}
   \begin{bmatrix}
-    \vec{V} \\ \vec{J}.
-  \end{bmatrix}
+    \vec{V} \\ \vec{J}
+  \end{bmatrix}.
 \end{equation}
 
 
 \subsection{Component stamps}
 
 In the following, one-port components are specified where $I_1$ is the
-current flowing into one node and $I_1'$ is the current flowing into
-the other node.
+current flowing into the positive node and $I_1'$ is the current
+flowing into the negative node.
+
+The matrix equations can be expressed as the sum of stamps, one per
+component:
+%
+\begin{equation}
+ \sum_{n=0}^{N-1} \mat{A}_n \mat{X} = \sum_{n=0}^{N-1} \mat{Z}_n.
+\end{equation}
+
+
+\subsection{Independent current source}
+
+An independent current source with short circuit current
+$\Isc$ flowing into node 1 has a stamp
+%
+\begin{equation}
+  \begin{bmatrix}
+    & \\
+    & \\
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ V_1'
+  \end{bmatrix}
+  =
+  \begin{bmatrix}
+    -\Isc \\ \Isc
+  \end{bmatrix}.
+\end{equation}
+
+
+\subsection{Independent voltage source}
+
+An independent voltage source with open circuit voltage $\Voc$ has a
+stamp
+%
+\begin{equation}
+  \begin{bmatrix}
+    &  & 1  \\
+    &  & -1 \\
+    1 & -1 & 0
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ V_1' \\ I_V
+  \end{bmatrix}
+  =
+  \begin{bmatrix}
+    0 \\
+    0 \\
+    \Voc
+  \end{bmatrix}.
+\end{equation}
+%
+Here $I_V$ is the current flowing into node 1 and out of node $1'$.
+
+
+\subsection{Resistor stamp}
+
+The stamp for a resistor of resistance $R$ is
+%
+\begin{equation}
+  \begin{bmatrix}
+    \frac{1}{R} & -\frac{1}{R} \\
+    -\frac{1}{R} & \frac{1}{R} \\
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ V_1'
+  \end{bmatrix}
+  =
+  \begin{bmatrix}
+    0 \\ 0
+  \end{bmatrix}.
+\end{equation}
 
 
 \subsection{Capacitor stamps}
@@ -177,7 +252,7 @@ capacitor and thus has a smaller matrix to solve:
 \end{bmatrix}.
 \end{equation}
 %
-This comes from \refeqn{C_I1} and \refeqn{C_I2} with 
+This comes from \refeqn{C_I1} and \refeqn{C_I2} with
 %
 \begin{equation}
     I_C  =  \encp{V_1 - V_1'}sC - C v_0.
@@ -231,7 +306,7 @@ Here
 and
 %
 \begin{equation}
- V_1 - V_1' = s L I_L - L i_0, 
+ V_1 - V_1' = s L I_L - L i_0,
 \end{equation}
 %
 yielding
@@ -274,7 +349,7 @@ Let's now consider two uncoupled inductors.  The two formulations are:
     \frac{1}{sL_1} & -\frac{1}{sL_1} &   & \\
    -\frac{1}{sL_1} & \frac{1}{sL_1}  &   & \\
    & &  \frac{1}{sL_2} & -\frac{1}{sL_2}   \\
-   & & -\frac{1}{sL_2} & \frac{1}{sL_2}  
+   & & -\frac{1}{sL_2} & \frac{1}{sL_2}
   \end{bmatrix}
   \begin{bmatrix}
     V_1 \\ V_1' \\ V_2 \\ V_2'
@@ -325,7 +400,7 @@ gives
     \frac{L_2}{sD} & -\frac{L_2}{sD} & -\frac{M}{sD}  & \frac{M}{sD} \\
    -\frac{L_2}{sD} & \frac{L_2}{sD}  & \frac{M}{sD}  & -\frac{M}{sD} \\
   -\frac{M}{sD} & \frac{M}{sD} &  \frac{L_1}{sD} & -\frac{L_1}{sD}   \\
-   \frac{M}{sD} & -\frac{M}{sD} & -\frac{L_1}{sD} & \frac{L_1}{sD}  
+   \frac{M}{sD} & -\frac{M}{sD} & -\frac{L_1}{sD} & \frac{L_1}{sD}
   \end{bmatrix}
   \begin{bmatrix}
     V_1 \\ V_1' \\ V_2 \\ V_2'
@@ -343,7 +418,7 @@ with a stamp describing the coupling, using
 %
 \begin{eqnarray}
   I'_{L1} & = & \frac{M^2\encp{V_1 - V_1'}}{sL_1 D} - \frac{M\encp{V_2 - V_2'}}{sD}, \\
-  I'_{L2} & = & \frac{M^2\encp{V_2 - V_2'}}{sL_2 D} - \frac{M\encp{V_1 - V_1'}}{sD}.  
+  I'_{L2} & = & \frac{M^2\encp{V_2 - V_2'}}{sL_2 D} - \frac{M\encp{V_1 - V_1'}}{sD}.
 \end{eqnarray}
 %
 These equations produce the stamp:
@@ -353,7 +428,7 @@ These equations produce the stamp:
     \frac{M^2}{sL_1 D} & -\frac{M^2}{sL_1 D} & -\frac{M}{sD}  & \frac{M}{sD} \\
    -\frac{M^2}{sL_1 D} & \frac{M^2}{sL_1 D}  & \frac{M}{sD}  & -\frac{M}{sD} \\
   -\frac{M}{sD} & \frac{M}{sD} &  \frac{M^2}{sL_2 D} & -\frac{M^2}{sL_2 D}   \\
-   \frac{M}{sD} & -\frac{M}{sD} & -\frac{M^2}{sL_2 D} & \frac{M^2}{sL_2 D}  
+   \frac{M}{sD} & -\frac{M}{sD} & -\frac{M^2}{sL_2 D} & \frac{M^2}{sL_2 D}
   \end{bmatrix}
   \begin{bmatrix}
     V_1 \\ V_1' \\ V_2 \\ V_2'
@@ -399,7 +474,7 @@ This can be achieved by summing the stamp \refeqn{L1L2_stamp1} with
      &  &  &    &    & \\
      &  &  &    &    & \\
      &  &  &    &    & -sM\\
-     &  &  &    & -sM & 
+     &  &  &    & -sM &
   \end{bmatrix}
   \begin{bmatrix}
     V_1 \\ V_1' \\ V_2 \\ V_2' \\ I_{L1} \\ I_{L2}
@@ -460,7 +535,7 @@ The A-parameter two-port stamp is
 %
 \begin{equation}
   \begin{bmatrix}
-   &   &  A_{21} & -A_{21} & A_{22} \\ 
+   &   &  A_{21} & -A_{21} & A_{22} \\
    &   & -A_{21} & A_{21}  & -A_{22} \\
    &   &         &        & -1    \\
    &   &         &        &  1    \\
@@ -523,11 +598,11 @@ Y_{21} & -Y_{21} & Y_{22} & -Y_{22} \\
 %% Y_{21} & Y_{22}
 %%   \end{bmatrix}
 %%   \begin{bmatrix}
-%%     V_1 \\ V_2 
+%%     V_1 \\ V_2
 %%   \end{bmatrix}
 %% =
 %% \begin{bmatrix}
-%%   I_1 \\ I_2 
+%%   I_1 \\ I_2
 %% \end{bmatrix}.
 %% \end{equation}
 %
@@ -581,7 +656,7 @@ current controlled voltage source and voltage source.
 
 Solving for $I_2$ from \refeqn{mut_V1} gives
 %
-\begin{equation} 
+\begin{equation}
   I_2(s) = \frac{1}{M s} \left(- I_1(s) L_1 s + L_1 i_1(0^{-}) + M i_2(0^{-}) + V_1(s)\right)
 \label{eqn:mut_I2V1}
 \end{equation}
@@ -689,10 +764,10 @@ transformer equations simplify to
 \label{eqn:mut_transformer_oc}
 \end{eqnarray}
 %
-By inspection, 
+By inspection,
 %
 \begin{equation}
-v_2(t) = a v_1(t),  
+v_2(t) = a v_1(t),
 \end{equation}
 %
 and thus the open-circuit secondary voltage is $a$ times the primary.
@@ -762,11 +837,11 @@ In matrix form:
   \end{bmatrix}
   \begin{bmatrix}
     V_2 \\ -I_2
-  \end{bmatrix}  
+  \end{bmatrix}
   +
   \begin{bmatrix}
     V_{1a} \\ I_{1a}
-  \end{bmatrix}. 
+  \end{bmatrix}.
 \end{equation}
 %
 Inverting gives
@@ -777,12 +852,12 @@ Inverting gives
   \end{bmatrix}
   =
   \mat{A}^{-1}
-  \begin{bmatrix}  
+  \begin{bmatrix}
     V_1 \\ I_1
   \end{bmatrix}
   -
   \mat{A}^{-1}
-  \begin{bmatrix}  
+  \begin{bmatrix}
     V_{1a} \\ I_{1a}
   \end{bmatrix},
 \end{equation}
@@ -795,11 +870,11 @@ which is equivalent to
   \end{bmatrix}
   =
   \mat{B}
-  \begin{bmatrix}  
+  \begin{bmatrix}
     V_1 \\ I_1
   \end{bmatrix}
   +
-  \begin{bmatrix}  
+  \begin{bmatrix}
     V_{2b} \\ I_{2b}
   \end{bmatrix}.
 \end{equation}
@@ -836,7 +911,7 @@ In matrix form:
   \end{bmatrix}
   \begin{bmatrix}
     V_1 \\ I_1
-  \end{bmatrix}  
+  \end{bmatrix}
   +
   \begin{bmatrix}
     V_{2b} \\ I_{2b}
@@ -940,12 +1015,12 @@ Inverting \refeqn{Bmat} gives
   \end{bmatrix}
   =
   \mat{B}^{-1}
-  \begin{bmatrix}  
+  \begin{bmatrix}
     V_2 \\ -I_2
   \end{bmatrix}
   -
   \mat{B}^{-1}
-  \begin{bmatrix}  
+  \begin{bmatrix}
     V_{2b} \\ I_{2b}
   \end{bmatrix},
 \end{equation}
@@ -958,11 +1033,11 @@ which is equivalent to
   \end{bmatrix}
   =
   \mat{A}
-  \begin{bmatrix}  
+  \begin{bmatrix}
     V_2 \\ -I_2
   \end{bmatrix}
   +
-  \begin{bmatrix}  
+  \begin{bmatrix}
     V_{1a} \\ I_{1a}
   \end{bmatrix}.
 \end{equation}
@@ -1117,7 +1192,7 @@ Equating \refeqn{ZV1} to \refeqn{BV1Z} gives
 %% %
 %% \begin{eqnarray}
 %%   0 & = & A_{21} V_2 + I_{1a},\\
-%%   0 & = & -B_{21} V_2 - I_{2b},\\ 
+%%   0 & = & -B_{21} V_2 - I_{2b},\\
 %%   V_1 & = & V_{1z}, \\
 %%   V_2 & = & V_{2z},
 %% \end{eqnarray}
@@ -1191,11 +1266,11 @@ In matrix form:
   \end{bmatrix}
   \begin{bmatrix}
     I_1 \\ I_2
-  \end{bmatrix}  
+  \end{bmatrix}
   +
   \begin{bmatrix}
     V_{1z} \\ I_{1z}
-  \end{bmatrix}. 
+  \end{bmatrix}.
 \end{equation}
 %
 Inverting gives
@@ -1206,12 +1281,12 @@ Inverting gives
   \end{bmatrix}
   =
   \mat{Z}^{-1}
-  \begin{bmatrix}  
+  \begin{bmatrix}
     V_1 \\ I_1
   \end{bmatrix}
   -
   \mat{Z}^{-1}
-  \begin{bmatrix}  
+  \begin{bmatrix}
     V_{1z} \\ I_{2z}
   \end{bmatrix},
 \end{equation}
@@ -1224,11 +1299,11 @@ which is equivalent to
   \end{bmatrix}
   =
   \mat{Y}
-  \begin{bmatrix}  
+  \begin{bmatrix}
     V_1 \\ V_2
   \end{bmatrix}
   +
-  \begin{bmatrix}  
+  \begin{bmatrix}
     I_{1y} \\ I_{2y}
   \end{bmatrix}.
 \end{equation}
@@ -1368,4 +1443,3 @@ matrices:
 
 
 \end{document}
-

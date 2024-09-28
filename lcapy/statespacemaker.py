@@ -178,7 +178,7 @@ class StateSpaceMaker(object):
             if isinstance(elt, L):
                 # Inductors  v = L di/dt  so need v across the L
                 expr = sscct[name].v / elt.cpt.L
-                var = -sscct[name].isc
+                var = sscct[name].isc
                 x0 = elt.cpt.i0
             else:
                 # Capacitors  i = C dv/dt  so need i through the C

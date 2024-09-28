@@ -156,5 +156,8 @@ class Bipole(StretchyCpt):
 
         cargs.append('n=' + self.s)
 
+        if self.type in ('I', 'F', 'G'):
+            n1, n2 = n2, n1
+
         s = self.draw_cpt(n1.s, n2.s, tikz_cpt, cargs, dargs)
         return s

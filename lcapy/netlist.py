@@ -260,7 +260,10 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
 
     def _add_test_current_source(self, Np, Nm):
 
-        self._add('I? %s %s {DiracDelta(t)}' % (Np, Nm))
+        # Note, the nodes are swapped since positive current
+        # comes out of the negative node of a current source.
+
+        self._add('I? %s %s {DiracDelta(t)}' % (Nm, Np))
         return self.last_added()
 
     def _cpt_add(self, cpt):

@@ -77,29 +77,13 @@ def current_sign(I, is_source):
 
     sign_convention = state.current_sign_convention
 
-    if sign_convention is None:
-        sign_convention = 'hybrid'
+    if sign_convention in (None, 'passive'):
+        return I
 
-        if is_source:
-            state.sign_convention = sign_convention
-            warn(
-                """The default hybrid sign convention for currents is deprecated and will default to the passive sign convention in the next version of Lcapy.  This only affects the sign of the current through sources.  For example, given the netlist
-
-I1 1 0
-R1 1 0
-
-the hybrid sign convention gives `I1.i` as `I1` and the passive sign
-convention gives `I1.i` as -I1.
-
-To select the passive sign convention use:
-`from lcapy import state; state.current_sign_convention = 'passive'`
-
-To select the hybrid sign convention use:
-`from lcapy import state; state.current_sign_convention = 'hybrid'`
-
-""")
-
-    if ((sign_convention == 'hybrid' and is_source)
-            or sign_convention == 'active'):
+    if sign_convention == 'active':
         return -I
-    return I
+
+    if sign_convention == 'hybrid' and is_source:
+        return -I
+
+    raise ValueError('Unknown sign convention %s' % sign_convention)
