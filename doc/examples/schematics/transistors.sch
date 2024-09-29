@@ -29,5 +29,7 @@ M15 40 41 42  M15; up=1.5, kind=nfet, l=nfet/bodydiode, bodydiode
 M16 43 44 42  M16; up=1.5, kind=pfet, l=pfet/bodydiode, bodydiode
 M17 43 45 46  M17; up=1.5, kind=nmosd, l=nmosd/bulk, bulk
 M18 47 48 46  M18; up=1.5, kind=pmosd, l=pmosd/bulk, bulk
+M19 47 49 50  M19; up=1.5, kind=nmos, l=nmos/arrowmos, arrowmos
+M20 51 52 50  M20; up=1.5, kind=pmos, l=pmos/arrowmos, arrowmos
 
 ; label_nodes=none, draw_nodes=connections

@@ -825,7 +825,7 @@ MOSFET transistors have the following attributes:
 
 - `bodydiode`
 
-- `arrow`
+- `arrowmos`
 
 - `ferroel gate` ferroelectric gate
 
