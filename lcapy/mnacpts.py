@@ -689,6 +689,14 @@ class Cpt(ImmittanceMixin):
         return self.cct.get_i(self.name)
 
     @property
+    def p(self):
+        """Instantaneous component power.  With the passive sign convention
+        this is positive if power flows into the component and negative if
+        power flows out of the component."""
+
+        return self.i * self.v
+
+    @property
     def V(self):
         """Voltage drop across component."""
 

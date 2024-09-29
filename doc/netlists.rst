@@ -801,6 +801,10 @@ Each Component object has a number of attributes, including:
 
 - `i` time-domain current through component
 
+- `p` instantaneous component power (with the passive sign convention
+        this is positive if power flows into the component and
+        negative if power flows out of the component)
+
 Lcapy supports different :ref:`current_sign_convention` s.
 
 Note, the above attributes are influenced by other components in the
