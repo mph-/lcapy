@@ -332,27 +332,23 @@ class OnePort(Network, ImmittanceMixin):
         """Simplify to a Norton network"""
 
         new = self.simplify()
-        Isc = new.Isc
+        I = new.Isc
         Y = new.admittance
 
-        if Isc.is_superposition and not Y.is_real:
+        if I.is_superposition and not Y.is_real:
             warn('Detected superposition with reactive impedance, using s-domain.')
-            Y1 = Y
-            I1 = Isc.laplace()
-        elif Isc.is_ac:
-            Y1 = Y.subs(j * Isc.ac_keys()[0])
-            I1 = Isc.select(Isc.ac_keys()[0])
-        elif Isc.is_dc:
-            Y1 = Y.subs(0)
-            I1 = Isc(0)
-        else:
-            I1 = Isc
-            Y1 = Y
+            I = I.laplace()
+        elif I.is_ac:
+            Y = Y.subs(j * I.ac_keys()[0])
+            I = I.select(I.ac_keys()[0])
+        elif I.is_dc:
+            Y = Y.subs(0)
+            I = I(0)
 
-        I1 = I1.cpt()
-        Y1 = Y1.cpt()
+        I1 = I.cpt()
+        Y1 = Y.cpt()
 
-        if Isc == 0:
+        if I == 0:
             return Y1
         if Y == 0:
             return I1
@@ -396,27 +392,22 @@ class OnePort(Network, ImmittanceMixin):
         """Simplify to a Thevenin network"""
 
         new = self.simplify()
-        Voc = new.Voc
+        V = new.Voc
         Z = new.impedance
 
-        if Voc.is_superposition and not Z.is_real:
+        if V.is_superposition and not Z.is_real:
             warn('Detected superposition with reactive impedance, using s-domain.')
-            Z1 = Z
-            V1 = Voc.laplace()
-        elif Voc.is_ac:
-            Z1 = Z.subs(j * Voc.ac_keys()[0])
-            V1 = Voc.select(Voc.ac_keys()[0])
-        elif Voc.is_dc:
-            Z1 = Z.subs(0)
-            V1 = Voc(0)
-        else:
-            V1 = Voc
-            Z1 = Z
+            V = V.laplace()
+        elif V.is_ac:
+            Z = Z.subs(j * V.ac_keys()[0])
+            V = V.select(V.ac_keys()[0])
+        elif V.is_dc:
+            Z = Z.subs(0)
 
-        V1 = V1.cpt()
-        Z1 = Z1.cpt()
+        V1 = V.cpt()
+        Z1 = Z.cpt()
 
-        if Voc == 0:
+        if V == 0:
             return Z1
         if Z == 0:
             return V1
@@ -565,7 +556,7 @@ class ParSer(OnePort):
                 return Vdc(arg1.v0 + arg2.v0)
             # Could simplify Vac here if same frequency
             if isinstance(arg1, V):
-                return V(arg1 + arg2)
+                return V(arg1.Voc + arg2.Voc)
             if isinstance(arg1, R):
                 return R(arg1._R + arg2._R)
             if isinstance(arg1, L):
@@ -586,10 +577,10 @@ class ParSer(OnePort):
             if isinstance(arg1, V):
                 return None
             if isinstance(arg1, Idc):
-                return Idc(arg1.i0 + arg2.i0)
+                return Idc(-(arg1._Isc.dc + arg2._Isc.dc))
             # Could simplify Iac here if same frequency
             if isinstance(arg1, I):
-                return I(arg1 + arg2)
+                return I(-(arg1._Isc + arg2._Isc))
             if isinstance(arg1, G):
                 return G(arg1._G + arg2._G)
             if isinstance(arg1, C):
@@ -2075,7 +2066,7 @@ class sI(CurrentSourceBase):
         self.kwargs = kwargs
         self.args = (Ival, )
         Ival = LaplaceDomainExpression(Ival)
-        self._Isc = SuperpositionCurrent(LaplaceDomainExpression(Ival))
+        self._Isc = -SuperpositionCurrent(LaplaceDomainExpression(Ival))
 
 
 class I(CurrentSourceBase):
@@ -2088,7 +2079,7 @@ class I(CurrentSourceBase):
 
         self.kwargs = kwargs
         self.args = (Ival, )
-        self._Isc = SuperpositionCurrent(Ival)
+        self._Isc = -SuperpositionCurrent(Ival)
 
 
 class Istep(CurrentSourceBase):
@@ -2104,9 +2095,8 @@ class Istep(CurrentSourceBase):
         self.kwargs = kwargs
         self.args = (Ival, )
         Ival = cexpr(Ival)
-        self._Isc = SuperpositionCurrent(
+        self._Isc = -SuperpositionCurrent(
             TimeDomainExpression(Ival) * Heaviside(t))
-        self.i0 = Ival
 
 
 class Idc(CurrentSourceBase):
@@ -2123,8 +2113,8 @@ class Idc(CurrentSourceBase):
         self.kwargs = kwargs
         self.args = (Ival, )
         Ival = cexpr(Ival)
-        self._Isc = SuperpositionCurrent(cexpr(Ival, dc=True))
-        self.i0 = Ival
+        self.i0 = -Ival
+        self._Isc = -SuperpositionCurrent(cexpr(Ival, dc=True))
 
     @property
     def isc(self):
@@ -2162,7 +2152,7 @@ class Iac(CurrentSourceBase):
         phi = cexpr(phi)
 
         self.omega = omega
-        self.i0 = Ival
+        self.i0 = -Ival
         self.phi = phi
         self._Isc = SuperpositionCurrent(phasor(self.i0 * exp(j * self.phi),
                                                 omega=self.omega))
@@ -2185,7 +2175,7 @@ class Inoise(CurrentSourceBase):
 
         self.kwargs = kwargs
         I1 = AngularFourierNoiseDomainCurrent(Ival, nid=nid)
-        self._Isc = SuperpositionCurrent(I1)
+        self._Isc = -SuperpositionCurrent(I1)
         self.args = (Ival, I1.nid)
 
 
@@ -2200,7 +2190,7 @@ class i(CurrentSourceBase):
         self.kwargs = kwargs
         self.args = (Ival, )
         Ival = TimeDomainExpression(Ival)
-        self._Isc = SuperpositionCurrent(Ival)
+        self._Isc = -SuperpositionCurrent(Ival)
 
 
 class Xtal(OnePort):
@@ -2326,7 +2316,7 @@ class CCCS(ControlledSource):
 
         self.kwargs = kwargs
         self.args = (control, value)
-        self._Isc = SuperpositionCurrent(0)
+        self._Isc = -SuperpositionCurrent(0)
         self._Y = admittance(0)
 
 
@@ -2350,7 +2340,7 @@ class VCCS(ControlledSource):
 
         self.kwargs = kwargs
         self.args = (value, )
-        self._Isc = SuperpositionCurrent(0)
+        self._Isc = -SuperpositionCurrent(0)
         self._Y = admittance(0)
 
 

@@ -14,8 +14,8 @@ class CurrentMixin(Quantity):
         from .oneport import I, Idc, Iac
 
         if self.is_dc:
-            return Idc(self.expr)
+            return Idc(-self.expr)
         elif self.is_phasor_domain:
-            return Iac(self, omega=self.omega)
+            return Iac(-self, omega=self.omega)
 
-        return I(self.expr)
+        return I(-self.expr)

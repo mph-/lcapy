@@ -29,6 +29,7 @@ upload: package
 test: lcapy/*.py
 	# pytest -s --pdb -o cache_dir=test/.pytest_cache
 	pytest --pdb lcapy/tests
+	# To test a single file: pytest lcapy/tests/test_networks.py
 
 .PHONY: cover
 cover: lcapy/*.py

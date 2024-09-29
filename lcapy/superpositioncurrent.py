@@ -37,7 +37,7 @@ class SuperpositionCurrent(Superposition, CurrentMixin):
     def cpt(self):
         from .oneport import I
         # Perhaps should generate more specific components such as Idc?
-        return I(self.time())
+        return I(-self.time())
 
     def _mul(self, x):
         if isinstance(x, (int, float)):

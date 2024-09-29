@@ -1895,7 +1895,7 @@ class TwoPort(Network, TwoPortMixin):
         Y = self.Yparams
         Isc = self.Isc
 
-        return LaplaceDomainCurrent(Isc[p2] + Y[p2, p1] / Y[p1, p1] * (I - Isc[p1]))
+        return -LaplaceDomainCurrent(Isc[p2] + Y[p2, p1] / Y[p1, p1] * (I - Isc[p1]))
 
     def Ytrans(self, inport=1, outport=2):
         """Return transadmittance for specified ports with internal
@@ -2128,7 +2128,7 @@ class TwoPort(Network, TwoPortMixin):
         Yval = self.Yparams[1 - p, 1 - p]
         Ival = self.Isc[1 - p]
 
-        return (I(Ival) | Y(Yval)).simplify()
+        return (I(-Ival) | Y(Yval)).simplify()
 
     def open_circuit(self, port=2):
         """Apply a open-circuit to specified port and return a
@@ -2481,10 +2481,10 @@ class TwoPortHModel(TwoPort):
     ::
          +------+   +-------------------+
      I1  | +  - |   |                   | I2'          I2
-    -->--+  V1h +---+                   +-<-------+-----<--
-         |      |   |    two-port       |         |
-    +    +------+   |    network        | +       |       +
-    V1              |    without        | V2' ---+---+  V2
+    -->--+  V1h +---+                   +-<------+-----<--
+         |      |   |    two-port       |        |
+    +    +------+   |    network        | +      |       +
+    V1              |    without        | V2'+---+---+  V2
     -               |    sources        | -  |   |   |   -
                     |    represented    |    |  I2h  |
                     |    by H matrix    |    |   v   |

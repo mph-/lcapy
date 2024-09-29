@@ -168,7 +168,7 @@ class NetlistOpsMixin:
 
         Np, Nm = self._parse_node_args2(Np, Nm)
         Np, Nm = self._check_nodes(Np, Nm)
-        Isc = self.Isc(Np, Nm)
+        Isc = -self.Isc(Np, Nm)
         Ysc = self.admittance(Np, Nm)
 
         return (I(Isc) | Y(Ysc)).simplify()

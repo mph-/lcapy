@@ -20,6 +20,25 @@ class LcapyOneportTester(unittest.TestCase):
             ans2.pprint()
             raise AssertionError(e)
 
+    def test_V(self):
+        """Check V
+
+        """
+        a = V(10)
+        self.assertEqual(a.Z, impedance(0), "Z incorrect.")
+        self.assertEqual2(a.Voc, 10, "Voc incorrect.")
+        self.assertEqual2(a.voc, 10, "voc incorrect.")
+
+    def test_I(self):
+        """Check I
+
+        """
+        a = I(-10)
+
+        self.assertEqual(a.Y, admittance(0), "Y incorrect.")
+        self.assertEqual2(a.Isc, 10, "Isc incorrect.")
+        self.assertEqual2(a.isc, 10, "isc incorrect.")
+
     def test_R(self):
         """Check R
 
@@ -31,6 +50,29 @@ class LcapyOneportTester(unittest.TestCase):
         self.assertEqual2(a.Isc, 0, "Isc incorrect.")
         self.assertEqual2(a.voc, 0, "voc incorrect.")
         self.assertEqual2(a.isc, 0, "isc incorrect.")
+
+    def test_norton_thevenin1(self):
+        """Check Norton <-> Thevenin transformation
+
+        """
+
+        a = ((V(12) + R(3)) | R(6))
+
+        self.assertEqual2(a.Z, 2, "Z incorrect.")
+        self.assertEqual2(a.norton().Z, 2, "Z incorrect.")
+        self.assertEqual2(a.thevenin().Z, 2, "Z incorrect.")
+
+        self.assertEqual2(2 * a.Y, 1, "Y incorrect.")
+        self.assertEqual2(2 * a.norton().Y, 1, "Y incorrect.")
+        self.assertEqual2(2 * a.thevenin().Y, 1, "Y incorrect.")
+
+        self.assertEqual2(a.Voc, 8, "Voc incorrect.")
+        self.assertEqual2(a.norton().Voc, 8, "Voc incorrect.")
+        self.assertEqual2(a.thevenin().Voc, 8, "Voc incorrect.")
+
+        self.assertEqual2(a.Isc, 4, "Isc incorrect.")
+        self.assertEqual2(a.norton().Isc, 4, "Isc incorrect.")
+        self.assertEqual2(a.thevenin().Isc, 4, "Isc incorrect.")
 
     def test_L(self):
         """Check L
@@ -193,9 +235,9 @@ class LcapyOneportTester(unittest.TestCase):
         a = Idc(10) | Idc(5)
         b = a.simplify()
         self.assertEqual2(b.isc, Idc(15).isc, "isc incorrect.")
-        self.assertEqual2(b.Isc.dc, current(15), "Isc incorrect.")
+        self.assertEqual2(b.Isc.dc, current(-15), "Isc incorrect.")
         self.assertEqual2(type(b), Idc, "type incorrect.")
-        self.assertEqual2(b.isc, current(15), "isc incorrect.")
+        self.assertEqual2(b.isc, current(-15), "isc incorrect.")
 
     def test_load(self):
         """Check load
@@ -249,14 +291,14 @@ class LcapyOneportTester(unittest.TestCase):
         """Check inverse Laplace for current sources"""
 
         a = Idc(10)
-        self.assertEqual(a.isc, current(10), "DC incorrect.")
+        self.assertEqual(a.isc, current(-10), "DC incorrect.")
 
         a = Istep(10)
-        self.assertEqual2(a.isc, current(10 * Heaviside(t)), "Step incorrect.")
+        self.assertEqual2(a.isc, current(-10 * Heaviside(t)), "Step incorrect.")
 
         a = Iac(10)
         self.assertEqual2(a.isc, current(
-            10 * cos(omega0 * t)), "AC incorrect.")
+            -10 * cos(omega0 * t)), "AC incorrect.")
 
     def test_CPE(self):
         """Check CPE
