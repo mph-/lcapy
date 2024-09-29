@@ -7,7 +7,7 @@ A i; l=i, anchor=se
 A j; l=j, anchor=ne
 A m; l=m, anchor=sw
 A n; l=n, anchor=nw
-I1 i j Iij; down
+I1 j i Iij; up
 P1 i j; down
 P2 m n; down
 W m 5; down=0.3

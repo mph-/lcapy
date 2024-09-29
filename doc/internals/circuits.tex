@@ -1,5 +1,6 @@
 \documentclass[a4paper, 12pt]{article}
 \usepackage{amsmath}
+\usepackage{circuitikz}
 
 \setlength{\oddsidemargin}{0mm}
 \setlength{\evensidemargin}{-14mm}
@@ -26,6 +27,16 @@
 
 \newcommand{\Isc}{I_{\mathrm{sc}}}
 \newcommand{\Voc}{V_{\mathrm{oc}}}
+
+\newcommand{\Ik}{I_k}
+\newcommand{\Il}{I_l}
+\renewcommand{\Im}{I_m}
+\newcommand{\In}{I_n}
+
+\newcommand{\Vk}{V_k}
+\newcommand{\Vl}{V_l}
+\newcommand{\Vm}{V_m}
+\newcommand{\Vn}{V_n}
 
 
 \begin{document}
@@ -117,8 +128,8 @@ currents through voltage sources:
 
 \subsection{Component stamps}
 
-In the following, one-port components are specified where $I_1$ is the
-current flowing into the positive node and $I_1'$ is the current
+In the following, one-port components are specified where $\Ik$ is the
+current flowing into the positive node and $\Il$ is the current
 flowing into the negative node.
 
 The matrix equations can be expressed as the sum of stamps, one per
@@ -131,6 +142,14 @@ component:
 
 \subsection{Independent current source}
 
+\begin{figure}[!h]
+  \centering
+  \input{figs/I-stamp.pgf}
+  \caption{Circuit for independent current source stamp.  Node $k$ is
+    the positive node.}
+\end{figure}
+
+
 An independent current source with short circuit current
 $\Isc$ flowing into node 1 has a stamp
 %
@@ -140,7 +159,7 @@ $\Isc$ flowing into node 1 has a stamp
     & \\
   \end{bmatrix}
   \begin{bmatrix}
-    V_1 \\ V_1'
+    \Vk \\ \Vl
   \end{bmatrix}
   =
   \begin{bmatrix}
@@ -150,6 +169,13 @@ $\Isc$ flowing into node 1 has a stamp
 
 
 \subsection{Independent voltage source}
+
+\begin{figure}[!h]
+  \centering
+  \input{figs/V-stamp.pgf}
+  \caption{Circuit for independent voltage source stamp.  Node $k$ is
+    the positive node.}
+\end{figure}
 
 An independent voltage source with open circuit voltage $\Voc$ has a
 stamp
@@ -161,7 +187,7 @@ stamp
     1 & -1 & 0
   \end{bmatrix}
   \begin{bmatrix}
-    V_1 \\ V_1' \\ I_V
+    \Vk \\ \Vl \\ I_V
   \end{bmatrix}
   =
   \begin{bmatrix}
@@ -176,6 +202,13 @@ Here $I_V$ is the current flowing into node 1 and out of node $1'$.
 
 \subsection{Resistor stamp}
 
+
+\begin{figure}[!h]
+  \centering
+  \input{figs/R-stamp.pgf}
+  \caption{Circuit for resistor stamp.  Node $k$ is the positive node.}
+\end{figure}
+
 The stamp for a resistor of resistance $R$ is
 %
 \begin{equation}
@@ -184,7 +217,7 @@ The stamp for a resistor of resistance $R$ is
     -\frac{1}{R} & \frac{1}{R} \\
   \end{bmatrix}
   \begin{bmatrix}
-    V_1 \\ V_1'
+    \Vk \\ \Vl
   \end{bmatrix}
   =
   \begin{bmatrix}
@@ -196,7 +229,7 @@ The stamp for a resistor of resistance $R$ is
 \subsection{Capacitor stamps}
 
 There are two possible stamps for a capacitor, $C$.  In the first,
-the current through the capacitor $I_C=I_1=-I_1'$ is required to be solved,
+the current through the capacitor $I_C=\Ik=-\Il$ is required to be solved,
 %
 \begin{equation}
   \begin{bmatrix}
@@ -205,7 +238,7 @@ the current through the capacitor $I_C=I_1=-I_1'$ is required to be solved,
 1 & -1 & -\frac{1}{sC}
   \end{bmatrix}
   \begin{bmatrix}
-    V_1 \\ V_1' \\ I_C
+    \Vk \\ \Vl \\ I_C
   \end{bmatrix}
 =
 \begin{bmatrix}
@@ -217,21 +250,21 @@ This comes from the equations:
 %
 \begin{eqnarray}
 \label{eqn:C_I1}
-  I_1 & = & I_C, \\
-  I_1' & = & -I_C,
+  \Ik & = & I_C, \\
+  \Il & = & -I_C,
 \label{eqn:C_I2}
 \end{eqnarray}
 %
 with
 %
 \begin{equation}
-    V_1 - V_1'  =  \frac{I_C}{sC} + \frac{v_0}{s},
+    \Vk - \Vl  =  \frac{I_C}{sC} + \frac{v_0}{s},
 \end{equation}
 %
 and thus
 %
 \begin{equation}
-    V_1 - V_1' - \frac{I_C}{sC} =  \frac{v_0}{s}.
+    \Vk - \Vl - \frac{I_C}{sC} =  \frac{v_0}{s}.
 \end{equation}
 
 
@@ -244,7 +277,7 @@ capacitor and thus has a smaller matrix to solve:
    -sC & sC
   \end{bmatrix}
   \begin{bmatrix}
-    V_1 \\ V_1'
+    \Vk \\ \Vl
   \end{bmatrix}
 =
 \begin{bmatrix}
@@ -255,7 +288,7 @@ capacitor and thus has a smaller matrix to solve:
 This comes from \refeqn{C_I1} and \refeqn{C_I2} with
 %
 \begin{equation}
-    I_C  =  \encp{V_1 - V_1'}sC - C v_0.
+    I_C  =  \encp{\Vk - \Vl}sC - C v_0.
 \end{equation}
 
 
@@ -270,7 +303,7 @@ The two MNA formulations for an inductor are
 1 & -1 & -sL
   \end{bmatrix}
   \begin{bmatrix}
-    V_1 \\ V_1' \\ I_L
+    \Vk \\ \Vl \\ I_L
   \end{bmatrix}
 =
 \begin{bmatrix}
@@ -286,7 +319,7 @@ and
    -\frac{1}{sL} & \frac{1}{sL}
   \end{bmatrix}
   \begin{bmatrix}
-    V_1 \\ V_1'
+    \Vk \\ \Vl
   \end{bmatrix}
 =
 \begin{bmatrix}
@@ -298,28 +331,28 @@ Here
 %
 \begin{eqnarray}
 \label{eqn:L_I1}
-  I_1 & = & I_L, \\
-  I_1' & = & -I_L,
+  \Ik & = & I_L, \\
+  \Il & = & -I_L,
 \label{eqn:L_I2}
 \end{eqnarray}
 %
 and
 %
 \begin{equation}
- V_1 - V_1' = s L I_L - L i_0,
+ \Vk - \Vl = s L I_L - L i_0,
 \end{equation}
 %
 yielding
 %
 \begin{equation}
-  V_1 - V_1' - s L I_L = -L i_0.
+  \Vk - \Vl - s L I_L = -L i_0.
 \end{equation}
 %
 For the second formulation, $I_L$ is substituted in \refeqn{L_I1} and
 \refeqn{L_I2} with
 %
 \begin{equation}
-  I_L = \frac{V_1 - V_1'}{sL} + \frac{i_0}{s}.
+  I_L = \frac{\Vk - \Vl}{sL} + \frac{i_0}{s}.
 \end{equation}
 
 Let's now consider two uncoupled inductors.  The two formulations are:
@@ -334,7 +367,7 @@ Let's now consider two uncoupled inductors.  The two formulations are:
      &  & 1 & -1 &  & -sL_2
   \end{bmatrix}
   \begin{bmatrix}
-    V_1 \\ V_1' \\ V_2 \\ V_2' \\ I_{L1} \\ I_{L2}
+    \Vk \\ \Vl \\ \Vm \\ \Vn \\ I_{L1} \\ I_{L2}
   \end{bmatrix}
 =
 \begin{bmatrix}
@@ -352,7 +385,7 @@ Let's now consider two uncoupled inductors.  The two formulations are:
    & & -\frac{1}{sL_2} & \frac{1}{sL_2}
   \end{bmatrix}
   \begin{bmatrix}
-    V_1 \\ V_1' \\ V_2 \\ V_2'
+    \Vk \\ \Vl \\ \Vm \\ \Vn
   \end{bmatrix}
 =
 \begin{bmatrix}
@@ -368,17 +401,17 @@ Let's now consider two uncoupled inductors.  The two formulations are:
 If there is mutual inductance $M$, the system of equations is
 %
 \begin{eqnarray}
-  I_1 & = & I_{L1}, \\
-  I_1' & = & -I_{L1}, \\
-  I_2 & = & I_{L2}, \\
-  I_2' & = & -I_{L2},
+  \Ik & = & I_{L1}, \\
+  \Il & = & -I_{L1}, \\
+  \Im & = & I_{L2}, \\
+  \In & = & -I_{L2},
 \end{eqnarray}
 %
 with
 %
 \begin{eqnarray}
-  I_{L1} & = & \frac{L_2\encp{V_1 - V_1'} - M\encp{V_2 - V_2'}}{s\encp{L_1 L_2 - M^2}} - \frac{i_{10}}{s}, \\
-  I_{L2} & = & \frac{L_1\encp{V_2 - V_2'} - M\encp{V_1 - V_1'}}{s\encp{L_1 L_2 - M^2}} - \frac{i_{20}}{s}.
+  I_{L1} & = & \frac{L_2\encp{\Vk - \Vl} - M\encp{\Vm - \Vn}}{s\encp{L_1 L_2 - M^2}} - \frac{i_{10}}{s}, \\
+  I_{L2} & = & \frac{L_1\encp{\Vm - \Vn} - M\encp{\Vk - \Vl}}{s\encp{L_1 L_2 - M^2}} - \frac{i_{20}}{s}.
 \end{eqnarray}
 %
 Defining,
@@ -390,8 +423,8 @@ Defining,
 gives
 %
 \begin{eqnarray}
-  I_{L1} & = & \frac{L_2\encp{V_1 - V_1'} - M\encp{V_2 - V_2'}}{sD} - \frac{i_{10}}{s}, \\
-  I_{L2} & = & \frac{L_1\encp{V_2 - V_2'} - M\encp{V_1 - V_1'}}{sD} - \frac{i_{20}}{s}.
+  I_{L1} & = & \frac{L_2\encp{\Vk - \Vl} - M\encp{\Vm - \Vn}}{sD} - \frac{i_{10}}{s}, \\
+  I_{L2} & = & \frac{L_1\encp{\Vm - \Vn} - M\encp{\Vk - \Vl}}{sD} - \frac{i_{20}}{s}.
 \end{eqnarray}
 %
 
@@ -403,7 +436,7 @@ gives
    \frac{M}{sD} & -\frac{M}{sD} & -\frac{L_1}{sD} & \frac{L_1}{sD}
   \end{bmatrix}
   \begin{bmatrix}
-    V_1 \\ V_1' \\ V_2 \\ V_2'
+    \Vk \\ \Vl \\ \Vm \\ \Vn
   \end{bmatrix}
 =
 \begin{bmatrix}
@@ -417,8 +450,8 @@ Alternatively, the stamps for the uncoupled inductors can be augmented
 with a stamp describing the coupling, using
 %
 \begin{eqnarray}
-  I'_{L1} & = & \frac{M^2\encp{V_1 - V_1'}}{sL_1 D} - \frac{M\encp{V_2 - V_2'}}{sD}, \\
-  I'_{L2} & = & \frac{M^2\encp{V_2 - V_2'}}{sL_2 D} - \frac{M\encp{V_1 - V_1'}}{sD}.
+  I'_{L1} & = & \frac{M^2\encp{\Vk - \Vl}}{sL_1 D} - \frac{M\encp{\Vm - \Vn}}{sD}, \\
+  I'_{L2} & = & \frac{M^2\encp{\Vm - \Vn}}{sL_2 D} - \frac{M\encp{\Vk - \Vl}}{sD}.
 \end{eqnarray}
 %
 These equations produce the stamp:
@@ -431,7 +464,7 @@ These equations produce the stamp:
    \frac{M}{sD} & -\frac{M}{sD} & -\frac{M^2}{sL_2 D} & \frac{M^2}{sL_2 D}
   \end{bmatrix}
   \begin{bmatrix}
-    V_1 \\ V_1' \\ V_2 \\ V_2'
+    \Vk \\ \Vl \\ \Vm \\ \Vn
   \end{bmatrix}
 =
 \begin{bmatrix}
@@ -457,7 +490,7 @@ inductors,
      &  & 1 & -1 & -sM & -sL_2
   \end{bmatrix}
   \begin{bmatrix}
-    V_1 \\ V_1' \\ V_2 \\ V_2' \\ I_{L1} \\ I_{L2}
+    \Vk \\ \Vl \\ \Vm \\ \Vn \\ I_{L1} \\ I_{L2}
   \end{bmatrix}
 =
 \begin{bmatrix}
@@ -477,7 +510,7 @@ This can be achieved by summing the stamp \refeqn{L1L2_stamp1} with
      &  &  &    & -sM &
   \end{bmatrix}
   \begin{bmatrix}
-    V_1 \\ V_1' \\ V_2 \\ V_2' \\ I_{L1} \\ I_{L2}
+    \Vk \\ \Vl \\ \Vm \\ \Vn \\ I_{L1} \\ I_{L2}
   \end{bmatrix}
 =
 \begin{bmatrix}
@@ -500,15 +533,15 @@ The Z-parameter two-port stamp is
     &   & -1 & 1 & Z_{21} & Z_{22} \\
   \end{bmatrix}
   \begin{bmatrix}
-    V_1 \\ V_1' \\ V_1' \\ V_2' \\ I_{Z_{11}} \\ I_{Z_{22}}
+    \Vk \\ \Vl \\ \Vm \\ \Vn \\ I_{Z_{11}} \\ I_{Z_{22}}
   \end{bmatrix}
 =
 \begin{bmatrix}
-  I_1 \\ I_1' \\ I_2 \\ I_2' \\ 0 \\ 0
+  \Ik \\ \Il \\ \Im \\ \In \\ 0 \\ 0
 \end{bmatrix}.
 \end{equation}
 %
-%% When $V_1' = V_2' = 0$, this simplifies to
+%% When $\Vl = \Vm = 0$, this simplifies to
 %% %
 %% \begin{equation}
 %%   \begin{bmatrix}
@@ -518,11 +551,11 @@ The Z-parameter two-port stamp is
 %%       & -1 & Z_{21} & Z_{22} \\
 %%   \end{bmatrix}
 %%   \begin{bmatrix}
-%%     V_1 \\ V_2 \\ I_{Z_{11}} \\ I_{Z_{22}}
+%%     \Vk \\ \Vn \\ I_{Z_{11}} \\ I_{Z_{22}}
 %%   \end{bmatrix}
 %% =
 %% \begin{bmatrix}
-%%   I_1 \\ I_2 \\ 0 \\ 0
+%%   \Ik \\ \Im \\ 0 \\ 0
 %% \end{bmatrix}.
 %% \end{equation}
 %% %
@@ -542,15 +575,15 @@ The A-parameter two-port stamp is
    -1 & 1  & A_{11} & -A_{11} & A_{12} \\
   \end{bmatrix}
   \begin{bmatrix}
-    V_1 \\ V_1' \\ V_2 \\ V_2' \\ I_{A_{22}}
+    \Vk \\ \Vl \\ \Vm \\ \Vn \\ I_{A_{22}}
   \end{bmatrix}
 =
 \begin{bmatrix}
-  I_1 \\ I_1' \\ I_2 \\ I_2' \\ 0
+  \Ik \\ \Il \\ \Im \\ \In \\ 0
 \end{bmatrix}.
 \end{equation}
 %
-%% When $V_1' = V_2' = 0$, this simplifies to
+%% When $\Vl = \Vn = 0$, this simplifies to
 %% %
 %% \begin{equation}
 %%   \begin{bmatrix}
@@ -559,11 +592,11 @@ The A-parameter two-port stamp is
 %%       -1 & A_{11} & A_{12} \\
 %%   \end{bmatrix}
 %%   \begin{bmatrix}
-%%     V_1 \\ V_2 \\ I_{A_{22}}
+%%     \Vk \\ \Vn \\ I_{A_{22}}
 %%   \end{bmatrix}
 %% =
 %% \begin{bmatrix}
-%%   I_1 \\ I_2 \\ 0
+%%   \Ik \\ \Im \\ 0
 %% \end{bmatrix}.
 %% \end{equation}
 %
@@ -582,15 +615,15 @@ Y_{21} & -Y_{21} & Y_{22} & -Y_{22} \\
 -Y_{21} & Y_{21} & -Y_{22} & Y_{22} \\
   \end{bmatrix}
   \begin{bmatrix}
-    V_1 \\ V_1' \\ V_2 \\ V_2'
+    \Vk \\ \Vl \\ \Vm \\ \Vn
   \end{bmatrix}
 =
 \begin{bmatrix}
-  I_1 \\ I_1' \\ I_2 \\ I_2'
+  \Ik \\ \Il \\ \Im \\ \In
 \end{bmatrix}.
 \end{equation}
 %
-%% When $V_1' = V_2' = 0$, this simplifies to
+%% When $\Vl = \Vn = 0$, this simplifies to
 %% %
 %% \begin{equation}
 %%   \begin{bmatrix}
@@ -598,11 +631,11 @@ Y_{21} & -Y_{21} & Y_{22} & -Y_{22} \\
 %% Y_{21} & Y_{22}
 %%   \end{bmatrix}
 %%   \begin{bmatrix}
-%%     V_1 \\ V_2
+%%     \Vk \\ \Vn
 %%   \end{bmatrix}
 %% =
 %% \begin{bmatrix}
-%%   I_1 \\ I_2
+%%   \Ik \\ \Im
 %% \end{bmatrix}.
 %% \end{equation}
 %
@@ -710,14 +743,14 @@ as expected for independent inductors.
 The additional current due to the mutual coupling is
 %
 \begin{eqnarray}
-  I_1'(s) & = & I_1(s) - \encp{\frac{V_1(s)}{s L_1} - \frac{i_1(0^{-})}{s}}, \\
+  \Il(s) & = & I_1(s) - \encp{\frac{V_1(s)}{s L_1} - \frac{i_1(0^{-})}{s}}, \\
           & = & \frac{M^2}{s L_1 \encp{L_1 L_2 - M^2}} V_1 - \frac{M}{s \encp{L_1 L_2 - M^2}} V_2.
 \end{eqnarray}
 %
 In terms of the coupling coefficient, $k$, this can be expressed as
 %
 \begin{equation}
-  I_1'(s) = \frac{k^2}{s L_1 \encp{1-k^2}} V_1 - \frac{k}{s\sqrt{L_1 L_2}\encp{1-k^2}}V_2.
+  \Il(s) = \frac{k^2}{s L_1 \encp{1-k^2}} V_1 - \frac{k}{s\sqrt{L_1 L_2}\encp{1-k^2}}V_2.
 \end{equation}
 
 
@@ -817,6 +850,13 @@ primary or using a large resistance.
 
 \subsection{A-model}
 
+
+\begin{figure}[!h]
+  \centering
+  \input{figs/TPA.pgf}
+  \caption{Generalized A-parameters two-port.}
+\end{figure}
+
 The A-model equations are:
 %
 \begin{eqnarray}
@@ -887,6 +927,12 @@ V_{2b} = -B_{11} V_{1a} + B_{12} I_{1a} \bigspace I_{2b} = B_{21} V_{1a} - B_{22
 
 
 \subsection{B-model}
+
+\begin{figure}[!h]
+  \centering
+  \input{figs/TPB.pgf}
+  \caption{Generalized B-parameters two-port.}
+\end{figure}
 
 
 The B-model equations are:
@@ -1051,6 +1097,12 @@ V_{1a} = -A_{11} V_{2b} + A_{12} I_{2b} \bigspace I_{1a} = A_{21} V_{2b} - A_{22
 
 \subsection{G-model}
 
+\begin{figure}[!h]
+  \centering
+  \input{figs/TPG.pgf}
+  \caption{Generalized G-parameters two-port.}
+\end{figure}
+
 \begin{eqnarray}
 \label{eqn:GI1}
   I_1 & = & G_{11} V_1 + G_{12} I_2 + I_{1g}, \\
@@ -1073,6 +1125,12 @@ and equating \refeqn{BV2G} to \refeqn{GV2} yields
 
 
 \subsection{H-model}
+
+\begin{figure}[!h]
+  \centering
+  \input{figs/TPH.pgf}
+  \caption{Generalized H-parameters two-port.}
+\end{figure}
 
 \begin{eqnarray}
 \label{eqn:HV1}
@@ -1104,6 +1162,12 @@ and equating to \refeqn{HI2}, yields,
 
 
 \subsection{Y-model}
+
+\begin{figure}[!h]
+  \centering
+  \input{figs/TPY.pgf}
+  \caption{Generalized Y-parameters two-port.}
+\end{figure}
 
 \begin{eqnarray}
 \label{eqn:YI1}
@@ -1143,6 +1207,13 @@ and equating to \refeqn{HI2}, yields,
 
 
 \subsection{Z-model}
+
+
+\begin{figure}[!h]
+  \centering
+  \input{figs/TPZ.pgf}
+  \caption{Generalized Z-parameters two-port.}
+\end{figure}
 
 \begin{eqnarray}
 \label{eqn:ZV1}

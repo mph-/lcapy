@@ -6,8 +6,8 @@ W 12 6; right
 TPH 7 8 5 6; right, l={Source-free H-parameters two-port}
 W 7 9; right=0.25
 W 8 10; right=0.25
-I2h 10 9; up
-W 9 3; right=0.5, i=I_2
-W 10 4; right=0.5, i<=I_2
+I2h 9 10; down
+W 9 3; right=0.75, i<=I_2
+W 10 4; right=0.75, i=I_2
 P 3 4; down, v^=V_2
 ; label_nodes=none, draw_nodes=connections
