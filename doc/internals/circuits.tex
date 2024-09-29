@@ -28,6 +28,9 @@
 \newcommand{\Isc}{I_{\mathrm{sc}}}
 \newcommand{\Voc}{V_{\mathrm{oc}}}
 
+\newcommand{\Nk}{k}
+\newcommand{\Nl}{l}
+
 \newcommand{\Ik}{I_k}
 \newcommand{\Il}{I_l}
 \renewcommand{\Im}{I_m}
@@ -128,16 +131,17 @@ currents through voltage sources:
 
 \subsection{Component stamps}
 
-In the following, one-port components are specified where $\Ik$ is the
-current flowing into the positive node and $\Il$ is the current
-flowing into the negative node.
-
 The matrix equations can be expressed as the sum of stamps, one per
 component:
 %
 \begin{equation}
  \sum_{n=0}^{N-1} \mat{A}_n \mat{X} = \sum_{n=0}^{N-1} \mat{Z}_n.
 \end{equation}
+
+In the following, one-port components are specified where $\Ik$ is the
+current flowing into the positive node, $k$, and $\Il$ is the current
+flowing into the negative node, $l$.
+
 
 
 \subsection{Independent current source}
@@ -151,7 +155,7 @@ component:
 
 
 An independent current source with short circuit current
-$\Isc$ flowing into node 1 has a stamp
+$\Isc$ flowing into node $\Nk$ has a stamp
 %
 \begin{equation}
   \begin{bmatrix}
@@ -164,9 +168,10 @@ $\Isc$ flowing into node 1 has a stamp
   =
   \begin{bmatrix}
     -\Isc \\ \Isc
-  \end{bmatrix}.
+  \end{bmatrix},
 \end{equation}
-
+%
+where $I = -\Isc$ is the current produced by the source.
 
 \subsection{Independent voltage source}
 
@@ -197,7 +202,7 @@ stamp
   \end{bmatrix}.
 \end{equation}
 %
-Here $I_V$ is the current flowing into node 1 and out of node $1'$.
+Here $I_V$ is the current flowing into node $\Nk$ and out of node $\Nl$.
 
 
 \subsection{Resistor stamp}
@@ -519,49 +524,6 @@ This can be achieved by summing the stamp \refeqn{L1L2_stamp1} with
 \end{equation}
 
 
-\subsection{Z-parameter two-port stamp}
-
-The Z-parameter two-port stamp is
-%
-\begin{equation}
-  \begin{bmatrix}
-   &   &   &   &  1 &    \\
-   &   &   &   & -1 &    \\
-   &   &   &   &    &  1 \\
-   &   &   &   &    &  -1 \\
-   -1& 1 &   &    & Z_{11} & Z_{12} \\
-    &   & -1 & 1 & Z_{21} & Z_{22} \\
-  \end{bmatrix}
-  \begin{bmatrix}
-    \Vk \\ \Vl \\ \Vm \\ \Vn \\ I_{Z_{11}} \\ I_{Z_{22}}
-  \end{bmatrix}
-=
-\begin{bmatrix}
-  \Ik \\ \Il \\ \Im \\ \In \\ 0 \\ 0
-\end{bmatrix}.
-\end{equation}
-%
-%% When $\Vl = \Vm = 0$, this simplifies to
-%% %
-%% \begin{equation}
-%%   \begin{bmatrix}
-%%       & & 1 &   \\
-%%       & &   & 1 \\
-%%     -1 &   & Z_{11} & Z_{12} \\
-%%       & -1 & Z_{21} & Z_{22} \\
-%%   \end{bmatrix}
-%%   \begin{bmatrix}
-%%     \Vk \\ \Vn \\ I_{Z_{11}} \\ I_{Z_{22}}
-%%   \end{bmatrix}
-%% =
-%% \begin{bmatrix}
-%%   \Ik \\ \Im \\ 0 \\ 0
-%% \end{bmatrix}.
-%% \end{equation}
-%% %
-
-
-
 \subsection{A-parameter two-port stamp}
 
 The A-parameter two-port stamp is
@@ -648,6 +610,48 @@ Y_{21} & -Y_{21} & Y_{22} & -Y_{22} \\
 %%    -sC &  sC
 %%   \end{bmatrix}.
 %% \end{equation}
+
+
+\subsection{Z-parameter two-port stamp}
+
+The Z-parameter two-port stamp is
+%
+\begin{equation}
+  \begin{bmatrix}
+   &   &   &   &  1 &    \\
+   &   &   &   & -1 &    \\
+   &   &   &   &    &  1 \\
+   &   &   &   &    &  -1 \\
+   -1& 1 &   &    & Z_{11} & Z_{12} \\
+    &   & -1 & 1 & Z_{21} & Z_{22} \\
+  \end{bmatrix}
+  \begin{bmatrix}
+    \Vk \\ \Vl \\ \Vm \\ \Vn \\ I_{Z_{11}} \\ I_{Z_{22}}
+  \end{bmatrix}
+=
+\begin{bmatrix}
+  \Ik \\ \Il \\ \Im \\ \In \\ 0 \\ 0
+\end{bmatrix}.
+\end{equation}
+%
+%% When $\Vl = \Vm = 0$, this simplifies to
+%% %
+%% \begin{equation}
+%%   \begin{bmatrix}
+%%       & & 1 &   \\
+%%       & &   & 1 \\
+%%     -1 &   & Z_{11} & Z_{12} \\
+%%       & -1 & Z_{21} & Z_{22} \\
+%%   \end{bmatrix}
+%%   \begin{bmatrix}
+%%     \Vk \\ \Vn \\ I_{Z_{11}} \\ I_{Z_{22}}
+%%   \end{bmatrix}
+%% =
+%% \begin{bmatrix}
+%%   \Ik \\ \Im \\ 0 \\ 0
+%% \end{bmatrix}.
+%% \end{equation}
+%% %
 
 
 
