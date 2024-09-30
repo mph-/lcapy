@@ -87,6 +87,7 @@ class JsonVCValueExport:
         if not self._isInitialStep():
             self.circuit: 'lcapy.Circuit' = solution[step].lastStep.circuit  # circuit with more elements (n+1 elements)
 
+            self._updateSuffix()
             self._updateUnames()
             self._updateInames()
             self._updateZandConvValues()
@@ -102,23 +103,28 @@ class JsonVCValueExport:
         latexString = latex(evalValue, imaginary_unit="j")
         return latexString
 
+    def _updateSuffix(self):
+        self.suffixOldName = NetlistLine(str(self.simpCircuit[self.oldName])).typeSuffix
+        self.suffixName1 = NetlistLine(str(self.circuit[self.name1])).typeSuffix
+        self.suffixName2 = NetlistLine(str(self.circuit[self.name2])).typeSuffix
+
     def _updateUnames(self):
-        self.oldNames['Uname'] = 'U' + NetlistLine(str(self.simpCircuit[self.oldName])).typeSuffix
-        self.names1['Uname'] = 'U' + NetlistLine(str(self.circuit[self.name1])).typeSuffix
-        self.names2['Uname'] = 'U' + NetlistLine(str(self.circuit[self.name2])).typeSuffix
+        self.oldNames['Uname'] = 'U' + self.suffixOldName
+        self.names1['Uname'] = 'U' + self.suffixName1
+        self.names2['Uname'] = 'U' + self.suffixName2
 
     def _updateInames(self):
-        self.oldNames['Iname'] = 'I' + NetlistLine(str(self.simpCircuit[self.oldName])).typeSuffix
-        self.names1['Iname'] = 'I' + NetlistLine(str(self.circuit[self.name1])).typeSuffix
-        self.names2['Iname'] = 'I' + NetlistLine(str(self.circuit[self.name2])).typeSuffix
+        self.oldNames['Iname'] = 'I' + self.suffixOldName
+        self.names1['Iname'] = 'I' + self.suffixName1
+        self.names2['Iname'] = 'I' + self.suffixName2
 
     def _updateZandConvValues(self):
         self.oldValues['Z'], self.convOldValue, compType = self._checkForConversion(self.simpCircuit[self.oldName].Z)
-        self.oldNames['CompName'] = compType + NetlistLine(str(self.simpCircuit[self.oldName])).typeSuffix
+        self.oldNames['CompName'] = compType + self.suffixOldName
         self.values1['Z'], self.convValue1, compType = self._checkForConversion(self.circuit[self.name1].Z)
-        self.names1['CompName'] = compType + NetlistLine(str(self.circuit[self.name1])).typeSuffix
+        self.names1['CompName'] = compType + self.suffixName1
         self.values2['Z'], self.convValue2, compType = self._checkForConversion(self.circuit[self.name2].Z)
-        self.names2['CompName'] = compType + NetlistLine(str(self.circuit[self.name2])).typeSuffix
+        self.names2['CompName'] = compType + self.suffixName2
 
     def _checkForConversion(self, value) -> tuple:
         convValue, convCompType = ValueToComponent(value, self.omega_0)

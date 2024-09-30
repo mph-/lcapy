@@ -26,9 +26,10 @@ class ComponentNamer(object):
     def name(self, cpt_type, names):
 
         m = 1
+        nameSet = set(list(names.values()) + self.names)
         while True:
             name = cpt_type + str(m)
-            if name not in names and name not in self.names:
+            if name not in nameSet:
                 self.names.append(name)
                 return name
             m += 1
