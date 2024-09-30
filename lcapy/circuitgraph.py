@@ -257,7 +257,7 @@ class CircuitGraph(object):
         pos = nx.spring_layout(G)
 
         labels = dict(zip(G.nodes(), G.nodes()))
-        nx.draw_networkx(G, pos, axes, labels=labels)
+        nx.draw_networkx(G, pos, ax=axes, labels=labels, arrows=False)
 
         edge_labels = dict([((u, v), d['name'])
                             for u, v, d in G.edges(data=True)])
