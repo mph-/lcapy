@@ -1,3 +1,4 @@
+from lcapy import Expr
 from lcapy import Circuit
 from lcapy import Solution
 from lcapy.impedanceConverter import ValueToComponent, FileToImpedance
@@ -32,6 +33,18 @@ class TestImpedanceConverter:
         sol = Solution(cct.simplify_stepwise())
         gotType = TestImpedanceConverter.getCompTypeSolStep1(sol)
         assert gotType == compType1 or gotType == compType2
+
+    def test_compType(self):
+        # create an object of the base class from which all other component classes inherit, give it a complex value
+        # and convert it to an R, L, C or Z component. Take the converted comp type and compare it to the expected value
+        compTypeOf = lambda re, im: ValueToComponent(Expr(complex(re, im)))[1]
+        assert compTypeOf(1, 0) == "R"
+        assert compTypeOf(0, 1) == "L"
+        assert compTypeOf(0, -1) == "C"
+        assert compTypeOf(1, 1) == "Z"
+        assert compTypeOf(1, -1) == "Z"
+        assert compTypeOf(-1, 1) == "Z"
+        assert compTypeOf(-1, -1) == "Z"
 
     def test_R(self):
         # test for dc
