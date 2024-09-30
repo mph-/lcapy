@@ -1,4 +1,4 @@
-# for lcapy version: 1.24+inskale.0.11
+# for lcapy version: 1.24+inskale.0.12
 from lcapy import Circuit, Solution, FileToImpedance, DrawWithSchemdraw
 from lcapy.componentRelation import ComponentRelation
 import os

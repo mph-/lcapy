@@ -5,7 +5,6 @@ Copyright 2020--2023 Michael Hayes, UCECE
 
 """
 
-
 class ComponentNamer(object):
     """
     Is used to provide a unique naming of components until it is reset.
@@ -26,7 +25,7 @@ class ComponentNamer(object):
     def name(self, cpt_type, names):
 
         m = 1
-        nameSet = set(list(names.values()) + self.names)
+        nameSet = set(list(names) + self.names)
         while True:
             name = cpt_type + str(m)
             if name not in nameSet:

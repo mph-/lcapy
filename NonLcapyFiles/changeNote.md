@@ -1,3 +1,8 @@
+## 1.24+inskale.0.12
+- integrate lcapy test (except those which rely on scipy) and implement lcapy-inskale test
+- buildPackeg.ps1 supports python interpreter path and pyTest suit
+- increase speed of componentnamer.py
+
 ## 1.24+inskale.0.11
 - fixed component types in svg and calculation, now display the same component type
 
