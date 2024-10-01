@@ -99,7 +99,7 @@ class JsonVCValueExport:
 
     def latexWithPrefix(self, value):
         prefixedValue = self.prefixer.getSIPrefixedValue(value)
-        evalValue = prefixedValue.evalf(n=self.precision)
+        evalValue = 1.0 * prefixedValue.evalf(n=self.precision)
         latexString = latex(evalValue, imaginary_unit="j")
         return latexString
 
