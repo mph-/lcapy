@@ -978,6 +978,10 @@ connections.  They have one of the following attributes:
 - `nground`  noiseless ground
 - `pground`  protected ground
 - `rground`  reference ground
+- `tlground`  tailless ground
+- `tground`  thicker tailless ground
+- `eground`  European style ground
+- `eground2` alternative European style ground
 - `0V`       ground
 - `vcc`      positive power supply (voltage to collectors)
 - `vdd`      positive power supply (voltage to drains ;-)
@@ -1010,6 +1014,11 @@ Here are some ground examples:
 
 .. image:: examples/schematics/grounds.png
     :width: 15cm
+
+.. literalinclude:: examples/schematics/grounds2.sch
+
+.. image:: examples/schematics/grounds2.png
+    :width: 7.5cm
 
 
 Here are some power supply examples:

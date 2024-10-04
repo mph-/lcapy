@@ -62,7 +62,8 @@ class Cpt(object):
     inner_label_keys = ('t', )
     connection_keys = ('input', 'output', 'bidir', 'pad')
     ground_keys = ('ground', 'sground', 'rground',
-                   'cground', 'nground', 'pground', '0V')
+                   'cground', 'nground', 'pground', '0V',
+                   'tlground', 'tground', 'eground', 'eground2')
     supply_positive_keys = ('vcc', 'vdd')
     supply_negative_keys = ('vee', 'vss')
     supply_keys = supply_positive_keys + supply_negative_keys

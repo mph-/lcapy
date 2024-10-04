@@ -599,7 +599,6 @@ class Schematic(NetfileMixin):
                     if key != 'thickness':
                         # val is a str
                         kwargs[key] = val
-                break
 
         def in_ipynb():
             try:

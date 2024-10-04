@@ -26,3 +26,4 @@ W 6 7; right
 W 7 07; down=0.2, 0V
 A 7; l=0V, anchor=s
 ; label_nodes=none
+; draw_nodes=none
