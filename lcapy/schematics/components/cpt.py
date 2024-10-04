@@ -338,6 +338,14 @@ class Cpt(object):
         return float(val) * self.shape_scale
 
     @property
+    def width(self):
+        return self.w * self.size * self.sch.node_spacing
+
+    @property
+    def height(self):
+        return self.h * self.size * self.sch.node_spacing
+
+    @property
     def scale(self):
         return float(self.opts.get('scale', 1.0))
 

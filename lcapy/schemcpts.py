@@ -718,14 +718,16 @@ class Potentiometer(Bipole):
     """Potentiometer  Np, Nm, No"""
 
     # This is not really a bipole but circuitikz treats it as such
+    # Note, the wiper position is not scaled if the component
+    # is stretched or scaled.
 
     can_stretch = False
 
     node_pinnames = ('p', 'n', 'wiper')
     aliases = {'+': 'p', '-': 'n'}
-    pins = {'p': ('rx', 0, 0),
-            'n': ('rx', 1, 0),
-            'wiper': ('lx', 0.5, 0.3)}
+    pins = {'p': ('rx', -0.5, 0),
+            'n': ('rx', 0.5, 0),
+            'wiper': ('l', 0.0, 0.3)}
 
 
 class VCS(Bipole):
