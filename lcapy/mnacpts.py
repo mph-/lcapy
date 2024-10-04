@@ -890,15 +890,35 @@ class Cpt(ImmittanceMixin):
 
         return self.cct.last_added()
 
+    @property
+    def argnames(self):
+
+        """Return list of arg names."""
+
+        args = [self.name]
+        args.extend([self.name + '_' + name for name in self.extra_argnames])
+
+        return args
+
+    def defs(self):
+        """Return directory of argname-value pair."""
+
+        defs = {}
+        for argname, value in zip(self.argnames, self.args):
+            if value is None:
+                # Initial condition for C and L.
+                continue
+            defs[argname] = value
+
+        return defs
+
     def sympify(self):
         """Return component with numerical values removed."""
 
-        args = []
-        if len(self.extra_argnames) > 0:
-            args.append(self.name)
-            args.extend([self.name + '_' + name for name in self.extra_argnames])
+        if len(self.args) == 1:
+            return self._netmake(args=[])
 
-        return self._netmake(args=args)
+        return self._netmake(args=self.argnames)
 
 
 class Invalid(Cpt):
@@ -1172,6 +1192,14 @@ class C(RC):
         # Perhaps mangle name to ensure it does not conflict
         # with another voltage source?
         return self._netmake_variant('V_', args='v_%s(t)' % self.relname)
+
+    def sympify(self):
+        """Return component with numerical values removed."""
+
+        if self.has_ic:
+            return self._netmake(args=self.argnames)
+
+        return self._netmake(args=[])
 
     @property
     def V0(self):
@@ -1723,6 +1751,13 @@ class L(RLC):
         # with another current source?
         return self._netmake_variant('I_', args='-i_%s(t)' % self.relname)
 
+    def sympify(self):
+        """Return component with numerical values removed."""
+
+        if self.has_ic:
+            return self._netmake(args=self.argnames)
+
+        return self._netmake(args=[])
 
 class O(Dummy):
     """Open circuit"""

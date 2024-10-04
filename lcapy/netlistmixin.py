@@ -1057,6 +1057,15 @@ class NetlistMixin(object):
 
         return self.ss_model()
 
+    def defs(self, ignore=None):
+        """Return directory of argname-value pair for all components except
+         for components with names specified by `ignore`."""
+
+        defs = {}
+        for cpt in self._elements.values():
+            defs = {**defs, **cpt.defs()}
+        return defs
+
     def sympify(self, ignore=None):
         """Convert numerical arguments to symbolic arguments except for
         components with names specified by `ignore`."""
