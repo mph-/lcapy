@@ -57,6 +57,7 @@ class Cpt(ImmittanceMixin):
     is_wire = False
     is_current_controlled = False
     is_voltage_controlled = False
+    extra_argnames = ()
 
     def __init__(self, cct, namespace, name, cpt_type, cpt_id, string,
                  opts_string, node_names, keyword, *args):
@@ -892,7 +893,12 @@ class Cpt(ImmittanceMixin):
     def sympify(self):
         """Return component with numerical values removed."""
 
-        return self._netmake(args=[])
+        args = []
+        if len(self.extra_argnames) > 0:
+            args.append(self.name)
+            args.extend([self.name + '_' + name for name in self.extra_argnames])
+
+        return self._netmake(args=args)
 
 
 class Invalid(Cpt):
@@ -1107,6 +1113,7 @@ class C(RC):
 
     is_reactive = True
     add_parallel = True
+    extra_argnames = ('v0', )
 
     @property
     def C(self):
@@ -1166,14 +1173,6 @@ class C(RC):
         # with another voltage source?
         return self._netmake_variant('V_', args='v_%s(t)' % self.relname)
 
-    def sympify(self):
-        """Return component with numerical values removed."""
-
-        if self.has_ic:
-            # Convert C1 x y val ic to C1 x y C v0_C1
-            return self._netmake(args=[self.name, 'v0_' + self.name])
-        return self._netmake(args=[])
-
     @property
     def V0(self):
         """Initial voltage (for capacitors only)."""
@@ -1184,6 +1183,8 @@ class C(RC):
 
 
 class CPE(RC):
+
+    extra_argnames = ('alpha',)
 
     @property
     def K(self):
@@ -1250,6 +1251,8 @@ class E(VCVS):
 class Eopamp(DependentSource):
     """Operational amplifier"""
 
+    extra_argnames = ('Ac', 'Ro')
+
     def _expand(self):
 
         Ad, Ac, Ro = self.args
@@ -1287,6 +1290,8 @@ class Eopamp(DependentSource):
 class Efdopamp(DependentSource):
     """Fully differential opamp"""
 
+    extra_argnames = ('Ac')
+
     def _expand(self):
 
         Ad, Ac = self.args
@@ -1315,6 +1320,8 @@ class Efdopamp(DependentSource):
 
 class Einamp(DependentSource):
     """Instrumentation amplifier"""
+
+    extra_argnames = ('Ac', 'Rf')
 
     def _expand(self):
 
@@ -1632,6 +1639,7 @@ class L(RLC):
     need_branch_current = True
     is_reactive = True
     add_series = True
+    extra_argnames = ('i0', )
 
     def _r_model(self):
 
@@ -1714,14 +1722,6 @@ class L(RLC):
         # Perhaps mangle name to ensure it does not conflict
         # with another current source?
         return self._netmake_variant('I_', args='-i_%s(t)' % self.relname)
-
-    def sympify(self):
-        """Return component with numerical values removed."""
-
-        if self.has_ic:
-            # Convert L1 x y val ic to L1 x y L i0_L1
-            return self._netmake(args=[self.name, 'i0_' + self.name])
-        return self._netmake(args=[])
 
 
 class O(Dummy):
