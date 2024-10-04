@@ -889,6 +889,11 @@ class Cpt(ImmittanceMixin):
 
         return self.cct.last_added()
 
+    def sympify(self):
+        """Return component with numerical values removed."""
+
+        return self._netmake(args=[])
+
 
 class Invalid(Cpt):
     pass
@@ -1160,6 +1165,14 @@ class C(RC):
         # Perhaps mangle name to ensure it does not conflict
         # with another voltage source?
         return self._netmake_variant('V_', args='v_%s(t)' % self.relname)
+
+    def sympify(self):
+        """Return component with numerical values removed."""
+
+        if self.has_ic:
+            # Convert C1 x y val ic to C1 x y C v0_C1
+            return self._netmake(args=[self.name, 'v0_' + self.name])
+        return self._netmake(args=[])
 
     @property
     def V0(self):
@@ -1693,14 +1706,22 @@ class L(RLC):
             V = self.Voc.sympy
             mna._Es[m] += V
 
+    def _pre_initial_model(self):
+
+        return self._netmake_variant('I', args=self.cpt.i0)
+
     def _ss_model(self):
         # Perhaps mangle name to ensure it does not conflict
         # with another current source?
         return self._netmake_variant('I_', args='-i_%s(t)' % self.relname)
 
-    def _pre_initial_model(self):
+    def sympify(self):
+        """Return component with numerical values removed."""
 
-        return self._netmake_variant('I', args=self.cpt.i0)
+        if self.has_ic:
+            # Convert L1 x y val ic to L1 x y L i0_L1
+            return self._netmake(args=[self.name, 'i0_' + self.name])
+        return self._netmake(args=[])
 
 
 class O(Dummy):

@@ -1057,6 +1057,24 @@ class NetlistMixin(object):
 
         return self.ss_model()
 
+    def sympify(self, ignore=None):
+        """Convert numerical arguments to symbolic arguments except for
+        components with names specified by `ignore`."""
+
+        if ignore is None:
+            ignore = []
+
+        new = self._new()
+
+        for cpt in self._elements.values():
+
+            if cpt.name in ignore:
+                net = cpt._copy()
+            else:
+                net = cpt.sympify()
+            new._add(net)
+        return new
+
     def ac_model(self, var=omega):
         """"Create AC model for specified angular frequency (default
         omega)."""

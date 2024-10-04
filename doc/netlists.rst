@@ -629,6 +629,21 @@ Circuit methods
    >>> cct.switching_times()
    [0.0, 1.0, 2.0]
 
+- `sympify()` Converts numerical values to symbolic values.  For example,
+
+   >>> cct = Circuit("""
+   ... R 1 2 3
+   ... C1 2 3 4
+   ... C2 3 4 5 6
+   ... L 4 5 7 8""")
+   >>> cct.sympify()
+   R 1 2
+   C1 2 3
+   C2 3 4 C2 v0_C2
+   L 4 5 L i0_L
+
+   Note how the initial values are named.
+
 - `unconnected_nodes` Returns list of names of nodes that are unconnected
 
 - `unreachable_nodes(node)` Returns list of names of nodes that have no path to `node`.

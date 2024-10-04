@@ -1398,7 +1398,3 @@ defcpt('XT', Bipole, 'Crystal', 'piezoelectric')
 defcpt('m', Bipole, 'Mass', 'mass')
 defcpt('k', Bipole, 'Spring', 'spring')
 defcpt('r', Bipole, 'Damper', 'damper')
-
-# Perhaps AM for ammeter, VM for voltmeter, VR for variable resistor?
-# Currently, a variable resistor is supported with the variable
-# option.
