@@ -50,6 +50,8 @@ def angle_choose(pinpos):
 
 class Cpt(object):
 
+    # Perhaps use ABC?
+
     voltage_keys = ('v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<',
                     'v<', 'v>')
     current_keys = ('i', 'i_', 'i^', 'i_>',  'i_<', 'i^>', 'i^<',
@@ -112,6 +114,11 @@ class Cpt(object):
     # node_pinnames maps node numbers to pinnames
     node_pinnames = ()
     default_pins = ()
+    # pins is a dictionary indexed by pinname.  Each entry is a tuple
+    # (pinpos, x, y) where (x, y) is the pin coordinate.  pinpos is a
+    # string (either 't', 'r', 'b', 'l') indicating where the pin
+    # label should be placed.  If pinpos ends with 'x', the coordinate
+    # can be scaled.
     pins = {}
     # Auxiliary nodes are used for finding the centre of the shape or
     # to define a bounding box.
