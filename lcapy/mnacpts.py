@@ -680,6 +680,9 @@ class Cpt(ImmittanceMixin):
         """Current through component.  The current is defined to be into the
         positive node."""
 
+        if self.ignore:
+            raise ValueError('Cannot determine I for %s' % self)
+
         return self.cct.get_I(self.name)
 
     @property
@@ -692,6 +695,9 @@ class Cpt(ImmittanceMixin):
     @property
     def V(self):
         """Voltage drop across component."""
+
+        if self.ignore:
+            raise ValueError('Cannot determine V for %s' % self)
 
         return self.cct.get_Vd(self.nodes[0].name, self.nodes[1].name)
 
@@ -960,14 +966,26 @@ class Dummy(Cpt):
     has_ic = None
     noisy = False
 
-
-class XX(Dummy):
-
-    is_directive = True
-    ignore = True
-
     def _stamp(self, mna):
         pass
+
+
+class Ignore(Dummy):
+
+    ignore = True
+
+    @property
+    def Voc(self):
+        raise ValueError('Cannot determine Voc for %s' % self)
+
+    @property
+    def Isc(self):
+        raise ValueError('Cannot determine Isc for %s' % self)
+
+
+class XX(Ignore):
+
+    is_directive = True
 
     def _subs(self, subs_dict):
         return self._copy()
@@ -979,10 +997,6 @@ class XX(Dummy):
 
     def __str__(self):
         return self._string
-
-
-class A(Cpt):
-    pass
 
 
 class AM(Cpt):
@@ -1764,9 +1778,6 @@ class O(Dummy):
 
     is_open_circuit = True
 
-    def _stamp(self, mna):
-        pass
-
     @property
     def I(self):
         return SuperpositionCurrent(0)
@@ -1780,9 +1791,6 @@ class P(Dummy):
     """Port"""
 
     is_port = True
-
-    def _stamp(self, mna):
-        pass
 
     @property
     def I(self):
@@ -2310,9 +2318,6 @@ class W(Dummy):
 
     is_wire = True
 
-    def _stamp(self, mna):
-        pass
-
     @property
     def I(self):
         raise ValueError(
@@ -2370,7 +2375,7 @@ def make(classname, parent, namespace, name, cpt_type, cpt_id,
 
 
 # Dynamically create classes.
-defcpt('A', Misc, 'Annotation')
+defcpt('A', Ignore, 'Annotation')
 defcpt('ADC', Misc, 'ADC')
 defcpt('ANT', Misc, 'Antenna')
 
