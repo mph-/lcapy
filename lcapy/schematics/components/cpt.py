@@ -1146,9 +1146,14 @@ class Cpt(object):
             raise ValueError('Invalid autoground % s.  Choices are % s' %
                              (autoground, ', '.join(self.ground_keys)))
 
+        if self.implicit_key(self.opts):
+            return
+
         for m, node_name in enumerate(self.required_node_names):
             if node_name != '0':
                 continue
+
+            # Check if have implicit ground...
 
             new_node = self.sch.nodes[node_name].split(self)
             new_node.implicit = True
