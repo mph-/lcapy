@@ -494,7 +494,7 @@ Circuit methods
   referred to when the last switch activated prior to the time
   specified for `t`.
 
-- `defs(ignore)`Returns a directory of argname-value pair for all
+- `defs(ignore)` Returns a directory of argname-value pair for all
          components except for components with names specified by
          `ignore`.  For example,
 
@@ -656,6 +656,11 @@ Circuit methods
    C1 2 3
    C2 3 4 C2 v0_C2
    L 4 5 L i0_L
+   >>> cct.sympify().subs(cct.defs())
+   R 1 2 3
+   C1 2 3 4
+   C2 3 4 5 6
+   L 4 5 7 8
 
    Note how the initial values are named.  See also `defs()` and `subs()`.
 
