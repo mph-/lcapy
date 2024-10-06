@@ -1819,9 +1819,31 @@ class NR(R):
 
 class RV(RC):
 
-    # TODO.  Can simulate as series resistors (1 - alpha) R and alpha R.
-    pass
+    def _stamp(self, mna):
 
+        n1, n2, n3 = mna._cpt_node_indexes(self)
+
+        R = expr(self.args[0]).sympy
+        a = expr(self.args[1]).sympy
+
+        Y1 = 1 / (R * (1 - a))
+        Y2 = 1 / (R * a)
+
+        if n1 >= 0 and n3 >= 0:
+            mna._G[n1, n3] -= Y1
+            mna._G[n3, n1] -= Y1
+        if n1 >= 0:
+            mna._G[n1, n1] += Y1
+        if n3 >= 0:
+            mna._G[n3, n3] += Y1
+
+        if n3 >= 0 and n2 >= 0:
+            mna._G[n3, n2] -= Y2
+            mna._G[n2, n3] -= Y2
+        if n3 >= 0:
+            mna._G[n3, n3] += Y2
+        if n2 >= 0:
+            mna._G[n2, n2] += Y2
 
 class SPpp(Dummy):
 
