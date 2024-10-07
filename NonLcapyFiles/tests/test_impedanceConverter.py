@@ -1,6 +1,6 @@
 from lcapy import Expr
 from lcapy import Circuit
-from lcapy import Solution
+from lcapy.solution import Solution
 from lcapy.impedanceConverter import ValueToComponent, FileToImpedance
 from os.path import join
 from lcapy.componentnamer import ComponentNamer

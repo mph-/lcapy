@@ -3,7 +3,7 @@ import sympy
 
 import lcapy
 from lcapy import Circuit
-from lcapy import Solution
+from lcapy.solution import Solution
 from lcapy.impedanceConverter import ValueToComponent, FileToImpedance, getSourcesFromCircuit, getOmegaFromCircuit
 from os.path import join
 from lcapy.componentnamer import ComponentNamer

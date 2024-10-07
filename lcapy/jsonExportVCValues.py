@@ -9,6 +9,7 @@ from lcapy.unitPrefixer import SIUnitPrefixer
 from lcapy.unitWorkAround import UnitWorkAround as uwa
 from lcapy.componentRelation import ComponentRelation
 from lcapy.impedanceConverter import getSourcesFromCircuit, getOmegaFromCircuit
+from lcapy.solutionStep import SolutionStep
 
 
 class JsonVCValueExport:
@@ -174,7 +175,7 @@ class JsonVCValueExport:
                 self.equation['CompName2'] = ""
 
     def _isInitialStep(self) -> bool:
-        assert isinstance(self.solStep, lcapy.SolutionStep)
+        assert isinstance(self.solStep, SolutionStep)
         return not (self.solStep.cpt1 and self.solStep.cpt2
                     and self.solStep.newCptName and self.solStep.lastStep) and self.solStep
 

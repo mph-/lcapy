@@ -1,6 +1,8 @@
 # for lcapy version: 1.24+inskale.0.13
-from lcapy import Circuit, Solution, FileToImpedance, DrawWithSchemdraw
+from lcapy import Circuit, FileToImpedance, DrawWithSchemdraw
+from lcapy.solution import Solution
 from lcapy.componentRelation import ComponentRelation
+from lcapy.solutionStep import SolutionStep
 import os
 
 
@@ -29,7 +31,10 @@ class SolveInUserOrder:
         self.filePath = filePath
         self.savePath = savePath
         self.circuit = Circuit(FileToImpedance(os.path.join(filePath, filename)))
-        self.steps = [(self.circuit, None, None, None, None)]
+        self.steps: list[SolutionStep] = [
+            SolutionStep(self.circuit, None, None, None, None, None,
+                         None, None)
+        ]
         self.circuit.namer.reset()
 
         return
@@ -46,10 +51,14 @@ class SolveInUserOrder:
 
         if cpts[1] in self.circuit.in_series(cpts[0]):
             newNet, newCptName = self.circuit.simplify_two_cpts(self.circuit, cpts)
-            self.steps.append((newNet, cpts[0], cpts[1], newCptName, ComponentRelation.series.value))
+            self.steps.append(SolutionStep(newNet, cpt1=cpts[0], cpt2=cpts[1], newCptName=newCptName,
+                                           relation=ComponentRelation.series.value,
+                                           solutionText=None, lastStep=None, nextStep=None))
         elif cpts[1] in self.circuit.in_parallel(cpts[0]):
             newNet, newCptName = self.circuit.simplify_two_cpts(self.circuit, cpts)
-            self.steps.append((newNet, cpts[0], cpts[1], newCptName, ComponentRelation.parallel.value))
+            self.steps.append(SolutionStep(newNet, cpt1=cpts[0], cpt2=cpts[1], newCptName=newCptName,
+                                           relation=ComponentRelation.parallel.value,
+                                           solutionText=None, lastStep=None, nextStep=None))
         else:
             return False, ("", ""), ""
 

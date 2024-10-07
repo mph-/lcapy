@@ -73,8 +73,6 @@ from .exprclasses import *
 from .seqclasses import *
 from .netlistLine import NetlistLine
 from .drawWithSchemdraw import DrawWithSchemdraw
-from .solution import Solution
-from .solutionStep import SolutionStep
 from .impedanceConverter import FileToImpedance
 
 import sys

@@ -19,7 +19,7 @@ from typing import Union
 
 
 class Solution:
-    def __init__(self, steps: list[tuple]):
+    def __init__(self, steps: list[SolutionStep]):
         """
         This class simplifies the Solution and handles the access to all data that is necessary to create a step-by-step
         solution to a circuit. The input is of this class is the output of simplify_Stepwise
@@ -31,9 +31,7 @@ class Solution:
         # convert the steps returned from simplify_stepwise to SolutionSteps
         # the simplify function cant return SolutionSteps because it imports lcapy and therefor results in a circular
         # import
-        solSteps = []
-        for step in steps:
-            solSteps.append(SolutionStep(step))
+        solSteps = steps
 
         if not solSteps:
             raise AttributeError('can`t create Solution from empty list\n'

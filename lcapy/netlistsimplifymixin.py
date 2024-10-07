@@ -3,10 +3,12 @@
 Copyright 2022--2023 Michael Hayes, UCECE
 
 """
+from lcapy.solutionStep import SolutionStep
 from .expr import expr
 from warnings import warn
 from lcapy.componentRelation import ComponentRelation
 from collections import OrderedDict
+
 
 class NetlistSimplifyMixin:
 
@@ -415,6 +417,7 @@ class NetlistSimplifyMixin:
         :param selected: the two components to be simplified
         :return: the simplified circuit as a circuit and the name of the simplified component as a string
         """
+
         if len(selected) > 2:
             warn(f"first two components selected, length exceeded 2", RuntimeWarning)
             selected = selected[0:2]
@@ -425,7 +428,7 @@ class NetlistSimplifyMixin:
         newCptName = self.find_new_cpt_name(oldCpts, newCpts)
         return net, newCptName
 
-    def simplify_stepwise(self, limit: int = 100, debug: bool = False) -> list[tuple]:
+    def simplify_stepwise(self, limit: int = 100, debug: bool = False) -> list[SolutionStep]:
         """
         Simplifies the circuit it is called on stepwise and returns a list of tupels which represent all steps
         that where made to simplify the circuit. The tuple contains the under return specified elements.
@@ -436,7 +439,9 @@ class NetlistSimplifyMixin:
         """
 
         net = self.copy()
-        steps = [(net, None, None, None, None)]
+        steps: list[SolutionStep] = [SolutionStep(circuit=net, cpt1=None, cpt2=None, newCptName=None,
+                                                  relation=ComponentRelation.none.value, solutionText=None,
+                                                  lastStep=None, nextStep=None)]
 
         if debug:
             f = open("debug.txt", "a")
@@ -449,13 +454,17 @@ class NetlistSimplifyMixin:
             selected = net.get_next_simplify_elements(series=True, debug=debug)
             if len(selected) > 1:
                 net, newCptName = self.simplify_two_cpts(net, selected=selected)
-                steps.append((net, selected[0], selected[1], newCptName, ComponentRelation.series.value))
+                steps.append(SolutionStep(circuit=net, cpt1=selected[0], cpt2=selected[1],
+                                          newCptName=newCptName, relation=ComponentRelation.series.value,
+                                          solutionText=None, lastStep=None, nextStep=None))
                 continue
 
             selected = net.get_next_simplify_elements(parallel=True, debug=debug)
             if len(selected) > 1:
                 net, newCptName = self.simplify_two_cpts(net, selected=selected)
-                steps.append((net, selected[0], selected[1], newCptName, ComponentRelation.parallel.value))
+                steps.append(SolutionStep(circuit=net, cpt1=selected[0], cpt2=selected[1],
+                                          newCptName=newCptName, relation=ComponentRelation.parallel.value,
+                                          solutionText=None, lastStep=None, nextStep=None))
                 continue
 
             if net.in_series():
