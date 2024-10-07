@@ -497,6 +497,20 @@ Circuit methods
   referred to when the last switch activated prior to the time
   specified for `t`.
 
+- `defs(ignore)` Returns a directory of argname-value pair for all
+         components except for components with names specified by
+         `ignore`.  For example,
+
+   >>> cct = Circuit("""
+   ... R 1 2 3
+   ... C1 2 3 4
+   ... C2 3 4 5 6
+   ... L 4 5 7 8""")
+   >>> cct.defs()
+   {'R': '3', 'C1': '4', 'C2': '5', 'C2_v0': '6', 'L': '7', 'L_i0': '8'}
+
+   See also `sympify()` and `subs()`.
+
 - `describe()` Prints message describing how netlist is solved
 
 - `evidence_matrix()` Returns the evidence matrix.  This has a size
@@ -541,7 +555,7 @@ Circuit methods
    >>> a.initialize({'L1': 7})
    L1 1 2 L1 7
 
-   See also `convert_IVP`.
+   See also `convert_IVP()`.
 
 - `open_circuit(cpt)` Applies open circuit in series with the component.  The name of the open circuit component is returned.
 
@@ -568,7 +582,7 @@ Circuit methods
 
 - `replace_switches(t)` Replaces switches with a short-circuit or
   open-circuit circuit by considering whether the specified time `t`
-  is at or after the switch activation time.   See also `convert_IVP`.
+  is at or after the switch activation time.   See also `convert_IVP()`.
 
    >>> cct = Circuit("""
    ... SW1 1 2 no
@@ -585,7 +599,7 @@ Circuit methods
 
 - `replace_switches_before(t)` Replaces switches with a short-circuit
   or open-circuit circuit by considering whether the specified time
-  `t` is before the switch activation time.   See also `convert_IVP`.
+  `t` is before the switch activation time.   See also `convert_IVP()`.
 
 - `s_model()` Converts sources to the s-domain and represents
   reactive components as impedances.
@@ -631,6 +645,27 @@ Circuit methods
    ... SW3 3 4 nc 2""")
    >>> cct.switching_times()
    [0.0, 1.0, 2.0]
+
+- `sympify(ignore)` Converts numerical values to symbolic values
+  except for component names specified by `ignore`.  For example,
+
+   >>> cct = Circuit("""
+   ... R 1 2 3
+   ... C1 2 3 4
+   ... C2 3 4 5 6
+   ... L 4 5 7 8""")
+   >>> cct.sympify()
+   R 1 2
+   C1 2 3
+   C2 3 4 C2 v0_C2
+   L 4 5 L i0_L
+   >>> cct.sympify().subs(cct.defs())
+   R 1 2 3
+   C1 2 3 4
+   C2 3 4 5 6
+   L 4 5 7 8
+
+   Note how the initial values are named.  See also `defs()` and `subs()`.
 
 - `unconnected_nodes` Returns list of names of nodes that are unconnected
 

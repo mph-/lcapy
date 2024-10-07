@@ -50,6 +50,8 @@ def angle_choose(pinpos):
 
 class Cpt(object):
 
+    # Perhaps use ABC?
+
     voltage_keys = ('v', 'v_', 'v^', 'v_>', 'v_<', 'v^>', 'v^<',
                     'v<', 'v>')
     current_keys = ('i', 'i_', 'i^', 'i_>',  'i_<', 'i^>', 'i^<',
@@ -62,7 +64,8 @@ class Cpt(object):
     inner_label_keys = ('t', )
     connection_keys = ('input', 'output', 'bidir', 'pad')
     ground_keys = ('ground', 'sground', 'rground',
-                   'cground', 'nground', 'pground', '0V')
+                   'cground', 'nground', 'pground', '0V',
+                   'tlground', 'tground', 'eground', 'eground2')
     supply_positive_keys = ('vcc', 'vdd')
     supply_negative_keys = ('vee', 'vss')
     supply_keys = supply_positive_keys + supply_negative_keys
@@ -111,6 +114,11 @@ class Cpt(object):
     # node_pinnames maps node numbers to pinnames
     node_pinnames = ()
     default_pins = ()
+    # pins is a dictionary indexed by pinname.  Each entry is a tuple
+    # (pinpos, x, y) where (x, y) is the pin coordinate.  pinpos is a
+    # string (either 't', 'r', 'b', 'l') indicating where the pin
+    # label should be placed.  If pinpos ends with 'x', the coordinate
+    # can be scaled.
     pins = {}
     # Auxiliary nodes are used for finding the centre of the shape or
     # to define a bounding box.
@@ -335,6 +343,14 @@ class Cpt(object):
         if val == '':
             val = self.default_width
         return float(val) * self.shape_scale
+
+    @property
+    def width(self):
+        return self.w * self.size * self.sch.node_spacing
+
+    @property
+    def height(self):
+        return self.h * self.size * self.sch.node_spacing
 
     @property
     def scale(self):
@@ -1130,9 +1146,14 @@ class Cpt(object):
             raise ValueError('Invalid autoground % s.  Choices are % s' %
                              (autoground, ', '.join(self.ground_keys)))
 
+        if self.implicit_key(self.opts):
+            return
+
         for m, node_name in enumerate(self.required_node_names):
             if node_name != '0':
                 continue
+
+            # Check if have implicit ground...
 
             new_node = self.sch.nodes[node_name].split(self)
             new_node.implicit = True

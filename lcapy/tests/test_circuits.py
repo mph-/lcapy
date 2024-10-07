@@ -718,6 +718,25 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(b.V1.Voc, expr(f), "netlist subs")
 
+    def test_netlist_sympify(self):
+        """Test netlist sympify/defs/subs"""
+
+        a = Circuit('''
+        R 1 2 1
+        C1 2 3 2
+        C2 3 4 3 4
+        L1 4 5 6
+        L2 7 8 9 10''')
+
+        b = a.sympify()
+        defs = a.defs()
+        c = b.subs(defs)
+
+        self.assertEqual(a.C1.args, c.C1.args, "C1")
+        self.assertEqual(a.C2.args, c.C2.args, "C2")
+        self.assertEqual(a.L1.args, c.L1.args, "L1")
+        self.assertEqual(a.L2.args, c.L2.args, "L2")
+
     def test_cpt(self):
         """Test cpt"""
 

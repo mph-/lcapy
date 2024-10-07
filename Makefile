@@ -1,7 +1,7 @@
 .PHONY: install
 install:
 	#python3 setup.py install
-	pip3 install .
+	pip3 install -e .
 
 .PHONY: install-extras
 install-extras:

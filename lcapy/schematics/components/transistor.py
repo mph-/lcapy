@@ -70,14 +70,14 @@ class Transistor(FixedCpt):
         label = self.label_tweak(label, xscale, yscale, self.angle)
 
         s = r'  \draw (%s) node[%s, %s, xscale=%s, yscale=%s, rotate=%d] (%s) {%s};''\n' % (
-            centre, cpt, self.draw_args_str(**kwargs), xscale, yscale,
+            centre, cpt, self.cpt_args_str(**kwargs), xscale, yscale,
             self.angle, self.s, label)
 
         # Add additional wires.  These help to compensate for the
         # slight differences in sizes of the different transistors.
         if self.tikz_cpt in ('pnp', 'npn'):
             s += r'  \draw[%s] (%s.C) -- (%s) (%s.B) -- (%s) (%s.E) -- (%s);''\n' % (
-                self.draw_args_str(**kwargs), self.s, n1.s, self.s, n2.s, self.s, n3.s)
+                self.cpt_args_str(**kwargs), self.s, n1.s, self.s, n2.s, self.s, n3.s)
         else:
             s += r'  \draw (%s.D) -- (%s) (%s.G) -- (%s) (%s.S) -- (%s);''\n' % (
                 self.s, n1.s, self.s, n2.s, self.s, n3.s)

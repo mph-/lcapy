@@ -57,6 +57,7 @@ class Cpt(ImmittanceMixin):
     is_wire = False
     is_current_controlled = False
     is_voltage_controlled = False
+    extra_argnames = ()
 
     def __init__(self, cct, namespace, name, cpt_type, cpt_id, string,
                  opts_string, node_names, keyword, *args):
@@ -679,6 +680,9 @@ class Cpt(ImmittanceMixin):
         """Current through component.  The current is defined to be into the
         positive node."""
 
+        if self.ignore:
+            raise ValueError('Cannot determine I for %s' % self)
+
         return self.cct.get_I(self.name)
 
     @property
@@ -699,6 +703,9 @@ class Cpt(ImmittanceMixin):
     @property
     def V(self):
         """Voltage drop across component."""
+
+        if self.ignore:
+            raise ValueError('Cannot determine V for %s' % self)
 
         return self.cct.get_Vd(self.nodes[0].name, self.nodes[1].name)
 
@@ -897,6 +904,36 @@ class Cpt(ImmittanceMixin):
 
         return self.cct.last_added()
 
+    @property
+    def argnames(self):
+
+        """Return list of arg names."""
+
+        args = [self.name]
+        args.extend([self.name + '_' + name for name in self.extra_argnames])
+
+        return args
+
+    def defs(self):
+        """Return directory of argname-value pair."""
+
+        defs = {}
+        for argname, value in zip(self.argnames, self.args):
+            if value is None:
+                # Initial condition for C and L.
+                continue
+            defs[argname] = value
+
+        return defs
+
+    def sympify(self):
+        """Return component with numerical values removed."""
+
+        if len(self.args) == 1:
+            return self._netmake(args=[])
+
+        return self._netmake(args=self.argnames)
+
 
 class Invalid(Cpt):
     pass
@@ -937,14 +974,26 @@ class Dummy(Cpt):
     has_ic = None
     noisy = False
 
-
-class XX(Dummy):
-
-    is_directive = True
-    ignore = True
-
     def _stamp(self, mna):
         pass
+
+
+class Ignore(Dummy):
+
+    ignore = True
+
+    @property
+    def Voc(self):
+        raise ValueError('Cannot determine Voc for %s' % self)
+
+    @property
+    def Isc(self):
+        raise ValueError('Cannot determine Isc for %s' % self)
+
+
+class XX(Ignore):
+
+    is_directive = True
 
     def _subs(self, subs_dict):
         return self._copy()
@@ -956,10 +1005,6 @@ class XX(Dummy):
 
     def __str__(self):
         return self._string
-
-
-class A(Cpt):
-    pass
 
 
 class AM(Cpt):
@@ -1110,6 +1155,7 @@ class C(RC):
 
     is_reactive = True
     add_parallel = True
+    extra_argnames = ('v0', )
 
     @property
     def C(self):
@@ -1169,6 +1215,14 @@ class C(RC):
         # with another voltage source?
         return self._netmake_variant('V_', args='v_%s(t)' % self.relname)
 
+    def sympify(self):
+        """Return component with numerical values removed."""
+
+        if self.has_ic:
+            return self._netmake(args=self.argnames)
+
+        return self._netmake(args=[])
+
     @property
     def V0(self):
         """Initial voltage (for capacitors only)."""
@@ -1179,6 +1233,8 @@ class C(RC):
 
 
 class CPE(RC):
+
+    extra_argnames = ('alpha',)
 
     @property
     def K(self):
@@ -1245,6 +1301,8 @@ class E(VCVS):
 class Eopamp(DependentSource):
     """Operational amplifier"""
 
+    extra_argnames = ('Ac', 'Ro')
+
     def _expand(self):
 
         Ad, Ac, Ro = self.args
@@ -1282,6 +1340,8 @@ class Eopamp(DependentSource):
 class Efdopamp(DependentSource):
     """Fully differential opamp"""
 
+    extra_argnames = ('Ac')
+
     def _expand(self):
 
         Ad, Ac = self.args
@@ -1310,6 +1370,8 @@ class Efdopamp(DependentSource):
 
 class Einamp(DependentSource):
     """Instrumentation amplifier"""
+
+    extra_argnames = ('Ac', 'Rf')
 
     def _expand(self):
 
@@ -1627,6 +1689,7 @@ class L(RLC):
     need_branch_current = True
     is_reactive = True
     add_series = True
+    extra_argnames = ('i0', )
 
     def _r_model(self):
 
@@ -1701,23 +1764,27 @@ class L(RLC):
             V = self.Voc.sympy
             mna._Es[m] += V
 
+    def _pre_initial_model(self):
+
+        return self._netmake_variant('I', args=self.cpt.i0)
+
     def _ss_model(self):
         # Perhaps mangle name to ensure it does not conflict
         # with another current source?
         return self._netmake_variant('I_', args='i_%s(t)' % self.relname)
 
-    def _pre_initial_model(self):
+    def sympify(self):
+        """Return component with numerical values removed."""
 
-        return self._netmake_variant('I', args=self.cpt.i0)
+        if self.has_ic:
+            return self._netmake(args=self.argnames)
 
+        return self._netmake(args=[])
 
 class O(Dummy):
     """Open circuit"""
 
     is_open_circuit = True
-
-    def _stamp(self, mna):
-        pass
 
     @property
     def I(self):
@@ -1732,9 +1799,6 @@ class P(Dummy):
     """Port"""
 
     is_port = True
-
-    def _stamp(self, mna):
-        pass
 
     @property
     def I(self):
@@ -1763,9 +1827,31 @@ class NR(R):
 
 class RV(RC):
 
-    # TODO.  Can simulate as series resistors (1 - alpha) R and alpha R.
-    pass
+    def _stamp(self, mna):
 
+        n1, n2, n3 = mna._cpt_node_indexes(self)
+
+        R = expr(self.args[0]).sympy
+        a = expr(self.args[1]).sympy
+
+        Y1 = 1 / (R * (1 - a))
+        Y2 = 1 / (R * a)
+
+        if n1 >= 0 and n3 >= 0:
+            mna._G[n1, n3] -= Y1
+            mna._G[n3, n1] -= Y1
+        if n1 >= 0:
+            mna._G[n1, n1] += Y1
+        if n3 >= 0:
+            mna._G[n3, n3] += Y1
+
+        if n3 >= 0 and n2 >= 0:
+            mna._G[n3, n2] -= Y2
+            mna._G[n2, n3] -= Y2
+        if n3 >= 0:
+            mna._G[n3, n3] += Y2
+        if n2 >= 0:
+            mna._G[n2, n2] += Y2
 
 class SPpp(Dummy):
 
@@ -2262,9 +2348,6 @@ class W(Dummy):
 
     is_wire = True
 
-    def _stamp(self, mna):
-        pass
-
     @property
     def I(self):
         raise ValueError(
@@ -2322,7 +2405,7 @@ def make(classname, parent, namespace, name, cpt_type, cpt_id,
 
 
 # Dynamically create classes.
-defcpt('A', Misc, 'Annotation')
+defcpt('A', Ignore, 'Annotation')
 defcpt('ADC', Misc, 'ADC')
 defcpt('ANT', Misc, 'Antenna')
 

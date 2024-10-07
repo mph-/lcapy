@@ -16,14 +16,6 @@ class Shape(FixedCpt):
                  'tl': ('l', -0.5, 0.5),
                  'tr': ('r', 0.5, 0.5)}
 
-    @property
-    def width(self):
-        return self.w * self.size * self.sch.node_spacing
-
-    @property
-    def height(self):
-        return self.h * self.size * self.sch.node_spacing
-
     def pinpos_rotate(self, pinpos, angle):
         """Rotate pinpos by multiple of 90 degrees.  pinpos is either 'l',
         't', 'r', 'b'."""
