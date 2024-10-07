@@ -10,7 +10,9 @@ filenames = [("Circuit_inductors.txt", 5),
              ("Circuit_mixed_2pi30.txt", 5),
              ("Circuit_mixed_omega0.txt", 5),
              ("Circuit_mixed_30.txt", 5),
-             ("Circuit_mixed.txt", 5)]
+             ("Circuit_mixed.txt", 5),
+             ("Circuit_resistors_I", 5),
+             ("Circuit_resistors_I_ac", 5)]
 
 
 def clearDir(path):

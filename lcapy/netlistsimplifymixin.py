@@ -221,15 +221,23 @@ class NetlistSimplifyMixin:
 
         return new, changed
 
-    def _simplify_series(self, skip, explain=False):
+    def _simplify_series(self, skip, explain=False, stepwise: bool = False):
 
-        net, changed = self._simplify_redundant_series(skip, explain)
+        if not stepwise:
+            net, changed = self._simplify_redundant_series(skip, explain)
+        else:
+            changed = False
+            net = self.copy()
         net, changed2 = net._simplify_combine_series(skip, explain)
         return net, changed or changed2
 
-    def _simplify_parallel(self, skip, explain=False):
+    def _simplify_parallel(self, skip, explain=False, stepwise: bool = False):
 
-        net, changed = self._simplify_redundant_parallel(skip, explain)
+        if not stepwise:
+            net, changed = self._simplify_redundant_parallel(skip, explain)
+        else:
+            changed = False
+            net = self.copy()
         net, changed2 = net._simplify_combine_parallel(skip, explain)
         return net, changed or changed2
 
@@ -397,12 +405,14 @@ class NetlistSimplifyMixin:
             warn("No simplification performed, might not work as expected", RuntimeWarning)
             return ""
 
-    def simplify_two_cpts(self, net, selected):
+    def simplify_two_cpts(self, net, selected, stepwise: bool = True):
         """
         simplifies two selected componentes of a circuit and returns the new Circuit and the name of the simplified
         component.
+        :param stepwise: indicates to the basic lcapy that there may be in series or parallel after a simplification
+        for series or parallel was performed
         :param net: Circuit to be simplified
-        :param selected: the thwo components to be simplified
+        :param selected: the two components to be simplified
         :return: the simplified circuit as a circuit and the name of the simplified component as a string
         """
         if len(selected) > 2:
@@ -410,7 +420,7 @@ class NetlistSimplifyMixin:
             selected = selected[0:2]
 
         oldCpts = set(net.cpts)
-        net = net.simplify(select=selected)
+        net = net.simplify(select=selected, stepwise=stepwise)
         newCpts = set(net.cpts)
         newCptName = self.find_new_cpt_name(oldCpts, newCpts)
         return net, newCptName
@@ -473,7 +483,7 @@ class NetlistSimplifyMixin:
 
     def simplify(self, select=None, ignore=None, passes=0, series=True,
                  parallel=True, dangling=False, disconnected=False,
-                 explain=False, modify=True, keep_nodes=None):
+                 explain=False, modify=True, keep_nodes=None, stepwise: bool = False):
         """Simplify a circuit by combining components in series and combining
         components in parallel.
 
@@ -528,10 +538,10 @@ class NetlistSimplifyMixin:
                     skip, explain, keep_nodes)
                 changed = changed or changed1
             if series:
-                net, changed1 = net._simplify_series(skip, explain)
+                net, changed1 = net._simplify_series(skip, explain, stepwise=stepwise)
                 changed = changed or changed1
             if parallel:
-                net, changed1 = net._simplify_parallel(skip, explain)
+                net, changed1 = net._simplify_parallel(skip, explain, stepwise=stepwise)
                 changed = changed or changed1
 
             if not changed:
