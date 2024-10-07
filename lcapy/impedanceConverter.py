@@ -208,13 +208,7 @@ def getOmegaFromCircuit(circuit: 'Circuit', sources: list) -> Union[float, sp.Mu
 
 
 def getSourcesFromCircuit(circuit: 'Circuit') -> list:
-    sources = []
-    if circuit.voltage_sources:
-        sources.extend(circuit.voltage_sources)
-    if circuit.current_sources:
-        sources.extend(circuit.current_sources)
-
-    if len(sources) > 1:
+    if len(circuit.sources) > 1:
         raise ValueError("Current implementation can only handle one Source")
 
-    return sources
+    return circuit.sources

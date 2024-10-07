@@ -134,6 +134,12 @@ class DrawWithSchemdraw:
                     self.addElement(elm.sources.SourceSin(id_=id_, value_=value, d=line.drawParam), line)
                 elif line.ac_dc == "dc":
                     self.addElement(elm.sources.SourceV(id_=id_, value_=value, d=line.drawParam), line)
+            elif line.type == "I":
+                if line.ac_dc == "ac":
+                    self.addElement(elm.sources.SourceI(id_=id_, value_=value, d=line.drawParam), line)
+                elif line.ac_dc == "dc":
+                    self.addElement(elm.sources.SourceI(id_=id_, value_=value, d=line.drawParam), line)
+
             else:
                 raise RuntimeError(f"unknown element type {line.type}")
 

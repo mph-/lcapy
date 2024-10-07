@@ -43,18 +43,18 @@ class NetlistLine:
             self.ac_dc, self.value, self.phase, self.omega = self.parseRLCZ()
         elif self.type == "W":
             self.ac_dc, self.value, self.phase, self.omega, self.typeSuffix = self.parseW()
-        elif self.type == "V":
-            self.ac_dc, self.value, self.phase, self.omega = self.parseV()
+        elif self.type == "V" or self.type == "I":
+            self.ac_dc, self.value, self.phase, self.omega = self.parseSource()
 
     def is_AC_or_DC(self) -> Union[str, None]:
-        if not self.type == "V":
+        if not (self.type == "V" or self.type == "I"):
             return None
         if self.cpt.has_ac and not self.cpt.has_dc:
             return "ac"
         elif self.cpt.has_dc and not self.cpt.has_ac:
             return "dc"
         else:
-            raise RuntimeError(f" if type is V (is: {self.type}) should be ac or dc not both")
+            raise RuntimeError(f" if type is V or I (is: {self.type}) should be ac or dc not both")
 
     @staticmethod
     def parseW() -> (None, None, None, None, str):
@@ -69,7 +69,7 @@ class NetlistLine:
 
         return ac_dc, value, phase, omega
 
-    def parseV(self) -> (str, str, str, str):
+    def parseSource(self) -> (str, str, str, str):
         value = self.cpt.args[0]
         if self.cpt.has_ac:
             if len(self.cpt.args) > 1:
