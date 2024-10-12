@@ -15,7 +15,7 @@ currents, respectively, to model transient responses.
 One-ports can either be connected in series (``+``) or parallel (``|``) to
 create a new one-port.
 
-Copyright 2014--2022 Michael Hayes, UCECE
+Copyright 2014--2024 Michael Hayes, UCECE
 
 """
 
@@ -754,6 +754,14 @@ class ParSer(OnePort):
 
         """
         return self.cct.Voc(1, 0)
+
+    @property
+    def has_independent_source(self):
+
+        for arg in self.args:
+            if arg.has_independent_source:
+                return True
+        return False
 
 
 class Par(ParSer):
@@ -1751,6 +1759,10 @@ class VoltageSourceBase(OnePort):
     """bool : Indicates the component is a voltage source
 
     """
+    has_independent_source = True
+    """bool : Indicates the component has an independent source
+
+    """
     cpt_type = 'V'
     """str : The type of component, in this case 'V' for voltage source
 
@@ -2047,8 +2059,21 @@ class v(VoltageSourceBase):
 class CurrentSourceBase(OnePort):
 
     is_current_source = True
+    """bool : Indicates the component is a current source
+
+    """
+    has_independent_source = True
+    """bool : Indicates the component has an independent source
+
+    """
     cpt_type = 'I'
+    """str : The type of component, in this case 'I' for current source
+
+    """
     is_noisy = False
+    """bool : Indicates the current source is not noisy.
+
+    """
 
     @property
     def I(self):
