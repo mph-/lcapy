@@ -741,7 +741,9 @@ class ParSer(OnePort):
         The short circuit current.
 
         """
-        return self.cct.Isc(1, 0)
+        if self.has_independent_source:
+            return self.cct.Isc(1, 0)
+        return SuperpositionCurrent(0)
 
     @property
     def Voc(self):
@@ -753,7 +755,9 @@ class ParSer(OnePort):
         The open circuit voltage.
 
         """
-        return self.cct.Voc(1, 0)
+        if self.has_independent_source:
+            return self.cct.Voc(1, 0)
+        return SuperpositionVoltage(0)
 
     @property
     def has_independent_source(self):
