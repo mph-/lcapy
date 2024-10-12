@@ -2277,8 +2277,6 @@ class TwoPortBModel(TwoPort):
         super(TwoPortBModel, self).__init__(
             B[0, 0], B[0, 1], B[1, 0], B[1, 1], V2b, I2b, **kwargs)
         self._params = B
-        self._V2b = V2b
-        self._I2b = I2b
         self._sources = Vector((V2b, I2b))
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
@@ -2287,6 +2285,14 @@ class TwoPortBModel(TwoPort):
         return self._TP_make(netlist, n1, n2, n3, n4, 'B',
                              self.B11, self.B12, self.B21, self.B22,
                              self.V2b, self.I2b)
+
+    @property
+    def _V2b(self):
+        return self.sources[0]
+
+    @property
+    def _I2b(self):
+        return self.sources[1]
 
     @property
     def Bparams(self):
@@ -2364,8 +2370,6 @@ class TwoPortAModel(TwoPort):
         super(TwoPortAModel, self).__init__(
             A[0, 0], A[0, 1], A[1, 0], A[1, 1], V1a, I1a, **kwargs)
         self._params = A
-        self._V1a = V1a
-        self._I1a = I1a
         self._sources = Vector((V1a, I1a))
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
@@ -2374,6 +2378,14 @@ class TwoPortAModel(TwoPort):
         return self._TP_make(netlist, n1, n2, n3, n4, 'A',
                              self.A11, self.A12, self.A21, self.A22,
                              self.V1a, self.I1a)
+
+    @property
+    def _V1a(self):
+        return self.sources[0]
+
+    @property
+    def _I1a(self):
+        return self.sources[1]
 
     @property
     def Aparams(self):
@@ -2443,8 +2455,6 @@ class TwoPortGModel(TwoPort):
         super(TwoPortGModel, self).__init__(
             G[0, 0], G[0, 1], G[1, 0], G[1, 1], I1g, V2g, **kwargs)
         self._params = G
-        self._I1g = I1g
-        self._V2g = V2g
         self._sources = Vector((I1g, V2g))
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
@@ -2453,6 +2463,14 @@ class TwoPortGModel(TwoPort):
         return self._TP_make(netlist, n1, n2, n3, n4, 'G',
                              self.G11, self.G12, self.G21, self.G22,
                              self.I1g, self.V2g)
+
+    @property
+    def _I1g(self):
+        return self.sources[0]
+
+    @property
+    def _V2g(self):
+        return self.sources[1]
 
     @property
     def Gparams(self):
@@ -2540,8 +2558,6 @@ class TwoPortHModel(TwoPort):
         super(TwoPortHModel, self).__init__(
             H[0, 0], H[0, 1], H[1, 0], H[1, 1], V1h, I2h, **kwargs)
         self._params = H
-        self._V1h = V1h
-        self._I2h = I2h
         self._sources = Vector((V1h, I2h))
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
@@ -2550,6 +2566,14 @@ class TwoPortHModel(TwoPort):
         return self._TP_make(netlist, n1, n2, n3, n4, 'H',
                              self.H11, self.H12, self.H21, self.H22,
                              self.V1h, self.I2h)
+
+    @property
+    def _V1h(self):
+        return self.sources[0]
+
+    @property
+    def _I2h(self):
+        return self.sources[1]
 
     @property
     def Hparams(self):
@@ -2637,8 +2661,6 @@ class TwoPortYModel(TwoPort):
         super(TwoPortYModel, self).__init__(
             Y[0, 0], Y[0, 1], Y[1, 0], Y[1, 1], I1y, I2y, **kwargs)
         self._params = Y
-        self._I1y = I1y
-        self._I2y = I2y
         self._sources = Vector((I1y, I2y))
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
@@ -2647,6 +2669,14 @@ class TwoPortYModel(TwoPort):
         return self._TP_make(netlist, n1, n2, n3, n4, 'Y',
                              self.Y11, self.Y12, self.Y21, self.Y22,
                              self.I1y, self.I2y)
+
+    @property
+    def _I1y(self):
+        return self.sources[0]
+
+    @property
+    def _I2y(self):
+        return self.sources[1]
 
     @property
     def Yparams(self):
@@ -2729,8 +2759,6 @@ class TwoPortZModel(TwoPort):
         super(TwoPortZModel, self).__init__(
             Z[0, 0], Z[0, 1], Z[1, 0], Z[1, 1], V1z, V2z, **kwargs)
         self._params = Z
-        self._V1z = V1z
-        self._V2z = V2z
         self._sources = Vector((V1z, V2z))
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
@@ -2739,6 +2767,14 @@ class TwoPortZModel(TwoPort):
         return self._TP_make(netlist, n1, n2, n3, n4, 'Z',
                              self.Z11, self.Z12, self.Z21, self.Z22,
                              self.V1z, self.V2z)
+
+    @property
+    def _V1z(self):
+        return self.sources[0]
+
+    @property
+    def _V2z(self):
+        return self.sources[1]
 
     @property
     def Zparams(self):
