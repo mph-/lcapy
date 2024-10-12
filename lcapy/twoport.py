@@ -1631,6 +1631,11 @@ class TwoPort(Network, TwoPortMixin):
         return self._sources
 
     @property
+    def has_independent_source(self):
+        """Return True if has an independent source"""
+        return self.sources[0] != 0 or self.sources[1] != 0
+
+    @property
     def Aparams(self):
         """Return chain parameters"""
         return self._params.Aparams
