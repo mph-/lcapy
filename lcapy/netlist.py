@@ -107,13 +107,13 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
     def _subs_make(self, nowarn=False):
 
         cct = self.expand()
+        groups = cct._groups()
         sub = TransformDomains()
 
         for kind, sources in groups.items():
             sub[kind] = SubNetlist(cct, kind)
 
         if sub == {} and not nowarn:
-            breakpoint()
             warn('Netlist has no sources')
 
         return sub
