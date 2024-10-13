@@ -184,14 +184,19 @@ class NetlistMixin(object):
         return enodes2
 
     @property
+    def has_ac(self):
+        """Return True if any independent source has an AC component."""
+        return self.analysis.has_ac
+
+    @property
     def has_dc(self):
         """Return True if any independent source has a DC component."""
         return self.analysis.has_dc
 
     @property
-    def has_ac(self):
-        """Return True if any independent source has an AC component."""
-        return self.analysis.has_ac
+    def has_independent_source(self):
+        """Return True if the circuit has an independent source."""
+        return self.independent_sources != []
 
     @property
     def has_s_transient(self):
