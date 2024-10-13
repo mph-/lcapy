@@ -1,6 +1,6 @@
 """This module provides the NetlistOpsMixin class.
 
-Copyright 2023 Michael Hayes, UCECE
+Copyright 2024 Michael Hayes, UCECE
 
 """
 
@@ -19,6 +19,12 @@ from warnings import warn
 
 
 class NetlistOpsMixin:
+
+    def _check_independent_sources(self):
+        sources = self.independent_sources
+        if sources != []:
+            raise ValueError('Circuit has an independent source: %s. '
+                             'Use kill() or remove() first.' % sources)
 
     def admittance(self, Np, Nm=None):
         """Return driving-point Laplace-domain admittance between nodes
@@ -74,6 +80,7 @@ class NetlistOpsMixin:
                                                     'current_gain')
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
 
+        self._check_independent_sources()
         new = self.apply_test_current_source(N1p, N1m)
         H = transfer(-new.Isc(N2p, N2m).laplace())
         H.causal = True
@@ -261,6 +268,7 @@ class NetlistOpsMixin:
                                                     'transfer')
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
 
+        self._check_independent_sources()
         new = self.apply_test_voltage_source(N1p, N1m)
         V2 = new.Voc(N2p, N2m)
         H = transfer(V2.laplace())
@@ -362,6 +370,7 @@ class NetlistOpsMixin:
                                                     'transadmittance')
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
 
+        self._check_independent_sources()
         new = self.apply_test_voltage_source(N1p, N1m)
         H = admittance(-new.Isc(N2p, N2m).laplace())
         H.causal = True
@@ -399,6 +408,7 @@ class NetlistOpsMixin:
                                                     'transadmittance')
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
 
+        self._check_independent_sources()
         new = self.apply_test_current_source(N1p, N1m)
         H = impedance(new.Voc(N2p, N2m).laplace())
         H.causal = True
@@ -444,6 +454,7 @@ class NetlistOpsMixin:
                                                     'voltage_gain')
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
 
+        self._check_independent_sources()
         new = self.apply_test_voltage_source(N1p, N1m)
         V2 = new.Voc(N2p, N2m)
         H = transfer(V2.laplace())
@@ -465,6 +476,8 @@ class NetlistOpsMixin:
         N1p, N1m, N2p, N2m = self._parse_node_args4(
             N1p, N1m, N2p, N2m, 'Aparams')
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
+        self._check_independent_sources()
+
         new = self.kill()
         new._add_ground(N1m)
 
@@ -521,6 +534,8 @@ class NetlistOpsMixin:
         N1p, N1m, N2p, N2m = self._parse_node_args4(
             N1p, N1m, N2p, N2m, 'Bparams')
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
+        self._check_independent_sources()
+
         new = self.kill()
         new._add_ground(N1m)
 
@@ -634,6 +649,8 @@ class NetlistOpsMixin:
         N1p, N1m, N2p, N2m = self._parse_node_args4(
             N1p, N1m, N2p, N2m, 'Zparams')
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
+        self._check_independent_sources()
+
         new = self.kill()
         new._add_ground(N1m)
 
