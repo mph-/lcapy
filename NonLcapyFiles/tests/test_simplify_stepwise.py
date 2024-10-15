@@ -4,7 +4,7 @@ import sympy
 import lcapy
 from lcapy import Circuit
 from lcapy.solution import Solution
-from lcapy.impedanceConverter import ValueToComponent, FileToImpedance, getSourcesFromCircuit, getOmegaFromCircuit
+from lcapy.impedanceConverter import StrToComponent, FileToImpedance, getSourcesFromCircuit, getOmegaFromCircuit
 from os.path import join
 from lcapy.componentnamer import ComponentNamer
 from typing import Union
@@ -34,7 +34,7 @@ class TestSimplifyStepwise:
             assert result == 1 / (1 / val1 + 1 / val2), "Calculation in Impedance is wrong"
 
         omega_0 = getOmegaFromCircuit(orgCct, getSourcesFromCircuit(orgCct))
-        realRes, realResCompType = ValueToComponent(result, omega_0)
+        realRes, realResCompType = StrToComponent(result, omega_0)
         assert realResCompType == compType, "Converted type is not as expected"
 
         if not oneTroughReal:
@@ -62,7 +62,7 @@ class TestSimplifyStepwise:
         result = sol['step1'].circuit.Zsim1.Z
 
         if compType:
-            _, resultCompType = ValueToComponent(result)
+            _, resultCompType = StrToComponent(result)
             assert resultCompType == compType, "Converted type is not as expected"
 
         if not oneTroughImp:

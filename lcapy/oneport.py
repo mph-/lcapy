@@ -1210,7 +1210,6 @@ class R(OnePort):
         self.args = (Rval, )
         self._R = cexpr(Rval)
         self._Z = impedance(self._R, causal=True)
-        self.cpt_type = "R"
 
     def current_equation(self, v, kind='t'):
         """
@@ -1414,7 +1413,6 @@ class L(OnePort):
         self._Z = impedance(s * Lval, causal=True)
         self._Voc = SuperpositionVoltage(LaplaceDomainExpression(-i0 * Lval))
         self.zeroic = self.i0 == 0
-        self.cpt_type = "L"
 
     def current_equation(self, v, kind='t'):
         """
@@ -1519,7 +1517,6 @@ class C(OnePort):
         self._Z = impedance(1 / (s * Cval), causal=True)
         self._Voc = SuperpositionVoltage(LaplaceDomainExpression(v0 / s))
         self.zeroic = self.v0 == 0
-        self.cpt_type = "C"
 
     def current_equation(self, v, kind='t'):
         """
@@ -1717,7 +1714,6 @@ class Z(OnePort):
         self.args = (Zval, )
         Zval = impedance(Zval)
         self._Z = Zval
-        self.cpt_type = "Z"
 
     def current_equation(self, v, kind='t'):
         """
