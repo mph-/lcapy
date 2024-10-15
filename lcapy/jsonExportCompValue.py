@@ -15,9 +15,10 @@ from lcapy import omega0, omega
 from lcapy.jsonExportCompStepValues import JsonExportStepValues
 from lcapy.unitWorkAround import UnitWorkAround as uwa
 from lcapy.unitPrefixer import SIUnitPrefixer
+from lcapy.jsonExportBase import JsonExportBase
 
 
-class JsonCompValueExport:
+class JsonCompValueExport(JsonExportBase):
     """
     Jason Component Value Export
     Creates a json-File with information about the component values
@@ -26,7 +27,7 @@ class JsonCompValueExport:
     Takes a step <string> that is part of a Solution <lcapy.Solution> Object. The available steps can be accessed by
     <lcapy.Solution>.available_steps
     """
-    def __init__(self, precision=4):
+    def __init__(self, precision=3):
         self.name1 = None
         self.name2 = None
         self.newName = None
@@ -50,11 +51,7 @@ class JsonCompValueExport:
         self.precision = precision
 
         self.prefixer = SIUnitPrefixer()
-        self.prefixedLatexStr = lambda x: latex(
-            self.prefixer.getSIPrefixedValue(x).evalf(n=self.precision),
-            imaginary_unit="j"
-        )
-        self.latexStr = lambda x: latex(x.evalf(n=self.precision), imaginary_unit="j")
+        self.valueFieldKey = self._getValueFieldKeys()
 
     def _updateObjectValues(self, step, solution: 'lcapy.Solution'):
         # the values for name1 and name2 are not final if they are transformable they are adjusted later on
@@ -107,9 +104,11 @@ class JsonCompValueExport:
             else:
                 values = self._handleNoConversionPossible()
 
+            # ToDo change to flexible way from base class
+            # a = self.valueFieldKey
             for key in ["value1", "value2", "result", "convVal1", "convVal2", "convResult"]:
                 if values[key]:
-                    values[key] = self.latexStr(values[key])
+                    values[key] = self.latexWithoutPrefix(values[key])
 
             return values
 
@@ -134,7 +133,7 @@ class JsonCompValueExport:
 
                 if cpt.has_ac:
                     if cpt.args[2] is not None:
-                        as_dict["omega_0"] = latex(self.prefixer.getSIPrefixedValue(
+                        as_dict["omega_0"] = latex(self.prefixer.getSIPrefixedExpr(
                             parse_expr(str(cpt.args[2]), local_dict={"pi": sympy.pi}) * Hz)
                         )
                         try:
@@ -152,7 +151,7 @@ class JsonCompValueExport:
             elif not cpt.type == "W":
                 cCpt = NetlistLine(ImpedanceToComponent(str(cpt), omega_0=self.omega_0))
                 as_dict[cCpt.type + cCpt.typeSuffix] = latex(
-                    self.prefixer.getSIPrefixedValue(
+                    self.prefixer.getSIPrefixedExpr(
                         uwa.addUnit(
                             cCpt.value,
                             cCpt.type
@@ -257,16 +256,17 @@ class JsonCompValueExport:
             )
 
         if not compType == "Z":
-            expStr1 = self.prefixedLatexStr(exp1)
-            expStr2 = self.prefixedLatexStr(exp2)
-            expStrRslt = self.prefixedLatexStr(expRslt)
+            expStr1 = self.latexWithPrefix(exp1)
+            expStr2 = self.latexWithPrefix(exp2)
+            expStrRslt = self.latexWithPrefix(expRslt)
         else:
-            expStr1 = self.latexStr(exp1)
-            expStr2 = self.latexStr(exp2)
-            expStrRslt = self.latexStr(expRslt)
+            expStr1 = self.latexWithoutPrefix(exp1)
+            expStr2 = self.latexWithoutPrefix(exp2)
+            expStrRslt = self.latexWithoutPrefix(expRslt)
 
+        # has to be a string because otherwise it would be simplified and only the result would be in the latex string
         if useFunc == "inverseSum":
-            equation = "\\frac{1}{" + expStr1 + "} + \\frac{1}{" + expStr2 + "} = " + expStrRslt
+            equation = "\\frac{1}{\\frac{1}{" + expStr1 + "} + \\frac{1}{" + expStr2 + "}} = " + expStrRslt
         elif useFunc == "sum":
             equation = expStr1 + " + " + expStr2 + " = " + expStrRslt
         else:

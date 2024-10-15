@@ -15,21 +15,21 @@ class JsonExportStepValues:
         self.name2: str = name2
         self.newName: str = newName
         self.relation: str = relation
-        self.value1 = prefixer.getSIPrefixedValue(value1).evalf(n=3)
-        self.value2 = prefixer.getSIPrefixedValue(value2).evalf(n=3)
-        self.result = prefixer.getSIPrefixedValue(result).evalf(n=3)
+        self.value1 = prefixer.getSIPrefixedExpr(value1).evalf(n=3)
+        self.value2 = prefixer.getSIPrefixedExpr(value2).evalf(n=3)
+        self.result = prefixer.getSIPrefixedExpr(result).evalf(n=3)
         self.latexEquation: str = latexEquation
 
         if convVal1:
-            self.convVal1 = prefixer.getSIPrefixedValue(convVal1).evalf(n=3)
+            self.convVal1 = prefixer.getSIPrefixedExpr(convVal1).evalf(n=3)
         else:
             self.convVal1 = None
         if convVal2:
-            self.convVal2 = prefixer.getSIPrefixedValue(convVal2).evalf(n=3)
+            self.convVal2 = prefixer.getSIPrefixedExpr(convVal2).evalf(n=3)
         else:
             self.convVal2 = None
         if convResult:
-            self.convResult = prefixer.getSIPrefixedValue(convResult).evalf(n=3)
+            self.convResult = prefixer.getSIPrefixedExpr(convResult).evalf(n=3)
         else:
             self.convResult = None
 

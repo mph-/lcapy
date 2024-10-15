@@ -1,7 +1,6 @@
 import lcapy
 from sympy import latex
-from lcapy import state
-from enum import Enum
+from sympy import Float, Rational
 from lcapy.netlistLine import NetlistLine
 from lcapy import t
 from lcapy.impedanceConverter import ValueToComponent
@@ -22,7 +21,7 @@ class JsonVCValueExport:
     represents all information in the circuit in combination with lcapy.JsonCompValueExport. Has to be split up because
     in the user based mode not all information can be known when those files are generated
     """
-    def __init__(self, precision=4):
+    def __init__(self, precision=3):
         # this class automatically prefixes every field that includes val or Val in the name and transforms it to
         # a latex string before exporting the dictionary
         self.circuit: 'lcapy.Circuit' = None
@@ -98,10 +97,14 @@ class JsonVCValueExport:
             self._updateEquations()
             self._addPrefixes()
 
-    def latexWithPrefix(self, value):
-        prefixedValue = self.prefixer.getSIPrefixedValue(value)
-        evalValue = 1.0 * prefixedValue.evalf(n=self.precision)
-        latexString = latex(evalValue, imaginary_unit="j")
+    def latexWithPrefix(self, value, prec=None):
+        if prec is None:
+            prec = self.precision
+
+        toPrint = 1.0 * self.prefixer.getSIPrefixedMul(value)
+        for val in list(toPrint.atoms(Float)):
+            toPrint = toPrint.evalf(subs={val: str(round(val, prec))})
+        latexString = latex(toPrint, imaginary_unit="j")
         return latexString
 
     def _updateSuffix(self):
@@ -153,7 +156,7 @@ class JsonVCValueExport:
             self.relation = ComponentRelation.none
 
     def _makeLatexEquationU(self, valueZ, valueI, resultU) -> str:
-        return f"{self.latexWithPrefix(valueZ)} • {self.latexWithPrefix(valueI)} = {self.latexWithPrefix(resultU)}"
+        return f"{self.latexWithPrefix(valueZ)} \\cdot {self.latexWithPrefix(valueI)} = {self.latexWithPrefix(resultU)}"
 
     def _makeLatexEquationI(self, valueZ, valueU, resultI) -> str:
         return f"{self.latexWithPrefix(valueU)} / {self.latexWithPrefix(valueZ)} = {self.latexWithPrefix(resultI)}"
@@ -194,11 +197,11 @@ class JsonVCValueExport:
             values = self.__dict__[key]
             if isinstance(values, list):
                 for i in range(0, len(values)):
-                    values[i] = self.prefixer.getSIPrefixedValue(values[i])
+                    values[i] = self.prefixer.getSIPrefixedExpr(values[i])
             if isinstance(values, dict):
                 innerKeys = list(values.keys())
                 for innerKey in innerKeys:
-                    values[innerKey] = self.prefixer.getSIPrefixedValue(values[innerKey])
+                    values[innerKey] = self.prefixer.getSIPrefixedExpr(values[innerKey])
             else:
-                self.__dict__[key] = self.prefixer.getSIPrefixedValue(values)
+                self.__dict__[key] = self.prefixer.getSIPrefixedExpr(values)
         return

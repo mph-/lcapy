@@ -1,3 +1,7 @@
+## 1.24+inskale.0.14
+- formel for parallel was: $$\frac{1}{R_1} + \frac{1}{R_2} = R_{ges}$$ now corrected to: $$\frac{1}{\frac{1}{R_1} + \frac{1}{R_2}} = R_{ges}$$
+- change multiplikation dot to \cdot
+- round values in json export (evalf makes fixed number of digits)
 ## 1.24+inskale.0.13
 - add current sources
 

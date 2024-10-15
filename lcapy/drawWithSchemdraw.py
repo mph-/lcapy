@@ -56,7 +56,7 @@ class DrawWithSchemdraw:
                 # in line only a string is saved, so it needs a unit. To get the unit prefix, convert it to sympy.Mul
                 # and use the SIUnitPrefixer Class to determine the prefix, use evalf(n=3) to convert to a
                 # floating point number and evaluate to 3 digits
-                self.prefixer.getSIPrefixedValue(uw.addUnit(line.value, line.type)).evalf(n=3),
+                self.prefixer.getSIPrefixedExpr(uw.addUnit(line.value, line.type)).evalf(n=3),
                 imaginary_unit="j"
             )
 
