@@ -1,9 +1,10 @@
 from lcapy import state
 from lcapy import resistance, inductance, capacitance, voltage, impedance, current
-from lcapy.units import ohms, farads, henrys
-from lcapy.mnacpts import R, C, L, Z
+from lcapy.units import ohms, farads, henrys, amperes, volts
+from lcapy.mnacpts import R, C, L, Z, V, I
 from typing import Union
 from lcapy import ConstantFrequencyResponseDomainExpression, ConstantFrequencyResponseDomainImpedance
+from lcapy import ConstantDomainExpression
 
 
 class UnitWorkAround:
@@ -25,7 +26,7 @@ class UnitWorkAround:
         elif cptType == "W":
             return val
         else:
-            raise NotImplementedError(f"{cptType} not supported edit Solution.addUnit to support")
+            raise NotImplementedError(f"{cptType} not supported edit UnitWorkAround.addUnit to support")
         return returnVal
 
     @staticmethod
@@ -48,5 +49,39 @@ class UnitWorkAround:
             return henrys
         elif isinstance(element, Z):
             return ohms
+        elif isinstance(element, V):
+            return amperes
+        elif isinstance(element, I):
+            return volts
         else:
-            raise NotImplementedError(f"{type(element)} not supported edit Solution.addUnit to support")
+            raise NotImplementedError(f"{type(element)} not supported edit UnitWorkAround.addUnit to support")
+
+    @staticmethod
+    def getElementSpecificValue(element: Union[R, C, L, Z], unit=False) -> ConstantDomainExpression:
+        """
+        accesses the value resistance, capacitance, inductance, or impedance of an element based on its type
+        :param element: mnacpts.R | mnacpts.C | mnacpts.L | mnacpts.Z
+        :param unit: if True the Unit (ohm, F, H) are added to the str
+        :return: lcapy.ConstantDomainExpression
+        """
+        if unit:
+            return UnitWorkAround.addUnit(UnitWorkAround.getElementSpecificValue(element), element.type)
+
+        state.show_units = False
+        if isinstance(element, R):
+            returnVal = element.R
+        elif isinstance(element, C):
+            returnVal = element.C
+        elif isinstance(element, L):
+            returnVal = element.L
+        elif isinstance(element, Z):
+            returnVal = element.Z
+        elif isinstance(element, V):
+            returnVal = element.V
+        elif isinstance(element, I):
+            returnVal = element.I
+        else:
+            raise NotImplementedError(f"{type(element)} "
+                                      f"not supported edit UnitWorkAround.getElementSpecificValue() to support")
+
+        return returnVal
