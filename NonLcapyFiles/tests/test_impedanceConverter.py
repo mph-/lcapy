@@ -1,7 +1,7 @@
 from lcapy import Expr
 from lcapy import Circuit
 from lcapy.solution import Solution
-from lcapy.impedanceConverter import StrToComponent, FileToImpedance
+from lcapy.impedanceConverter import ValueToComponent, FileToImpedance
 from os.path import join
 from lcapy.componentnamer import ComponentNamer
 
@@ -16,7 +16,7 @@ class TestImpedanceConverter:
         """
         cir = sol['step1'].circuit
         value = cir.Zsim1.Z
-        _, compType = StrToComponent(value)
+        _, compType = ValueToComponent(value)
         return compType
 
     @staticmethod
@@ -37,7 +37,7 @@ class TestImpedanceConverter:
     def test_compType(self):
         # create an object of the base class from which all other component classes inherit, give it a complex value
         # and convert it to an R, L, C or Z component. Take the converted comp type and compare it to the expected value
-        compTypeOf = lambda re, im: StrToComponent(Expr(complex(re, im)))[1]
+        compTypeOf = lambda re, im: ValueToComponent(Expr(complex(re, im)))[1]
         assert compTypeOf(1, 0) == "R"
         assert compTypeOf(0, 1) == "L"
         assert compTypeOf(0, -1) == "C"
