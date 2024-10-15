@@ -3,7 +3,7 @@ from sympy import latex
 from sympy import Float, Rational
 from lcapy.netlistLine import NetlistLine
 from lcapy import t
-from lcapy.impedanceConverter import ValueToComponent
+from lcapy.impedanceConverter import StrToComponent
 from lcapy.unitPrefixer import SIUnitPrefixer
 from lcapy.unitWorkAround import UnitWorkAround as uwa
 from lcapy.componentRelation import ComponentRelation
@@ -131,7 +131,7 @@ class JsonVCValueExport:
         self.names2['CompName'] = compType + self.suffixName2
 
     def _checkForConversion(self, value) -> tuple:
-        convValue, convCompType = ValueToComponent(value, self.omega_0)
+        convValue, convCompType = StrToComponent(value, self.omega_0)
         if 'Z' == convCompType:
             return value, None, 'Z'
         else:
