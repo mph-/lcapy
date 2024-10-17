@@ -9,9 +9,10 @@ from lcapy.unitWorkAround import UnitWorkAround as uwa
 from lcapy.componentRelation import ComponentRelation
 from lcapy.impedanceConverter import getSourcesFromCircuit, getOmegaFromCircuit
 from lcapy.solutionStep import SolutionStep
+from lcapy.jsonExportBase import JsonExportBase
 
 
-class JsonVCValueExport:
+class JsonVCValueExport(JsonExportBase):
     """
     Jason Volt Current Value Export
     Creates a json-File with information about the Voltage and Current values for one step
@@ -42,7 +43,7 @@ class JsonVCValueExport:
         self.relation: ComponentRelation = ComponentRelation.none
         self.equation = {'CompName1': None, 'CompName2': None}
 
-        self.valueFieldKeys = self._getValueFieldKeys()
+        self.valueFieldKeys = self._getValueFieldKeys("val")
 
     def getDictForStep(self, step: str, solution: 'lcapy.Solution') -> dict:
         self._updateObjectValues(step, solution)
@@ -96,16 +97,6 @@ class JsonVCValueExport:
             self._updateCompRel()
             self._updateEquations()
             self._addPrefixes()
-
-    def latexWithPrefix(self, value, prec=None):
-        if prec is None:
-            prec = self.precision
-
-        toPrint = 1.0 * self.prefixer.getSIPrefixedMul(value)
-        for val in list(toPrint.atoms(Float)):
-            toPrint = toPrint.evalf(subs={val: str(round(val, prec))})
-        latexString = latex(toPrint, imaginary_unit="j")
-        return latexString
 
     def _updateSuffix(self):
         self.suffixOldName = NetlistLine(str(self.simpCircuit[self.oldName])).typeSuffix
@@ -181,15 +172,6 @@ class JsonVCValueExport:
         assert isinstance(self.solStep, SolutionStep)
         return not (self.solStep.cpt1 and self.solStep.cpt2
                     and self.solStep.newCptName and self.solStep.lastStep) and self.solStep
-
-    def _getValueFieldKeys(self):
-        keys = list(self.__dict__.keys())
-        valueFiledKeys = []
-        for key in keys:
-            if key.find("val") >= 0 or key.find("Val") >= 0:
-                valueFiledKeys.append(key)
-
-        return valueFiledKeys
 
     def _addPrefixes(self):
 

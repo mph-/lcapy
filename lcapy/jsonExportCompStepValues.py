@@ -1,6 +1,3 @@
-from typing import Union
-from lcapy.unitPrefixer import SIUnitPrefixer
-
 
 class JsonExportStepValues:
     def __init__(self, name1, name2, newName,
@@ -9,27 +6,25 @@ class JsonExportStepValues:
                  latexEquation,
                  convVal1, convVal2, convResult):
 
-        prefixer = SIUnitPrefixer()
-
         self.name1: str = name1
         self.name2: str = name2
         self.newName: str = newName
         self.relation: str = relation
-        self.value1 = prefixer.getSIPrefixedExpr(value1).evalf(n=3)
-        self.value2 = prefixer.getSIPrefixedExpr(value2).evalf(n=3)
-        self.result = prefixer.getSIPrefixedExpr(result).evalf(n=3)
+        self.value1 = value1
+        self.value2 = value2
+        self.result = result
         self.latexEquation: str = latexEquation
 
         if convVal1:
-            self.convVal1 = prefixer.getSIPrefixedExpr(convVal1).evalf(n=3)
+            self.convVal1 = convVal1
         else:
             self.convVal1 = None
         if convVal2:
-            self.convVal2 = prefixer.getSIPrefixedExpr(convVal2).evalf(n=3)
+            self.convVal2 = convVal2
         else:
             self.convVal2 = None
         if convResult:
-            self.convResult = prefixer.getSIPrefixedExpr(convResult).evalf(n=3)
+            self.convResult = convResult
         else:
             self.convResult = None
 

@@ -37,12 +37,12 @@ class JsonCompValueExport(JsonExportBase):
         self.cpt1 = None  # component1
         self.cpt2 = None  # component2
         self.cptRes = None  # componentResult
-        self.valCpt1 = None  # valueComponent1
-        self.valCpt2 = None  # valueComponent2
-        self.valCptRes = None  # valueComponentResult
-        self.convValCpt1 = None  # convertedValueComponent1 -> converted from Impedance to R,L or C if possible
-        self.convValCpt2 = None  # convertedValueComponent2 -> converted from Impedance to R,L or C if possible
-        self.convValCptRes = None  # convertedValueComponentResult -> converted from Impedance to R,L or C if possible
+        self.value1 = None  # valueComponent1
+        self.value2 = None  # valueComponent2
+        self.result = None  # valueComponentResult
+        self.convVal1 = None  # convertedValueComponent1 -> converted from Impedance to R,L or C if possible
+        self.convVal2 = None  # convertedValueComponent2 -> converted from Impedance to R,L or C if possible
+        self.convResult = None  # convertedValueComponentResult -> converted from Impedance to R,L or C if possible
         self.cvc1Type = None  # convertedValueComponent1Type
         self.cvc2Type = None  # convertedValueComponent2Type
         self.cvcrType = None  # convertedValueComponentResultType
@@ -51,7 +51,7 @@ class JsonCompValueExport(JsonExportBase):
         self.precision = precision
 
         self.prefixer = SIUnitPrefixer()
-        self.valueFieldKey = self._getValueFieldKeys()
+        self.valueFieldKey = self._getValueFieldKeys("val", "result")
 
     def _updateObjectValues(self, step, solution: 'lcapy.Solution'):
         # the values for name1 and name2 are not final if they are transformable they are adjusted later on
@@ -68,16 +68,22 @@ class JsonCompValueExport(JsonExportBase):
             self.cpt2 = self.lastStep.circuit[self.name2]
             self.cptRes = self.thisStep.circuit[self.newName]
 
-            self.valCpt1 = str(solution.getElementSpecificValue(self.cpt1))
-            self.valCpt2 = str(solution.getElementSpecificValue(self.cpt2))
-            self.valCptRes = str(solution.getElementSpecificValue(self.cptRes))
+            self.value1 = self.cpt1.Z
+            self.value2 = self.cpt2.Z
+            self.result = self.cptRes.Z
 
-            self.convValCpt1, self.cvc1Type = ValueToComponent(self.valCpt1, omega_0=self.omega_0)
-            self.name1 = self.cvc1Type + NetlistLine(str(self.cpt1)).typeSuffix
-            self.convValCpt2, self.cvc2Type = ValueToComponent(self.valCpt2, omega_0=self.omega_0)
-            self.name2 = self.cvc2Type + NetlistLine(str(self.cpt2)).typeSuffix
-            self.convValCptRes, self.cvcrType = ValueToComponent(self.valCptRes, omega_0=self.omega_0)
-            self.newName = self.cvcrType + NetlistLine(str(self.cptRes)).typeSuffix
+            #  try to convert the value to an R, L, C component
+            self.convVal1, self.cvc1Type = ValueToComponent(self.value1.expr, omega_0=self.omega_0)
+            self.convVal2, self.cvc2Type = ValueToComponent(self.value2.expr, omega_0=self.omega_0)
+            self.convResult, self.cvcrType = ValueToComponent(self.result.expr, omega_0=self.omega_0)
+            #  add the unit of the component to the sympy.Mul object
+            self.convVal1 = uwa.addUnit(self.convVal1, self.cvc1Type)
+            self.convVal2 = uwa.addUnit(self.convVal2, self.cvc2Type)
+            self.convResult = uwa.addUnit(self.convResult, self.cvcrType)
+            #  create new names for the components e.g. Z1 to R1
+            self.name1 = self.cvc1Type + self.cpt1.id
+            self.name2 = self.cvc2Type + self.cpt2.id
+            self.newName = self.cvcrType + self.cptRes.id
 
     def getDictForStep(self, step, solution: 'lcapy.Solution'):
         self._updateObjectValues(step, solution)
@@ -104,11 +110,9 @@ class JsonCompValueExport(JsonExportBase):
             else:
                 values = self._handleNoConversionPossible()
 
-            # ToDo change to flexible way from base class
-            # a = self.valueFieldKey
-            for key in ["value1", "value2", "result", "convVal1", "convVal2", "convResult"]:
+            for key in self.valueFieldKey:
                 if values[key]:
-                    values[key] = self.latexWithoutPrefix(values[key])
+                    values[key] = self.latexWithPrefix(values[key])
 
             return values
 
@@ -169,17 +173,17 @@ class JsonCompValueExport(JsonExportBase):
         return not (self.name1 or self.name2 or self.newName or self.lastStep or self.thisStep or self.step)
 
     def _allValuesConvertableToComponent(self) -> bool:
-        return (not self.valCpt1 == self.convValCpt1
-                and not self.valCpt2 == self.convValCpt2
-                and not self.valCptRes == self.convValCptRes)
+        return (not self.cvc1Type == "Z"
+                and not self.cvc2Type == "Z"
+                and not self.cvcrType == "Z")
 
     def _isSameType(self) -> bool:
         return self.cvc1Type == self.cvc2Type
 
     def _handleSameTypeAndConvertibleToComponent(self) -> dict:
-        eqVal1 = uwa.addUnit(self.convValCpt1, self.cvc1Type)
-        eqVal2 = uwa.addUnit(self.convValCpt2, self.cvc2Type)
-        eqRes = uwa.addUnit(self.convValCptRes, self.cvcrType)
+        eqVal1 = self.convVal1
+        eqVal2 = self.convVal2
+        eqRes = self.convResult
         compType = self.cvc1Type
         assert compType in ["R", "L", "C"]
 
@@ -190,12 +194,12 @@ class JsonCompValueExport(JsonExportBase):
                                     convVal1=None, convVal2=None, convResult=None).toDict()
 
     def _handleDifferentTypeAndConvertibleToComponent(self) -> dict:
-        eqVal1 = uwa.addUnit(self.valCpt1, "Z")
-        eqVal2 = uwa.addUnit(self.valCpt2, "Z")
-        eqRes = uwa.addUnit(self.valCptRes, "Z")
+        eqVal1 = self.value1.expr_with_units
+        eqVal2 = self.value2.expr_with_units
+        eqRes = self.result.expr_with_units
         compType = self.cptRes.type
         assert compType == "Z"
-        convValCptRes = uwa.addUnit(self.convValCptRes, self.cvcrType)
+        convValCptRes = self.convResult.expr_with_units
 
         equation = self._makeLatexEquation(eqVal1, eqVal2, eqRes, self.thisStep.relation, compType)
 
@@ -204,17 +208,17 @@ class JsonCompValueExport(JsonExportBase):
                                     convVal1=None, convVal2=None, convResult=convValCptRes).toDict()
 
     def _resultConvertibleToComponent(self) -> bool:
-        return (self.valCpt1 == self.convValCpt1
-                and self.valCpt2 == self.convValCpt2
-                and not self.valCptRes == self.convValCptRes)
+        return (self.cvc1Type == "Z"
+                and self.cvc2Type == "Z"
+                and not self.cvcrType == "Z")
 
     def _handleResultConvertibleToComponent(self) -> dict:
-        eqVal1 = uwa.addUnit(self.valCpt1, "Z")
-        eqVal2 = uwa.addUnit(self.valCpt2, "Z")
-        eqRes = uwa.addUnit(self.valCptRes, "Z")
+        eqVal1 = self.value1.expr_with_units
+        eqVal2 = self.value2.expr_with_units
+        eqRes = self.result.expr_with_units
         compType = self.cpt1.type
         assert compType == "Z"
-        convValCptRes = uwa.addUnit(self.convValCptRes, self.cvcrType)
+        convValCptRes = self.convResult
 
         equation = self._makeLatexEquation(eqVal1, eqVal2, eqRes, self.thisStep.relation, compType)
 
@@ -223,9 +227,9 @@ class JsonCompValueExport(JsonExportBase):
                                     convVal1=None, convVal2=None, convResult=convValCptRes).toDict()
 
     def _handleNoConversionPossible(self) -> dict:
-        eqVal1 = uwa.addUnit(self.valCpt1, "Z")
-        eqVal2 = uwa.addUnit(self.valCpt2, "Z")
-        eqRes = uwa.addUnit(self.valCptRes, "Z")
+        eqVal1 = self.value1.expr_with_units
+        eqVal2 = self.value2.expr_with_units
+        eqRes = self.result.expr_with_units
         compType = self.cpt1.type
         assert compType == "Z"
 
