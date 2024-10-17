@@ -4227,8 +4227,11 @@ def expr(arg, var=None, override=False, units=None, **assumptions):
         return cls(expr, **assumptions).as_admittance()
     elif units == uu.watts:
         return cls(expr, **assumptions).as_power()
-    warn('Unhandled units: %s' % units)
-    return lexpr
+    elif units in [uu.Hz, uu.F, uu.H]:
+        return lexpr
+    else:
+        warn('Unhandled units: %s' % units)
+        return lexpr
 
 
 def expr_class(domain, arg, **assumptions):

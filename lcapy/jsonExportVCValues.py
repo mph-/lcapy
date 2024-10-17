@@ -180,10 +180,12 @@ class JsonVCValueExport(JsonExportBase):
             if isinstance(values, list):
                 for i in range(0, len(values)):
                     values[i] = self.prefixer.getSIPrefixedExpr(values[i])
-            if isinstance(values, dict):
+            elif isinstance(values, dict):
                 innerKeys = list(values.keys())
                 for innerKey in innerKeys:
                     values[innerKey] = self.prefixer.getSIPrefixedExpr(values[innerKey])
+            elif values is None:
+                pass
             else:
                 self.__dict__[key] = self.prefixer.getSIPrefixedExpr(values)
         return

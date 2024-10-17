@@ -91,7 +91,7 @@ class SIUnitPrefixer:
 
         # if this function would return value, the evalf() would remove the unit while converting to float
         if abs(exp) >= minExponent:
-            return lcapy.expr(1 * expr * 10**(-exp)) * prefix
+            return lcapy.expr(expr * 10**(-exp)) * prefix
         else:
             return lcapy.expr(expr)
 
@@ -107,4 +107,4 @@ class SIUnitPrefixer:
         if abs(exp) >= minExponent:
             return 1.0 * expr.expr_with_units * 10**(-exp) * prefix
         else:
-            return expr.expr_with_units
+            return 1.0 * expr.expr_with_units
