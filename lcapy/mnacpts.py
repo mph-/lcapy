@@ -998,6 +998,9 @@ class XX(Ignore):
     def __str__(self):
         return self._string
 
+    def sympify(self):
+        return self._copy()
+
 
 class AM(Cpt):
 
