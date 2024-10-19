@@ -173,6 +173,8 @@ class L(Bipole):
 
     tikz_cpt = 'L'
     kinds = {'variable': 'vL', 'choke': 'cute choke',
+             'american': 'american inductor',
+             'european': 'european inductor',
              'twolineschoke': 'cute choke, twolineschoke', 'sensor': 'sL',
              'tunable': 'vL, tunable end arrow={Bar}'}
 
