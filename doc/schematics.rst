@@ -1497,6 +1497,17 @@ There are several label formatting styles controlled by the
 The component name and value can be overridden with the 'l' attribute.
 
 
+.. _label_value_style:
+
+Label value style
+-----------------
+
+Label values are formatted according to the `label_value_style`
+attribute.  The default is `eng3` which uses an engineering format
+with a maximum of three digits.  Other formats include 'SPICE' and
+`sci` (scientific).
+
+
 .. _label_placement:
 
 Label placement
