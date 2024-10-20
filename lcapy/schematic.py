@@ -23,7 +23,6 @@ Copyright 2014--2024 Michael Hayes, UCECE
 from __future__ import print_function
 from .config import autoground_default
 from .expr import Expr
-from .labelmaker import LabelMaker
 from . import schemcpts
 import sympy as sym
 from .schemmisc import Pos
@@ -88,6 +87,7 @@ class SchematicOpts(Opts):
              'label_ids': True,
              'label_style': 'aligned',
              'label_flip': False,
+             'label_value_style': 'eng3',
              'annotate_values': False,
              'label_nodes': 'primary',
              'anchor': 'south east',
@@ -208,8 +208,6 @@ class Schematic(NetfileMixin):
             cpt.opts.strip('offset')
             self.add('%s; %s' % (net, cpt.opts))
             return
-
-        cpt.id_label, cpt.value_label = LabelMaker().make(cpt, style='spice')
 
         if cpt.opts_string != '':
             self.hints = True
@@ -540,6 +538,7 @@ class Schematic(NetfileMixin):
         kwargs include:
            'label_ids': True to show component ids
            'label_values': True to display component values
+           'label_value_style': 'eng3' for SI; 'spice3' for SPICE
            'label_delimiter': Delimiter between component name and value
            'label_flip': Place label on other side of component
            'annotate_values': True to display component values as separate label

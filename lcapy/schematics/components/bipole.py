@@ -2,6 +2,7 @@ from .stretchycpt import StretchyCpt
 from ..utils import check_boolean
 from ...label import Label
 from ...latex import latex_format_label
+from ...labelmaker import LabelMaker
 
 
 class Bipole(StretchyCpt):
@@ -45,8 +46,12 @@ class Bipole(StretchyCpt):
         else:
             raise ValueError('Unknown label_style ' + style)
 
-        id_label = latex_format_label(self.id_label)
-        value_label = latex_format_label(self.value_label)
+        label_value_style = kwargs.get('label_value_style', 'eng3')
+
+        id_label, value_label = LabelMaker().make(self, style=label_value_style)
+
+        id_label = latex_format_label(id_label)
+        value_label = latex_format_label(value_label)
 
         # Generate default label.
         if (label_ids and label_values and id_label != ''

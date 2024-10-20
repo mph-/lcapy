@@ -73,7 +73,6 @@ class ValueFormatter(object):
         return self._do(value, unit, aslatex=False)
 
 
-
 class EngValueFormatter(ValueFormatter):
 
     def _fmt(self, valstr, unit='', prefix='', aslatex=True):
