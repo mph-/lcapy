@@ -121,7 +121,7 @@ class ExprPrint(object):
         """Make LaTeX string with optional units.   Units are only
         shown for numerical values."""
 
-        from .value_formatter import value_formatter
+        from .valueformatter import value_formatter
 
         expr = self
 

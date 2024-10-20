@@ -20,6 +20,7 @@ from .voltage import voltage
 from .current import current
 from .opts import Opts
 from .node import DummyNode
+from .valueparser import value_parser
 import lcapy
 import inspect
 import sys
@@ -142,31 +143,9 @@ class Cpt(ImmittanceMixin):
 
         The suffixes are ignored in expressions such as 10 * 42p."""
 
-        suffixes = {'f': 1e-15, 'p': 1e-12, 'n': 1e-9, 'u': 1e-6,
-                    'm': 1e-3, 'k': 1e3, 'M': 1e6, 'G': 1e9, 'T': 1e12}
-
-        def isfloat(s):
-            try:
-                float(s)
-                return True
-            except ValueError:
-                return False
-
         pargs = []
         for arg in args:
-            if arg is None or len(arg) <  2:
-                pargs.append(arg)
-                continue
-
-            if arg.endswith('Meg'):
-                arg = arg[0:-2] + 'M'
-            elif arg.endswith('K'):
-                arg = arg[0:-1] + 'k'
-
-            if (arg[-1] in suffixes and isfloat(arg[0:-1])):
-                pargs.append(float(arg[0:-1]) * suffixes[arg[-1]])
-            else:
-                pargs.append(arg)
+            pargs.append(value_parser(arg))
 
         return pargs
 

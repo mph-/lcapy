@@ -10,6 +10,7 @@ from ...label import Label
 from ...labels import Labels
 from ...latex import latex_format_label
 from ...config import implicit_default
+from ...valueparser import value_parser
 from ..utils import check_boolean
 
 

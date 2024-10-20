@@ -1,6 +1,7 @@
 from .expr import Expr
 from .latex import latex_format_label
 from .valueformatter import value_formatter
+from .valueparser import value_parser
 import sympy as sym
 
 
@@ -55,7 +56,8 @@ class LabelMaker:
             units_map = {'V': 'V', 'I': 'A', 'R': '$\Omega$',
                          'C': 'F', 'L': 'H'}
 
-            expr = cpt.args[0]
+            expr = value_parser(cpt.args[0])
+
             if cpt.classname in ('Vstep', 'Istep'):
                 expr = '(%s) * Heaviside(t)' % expr
                 value_label = self._format_expr(expr)
