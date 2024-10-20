@@ -177,7 +177,6 @@ class Cpt(object):
 
         self.auxiliary_node_names = auxiliary_node_names
 
-
     def _process_opts(self):
 
         if self.sch is None:
