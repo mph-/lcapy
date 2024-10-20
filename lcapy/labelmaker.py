@@ -1,6 +1,6 @@
 from .expr import Expr
 from .latex import latex_format_label
-from .value_formatter import value_formatter
+from .valueformatter import value_formatter
 import sympy as sym
 
 
