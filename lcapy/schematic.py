@@ -209,7 +209,7 @@ class Schematic(NetfileMixin):
             self.add('%s; %s' % (net, cpt.opts))
             return
 
-        cpt.id_label, cpt.value_label = LabelMaker().make(cpt)
+        cpt.id_label, cpt.value_label = LabelMaker().make(cpt, style='spice')
 
         if cpt.opts_string != '':
             self.hints = True

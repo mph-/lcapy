@@ -121,7 +121,7 @@ class ExprPrint(object):
         """Make LaTeX string with optional units.   Units are only
         shown for numerical values."""
 
-        from .engformatter import EngFormatter
+        from .value_formatter import value_formatter
 
         expr = self
 
@@ -138,7 +138,7 @@ class ExprPrint(object):
         value = expr.sympy
 
         if evalf and value.is_number and eng_format:
-            return EngFormatter(num_digits=num_digits).latex(value, units)
+            return value_formatter().latex(value, units)
 
         s = latex(value, **kwargs)
         if show_units and units != '':

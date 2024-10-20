@@ -1,6 +1,6 @@
 from .expr import Expr
 from .latex import latex_format_label
-from .engformatter import EngFormatter
+from .value_formatter import value_formatter
 import sympy as sym
 
 
@@ -10,9 +10,9 @@ class LabelMaker:
 
         return Expr(expr, cache=False).latex_math()
 
-    def _format_value_units(self, value, units):
+    def _format_value_units(self, value, units, style):
 
-        return EngFormatter().latex_math(value, units)
+        return value_formatter(style=style).latex_math(value, units)
 
     def _format_name(self, cpt_type, cpt_id):
 
@@ -30,7 +30,7 @@ class LabelMaker:
             name = name + '_{%s}' % subscript
         return latex_format_label('$' + name + '$')
 
-    def make(self, cpt, label_ports=False):
+    def make(self, cpt, label_ports=False, style='SI'):
 
         # There are two possible labels for a component:
         # 1. Component name, e.g., R1
@@ -80,7 +80,7 @@ class LabelMaker:
                     value = float(sym.Rational(expr))
                     if cpt.type in units_map:
                         value_label = self._format_value_units(
-                            value, units_map[cpt.type])
+                            value, units_map[cpt.type], style)
                     else:
                         value_label = self._format_expr(expr)
 
