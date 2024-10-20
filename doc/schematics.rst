@@ -436,7 +436,7 @@ Inductors and chokes
 .. literalinclude:: examples/schematics/inductors.sch
 
 .. image:: examples/schematics/inductors.png
-   :width: 10cm
+   :width: 15cm
 
 
 .. _chips:
