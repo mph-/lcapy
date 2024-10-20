@@ -125,6 +125,37 @@ class SPICEValueFormatter(ValueFormatter):
         return valstr + '\\,' + '\\mathrm{' + prefix + unit + '}'
 
 
+class SciValueFormatter(ValueFormatter):
+
+    def _do(self, value, unit, aslatex):
+
+        fmt = '%%.%dE' % (self.num_digits - 1)
+
+        valstr = fmt % value
+
+        if not aslatex:
+            return valstr + unit
+
+        parts = valstr.split('E')
+        exp = parts[1]
+
+        if exp == '+00':
+            valstr = parts[0]
+        else:
+            if exp[0] == '+':
+                exp = exp[1:]
+                if exp[0] == '0':
+                    exp = exp[1:]
+            elif exp[0] == '-' and exp[1] == '0':
+                exp = '-' + exp[2]
+            valstr = parts[0] + '\\times 10^{' + exp + '}'
+
+        if unit.startswith('$'):
+            return valstr + '\\,' + unit[1:-1]
+
+        return valstr + '\\,' + '\\mathrm{' + unit + '}'
+
+
 def value_formatter(style='eng3'):
 
     style = style.lower()
@@ -141,5 +172,7 @@ def value_formatter(style='eng3'):
         return EngValueFormatter(num_digits=num)
     elif style == 'spice':
         return SPICEValueFormatter(num_digits=num)
+    elif style == 'sci':
+        return SciValueFormatter(num_digits=num)
     else:
         raise ValueError('Unknown style: ' + style)
