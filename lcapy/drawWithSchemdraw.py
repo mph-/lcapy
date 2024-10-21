@@ -7,10 +7,11 @@ from lcapy import NetlistLine
 from typing import List
 from lcapy.impedanceConverter import ImpedanceToComponent
 from lcapy.impedanceConverter import getSourcesFromCircuit, getOmegaFromCircuit
-from lcapy.unitWorkAround import UnitWorkAround as uw
+from lcapy.unitWorkAround import UnitWorkAround as uwa
 from sympy import latex
 from sympy import sympify
 from lcapy.unitPrefixer import SIUnitPrefixer
+from lcapy.jsonExportBase import JsonExportBase
 
 
 class DrawWithSchemdraw:
@@ -47,18 +48,13 @@ class DrawWithSchemdraw:
             self.netLines.append(NetlistLine(line))
 
         self.prefixer = SIUnitPrefixer()
+        self.jsonExportBase = JsonExportBase(precision=3)
 
     def latexStr(self, line: NetlistLine):
         if line.value is None or line.type is None:
             return None
         else:
-            return latex(
-                # in line only a string is saved, so it needs a unit. To get the unit prefix, convert it to sympy.Mul
-                # and use the SIUnitPrefixer Class to determine the prefix, use evalf(n=3) to convert to a
-                # floating point number and evaluate to 3 digits
-                self.prefixer.getSIPrefixedExpr(uw.addUnit(line.value, line.type)).evalf(n=3),
-                imaginary_unit="j"
-            )
+            return self.jsonExportBase.latexWithPrefix(uwa.addUnit(line.value, line.type))
 
     def addNodePositions(self, netLine: NetlistLine):
         if netLine.startNode not in self.nodePos.keys():
