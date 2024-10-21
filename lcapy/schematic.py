@@ -423,6 +423,7 @@ class Schematic(NetfileMixin):
 
         self.debug = kwargs.pop('debug', 0)
         style = kwargs.pop('style', 'american')
+        inductor_style = kwargs.pop('inductor_style', '')
         self.dpi = float(kwargs.pop('dpi', PNG_DPI))
         self.cpt_size = float(kwargs.pop('cpt_size', 1.2))
         self.node_spacing = float(kwargs.pop('node_spacing', 2.0))
@@ -446,6 +447,15 @@ class Schematic(NetfileMixin):
                           ', european inductors, european resistors')
         else:
             raise ValueError('Unknown style %s' % style)
+
+        if inductor_style == 'american':
+            style_args += ', american inductors'
+        elif inductor_style == 'european':
+            style_args += ', european inductors'
+        elif inductor_style == 'cute':
+            style_args += ', cute inductors'
+        else:
+            raise ValueError('Unknown inductor style %s' % inductor_style)
 
         # For debugging when do not want to write to file
         nosave = kwargs.pop('nosave', False)
