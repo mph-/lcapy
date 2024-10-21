@@ -3,9 +3,14 @@ from sympy import Float
 from typing import Union
 from sympy import Mul
 from lcapy import Expr
+from lcapy.unitPrefixer import SIUnitPrefixer
 
 
 class JsonExportBase:
+    def __init__(self, precision: int):
+        self.precision = precision
+        self.prefixer = SIUnitPrefixer()
+
     def latexWithPrefix(self, value: Union[Mul, Expr], prec=None, addPrefix: bool = True) -> str:
         if prec is None:
             prec = self.precision

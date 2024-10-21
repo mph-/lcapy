@@ -14,7 +14,6 @@ from sympy import parse_expr
 from lcapy import omega0, omega
 from lcapy.jsonExportCompStepValues import JsonExportStepValues
 from lcapy.unitWorkAround import UnitWorkAround as uwa
-from lcapy.unitPrefixer import SIUnitPrefixer
 from lcapy.jsonExportBase import JsonExportBase
 
 
@@ -48,10 +47,9 @@ class JsonCompValueExport(JsonExportBase):
         self.cvcrType = None  # convertedValueComponentResultType
         self.omega_0 = None
 
-        self.precision = precision
+        super().__init__(precision)
 
-        self.prefixer = SIUnitPrefixer()
-        self.valueFieldKey = self._getValueFieldKeys("val", "result")
+        self.valueFieldKeys = self._getValueFieldKeys("val", "result")
 
     def _updateObjectValues(self, step, solution: 'lcapy.Solution'):
         # the values for name1 and name2 are not final if they are transformable they are adjusted later on
@@ -110,7 +108,7 @@ class JsonCompValueExport(JsonExportBase):
             else:
                 values = self._handleNoConversionPossible()
 
-            for key in self.valueFieldKey:
+            for key in self.valueFieldKeys:
                 if values[key]:
                     values[key] = self.latexWithPrefix(values[key])
 

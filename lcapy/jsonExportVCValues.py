@@ -23,12 +23,11 @@ class JsonVCValueExport(JsonExportBase):
     in the user based mode not all information can be known when those files are generated
     """
     def __init__(self, precision=3):
+        super().__init__(precision)
         # this class automatically prefixes every field that includes val or Val in the name and transforms it to
         # a latex string before exporting the dictionary
         self.circuit: 'lcapy.Circuit' = None
         self.simpCircuit: 'lcapy.Circuit' = None
-        self.prefixer = SIUnitPrefixer()
-        self.precision = precision
         self.omega_0 = None
 
         self.oldNames = {'CompName': None, 'Uname': None, 'Iname': None}
