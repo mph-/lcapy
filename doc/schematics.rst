@@ -1256,6 +1256,20 @@ Alternatively the style can specified by a schematic option.  For example:
    :width: 10.5cm
 
 
+The style of inductors, resistors, current sources, and voltage
+sources can be overridden with `inductor_style`, `resistor_style`,
+`current_source_style`, and `voltage_source_style`.  These can be
+`american` or `european`.  In addition, the inductor style can be
+`cute`.
+
+Here's an example (I wonder who would do this?):
+
+.. literalinclude:: examples/schematics/frankenstein.sch
+
+.. image:: examples/schematics/frankenstein.png
+   :width: 8cm
+
+
 Colors
 ------
 
