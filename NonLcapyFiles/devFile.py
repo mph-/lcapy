@@ -15,7 +15,9 @@ filenames = ["Circuit_inductors.txt",  # 0
              ]
 
 st = time.time()
-solve.solve_circuit(filenames[1], filePath="StandardCircuits")
+#  solve.solve_circuit(filenames[1], filePath="StandardCircuits")
+sol = solve.SolveInUserOrder(filenames[1], filePath="StandardCircuits")
+sol.createInitialStep()
 et = time.time()
 
 print(f"Execution time was: {et-st} s")
