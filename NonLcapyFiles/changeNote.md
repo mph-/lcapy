@@ -1,3 +1,6 @@
+## 1.24+inskale.0.15
+- shorten decimal places in complex expressions with ten to the power of x 0.00000001234567 -> 1.234 * 10^-8
+
 ## 1.24+inskale.0.14
 - equation for parallel was: $$\frac{1}{R_1} + \frac{1}{R_2} = R_{ges}$$ now corrected to: $$\frac{1}{\frac{1}{R_1} + \frac{1}{R_2}} = R_{ges}$$
 - change multiplikation dot to \cdot
