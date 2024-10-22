@@ -14,6 +14,7 @@ from lcapy.mnacpts import R, L, C, Z
 from lcapy import DrawWithSchemdraw
 from lcapy.jsonExportCompValue import JsonCompValueExport
 from lcapy.jsonExportVCValues import JsonVCValueExport
+from lcapy.jsonExportCircuitInfo import JsonExportCircuitInfo
 from lcapy.unitWorkAround import UnitWorkAround as uwa
 from typing import Union
 
@@ -249,6 +250,26 @@ class Solution:
         DrawWithSchemdraw(self[step].circuit, fileName=filename + f"_{step}.svg").draw(path=path)
 
         return os.path.join(path, filename + f"_{step}.svg")
+
+    def exportCircuitInfo(self, step, path: str = None, filename: str ="circuit", debug: bool = False,
+                         simpStep: bool = True, cvStep: bool = True) -> str:
+        if path is None:
+            path = ""
+
+        self.check_path(path)
+        filename = os.path.splitext(filename)[0]
+
+        jsonExport = JsonExportCircuitInfo()
+        as_dict = jsonExport.getDictForStep(step, self)
+
+        if debug:
+            print(as_dict)
+
+        fullPathName = os.path.join(path, filename) + "_" + "circuitInfo" + ".json"
+        with open(fullPathName, "w", encoding="utf-8") as f:
+            json.dump(as_dict, f, ensure_ascii=False, indent=4)
+
+        return fullPathName
 
     def exportStepAsJson(self, step, path: str = None, filename: str ="circuit", debug: bool = False,
                          simpStep: bool = True, cvStep: bool = True) -> tuple[str, str]:

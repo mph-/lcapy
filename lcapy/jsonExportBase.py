@@ -62,3 +62,6 @@ class JsonExportBase:
                 valueFiledKeys.append(key)
 
         return valueFiledKeys
+
+    def getDictForStep(self, step, solution: 'lcapy.Solution'):
+        raise NotImplementedError("Implement in Child class")
