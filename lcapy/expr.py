@@ -4215,7 +4215,7 @@ def expr(arg, var=None, override=False, units=None, **assumptions):
     # 5 * t * u.volts -> V
     # 5 * cos(t) * u.volts -> V
     # 5 * s * u.volts -> V / Hz
-    warn('This may be deprecated since the units may not be what you expect')
+    # warn('This may be deprecated since the units may not be what you expect')
 
     if units == uu.volts:
         return cls(expr, **assumptions).as_voltage()
