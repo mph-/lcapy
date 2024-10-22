@@ -63,7 +63,7 @@ class SIUnitPrefixer:
         return self.prefixes[min(self.prefixes.keys(), key=lambda x: abs(x-exponent))]
 
     def getSIPrefix(self, value: Union[float, int, Mul, lcapy.Expr]) -> Prefix:
-        if isinstance(value, (Mul, lcapy.Expr)):
+        if isinstance(value, lcapy.Expr):
             return self._findSIPrefix(self._findExponentMul(value))
         else:
             return self._findSIPrefix(self._findExponentFloatInt(value))
