@@ -12,9 +12,10 @@ from lcapy.solution import Solution
 
 class TestJsonExport:
 
-    def __del__(self):
-        if os.path.isdir(".\\tempTest"):
-            shutil.rmtree(".\\tempTest")
+    @staticmethod
+    def removeDir(folderName: str = "tempTest"):
+        if os.path.isdir(folderName):
+            shutil.rmtree(folderName)
 
     @staticmethod
     def makeTestDir(folderName: str = "tempTest"):
@@ -62,6 +63,7 @@ class TestJsonExport:
         self.helperJsonExportCircuitInfo("RC_series_ac",
                                          ["R1", "C2", "V1", "componentTypes", "omega_0"],
                                          "RLC")
+        self.removeDir()
 
     def helperJsonCompValueExport(self, fileName: str, filePath: str, savePath: str):
         cct = Circuit(FileToImpedance(os.path.join(filePath, fileName)))
@@ -80,4 +82,23 @@ class TestJsonExport:
         self.makeTestDir()
         for filename in os.listdir(".\\Schematics"):
             self.helperJsonCompValueExport(filename, ".\\Schematics", ".\\tempTest")
+        self.removeDir()
 
+    def helperJsonVCValueExport(self, fileName: str, filePath: str, savePath: str):
+        cct = Circuit(FileToImpedance(os.path.join(filePath, fileName)))
+        cct.namer.reset()
+        steps = cct.simplify_stepwise()
+        sol = Solution(steps)
+        for step in sol.available_steps:
+            _, jsonFileName = sol.exportStepAsJson(step, path=savePath, filename=fileName, simpStep=False, cvStep=True)
+            data = self.readJson(jsonFileName)
+            for key in ["oldNames", "names1", "names2", "oldValues",
+                        "values1", "values2", "convOldValue", "convValue1",
+                        "convValue2", "relation", "equation"]:
+                assert key in data.keys(), f"filename: {jsonFileName}"
+
+    def test_JsonVCValueExport(self):
+        self.makeTestDir()
+        for filename in os.listdir(".\\Schematics"):
+            self.helperJsonVCValueExport(filename, ".\\Schematics", ".\\tempTest")
+        self.removeDir()
