@@ -62,3 +62,22 @@ class TestJsonExport:
         self.helperJsonExportCircuitInfo("RC_series_ac",
                                          ["R1", "C2", "V1", "componentTypes", "omega_0"],
                                          "RLC")
+
+    def helperJsonCompValueExport(self, fileName: str, filePath: str, savePath: str):
+        cct = Circuit(FileToImpedance(os.path.join(filePath, fileName)))
+        cct.namer.reset()
+        steps = cct.simplify_stepwise()
+        sol = Solution(steps)
+        for step in sol.available_steps:
+            jsonFileName, _ = sol.exportStepAsJson(step, path=savePath, filename=fileName, simpStep=True, cvStep=False)
+            data = self.readJson(jsonFileName)
+            for key in ["name1", "name2", "newName", "relation",
+                        "value1", "value2", "result", "latexEquation",
+                        "hasConversion", "convVal1", "convVal2", "convResult"]:
+                assert key in data.keys(), f"filename: {jsonFileName}"
+
+    def test_JsonCompValueExport(self):
+        self.makeTestDir()
+        for filename in os.listdir(".\\Schematics"):
+            self.helperJsonCompValueExport(filename, ".\\Schematics", ".\\tempTest")
+
