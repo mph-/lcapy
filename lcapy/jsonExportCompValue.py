@@ -87,7 +87,9 @@ class JsonCompValueExport(JsonExportBase):
         self._updateObjectValues(step, solution)
 
         if self._isInitialStep():
-            return self._handleInitialStep()
+            return JsonExportStepValues(None, None, None, None,
+                                        None, None, None, None,
+                                        None, None, None).toDict()
 
         elif self._checkEssentialInformation():
             raise ValueError(f"missing information in {step}: "
@@ -116,51 +118,6 @@ class JsonCompValueExport(JsonExportBase):
 
     def _isInitialStep(self) -> bool:
         return not (self.name1 and self.name2 and self.newName and self.lastStep) and self.thisStep
-
-    def _handleInitialStep(self) -> dict:
-
-        # this is the initial step which is used as an overview of the circuit
-        as_dict = {}
-        state.show_units = True
-
-        for cptName in self.thisStep.circuit.elements.keys():
-            cpt = self.thisStep.circuit.elements[cptName]
-            if cpt.type == "V":
-                as_dict[cptName] = latex(
-                    uwa.addUnit(
-                        NetlistLine(str(cpt)).value,
-                        cpt.type
-                    )
-                )
-
-                if cpt.has_ac:
-                    if cpt.args[2] is not None:
-                        as_dict["omega_0"] = latex(self.prefixer.getSIPrefixedExpr(
-                            parse_expr(str(cpt.args[2]), local_dict={"pi": sympy.pi}) * Hz)
-                        )
-                        try:
-                            self.omega_0 = float(cpt.args[2])
-                        except ValueError:
-                            self.omega_0 = str(cpt.args[2])
-                    else:
-                        as_dict["omega_0"] = latex(omega0)
-                        self.omega_0 = "omega_0"
-                elif cpt.has_dc:
-                    as_dict["omega_0"] = latex(Mul(0) * Hz)
-                else:
-                    raise AssertionError("Voltage Source is not ac or dc")
-
-            elif not cpt.type == "W":
-                cCpt = NetlistLine(ImpedanceToComponent(str(cpt), omega_0=self.omega_0))
-                as_dict[cCpt.type + cCpt.typeSuffix] = latex(
-                    self.prefixer.getSIPrefixedExpr(
-                        uwa.addUnit(
-                            cCpt.value,
-                            cCpt.type
-                        )
-                    )
-                )
-        return as_dict
 
     def _checkEssentialInformation(self) -> bool:
         """

@@ -1,0 +1,13 @@
+I1 0 2 dc {0.003}; up
+W 2 3; up
+W 3 4; right
+R1 4 5 {1000}; down
+R2 5 6 {2000}; down
+R3 6 7 {200}; down
+R4 7 8 {400}; down
+W 7 11; right
+R5 11 12 {200}; down
+W 12 8; left
+W 8 9; left
+W 9 10; up
+W 10 0; up
