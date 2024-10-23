@@ -1,3 +1,9 @@
+## 1.24+inskale.0.16
+- step0 returns same json template as step(n)
+- circuitInfo with element values and angular frequency can be exported out of jsonExportCircuitInfo class with
+solve.SolveInUserOrder.createCircuitInfo()
+- 
+
 ## 1.24+inskale.0.15
 - shorten decimal places in complex expressions with ten to the power of x 0.00000001234567 -> 1.234 * 10^-8
 
