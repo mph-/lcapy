@@ -677,6 +677,31 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         context = self.context
         return self.__class__(context=context, kind=self.kind)
 
+    def prune(self, name):
+        """Prune specified element by name or elements specified in list.
+        Unlike remove(), this makes a copy of the netlist before
+        removing the specified components.  The updated netlist is
+        returned."""
+
+        if name is None:
+            return self
+
+        new = self.copy()
+        if isinstance(name, (list, tuple)):
+            for name1 in name:
+                new = new.remove(name1)
+            return self
+
+        if name not in new._elements:
+            raise ValueError('Unknown component: ' + name)
+
+        cpt = new._elements[name]
+        for node in cpt.nodes:
+            node.remove(cpt)
+
+        new._elements.pop(name, None)
+        return new
+
     def remove(self, name):
         """Remove specified element by name or elements specified in list."""
 

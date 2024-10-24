@@ -659,7 +659,7 @@ class NetlistMixin(object):
                 if name != 'as_ladder' and arg1.is_voltage_source:
                     # The killed voltage source will short the applied signal.
                     raise ValueError(
-                        "Cannot determine transfer function across voltage source %s; you will need to remove it, e.g., new = cct.remove('%s')" % (arg1.name, arg1.name))
+                        "Cannot determine transfer function across voltage source %s; you will need to remove it, e.g., new = cct.prune('%s')" % (arg1.name, arg1.name))
                 N1p, N1m = [n.name for n in arg1.nodes[0:2]]
 
             if isinstance(arg2, tuple):
