@@ -111,43 +111,8 @@ class DrawWithSchemdraw:
     def draw(self, path=None):
         DrawWithSchemdraw.orderNetlistLines(self.netLines)
 
-        for line in self.netLines:
-            value = None
-            if line.type == "Z":
-                line = NetlistLine(ImpedanceToComponent(netlistLine=line, omega_0=self.omega_0))
-                value = self.latexStr(line)
-            id_ = line.label()
-            if line.type == "R" or line.type == "Z":
-                self.addElement(elm.Resistor(id_=id_, value_=value, d=line.drawParam), line)
-            elif line.type == "L":
-                self.addElement(elm.Resistor(id_=id_, value_=value, d=line.drawParam, fill=True), line)
-            elif line.type == "C":
-                self.addElement(elm.Capacitor(id_=id_, value_=value, d=line.drawParam), line)
-            elif line.type == "W":
-                self.addElement(elm.Line(d=line.drawParam), line)
-            elif line.type == "V":
-                if line.ac_dc == "ac":
-                    self.addElement(elm.sources.SourceSin(id_=id_, value_=value, d=line.drawParam), line)
-                elif line.ac_dc == "dc":
-                    self.addElement(elm.sources.SourceV(id_=id_, value_=value, d=line.drawParam), line)
-            elif line.type == "I":
-                if line.ac_dc == "ac":
-                    self.addElement(elm.sources.SourceI(id_=id_, value_=value, d=line.drawParam), line)
-                elif line.ac_dc == "dc":
-                    self.addElement(elm.sources.SourceI(id_=id_, value_=value, d=line.drawParam), line)
 
-            else:
-                raise RuntimeError(f"unknown element type {line.type}")
 
-        # count the occurrences of each node and if it is greater than 2 set a dot
-        counts = {}
-        for line in self.netLines:
-            counts[line.startNode] = counts.get(line.startNode, 0) + 1
-            counts[line.endNode] = counts.get(line.endNode, 0) + 1
-
-        for node in counts.keys():
-            if counts[node] > 2:
-                self.cirDraw.add(elm.Dot().at(self.nodePos[node]))
 
         # save the created svg file
         if os.path.splitext(self.fileName)[1] == ".svg":
@@ -164,3 +129,45 @@ class DrawWithSchemdraw:
             return newPath
 
         return saveName
+    def draw_element(self, line: NetlistLine):
+        value = None
+        if line.type == "Z":
+            line = NetlistLine(ImpedanceToComponent(netlistLine=line, omega_0=self.omega_0))
+            value = self.latexStr(line)
+        id_ = line.label()
+        if line.type == "R" or line.type == "Z":
+            self.addElement(elm.Resistor(id_=id_, value_=value, d=line.drawParam), line)
+        elif line.type == "L":
+            self.addElement(elm.Resistor(id_=id_, value_=value, d=line.drawParam, fill=True), line)
+        elif line.type == "C":
+            self.addElement(elm.Capacitor(id_=id_, value_=value, d=line.drawParam), line)
+        elif line.type == "W":
+            self.addElement(elm.Line(d=line.drawParam), line)
+        elif line.type == "V":
+            if line.ac_dc == "ac":
+                self.addElement(elm.sources.SourceSin(id_=id_, value_=value, d=line.drawParam), line)
+            elif line.ac_dc == "dc":
+                self.addElement(elm.sources.SourceV(id_=id_, value_=value, d=line.drawParam), line)
+        elif line.type == "I":
+            if line.ac_dc == "ac":
+                self.addElement(elm.sources.SourceI(id_=id_, value_=value, d=line.drawParam), line)
+            elif line.ac_dc == "dc":
+                self.addElement(elm.sources.SourceI(id_=id_, value_=value, d=line.drawParam), line)
+
+        else:
+            raise RuntimeError(f"unknown element type {line.type}")
+
+    def add_connection_dots(self):
+        """
+        adds the dots that are on connections between two lines e.g when a line splits up in two lines a dot is created
+        at the split point
+        :return: does not return anything
+        """
+        # count the occurrences of each node and if it is greater than 2 set a dot
+        counts = {}
+        for line in self.netLines:
+            counts[line.startNode] = counts.get(line.startNode, 0) + 1
+            counts[line.endNode] = counts.get(line.endNode, 0) + 1
+        for node in counts.keys():
+            if counts[node] > 2:
+                self.cirDraw.add(elm.Dot().at(self.nodePos[node]))
