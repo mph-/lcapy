@@ -25,9 +25,11 @@ class DrawWithSchemdraw:
         :param fileName: name for the generated file, standard is circuit.svg
         created pictures will be named by step e.g.: circuit_step0.svg
         """
+        self.circuit = circuit
         self.nodePos = {}
         self.cirDraw = schemdraw.Drawing()
 
+        self.source = circuit.elements[getSourcesFromCircuit(circuit)[0]]
         self.omega_0 = getOmegaFromCircuit(circuit, getSourcesFromCircuit(circuit))
 
         if removeDangling:
@@ -56,11 +58,11 @@ class DrawWithSchemdraw:
         else:
             return self.jsonExportBase.latexWithPrefix(uwa.addUnit(line.value, line.type))
 
-    def addNodePositions(self, netLine: NetlistLine):
-        if netLine.startNode not in self.nodePos.keys():
-            self.nodePos[netLine.startNode] = self.cirDraw.elements[-1].start
-        if netLine.endNode not in self.nodePos.keys():
-            self.nodePos[netLine.endNode] = self.cirDraw.elements[-1].end
+    def addNodePositions(self, startNode, endNode):
+        if startNode not in self.nodePos.keys():
+            self.nodePos[startNode] = self.cirDraw.elements[-1].start
+        if endNode not in self.nodePos.keys():
+            self.nodePos[endNode] = self.cirDraw.elements[-1].end
 
     def addElement(self, element: schemdraw.elements, netLine: NetlistLine):
 
@@ -85,10 +87,12 @@ class DrawWithSchemdraw:
             try:
                 element._userparams['d'] = self.invertDrawParam[netLine.drawParam]
                 self.cirDraw.add(element.label(label).at(self.nodePos[netLine.endNode]))
+                self.addNodePositions(netLine.endNode, netLine.startNode)
+                return
             except KeyError:
                 raise RuntimeError(f"unknown drawParam {netLine.drawParam}")
 
-        self.addNodePositions(netLine)
+        self.addNodePositions(netLine.startNode, netLine.endNode)
 
     @staticmethod
     def orderNetlistLines(netLines: list[NetlistLine]):
@@ -108,11 +112,33 @@ class DrawWithSchemdraw:
         """
         netLines.sort(key=lambda x: x.startNode)
 
-    def draw(self, path=None):
+    def draw(self, path=None, maxDrawingIterations: int = 100):
         DrawWithSchemdraw.orderNetlistLines(self.netLines)
 
+        # start with the source than add where one node is known, avoids drawing node at a place it should not be
+        sourceLabel = NetlistLine(str(self.source)).label()
+        source = next(line for line in self.netLines if line.label() == sourceLabel)
+        self.draw_element(source)
+        self.netLines.remove(source)
 
+        netLines = self.netLines.copy()
+        #  reverse list to be able to delete objects while iterating from the back of the list and keep original order
+        #  of list
+        netLines.reverse()
 
+        iteration = 0
+        while len(netLines):
+            for line in netLines[::-1]:
+                if line.startNode in self.nodePos.keys() or line.endNode in self.nodePos.keys():
+                    self.draw_element(line)
+                    netLines.remove(line)
+
+            iteration += 1
+            if iteration > maxDrawingIterations:
+                warn("Maximum drawing iterations exceeded")
+                break
+
+        self.add_connection_dots()
 
         # save the created svg file
         if os.path.splitext(self.fileName)[1] == ".svg":
@@ -129,6 +155,7 @@ class DrawWithSchemdraw:
             return newPath
 
         return saveName
+
     def draw_element(self, line: NetlistLine):
         value = None
         if line.type == "Z":
