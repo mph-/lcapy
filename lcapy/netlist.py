@@ -1,7 +1,7 @@
 """This module provides the Netlist class.  It could be rolled into
 the Circuit class.
 
-Copyright 2014--2023 Michael Hayes, UCECE
+Copyright 2014--2024 Michael Hayes, UCECE
 
 """
 
@@ -552,6 +552,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         Np, Nm = self._parse_node_args2(Np, Nm)
         Np, Nm = self._check_nodes(Np, Nm)
 
+        # Kill the independent sources
         new = self.kill()
         new._add_ground(Nm)
         new._add_test_current_source(Np, Nm)
@@ -563,20 +564,19 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         a Dirac delta test voltage source across the specified nodes.
         If the netlist is not connected to ground, the negative
         specified node is connected to ground.  The new netlist is
-        returned.
-
-        """
+        returned."""
 
         Np, Nm = self._parse_node_args2(Np, Nm)
         Np, Nm = self._check_nodes(Np, Nm)
 
         new = self.copy()
-        for name in self.cg.across_nodes(Np, Nm):
+        for name in self.across_nodes(Np, Nm):
             if self[name].is_voltage_source:
                 warn('Removing voltage source %s across input nodes %s, %s' %
                      (name, Np, Nm))
                 new.remove(name)
 
+        # Kill the other independent sources
         new = new.kill()
         new._add_ground(Nm)
         new._add_test_voltage_source(Np, Nm)
@@ -683,23 +683,8 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         removing the specified components.  The updated netlist is
         returned."""
 
-        if name is None:
-            return self
-
         new = self.copy()
-        if isinstance(name, (list, tuple)):
-            for name1 in name:
-                new = new.remove(name1)
-            return self
-
-        if name not in new._elements:
-            raise ValueError('Unknown component: ' + name)
-
-        cpt = new._elements[name]
-        for node in cpt.nodes:
-            node.remove(cpt)
-
-        new._elements.pop(name, None)
+        new.remove(name)
         return new
 
     def remove(self, name):
@@ -708,7 +693,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         if name is None:
             return self
 
-        if isinstance(name, (list, tuple)):
+        if isinstance(name, (list, tuple, set)):
             for name1 in name:
                 self.remove(name1)
             return self
