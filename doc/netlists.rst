@@ -524,14 +524,16 @@ Circuit methods
   nodes `Np` and `Nm` and `impedance(cpt)` returns the driving-point
   impedance between the nodes of the specified component
 
-- `in_parallel(component_name)` Returns a set of component names that are connected in parallel with `component_name`
+- `in_parallel(component_name)` Returns a set of component names that are connected in parallel with `component_name` (see also `across_nodes()` and `in_series()`)
 
-- `in_series(component_name)` Returns a set of component names that are connected in series with `component_name`
+- `in_series(component_name)` Returns a set of component names that are connected in series with `component_name` (see also `in_parallel()`)
 
 - `kill()` Kills specified independent sources (voltage sources
   become short-circuits and current sources become open-circuits)
 
 - `kill_except()` Kills all but the specified independent sources
+
+- `prune(component_name)` Returns a copy of the netlist with the component specified by `component_name` removed
 
 - `noise_model()` Replaces resistors with a series combination of a
   resistor and a noise voltage source.  For example,
