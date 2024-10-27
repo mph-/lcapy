@@ -13,16 +13,19 @@ def transfer(numer, denom=1, causal=True, **assumptions):
     from the ratio `numer / denom`."""
 
     numer = expr(numer, causal=causal, **assumptions)
-    denom = expr(denom, causal=causal, **assumptions)
-
     numer = numer.zero_initial_conditions()
-    denom = denom.zero_initial_conditions()
 
-    if False:
-        expr1 = numer / denom
+    if denom == 1:
+        expr1 = numer
     else:
-        # Avoid pole-zero cancellation by deferring evaluation
-        expr1 = Mul(numer, Pow(denom, -1), evaluate=False)
+        denom = expr(denom, causal=causal, **assumptions)
+        denom = denom.zero_initial_conditions()
+
+        if False:
+            expr1 = numer / denom
+        else:
+            # Avoid pole-zero cancellation by deferring evaluation
+            expr1 = Mul(numer, Pow(denom, -1), evaluate=False)
 
     if expr1.is_admittance:
         expr1.units = 1 / uu.ohms
