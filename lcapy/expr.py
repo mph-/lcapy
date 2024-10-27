@@ -3245,7 +3245,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         ratfun = self._ratfun
         if ratfun is None:
-            return self.copy()
+            return self
         return self.__class__(ratfun.canonical(factor_const),
                               **self.assumptions)
 
@@ -3258,7 +3258,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         ratfun = self._ratfun
         if ratfun is None:
-            return self.copy()
+            return self
         return self.__class__(ratfun.general(), **self.assumptions)
 
     def partfrac(self, combine_conjugates=False, pairs=False, damping=None,
@@ -3287,7 +3287,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         try:
             ratfun = self._ratfun
             if ratfun is None:
-                return self.copy()
+                return self
             return self.__class__(ratfun.partfrac(pairs, damping, method),
                                   **self.assumptions)
         except ValueError:
@@ -3319,7 +3319,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         pairs = pairs or combine_conjugates
 
         if self._ratfun is None:
-            return self.copy()
+            return self
 
         tmpsym = miscsymbol('qtmp')
 
@@ -3345,7 +3345,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         ratfun = self._ratfun
         if ratfun is None:
-            return self.copy()
+            return self
         return self.__class__(ratfun.standard(), **self.assumptions)
 
     def mixedfrac(self):
@@ -3363,7 +3363,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         ratfun = self._ratfun
         if ratfun is None:
-            return self.copy()
+            return self
         return self.__class__(ratfun.timeconst(), **self.assumptions)
 
     def timeconst_terms(self):
@@ -3393,7 +3393,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         ratfun = self._ratfun
         if ratfun is None:
-            return self.copy()
+            return self
         return self.__class__(ratfun.ZPK(combine_conjugates or pairs),
                               **self.assumptions)
 
@@ -3413,7 +3413,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         ratfun = self._ratfun
         if ratfun is None:
-            return self.copy()
+            return self
         return self.__class__(ratfun.ZPK(pairs), **self.assumptions)
 
     def expandcanonical(self):
@@ -3426,7 +3426,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         ratfun = self._ratfun
         if ratfun is None:
-            return self.copy()
+            return self
         return self.__class__(ratfun.expandcanonical(), **self.assumptions)
 
     def expand_functions(self):
