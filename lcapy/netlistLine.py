@@ -94,6 +94,11 @@ class NetlistLine:
         else:
             return ""
 
+    def swapNodes(self):
+        endNode = self.endNode
+        self.endNode = self.startNode
+        self.startNode = endNode
+
     def reconstruct(self) -> str:
         """
         reconstructs self.line from the parsed elements self.type, self.typeSuffix, self.startNode, self.endNode,
