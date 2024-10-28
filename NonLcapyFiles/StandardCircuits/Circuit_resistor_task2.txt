@@ -1,4 +1,4 @@
-W 0 1; right
+W 1 0; right
 V1 1 2 dc {220}; right
 W 2 3; right
 W 3 4; up
