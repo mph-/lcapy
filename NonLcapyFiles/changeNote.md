@@ -1,3 +1,7 @@
+## 1.24+inskale.0.17
+- fix modern art, some circuits where drawn incorrect
+- voltages and currents always negative
+
 ## 1.24+inskale.0.16
 - step0 returns same json template as step(n)
 - circuitInfo with element values and angular frequency can be exported out of jsonExportCircuitInfo class with
