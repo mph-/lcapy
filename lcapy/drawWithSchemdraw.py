@@ -171,11 +171,15 @@ class DrawWithSchemdraw:
         elif line.type == "W":
             self.addElement(elm.Line(d=line.drawParam), line)
         elif line.type == "V":
+            # this is necessary because lcapy and schemdraw have a different convention for sources
+            line.swapNodes()
             if line.ac_dc == "ac":
                 self.addElement(elm.sources.SourceSin(id_=id_, value_=value, d=line.drawParam), line)
             elif line.ac_dc == "dc":
                 self.addElement(elm.sources.SourceV(id_=id_, value_=value, d=line.drawParam), line)
         elif line.type == "I":
+            # this is necessary because lcapy and schemdraw have a different convention for sources
+            line.swapNodes()
             if line.ac_dc == "ac":
                 self.addElement(elm.sources.SourceI(id_=id_, value_=value, d=line.drawParam), line)
             elif line.ac_dc == "dc":
