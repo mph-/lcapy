@@ -1,6 +1,6 @@
-W 1 0; right
+W 0 1; right
 W 1 2; right
-V1 2 3 dc {200}; right
+V1 3 2 dc {200}; right
 W 3 4; right
 W 4 5; right
 W 5 6; up
