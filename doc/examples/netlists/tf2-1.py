@@ -1,4 +1,4 @@
-from lcapy import circuit
+from lcapy import Circuit
 
 a = Circuit('tf2.sch')
 
