@@ -992,7 +992,8 @@ class NetlistMixin(object):
 
         For example, `b = a.subs({'R1': 1e3, 'R2': 9e3})`
 
-        Note, this does not substitute component names.
+        Note, this does not substitute component names.   See also `sympify()`
+        to remove component values.
         """
 
         if len(args) > 2:

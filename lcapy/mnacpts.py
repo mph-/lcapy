@@ -132,11 +132,8 @@ class Cpt(ImmittanceMixin):
         return self.__str__()
 
     def __str__(self):
-        if self.type == 'XX':
-            return self._string
-        else:
-            # This works if the nodes are renamed or the args are changed
-            return self._netmake()
+        # This works if the nodes are renamed or the args are changed
+        return self._netmake()
 
     def _process_args(self, args):
         """Convert args such as 42p to 42e-12.
