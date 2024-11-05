@@ -196,6 +196,10 @@ def main(argv=None):
     parser.add_argument('--method', type=str, default='graph',
                         help='specify component placement algorithm')
 
+    parser.add_argument('--sympify', action='store_true',
+                        default=False,
+                        help="remove numerical component values")
+
     parser.add_argument('--voltage-dir', type=str, default=None,
                         dest='voltage_dir',
                         help="specify voltage dir: 'RP' (rising potential) or 'EF' (electric field); default RP")
@@ -245,9 +249,12 @@ def main(argv=None):
             part = part.strip()
             fields = part.split(':')
             if len(fields) != 2:
-                raise ValueError('Expecting mapping of form a:b got %s' % part)
+                raise ValueError('Expecting mapping of form a:b, got %s' % part)
             node_map[fields[0]] = fields[1]
         cct = cct.renumber(node_map)
+
+    if args.sympify:
+        cct = cct.sympify()
 
     if args.label_nodes not in ('none', 'all', 'alpha', 'pins', 'primary', False, None):
         raise ValueError('Illegal option %s for label_nodes' %
