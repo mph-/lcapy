@@ -181,7 +181,7 @@ def main(argv=None):
     parser.add_argument('--postamble', type=str, default=None,
                         help='specify circuitikz commands at end')
 
-    parser.add_argument('--remove-positions', action='store_true',
+    parser.add_argument('--remove-node-positions', action='store_true',
                         default=False,
                         help="remove explicit node positions; these will be inferred")
 
@@ -260,6 +260,9 @@ def main(argv=None):
 
     if args.sympify:
         cct = cct.sympify()
+
+    if args.remove_node_positions:
+        cct = cct.remove_node_positions()
 
     if args.label_nodes not in ('none', 'all', 'alpha', 'pins', 'primary', False, None):
         raise ValueError('Illegal option %s for label_nodes' %

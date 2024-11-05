@@ -710,6 +710,17 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         self._elements.pop(name, None)
         return self
 
+    def remove_node_positions(self):
+        """Remove explicit node positions added by lcapy-tk."""
+
+        new = self._new()
+
+        for cpt in self._elements.values():
+            if cpt.is_directive and 'nodes' in cpt.opts:
+                continue
+            new.add(cpt._copy())
+        return new
+
     def annotate(self, cpts, *args, **kwargs):
         """Annotate a particular component (or list of components)
         with specified schematic attributes and return new netlist.
