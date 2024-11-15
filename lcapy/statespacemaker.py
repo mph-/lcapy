@@ -104,9 +104,17 @@ class StateSpaceMaker(object):
         independent_current_sources = []
         independent_voltage_sources = []
 
+        # Determine the numerical values
+        defs = cct.defs()
+        # Remove numerical values from the netlist
+        cct = cct.sympify()
+
         # Determine state variables (current through inductors and
-        # voltage across acapacitors) and replace inductors with
-        # current sources and capacitors with voltage sources.
+        # voltage across acapacitors) and create sscct by replacing
+        # inductors with current sources and capacitors with voltage
+        # sources.  sscct has no reactive components and its node
+        # voltages/branch currents can be determined in the
+        # time-domain.
         sscct = cct._new()
         cpt_map = {}
 
@@ -119,13 +127,13 @@ class StateSpaceMaker(object):
             if elt.is_inductor:
                 if sselt.name in cct.elements:
                     raise ValueError(
-                        'Name conflict %s, either rename the component or improve the code!' % sselt.name)
+                        'Name conflict %s, either rename the component or improve Lcapy!' % sselt.name)
 
                 inductors.append(elt)
             elif elt.is_capacitor:
                 if sselt.name in cct.elements:
                     raise ValueError(
-                        'Name conflict %s, either rename the component or improve the code!' % sselt.name)
+                        'Name conflict %s, either rename the component or improve Lcapy!' % sselt.name)
                 capacitors.append(elt)
             elif elt.is_independent_current_source:
                 independent_current_sources.append(elt)
@@ -286,4 +294,9 @@ class StateSpaceMaker(object):
         C = Matrix(C)
         D = Matrix(D)
 
-        return StateSpace(A, B, C, D, u, y, x, x0)
+        ss = StateSpace(A, B, C, D, u, y, x, x0)
+
+        # Replace symbols with numerical values
+        ss = ss.subs(defs)
+
+        return ss

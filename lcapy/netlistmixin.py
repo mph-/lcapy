@@ -1066,6 +1066,8 @@ class NetlistMixin(object):
 
         defs = {}
         for cpt in self._elements.values():
+            if cpt.is_directive:
+                continue
             defs = {**defs, **cpt.defs()}
         return defs
 

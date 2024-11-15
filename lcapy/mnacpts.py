@@ -906,7 +906,8 @@ class Cpt(ImmittanceMixin):
             if value is None:
                 # Initial condition for C and L.
                 continue
-            defs[argname] = value
+            if argname != value and expr(value).is_constant:
+                defs[argname] = value
 
         return defs
 
@@ -914,7 +915,14 @@ class Cpt(ImmittanceMixin):
         """Return component with numerical values removed."""
 
         if len(self.args) == 1:
-            return self._netmake(args=[])
+
+            if expr(self.args[0]).is_constant:
+                return self._netmake(args=[])
+            return self._netmake()
+
+        # FIXME
+        # What about E1 1 0 opamp 2 3 Ac 7 Ro  ?  Should the 7 be replaced
+        # with Ad, or perhaps E1.Ad?
 
         return self._netmake(args=self.argnames)
 
