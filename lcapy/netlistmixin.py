@@ -184,14 +184,19 @@ class NetlistMixin(object):
         return enodes2
 
     @property
+    def has_ac(self):
+        """Return True if any independent source has an AC component."""
+        return self.analysis.has_ac
+
+    @property
     def has_dc(self):
         """Return True if any independent source has a DC component."""
         return self.analysis.has_dc
 
     @property
-    def has_ac(self):
-        """Return True if any independent source has an AC component."""
-        return self.analysis.has_ac
+    def has_independent_source(self):
+        """Return True if the circuit has an independent source."""
+        return self.independent_sources != []
 
     @property
     def has_s_transient(self):
@@ -651,10 +656,7 @@ class NetlistMixin(object):
                     pass
                 if arg1 not in self.elements.values():
                     raise ValueError('Unknown component %s' % arg1)
-                if name != 'as_ladder' and arg1.is_voltage_source:
-                    # The killed voltage source will short the applied signal.
-                    raise ValueError(
-                        "Cannot determine transfer function across voltage source %s; you will need to remove it, e.g., new = cct.remove('%s')" % (arg1.name, arg1.name))
+
                 N1p, N1m = [n.name for n in arg1.nodes[0:2]]
 
             if isinstance(arg2, tuple):
@@ -990,7 +992,8 @@ class NetlistMixin(object):
 
         For example, `b = a.subs({'R1': 1e3, 'R2': 9e3})`
 
-        Note, this does not substitute component names.
+        Note, this does not substitute component names.   See also `sympify()`
+        to remove component values.
         """
 
         if len(args) > 2:
@@ -1063,6 +1066,8 @@ class NetlistMixin(object):
 
         defs = {}
         for cpt in self._elements.values():
+            if cpt.is_directive:
+                continue
             defs = {**defs, **cpt.defs()}
         return defs
 

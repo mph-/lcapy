@@ -157,6 +157,12 @@ class Matrix(sym.Matrix):
 
         return self.applyfunc(f)
 
+    def limit(self, var, value, dir='+'):
+
+        def f(x): return expr(x).limit(var, value, dir)
+
+        return self.applyfunc(f)
+
     def next_timestep(self):
 
         def f(x): return expr(x).next_timestep()

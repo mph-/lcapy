@@ -148,6 +148,7 @@ causality since both parts lumped together.
 
 39. Avoid pole-zero cancellation for a transfer function derived from a differential or difference equation.
 
+40. Defer evaluation of twoports.
 
 Testing
 =======
@@ -178,22 +179,7 @@ Documentation
 Additional features
 ===================
 
-1. Handle mechanical and acoustical components.  Perhaps use lower case for
-mechanical/acoustical.  For example,
-
-   Force      f  (N)
-   Mass       m  (kg)
-   Spring     k  (N/m)
-   Damper     r  (kg/s)
-   Velocity   u  (m/s)
-
-   Could support both electro-mechnical analogues?  cct.electrical_analogue(1)?
-   m -> L, C
-   k -> C, L
-   f -> I, V
-   u -> V, I
-
-2. Expand two-ports, xtals, opamps, etc.  cct = cct.expand() Perhaps
+1. Expand two-ports, xtals, opamps, etc.  cct = cct.expand() Perhaps
 have arg to expand to select components and/or types of component to
 expand?
 

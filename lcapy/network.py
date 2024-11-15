@@ -18,6 +18,7 @@ class Network(object):
 
     is_voltage_source = False
     is_current_source = False
+    has_independent_source = False
     is_inductor = False
     is_capacitor = False
     is_resistor = False

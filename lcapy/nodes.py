@@ -77,7 +77,7 @@ class Nodes(AttrDict):
 
 def parse_nodes(nodesstr):
 
-    from .utils import split_parens
+    from .parser import split_parens
 
     node_positions = {}
 

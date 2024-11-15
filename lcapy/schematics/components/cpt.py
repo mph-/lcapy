@@ -1,6 +1,7 @@
 from warnings import warn
 from numpy import zeros, array, pi, cos, sin, dot
 from ...label import Label
+from ...labelmaker import LabelMaker
 from ...labels import Labels
 from ...opts import Opts
 from ...parser import split
@@ -9,6 +10,7 @@ from ...label import Label
 from ...labels import Labels
 from ...latex import latex_format_label
 from ...config import implicit_default
+from ...valueparser import value_parser
 from ..utils import check_boolean
 
 
@@ -82,7 +84,7 @@ class Cpt(object):
                  'mirrorinputs', 'autoground', 'xoffset', 'yoffset',
                  'anchor', 'def', 'nodes', 'shape')
     label_opt_keys = ('label_values', 'label_ids', 'annotate_values',
-                      'label_style', 'label_flip')
+                      'label_style', 'label_flip', 'label_value_style')
     color_keys = ('blue', 'cyan', 'magenta', 'yellow', 'green',
                   'black', 'gray', 'white', 'darkgray',
                   'lightgray', 'brown', 'lime', 'olive',
@@ -175,7 +177,6 @@ class Cpt(object):
             auxiliary_node_names.append(prefix + pin)
 
         self.auxiliary_node_names = auxiliary_node_names
-
 
     def _process_opts(self):
 
@@ -1281,12 +1282,15 @@ class Cpt(object):
 
         label_values = check_boolean(kwargs.get('label_values', True))
         label_ids = check_boolean(kwargs.get('label_ids', True))
+        label_value_style = kwargs.get('label_value_style', 'eng3')
+
+        id_label, value_label = LabelMaker().make(self, style=label_value_style)
 
         label_str = ''
         if label_ids is True:
-            label_str = self.id_label
-        if label_values and self.value_label != '':
-            label_str = latex_format_label(self.value_label)
+            label_str = id_label
+        if label_values and value_label != '':
+            label_str = latex_format_label(value_label)
 
         has_label = False
         for key, val in self.opts.items():

@@ -121,7 +121,7 @@ class ExprPrint(object):
         """Make LaTeX string with optional units.   Units are only
         shown for numerical values."""
 
-        from .engformatter import EngFormatter
+        from .valueformatter import value_formatter
 
         expr = self
 
@@ -138,7 +138,7 @@ class ExprPrint(object):
         value = expr.sympy
 
         if evalf and value.is_number and eng_format:
-            return EngFormatter(num_digits=num_digits).latex(value, units)
+            return value_formatter().latex(value, units)
 
         s = latex(value, **kwargs)
         if show_units and units != '':
@@ -3245,7 +3245,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         ratfun = self._ratfun
         if ratfun is None:
-            return self.copy()
+            return self
         return self.__class__(ratfun.canonical(factor_const),
                               **self.assumptions)
 
@@ -3258,7 +3258,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         ratfun = self._ratfun
         if ratfun is None:
-            return self.copy()
+            return self
         return self.__class__(ratfun.general(), **self.assumptions)
 
     def partfrac(self, combine_conjugates=False, pairs=False, damping=None,
@@ -3287,7 +3287,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         try:
             ratfun = self._ratfun
             if ratfun is None:
-                return self.copy()
+                return self
             return self.__class__(ratfun.partfrac(pairs, damping, method),
                                   **self.assumptions)
         except ValueError:
@@ -3319,7 +3319,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         pairs = pairs or combine_conjugates
 
         if self._ratfun is None:
-            return self.copy()
+            return self
 
         tmpsym = miscsymbol('qtmp')
 
@@ -3345,7 +3345,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         ratfun = self._ratfun
         if ratfun is None:
-            return self.copy()
+            return self
         return self.__class__(ratfun.standard(), **self.assumptions)
 
     def mixedfrac(self):
@@ -3363,7 +3363,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         ratfun = self._ratfun
         if ratfun is None:
-            return self.copy()
+            return self
         return self.__class__(ratfun.timeconst(), **self.assumptions)
 
     def timeconst_terms(self):
@@ -3393,7 +3393,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         ratfun = self._ratfun
         if ratfun is None:
-            return self.copy()
+            return self
         return self.__class__(ratfun.ZPK(combine_conjugates or pairs),
                               **self.assumptions)
 
@@ -3413,7 +3413,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         ratfun = self._ratfun
         if ratfun is None:
-            return self.copy()
+            return self
         return self.__class__(ratfun.ZPK(pairs), **self.assumptions)
 
     def expandcanonical(self):
@@ -3426,7 +3426,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         ratfun = self._ratfun
         if ratfun is None:
-            return self.copy()
+            return self
         return self.__class__(ratfun.expandcanonical(), **self.assumptions)
 
     def expand_functions(self):

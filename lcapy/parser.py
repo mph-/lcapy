@@ -23,6 +23,27 @@ import re
 # The name or value params are referred to as args.
 
 
+def split_parens(s, delimiter=','):
+    """Split a string by delimiter except if in ()"""
+
+    parts = []
+    bracket_level = 0
+    current = []
+    for c in (s + delimiter):
+        if c == delimiter and bracket_level == 0:
+            parts.append(''.join(current))
+            current = []
+        else:
+            if c == '(':
+                bracket_level += 1
+            elif c == ')':
+                bracket_level -= 1
+            current.append(c)
+    if bracket_level != 0:
+        raise ValueError('Mismatched parentheses for ' + s)
+    return parts
+
+
 def split(s, delimiters):
     """Split string by specified delimiters but not if a delimiter is
     within curly brackets {} or ""."""

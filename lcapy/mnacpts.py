@@ -20,6 +20,7 @@ from .voltage import voltage
 from .current import current
 from .opts import Opts
 from .node import DummyNode
+from .valueparser import value_parser
 import lcapy
 import inspect
 import sys
@@ -94,7 +95,8 @@ class Cpt(ImmittanceMixin):
             #     self.relnodes.append(node)
 
         self._string = string
-        self.args = self._process_args(args)
+        self.args = args
+        args = self._process_args(args)
         self.classname = self.__class__.__name__
         self.keyword = keyword
         self.opts = Opts(opts_string)
@@ -130,27 +132,17 @@ class Cpt(ImmittanceMixin):
         return self.__str__()
 
     def __str__(self):
-        if self.type == 'XX':
-            return self._string
-        else:
-            # This works if the nodes are renamed or the args are changed
-            return self._netmake()
+        # This works if the nodes are renamed or the args are changed
+        return self._netmake()
 
     def _process_args(self, args):
         """Convert args such as 42p to 42e-12.
 
         The suffixes are ignored in expressions such as 10 * 42p."""
 
-        suffixes = {'f': 1e-15, 'p': 1e-12, 'n': 1e-9, 'u': 1e-6,
-                    'm': 1e-3, 'k': 1e3, 'M': 1e6, 'G': 1e9, 'T': 1e12}
-
         pargs = []
         for arg in args:
-            if (arg is not None and len(arg) > 2
-                    and arg[-1] in suffixes and arg[0:-1].isnumeric()):
-                pargs.append(float(arg) * suffixes[arg[-1]])
-            else:
-                pargs.append(arg)
+            pargs.append(value_parser(arg))
 
         return pargs
 
@@ -922,7 +914,8 @@ class Cpt(ImmittanceMixin):
             if value is None:
                 # Initial condition for C and L.
                 continue
-            defs[argname] = value
+            if argname != value and expr(value).is_constant:
+                defs[argname] = value
 
         return defs
 
@@ -930,7 +923,14 @@ class Cpt(ImmittanceMixin):
         """Return component with numerical values removed."""
 
         if len(self.args) == 1:
-            return self._netmake(args=[])
+
+            if expr(self.args[0]).is_constant:
+                return self._netmake(args=[])
+            return self._netmake()
+
+        # FIXME
+        # What about E1 1 0 opamp 2 3 Ac 7 Ro  ?  Should the 7 be replaced
+        # with Ad, or perhaps E1.Ad?
 
         return self._netmake(args=self.argnames)
 
@@ -1005,6 +1005,9 @@ class XX(Ignore):
 
     def __str__(self):
         return self._string
+
+    def sympify(self):
+        return self._copy()
 
 
 class AM(Cpt):

@@ -54,15 +54,17 @@ A Component object is obtained from a Circuit object using member notation, for 
 Component specification
 -----------------------
 
-Each line in a netlist describes a single component, with the
-general form::
+Each line in a netlist describes a single component, except for lines
+starting with `#`.  The latter are treated as comments.
+
+The general form of a netlist component definition is::
 
     `component-name positive-node negative-node arg1 [arg2 etc.] [; attributes]
 
-If no args are specified then the component value is assigned a
+If no arguments are specified then the component value is assigned a
 symbolic name specified by `component-name`.
 
-Lines starting with `#` are treated as comments.
+
 
 The attributes are primarily for controlling the appearance of the schematic.  The attribute `nosim` is used to ignore the component for electrical analysis.
 
@@ -525,14 +527,16 @@ Circuit methods
   nodes `Np` and `Nm` and `impedance(cpt)` returns the driving-point
   impedance between the nodes of the specified component
 
-- `in_parallel(component_name)` Returns a set of component names that are connected in parallel with `component_name`
+- `in_parallel(component_name)` Returns a set of component names that are connected in parallel with `component_name` (see also `across_nodes()` and `in_series()`)
 
-- `in_series(component_name)` Returns a set of component names that are connected in series with `component_name`
+- `in_series(component_name)` Returns a set of component names that are connected in series with `component_name` (see also `in_parallel()`)
 
 - `kill()` Kills specified independent sources (voltage sources
   become short-circuits and current sources become open-circuits)
 
 - `kill_except()` Kills all but the specified independent sources
+
+- `prune(component_name)` Returns a copy of the netlist with the component specified by `component_name` removed
 
 - `noise_model()` Replaces resistors with a series combination of a
   resistor and a noise voltage source.  For example,

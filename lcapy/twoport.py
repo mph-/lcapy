@@ -1,7 +1,7 @@
 """
 This module supports simple linear two-port networks.
 
-Copyright 2014--2023 Michael Hayes, UCECE
+Copyright 2014--2024 Michael Hayes, UCECE
 """
 
 from __future__ import division
@@ -492,7 +492,7 @@ class TwoPortMixin(object):
 
     @property
     def voltage_gain(self):
-        """Return V2 / V1 for I2 = 0 with internal sources zero.
+        """Return V2 / V1 for I2 = 0 with independent sources killed.
 
         This is an alias for forward_voltage_gain."""
 
@@ -500,19 +500,19 @@ class TwoPortMixin(object):
 
     @property
     def forward_voltage_gain(self):
-        """Return V2 / V1 for I2 = 0 with internal sources zero."""
+        """Return V2 / V1 for I2 = 0 with independent sources killed."""
 
         return self.Vgain12
 
     @property
     def reverse_voltage_gain(self):
-        """Return V1 / V2 for I1 = 0 with internal sources zero."""
+        """Return V1 / V2 for I1 = 0 with independent sources killed."""
 
         return self.Vgain21
 
     @property
     def current_gain(self):
-        """Return I2 / I1 for V2 = 0 with internal sources zero.
+        """Return I2 / I1 for V2 = 0 with independent sources killed.
 
         This is an alias for forward_current_gain."""
 
@@ -520,19 +520,19 @@ class TwoPortMixin(object):
 
     @property
     def forward_current_gain(self):
-        """Return I2 / I1 for V2 = 0 with internal sources zero."""
+        """Return I2 / I1 for V2 = 0 with independent sources killed."""
 
         return self.Igain12
 
     @property
     def reverse_current_gain(self):
-        """Return I1 / I2 for I2 = 0 with internal sources zero."""
+        """Return I1 / I2 for I2 = 0 with independent sources killed."""
 
         return self.Igain21
 
     @property
     def transadmittance(self):
-        """Return I2 / V1 for V2 = 0 with internal sources zero.
+        """Return I2 / V1 for V2 = 0 with independent sources killed.
 
         This is an alias for forward_transadmittance."""
 
@@ -540,19 +540,19 @@ class TwoPortMixin(object):
 
     @property
     def forward_transadmittance(self):
-        """Return I2 / V1 for V2 = 0 with internal sources zero."""
+        """Return I2 / V1 for V2 = 0 with independent sources killed."""
 
         return LaplaceDomainAdmittance(self._Y21)
 
     @property
     def reverse_transadmittance(self):
-        """Return I1 / V2 for V1 = 0 with internal sources zero."""
+        """Return I1 / V2 for V1 = 0 with independent sources killed."""
 
         return LaplaceDomainAdmittance(self._Y12)
 
     @property
     def transimpedance(self):
-        """Return V2 / I1 for I2 = 0 with internal sources zero.
+        """Return V2 / I1 for I2 = 0 with independent sources killed.
 
         This is an alias for forward_transadmittance."""
 
@@ -560,13 +560,13 @@ class TwoPortMixin(object):
 
     @property
     def forward_transimpedance(self):
-        """Return V2 / I1 for I2 = 0 with internal sources zero."""
+        """Return V2 / I1 for I2 = 0 with independent sources killed."""
 
         return LaplaceDomainImpedance(self._Z21)
 
     @property
     def reverse_transimpedance(self):
-        """Return V1 / I2 for I1 = 0 with internal sources zero."""
+        """Return V1 / I2 for I1 = 0 with independent sources killed."""
 
         return LaplaceDomainImpedance(self._Z12)
 
@@ -777,13 +777,13 @@ class AMatrix(TwoPortMatrix):
 
     @property
     def forward_transadmittance(self):
-        """Return I2 / V1 for V2 = 0 with internal sources zero."""
+        """Return I2 / V1 for V2 = 0 with independent sources killed."""
 
         return LaplaceDomainAdmittance(-1 / self._A12)
 
     @property
     def reverse_transadmittance(self):
-        """Return I1 / V2 for V1 = 0 with internal sources zero."""
+        """Return I1 / V2 for V1 = 0 with independent sources killed."""
 
         return LaplaceDomainAdmittance(self._A21 - self._A11 * self._A22 / self._A12)
 
@@ -966,13 +966,13 @@ class BMatrix(TwoPortMatrix):
 
     @property
     def forward_transadmittance(self):
-        """Return I2 / V1 for V2 = 0 with internal sources zero."""
+        """Return I2 / V1 for V2 = 0 with independent sources killed."""
 
         return LaplaceDomainAdmittance(self._B11 * self._B22 / self._B12 - self._B21)
 
     @property
     def reverse_transadmittance(self):
-        """Return I1 / V2 for V1 = 0 with internal sources zero."""
+        """Return I1 / V2 for V1 = 0 with independent sources killed."""
 
         return LaplaceDomainAdmittance(-1 / self._B12)
 
@@ -1631,6 +1631,11 @@ class TwoPort(Network, TwoPortMixin):
         return self._sources
 
     @property
+    def has_independent_source(self):
+        """Return True if has an independent source"""
+        return self.sources[0] != 0 or self.sources[1] != 0
+
+    @property
     def Aparams(self):
         """Return chain parameters"""
         return self._params.Aparams
@@ -1808,7 +1813,7 @@ class TwoPort(Network, TwoPortMixin):
     @property
     def Vgain12(self):
         """Return V2 / V1 for I2 = 0 (forward voltage gain) with
-        internal sources zero
+        independent sources killed
 
         Av = G21 = 1 / A11 = -det(B) / B22 = Z21 / Z11 =  Y21 / Y22
         """
@@ -1818,7 +1823,7 @@ class TwoPort(Network, TwoPortMixin):
     @property
     def Vgain21(self):
         """Return V1 / V2 for I1 = 0 (reverse voltage gain) with
-        internal sources zero
+        independent sources killed
 
         """
 
@@ -1827,14 +1832,14 @@ class TwoPort(Network, TwoPortMixin):
     @property
     def Vtransfer(self):
         """Return V2 / V1 for I2 = 0 (forward voltage gain) with
-        internal sources zero  (see Vgain12)"""
+        independent sources killed  (see Vgain12)"""
 
         return self.params.Vgain12
 
     @property
     def Igain12(self):
         """Return I2 / I1 for V2 = 0 (forward current gain) with
-        internal sources zero
+        independent sources killed
 
         Ai = H21 = -1 / A22 = -det(B) / B11 = -Z21 / Z22 = Y21 / Y11
         """
@@ -1844,7 +1849,7 @@ class TwoPort(Network, TwoPortMixin):
     @property
     def Igain21(self):
         """Return I1 / I2 for V1 = 0 (reverse current gain) with
-        internal sources zero
+        independent sources killed
 
         """
 
@@ -1853,19 +1858,19 @@ class TwoPort(Network, TwoPortMixin):
     @property
     def Itransfer(self):
         """Return I2 / I1 for V2 = 0 (forward current gain) with
-        internal sources zero  (sett Igain12)"""
+        independent sources killed  (sett Igain12)"""
 
         return self.params.Igain12
 
     @property
     def forward_transadmittance(self):
-        """Return I2 / V1 for V2 = 0 with internal sources zero."""
+        """Return I2 / V1 for V2 = 0 with independent sources killed."""
 
         return self.params.forward_transadmittance
 
     @property
     def reverse_transadmittance(self):
-        """Return I1 / V2 for V1 = 0 with internal sources zero."""
+        """Return I1 / V2 for V1 = 0 with independent sources killed."""
 
         return self.params.reverse_transadmittance
 
@@ -1906,7 +1911,7 @@ class TwoPort(Network, TwoPortMixin):
     @property
     def Ytrans12(self):
         """Return I2 / V1 for V2 = 0 (forward transadmittance) with
-         internal sources zero
+         independent sources killed
 
          Y21 = -1 / A12 = det(B) / B12
          """
@@ -1916,7 +1921,7 @@ class TwoPort(Network, TwoPortMixin):
     @property
     def Ytransfer(self):
         """Return I2 / V1 for V2 = 0 (forward transadmittance) with
-         internal sources zero.  This is an alias for Ytrans12.
+         independent sources killed.  This is an alias for Ytrans12.
 
          Y21 = -1 / A12 = det(B) / B12
          """
@@ -1931,7 +1936,7 @@ class TwoPort(Network, TwoPortMixin):
 
     def Ztrans12(self):
         """Return V2 / I1 for I2 = 0 (forward transimpedance) with
-        internal sources zero
+        independent sources killed
 
         Z21 = 1 / A21 = -det(B) / B21
         """
@@ -1941,7 +1946,7 @@ class TwoPort(Network, TwoPortMixin):
     @property
     def Ztransfer(self):
         """Return V2 / I1 for I2 = 0 (forward transimpedance) with
-        internal sources zero.  This is an alias for Ztrans12.
+        independent sources killed.  This is an alias for Ztrans12.
 
         Z21 = 1 / A21 = -det(B) / B21
         """
@@ -2272,8 +2277,6 @@ class TwoPortBModel(TwoPort):
         super(TwoPortBModel, self).__init__(
             B[0, 0], B[0, 1], B[1, 0], B[1, 1], V2b, I2b, **kwargs)
         self._params = B
-        self._V2b = V2b
-        self._I2b = I2b
         self._sources = Vector((V2b, I2b))
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
@@ -2282,6 +2285,14 @@ class TwoPortBModel(TwoPort):
         return self._TP_make(netlist, n1, n2, n3, n4, 'B',
                              self.B11, self.B12, self.B21, self.B22,
                              self.V2b, self.I2b)
+
+    @property
+    def _V2b(self):
+        return self.sources[0]
+
+    @property
+    def _I2b(self):
+        return self.sources[1]
 
     @property
     def Bparams(self):
@@ -2359,8 +2370,6 @@ class TwoPortAModel(TwoPort):
         super(TwoPortAModel, self).__init__(
             A[0, 0], A[0, 1], A[1, 0], A[1, 1], V1a, I1a, **kwargs)
         self._params = A
-        self._V1a = V1a
-        self._I1a = I1a
         self._sources = Vector((V1a, I1a))
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
@@ -2369,6 +2378,14 @@ class TwoPortAModel(TwoPort):
         return self._TP_make(netlist, n1, n2, n3, n4, 'A',
                              self.A11, self.A12, self.A21, self.A22,
                              self.V1a, self.I1a)
+
+    @property
+    def _V1a(self):
+        return self.sources[0]
+
+    @property
+    def _I1a(self):
+        return self.sources[1]
 
     @property
     def Aparams(self):
@@ -2438,8 +2455,6 @@ class TwoPortGModel(TwoPort):
         super(TwoPortGModel, self).__init__(
             G[0, 0], G[0, 1], G[1, 0], G[1, 1], I1g, V2g, **kwargs)
         self._params = G
-        self._I1g = I1g
-        self._V2g = V2g
         self._sources = Vector((I1g, V2g))
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
@@ -2448,6 +2463,14 @@ class TwoPortGModel(TwoPort):
         return self._TP_make(netlist, n1, n2, n3, n4, 'G',
                              self.G11, self.G12, self.G21, self.G22,
                              self.I1g, self.V2g)
+
+    @property
+    def _I1g(self):
+        return self.sources[0]
+
+    @property
+    def _V2g(self):
+        return self.sources[1]
 
     @property
     def Gparams(self):
@@ -2535,8 +2558,6 @@ class TwoPortHModel(TwoPort):
         super(TwoPortHModel, self).__init__(
             H[0, 0], H[0, 1], H[1, 0], H[1, 1], V1h, I2h, **kwargs)
         self._params = H
-        self._V1h = V1h
-        self._I2h = I2h
         self._sources = Vector((V1h, I2h))
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
@@ -2545,6 +2566,14 @@ class TwoPortHModel(TwoPort):
         return self._TP_make(netlist, n1, n2, n3, n4, 'H',
                              self.H11, self.H12, self.H21, self.H22,
                              self.V1h, self.I2h)
+
+    @property
+    def _V1h(self):
+        return self.sources[0]
+
+    @property
+    def _I2h(self):
+        return self.sources[1]
 
     @property
     def Hparams(self):
@@ -2632,8 +2661,6 @@ class TwoPortYModel(TwoPort):
         super(TwoPortYModel, self).__init__(
             Y[0, 0], Y[0, 1], Y[1, 0], Y[1, 1], I1y, I2y, **kwargs)
         self._params = Y
-        self._I1y = I1y
-        self._I2y = I2y
         self._sources = Vector((I1y, I2y))
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
@@ -2642,6 +2669,14 @@ class TwoPortYModel(TwoPort):
         return self._TP_make(netlist, n1, n2, n3, n4, 'Y',
                              self.Y11, self.Y12, self.Y21, self.Y22,
                              self.I1y, self.I2y)
+
+    @property
+    def _I1y(self):
+        return self.sources[0]
+
+    @property
+    def _I2y(self):
+        return self.sources[1]
 
     @property
     def Yparams(self):
@@ -2724,8 +2759,6 @@ class TwoPortZModel(TwoPort):
         super(TwoPortZModel, self).__init__(
             Z[0, 0], Z[0, 1], Z[1, 0], Z[1, 1], V1z, V2z, **kwargs)
         self._params = Z
-        self._V1z = V1z
-        self._V2z = V2z
         self._sources = Vector((V1z, V2z))
 
     def _net_make(self, netlist, n1=None, n2=None, n3=None, n4=None,
@@ -2734,6 +2767,14 @@ class TwoPortZModel(TwoPort):
         return self._TP_make(netlist, n1, n2, n3, n4, 'Z',
                              self.Z11, self.Z12, self.Z21, self.Z22,
                              self.V1z, self.V2z)
+
+    @property
+    def _V1z(self):
+        return self.sources[0]
+
+    @property
+    def _V2z(self):
+        return self.sources[1]
 
     @property
     def Zparams(self):

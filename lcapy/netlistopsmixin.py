@@ -1,6 +1,6 @@
 """This module provides the NetlistOpsMixin class.
 
-Copyright 2023 Michael Hayes, UCECE
+Copyright 2024 Michael Hayes, UCECE
 
 """
 
@@ -19,6 +19,35 @@ from warnings import warn
 
 
 class NetlistOpsMixin:
+
+    def _check_independent_sources(self, nowarn=True):
+
+        sources = self.independent_sources
+        if sources != []:
+            s = 'Circuit has an independent source: %s.  '
+            'Use kill() or prune() first.' % sources
+            if nowarn:
+                raise ValueError(s)
+            else:
+                warn(s)
+
+    def _prune_parallel_voltage_source(self, Np, Nm):
+
+        cptnames = self.across_nodes(Np, Nm)
+        if cptnames == []:
+            return self
+
+        vsources = []
+        for cptname in cptnames:
+            cpt = self.elements[cptname]
+            if cpt.is_independent_voltage_source:
+                vsources.append(cptname)
+                print('Pruning voltage source %s' % cptname)
+
+        if len(vsources) > 1:
+            warn('Multiple voltage sources in parallel: ' + ', '.join(vsources))
+
+        return self.prune(vsources)
 
     def admittance(self, Np, Nm=None):
         """Return driving-point Laplace-domain admittance between nodes
@@ -465,6 +494,7 @@ class NetlistOpsMixin:
         N1p, N1m, N2p, N2m = self._parse_node_args4(
             N1p, N1m, N2p, N2m, 'Aparams')
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
+
         new = self.kill()
         new._add_ground(N1m)
 
@@ -516,7 +546,53 @@ class NetlistOpsMixin:
 
         See also twoport, Aparams, Gparams, Hparams, Sparams, Tparams, Yparams, and Zparams.
         """
-        return self.Aparams(N1p, N1m, N2p, N2m).Bparams
+        from .twoport import BMatrix
+
+        N1p, N1m, N2p, N2m = self._parse_node_args4(
+            N1p, N1m, N2p, N2m, 'Bparams')
+        N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
+
+        new = self.kill()
+        new._add_ground(N1m)
+
+        try:
+            test = new._add_test_voltage_source(N2p, N2m)
+
+            # B11 = V2 / V1 with I1 = 0
+            # Apply V2 and measure V1 with port 1 open-circuit
+            B11 = new.Voc(N2p, N2m)(s) / new.Voc(N1p, N1m)(s)
+
+            # B12 = V2 / I1 with V1 = 0
+            # Apply V2 and measure I1 with port 1 short-circuit
+            B12 = -new.Voc(N2p, N2m)(s) / new.Isc(N1p, N1m)(s)
+
+            new.remove(test)
+
+            test = new._add_test_current_source(N2p, N2m)
+
+            # B21 = -I2 / V1 with I1 = 0
+            # Apply I2 and measure V1 with port 1 open-circuit
+            try:
+                B21 = -current(0 * s + 1) / new.Voc(N1p, N1m)(s)
+            except ValueError:
+                # It is likely there is an open-circuit.
+                new2 = new.copy()
+                new2.add('W %s %s' % (N2p, N2m))
+                B21 = -new2[test].I(s) / new2.Voc(N1p, N1m)(s)
+                B21 = 0
+
+            # B22 = -I2 / I1 with V1 = 0
+            # Apply I2 and measure I1 with port 1 short-circuit
+            B22 = current(0 * s + 1) / new.Isc(N1p, N1m)(s)
+
+            new.remove(test)
+            B = BMatrix(((B11, B12), (B21, B22)))
+            return B
+
+        except ValueError:
+            warn('Cannot create B matrix directly; trying via Z matrix')
+            Z = self.Zparams(N1p, N1m, N2p, N2m)
+            return Z.Bparams
 
     def Gparams(self, N1p, N1m, N2p=None, N2m=None):
         """Create G-parameters for two-port defined by nodes N1p, N1m, N2p, and N2m, where:
@@ -589,6 +665,7 @@ class NetlistOpsMixin:
         N1p, N1m, N2p, N2m = self._parse_node_args4(
             N1p, N1m, N2p, N2m, 'Zparams')
         N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
+
         new = self.kill()
         new._add_ground(N1m)
 

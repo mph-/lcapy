@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-"""schtex V0.4.2
-Copyright (c) 2014--2022 Michael P. Hayes, UC ECE, NZ
+"""schtex V0.4.3
+Copyright (c) 2014--2024 Michael P. Hayes, UC ECE, NZ
 
 Usage: schtex infile.sch [outfile.tex|pdf|png|svg|sch|pgf]
 
@@ -148,44 +148,32 @@ def main(argv=None):
                         dest='help_lines', default=None,
                         help="draw help lines")
 
-    parser.add_argument('--xgraph', action='store_true',
-                        dest='xgraph', default=False,
-                        help="generate graph of component x positions")
-
     parser.add_argument('--circuitgraph', action='store_true',
                         default=False,
                         help="generate circuit graph")
-
-    parser.add_argument('--ygraph', action='store_true',
-                        dest='ygraph', default=False,
-                        help="generate graph of component y positions")
-
-    parser.add_argument('--stage', type=int,
-                        dest='stage', default=0,
-                        help='select graph analysis stage 0--4')
-
-    parser.add_argument('--pdb', action='store_true',
-                        default=False,
-                        help="enter python debugger on exception")
 
     parser.add_argument('--allow-anon', action='store_true',
                         default=False,
                         help="allow anonymous component ids")
 
-    parser.add_argument('--renumber', type=str,
-                        dest='renumber', default=None,
-                        help='renumber nodes, e.g, 10:1, 11:2 or all')
-
     parser.add_argument('--font', type=str, default=None,
                         help=r'specify default font, e.g., \small, \sffamily\tiny')
 
-    parser.add_argument('--includefile', type=str, default=None,
-                        help='include contents of file before \\begin{document}')
     parser.add_argument('--include', type=str, default=None,
                         help='add string before \\begin{document}')
 
+    parser.add_argument('--includefile', type=str, default=None,
+                        help='include contents of file before \\begin{document}')
+
+    parser.add_argument('--method', type=str, default='graph',
+                        help='specify component placement algorithm')
+
     parser.add_argument('--options', type=str, default=None,
                         help='specify circuitikz options')
+
+    parser.add_argument('--pdb', action='store_true',
+                        default=False,
+                        help="enter python debugger on exception")
 
     parser.add_argument('--preamble', type=str, default=None,
                         help='specify circuitikz commands at start')
@@ -193,8 +181,21 @@ def main(argv=None):
     parser.add_argument('--postamble', type=str, default=None,
                         help='specify circuitikz commands at end')
 
-    parser.add_argument('--method', type=str, default='graph',
-                        help='specify component placement algorithm')
+    parser.add_argument('--remove-node-positions', action='store_true',
+                        default=False,
+                        help="remove explicit node positions; these will be inferred")
+
+    parser.add_argument('--renumber', type=str,
+                        dest='renumber', default=None,
+                        help='renumber nodes, e.g, 10:1, 11:2 or all')
+
+    parser.add_argument('--stage', type=int,
+                        dest='stage', default=0,
+                        help='select graph analysis stage 0--4')
+
+    parser.add_argument('--sympify', action='store_true',
+                        default=False,
+                        help="remove numerical component values")
 
     parser.add_argument('--voltage-dir', type=str, default=None,
                         dest='voltage_dir',
@@ -211,6 +212,14 @@ def main(argv=None):
 
     parser.add_argument('--style', type=str, default=None,
                         help="set schematic style: 'american', 'british', or 'euoropean'")
+
+    parser.add_argument('--xgraph', action='store_true',
+                        dest='xgraph', default=False,
+                        help="generate graph of component x positions")
+
+    parser.add_argument('--ygraph', action='store_true',
+                        dest='ygraph', default=False,
+                        help="generate graph of component y positions")
 
     args = parser.parse_args()
 
@@ -245,9 +254,15 @@ def main(argv=None):
             part = part.strip()
             fields = part.split(':')
             if len(fields) != 2:
-                raise ValueError('Expecting mapping of form a:b got %s' % part)
+                raise ValueError('Expecting mapping of form a:b, got %s' % part)
             node_map[fields[0]] = fields[1]
         cct = cct.renumber(node_map)
+
+    if args.sympify:
+        cct = cct.sympify()
+
+    if args.remove_node_positions:
+        cct = cct.remove_node_positions()
 
     if args.label_nodes not in ('none', 'all', 'alpha', 'pins', 'primary', False, None):
         raise ValueError('Illegal option %s for label_nodes' %

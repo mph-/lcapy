@@ -1,7 +1,7 @@
 """This module provides the Netlist class.  It could be rolled into
 the Circuit class.
 
-Copyright 2014--2023 Michael Hayes, UCECE
+Copyright 2014--2024 Michael Hayes, UCECE
 
 """
 
@@ -555,6 +555,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         Np, Nm = self._parse_node_args2(Np, Nm)
         Np, Nm = self._check_nodes(Np, Nm)
 
+        # Kill the independent sources
         new = self.kill()
         new._add_ground(Nm)
         new._add_test_current_source(Np, Nm)
@@ -566,20 +567,19 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         a Dirac delta test voltage source across the specified nodes.
         If the netlist is not connected to ground, the negative
         specified node is connected to ground.  The new netlist is
-        returned.
-
-        """
+        returned."""
 
         Np, Nm = self._parse_node_args2(Np, Nm)
         Np, Nm = self._check_nodes(Np, Nm)
 
         new = self.copy()
-        for name in self.cg.across_nodes(Np, Nm):
+        for name in self.across_nodes(Np, Nm):
             if self[name].is_voltage_source:
                 warn('Removing voltage source %s across input nodes %s, %s' %
                      (name, Np, Nm))
                 new.remove(name)
 
+        # Kill the other independent sources
         new = new.kill()
         new._add_ground(Nm)
         new._add_test_voltage_source(Np, Nm)
@@ -680,13 +680,23 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         context = self.context
         return self.__class__(context=context, kind=self.kind)
 
+    def prune(self, name):
+        """Prune specified element by name or elements specified in list.
+        Unlike remove(), this makes a copy of the netlist before
+        removing the specified components.  The updated netlist is
+        returned."""
+
+        new = self.copy()
+        new.remove(name)
+        return new
+
     def remove(self, name):
         """Remove specified element by name or elements specified in list."""
 
         if name is None:
             return self
 
-        if isinstance(name, (list, tuple)):
+        if isinstance(name, (list, tuple, set)):
             for name1 in name:
                 self.remove(name1)
             return self
@@ -702,6 +712,17 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
 
         self._elements.pop(name, None)
         return self
+
+    def remove_node_positions(self):
+        """Remove explicit node positions added by lcapy-tk."""
+
+        new = self._new()
+
+        for cpt in self._elements.values():
+            if cpt.is_directive and 'nodes' in cpt.opts:
+                continue
+            new.add(cpt._copy())
+        return new
 
     def annotate(self, cpts, *args, **kwargs):
         """Annotate a particular component (or list of components)
