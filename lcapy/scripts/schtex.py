@@ -85,6 +85,10 @@ def main(argv=None):
                         default=None,
                         help='label style: aligned, stacked, split, value, or name')
 
+    parser.add_argument('--label-value-style', type=str,
+                        default=None,
+                        help='label value style: eng, sci, or spice')
+
     parser.add_argument('--label-flip', action='store_true',
                         dest='label_flip', default=None,
                         help="flip label position")
@@ -311,6 +315,7 @@ def main(argv=None):
                  method=args.method, voltage_dir=args.voltage_dir,
                  dpi=args.dpi, nosave=nosave,
                  node_label_anchor=args.node_label_anchor,
+                 label_value_style=args.label_value_style,
                  **kwargs)
 
     if args.xgraph:
