@@ -597,7 +597,7 @@ class StateSpaceBase(object):
 
     def subs(self, *args, **kwargs):
         """Return new state space object after substituting variables in A, B,
-        C, D matrices, see sympy.subs for usage.
+        C, D matrices and in u and x0 vectors, see sympy.subs for usage.
 
         """
 
@@ -606,8 +606,11 @@ class StateSpaceBase(object):
         Cnew = self.C.subs(*args, **kwargs)
         Dnew = self.D.subs(*args, **kwargs)
 
+        unew = self._u.subs(*args, **kwargs)
+        x0new = self._x0.subs(*args, **kwargs)
+
         return self.__class__(Anew, Bnew, Cnew, Dnew,
-                              self._u, self._y, self._x, self._x0)
+                              unew, self._y, self._x, x0new)
 
 
 from .symbols import t, s  # nopep8
