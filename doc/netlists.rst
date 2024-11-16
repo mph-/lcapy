@@ -459,46 +459,25 @@ Circuit methods
 - `annotate_currents(cpts)` Produces a new netlist with drawing
   commands to annotate component currents for specified components (see :ref:`annotated_currents`)
 
-- `apply_test_current_source(Np, Nm)` Copies the netlist, kills all
-   the sources, and applies a Dirac delta test current source across
-   the specified nodes.  If the netlist is not connected to ground,
-   the negative specified node is connected to ground.  The new
-   netlist is returned.
+- `apply_test_current_source(Np, Nm)` Copies the netlist, kills all the sources, and applies a Dirac delta test current source across the specified nodes.  If the netlist is not connected to ground, the negative specified node is connected to ground.  The new netlist is returned.
 
-- `apply_test_voltage_source(Np, Nm)` Copies the netlist, kills all
-   the sources, and applies a Dirac delta test voltage source across
-   the specified nodes.  If the netlist is not connected to ground,
-   the negative specified node is connected to ground.  The new
-   netlist is returned.
+- `apply_test_voltage_source(Np, Nm)` Copies the netlist, kills all the sources, and applies a Dirac delta test voltage source across the specified nodes.  If the netlist is not connected to ground, the negative specified node is connected to ground.  The new netlist is returned.
 
-- `branch_currents()` returns an `ExprList` of the branch currents,
-  where each element is `SuperpositionCurrent`.  Thus to get the
-  branch currents in the time-domain:
+- `branch_currents()` returns an `ExprList` of the branch currents, where each element is `SuperpositionCurrent`.  Thus to get the branch currents in the time-domain:
 
       >>> bi = cct.branch_currents()(t)
 
-- `branch_current_names()` returns an `ExprList` of the branch current
-  names.  Each element has the form `i_cptname` for the time-domain
-  and of the form `I_cptname` othwerwise.
+- `branch_current_names()` returns an `ExprList` of the branch current names.  Each element has the form `i_cptname` for the time-domain and of the form `I_cptname` othwerwise.
 
-- `branch_voltages()` returns an `ExprList` of the branch voltages,
-    where each element is `SuperpositionVoltage`.  Thus to get the branch voltages in the Laplace-domain:
+- `branch_voltages()` returns an `ExprList` of the branch voltages, where each element is `SuperpositionVoltage`.  Thus to get the branch voltages in the Laplace-domain:
 
       >>> bV = cct.branch_voltages()(s)
 
-- `branch_voltage_names()` returns an `ExprList` of the branch voltage
-  names.  Each element has the form `i_cptname` for the time-domain
-  and of the form `I_cptname` othwerwise.
+- `branch_voltage_names()` returns an `ExprList` of the branch voltage names.  Each element has the form `i_cptname` for the time-domain and of the form `I_cptname` othwerwise.
 
-- `convert_IVP(t)` Returns a new circuit suitable for solving as an
-  initial value problem.  Any switches in the circuit are evaluated at
-  the specified time `t`.  Note, when solving the IVP, time is
-  referred to when the last switch activated prior to the time
-  specified for `t`.
+- `convert_IVP(t)` Returns a new circuit suitable for solving as an initial value problem.  Any switches in the circuit are evaluated at the specified time `t`.  Note, when solving the IVP, time is referred to when the last switch activated prior to the time specified for `t`.
 
-- `defs(ignore)` Returns a directory of argname-value pair for all
-         components except for components with names specified by
-         `ignore`.  For example,
+- `defs(ignore)` Returns a directory of argname-value pair for all components except for components with names specified by `ignore`.  For example,
 
    >>> cct = Circuit("""
    ... R 1 2 3

@@ -138,7 +138,7 @@ class ExprPrint(object):
         value = expr.sympy
 
         if evalf and value.is_number and eng_format:
-            return value_formatter().latex(value, units)
+            return value_formatter().latex(expr, units)
 
         s = latex(value, **kwargs)
         if show_units and units != '':
@@ -969,7 +969,7 @@ class Expr(UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
         real, imag = val.as_real_imag()
         real = float(real)
         imag = float(imag)
-        if abs(imag / real) > 1e-15:
+        if abs(imag) > 1e-15 * abs(real):
             warn('Discarding imaginary part')
         return real
 

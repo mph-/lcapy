@@ -22,11 +22,12 @@ class ValueFormatter(object):
             except ValueError:
                 raise ValueError('Expected a digit for format, got ' + fmt)
 
-    def _do(self, value, unit, aslatex):
+    def _do(self, expr, unit, aslatex):
 
         prefixes = ('f', 'p', 'n', 'u', 'm', '', 'k', 'M', 'G', 'T')
 
-        value = float(value)
+        # FIXME for complex values
+        value = expr.value
 
         if value == 0:
             return self._fmt('0', unit, '', aslatex)
@@ -72,20 +73,20 @@ class ValueFormatter(object):
 
         return self._fmt(valstr, unit, prefixes[idx], aslatex)
 
-    def latex_math(self, value, unit):
+    def latex_math(self, expr, unit):
         """This is equivalent to the `latex()` method but encloses in $ $."""
 
-        return '$' + self.latex(value, unit) + '$'
+        return '$' + self.latex(expr, unit) + '$'
 
-    def latex(self, value, unit):
+    def latex(self, expr, unit):
         """Make latex string assuming math mode."""
 
-        return self._do(value, unit, aslatex=True)
+        return self._do(expr, unit, aslatex=True)
 
-    def str(self, value, unit):
+    def str(self, expr, unit):
         """Make string."""
 
-        return self._do(value, unit, aslatex=False)
+        return self._do(expr, unit, aslatex=False)
 
 
 class EngValueFormatter(ValueFormatter):
@@ -142,9 +143,10 @@ class SPICEValueFormatter(ValueFormatter):
 
 class SciValueFormatter(ValueFormatter):
 
-    def _do(self, value, unit, aslatex):
+    def _do(self, expr, unit, aslatex):
 
-        value = float(value)
+        # FIXME for complex values
+        value = expr.value
 
         fmt = '%%.%dE' % (self.num_digits - 1)
 
@@ -175,15 +177,15 @@ class SciValueFormatter(ValueFormatter):
 
 class RatfunValueFormatter(ValueFormatter):
 
-    def _do(self, value, unit, aslatex):
+    def _do(self, expr, unit, aslatex):
 
         if not aslatex:
-            return str(value) + ' ' + unit
+            return str(expr) + ' ' + unit
 
         if unit.startswith('$'):
-            return value.latex() + '\\,' + unit[1:-1]
+            return expr.latex() + '\\,' + unit[1:-1]
 
-        return value.latex() + '\\,' + '\\mathrm{' + unit + '}'
+        return expr.latex() + '\\,' + '\\mathrm{' + unit + '}'
 
 
 def value_formatter(style='eng3'):

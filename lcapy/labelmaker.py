@@ -17,10 +17,7 @@ class LabelMaker:
         if not expr.is_constant or units == '':
             return expr.latex_math()
 
-        if style == 'ratfun':
-            value = expr
-
-        return value_formatter(style=style).latex_math(value, units)
+        return value_formatter(style=style).latex_math(expr, units)
 
     def _format_name(self, cpt_type, cpt_id):
 

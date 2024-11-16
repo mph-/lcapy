@@ -2,6 +2,34 @@
 Release notes
 =============
 
+V1.25
+=====
+
+- Note, after this release, the current source direction will reverse to match SPICE
+
+- Fixes state-space analysis for constant independent sources
+
+- Adds `Circuit.sympify()` to strip numerical component values
+
+- Adds `Circuit.defs()` to return dictionary of numerical component values
+
+- Removes independent source for `Circuit.transfer()`
+
+- Adds `Circuit.prune()` to remove specified components
+
+- Adds `inductor_style` schematic attribute
+
+- Adds `label_value_style` schematic attribute for formatting values.  This can be `sci` for scientific notation, `eng` for engineering notation, `spice` for SPICE notation, or `ratfun` for rational functions
+
+- Calculates two-port B-parameters directly
+
+- Supports variable resistors for circuit analysis
+
+- Ignore autoground if ground specified in schematic
+
+- Fixes sign for CCCS
+
+
 V1.24
 =====
 
@@ -65,7 +93,7 @@ V1.23
 V1.22
 =====
 
-- Improves 'Node' infrastructure for lcapy-gui
+- Improves `Node` infrastructure for lcapy-gui
 
 - Handles more Fourier transforms by splitting into partial fractions
 
