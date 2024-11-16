@@ -24,6 +24,18 @@ class ValueFormatter(object):
 
     def _do(self, expr, unit, aslatex):
 
+        if expr.is_complex:
+            jstr = '\mathrm{j}' if aslatex else 'j'
+
+            rexpr = expr.real
+            iexpr = expr.imag
+            if rexpr == 0:
+                return jstr + self._do1(iexpr, unit, aslatex)
+            return self._do1(rexpr, '', aslatex) + ' + ' + jstr + self._do1(iexpr, unit, aslatex)
+        return self._do1(expr, unit, aslatex)
+
+    def _do1(self, expr, unit, aslatex):
+
         prefixes = ('f', 'p', 'n', 'u', 'm', '', 'k', 'M', 'G', 'T')
 
         # FIXME for complex values
@@ -143,9 +155,8 @@ class SPICEValueFormatter(ValueFormatter):
 
 class SciValueFormatter(ValueFormatter):
 
-    def _do(self, expr, unit, aslatex):
+    def _do1(self, expr, unit, aslatex):
 
-        # FIXME for complex values
         value = expr.value
 
         fmt = '%%.%dE' % (self.num_digits - 1)
@@ -177,7 +188,7 @@ class SciValueFormatter(ValueFormatter):
 
 class RatfunValueFormatter(ValueFormatter):
 
-    def _do(self, expr, unit, aslatex):
+    def _do1(self, expr, unit, aslatex):
 
         if not aslatex:
             return str(expr) + ' ' + unit

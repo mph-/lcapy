@@ -14,7 +14,7 @@ class LabelMaker:
     def _format_value_units(self, value, units, style):
 
         expr = Expr(value, cache=False)
-        if not expr.is_constant or units == '':
+        if not expr.is_constant:
             return expr.latex_math()
 
         return value_formatter(style=style).latex_math(expr, units)
