@@ -79,6 +79,9 @@ class LabelMaker:
                 # The user will have to override manually.
                 expr = cpt.args[1]
                 value_label = self._format_expr(expr)
+            elif cpt.name == 'I':
+                # Hack for current source called I
+                value_label = self._format_expr(expr)
             elif cpt.classname not in ('TP',):
 
                 if cpt.type in units_map:
