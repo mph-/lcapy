@@ -36,9 +36,15 @@ class NetfileMixin(object):
 
     def _include(self, string):
 
-        parts = string.split(' ')
-        if len(parts) < 2 or parts[0] != '.include':
+        from re import match
+
+        pattern = r'(\.include)\s+(.+?)\s+(as)\s+(\w+)'
+        matches = match(pattern, string)
+        if matches:
+            parts = list(matches.groups())
+        else:
             raise ValueError('Expecting include filename in %s' % string)
+
         filename = parts[1]
         if len(parts) == 2:
             return self._netfile_add(filename, self.namespace)
