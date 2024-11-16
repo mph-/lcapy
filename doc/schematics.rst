@@ -1518,24 +1518,13 @@ Label value style
 
 Label values are formatted according to the `label_value_style`
 attribute.  The default is `eng3` which uses an engineering format
-with a maximum of three digits.  Other formats include 'spice' and
-`sci` (scientific).
+with a maximum of three digits.  Other formats include `spice`,
+`sci` (scientific), and `ratfun` (rational functions).
 
-Here's an example with `label_value_style=sci2`:
+Here's an example showing the different formats:
 
-.. image:: examples/schematics/VRLC1-sci2.png
-   :width: 7cm
-
-Here's an example with `label_value_style=eng`:
-
-.. image:: examples/schematics/VRLC1-eng.png
-   :width: 7cm
-
-Here's an example with `label_value_style=spice`:
-
-.. image:: examples/schematics/VRLC1-spice.png
-   :width: 7cm
-
+.. image:: examples/schematics/label_value_style.png
+   :width: 12cm
 
 
 .. _label_placement:

@@ -552,7 +552,8 @@ class Schematic(NetfileMixin):
         kwargs include:
            'label_ids': True to show component ids
            'label_values': True to display component values
-           'label_value_style': 'eng3' for SI; 'spice3' for SPICE
+           "label_value_style': 'eng' for engineering (SI); 'sci' for scientific;
+                                'ratfun' for rational function; 'spice' for SPICE"
            'label_delimiter': Delimiter between component name and value
            'label_flip': Place label on other side of component
            'annotate_values': True to display component values as separate label

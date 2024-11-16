@@ -8,18 +8,26 @@ from math import floor, log10
 
 class ValueFormatter(object):
 
-    def __init__(self, trim=True, hundreds=False, num_digits=3):
+    def __init__(self, trim=True, hundreds=False, fmt=''):
         """If `hundreds` True format like 100 pF rather than 0.1 nF"""
 
         self.trim = trim
         self.hundreds = hundreds
-        self.num_digits = num_digits
+
+        if fmt == '':
+            self.num_digits = 3
+        else:
+            try:
+                self.num_digits = int(fmt)
+            except ValueError:
+                raise ValueError('Expected a digit for format, got ' + fmt)
 
     def _do(self, value, unit, aslatex):
 
         prefixes = ('f', 'p', 'n', 'u', 'm', '', 'k', 'M', 'G', 'T')
 
-        value = value
+        value = float(value)
+
         if value == 0:
             return self._fmt('0', unit, '', aslatex)
 
@@ -29,12 +37,19 @@ class ValueFormatter(object):
             if not self.hundreds:
                 m += 1
             n = int(floor(m / 3))
-            k = int(floor(m)) - n * 3
         else:
             n = 0
-            k = m - 1
 
-        dp = self.num_digits - k
+        # value       m   n
+        # 3141592   6.5   2
+        # 314159.   5.5   1
+        # 31415.9   4.5   1
+        # 3141.59   3.5   1
+        # 314.159   2.5   0
+        # 31.4159   1.5   0
+        # 3.14159   0.5   0
+        # .314159  -0.5   0
+        # .0314159 -1.5  -1
 
         idx = n + 5
         # Handle extremely large or small values without a prefix
@@ -43,13 +58,13 @@ class ValueFormatter(object):
         elif idx >= len(prefixes):
             return self._fmt('%e' % value, unit, '', aslatex)
 
-        if dp < 0:
-            dp = 0
-        fmt = '%%.%df' % dp
+        svalue = value * 10**(-3 * n)
 
-        value = value * 10**(-3 * n)
+        # Round to num_digits
+        scale = 10 ** (self.num_digits - 1 - floor(log10(abs(svalue))))
+        rvalue = round(svalue * scale) / scale
 
-        valstr = fmt % value
+        valstr = str(rvalue)
 
         if self.trim:
             # Remove trailing zeroes after decimal point
@@ -129,6 +144,8 @@ class SciValueFormatter(ValueFormatter):
 
     def _do(self, value, unit, aslatex):
 
+        value = float(value)
+
         fmt = '%%.%dE' % (self.num_digits - 1)
 
         valstr = fmt % value
@@ -156,23 +173,30 @@ class SciValueFormatter(ValueFormatter):
         return valstr + '\\,' + '\\mathrm{' + unit + '}'
 
 
+class RatfunValueFormatter(ValueFormatter):
+
+    def _do(self, value, unit, aslatex):
+
+        if not aslatex:
+            return str(value) + ' ' + unit
+
+        if unit.startswith('$'):
+            return value.latex() + '\\,' + unit[1:-1]
+
+        return value.latex() + '\\,' + '\\mathrm{' + unit + '}'
+
+
 def value_formatter(style='eng3'):
 
     style = style.lower()
 
-    # Split into style and num
-    num = 3
-    for m in range(len(style)):
-        if style[m].isdigit():
-            num = int(style[m:])
-            style = style[0:m]
-            break
-
-    if style == 'eng':
-        return EngValueFormatter(num_digits=num)
-    elif style == 'spice':
-        return SPICEValueFormatter(num_digits=num)
-    elif style == 'sci':
-        return SciValueFormatter(num_digits=num)
+    if style.startswith('eng'):
+        return EngValueFormatter(fmt=style[3:])
+    elif style.startswith('spice'):
+        return SPICEValueFormatter(fmt=style[5:])
+    elif style.startswith('sci'):
+        return SciValueFormatter(fmt=style[3:])
+    elif style.startswith('ratfun'):
+        return RatfunValueFormatter(fmt='')
     else:
         raise ValueError('Unknown style: ' + style)
