@@ -4,6 +4,7 @@ This module converts values into engineering format.
 Copyright 2021--2024 Michael Hayes, UCECE
 """
 from math import floor, log10
+from sympy import re, im
 from .printing import latex
 
 
@@ -25,13 +26,18 @@ class ValueFormatter(object):
 
     def _do(self, expr, unit, aslatex):
 
+        try:
+            expr = expr.sympy
+        except AttributeError:
+            pass
+
         if not expr.is_complex:
             return self._do1(expr, unit, aslatex)
 
         jstr = '\mathrm{j}' if aslatex else 'j'
 
-        rexpr = expr.real
-        iexpr = expr.imag
+        rexpr = re(expr)
+        iexpr = im(expr)
         istr = self._do1(iexpr, unit, aslatex)
         if rexpr == 0:
             if iexpr == 1:
@@ -48,7 +54,7 @@ class ValueFormatter(object):
 
         prefixes = ('f', 'p', 'n', 'u', 'm', '', 'k', 'M', 'G', 'T')
 
-        value = expr.value
+        value = float(expr)
 
         if value == 0:
             return self._fmt('0', unit, '', aslatex)
@@ -166,7 +172,7 @@ class SciValueFormatter(ValueFormatter):
 
     def _do1(self, expr, unit, aslatex):
 
-        value = expr.value
+        value = float(expr)
 
         fmt = '%%.%dE' % (self.num_digits - 1)
 
@@ -208,7 +214,7 @@ class RatfunValueFormatter(ValueFormatter):
             else:
                 return str(expr) + ' ' + unit
 
-        valstr = latex(expr.sympy)
+        valstr = latex(expr)
         if unit == '':
             return valstr
 
@@ -222,10 +228,15 @@ class SympyValueFormatter(ValueFormatter):
 
     def _do(self, expr, unit, aslatex):
 
+        try:
+            expr = expr.sympy
+        except AttributeError:
+            pass
+
         if aslatex:
-            return latex(expr.sympy)
+            return latex(expr)
         else:
-            return str(expr.sympy)
+            return str(expr)
 
 
 def value_formatter(style='eng3'):
