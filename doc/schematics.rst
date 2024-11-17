@@ -1518,8 +1518,9 @@ Label value style
 
 Label values are formatted according to the `label_value_style`
 attribute.  The default is `eng3` which uses an engineering format
-with a maximum of three digits.  Other formats include `spice`,
-`sci` (scientific), and `ratfun` (rational functions).
+with a maximum of three digits.  Other formats include `spice`, `sci`
+(scientific), and `ratfun` (rational functions), and `sympy`, see
+:ref:`Number formatting`.
 
 Here's an example showing the different formats:
 

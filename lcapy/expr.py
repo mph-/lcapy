@@ -112,13 +112,22 @@ class ExprPrint(object):
         """Pretty print string with LHS name."""
         print(self.prettyans(name, **kwargs))
 
-    def latex(self, style='eng6', show_units=False, **kwargs):
-        """Make LaTeX string assuming math mode."""
+    def latex(self, style='sympy', show_units=False, **kwargs):
+        """Make LaTeX string assuming math mode.
+
+        `style` can be 'eng', 'ratfun', 'sci', 'spice', or 'sympy' (default).
+        The number of significant digits is specified by an optional suffix,
+        e.g., `eng4` (default 3)."""
+
         return self.latex_with_units(style=style, show_units=show_units, **kwargs)
 
-    def latex_with_units(self, style='eng6', show_units=True, **kwargs):
+    def latex_with_units(self, style='sympy', show_units=True, **kwargs):
         """Make LaTeX string with optional units.   Units are only
-        shown for numerical values."""
+        shown for numerical values.
+
+        `style` can be 'eng', 'ratfun', 'sci', 'spice', or 'sympy' (default).
+        The number of significant digits is specified by an optional suffix,
+        e.g., `eng4` (default 3)."""
 
         from .valueformatter import value_formatter
 

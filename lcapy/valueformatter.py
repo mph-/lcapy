@@ -218,11 +218,25 @@ class RatfunValueFormatter(ValueFormatter):
         return valstr + '\\,' + '\\mathrm{' + unit + '}'
 
 
+class SympyValueFormatter(ValueFormatter):
+
+    def _do(self, expr, unit, aslatex):
+
+        if aslatex:
+            return latex(expr.sympy)
+        else:
+            return str(expr.sympy)
+
+
 def value_formatter(style='eng3'):
+    """Return ValueFormatter class for style in 'sympy', 'eng', 'sci', 'spice',
+    or 'ratfun'"""
 
     style = style.lower()
 
-    if style.startswith('eng'):
+    if style.startswith('sympy'):
+        return SympyValueFormatter(fmt='')
+    elif style.startswith('eng'):
         return EngValueFormatter(fmt=style[3:])
     elif style.startswith('spice'):
         return SPICEValueFormatter(fmt=style[5:])
