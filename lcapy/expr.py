@@ -112,21 +112,17 @@ class ExprPrint(object):
         """Pretty print string with LHS name."""
         print(self.prettyans(name, **kwargs))
 
-    def latex(self, **kwargs):
-        """Make latex string assuming math mode."""
-        return latex(self._pexpr, **kwargs)
+    def latex(self, style='eng6', show_units=False, **kwargs):
+        """Make LaTeX string assuming math mode."""
+        return self.latex_with_units(style=style, show_units=show_units, **kwargs)
 
-    def latex_with_units(self, eng_format=False, show_units=True,
-                         evalf=True, num_digits=3, **kwargs):
+    def latex_with_units(self, style='eng6', show_units=True, **kwargs):
         """Make LaTeX string with optional units.   Units are only
         shown for numerical values."""
 
         from .valueformatter import value_formatter
 
         expr = self
-
-        if evalf:
-            expr = expr.evalf(num_digits)
 
         if show_units and expr.is_number:
             units = str(expr.units)
@@ -135,11 +131,10 @@ class ExprPrint(object):
         else:
             units = ''
 
+        if expr.is_number:
+            return value_formatter(style=style).latex(expr, units)
+
         value = expr.sympy
-
-        if evalf and value.is_number and eng_format:
-            return value_formatter().latex(expr, units)
-
         s = latex(value, **kwargs)
         if show_units and units != '':
             s += '\\,\\mathrm{' + units + '}'

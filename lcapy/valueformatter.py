@@ -4,6 +4,7 @@ This module converts values into engineering format.
 Copyright 2021--2024 Michael Hayes, UCECE
 """
 from math import floor, log10
+from .printing import latex
 
 
 class ValueFormatter(object):
@@ -24,21 +25,29 @@ class ValueFormatter(object):
 
     def _do(self, expr, unit, aslatex):
 
-        if expr.is_complex:
-            jstr = '\mathrm{j}' if aslatex else 'j'
+        if not expr.is_complex:
+            return self._do1(expr, unit, aslatex)
 
-            rexpr = expr.real
-            iexpr = expr.imag
-            if rexpr == 0:
-                return jstr + self._do1(iexpr, unit, aslatex)
-            return self._do1(rexpr, '', aslatex) + ' + ' + jstr + self._do1(iexpr, unit, aslatex)
-        return self._do1(expr, unit, aslatex)
+        jstr = '\mathrm{j}' if aslatex else 'j'
+
+        rexpr = expr.real
+        iexpr = expr.imag
+        istr = self._do1(iexpr, unit, aslatex)
+        if rexpr == 0:
+            if iexpr == 1:
+                return jstr
+            return jstr + istr
+
+        rstr = self._do1(rexpr, '', aslatex)
+        istr = self._do1(iexpr, unit, aslatex)
+        if iexpr == 1:
+            istr = istr[1:]
+        return rstr + ' + ' + jstr + istr
 
     def _do1(self, expr, unit, aslatex):
 
         prefixes = ('f', 'p', 'n', 'u', 'm', '', 'k', 'M', 'G', 'T')
 
-        # FIXME for complex values
         value = expr.value
 
         if value == 0:
@@ -180,6 +189,9 @@ class SciValueFormatter(ValueFormatter):
                 exp = '-' + exp[2]
             valstr = parts[0] + '\\times 10^{' + exp + '}'
 
+        if unit == '':
+            return valstr
+
         if unit.startswith('$'):
             return valstr + '\\,' + unit[1:-1]
 
@@ -191,12 +203,19 @@ class RatfunValueFormatter(ValueFormatter):
     def _do1(self, expr, unit, aslatex):
 
         if not aslatex:
-            return str(expr) + ' ' + unit
+            if unit == '':
+                return str(expr)
+            else:
+                return str(expr) + ' ' + unit
+
+        valstr = latex(expr.sympy)
+        if unit == '':
+            return valstr
 
         if unit.startswith('$'):
-            return expr.latex() + '\\,' + unit[1:-1]
+            return valstr + '\\,' + unit[1:-1]
 
-        return expr.latex() + '\\,' + '\\mathrm{' + unit + '}'
+        return valstr + '\\,' + '\\mathrm{' + unit + '}'
 
 
 def value_formatter(style='eng3'):

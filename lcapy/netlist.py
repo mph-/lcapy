@@ -360,8 +360,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         return self.select(omega)
 
     def annotate_currents(self, cpts=None, domainvar=None, flow=False,
-                          eng_format=True, evalf=True, num_digits=3,
-                          show_units=True, pos=''):
+                          style='eng4', show_units=True, pos=''):
         """Annotate specified list of component names `cpts` with current (or
         flow).
 
@@ -370,16 +369,14 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
 
         `flow` (default False) if True annotates current as a flow
 
-        `eng_format` (default True) if True use engineering format if
-        the current is a number, e.g., 100\, mV instead of 0.1\, V
-
-        `evalf` (default True) if True prints floating point
-        numbers as decimals otherwise they are shown as rationals
+        `style` (default 'eng4') specifies numerical format (eng,
+        'ratfun', 'sci', 'spice')
 
         `show_units` (default True) if True applies the units(e.g.,
         V for volts)
 
         `pos` specifies where to position the labels(see docs)
+
         """
 
         cct = self.copy()
@@ -405,15 +402,14 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
                     I = I.evalf(num_digits)
                 net += ', ' if ';' in net else '; '
                 net += ', %s={$%s$}' % (label, I.latex_with_units(
-                    eng_format=eng_format, evalf=evalf, num_digits=num_digits, show_units=show_units))
+                    style=style, show_units=show_units))
             new.add(net)
         if groundwire is not None:
             new.remove(groundwire.name)
         return new
 
     def annotate_voltages(self, cpts=None, domainvar=None,
-                          eng_format=True, evalf=True, num_digits=3,
-                          show_units=True, pos=''):
+                          style='eng4', show_units=True, pos=''):
         """Annotate specified list of component names `cpts` with voltage.
 
         `domainvar` specifies the domain to calculate the voltages for
@@ -421,11 +417,8 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
 
         `pos` specifies where to position the labels, see docs
 
-        `eng_format` (default True) if True use engineering format if
-        the voltage is a number, e.g., 100\, mV instead of 0.1\, V
-
-        `evalf` (default True) if True prints floating point
-        numbers as decimals otherwise they are shown as rationals
+        `style` (default 'eng4') specifies numerical format (eng,
+        'ratfun', 'sci', 'spice')
 
         `show_units` (default True) if True applies the units(e.g.,
         V for volts)
@@ -453,8 +446,8 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
                 if evalf:
                     V = V.evalf(num_digits)
                 net += ', ' if ';' in net else '; '
-                net += 'v%s={$%s$}' % (pos, V.latex_with_units(eng_format=eng_format,
-                                       evalf=evalf, num_digits=num_digits, show_units=show_units))
+                net += 'v%s={$%s$}' % (pos, V.latex_with_units(style=style,
+                                                               show_units=show_units))
             new.add(net)
         if groundwire is not None:
             new.remove(groundwire.name)

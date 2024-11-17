@@ -19,6 +19,8 @@ V1.25
 
 - Adds `inductor_style` schematic attribute
 
+- Supports printing of complex component values
+
 - Adds `label_value_style` schematic attribute for formatting values.  This can be `sci` for scientific notation, `eng` for engineering notation, `spice` for SPICE notation, or `ratfun` for rational functions
 
 - Calculates two-port B-parameters directly
