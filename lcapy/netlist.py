@@ -369,8 +369,8 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
 
         `flow` (default False) if True annotates current as a flow
 
-        `style` (default 'eng4') specifies numerical format (eng,
-        'ratfun', 'sci', 'spice')
+        `style` (default 'eng4') specifies numerical format ('eng',
+        'ratfun', 'sci', 'spice', 'sympy')
 
         `show_units` (default True) if True applies the units(e.g.,
         V for volts)
@@ -398,8 +398,6 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
             net = cpt._copy()
             if cpt.name in cpts:
                 I = cpt.I(domainvar)
-                if evalf:
-                    I = I.evalf(num_digits)
                 net += ', ' if ';' in net else '; '
                 net += ', %s={$%s$}' % (label, I.latex_with_units(
                     style=style, show_units=show_units))
@@ -417,8 +415,8 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
 
         `pos` specifies where to position the labels, see docs
 
-        `style` (default 'eng4') specifies numerical format (eng,
-        'ratfun', 'sci', 'spice')
+        `style` (default 'eng4') specifies numerical format ('eng',
+        'ratfun', 'sci', 'spice', 'sympy')
 
         `show_units` (default True) if True applies the units(e.g.,
         V for volts)
@@ -443,8 +441,6 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
             net = cpt._copy()
             if cpt.name in cpts:
                 V = cpt.V(domainvar)
-                if evalf:
-                    V = V.evalf(num_digits)
                 net += ', ' if ';' in net else '; '
                 net += 'v%s={$%s$}' % (pos, V.latex_with_units(style=style,
                                                                show_units=show_units))

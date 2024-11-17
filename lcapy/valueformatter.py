@@ -31,7 +31,7 @@ class ValueFormatter(object):
         except AttributeError:
             pass
 
-        if not expr.is_complex:
+        if expr.is_real:
             return self._do1(expr, unit, aslatex)
 
         jstr = '\mathrm{j}' if aslatex else 'j'
@@ -256,4 +256,5 @@ def value_formatter(style='eng3'):
     elif style.startswith('ratfun'):
         return RatfunValueFormatter(fmt='')
     else:
-        raise ValueError('Unknown style: ' + style)
+        raise ValueError('Unknown style: ' + style + \
+                         '. Known styles: eng, ratfun, sci, spice, sympy' )

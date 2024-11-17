@@ -132,21 +132,20 @@ class ExprPrint(object):
         from .valueformatter import value_formatter
 
         expr = self._pexpr
-
-        if show_units and expr.is_number:
-            units = str(expr.units)
-            if units == '1':
+        try:
+            if show_units and expr.is_number:
+                units = str(expr.units)
+                if units == '1':
+                    units = ''
+            else:
                 units = ''
-        else:
-            units = ''
 
-        if expr.is_number:
-            return value_formatter(style=style).latex(expr, units)
+            if expr.is_number:
+                return value_formatter(style=style).latex(expr, units)
+        except AttributeError:
+            pass
 
-        s = latex(expr, **kwargs)
-        if show_units and units != '':
-            s += '\\,\\mathrm{' + units + '}'
-        return s
+        return latex(expr, **kwargs)
 
     def latex_math(self, **kwargs):
         """This is equivalent to the `latex()` method but encloses in $ $."""
