@@ -16,7 +16,7 @@ def resistance(arg, **assumptions):
     Z(omega) = R(omega) + j * X(omega)"""
 
     expr1 = expr(arg, frequency=True, **assumptions)
-    if expr1.is_imaginary:
+    if expr1.is_complex:
         warn('Resistance %s should be real' % expr1)
 
     expr1.units = uu.ohms
