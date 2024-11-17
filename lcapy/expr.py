@@ -131,7 +131,7 @@ class ExprPrint(object):
 
         from .valueformatter import value_formatter
 
-        expr = self
+        expr = self._pexpr
 
         if show_units and expr.is_number:
             units = str(expr.units)
@@ -143,8 +143,7 @@ class ExprPrint(object):
         if expr.is_number:
             return value_formatter(style=style).latex(expr, units)
 
-        value = expr.sympy
-        s = latex(value, **kwargs)
+        s = latex(expr, **kwargs)
         if show_units and units != '':
             s += '\\,\\mathrm{' + units + '}'
         return s
