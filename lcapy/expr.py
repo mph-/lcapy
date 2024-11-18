@@ -135,7 +135,7 @@ class ExprPrint(object):
 
         try:
             if not self.is_number:
-                return latex(self._psexpr, **kwargs)
+                return latex(self._pexpr, **kwargs)
         except AttributeError:
             return latex(self._pexpr, **kwargs)
 
