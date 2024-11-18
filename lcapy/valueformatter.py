@@ -31,6 +31,9 @@ class ValueFormatter(object):
         except AttributeError:
             pass
 
+        if unit == 'ohm':
+            unit = '$\Omega$'
+
         if expr.is_real:
             return self._do1(expr, unit, aslatex)
 
