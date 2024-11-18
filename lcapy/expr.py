@@ -112,40 +112,49 @@ class ExprPrint(object):
         """Pretty print string with LHS name."""
         print(self.prettyans(name, **kwargs))
 
-    def latex(self, style='sympy', show_units=False, **kwargs):
+    def latex(self, style='sympy', show_units=None, **kwargs):
         """Make LaTeX string assuming math mode.
 
-        `style` can be 'eng', 'ratfun', 'sci', 'spice', or 'sympy' (default).
-        The number of significant digits is specified by an optional suffix,
-        e.g., `eng4` (default 3)."""
+        For numerical values `style` can be 'eng', 'ratfun', 'sci',
+        'spice', or 'sympy' (default).  The number of significant
+        digits is specified by an optional suffix, e.g., `eng4`
+        (default 3)."""
 
         return self.latex_with_units(style=style, show_units=show_units, **kwargs)
 
-    def latex_with_units(self, style='sympy', show_units=True, **kwargs):
+    def latex_with_units(self, style='sympy', show_units=None, **kwargs):
         """Make LaTeX string with optional units.   Units are only
         shown for numerical values.
 
-        `style` can be 'eng', 'ratfun', 'sci', 'spice', or 'sympy' (default).
-        The number of significant digits is specified by an optional suffix,
-        e.g., `eng4` (default 3)."""
+        For numerical values, `style` can be 'eng', 'ratfun', 'sci',
+        'spice', or 'sympy' (default).  The number of significant
+        digits is specified by an optional suffix, e.g., `eng4`
+        (default 3)."""
 
         from .valueformatter import value_formatter
 
-        expr = self._pexpr
         try:
-            if show_units and expr.is_number:
-                units = str(expr.units)
-                if units == '1':
-                    units = ''
-            else:
-                units = ''
-
-            if expr.is_number:
-                return value_formatter(style=style).latex(expr, units)
+            if not self.is_number:
+                return latex(self._psexpr, **kwargs)
         except AttributeError:
-            pass
+            return latex(self._pexpr, **kwargs)
 
-        return latex(expr, **kwargs)
+        if show_units is None:
+            show_units = state.show_units
+
+        units = ''
+        if show_units:
+            units = str(self.units)
+        if units == '1':
+            units = ''
+
+        if style == 'sympy' and show_units:
+            # Do we really want to do this; SymPy formats things weirdly
+            expr = self.expr_with_units
+        else:
+            expr = self.expr
+
+        return value_formatter(style=style).latex(expr, units)
 
     def latex_math(self, **kwargs):
         """This is equivalent to the `latex()` method but encloses in $ $."""
@@ -739,6 +748,7 @@ class Expr(UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
 
     def __str__(self, printer=None):
         """String representation of expression."""
+
         return print_str(self._pexpr)
 
     def __repr__(self):

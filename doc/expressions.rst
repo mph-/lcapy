@@ -1557,19 +1557,19 @@ There are a number of global printing options, controlled by attributes of the `
 Number formatting
 -----------------
 
-Numbers can be printed in a number of different styles.
+Numbers can be printed in a number of different styles, see `latex()`:
 
-- `'eng'` engineering notation
+- `'eng'` engineering notation, e.g., :math:`3.14\,\mathrm{k}\Omega`
 
-- `'ratfun'` as a rational function
+- `'ratfun'` as a rational function, e.g., :math:`\frac{62831853}{20000}\,\Omega`
 
-- `'sci'` scientific notation
+- `'sci'` scientific notation, e.g., :math:`3.14\times 10^{3}\,\Omega`
 
-- `'spice'` SPICE notation
+- `'spice'` SPICE notation, e.g., :math:`3.14\,\mathrm{K}`
 
-- `'sympy'` SymPy's style
+- `'sympy'` SymPy's style, e.g., :math:`\frac{62831853\Omega}{20000}`
 
-The `'eng'`, `'sci'`, and `'spice'` styles have an optional numeric suffix to specify the number of significant figures.
+The `'eng'`, `'sci'`, and `'spice'` styles have an optional numeric suffix to specify the number of significant figures.  The default is 3.
 
 
 SymPy methods
