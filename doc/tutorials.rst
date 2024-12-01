@@ -273,7 +273,7 @@ The following netlist describes a first-order RC low-pass filter (the
     ... W 0 0_2; right
     ... W 2 3; right
     ... W 0_2 0_3; right
-    ... P2 3 0_3; down, v^=v_o(t)"""
+    ... P2 3 0_3; down, v^=v_o(t)""")
     >>> a.draw()
 
 .. image:: examples/tutorials/basic/VRC2.png
