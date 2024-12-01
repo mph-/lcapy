@@ -180,7 +180,7 @@ AC (phasor) analysis of RC circuit
 
 Consider the circuit defined by::
 
-    >>> from lcapy import Circuit
+    >>> from lcapy import Circuit, t, omega0
     >>> a = Circuit("""
     ... V 1 0 ac 6; down=1.5
     ... R 1 2 2; right=1.5
