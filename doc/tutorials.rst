@@ -265,7 +265,8 @@ Laplace analysis of RC low-pass filter
 The following netlist describes a first-order RC low-pass filter (the
 `P` components define the input and output ports)::
 
-    >>> from lcapy import Circuit
+    >>> import matplotlib.pyplot as plt
+    >>> from lcapy import Circuit,voltage,sin,u,s,t,jw
     >>> a = Circuit("""
     ... P1 1 0; down=1.5, v_=v_i(t)
     ... R 1 2 2; right=1.5
@@ -366,8 +367,9 @@ Here the phase delay is `-pi/2 + atan(2/3)` or about -56 degrees::
 The input and output signals can be plotted using::
 
    >>> ax = v_i.plot((-1, 10), label='input')
-   >>> ax = v_o.plot((-1, 10), axes=as, label='output')
+   >>> ax = v_o.plot((-1, 10), axes=ax, label='output')
    >>> ax.legend()
+   >>> plt.show()
 
 .. image:: examples/tutorials/basic/VRC2plot.png
    :width: 12cm
@@ -377,6 +379,7 @@ Notice the effect of the transient at the start before the response tends to the
 The phase response of the filter can be plotted as follows::
 
   >>> H(jw).phase_degrees.plot((0, 10))
+  >>> plt.show()
 
 .. image:: examples/tutorials/basic/VRC2Hphaseplot.png
    :width: 12cm
@@ -386,6 +389,7 @@ Notice that the phase shift is -56 degrees at an angular frequency of 3 rad/s.
 The amplitude response of the filter can be plotted as follows::
 
   >>> H(jw).magnitude.plot((0, 10))
+  >>> plt.show()
 
 .. image:: examples/tutorials/basic/VRC2Hmagplot.png
    :width: 12cm
@@ -394,6 +398,7 @@ For a Bode plot, the angular frequency is plotted on a logarithmic
 scale and the amplitude response is plotted in dB::
 
   >>> H(jw).dB.plot((0, 10), log_frequency=True)
+  >>> plt.show()
 
 .. image:: examples/tutorials/basic/VRC2HdBplot.png
    :width: 12cm
