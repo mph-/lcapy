@@ -266,7 +266,7 @@ The following netlist describes a first-order RC low-pass filter (the
 `P` components define the input and output ports)::
 
     >>> import matplotlib.pyplot as plt
-    >>> from lcapy import Circuit,voltage,sin,u,s,t,jw
+    >>> from lcapy import Circuit, voltage, sin, u, s, t, jw
     >>> a = Circuit("""
     ... P1 1 0; down=1.5, v_=v_i(t)
     ... R 1 2 2; right=1.5
