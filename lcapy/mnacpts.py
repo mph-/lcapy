@@ -857,10 +857,10 @@ class Cpt(ImmittanceMixin):
         open-circuit component."""
 
         dummy_node = self._dummy_node()
-        net = self._netmake((dummy_node, ) + self.relnodes[1:])
+        net = self._netmake((dummy_node, ) + tuple(self.relnodes[1:]))
         self.cct.remove(self.name)
         self.cct.add(net)
-        self.cct.add('O? %s %s' % (self.relnodes[0], dummy_node))
+        self.cct.add('O? %s %s' % (self.relnodes[0].name, dummy_node.name))
         return self.cct.last_added()
 
     def short_circuit(self):
