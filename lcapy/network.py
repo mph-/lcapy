@@ -334,15 +334,27 @@ class Network(object):
 
         return self.Z(s).network(form)
 
-    def subs(self, subs_dict):
-        """Substitute values using dictionary of substitutions.
+    def subs(self, *args, **kwargs):
+        """Substitute symbols in the network.
 
-        For example, b = a.subs({'R1': 1e3, 'R2': 9e3})"""
+        `args` is either:
+        - two arguments, e.g. foo.subs(old, new)
+        - one iterable argument, e.g. foo.subs(iterable). The iterable may be
+           o an iterable container with (old, new) pairs. In this case the
+             replacements are processed in the order given with successive
+             patterns possibly affecting replacements already made.
+           o a dict or set whose key/value items correspond to old/new pairs.
+
+        For example, b = a.subs({'R1': 1e3, 'R2': 9e3})
+
+        The domain of the result can be coerced using `domain` argument."""
+
+    def subs(self, *args, **kwargs):
 
         if not self.is_parallel and not self.is_series:
-            return self.__class__(*[str(expr(arg).subs(subs_dict)) for arg in self.args])
+            return self.__class__(*[str(expr(arg).subs(*args, **kwargs)) for arg in self.args])
 
-        return self.__class__(*[arg.subs(subs_dict) for arg in self.args])
+        return self.__class__(*[arg.subs(*args, **kwargs) for arg in self.args])
 
     def noisy(self, T='T'):
         """Create noisy network model by replacing resistances with a series
