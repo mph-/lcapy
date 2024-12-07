@@ -587,7 +587,7 @@ def plot_bode(obj, f, phase='radians', **kwargs):
         else:
             raise ValueError("phase must be 'radians', 'degrees', or None")
 
-    return plot_frequency(obj, f, log_magnitude=True, **kwargs)
+    return plot_frequency(obj, f, log_magnitude=False, **kwargs)
 
 
 def plot_angular_bode(obj, f, **kwargs):
