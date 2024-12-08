@@ -493,7 +493,9 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         return LTIFilter.from_transfer_function(self, normalize_a0)
 
     def dlti_filter(self, method='bilinear', alpha=0.5):
-        """Create DLTI filter using bilinear transform."""
+        """Create DLTI filter using bilinear transform.
+
+        See `discretize` for available methods."""
 
         from .transfer import transfer
 
@@ -763,6 +765,8 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         `alpha`, 'euler', 'forward-diff', 'forward-euler'
         'backward-diff', 'backward-euler' 'simpson', 'matched-Z',
         'zero-pole-matching'
+
+        See also `dlti_filter`.
 
         """
 

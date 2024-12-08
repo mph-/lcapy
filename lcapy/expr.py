@@ -1701,6 +1701,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         If `commutate` is True, swap order of functions in integral.
 
+        `taumin` defaults to -oo and `taumax` defaults to oo.  These
+        are relaxed if either or both of the expressions are causal.
+
         The result is an unevaluated integral.  It can be evaluated using
         the `doit()` method.
 

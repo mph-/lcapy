@@ -369,6 +369,7 @@ The input and output signals can be plotted using::
    >>> ax = v_i.plot((-1, 10), label='input')
    >>> ax = v_o.plot((-1, 10), axes=ax, label='output')
    >>> ax.legend()
+   >>> # Note, the show() method is not required when using IPython or Jupyter
    >>> plt.show()
 
 .. image:: examples/tutorials/basic/VRC2plot.png
