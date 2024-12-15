@@ -83,12 +83,14 @@ class MNA(object):
 
         # Determine which branch currents are needed.
         self.unknown_branch_currents = []
+        self.extra_branch_currents = []
 
         for elt in self.cct.elements.values():
             if elt.need_branch_current:
                 self.unknown_branch_currents.append(elt.name)
             if elt.need_extra_branch_current:
                 self.unknown_branch_currents.append(elt.name + 'X')
+                self.extra_branch_currents.append(elt.name + 'X')
             if elt.is_current_controlled:
                 cname = elt.args[0]
                 if cname not in self.cct.elements:
@@ -255,8 +257,13 @@ class MNA(object):
         # Create dictionary of branch currents through elements
         self._Idict = Branchdict()
         for m, key in enumerate(self.unknown_branch_currents):
-            I = current_sign(
-                results[m + num_nodes], cct.elements[key].is_source)
+
+            if key in self.extra_branch_currents:
+                is_source = False
+            else:
+                is_source = cct.elements[key].is_source
+
+            I = current_sign(results[m + num_nodes], is_source)
             self._Idict[key] = itype(I, **assumptions)
 
         # Calculate the branch currents.  These should be lazily

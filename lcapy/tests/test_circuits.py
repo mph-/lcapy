@@ -927,3 +927,20 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(cct.AM.I, 2, 'ammeter current')
         self.assertEqual(cct.AM.V, 0, 'ammeter voltage')
+
+    def test_gyrator(self):
+
+        cct = Circuit("""
+        P1 1 0 ; down, v_=v_1
+        GY1 4 5 1 0 R; right
+        R2 4 5; down
+        W 5 0_2 ; down=0.25
+        W 0 0_1; down=0.25
+        W 0_1 0_2; right
+        """)
+
+        self.assertEqual(cct.impedance('P1'), impedance('R**2/R2'),
+                         'gyrator impedance')
+
+        self.assertEqual(cct.transfer('P1', 'R2'), transfer('-R2/R'),
+                         'gyrator transfer')
