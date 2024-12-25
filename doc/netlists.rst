@@ -952,6 +952,8 @@ Here is the complete list of component attributes:
 
 - `is_noisy` component is a source that is only noisy
 
+- `is_oneport` component is a oneport
+
 - `is_open_circuit` component is an open-circuit
 
 - `is_resistor` component is a resistor
@@ -959,6 +961,8 @@ Here is the complete list of component attributes:
 - `is_reactance` component is a capacitor or inductor
 
 - `is_source` component is a source
+
+- `is_twoport` component is a twoport
 
 - `is_voltage_source` component is a voltage source
 

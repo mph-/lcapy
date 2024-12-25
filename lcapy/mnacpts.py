@@ -609,6 +609,20 @@ class Cpt(ImmittanceMixin):
         return self.cpt.is_capacitor
 
     @property
+    def is_oneport(self):
+        """Return True if component is a oneport."""
+
+        from .oneport import OnePort
+        return isinstance(self.cpt, OnePort)
+
+    @property
+    def is_twoport(self):
+        """Return True if component is a twoport."""
+
+        from .twoport import TwoPort
+        return isinstance(self.cpt, TwoPort)
+
+    @property
     def is_reactance(self):
         """Return True if component is a capacitor or inductor."""
         return self.is_capacitor or self.is_inductor
