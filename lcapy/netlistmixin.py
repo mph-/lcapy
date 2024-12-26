@@ -949,7 +949,7 @@ class NetlistMixin(object):
         new = self._new()
 
         for cpt in self._elements.values():
-            if cpt.independent_source and cpt.is_noisy:
+            if cpt.is_independent_source and cpt.is_noisy:
                 net = cpt._kill()
             else:
                 net = cpt._copy()
@@ -963,7 +963,7 @@ class NetlistMixin(object):
         new = self._new()
 
         for cpt in self._elements.values():
-            if (cpt.independent_source and
+            if (cpt.is_independent_source and
                 (cpt.is_voltage_source and cpt.Voc == 0) or
                     (cpt.is_current_source and cpt.Isc == 0)):
                 net = cpt._kill()
