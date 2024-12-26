@@ -257,7 +257,7 @@ simulation (additional components can be drawn, see
 
    `Hname Np Nm control H`
 
-- Ideal transformer of turns ratio a = N_2 / N_1:
+- Ideal transformer (this even works at DC!) of turns ratio a = N_2 / N_1, where N_1 is the number of primary turns and N_2 is the number of secondary turns:
 
    `TFname Np Nm Nip Nim a`
 
@@ -369,11 +369,13 @@ circuit elements (Components).  For example,
    >>> cct.R1
    R1 1 2
 
-- `components` dictionary of the components defined by the netlist
+- `components` dictionary of the components defined by the netlist.  For example:
+  >>> cct.components['resistors']
+  ['R1']
 
 - `nodes` dictionary of nodes used in the netlist
 
-- `subcircuits` dictionary of sub-circuits (for ac, dc, transient, etc.)
+- `subcircuits` dictionary of sub-circuits (for ac, dc, transient, and noise)
 
 - `is_ac` all independent sources are ac
 

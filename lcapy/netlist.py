@@ -775,11 +775,11 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         kind = self.kind
         if kind in ('time', 'super'):
 
-            if self.reactances != []:
+            if not self.is_time_domain:
                 raise ValueError(
                     'Cannot put time domain equations into matrix form due to'
-                    ' reactive components: %s.  Convert to dc, ac, or'
-                    ' laplace domain first.' % ', '.join(self.reactances))
+                    ' reactive components: %s.  Convert to dc, ac, transient,'
+                    ' or laplace domain first.' % ', '.join(self.reactances))
             kind = 'time'
 
         return SubNetlist(self, kind).mna

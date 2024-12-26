@@ -32,6 +32,7 @@ class LcapyTester(unittest.TestCase):
         a.add('R1 1 2')
         a.add('C1 2 0')
 
+        self.assertEqual(a.is_time_domain, False, "is_time_domain")
         self.assertEqual2(a.impedance(1, 2), R(
             'R1').impedance, "Z incorrect for R1.")
         self.assertEqual2(a.impedance(2, 0), C(
@@ -144,6 +145,7 @@ class LcapyTester(unittest.TestCase):
         a.add('E1 2 0 1 0 3')
         a.add('R2 2 0 1')
 
+        self.assertEqual(a.is_time_domain, True, "is_time_domain")
         self.assertEqual2(a.R2.V, V(6).Voc, "Incorrect voltage")
 
     def test_VCCS1(self):
