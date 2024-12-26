@@ -772,12 +772,17 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         """Perform modified nodal analysis for this netlist.  This is
         cached."""
 
-        if self.kind in ('time', 'super'):
-            raise ValueError(
-                'Cannot put time domain equations into matrix form.  '
-                'Convert to dc, ac, or laplace domain first.')
+        kind = self.kind
+        if kind in ('time', 'super'):
 
-        return SubNetlist(self, self.kind).mna
+            if self.reactances != []:
+                raise ValueError(
+                    'Cannot put time domain equations into matrix form due to'
+                    ' reactive components: %s.  Convert to dc, ac, or'
+                    ' laplace domain first.' % ', '.join(self.reactances))
+            kind = 'time'
+
+        return SubNetlist(self, kind).mna
 
     @lru_cache(1)
     def nodal_analysis(self, node_prefix=''):
