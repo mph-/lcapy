@@ -341,7 +341,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         for angular frequency `omega`.  If `omega` is undefined,
         the angular frequency `omega0` is used.
 
-        See also: dc, transient, laplace.
+        See also: dc, laplace, transient, noise, time.
         """
 
         if omega is None:
@@ -574,7 +574,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
     def dc(self):
         """Return netlist for dc components of independent sources.
 
-        See also: ac, transient, laplace.
+        See also: ac, laplace, transient, noise, time.
         """
         return self.select('dc')
 
@@ -642,20 +642,36 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         return new
 
     def laplace(self):
-        """Return netlist for Laplace representations of independent
+        """Return netlist for Laplace-domain representations of independent
         source values.
 
-        See also: dc, ac, transient.
+        See also: ac, dc, transient, noise, time.
 
         """
         return self.select('laplace')
+
+    def time(self):
+        """Return netlist for time-domain representations of independent
+        source values.
+
+        See also: ac, dc, transient, laplace, noise.
+
+        """
+        return self.select('time')
+
+    def noise(self):
+        """Return netlist for noise components of independent sources.
+
+        See also: ac, dc, laplace, transient, time.
+        """
+        return self.select('noise')
 
     def transient(self):
         """Return netlist for transient components of independent
         sources.  Note, unlike the similar laplace method, dc and ac
         components are ignored.
 
-        See also: dc, ac, laplace.
+        See also: ac, dc, laplace, noise, time.
 
         """
         return self.select('s')
@@ -778,7 +794,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
             if not self.is_time_domain:
                 raise ValueError(
                     'Cannot put time domain equations into matrix form due to'
-                    ' reactive components: %s.  Convert to dc, ac, transient,'
+                    ' reactive components: %s.  Convert to ac, dc, transient,'
                     ' or laplace domain first.' % ', '.join(self.reactances))
             kind = 'time'
 
