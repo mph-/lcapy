@@ -1,7 +1,7 @@
 """
 This module collects information about a circuit.
 
-Copyright 2022--203 Michael Hayes, UCECE
+Copyright 2022--2024 Michael Hayes, UCECE
 
 """
 

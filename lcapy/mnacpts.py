@@ -610,14 +610,14 @@ class Cpt(ImmittanceMixin):
 
     @property
     def is_oneport(self):
-        """Return True if component is a oneport."""
+        """Return True if component is any oneport (R, C, L, V, I, etc.)."""
 
         from .oneport import OnePort
         return isinstance(self.cpt, OnePort)
 
     @property
     def is_twoport(self):
-        """Return True if component is a twoport."""
+        """Return True if component is any twoport (TP, TF, GY, etc.)."""
 
         from .twoport import TwoPort
         return isinstance(self.cpt, TwoPort)

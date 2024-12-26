@@ -245,8 +245,9 @@ of an ideal resistor and a noise voltage source using the
 Mesh analysis
 -------------
 
-Lcapy can output the mesh equations by applying Kirchhoff's voltage
-law around each loop in a circuit.  For example, consider the netlist:
+Lcapy can output the mesh equations for a planar circuit by applying
+Kirchhoff's voltage law around each loop in the circuit.  For example,
+consider the netlist:
 
    >>> cct = Circuit("""
    ...V1 1 0; down
@@ -322,6 +323,10 @@ The matrix is returned by the `A` attribute, the vector of unknowns by the `y` a
 The mesh currents can be found with the `solve_laplace()` method.
 This solves the circuit using Laplace transform methods and returns a
 dictionary of results.
+
+The mesh analysis implementation does not support twoport components,
+such as transformers and gyrators.
+
 
 .. _nodal-analysis:
 
@@ -433,6 +438,8 @@ The node voltages can be found with the `solve_laplace()` method.
 This solves the circuit using Laplace transform methods and returns a
 dictionary of results.
 
+The nodal analysis implementation does not support twoport components,
+such as transformers and gyrators.  Instead use modified nodal analysis.
 
 .. _modified-nodal-analysis:
 

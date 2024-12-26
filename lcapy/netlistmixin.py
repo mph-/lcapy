@@ -87,10 +87,18 @@ class NetlistMixin(object):
     @cached_property
     def branch_list(self):
         """Determine list of names of branch elements, e.g.,
-        ['C1', 'V1', 'R1', 'R2']."""
+        ['C1', 'V1', 'R1', 'R2'].
+
+        Two-port components (TF, GY, TP) are ignored.   Perhaps
+        they could be split into input and output one-ports?
+        """
 
         branch_list = []
         for key, elt in self.elements.items():
+            if elt.is_twoport:
+                warn('Ignoring twoport component ' + key)
+                continue
+
             if elt.type not in ('W', 'O', 'P', 'K', 'XX'):
                 branch_list.append(elt.name)
         return branch_list
@@ -417,6 +425,12 @@ class NetlistMixin(object):
         """Return list of transformers."""
 
         return self.components.transformers
+
+    @property
+    def twoports(self):
+        """Return list of twoports."""
+
+        return self.components.twoports
 
     @property
     def voltage_sources(self):

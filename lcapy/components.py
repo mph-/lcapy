@@ -18,6 +18,7 @@ class Components:
         self.open_circuits = []
         self.ports = []
         self.transformers = []
+        self.twoports = []
         self.voltage_sources = []
         self.wires = []
 
@@ -43,6 +44,12 @@ class Components:
                 self.voltage_sources.append(eltname)
             elif elt.is_wire:
                 self.wires.append(eltname)
+
+            # Note, this includes all twoport components (TP, TF, GY,
+            # etc) and not just TP.
+            if elt.is_twoport:
+                self.twoports.append(eltname)
+
 
     def __repr__(self):
 

@@ -16,7 +16,8 @@ import sympy as sym
 
 class LoopAnalysis(object):
     """This performs for loop analysis.  Currently, it uses mesh analysis
-    and so is only applicable to circuits with a planar topology.
+    and so is only applicable to circuits with a planar topology and
+    without twoport components.
 
     The API is likely to change since different invocations find
     different current loops.
@@ -50,6 +51,14 @@ class LoopAnalysis(object):
     >>> LoopAnalysis(cct.laplace()).matrix_equations().pprint()
 
     """
+
+    # twoport components could be handled by splitting into
+    # input and output oneports.  In the case of an ideal transformer,
+    # an unknown voltage across the primary could be added to the mesh
+    # equations.  The voltage across the secondary is the primary voltage
+    # multiplied by N2 / N1.  An auxiliary equation is required
+    # relating the mesh currents in the primary and secondary loops:
+    # ib = -N1 / N2 ia.
 
     @classmethod
     def from_circuit(cls, cct):

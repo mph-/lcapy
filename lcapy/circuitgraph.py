@@ -83,6 +83,11 @@ class CircuitGraph(object):
     @classmethod
     def from_circuit(cls, cct):
 
+        if cct.twoports != []:
+            raise ValueError('Cannot create CircuitGraph with twoport components: ' + ', '.join(cct.twoports))
+            # Perhaps could split twoports into an input oneport and an
+            # output oneport?
+
         G = nx.Graph()
 
         dummy = 0
