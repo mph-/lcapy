@@ -68,7 +68,7 @@ class ExprPrint(object):
         except AttributeError:
             pass
 
-        return self.expr
+        return self.sympy
 
     def __repr__(self):
         """This is called by repr(expr).  It is used, e.g., when printing
@@ -152,7 +152,7 @@ class ExprPrint(object):
             # Do we really want to do this; SymPy formats things weirdly
             expr = self.expr_with_units
         else:
-            expr = self.expr
+            expr = self.sympy
 
         return value_formatter(style=style).latex(expr, units)
 
@@ -171,10 +171,10 @@ class ExprPrint(object):
 class ExprContainer(object):
 
     @property
-    def sympy(self):
+    def expr(self):
         """Return SymPy expression."""
 
-        return self.expr
+        return self.sympy
 
     def as_polynomial(self, var):
 
@@ -362,9 +362,9 @@ class ExprDict(ExprPrint, ExprContainer, ExprMisc, OrderedDict):
         new = {}
         for k, v in self.items():
             if isinstance(k, Expr):
-                k = k.expr
+                k = k.sympy
             if isinstance(v, Expr):
-                v = v.expr
+                v = v.sympy
             new[k] = v
         return new
 
@@ -459,7 +459,7 @@ class ExprList(ExprPrint, list, ExprContainer, ExprMisc):
 
     @property
     def expr(self):
-        return [e.expr for e in self]
+        return [e.sympy for e in self]
 
     @property
     def fval(self):
@@ -554,8 +554,8 @@ class ExprTuple(ExprPrint, tuple, ExprContainer, ExprMisc):
         return expr(solutions)
 
     @property
-    def expr(self):
-        return tuple([e.expr for e in self])
+    def sympy(self):
+        return tuple([e.sympy for e in self])
 
     @property
     def fval(self):
@@ -680,7 +680,7 @@ class Expr(UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
             else:
                 return self.expr_with_units
         else:
-            return self.expr
+            return self.sympy
 
     def __init__(self, arg, rational=True, **assumptions):
         """
@@ -701,7 +701,7 @@ class Expr(UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
                 ass.set('causal', True)
 
             self.assumptions = ass.merge(**assumptions)
-            self.expr = arg.expr
+            self.sympy = arg.sympy
             try:
                 self._units = self._default_units
             except:
@@ -718,7 +718,7 @@ class Expr(UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
 
         self.assumptions = assumptions
         # Remove Lcapy assumptions from SymPy expr.
-        self.expr = sympify(arg, rational=rational, **
+        self.sympy = sympify(arg, rational=rational, **
                             self.assumptions.sympy_assumptions())
         try:
             self._units = self._default_units
@@ -895,7 +895,7 @@ class Expr(UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
     def is_conditional(self):
         """Return True if expression has a condition, such as t >= 0."""
 
-        expr = self.expr
+        expr = self.sympy
         # Could be more specific, such as self.var >= 0, but might
         # have self.var >= t1.
         return expr.is_Piecewise
@@ -904,7 +904,7 @@ class Expr(UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
     def is_rational_function(self):
         """Return True if expression is a rational function."""
 
-        return self.expr.is_rational_function(self.var)
+        return self.sympy.is_rational_function(self.var)
 
     @property
     def is_strictly_proper(self):
@@ -973,7 +973,7 @@ class Expr(UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
         Use `cval` to return a complex value.
         """
 
-        val = self.val.expr
+        val = self.val.sympy
         try:
             return float(val)
         except TypeError:
@@ -989,7 +989,7 @@ class Expr(UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
     def cval(self):
         """Evaluate expression and return as a python complex value."""
 
-        return complex(self.val.expr)
+        return complex(self.val.sympy)
 
     @property
     def val(self):
@@ -1035,13 +1035,13 @@ class Expr(UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
         new = self.copy()
         # Don't create Expr since SymPy sympify will create Integers
         # rather than Floats if the truncated Float looks like an integer.
-        new.expr = self.ratfloat().expr.evalf(n, *args, **kwargs)
+        new.sympy = self.ratfloat().sympy.evalf(n, *args, **kwargs)
         return new
 
     def __hash__(self):
         # This is needed for Python3 so can create a dict key,
         # say for subs.
-        return hash(self.expr)
+        return hash(self.sympy)
 
     def _to_class(self, cls, expr):
 
@@ -1059,14 +1059,14 @@ class Expr(UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
 #
 #    def _sympy_(self):
 #        # This is called from sym.sympify
-#        return self.expr
+#        return self.sympy
 
     def __getattr__(self, attr):
 
         if False:
             print(self.__class__.__name__, attr)
 
-        expr1 = self.expr
+        expr1 = self.sympy
         try:
             a = getattr(expr1, attr)
         except:
@@ -1103,7 +1103,7 @@ class Expr(UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
             newargs = []
             for arg in args:
                 try:
-                    newargs.append(arg.expr)
+                    newargs.append(arg.sympy)
                 except AttributeError:
                     newargs.append(arg)
 
@@ -1111,7 +1111,7 @@ class Expr(UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
             newkwargs = {}
             for key, arg in kwargs.items():
                 try:
-                    newkwargs[key] = kwargs[key].expr
+                    newkwargs[key] = kwargs[key].sympy
                 except AttributeError:
                     newkwargs[key] = kwargs[key]
 
@@ -1139,7 +1139,7 @@ class Expr(UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
 
         name = self.__class__.__name__
         s = '%s(' % name
-        print(symdebug(self.expr, s, len(name) + 1))
+        print(symdebug(self.sympy, s, len(name) + 1))
 
     def srepr(self):
         """Print the SymPy abstract syntax tree for the expression."""
@@ -1147,26 +1147,26 @@ class Expr(UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
         sym.srepr(self.sympy)
 
     @property
-    def sympy(self):
+    def expr(self):
         """Return SymPy expression."""
 
-        return self.expr
+        return self.sympy
 
     @property
     def expr_with_units(self):
         """Return SymPy expression with units."""
 
         if self.units == 1:
-            return self.expr
+            return self.sympy
 
         # Don't evaluate otherwise 1 A gets printed as A.
-        return sym.Mul(self.expr, self.units, evaluate=False)
+        return sym.Mul(self.sympy, self.units, evaluate=False)
 
     @property
     def expr_with_canonical_units(self):
         """Return SymPy expression with canonical units."""
 
-        return self.expr * self.canonical_units
+        return self.sympy * self.canonical_units
 
     @property
     def func(self):
@@ -1175,7 +1175,7 @@ class Expr(UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
         For example, this returns Mul for the expression `3 * s`.
         See also args to return the args, in this case `(3, s)`"""
 
-        return self.expr.func
+        return self.sympy.func
 
     def __abs__(self):
         """Absolute value."""
@@ -1185,7 +1185,7 @@ class Expr(UndefinedQuantity, ExprPrint, ExprMisc, ExprDomain):
     def __neg__(self):
         """Negation."""
 
-        return self.__class__(-self.expr, **self.assumptions)
+        return self.__class__(-self.sympy, **self.assumptions)
 
     def _incompatible(self, x, op, reason=''):
 
@@ -1264,7 +1264,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             sunits = self.canonical_units
             xunits = x.canonical_units
 
-            if (sunits != xunits and self.expr != 0 and x.expr != 0 and not
+            if (sunits != xunits and self.sympy != 0 and x.sympy != 0 and not
                     (state.loose_units and (self.is_undefined or x.is_undefined))):
                 self._incompatible(
                     x, op, ' since the units %s are incompatible with %s' % (self.units, x.units))
@@ -1273,7 +1273,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         xcls = x.__class__
 
         if x.is_constant_domain and x.quantity == 'undefined':
-            if state.loose_units or x.expr == 0:
+            if state.loose_units or x.sympy == 0:
                 # Allow voltage(1) + 2 etc.
                 return cls, self, x, assumptions
             if self.is_transfer:
@@ -1340,32 +1340,32 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
                 x.__class__ == TimeDomainExpression):
             validate(state.f_times_t,
                      'Converting %s times %s to t-domain' % (self, x))
-            return TimeDomainExpression(self.expr * x.expr)
+            return TimeDomainExpression(self.sympy * x.sympy)
         elif (x.__class__ == FourierDomainExpression and
               self.__class__ == TimeDomainExpression):
             validate(state.t_times_f,
                      'Converting %s times %s to t-domain' % (self, x))
-            return TimeDomainExpression(self.expr * x.expr)
+            return TimeDomainExpression(self.sympy * x.sympy)
         elif (self.__class__ == AngularFourierDomainExpression and
                 x.__class__ == TimeDomainExpression):
             validate(state.w_times_t,
                      'Converting %s times %s to t-domain' % (self, x))
-            return TimeDomainExpression(self.expr * x.expr)
+            return TimeDomainExpression(self.sympy * x.sympy)
         elif (x.__class__ == AngularFourierDomainExpression and
               self.__class__ == TimeDomainExpression):
             validate(state.t_times_w,
                      'Converting %s times %s to t-domain' % (self, x))
-            return TimeDomainExpression(self.expr * x.expr)
+            return TimeDomainExpression(self.sympy * x.sympy)
         elif (self.__class__ == LaplaceDomainExpression and
                 x.__class__ == TimeDomainExpression):
             validate(state.s_times_t,
                      'Converting %s times %s to t-domain' % (self, x))
-            return TimeDomainExpression(self.expr * x.expr)
+            return TimeDomainExpression(self.sympy * x.sympy)
         elif (x.__class__ == LaplaceDomainExpression and
               self.__class__ == TimeDomainExpression):
             validate(state.t_times_s,
                      'Converting %s times %s to t-domain' % (self, x))
-            return TimeDomainExpression(self.expr * x.expr)
+            return TimeDomainExpression(self.sympy * x.sympy)
 
         # Try to convert immittance to a constant so that can handle I(t) * Z
         if x.is_immittance:
@@ -1416,7 +1416,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         else:
             cls = self._class_by_quantity(quantity, domain)
 
-        value = self.expr * x.expr
+        value = self.sympy * x.sympy
         result = cls(value, **assumptions)
         result.units = self.units * x.units
         return result
@@ -1473,9 +1473,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             cls = self._class_by_quantity(quantity, domain)
 
         if floor:
-            value = self.expr // x.expr
+            value = self.sympy // x.sympy
         else:
-            value = self.expr / x.expr
+            value = self.sympy / x.sympy
         result = cls(value, **assumptions)
         result.units = self.units / x.units
 
@@ -1488,9 +1488,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         if isinstance(x, Matrix):
             if floor:
-                return x // self.expr
+                return x // self.sympy
             else:
-                return x / self.expr
+                return x / self.sympy
 
         if not isinstance(x, Expr):
             x = expr(x)
@@ -1513,10 +1513,10 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         from .matrix import Matrix
 
         if isinstance(x, Matrix):
-            return x + self.expr
+            return x + self.sympy
 
         cls, self, x, assumptions = self.__compat_add__(x, '+')
-        return cls(self.expr + x.expr, **assumptions)
+        return cls(self.sympy + x.sympy, **assumptions)
 
     def __radd__(self, x):
         """Reverse add."""
@@ -1534,7 +1534,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             return -x + self
 
         cls, self, x, assumptions = self.__compat_add__(x, '-')
-        return cls(self.expr - x.expr, **assumptions)
+        return cls(self.sympy - x.sympy, **assumptions)
 
     def __rsub__(self, x):
         """Reverse subtract."""
@@ -1558,7 +1558,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if not isinstance(x, Expr):
             x = expr(x)
 
-        result = self.expr.__pow__(x.expr)
+        result = self.sympy.__pow__(x.sympy)
         if not self.is_constant_domain:
             return self.__class__(result)
         return x.__class__(result)
@@ -1602,16 +1602,16 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         x = cls(x, **assumptions)
 
         # This does not speed up the comparison.
-        # if self.expr == x.expr:
+        # if self.sympy == x.sympy:
         #    return True
 
-        if isinstance(self.expr, sym.Eq):
-            return sym.simplify(self.expr.lhs - x.expr.lhs) == 0 and \
-                sym.simplify(self.expr.rhs - x.expr.rhs) == 0
+        if isinstance(self.sympy, sym.Eq):
+            return sym.simplify(self.sympy.lhs - x.sympy.lhs) == 0 and \
+                sym.simplify(self.sympy.rhs - x.sympy.rhs) == 0
 
         # This fails if one of the operands has the is_real attribute
         # and the other doesn't...
-        return sym.simplify(self.expr - x.expr) == 0
+        return sym.simplify(self.sympy - x.sympy) == 0
 
     def __ne__(self, x):
         """Test for mathematical inequality as far as possible.
@@ -1628,7 +1628,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         x = cls(x)
 
-        return sym.simplify(self.expr - x.expr) != 0
+        return sym.simplify(self.sympy - x.sympy) != 0
 
     def __gt__(self, x):
         """Greater than."""
@@ -1639,7 +1639,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         cls, self, x, assumptions = self.__compat_add__(x, '>')
         x = cls(x)
 
-        return self.expr > x.expr
+        return self.sympy > x.sympy
 
     def __ge__(self, x):
         """Greater than or equal."""
@@ -1650,7 +1650,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         cls, self, x, assumptions = self.__compat_add__(x, '>=')
         x = cls(x)
 
-        return self.expr >= x.expr
+        return self.sympy >= x.sympy
 
     def __lt__(self, x):
         """Less than."""
@@ -1661,7 +1661,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         cls, self, x, assumptions = self.__compat_add__(x, '<')
         x = cls(x)
 
-        return self.expr < x.expr
+        return self.sympy < x.sympy
 
     def __le__(self, x):
         """Less than or equal."""
@@ -1672,7 +1672,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         cls, self, x, assumptions = self.__compat_add__(x, '<=')
         x = cls(x)
 
-        return self.expr <= x.expr
+        return self.sympy <= x.sympy
 
     def _cached_laplace(self):
 
@@ -1690,7 +1690,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         each to rational functions."""
 
         result = 0
-        for term in self.expr.as_ordered_terms():
+        for term in self.sympy.as_ordered_terms():
             result += sym.cancel(term)
         return self.__class__(result, **self.assumptions)
 
@@ -1719,8 +1719,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if self.domain != x.domain:
             self._incompatible_domains(x, 'convolve')
 
-        f1 = self.expr
-        f2 = x.expr
+        f1 = self.sympy
+        f2 = x.sympy
         if commutate:
             f1, f2 = f2, f1
 
@@ -1756,22 +1756,22 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         cls, self, x, assumptions = self.__compat_add__(x, '|')
         x = cls(x)
 
-        return cls(self.expr * x.expr / (self.expr + x.expr), **assumptions)
+        return cls(self.sympy * x.sympy / (self.sympy + x.sympy), **assumptions)
 
     def copy(self):
         """Copy the expression."""
-        return self.__class__(self.expr, **self.assumptions)
+        return self.__class__(self.sympy, **self.assumptions)
 
     @property
     def conj(self):
         """Return complex conjugate."""
 
-        return self.__class__(sym.conjugate(self.expr), **self.assumptions)
+        return self.__class__(sym.conjugate(self.sympy), **self.assumptions)
 
     def conjugate(self):
         """Return complex conjugate."""
 
-        return self.__class__(sym.conjugate(self.expr), **self.assumptions)
+        return self.__class__(sym.conjugate(self.sympy), **self.assumptions)
 
     @property
     def real(self):
@@ -1789,7 +1789,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         assumptions = self.assumptions.copy()
         assumptions['real'] = True
 
-        expr = self.expr
+        expr = self.sympy
         # This can make operations such as abs really slow.
         # Without it, we will sometimes get Re functions.
         # expr = expr.expand(complex=True)
@@ -1823,7 +1823,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         assumptions['real'] = True
 
-        expr = self.expr
+        expr = self.sympy
         # This can make operations such as abs really slow.
         # Without it, we will sometimes get Im functions.
         # expr = expr.expand(complex=True)
@@ -1859,7 +1859,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             try:
                 # Note, this handles expressions that are products of
                 # rational functions and arbitrary delays.
-                self.__ratfun = Ratfun(self.expr, self.var)
+                self.__ratfun = Ratfun(self.sympy, self.var)
             except:
                 self.__ratfun = None
         return self.__ratfun
@@ -1985,8 +1985,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     def multiply_top_and_bottom(self, factor):
         """Multiply numerator and denominator by common factor."""
 
-        N = self.N.expr
-        D = self.D.expr
+        N = self.N.sympy
+        D = self.D.sympy
 
         N = sym.Mul(N, factor, evaluate=False)
         D = sym.Mul(D, factor, evaluate=False)
@@ -2009,7 +2009,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             warn('Magnitude of expression with Dirac delta may be invalid: ', self)
 
         if self.is_real:
-            dst = expr(abs(self.expr))
+            dst = expr(abs(self.sympy))
             dst.part = 'magnitude'
             return dst
 
@@ -2034,7 +2034,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     def sign(self):
         """Return sign."""
 
-        return self.__class__(sym.sign(self.expr), **self.assumptions)
+        return self.__class__(sym.sign(self.sympy), **self.assumptions)
 
     @property
     def dB(self):
@@ -2118,13 +2118,13 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     def is_number(self):
         """Returns True if expression is a number."""
 
-        return self.expr.is_number
+        return self.sympy.is_number
 
     @property
     def is_constant(self):
         """Returns True if expression does not have any free symbols (compare with `is_unchanging`)."""
 
-        return self.expr.free_symbols == set()
+        return self.sympy.free_symbols == set()
 
     @property
     def is_realizable(self):
@@ -2179,7 +2179,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         if self.var is None:
             return True
 
-        return self.var not in self.expr.free_symbols
+        return self.var not in self.sympy.free_symbols
 
     def evaluate(self, arg=None):
         """Evaluate expression at arg.  `arg` may be a scalar or a vector.
@@ -2491,9 +2491,9 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         """
 
-        tweak_patterns = [pattern.expr if isinstance(
+        tweak_patterns = [pattern.sympy if isinstance(
             pattern, (Expr, Function)) else pattern for pattern in patterns]
-        return self.expr.has(*tweak_patterns)
+        return self.sympy.has(*tweak_patterns)
 
     def has_symbol(self, sym):
         """Test if have symbol contained.  For example,
@@ -2530,14 +2530,14 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             else:
                 if domain is None:
                     domain = self.domain
-            expr = new.expr
+            expr = new.sympy
         else:
             domain = self.domain
             expr = sympify(expr)
 
         old = symbol_map(old)
         if isinstance(old, Expr):
-            old = old.expr
+            old = old.sympy
 
         if isinstance(expr, list):
             # Get lists from solve.  These stymie sympy's subs.
@@ -2619,13 +2619,13 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         value = sympify(value)
 
         # Experimental.  Compare symbols by names.
-        symbols = list(self.expr.free_symbols)
+        symbols = list(self.sympy.free_symbols)
         symbolnames = [str(symbol) for symbol in symbols]
         if str(var) not in symbolnames:
             return self
         var = symbols[symbolnames.index(str(var))]
 
-        ret = sym.limit(self.expr, var, value, dir=dir)
+        ret = sym.limit(self.sympy, var, value, dir=dir)
         return self.__class__(ret, **self.assumptions)
 
     def separate_dirac_delta(self):
@@ -2674,7 +2674,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             new, defs = self.remove_undefs(return_mappings=True)
             ret = new.simplify(**kwargs).subs(defs)
         else:
-            ret = symsimplify(self.expr, **kwargs)
+            ret = symsimplify(self.sympy, **kwargs)
             ret = self.__class__(ret, **self.assumptions)
 
         ret._simplified = True
@@ -2690,13 +2690,13 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     def simplify_conjugates(self, **kwargs):
         """Combine complex conjugate terms."""
 
-        result = simplify_conjugates(self.expr)
+        result = simplify_conjugates(self.sympy)
         return self.__class__(result, **self.assumptions)
 
     def simplify_factors(self, **kwargs):
         """Simplify factors in expression individually."""
 
-        factors = self.expr.as_ordered_factors()
+        factors = self.sympy.as_ordered_factors()
         result = factors[0]
 
         for factor in factors[1:]:
@@ -2707,62 +2707,62 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         """Simplify terms in expression individually."""
 
         result = 0
-        for term in self.expr.as_ordered_terms():
+        for term in self.sympy.as_ordered_terms():
             result += symsimplify(term, **kwargs)
         return self.__class__(result, **self.assumptions)
 
     def simplify_sin_cos(self, as_cos=False, as_sin=False):
         """Simplify c * cos(theta) - s * sin(theta) as A * cos(theta - phi)."""
 
-        result = simplify_sin_cos(self.expr, as_cos, as_sin)
+        result = simplify_sin_cos(self.sympy, as_cos, as_sin)
         return self.__class__(result, **self.assumptions)
 
     def simplify_dirac_delta(self):
         """Simplify DiracDelta(4 * t + 2) to DiracDelta(t + 0.5) / 4
         and DiracDelta(t) * x(t) to DiracDelta * x(0)."""
 
-        result = simplify_dirac_delta(self.expr, self.var)
+        result = simplify_dirac_delta(self.sympy, self.var)
         return self.__class__(result, **self.assumptions)
 
     def simplify_heaviside(self):
         """Simplify Heaviside(4 * t + 2) to Heaviside(t + 0.5)
         and Heaviside(t)**2 to Heaviside(t), etc."""
 
-        result = simplify_heaviside(self.expr, self.var)
+        result = simplify_heaviside(self.sympy, self.var)
         return self.__class__(result, **self.assumptions)
 
     def simplify_unit_impulse(self):
         """Simplify UnitImpulse(4 * k + 8) to UnitImpulse(k + 2), etc."""
 
-        result = simplify_unit_impulse(self.expr, self.var)
+        result = simplify_unit_impulse(self.sympy, self.var)
         return self.__class__(result, **self.assumptions)
 
     def simplify_rect(self):
         """Simplify rect(4 * t + 2) to rect(t + 0.5)
         and rect(t)**2 to rect(t), etc."""
 
-        result = simplify_rect(self.expr, self.var)
+        result = simplify_rect(self.sympy, self.var)
         return self.__class__(result, **self.assumptions)
 
     def expand_hyperbolic_trig(self):
         """Convert cosh(x) to exp(x) + exp(-x), etc."""
 
-        result = expand_hyperbolic_trig(self.expr)
+        result = expand_hyperbolic_trig(self.sympy)
         return self.__class__(result, **self.assumptions)
 
     def replace(self, query, value, map=False, simultaneous=True, exact=None):
 
         try:
-            query = query.expr
+            query = query.sympy
         except:
             pass
 
         try:
-            value = value.expr
+            value = value.sympy
         except:
             pass
 
-        ret = self.expr.replace(query, value, map, simultaneous, exact)
+        ret = self.sympy.replace(query, value, map, simultaneous, exact)
         return self.__class__(ret, **self.assumptions)
 
     def subs(self, *args, **kwargs):
@@ -2843,7 +2843,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         arg = expr(arg)
         sarg = delcapify(arg)
 
-        result = self.__class__(sym.diff(self.expr, sarg, *symbols, **kwargs),
+        result = self.__class__(sym.diff(self.sympy, sarg, *symbols, **kwargs),
                                 **self.assumptions)
         result.units /= arg.units
         return result
@@ -2855,7 +2855,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     def doit(self, **hints):
         """Evaluate unevaluated functions such as integrals and sums."""
 
-        result = self.__class__(self.expr.doit(**hints), **self.assumptions)
+        result = self.__class__(self.sympy.doit(**hints), **self.assumptions)
         result.part = self.part
         return result
 
@@ -2882,7 +2882,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         arg = expr(arg)
         sarg = delcapify(arg)
 
-        result = self.__class__(sym.integrate(self.expr, sarg, **kwargs),
+        result = self.__class__(sym.integrate(self.sympy, sarg, **kwargs),
                                 **self.assumptions)
         if isinstance(arg, tuple):
             arg = arg[0]
@@ -2928,7 +2928,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         symbols = delcapify(ExprTuple(symbols).remove_undefs())
         symbols = [symbol_map(symbol) for symbol in symbols]
-        solutions = sym.solve(self.expr, *symbols, **flags)
+        solutions = sym.solve(self.sympy, *symbols, **flags)
         return expr(solutions)
 
     def nsolve(self, x0=0, **kwargs):
@@ -2944,7 +2944,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         """
         from sympy.solvers.solvers import nsolve
 
-        return expr(nsolve(self.expr, x0, **kwargs))
+        return expr(nsolve(self.sympy, x0, **kwargs))
 
     def split_dirac_delta(self):
         """Return expression as a list of terms.  The first term has no
@@ -3255,7 +3255,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         See also general, partfrac, standard, timeconst, and ZPK
 
         """
-        if not self.expr.has(self.var):
+        if not self.sympy.has(self.var):
             return self
 
         ratfun = self._ratfun
@@ -3339,7 +3339,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         tmpsym = miscsymbol('qtmp')
 
         expr = self.subs(1 / tmpsym)
-        ratfun = Ratfun(expr.expr, tmpsym)
+        ratfun = Ratfun(expr.sympy, tmpsym)
 
         nexpr = ratfun.partfrac(combine_conjugates, damping, method)
         nexpr = nexpr.subs(tmpsym, 1 / self.var)
@@ -3385,7 +3385,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         """Convert each term of expression into time constant form."""
 
         result = 0
-        for term in self.expr.as_ordered_terms():
+        for term in self.sympy.as_ordered_terms():
             result += self.__class__(term).timeconst()
         return self.__class__(result, **self.assumptions)
 
@@ -3489,7 +3489,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             var = self.var
 
         try:
-            z = sym.Poly(self.expr, var)
+            z = sym.Poly(self.sympy, var)
         except:
             raise ValueError(
                 'Use .N or .D attribute to specify numerator or denominator of rational function')
@@ -3565,7 +3565,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         expr = sym.S.Zero
         var = self.var
         for m in range(degree + 1):
-            term = coeffs[m].expr * var ** m
+            term = coeffs[m].sympy * var ** m
             expr += term
 
         return self.__class__(expr, **self.assumptions)
@@ -3578,8 +3578,8 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         """
 
         result = self.copy()
-        expr = self.expr
-        result.expr = expr.replace(lambda expr: expr.is_Rational,
+        expr = self.sympy
+        result.sympy = expr.replace(lambda expr: expr.is_Rational,
                                    lambda expr: sym.Float(expr))
         return result
 
@@ -3591,7 +3591,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         """
 
-        expr = self.expr
+        expr = self.sympy
         expr = expr.replace(lambda expr: expr.is_Float,
                             lambda expr: sym.sympify(str(expr), rational=True))
 
@@ -3682,7 +3682,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         """
 
-        from .expr import expr
+        from .sympy import expr
 
         var0 = expr(var0)
         expr = approximate_pade(self.sympy, var=self.var,
@@ -3694,7 +3694,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         """Approximate expression using a Taylor series
         around `self.var = var0` to degree `degree`."""
 
-        from .expr import expr
+        from .sympy import expr
 
         var0 = expr(var0)
         expr = approximate_taylor(self.sympy, var=self.var,
@@ -3747,7 +3747,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         from .units import units
 
-        return units.as_value_unit(self.expr)
+        return units.as_value_unit(self.sympy)
 
     def as_N_D(self, monic_denominator=False, use_sympy=False):
         """Responses due to a sum of delayed transient responses
@@ -3768,7 +3768,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         N = V₁ - V₂⋅ℯ
         D = s⋅(L⋅s + R)"""
 
-        N, D = as_N_D(self.expr, self.var, monic_denominator, use_sympy)
+        N, D = as_N_D(self.sympy, self.var, monic_denominator, use_sympy)
 
         # Strip quantity and assumptions
         cls = self._class_by_quantity('undefined')
@@ -3800,7 +3800,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         D is a polynomial.  Then N can be split.
         """
 
-        result = as_sum(self.expr, self.var)
+        result = as_sum(self.sympy, self.var)
         return self.__class__(result, **self.assumptions)
 
     def as_monic_terms(self):
@@ -3809,7 +3809,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         This does not expand the expression first; use `.expand()`."""
 
         result = 0
-        for term in self.expr.as_ordered_terms():
+        for term in self.sympy.as_ordered_terms():
             N, D = as_N_D(term, self.var, monic_denominator=True)
             result += N / D
         return self.__class__(result, **self.assumptions)
@@ -3820,7 +3820,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         This does not expand the expression first; use `.expand()`."""
 
         result = 0
-        for term in self.expr.as_ordered_terms():
+        for term in self.sympy.as_ordered_terms():
             N, D = as_N_D(term, self.var, monic_denominator=False)
             result += N / D
         return self.__class__(result, **self.assumptions)
@@ -3845,7 +3845,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             if Npoly2 != 0:
                 foo(Dpoly, Npoly2)
 
-        N, D = self.expr.as_numer_denom()
+        N, D = self.sympy.as_numer_denom()
         Npoly = sym.Poly(N, var)
         Dpoly = sym.Poly(D, var)
 
@@ -3911,7 +3911,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             if Npoly2 != 0:
                 foo(Dpoly, Npoly2)
 
-        N, D = self.expr.as_numer_denom()
+        N, D = self.sympy.as_numer_denom()
         Npoly = sym.Poly(N, var)
         Dpoly = sym.Poly(D, var)
 
@@ -3999,7 +3999,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         """
 
         mappings = {}
-        e = self.expr
+        e = self.sympy
         for item in sym.preorder_traversal(e):
             if isinstance(item, AppliedUndef):
                 name = str(item)
@@ -4018,7 +4018,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
                 mappings[name] = item
                 # Need to propagate complex assumption, etc.
-                e = e.subs(item, expr(name).expr)
+                e = e.subs(item, expr(name).sympy)
 
         ret = self.__class__(e, **self.assumptions)
         if return_mappings:
@@ -4032,7 +4032,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         if not self.is_conditional:
             return self
-        expr = self.expr
+        expr = self.sympy
         expr = expr.args[0].args[0]
         return self.__class__(expr)
 
@@ -4068,7 +4068,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         else:
             raise RuntimeError('Mystery var %s' % var)
 
-        result = remove_images(self.expr, var, scale, m1, m2)
+        result = remove_images(self.sympy, var, scale, m1, m2)
         return self.__class__(result, **self.assumptions)
 
     def as_QRF(self, pairs=False, damping=None, method=None):
@@ -4225,7 +4225,7 @@ def expr(arg, var=None, override=False, units=None, **assumptions):
     from .units import units
 
     cls = lexpr.__class__
-    expr, units = units.as_value_unit(lexpr.expr)
+    expr, units = units.as_value_unit(lexpr.sympy)
 
     # 5 * t * u.volts -> V
     # 5 * cos(t) * u.volts -> V
