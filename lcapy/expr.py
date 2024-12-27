@@ -56,7 +56,7 @@ class ExprPrint(object):
     def _pexpr(self):
         """Return expression for printing."""
 
-        if not hasattr(self, 'expr'):
+        if not hasattr(self, 'sympy'):
             return self
 
         try:
