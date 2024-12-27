@@ -62,14 +62,13 @@ class Superposition(SuperpositionDomain, ExprDict):
     def __init__(self, *args, **kwargs):
         super(Superposition, self).__init__()
 
+        if not hasattr(self, 'quantity'):
+            self.quantity = 'undefined'
+
         for arg in args:
 
             if not isinstance(arg, (Superposition)):
-                arg = expr(arg)
-                try:
-                    arg = arg.as_quantity(self.quantity)
-                except:
-                    pass
+                arg = expr(arg).as_quantity(self.quantity)
 
             self.add(arg)
 
