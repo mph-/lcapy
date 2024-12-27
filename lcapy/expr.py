@@ -458,7 +458,7 @@ class ExprList(ExprPrint, list, ExprContainer, ExprMisc):
         return expr(solutions)
 
     @property
-    def expr(self):
+    def sympy(self):
         return [e.sympy for e in self]
 
     @property
