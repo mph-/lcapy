@@ -2,7 +2,7 @@
 is the base class for Current and Voltage.  It represents voltages and
 currents as a superposition in different transform domains.
 
-Copyright 2019--2023 Michael Hayes, UCECE
+Copyright 2019--2024 Michael Hayes, UCECE
 
 """
 
@@ -65,7 +65,11 @@ class Superposition(SuperpositionDomain, ExprDict):
         for arg in args:
 
             if not isinstance(arg, (Superposition)):
-                arg = expr(arg).as_quantity(self.quantity)
+                arg = expr(arg)
+                try:
+                    arg = arg.as_quantity(self.quantity)
+                except:
+                    pass
 
             self.add(arg)
 
@@ -133,7 +137,7 @@ class Superposition(SuperpositionDomain, ExprDict):
         # This allows a[omega] to work if omega used as key
         # instead of 'omega'.
         if isinstance(key, Expr):
-            key = key.expr
+            key = key.sympy
         if key in self:
             return super(Superposition, self).__getitem__(key)
         decomp = self.decompose()
@@ -422,7 +426,7 @@ class Superposition(SuperpositionDomain, ExprDict):
         result = {}
 
         # Extract DC components
-        dc = expr1.expr.coeff(tsym, 0)
+        dc = expr1.sympy.coeff(tsym, 0)
         dc = ConstantDomainExpression(dc).as_quantity(self.quantity)
         if dc != 0:
             result['dc'] = dc
@@ -433,7 +437,7 @@ class Superposition(SuperpositionDomain, ExprDict):
 
         # Extract AC components
         ac = 0
-        terms = expr1.expr.as_ordered_terms()
+        terms = expr1.sympy.as_ordered_terms()
         for term in terms:
             if is_ac(term, tsym):
                 eterm = expr(term).as_quantity(self.quantity)
@@ -448,7 +452,6 @@ class Superposition(SuperpositionDomain, ExprDict):
         # The remaining components are considered transient
         # so convert to Laplace representation.
         sval = expr1.laplace()
-
         result['s'] = sval
         return result
 
@@ -493,7 +496,10 @@ class Superposition(SuperpositionDomain, ExprDict):
                 return self.time()
             elif kind in ('ivp', 'laplace'):
                 return self.laplace()
+            elif kind == 'noise':
+                return self.n
 
+            # Select a specific noise component
             if isinstance(kind, str) and kind[0] == 'n':
                 if kind not in self:
                     return self.decompose_to_domain(0, 'n')
@@ -554,7 +560,7 @@ class Superposition(SuperpositionDomain, ExprDict):
             # say for an angular frequency of 3.
             key = value.omega
             if isinstance(key, Expr):
-                key = key.expr
+                key = key.sympy
             return key
 
         kind = expr_to_domain_kind(value)
@@ -596,7 +602,7 @@ class Superposition(SuperpositionDomain, ExprDict):
         """Add a value into the superposition."""
 
         try:
-            val = value.expr
+            val = value.sympy
         except:
             val = value
 
@@ -623,7 +629,7 @@ class Superposition(SuperpositionDomain, ExprDict):
         value = expr(value)
         if value.has(sym.Float):
             # Avoid 8.00000000000, etc.
-            value.expr = sym.nsimplify(value.expr)
+            value.sympy = sym.nsimplify(value.sympy)
 
         kind = self._kind(value)
         if kind is None:
@@ -700,7 +706,7 @@ expression.""")
 
     @property
     def transient(self):
-        """Return the transient component."""
+        """Return the transient component in the time-domain."""
         return self.select('s').time()
 
     @property
