@@ -18,7 +18,7 @@ __all__ = ('conjugate', 'sqrt', 'exp', 'log', 'log10', 'sin', 'cos',
            'Eq', 'Ne', 'Lt', 'Le', 'Gt', 'Ge', 'Derivative',
            'Integral', 'Max', 'Min', 're', 'im', 'MatMul', 'MatAdd',
            'Mul', 'Pow', 'degrees', 'radians', 'limit', 'besseli',
-           'besselj', 'erf', 'erfc')
+           'besselj', 'erf', 'erfc', 'dirac')
 
 from .extrafunctions import Degrees as Degrees1
 from .extrafunctions import Radians as Radians1
@@ -207,7 +207,7 @@ limit = function_wrap(sym.limit)
 
 u = H = heaviside = Heaviside = function_wrap(sym.Heaviside)
 
-delta = DiracDelta = function_wrap(sym.DiracDelta)
+delta = DiracDelta = dirac = function_wrap(sym.DiracDelta)
 
 Piecewise = function_wrap(sym.Piecewise)
 
