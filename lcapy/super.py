@@ -56,8 +56,9 @@ class Superposition(SuperpositionDomain, ExprDict):
 
     # Where possible this class represents a signal in the time-domain.
     # It can decompose a signal into AC, DC, and transient components.
-    # The 't' key is the transient component viewed in the time domain.
-    # The 's' key is the transient component viewed in the Laplace domain.
+    # The 't' key is the transient component defined in the time domain.
+    # The 's' key is the transient component defined in the Laplace domain.
+    # The transient component is the sum of the 't' and 's' components.
 
     def __init__(self, *args, **kwargs):
         super(Superposition, self).__init__()
@@ -415,25 +416,43 @@ class Superposition(SuperpositionDomain, ExprDict):
                 return True
         return False
 
-    def _add_laplace_expr(self, expr1):
+    def _add_ac_expr(self, p):
+
+        if p.omega not in self:
+            self[p.omega] = p
+        else:
+            self[p.omega] += p
+
+    def _add_dc_expr(self, expr1):
+
+        if 'dc' not in self:
+            self['dc'] = expr1
+        else:
+            self['dc'] += expr1
+
+    def _add_transient_laplace_expr(self, expr1):
 
         if 's' not in self:
             self['s'] = expr1
         else:
             self['s'] += expr1
 
+    def _add_transient_time_expr(self, expr1):
+
+        if 't' not in self:
+            self['t'] = expr1
+        else:
+            self['t'] += expr1
+
     def _add_time_expr(self, expr1):
-        """Decompose a time domain expr into AC, DC, and transient
+        """Decompose a time domain expr into AC, DC, and transient time
         components."""
 
         # Extract DC components
         dc = expr1.sympy.coeff(tsym, 0)
         dc = ConstantDomainExpression(dc).as_quantity(self.quantity)
         if dc != 0:
-            if 'dc' not in self:
-                self['dc'] = dc
-            else:
-                self['dc'] += dc
+            self._add_dc_expr(dc)
             expr1 -= dc
 
         if expr1 == 0:
@@ -446,10 +465,7 @@ class Superposition(SuperpositionDomain, ExprDict):
             if is_ac(term, tsym):
                 eterm = expr(term).as_quantity(self.quantity)
                 p = eterm.phasor()
-                if p.omega not in self:
-                    self[p.omega] = p
-                else:
-                    self[p.omega] += p
+                self._add_ac_expr(p)
                 ac += eterm
 
         expr1 -= ac
@@ -457,10 +473,7 @@ class Superposition(SuperpositionDomain, ExprDict):
             return
 
         # The remaining components are considered transient.
-        if 't' not in self:
-            self['t'] = expr1
-        else:
-            self['t'] += expr1
+        self._add_transient_time_expr(expr1)
         return
 
     def select(self, kind):
@@ -607,7 +620,7 @@ class Superposition(SuperpositionDomain, ExprDict):
             return
 
         if isinstance(value, LaplaceDomainExpression):
-            self._add_laplace_expr(value)
+            self._add_transient_laplace_expr(value)
             return
 
         if isinstance(value, NoiseExpression):
