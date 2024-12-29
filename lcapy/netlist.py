@@ -328,7 +328,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         the netlist."""
 
         omega_list = []
-        for group in self.independent_source_groups(True).keys():
+        for group in self.independent_source_groups(transform=True).keys():
             if group in ('dc', 's'):
                 continue
             if isinstance(group, str) and group[0] == 'n':
