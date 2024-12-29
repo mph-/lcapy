@@ -1512,6 +1512,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         from .matrix import Matrix
 
+        # This avoids problems such as 0 + phasor where we would
+        # get the wrong value for phasor.omega
+        if self.sympy == 0:
+            return x
+
         if isinstance(x, Matrix):
             return x + self.sympy
 
