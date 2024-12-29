@@ -140,7 +140,6 @@ a conductance in parallel with each capacitor and considers the limit
 as the conductance goes to zero.
 
 
-
 AC (phasor) analysis
 --------------------
 

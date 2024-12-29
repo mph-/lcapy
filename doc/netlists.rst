@@ -1228,18 +1228,22 @@ The properties of each sub-circuit can be found with the `analysis` attribute:
    'zeroic': True}
 
 
-Netlist decomposition
-=====================
+Netlist decomposition and transformation
+========================================
 
 During circuit analysis, Lcapy decomposes netlists into dc, ac,
 transient, and noise sub-netlists.  These are solved independently and
 then the total result is found from superposition.
 
-The decomposition can be performed using the `dc()`, `ac()`,
-`transient()`, and `noise()` methods.  They return a modified netlist
-where the independent source values are dc, ac, transient, and noise,
-respectively.  A related method, `laplace()`, converts all the
-independent source values into the Laplace-domain.  Similarly, `time()` converts all the independent source values into the time-domain.
+Parts of the decomposition can be selected using the `dc()`, `ac()`,
+`transient()`, and `noise()` methods.  These methods return a modified
+netlist where the independent source values are dc, ac, transient, and
+noise, respectively.  The `transient()` method returns the transient
+components in the time-domain.
+
+The method, `laplace()`, converts all the independent source values
+into the Laplace-domain.  Similarly, `time()` converts all the
+independent source values into the time-domain.
 
 For example, consider the netlist:
 
