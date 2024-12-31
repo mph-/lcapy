@@ -39,14 +39,26 @@ def domain_kind_to_class(kind):
     try:
         return classmap[kind]
     except:
-        return PhasorDomainExpression
+
+        def make_phasor(*args, **kwargs):
+            kwargs['omega'] = kind
+            return PhasorDomainExpression(*args, **kwargs)
+        return make_phasor
 
 
 def domain_kind_quantity_to_class(kind, quantity='undefined'):
 
     cls = domain_kind_to_class(kind)
     # TODO: There must be a better way than creating a dummy object.
-    return cls(0)._class_by_quantity(quantity)
+    cls = cls(0)._class_by_quantity(quantity)
+
+    if cls.is_phasor_domain:
+
+        def make_phasor(*args, **kwargs):
+            kwargs['omega'] = kind
+            return PhasorDomainExpression(*args, **kwargs)
+        return make_phasor
+    return cls
 
 
 def domain_quantity_to_class(domain, quantity='undefined'):

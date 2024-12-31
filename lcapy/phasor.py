@@ -103,6 +103,10 @@ class PhasorExpression(Expr):
         if self.omega == x.omega:
             return True
 
+        # Allow adding anything to zero, even if omega fields different
+        if self.sympy == 0 or x.sympy == 0:
+            return True
+
         raise ValueError('Incompatible phasor angular frequencies %s and %s' %
                          (self.omega, x.omega))
 

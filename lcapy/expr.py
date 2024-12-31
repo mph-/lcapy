@@ -1512,22 +1512,28 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         from .matrix import Matrix
 
-        # This avoids problems such as 0 + phasor where we would
-        # get the wrong value for phasor.omega
-        if self.sympy == 0:
-            return x
-
         if isinstance(x, Matrix):
             return x + self.sympy
 
         cls, self, x, assumptions = self.__compat_add__(x, '+')
-        return cls(self.sympy + x.sympy, **assumptions)
+
+        # Handle 0 + phasor to ensure that have correct omega
+        if x.is_phasor_domain and self.sympy == 0:
+            assumptions['omega'] = x.omega
+
+        result = self.sympy + x.sympy
+        return cls(result, **assumptions)
 
     def __radd__(self, x):
         """Reverse add."""
 
         if not isinstance(x, Expr):
             x = expr(x)
+
+        # Don't bypss type checking
+        if False and x.sympy == 0:
+            return self
+
         return x.__add__(self)
 
     def __sub__(self, x):
@@ -1546,6 +1552,11 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         if not isinstance(x, Expr):
             x = expr(x)
+
+        # Don't bypss type checking
+        if False and x.sympy == 0:
+            return self.__neg__()
+
         return x.__sub__(self)
 
     def __pow__(self, x):
