@@ -77,7 +77,7 @@ class LcapyTester(unittest.TestCase):
         # This has a non-invertible A matrix.
         # self.assertEqual2(a.admittance(1, 0), R(0).Y, "Y incorrect across V1")
 
-        self.assertEqual2(a.Voc(1, 0).s, V('V1 / s').Voc.s,
+        self.assertEqual2(a.Voc(1, 0).transient_laplace, V('V1 / s').Voc.transient_laplace,
                           "Voc incorrect across V1")
         self.assertEqual(a.is_IVP, False, "Initial value problem incorrect")
         self.assertEqual(a.is_dc, False, "DC incorrect")
@@ -232,7 +232,7 @@ class LcapyTester(unittest.TestCase):
         a.add('R1 1 2')
         a.add('L1 2 0 L1 {(V1 + 1) / R1}')
         # This tests if symbols are converted to the defined ones.
-        self.assertEqual2(a.L1.v, V(0).Voc.s.inverse_laplace(),
+        self.assertEqual2(a.L1.v, V(0).Voc.transient_laplace.inverse_laplace(),
                           "Incorrect time domain voltage")
         v = LaplaceDomainVoltage('(V1+1)/s', dc=False).inverse_laplace()
         self.assertEqual2(a.R1.v, v,
@@ -281,7 +281,7 @@ class LcapyTester(unittest.TestCase):
         a.add('V1 1 0 {V(s)}')
         a.add('R1 1 2')
         a.add('C1 2 0 C1 0')
-        H = a[2].V.s / a[1].V.s
+        H = a[2].V.transient_laplace / a[1].V.transient_laplace
 
         self.assertEqual2(H, 1 / (s * 'R1' * 'C1' + 1),  "Incorrect ratio")
 
@@ -294,7 +294,7 @@ class LcapyTester(unittest.TestCase):
         a.add('L1 2 3 2; down')
         a.add('W 0 3; right')
 
-        self.assertEqual(a.sub['s'].is_causal, True, "Causal incorrect")
+        self.assertEqual(a.sub['transient_laplace'].is_causal, True, "Causal incorrect")
         self.assertEqual2(a.L1.v, voltage(
             2 * exp(-t) * u(t)), "L current incorrect")
 

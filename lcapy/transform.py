@@ -143,7 +143,7 @@ def select(expr, kind):
         return expr.time()
     elif kind in ('dc', 'time'):
         return expr.subs(0)
-    elif kind in ('s', 'ivp', 'super', 'laplace'):
+    elif kind in ('s', 'ivp', 'super', 'laplace', 'transient'):
         return expr.laplace()
     elif kind == 'f':
         return expr.fourier()
@@ -156,7 +156,7 @@ def select(expr, kind):
     elif isinstance(kind, str) and kind.startswith('n'):
         return expr.angular_fourier()
     else:
-        raise RuntimeError('unknown kind')
+        raise RuntimeError('unknown kind ' + kind)
 
 
 from .fexpr import FourierDomainExpression  # nopep8

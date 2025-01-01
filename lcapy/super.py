@@ -145,12 +145,15 @@ class Superposition(SuperpositionDomain, ExprDict):
         # FOO?
         return self.__getitem__(key)
 
-    def decompose_to_domain(self, expr, kind):
+    def _zero_noise(self):
+
+        cls = domain_kind_quantity_to_class('n', self.quantity)
+        return cls(0)
+
+    def _zero_phasor(self, kind):
 
         cls = domain_kind_quantity_to_class(kind, self.quantity)
-        if cls.is_phasor_domain:
-            return cls(expr, omega=kind)
-        return cls(expr)
+        return cls(0, omega=kind)
 
     @property
     def symbols(self):
@@ -271,13 +274,12 @@ class Superposition(SuperpositionDomain, ExprDict):
 
     @property
     def is_transient(self):
-        """True if only has transient component(s).  Note, should
-        not have both t and s components."""
+        """True if only have transient component(s)."""
         return self.is_s_transient or self.is_t_transient
 
     @property
     def is_causal(self):
-        return (self.is_transient and self.s.is_causal) or self == 0
+        return self.is_transient and self.transient.is_causal
 
     @property
     def is_superposition(self):
@@ -481,13 +483,16 @@ class Superposition(SuperpositionDomain, ExprDict):
 
         - ``'super'`` : the entire superposition
         - ``'time'`` :  the time domain representation (equivalent to self.time())
-        - ``'laplace'`` :  the laplace domain representation (equivalent to self.laplace())
+        - ``'laplace'`` :  the Laplace domain representation (equivalent to self.laplace())
         - ``'ivp'`` :  the s-domain representation (equivalent to self.laplace())
         - ``'dc'`` : the DC component
         - ``'omega'`` : the AC component with angular frequency omega
-        - ``'s'`` : the transient component in the s-domain
+        - ``'s'`` : the transient component defined in the s-domain
+        - ``'t'`` : the transient component defined in the time-domain
         - ``'n'`` : the noise component
-        - ``'t'`` : the time-domain transient component (this may or may not include the DC and AC components).
+        - ``'transient'`` : the transient component (both t and s)
+        - ``'transient_time'`` : the transient component in the time-domain
+        - ``'transient_laplace'`` : the transient component in the Laplace-domain.
 
         """
 
@@ -500,16 +505,49 @@ class Superposition(SuperpositionDomain, ExprDict):
                 return self.laplace()
             elif kind == 'noise':
                 return self.n
+            elif kind == 't':
+                return self.t
+            elif kind == 's':
+                return self.s
+            elif kind == 'dc':
+                return self.dc
+            elif kind == 'transient':
+                return self.transient
+            elif kind == 'transient_laplace':
+                return self.transient_laplace
+            elif kind == 'transient_time':
+                return self.transient_time
 
-            # Select a specific noise component
+            # Select a noise component
             if isinstance(kind, str) and kind[0] == 'n':
                 if kind not in self:
-                    return self.decompose_to_domain(0, 'n')
+                    return self._zero_noise()
                 return self[kind]
 
+        # Select an ac component
         if kind not in self:
-            return self.decompose_to_domain(0, kind)
+            return self._zero_phasor(kind)
         return self[kind]
+
+    def kinds(self, transform=False):
+        """Return the source signal kinds for circuit analysis.  If transform
+        is True, return the transform groups (dc, ac, noise,
+        transient)."""
+
+        kinds = list(self.keys())
+
+        if transform:
+
+            if 't' in kinds:
+                kinds.pop(kinds.index('t'))
+                kinds.append('transient')
+
+            if 's' in kinds:
+                kinds.pop(kinds.index('s'))
+                if 'transient_laplace' not in kinds:
+                    kinds.append('transient')
+
+        return kinds
 
     def netval(self, kind):
 
@@ -519,7 +557,7 @@ class Superposition(SuperpositionDomain, ExprDict):
 
             if kind[0] == 'n':
                 return 'noise'
-            elif kind in ('ivp', 'laplace'):
+            elif kind in ('ivp', 'laplace', 'transient'):
                 return 's'
             elif kind in ('t', 'time'):
                 return ''
@@ -676,7 +714,29 @@ class Superposition(SuperpositionDomain, ExprDict):
     @property
     def dc(self):
         """Return the DC component."""
-        return self.select('dc')
+
+        result = domain_quantity_to_class('time', quantity=self.quantity)(0)
+        if 'dc' in self:
+            result += self['dc']
+        return result
+
+    @property
+    def s(self):
+        """Return the transient component defined in the Laplace-domain."""
+
+        result = domain_quantity_to_class('laplace', quantity=self.quantity)(0)
+        if 's' in self:
+            result += self['s']
+        return result
+
+    @property
+    def t(self):
+        """Return the transient component defined in the time-domain."""
+
+        result = domain_quantity_to_class('time', quantity=self.quantity)(0)
+        if 't' in self:
+            result += self['t']
+        return result
 
     @property
     def _single(self):
@@ -705,19 +765,50 @@ expression.""")
 
     @property
     def transient(self):
+        """Return the transient component in the domain(s) it was define in.
+        It is important for causal signals to be kept in the time
+        domain since casulity is lost if we take the Laplace
+        transform.  See also transient_time and transient_laplace."""
+
+        if 't' in self and 's' in self:
+            raise ValueError("Both t and s kinds")
+
+        elif 't' in self:
+            return self.transient_time
+
+        elif 's' in self:
+            return self.transient_laplace
+
+        result = domain_quantity_to_class('time', quantity=self.quantity)(0)
+        return result
+
+    @property
+    def transient_time(self):
         """Return the transient component in the time-domain."""
 
-        return self.select('t') + self.select('s').inverse_laplace()
+        result = domain_quantity_to_class('time', quantity=self.quantity)(0)
+        if 't' in self:
+            result += self['t']
+        if 's' in self:
+            result += self['s'].inverse_laplace()
+
+        return result
 
     @property
     def transient_laplace(self):
         """Return the transient component in the laplace-domain."""
 
-        return self.select('s') + self.select('t').laplace()
+        result = domain_quantity_to_class('laplace', quantity=self.quantity)(0)
+        if 't' in self:
+            result += self['t'].laplace()
+        if 's' in self:
+            result += self['s']
+
+        return result
 
     @property
     def n(self):
-        result = self.decompose_to_domain(0, 'n')
+        result = self._zero_noise()
         for key in self.noise_keys():
             result += self[key]
         return result

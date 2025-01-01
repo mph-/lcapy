@@ -249,21 +249,19 @@ class NetlistMixin(object):
         return self.analysis.independent_sources
 
     def independent_source_groups(self, transform=False):
-        """Return list of source groups.  Each group is a list of
-        sourcenames that can be analysed at the same time.  Noise
-        sources have separate groups since they are assumed to be
-        uncorrelated.  The source groups are keyed by the names of
-        superposition decomposition keys: 'dc', 's', 't', 'n*', and omega,
-        where omega is an expression for the angular frequency of a phasor,
-        and `n*` is a noise identifier.
+        """Return list of indepedent source groups.  Each group is a list of
+        names of independent sources that can be analysed at the same
+        time.  Noise sources have separate groups since they are
+        assumed to be uncorrelated.  The source groups are keyed by
+        the names of superposition decomposition keys: 'dc',
+        'transient', 'n*', and omega, where omega is an
+        expression for the angular frequency of a phasor, and `n*` is
+        a noise identifier.
 
-        If transform is False, the returned keys are 'dc', 't', 's', and 'n*'.
-
-        If transform is True, the returned keys are 'dc', 's', omega,
-        and 'n*'.  Note, there is no time-domain component.  Also note,
-        after transformation, a source can appear in multiple groups.
-        For example, if a voltage source V1 has a value 10 + 5 *
-        cos(omega * t), V1 will be added to the dc and omega groups.
+        Note, there is no time-domain component.  Also note, a source
+        can appear in multiple groups.  For example, if a voltage
+        source V1 has a value 10 + 5 * cos(omega * t), V1 will be
+        added to the dc and omega groups.
 
         """
 
@@ -274,14 +272,10 @@ class NetlistMixin(object):
             cpt = elt.cpt
             if cpt.is_voltage_source:
                 Voc = cpt.Voc
-                if transform:
-                    Voc = Voc.decompose()
-                cpt_kinds = Voc.keys()
+                cpt_kinds = Voc.kinds(transform)
             else:
                 Isc = cpt.Isc
-                if transform:
-                    Isc = Isc.decompose()
-                cpt_kinds = Isc.keys()
+                cpt_kinds = Isc.kinds(transform)
 
             for cpt_kind in cpt_kinds:
                 if cpt_kind not in groups:

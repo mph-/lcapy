@@ -9,6 +9,7 @@ from .noiseomegaexpr import AngularFourierNoiseDomainExpression
 classmap = {'s': LaplaceDomainExpression,
             'ivp': LaplaceDomainExpression,
             'laplace': LaplaceDomainExpression,
+            'transient': LaplaceDomainExpression,
             't': TimeDomainExpression,
             'time': TimeDomainExpression,
             'f': FourierDomainExpression,
@@ -39,6 +40,7 @@ def domain_kind_to_class(kind):
     try:
         return classmap[kind]
     except:
+        return PhasorDomainExpression
 
         def make_phasor(*args, **kwargs):
             kwargs['omega'] = kind
@@ -52,7 +54,7 @@ def domain_kind_quantity_to_class(kind, quantity='undefined'):
     # TODO: There must be a better way than creating a dummy object.
     cls = cls(0)._class_by_quantity(quantity)
 
-    if cls.is_phasor_domain:
+    if False and cls.is_phasor_domain:
 
         def make_phasor(*args, **kwargs):
             kwargs['omega'] = kind

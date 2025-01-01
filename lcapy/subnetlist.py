@@ -22,7 +22,7 @@ class SubNetlist(NetlistMixin, NetlistSimplifyMixin, NetfileMixin):
 
     def __new__(cls, netlist, kind):
 
-        kinds = ('t', 'dc', 's', 'time', 'ivp', 'laplace')
+        kinds = ('dc', 'transient', 'time', 'ivp', 'laplace')
         if not isinstance(kind, str) or kind[0] == 'n':
             pass
         elif kind not in kinds:
@@ -39,8 +39,9 @@ class SubNetlist(NetlistMixin, NetlistSimplifyMixin, NetfileMixin):
         return obj
 
     def __init__(self, netlist, kind):
-        """ kind can be 't', 'dc', 's', 'time', 'ivp', 'n*' or omega,
-        where 'n*' is a noise identifer and omega is an angular frequency."""
+        """kind can be 'dc', 'transient', 'time', 'ivp', 'n*' or
+        omega, where 'n*' is a noise identifer and omega is an angular
+        frequency."""
 
         self.mna = MNA(self, self.solver_method)
 

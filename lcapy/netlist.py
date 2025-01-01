@@ -53,8 +53,8 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
 
         return self.kind in ('super', 'time', 't')
 
-    def _groups(self):
-        """Return dictionary of source groups keyed by domain.
+    def _analysis_groups(self):
+        """Return dictionary of independent source groups keyed by domain.
 
         If the netlist is for an initial value problem, all the
         sources are in a single group called 'ivp'.  Any noise sources
@@ -65,9 +65,10 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         group called 'time'.
 
         Otherwise, the sources are decomposed and then grouped into
-        the 'dc', 's', 'n*', and omega categories.  Note, a source can
-        appear in multiple groups, for example, a source with voltage
-        3 + u(t) will appear in both the 'dc' and 's' groups.
+        the 'dc', 'transient', 'n*', and omega categories.
+        Note, a source can appear in multiple groups, for example, a
+        source with voltage 3 + u(t) will appear in both the 'dc' and
+        'transient' groups.
 
         """
 
@@ -80,6 +81,8 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
                 warn('Missing initial conditions for %s' %
                      namelist(self.missing_ic))
 
+            # Put all the sources except noise sources into 'ivp' group
+            # and ignore the noise sources.
             groups = self.independent_source_groups()
             newgroups = {'ivp': []}
             for key, sources in groups.items():
@@ -91,6 +94,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
 
         elif self.is_time_domain:
 
+            # Put all the sources except noise sources into 'time' group
             groups = self.independent_source_groups()
             newgroups = {'time': []}
             for key, sources in groups.items():
@@ -101,13 +105,13 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
             return newgroups
 
         else:
-            return self.independent_source_groups(transform=True)
+            return self.independent_source_groups(True)
 
     @lru_cache(1)
     def _subs_make(self, nowarn=False):
 
         cct = self.expand()
-        groups = cct._groups()
+        groups = cct._analysis_groups()
         sub = TransformDomains()
 
         for kind, sources in groups.items():
@@ -328,8 +332,8 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         the netlist."""
 
         omega_list = []
-        for group in self.independent_source_groups(transform=True).keys():
-            if group in ('dc', 's'):
+        for group in self.independent_source_groups().keys():
+            if group in ('dc', 's', 't'):
                 continue
             if isinstance(group, str) and group[0] == 'n':
                 continue
@@ -603,11 +607,13 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         if self.is_switching:
             return 'This has switches and thus is time variant.  Use the convert_IVP(t) method to convert to an initial value problem, specifying the time when to evaluate the switches.'
 
-        groups = self.independent_source_groups(
-            transform=not self.is_time_domain)
+        groups = self.independent_source_groups(True)
 
         if groups == {}:
             return 'There are no non-zero independent sources so everything is zero.\n'
+
+        if self.is_time_domain:
+            return 'This is solved in the time-domain since there are no reactive components.\n'
 
         if self.is_IVP:
             return 'This has initial conditions for %s so is an initial value problem solved in the Laplace-domain using Laplace transforms.\n' \
@@ -625,7 +631,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
                 s += describe_analysis('Noise', sources)
             elif kind == 'dc':
                 s += describe_analysis('DC', sources)
-            elif kind == 's':
+            elif kind == 'transient':
                 s += describe_analysis('Laplace', sources)
             elif kind in ('t', 'time'):
                 s += describe_analysis('Time-domain', sources)
@@ -668,13 +674,31 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
 
     def transient(self):
         """Return netlist for transient components of independent
-        sources.  Note, unlike the similar laplace method, dc and ac
-        components are ignored.
+        sources.
 
         See also: ac, dc, laplace, noise, time.
 
         """
-        return self.select('s')
+        return self.select('transient')
+
+    def transient_time(self):
+        """Return netlist for transient components of independent sources in
+        Time-domain.
+
+        See also: ac, dc, laplace, noise, time.
+
+        """
+        return self.select('tranient_time')
+
+    def transient_laplace(self):
+        """Return netlist for transient components of independent sources in
+        Laplace-domain.  Note, unlike the similar laplace method, dc
+        and ac components are ignored.
+
+        See also: ac, dc, laplace, noise, time.
+
+        """
+        return self.select('tranient_laplace')
 
     def _new(self):
 

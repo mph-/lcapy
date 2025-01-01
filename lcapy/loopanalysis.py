@@ -70,15 +70,15 @@ class LoopAnalysis(object):
         self.cct = cct
         self.cg = CircuitGraph.from_circuit(cct)
 
-        source_groups = cct.independent_source_groups()
+        self.kind = cct.kind
+        if cct.kind == 'super':
+            source_groups = cct.independent_source_groups()
 
-        if len(source_groups) > 1:
-            # Could convert to time domain
-            raise ValueError('Multiple independent source domains')
-        elif len(source_groups) == 1:
-            self.kind = list(source_groups)[0]
-        else:
-            self.kind = cct.kind
+            if len(source_groups) > 1:
+                self.cct = self.cct.time()
+                self.kind = 'time'
+            elif len(source_groups) == 1:
+                self.kind = list(source_groups)[0]
 
         self._equations = self._make_equations()
 
@@ -115,7 +115,7 @@ class LoopAnalysis(object):
 
     def _add_mesh_currents(self, loop, loops, node_names, mesh_currents):
 
-        current = 0
+        current = Itype(self.kind)(0)
 
         # Find opposing currents in other meshes flowing through cpt.
         for n, loop2 in enumerate(loops):
@@ -307,6 +307,6 @@ class LoopAnalysis(object):
 
 
 from .expr import ExprList, ExprDict, expr  # nopep8
-from .current import Iname  # nopep8
+from .current import Iname, Itype  # nopep8
 from .voltage import Vtype  # nopep8
 from .matrix import matrix  # nopep8
