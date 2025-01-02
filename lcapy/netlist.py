@@ -108,7 +108,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
             return self.independent_source_groups(True)
 
     @lru_cache(1)
-    def _subs_make(self, nowarn=False):
+    def _subcircuits_make(self, nowarn=False):
 
         cct = self.expand()
         groups = cct._analysis_groups()
@@ -168,7 +168,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         selected.
 
         """
-        return self._subs_make()
+        return self._subcircuits_make()
 
     @property
     def subcircuits(self):
@@ -289,7 +289,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         """Current through component (time-domain)"""
 
         self._add_ground()
-        subs = self._subs_make(nowarn=nowarn)
+        subs = self._subcircuits_make(nowarn=nowarn)
 
         result = SuperpositionCurrent()
         for sub in subs.values():
@@ -307,7 +307,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         """This does not check nodes."""
 
         self._add_ground()
-        subs = self._subs_make(nowarn=nowarn)
+        subs = self._subcircuits_make(nowarn=nowarn)
 
         result = SuperpositionVoltage()
         for sub in subs.values():

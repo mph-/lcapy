@@ -568,7 +568,7 @@ class NetlistMixin(object):
     def _invalidate(self):
 
         caches = ('nodal_analysis', 'mesh_analysis', 'modified_nodal_analysis',
-                  'circuit_graph', '_subs_make', 'analyse')
+                  'circuit_graph', '_subcircuits_make', 'analyse')
         for cache in caches:
             getattr(self, cache).cache_clear()
 
