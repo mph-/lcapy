@@ -84,10 +84,10 @@ class LcapyNetworksTester(unittest.TestCase):
         self.assertEqual(a.Voc.is_dc, False, "Voc.is_dc error")
         self.assertEqual(a.Voc.has_ac, True, "Voc.has_ac error")
         self.assertEqual(a.Voc.is_ac, False, "Voc.is_ac error")
-        self.assertEqual2(a.Voc.s, voltage(10 / s), "Voc.s error")
+        self.assertEqual2(a.Voc.transient_laplace, voltage(10 / s), "Voc.transient_laplace error")
         self.assertEqual(a.Voc.n.expr, AngularFourierNoiseDomainVoltage(
             20).expr, "Voc.n error")
-        self.assertEqual2(a.Isc.s, current(2 / s), "Isc.s error")
+        self.assertEqual2(a.Isc.transient_laplace, current(2 / s), "Isc.transient_laplace error")
         # FIXME, this intermittently fails.
         self.assertEqual(
             a.Isc.n.expr, AngularFourierNoiseDomainCurrent(4).expr, "Isc.n error")
@@ -97,7 +97,7 @@ class LcapyNetworksTester(unittest.TestCase):
 
         a = Vstep(10) + C('C1', 5)
         self.assertEqual(a.is_IVP, True, "IVP fail")
-        self.assertEqual2(a.Voc.s, voltage(15 / s), "Voc fail")
+        self.assertEqual2(a.Voc.transient_laplace, voltage(15 / s), "Voc fail")
 
     def test_causal(self):
         """Check network is causal"""

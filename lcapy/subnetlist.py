@@ -43,6 +43,7 @@ class SubNetlist(NetlistMixin, NetlistSimplifyMixin, NetfileMixin):
         omega, where 'n*' is a noise identifer and omega is an angular
         frequency."""
 
+        # This creates the stamps but does not solve them.
         self.mna = MNA(self, self.solver_method)
 
     def get_I(self, name):

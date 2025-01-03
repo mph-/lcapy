@@ -60,6 +60,10 @@ class Superposition(SuperpositionDomain, ExprDict):
     # The 's' key is the transient component defined in the Laplace domain.
     # The transient component is the sum of the 't' and 's' components.
 
+    # (Vstep(10) + C('C1', 5)).Voc produces a combination of s: 5/s, t: 10 u(t)
+
+
+
     def __init__(self, *args, **kwargs):
         super(Superposition, self).__init__()
 
@@ -82,12 +86,14 @@ class Superposition(SuperpositionDomain, ExprDict):
             key = list(self)[0]
             if key in ('dc', 't'):
                 return self[key]
-            if key in ('s', 'f', 'omega'):
+            elif key in ('s', 'f', 'omega'):
                 expr = self[key]
                 if expr.has(expr.var):
                     return self[key]
                 # Have something like s * 0 + 1 so don't display as 1
                 # since not a dc value.
+            else:
+                return self[key].time()
 
         # Have a superposition.
         # It is probably less confusing to a user to display
@@ -478,7 +484,7 @@ class Superposition(SuperpositionDomain, ExprDict):
         self._add_transient_time_expr(expr1)
         return
 
-    def select(self, kind):
+    def select(self, kind, transform=False):
         """Select a component of the signal representation by kind where:
 
         - ``'super'`` : the entire superposition
@@ -490,7 +496,8 @@ class Superposition(SuperpositionDomain, ExprDict):
         - ``'s'`` : the transient component defined in the s-domain
         - ``'t'`` : the transient component defined in the time-domain
         - ``'n'`` : the noise component
-        - ``'transient'`` : the transient component (both t and s)
+        - ``'transient'`` : the transient component in the time domain unless
+          ``tranforms`` is True
         - ``'transient_time'`` : the transient component in the time-domain
         - ``'transient_laplace'`` : the transient component in the Laplace-domain.
 
@@ -512,7 +519,7 @@ class Superposition(SuperpositionDomain, ExprDict):
             elif kind == 'dc':
                 return self.dc
             elif kind == 'transient':
-                return self.transient
+                return self.transient_laplace if transform else self.transient_time
             elif kind == 'transient_laplace':
                 return self.transient_laplace
             elif kind == 'transient_time':
@@ -557,14 +564,14 @@ class Superposition(SuperpositionDomain, ExprDict):
 
             if kind[0] == 'n':
                 return 'noise'
-            elif kind in ('ivp', 'laplace', 'transient'):
+            elif kind in ('ivp', 'laplace'):
                 return 's'
-            elif kind in ('t', 'time'):
+            elif kind in ('t', 'time', 'transient'):
                 return ''
             return kind
 
         val = self.select(kind)
-        if (isinstance(kind, str) and kind in ('s', 'ivp') and
+        if (isinstance(kind, str) and kind == 's' and
                 (val.is_causal or val.is_dc or val.is_ac)):
             # Convert to time representation so that can re-infer
             # causality, etc.
@@ -765,22 +772,9 @@ expression.""")
 
     @property
     def transient(self):
-        """Return the transient component in the domain(s) it was define in.
-        It is important for causal signals to be kept in the time
-        domain since casulity is lost if we take the Laplace
-        transform.  See also transient_time and transient_laplace."""
+        """Return the transient component in the time-domain"""
 
-        if 't' in self and 's' in self:
-            raise ValueError("Both t and s kinds")
-
-        elif 't' in self:
-            return self.transient_time
-
-        elif 's' in self:
-            return self.transient_laplace
-
-        result = domain_quantity_to_class('time', quantity=self.quantity)(0)
-        return result
+        return self.transient_time
 
     @property
     def transient_time(self):

@@ -234,7 +234,7 @@ class MNA(object):
         assumptions = Assumptions()
         if vtype.is_phasor_domain:
             assumptions.set('omega', self.kind)
-        elif self.kind in ('s', 'ivp'):
+        elif self.kind in ('s', 'ivp', 'transient'):
             assumptions.set('ac', cct.is_ac)
             assumptions.set('dc', cct.is_dc)
             assumptions.set('causal', cct.is_causal)

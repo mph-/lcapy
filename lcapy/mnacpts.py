@@ -718,7 +718,7 @@ class Cpt(ImmittanceMixin):
         """Short-circuit current for component in isolation, i.e, current in
         wire connected across component."""
 
-        return self.cpt.Isc.select(self.cct.kind)
+        return self.cpt.Isc.select(self.cct.kind, True)
 
     @property
     def isc(self):
@@ -731,7 +731,7 @@ class Cpt(ImmittanceMixin):
     def Voc(self):
         """Open-circuit voltage for component in isolation."""
 
-        return self.cpt.Voc.select(self.cct.kind)
+        return self.cpt.Voc.select(self.cct.kind, True)
 
     @property
     def voc(self):
