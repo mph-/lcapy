@@ -1324,7 +1324,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     def __mul__(self, x):
         """Multiply."""
 
-        from .super import Superposition
+        from .superposition import Superposition
 
         if isinstance(x, Superposition):
             return x.__mul__(self)
@@ -1539,7 +1539,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
     def __sub__(self, x):
         """Subtract."""
 
-        from .super import Superposition
+        from .superposition import Superposition
 
         if isinstance(x, Superposition):
             return -x + self
