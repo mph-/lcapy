@@ -654,7 +654,32 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         See also: ac, dc, transient, noise, time.
 
         """
-        return self.select('laplace')
+
+        if self.is_causal:
+            return self.select('laplace')
+
+        # FIXME
+        if self.has_ac:
+            warn('Ignoring initial conditions due to AC source')
+
+        # Calculate initial conditions due to DC source
+        dc = self.dc()
+        lap = self.select('laplace')
+
+        new = self._new()
+
+        for cpt in lap._elements.values():
+            if cpt.is_inductor:
+                i0 = dc[cpt.name].i
+                net = cpt._netmake(args=(cpt.args[0], i0))
+            elif cpt.is_capacitor:
+                v0 = dc[cpt.name].v
+                net = cpt._netmake(args=(cpt.args[0], v0))
+            else:
+                net = cpt._copy()
+            new._add(net)
+
+        return new
 
     def time(self):
         """Return netlist for time-domain representations of independent
