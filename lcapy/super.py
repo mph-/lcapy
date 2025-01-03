@@ -89,12 +89,15 @@ class Superposition(SuperpositionDomain, ExprDict):
             key = list(decomp)[0]
             if key in ('dc', 't'):
                 return decomp[key]
-            if key in ('s', 'f', 'omega'):
+            elif key in ('s', 'f', 'omega'):
                 expr = decomp[key]
                 if expr.has(expr.var):
                     return decomp[key]
                 # Have something like s * 0 + 1 so don't display as 1
                 # since not a dc value.
+            elif not isinstance(key, str):
+                # Have phasor
+                return decomp[key]
 
         # Have a superposition.
         # It is probably less confusing to a user to display
@@ -355,8 +358,11 @@ class Superposition(SuperpositionDomain, ExprDict):
 
         x = expr(x)
         # Perhaps check if a constant?
-        if x.is_undefined:
-            x = x.as_quantity(self.quantity)
+        try:
+            if x.is_undefined:
+                x = x.as_quantity(self.quantity)
+        except:
+            pass
 
         if x.quantity != self.quantity:
             raise ValueError('Incompatible quantities %s and %s' %
