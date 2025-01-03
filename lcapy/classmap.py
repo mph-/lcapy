@@ -23,8 +23,8 @@ symbolmap = {'s': '(s)',
              'f': '(f)',
              'dc': ''}
 
-domainmap = {'constant': 'dc',
-             'constant time': 'dc',
+domainmap = {'constant': 't',
+             'constant time': 't',
              'constant frequency response': 'dc',             # ????
              'time': 't',
              'laplace': 's',

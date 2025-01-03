@@ -56,13 +56,11 @@ class Superposition(SuperpositionDomain, ExprDict):
 
     # Where possible this class represents a signal in the time-domain.
     # It can decompose a signal into AC, DC, and transient components.
-    # The 't' key is the transient component defined in the time domain.
-    # The 's' key is the transient component defined in the Laplace domain.
-    # The transient component is the sum of the 't' and 's' components.
+
+    # The 't' key is the component defined in the time domain.
+    # The 's' key is the component defined in the Laplace domain.
 
     # (Vstep(10) + C('C1', 5)).Voc produces a combination of s: 5/s, t: 10 u(t)
-
-
 
     def __init__(self, *args, **kwargs):
         super(Superposition, self).__init__()
@@ -81,26 +79,29 @@ class Superposition(SuperpositionDomain, ExprDict):
         if not any(self):
             return 0
 
-        # If have a single element, show value.
         if len(self) == 1:
-            key = list(self)[0]
+            decomp = self
+        else:
+            decomp = self.decompose()
+
+        # If have a single element, show value.
+        if len(decomp) == 1:
+            key = list(decomp)[0]
             if key in ('dc', 't'):
-                return self[key]
-            elif key in ('s', 'f', 'omega'):
-                expr = self[key]
+                return decomp[key]
+            if key in ('s', 'f', 'omega'):
+                expr = decomp[key]
                 if expr.has(expr.var):
-                    return self[key]
+                    return decomp[key]
                 # Have something like s * 0 + 1 so don't display as 1
                 # since not a dc value.
-            else:
-                return self[key].time()
 
         # Have a superposition.
         # It is probably less confusing to a user to display
         # using a decomposition in the transform domains.
         # We could present the result in the time-domain but this
         # hides the underlying way the signal is analysed.
-        return dict(self)
+        return dict(decomp)
 
     def latex(self, **kwargs):
         """Latex"""
@@ -135,31 +136,26 @@ class Superposition(SuperpositionDomain, ExprDict):
         return pprint(self._representation())
 
     def __getitem__(self, key):
-
         # This allows a[omega] to work if omega used as key
         # instead of 'omega'.
         if isinstance(key, Expr):
             key = key.sympy
         if key in self:
             return super(Superposition, self).__getitem__(key)
-
-        if key == 0 and 'dc' in self:
+        decomp = self.decompose()
+        if key == 0 and 'dc' in decomp:
             key = 'dc'
-        if key not in self:
+        if key not in decomp:
             raise IndexError('Unknown signal component %s' % key)
 
-        # FOO?
-        return self.__getitem__(key)
+        return decomp.__getitem__(key)
 
-    def _zero_noise(self):
-
-        cls = domain_kind_quantity_to_class('n', self.quantity)
-        return cls(0)
-
-    def _zero_phasor(self, kind):
+    def decompose_to_domain(self, expr, kind):
 
         cls = domain_kind_quantity_to_class(kind, self.quantity)
-        return cls(0, omega=kind)
+        if cls.is_phasor_domain:
+            return cls(expr, omega=kind)
+        return cls(expr)
 
     @property
     def symbols(self):
@@ -184,7 +180,7 @@ class Superposition(SuperpositionDomain, ExprDict):
         """Return list of keys for all ac components."""
 
         keys = []
-        for key in self.keys():
+        for key in self.decompose().keys():
             if not isinstance(key, str) or key == 'w':
                 keys.append(key)
         return keys
@@ -220,7 +216,7 @@ class Superposition(SuperpositionDomain, ExprDict):
     @property
     def has_dc(self):
         """True if there is a DC component."""
-        return self == 0 or 'dc' in self
+        return self == 0 or 'dc' in self.decompose()
 
     @property
     def has_ac(self):
@@ -250,7 +246,7 @@ class Superposition(SuperpositionDomain, ExprDict):
     @property
     def is_dc(self):
         """True if only has a DC component."""
-        return self == 0 or (self.has_dc and list(self.keys()) == ['dc'])
+        return self == 0 or (self.has_dc and list(self.decompose().keys()) == ['dc'])
 
     @property
     def is_ac(self):
@@ -271,21 +267,22 @@ class Superposition(SuperpositionDomain, ExprDict):
     @property
     def is_s_transient(self):
         """True if only has s-domain transient component."""
-        return list(self.keys()) == ['s']
+        return list(self.decompose().keys()) == ['s']
 
     @property
     def is_t_transient(self):
         """True if only has t-domain transient component."""
-        return list(self.keys()) == ['t']
+        return list(self.decompose().keys()) == ['x']
 
     @property
     def is_transient(self):
-        """True if only have transient component(s)."""
+        """True if only has transient component(s).  Note, should
+        not have both t and s components."""
         return self.is_s_transient or self.is_t_transient
 
     @property
     def is_causal(self):
-        return self.is_transient and self.transient.is_causal
+        return (self.is_transient and self.transient.is_causal) or self == 0
 
     @property
     def is_superposition(self):
@@ -366,7 +363,7 @@ class Superposition(SuperpositionDomain, ExprDict):
                              (self.quantity, x.quantity))
 
         if _is_s_arg(x):
-            new = self
+            new = self.decompose()
         else:
             new = self.__class__(self)
 
@@ -405,7 +402,7 @@ class Superposition(SuperpositionDomain, ExprDict):
 
         Also note, noise cannot be compared."""
 
-        diff = (self - x).simplify()
+        diff = (self - x).simplify().decompose()
         for kind, value in diff.items():
             if value != 0:
                 return False
@@ -418,53 +415,27 @@ class Superposition(SuperpositionDomain, ExprDict):
 
         Also note, noise cannot be compared."""
 
-        diff = (self - x).simplify()
+        diff = (self - x).simplify().decompose()
         for kind, value in diff.items():
             if value != 0:
                 return True
         return False
 
-    def _add_ac_expr(self, p):
+    def _decompose_timedomain_expr(self, expr1):
+        """Decompose a time domain expr into AC, DC, and s-domain
+        transient components."""
 
-        if p.omega not in self:
-            self[p.omega] = p
-        else:
-            self[p.omega] += p
-
-    def _add_dc_expr(self, expr1):
-
-        if 'dc' not in self:
-            self['dc'] = expr1
-        else:
-            self['dc'] += expr1
-
-    def _add_transient_laplace_expr(self, expr1):
-
-        if 's' not in self:
-            self['s'] = expr1
-        else:
-            self['s'] += expr1
-
-    def _add_transient_time_expr(self, expr1):
-
-        if 't' not in self:
-            self['t'] = expr1
-        else:
-            self['t'] += expr1
-
-    def _add_time_expr(self, expr1):
-        """Decompose a time domain expr into AC, DC, and transient time
-        components."""
+        result = {}
 
         # Extract DC components
         dc = expr1.sympy.coeff(tsym, 0)
         dc = ConstantDomainExpression(dc).as_quantity(self.quantity)
         if dc != 0:
-            self._add_dc_expr(dc)
+            result['dc'] = dc
             expr1 -= dc
 
         if expr1 == 0:
-            return
+            return result
 
         # Extract AC components
         ac = 0
@@ -473,33 +444,49 @@ class Superposition(SuperpositionDomain, ExprDict):
             if is_ac(term, tsym):
                 eterm = expr(term).as_quantity(self.quantity)
                 p = eterm.phasor()
-                self._add_ac_expr(p)
+                result[p.omega] = p
                 ac += eterm
 
         expr1 -= ac
         if expr1 == 0:
-            return
+            return result
 
-        # The remaining components are considered transient.
-        self._add_transient_time_expr(expr1)
-        return
+        # The remaining components are considered transient
+        result['x'] = expr1
+        return result
+
+    def decompose(self):
+        """Decompose into a new representation in the transform domains."""
+
+        if hasattr(self, '_decomposition'):
+            return self._decomposition
+
+        new = self.__class__()
+
+        for kind, value in self.items():
+            if kind == 't':
+                decomp = new._decompose_timedomain_expr(value)
+                for key, value in decomp.items():
+                    new[key] = value
+            else:
+                new[kind] = value
+
+        self._decomposition = new
+        return new
 
     def select(self, kind, transform=False):
         """Select a component of the signal representation by kind where:
 
         - ``'super'`` : the entire superposition
-        - ``'time'`` :  the time domain representation (equivalent to self.time())
-        - ``'laplace'`` :  the Laplace domain representation (equivalent to self.laplace())
-        - ``'ivp'`` :  the s-domain representation (equivalent to self.laplace())
+        - ``'time'`` : the time domain representation (equivalent to self.time())
+        - ``'laplace'`` : the Laplace domain representation (equivalent to self.laplace())
+        - ``'transient'`` : the transient component (equivalent to self.transient())
+        - ``'ivp'`` : the s-domain representation (equivalent to self.laplace())
         - ``'dc'`` : the DC component
         - ``'omega'`` : the AC component with angular frequency omega
-        - ``'s'`` : the transient component defined in the s-domain
-        - ``'t'`` : the transient component defined in the time-domain
+        - ``'s'`` : the component defined in the Laplace-domain
         - ``'n'`` : the noise component
-        - ``'transient'`` : the transient component in the time domain unless
-          ``tranforms`` is True
-        - ``'transient_time'`` : the transient component in the time-domain
-        - ``'transient_laplace'`` : the transient component in the Laplace-domain.
+        - ``'t'`` : the component defined in the time-domain.
 
         """
 
@@ -512,41 +499,35 @@ class Superposition(SuperpositionDomain, ExprDict):
                 return self.laplace()
             elif kind == 'noise':
                 return self.n
-            elif kind == 't':
-                return self.t
-            elif kind == 's':
-                return self.s
-            elif kind == 'dc':
-                return self.dc
             elif kind == 'transient':
-                return self.transient_laplace if transform else self.transient_time
-            elif kind == 'transient_laplace':
-                return self.transient_laplace
-            elif kind == 'transient_time':
-                return self.transient_time
+                return self.transient_laplace if transform else self.transient
 
-            # Select a noise component
+            # Select a specific noise component
             if isinstance(kind, str) and kind[0] == 'n':
                 if kind not in self:
-                    return self._zero_noise()
+                    return self.decompose_to_domain(0, 'n')
                 return self[kind]
 
-        # Select an ac component
-        if kind not in self:
-            return self._zero_phasor(kind)
-        return self[kind]
+        obj = self
+        if 't' in self and (kind == omega or 't' != kind):
+            # The rationale here is that there may be
+            # DC and AC components included in the 't' part.
+            obj = self.decompose()
+
+        if kind not in obj:
+            return obj.decompose_to_domain(0, kind)
+        return obj[kind]
 
     def kinds(self, transform=False):
         """Return the source signal kinds for circuit analysis.  If transform
         is True, return the transform groups (dc, ac, noise,
         transient)."""
 
-        kinds = list(self.keys())
-
         if transform:
+            kinds = list(self.decompose().keys())
 
-            if 't' in kinds:
-                kinds.pop(kinds.index('t'))
+            if 'x' in kinds:
+                kinds.pop(kinds.index('x'))
                 kinds.append('transient')
 
             if 's' in kinds:
@@ -554,7 +535,10 @@ class Superposition(SuperpositionDomain, ExprDict):
                 if 'transient_laplace' not in kinds:
                     kinds.append('transient')
 
-        return kinds
+            return kinds
+
+        return list(self.keys())
+
 
     def netval(self, kind):
 
@@ -630,7 +614,7 @@ class Superposition(SuperpositionDomain, ExprDict):
 
         return self.add(TimeDomainExpression(string))
 
-    def _add_noise_expr(self, value):
+    def _add_noise(self, value):
 
         if value.nid not in self:
             self[value.nid] = value
@@ -652,6 +636,9 @@ class Superposition(SuperpositionDomain, ExprDict):
             if val == 0:
                 return
 
+        if hasattr(self, '_decomposition'):
+            delattr(self, '_decomposition')
+
         if isinstance(value, Superposition):
             for kind, value1 in value.items():
                 self.add(value1)
@@ -660,16 +647,8 @@ class Superposition(SuperpositionDomain, ExprDict):
         if isinstance(value, str):
             return self._parse(value)
 
-        if isinstance(value, TimeDomainExpression):
-            self._add_time_expr(value)
-            return
-
-        if isinstance(value, LaplaceDomainExpression):
-            self._add_transient_laplace_expr(value)
-            return
-
         if isinstance(value, NoiseExpression):
-            self._add_noise_expr(value)
+            self._add_noise(value)
             return
 
         value = expr(value)
@@ -721,35 +700,13 @@ class Superposition(SuperpositionDomain, ExprDict):
     @property
     def dc(self):
         """Return the DC component."""
-
-        result = domain_quantity_to_class('time', quantity=self.quantity)(0)
-        if 'dc' in self:
-            result += self['dc']
-        return result
-
-    @property
-    def s(self):
-        """Return the transient component defined in the Laplace-domain."""
-
-        result = domain_quantity_to_class('laplace', quantity=self.quantity)(0)
-        if 's' in self:
-            result += self['s']
-        return result
-
-    @property
-    def t(self):
-        """Return the transient component defined in the time-domain."""
-
-        result = domain_quantity_to_class('time', quantity=self.quantity)(0)
-        if 't' in self:
-            result += self['t']
-        return result
+        return self.select('dc')
 
     @property
     def _single(self):
         """Extract single expression; raise error if a superposition."""
 
-        decomp = self
+        decomp = self.decompose()
 
         if len(decomp) > 1:
             raise ValueError("""
@@ -768,21 +725,19 @@ expression.""")
     @property
     def ac(self):
         """Return the AC components."""
+        if 't' in self.keys():
+            self = self.decompose()
         return ExprDict({k: v for k, v in self.items() if k in self.ac_keys()})
 
     @property
     def transient(self):
-        """Return the transient component in the time-domain"""
-
-        return self.transient_time
-
-    @property
-    def transient_time(self):
         """Return the transient component in the time-domain."""
 
         result = domain_quantity_to_class('time', quantity=self.quantity)(0)
-        if 't' in self:
-            result += self['t']
+
+        decomp = self.decompose()
+        if 'x' in decomp:
+            result += decomp['x']
         if 's' in self:
             result += self['s'].inverse_laplace()
 
@@ -792,17 +747,20 @@ expression.""")
     def transient_laplace(self):
         """Return the transient component in the laplace-domain."""
 
-        result = domain_quantity_to_class('laplace', quantity=self.quantity)(0)
-        if 't' in self:
-            result += self['t'].laplace()
-        if 's' in self:
-            result += self['s']
+        return self.transient.laplace()
 
-        return result
+    @property
+    def s(self):
+        """Return the s-domain representation of the transient component.
+        This is not the full s-domain representation as returned by the
+        laplace method V.laplace() or V(s).
+
+        This attribute may be deprecated due to possible confusion."""
+        return self.transient_laplace
 
     @property
     def n(self):
-        result = self._zero_noise()
+        result = self.decompose_to_domain(0, 'n')
         for key in self.noise_keys():
             result += self[key]
         return result

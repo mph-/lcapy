@@ -83,7 +83,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
 
             # Put all the sources except noise sources into 'ivp' group
             # and ignore the noise sources.
-            groups = self.independent_source_groups()
+            groups = self.independent_source_groups(True)
             newgroups = {'ivp': []}
             for key, sources in groups.items():
                 if isinstance(key, str) and key[0] == 'n':
@@ -95,7 +95,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         elif self.is_time_domain:
 
             # Put all the sources except noise sources into 'time' group
-            groups = self.independent_source_groups()
+            groups = self.independent_source_groups(True)
             newgroups = {'time': []}
             for key, sources in groups.items():
                 if isinstance(key, str) and key[0] == 'n':
