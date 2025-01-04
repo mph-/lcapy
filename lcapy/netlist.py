@@ -647,34 +647,32 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
             new._add(cpt._expand())
         return new
 
-    def laplace(self):
+    def laplace(self, ics=True):
         """Return netlist for Laplace-domain representations of independent
         source values.
+
+        If `ics` is True, compute initial conditions for capacitors
+        and inductors.
 
         See also: ac, dc, transient, noise, time.
 
         """
 
         lap =  self.select('laplace')
-        if self.is_causal:
+        if self.is_causal or not ics or self.reactances == []:
             return lap
 
-        # FIXME
-        if self.has_ac:
-            warn('Ignoring initial conditions due to AC source')
-            return
-
-        # Calculate initial conditions due to DC source
+        # Calculate initial conditions
         dc = self.dc()
 
         new = self._new()
 
-        for cpt in lap._elements.values():
+        for cpt in self._elements.values():
             if cpt.is_inductor:
-                i0 = dc[cpt.name].i
+                i0 = cpt.i(0)
                 net = cpt._netmake(args=(cpt.args[0], i0))
             elif cpt.is_capacitor:
-                v0 = dc[cpt.name].v
+                v0 = cpt.v(0)
                 net = cpt._netmake(args=(cpt.args[0], v0))
             else:
                 net = cpt._copy()
