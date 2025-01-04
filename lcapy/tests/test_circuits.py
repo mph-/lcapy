@@ -298,6 +298,15 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual2(a.L1.v, voltage(
             2 * exp(-t) * u(t)), "L current incorrect")
 
+        b = a.transient()
+        self.assertEqual2(b.V1.v, voltage(2 * u(t)), "Transient")
+
+        c = a.laplace()
+        self.assertEqual2(c.L1.cpt.i0, current(2), "Laplace")
+
+        d = a.dc()
+        self.assertEqual2(d.R1.v, voltage(4), "DC")
+
     def test_VR1_ac2(self):
         """Check VR circuit at ac for angular frequency 1
 

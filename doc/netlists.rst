@@ -1242,7 +1242,8 @@ noise, respectively.  The `transient()` method returns the transient
 components in the time-domain.
 
 The method, `laplace()`, converts all the independent source values
-into the Laplace-domain.  Similarly, `time()` converts all the
+into the Laplace-domain and optionally adds initial conditions to
+capacitors and inductors.  Similarly, `time()` converts all the
 independent source values into the time-domain.
 
 For example, consider the netlist:
