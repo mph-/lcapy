@@ -13,6 +13,8 @@ class Analysis:
         self.has_ic = False
         self.zeroic = True
         self.has_s = False
+        self.has_ac = False
+        self.has_dc = False
         self.has_transient = False
         self.ac_count = 0
         self.dc_count = 0
@@ -46,6 +48,10 @@ class Analysis:
                     self.dc_count += 1
                 if not elt.is_causal:
                     self.causal = False
+                if elt.has_ac:
+                    self.has_ac = True
+                if elt.has_dc:
+                    self.has_dc = True
             if elt.is_dependent_source:
                 self.dependent_sources.append(eltname)
             if elt.is_reactive:
@@ -55,9 +61,6 @@ class Analysis:
                 self.mutual_couplings.append(eltname)
 
         num_sources = len(self.independent_sources)
-
-        self.has_dc = self.dc_count > 0
-        self.has_ac = self.ac_count > 0
 
         self.ac = self.ac_count > 0 and \
             (num_sources == self.ac_count) and not self.has_ic

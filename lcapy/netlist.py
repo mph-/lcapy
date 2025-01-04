@@ -655,16 +655,17 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
 
         """
 
+        lap =  self.select('laplace')
         if self.is_causal:
-            return self.select('laplace')
+            return lap
 
         # FIXME
         if self.has_ac:
             warn('Ignoring initial conditions due to AC source')
+            return
 
         # Calculate initial conditions due to DC source
         dc = self.dc()
-        lap = self.select('laplace')
 
         new = self._new()
 
