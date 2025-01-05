@@ -631,7 +631,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
                 s += describe_analysis('Noise', sources)
             elif kind == 'dc':
                 s += describe_analysis('DC', sources)
-            elif kind == 'transient':
+            elif kind == 's':
                 s += describe_analysis('Laplace', sources)
             elif kind in ('t', 'time'):
                 s += describe_analysis('Time-domain', sources)
@@ -703,7 +703,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         See also: ac, dc, laplace, noise, time.
 
         """
-        return self.select('transient')
+        return self.select('s')
 
     def transient_time(self):
         """Return netlist for transient components of independent sources in
@@ -712,17 +712,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         See also: ac, dc, laplace, noise, time.
 
         """
-        return self.select('tranient_time')
-
-    def transient_laplace(self):
-        """Return netlist for transient components of independent sources in
-        Laplace-domain.  Note, unlike the similar laplace method, dc
-        and ac components are ignored.
-
-        See also: ac, dc, laplace, noise, time.
-
-        """
-        return self.select('tranient_laplace')
+        return self.transient().time()
 
     def _new(self):
 

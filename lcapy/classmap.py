@@ -9,7 +9,6 @@ from .noiseomegaexpr import AngularFourierNoiseDomainExpression
 classmap = {'s': LaplaceDomainExpression,
             'ivp': LaplaceDomainExpression,
             'laplace': LaplaceDomainExpression,
-            'transient': LaplaceDomainExpression,
             't': TimeDomainExpression,
             'time': TimeDomainExpression,
             'f': FourierDomainExpression,
@@ -23,8 +22,8 @@ symbolmap = {'s': '(s)',
              'f': '(f)',
              'dc': ''}
 
-domainmap = {'constant': 't',
-             'constant time': 't',
+domainmap = {'constant': 'dc',
+             'constant time': 'dc',
              'constant frequency response': 'dc',             # ????
              'time': 't',
              'laplace': 's',

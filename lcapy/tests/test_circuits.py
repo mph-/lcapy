@@ -294,7 +294,7 @@ class LcapyTester(unittest.TestCase):
         a.add('L1 2 3 2; down')
         a.add('W 0 3; right')
 
-        self.assertEqual(a.sub['transient'].is_causal, True, "Causal incorrect")
+        self.assertEqual(a.sub['s'].is_causal, True, "Causal incorrect")
         self.assertEqual2(a.L1.v, voltage(
             2 * exp(-t) * u(t)), "L current incorrect")
 
