@@ -675,7 +675,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
                 v0 = cpt.v(0)
                 net = cpt._netmake(args=(cpt.args[0], v0))
             else:
-                net = cpt._copy()
+                net = lap[cpt.name]._copy()
             new._add(net)
 
         return new
