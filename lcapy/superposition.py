@@ -490,7 +490,12 @@ class Superposition(SuperpositionDomain, ExprDict):
 
         if isinstance(kind, str):
             if kind == 'super':
-                return self
+                if transform:
+                    # This isn't essential but ensures Voc and Isc
+                    # are in the transform domain(s).
+                    return self.decompose()
+                else:
+                    return self
             elif kind == 'time':
                 return self.time()
             elif kind in ('ivp', 'laplace'):
