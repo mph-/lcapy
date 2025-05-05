@@ -80,6 +80,13 @@ class LTIFilter(object):
 
         return cls(bn, an)
 
+    def evaluate(self):
+        """Numerically evaluate the coefficients."""
+
+        a = self.a.value
+        b = self.b.value
+        return self.__class__(b, a)
+
     def transfer_function(self):
         """Return continuous-time impulse response (transfer function) in
         s-domain."""
