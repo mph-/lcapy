@@ -78,9 +78,11 @@ del absolute_import, print_function
 
 name = "lcapy"
 
+from packaging.version import Version
 from sys import version as python_version
+
 python_version = python_version.split(' ')[0]
-if python_version >= '3.8':
+if Version(python_version) >= Version('3.8'):
     from importlib.metadata import version
     __version__ = version('lcapy')
     del version
@@ -89,6 +91,7 @@ else:
     __version__ = pkg_resources.require('lcapy')[0].version
 
 del python_version
+del Version
 
 lcapy_version = __version__
 
