@@ -28,6 +28,8 @@ setup(name='lcapy',
                         'IPython',
                         'setuptools',
                         'wheel',
+                        'packaging',
+                        'importlib',
                         'property_cached'
                         ],
       python_requires='>=3.7',  # >=3.6 should still work but not tested
