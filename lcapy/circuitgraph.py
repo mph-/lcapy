@@ -620,3 +620,17 @@ class CircuitGraph(object):
         if cpt is None:
             return set()
         return self.in_parallel(cpt.name)
+
+    def incidence_matrix(self):
+        """Return incidence matrix A.  The number of rows is the number of
+        edges and the number of columns is the number of nodes.  Each
+        element is either 0, 1, or -1.
+
+        If I is a vector of edge currents then A I = 0.
+
+        """
+
+        from lcapy import Matrix
+
+        A = nx.incidence_matrix(self.G).to_array()
+        return Matrix(A)
