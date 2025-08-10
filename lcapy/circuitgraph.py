@@ -551,7 +551,8 @@ class CircuitGraph(object):
 
     @property
     def nullity(self):
-        """For a planar circuit, this is equal to the number of meshes in the graph."""
+        """For a planar circuit, this is equal to the number of meshes in the
+        graph."""
 
         return self.num_branches - self.num_nodes + self.num_parts
 
@@ -623,8 +624,8 @@ class CircuitGraph(object):
 
     def incidence_matrix(self):
         """Return incidence matrix A.  The number of rows is the number of
-        edges and the number of columns is the number of nodes.  Each
-        element is either 0, 1, or -1.
+        edges (branches) and the number of columns is the number of
+        nodes.  Each element is either 0, 1, or -1.
 
         If I is a vector of edge currents then A I = 0.
 
@@ -634,3 +635,17 @@ class CircuitGraph(object):
 
         A = nx.incidence_matrix(self.G).to_array()
         return Matrix(A)
+
+    @property
+    def branch_current_name_vector(self):
+        """Return branch current name vector.  The current
+        names are of the form I_j,k where j and k are the node
+        names."""
+
+        from lcapy import Vector, symbol
+
+        names = []
+        for n1, n2 in self.G.edges():
+            names.append(symbol('I_%s,%s' % (n1, n2)))
+
+        return Vector(names)
