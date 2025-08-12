@@ -96,6 +96,7 @@ class CircuitGraph(object):
 
         G.add_nodes_from(cct.node_list)
 
+        # Mapping to remove non-unique equipotential nodes.
         node_map = cct.node_map
 
         for name in cct.branch_list:
@@ -279,7 +280,8 @@ class CircuitGraph(object):
 
     @property
     def nodes(self):
-        """Return nodes comprising network."""
+        """Return nodes comprising network.  These are all the nodes
+        including nodes joined by wires."""
 
         return self.G.nodes()
 
@@ -624,8 +626,8 @@ class CircuitGraph(object):
 
     def incidence_matrix(self):
         """Return incidence matrix A.  The number of rows is the number of
-        edges (branches) and the number of columns is the number of
-        nodes.  Each element is either 0, 1, or -1.
+        nodes and the number of columns is the number of edges
+        (branches).  Each element is either 0, 1, or -1.
 
         If I is a vector of edge currents then A I = 0.
 
@@ -633,19 +635,87 @@ class CircuitGraph(object):
 
         from lcapy import Matrix
 
-        A = nx.incidence_matrix(self.G).to_array()
+        # TODO: check for parallel components
+
+        A = nx.incidence_matrix(self.G).toarray()
         return Matrix(A)
+
+    def cycle_matrix(self):
+        """Return cycle matrix B.  The number of rows is the number of loops
+        and the number of columns is the number of edges (branches).
+        Each element is either 0, 1, or -1.
+
+        If V is a vector of branch voltages then B V = 0.
+
+        """
+
+        from lcapy import Matrix
+
+        loops = self.loops()
+        branches = self.branch_name_list
+        edges = self.G.edges(data=True)
+        edges2 = []
+
+        for n1, n2, d in edges:
+            if d['name'][0].startswith('W'):
+                continue
+            edges2.append((n1, n2))
+
+        B = Matrix.zeros(len(loops), len(branches))
+
+        for m, loop in enumerate(loops):
+
+            loop = loop.copy()
+            loop.append(loop[0])
+            for j in range(len(loop) - 1):
+                n1 = loop[j]
+                n2 = loop[j + 1]
+
+                if (n1, n2) in edges2:
+                    index = edges2.index((n1, n2))
+                    B[m, index] = 1
+                elif (n2, n1) in edges2:
+                    index = edges2.index((n2, n1))
+                    B[m, index] = -1
+
+        return B
+
+    @property
+    def branch_name_list(self):
+        """Return list of branches by component name."""
+
+        names = []
+        for n1, n2, d in self.G.edges(data=True):
+
+            cptname = d['name']
+            # Ignore dummy branches added to handle parallel components
+            if cptname.startswith('W'):
+                continue
+
+            names.append(cptname)
+
+        return names
 
     @property
     def branch_current_name_vector(self):
-        """Return branch current name vector.  The current
-        names are of the form I_j,k where j and k are the node
-        names."""
+        """Return branch current name vector.  The branch current
+        names are of the form I_cptname where cptname is the component name."""
 
         from lcapy import Vector, symbol
 
-        names = []
-        for n1, n2 in self.G.edges():
-            names.append(symbol('I_%s,%s' % (n1, n2)))
+        # TODO Perhaps substitute with known current names?  Will
+        # need to negate some of them.
 
-        return Vector(names)
+        return Vector([symbol('I_' + name) for name in self.branch_name_list])
+
+    @property
+    def branch_voltage_name_vector(self):
+        """Return branch voltage name vector.  The branch voltage
+        names are of the form I_cptname where cptname is the component name."""
+
+        from lcapy import Vector, symbol
+
+        # TODO Perhaps substitute with known voltage names?  Will
+        # need to negate some of them.
+
+        return Vector([symbol('V_' + name) for name in self.branch_name_list])
