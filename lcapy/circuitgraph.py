@@ -2,7 +2,7 @@
 This module provides a class to represent circuits as graphs.
 This is primarily for loop analysis but is also used for nodal analysis.
 
-Copyright 2019--2023 Michael Hayes, UCECE
+Copyright 2019--2025 Michael Hayes, UCECE
 
 """
 
@@ -88,7 +88,7 @@ class CircuitGraph(object):
             # Perhaps could split twoports into an input oneport and an
             # output oneport?
 
-        G = nx.Graph()
+        G = nx.DiGraph()
 
         dummy = 0
         # Dummy nodes are used to avoid parallel edges.
@@ -131,6 +131,18 @@ class CircuitGraph(object):
         self.G = G
         self.debug = False
 
+    @property
+    def UG(self):
+        """Return undirected graph."""
+
+        return self.G.to_undirected()
+
+    @property
+    def DG(self):
+        """Return directed graph."""
+
+        return self.G
+
     def connected_cpts(self, node):
         """Components connected to specified node."""
 
@@ -154,16 +166,10 @@ class CircuitGraph(object):
 
         return set([cpt.name for cpt in self.connected_cpts(node)])
 
-    def _digraph(self):
-
-        DG = nx.DiGraph(self.G)
-        return DG
-
     def all_loops(self):
 
-        # This adds forward and backward edges.
-        DG = self._digraph()
-        cycles = list(nx.simple_cycles(DG))
+        UG = self.UG
+        cycles = list(nx.simple_cycles(UG))
 
         loops = []
         for cycle in cycles:
@@ -178,8 +184,6 @@ class CircuitGraph(object):
 
         loops = self.all_loops()
         sets = [set(loop) for loop in loops]
-
-        DG = self._digraph()
 
         rejects = []
         for i in range(len(sets)):
@@ -289,7 +293,7 @@ class CircuitGraph(object):
         """Return edges connected to specified node."""
 
         node = str(node)
-        return self.G[node]
+        return self.UG[node]
 
     def node_edges(self, node):
         """Return list of edges connected to specified node."""
@@ -324,8 +328,10 @@ class CircuitGraph(object):
         node1 = self._check_node(node1)
         node2 = self._check_node(node2)
 
+        UG = self.UG
+
         try:
-            name = self.G.get_edge_data(node1, node2)['name']
+            name = UG.get_edge_data(node1, node2)['name']
         except TypeError:
             return None
 
@@ -385,8 +391,10 @@ class CircuitGraph(object):
         series = []
         series.append(cpt_name)
 
+        UG = self.UG
+
         def follow(node):
-            neighbours = self.G[node]
+            neighbours = UG[node]
             if len(neighbours) > 2:
                 return
             for n, e in neighbours.items():
@@ -463,7 +471,7 @@ class CircuitGraph(object):
         then there are disconnected components.  If there is a component
         with a single connected node, the connectivity is 1."""
 
-        return nx.node_connectivity(self.G)
+        return nx.node_connectivity(self.UG)
 
     @property
     def is_connected(self):
@@ -506,21 +514,21 @@ class CircuitGraph(object):
         """Return minimum spanning tree.  A tree has no loops so no current
         flows in a tree."""
 
-        T = nx.minimum_spanning_tree(self.G)
+        T = nx.minimum_spanning_tree(self.UG)
         return CircuitGraph(self.cct, T)
 
     def links(self):
         """Return links; the graph of the edges that are not in the minimum
         spanning tree."""
-        G = self.G
-        T = self.tree().G
+        G = self.UG
+        T = self.tree().UG
 
         G_edges = set(G.edges())
         T_edges = set(T.edges())
 
         L_edges = G_edges - T_edges
 
-        L = nx.Graph()
+        L = nx.DiGraph()
         for edge in L_edges:
             data = G.get_edge_data(*edge)
             L.add_edge(*edge, name=data['name'])
@@ -531,7 +539,7 @@ class CircuitGraph(object):
 
         if self.is_connected:
             return 1
-        raise ValueError('TODO, calculate number of separate graphs')
+        return nx.algorithms.number_connected_components(self.UG)
 
     @property
     def num_nodes(self):
