@@ -632,6 +632,7 @@ class CircuitGraph(object):
             return set()
         return self.in_parallel(cpt.name)
 
+    @property
     def incidence_matrix(self):
         """Return incidence matrix A.  The number of rows is the number of
         nodes and the number of columns is the number of edges
@@ -676,6 +677,7 @@ class CircuitGraph(object):
 
         return Matrix(A)
 
+    @property
     def cycle_matrix(self):
         """Return cycle matrix B.  The number of rows is the number of loops
         and the number of columns is the number of edges (branches).
