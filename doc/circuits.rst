@@ -836,11 +836,13 @@ In this circuit, R2 is in parallel with C so Lcapy adds a dummy node 0* and a du
 CircuitGraph attributes
 -----------------------
 
-- `G` the underlying networkx graph
+- `DG` the underlying directed networkx graph
 
-- `is_connected` all the components are connected as a single graph
+- `UG` the underlying undirected networkx graph
 
-- `is_planar` the component graph is planar
+- `is_connected` `True` if all the components are connected as a single graph
+
+- `is_planar` `True` if the component graph is planar
 
 - `components` list of component names
 
@@ -857,6 +859,16 @@ CircuitGraph attributes
 - `rank` the required number of node voltages for nodal analysis
 
 - `node_connectivity` the minimum connectivity of the graph.  If 0, one or more components are connected, if 1, one or more components are connected at a single node, etc.
+
+- `branch_name_list` list of branches by component name
+
+- `branch_current_name_vector` branch current name vector.  The branch
+        current names are of the form `I_cptname` where `cptname` is the
+        component name.
+
+- `branch_voltage_name_vector` branch voltage name vector.  The branch
+        voltage names are of the form `V_cptname` where `cptname` is the
+        component name.
 
 
 CircuitGraph methods
@@ -886,11 +898,24 @@ CircuitGraph methods
 
 - `tree()` the minimum spanning tree.
 
-- `links()` the edges removed from the graph to form the minimum spanning tree.
+- `links()` the edges removed from the graph when forming the minimum spanning tree.
 
 - `unreachable_nodes(node)` a list of nodes that have no path to `node`.
 
-- `has_path(node1, node2)` returns True if there is a path from `node1` to `node2`.
+- `has_path(node1, node2)` returns `True` if there is a path from `node1` to `node2`.
+
+- `incidence_matrix()` the incidence matrix A.  The number of rows is
+        the number of nodes and the number of columns is the number of
+        branches (edges).  Each element is either 0, 1, or -1.
+
+        If I is a vector of edge currents then A I = 0.
+
+- `cycle_matrix()` the cycle matrix B.  The number of rows is the
+        number of loops and the number of columns is the number of
+        branches (edges).  Each element is either 0, 1, or -1.
+
+        If V is a vector of branch voltages then B V = 0.
+
 
 .. _simulation:
 
