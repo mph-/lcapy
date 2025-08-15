@@ -831,6 +831,39 @@ In this circuit, R2 is in parallel with C so Lcapy adds a dummy node 0* and a du
 .. image:: examples/netlists/circuitgraph4.png
    :width: 8cm
 
+The cycle matrix for this example is::
+
+   >>> cct.cycle_matrix()
+   ⎡-1  1  1  1   0⎤
+   ⎢               ⎥
+   ⎣0   0  0  -1  1⎦
+
+and::
+   >>> cct.cg.cycle_matrix() * cct.cg.branch_voltage_name_vector
+   ⎡V_L + V_R1 + V_R2 - V_V⎤
+   ⎢                       ⎥
+   ⎣      V_C - V_R2       ⎦
+
+This vector equates to zero.  It is equivalent to Kirchhoff's voltage law aroun a loop.
+
+The incidence matrix for this example is::
+
+   >>> cct.incidence_matrix()
+   ⎡1  0  0  1  0  1⎤
+   ⎢                ⎥
+   ⎢1  1  0  0  0  0⎥
+   ⎢                ⎥
+   ⎢0  1  1  0  0  0⎥
+   ⎢                ⎥
+   ⎢0  0  1  1  1  0⎥
+   ⎢                ⎥
+   ⎣0  0  0  0  1  1⎦
+
+and::
+   >>> cct.cg.incidence_matrix() * cct.cg.branch_current_name_vector
+
+
+
 
 
 CircuitGraph attributes
@@ -900,17 +933,13 @@ CircuitGraph methods
 
 - `has_path(node1, node2)` `True` if there is a path from `node1` to `node2`.
 
-- `incidence_matrix()` the incidence matrix A.  The number of rows is
-        the number of nodes and the number of columns is the number of
-        branches (edges).  Each element is either 0, 1, or -1.
+- `incidence_matrix()` the incidence matrix A.  The number of rows is the number of nodes and the number of columns is the number of branches (edges).  Each element is either 0, 1, or -1.
 
-        If I is a vector of edge currents then A I = 0.
+  If I is a vector of edge currents then A I = 0.
 
-- `cycle_matrix()` the cycle matrix B.  The number of rows is the
-        number of loops and the number of columns is the number of
-        branches (edges).  Each element is either 0, 1, or -1.
+- `cycle_matrix()` the cycle matrix B.  The number of rows is the number of loops and the number of columns is the number of branches (edges).  Each element is either 0, 1, or -1.
 
-        If V is a vector of branch voltages then B V = 0.
+If V is a vector of branch voltages then B V = 0.
 
 
 .. _simulation:

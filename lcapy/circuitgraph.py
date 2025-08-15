@@ -643,9 +643,37 @@ class CircuitGraph(object):
 
         from lcapy import Matrix
 
-        # TODO: check for parallel components
+        # Most of the hackery here is to do with parallel branches
 
-        A = nx.incidence_matrix(self.G).toarray()
+        nodes = self.nodes
+        unodes = [node for node in nodes if not node.startswith('*')]
+        branches = self.branch_name_list
+        edges = self.G.edges(data=True)
+
+        A = Matrix.zeros(len(unodes), len(branches))
+
+        for node in nodes:
+            if node.startswith('*'):
+                node = node[1:]
+            m = unodes.index(node)
+
+            n = 0
+            for n1, n2, d in edges:
+                if d['name'].startswith('W'):
+                    continue
+
+                if n1.startswith('*'):
+                    n1 = n1[1:]
+
+                if n2.startswith('*'):
+                    n2 = n2[1:]
+
+                if node == n1:
+                    A[m, n] = 1
+                elif node == n2:
+                    A[m, n] = -1
+                n += 1
+
         return Matrix(A)
 
     def cycle_matrix(self):
