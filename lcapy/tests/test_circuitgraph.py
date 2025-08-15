@@ -60,6 +60,13 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(cl.nullity, 0, "nullity")
         self.assertEqual(cl.node_connectivity, 0, "node_connectivity")
 
-        cm = cg.cycle_matrix()
-        self.assertEqual(cm, Matrix(((1, -1, 1, 1, 0), (0, 0, 0, -1, 1))),
+        A = cg.incidence_matrix
+        self.assertEqual(A, Matrix(((0, -1, 0, -1, -1),
+                                    (1, 0, -1, 0, 0),
+                                    (0, 1, 1, 0, 0),
+                                    (-1, 0, 0, 1, 1))),
+                         "incidence_matrix")
+
+        B = cg.cycle_matrix
+        self.assertEqual(B, Matrix(((1, -1, 1, 1, 0), (0, 0, 0, -1, 1))),
                          "cycle_matrix")
