@@ -4,10 +4,10 @@ Modules
 
 .. automodule:: lcapy
    :members:
-   :undoc-members:   
+   :undoc-members:
 
 Circuit analysis
-================      
+================
 
 .. autosummary::
     :toctree: _autosummary
@@ -40,7 +40,7 @@ Circuit analysis
     lcapy.network
     lcapy.voltage
     lcapy.current
-    lcapy.super
+    lcapy.superposition
     lcapy.admittance
     lcapy.impedance
     lcapy.functions

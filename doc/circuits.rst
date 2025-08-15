@@ -862,13 +862,9 @@ CircuitGraph attributes
 
 - `branch_name_list` list of branches by component name
 
-- `branch_current_name_vector` branch current name vector.  The branch
-        current names are of the form `I_cptname` where `cptname` is the
-        component name.
+- `branch_current_name_vector` branch current name vector.  The branch current names are of the form `I_cptname` where `cptname` is the component name.
 
-- `branch_voltage_name_vector` branch voltage name vector.  The branch
-        voltage names are of the form `V_cptname` where `cptname` is the
-        component name.
+- `branch_voltage_name_vector` branch voltage name vector.  The branch voltage names are of the form `V_cptname` where `cptname` is the component name.
 
 
 CircuitGraph methods
@@ -902,7 +898,7 @@ CircuitGraph methods
 
 - `unreachable_nodes(node)` a list of nodes that have no path to `node`.
 
-- `has_path(node1, node2)` returns `True` if there is a path from `node1` to `node2`.
+- `has_path(node1, node2)` `True` if there is a path from `node1` to `node2`.
 
 - `incidence_matrix()` the incidence matrix A.  The number of rows is
         the number of nodes and the number of columns is the number of
