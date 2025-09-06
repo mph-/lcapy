@@ -6,7 +6,7 @@ build:
 python:
   install:
     - method: pip
-      path: .
+      path: .[doc]
 sphinx:
   configuration: doc/conf.py
   fail_on_warning: false
