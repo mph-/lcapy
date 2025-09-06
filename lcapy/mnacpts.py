@@ -1528,50 +1528,6 @@ class GY(Dummy):
         mna._D[m2, m2] -= Z1
 
 
-class TVtriode(Dummy):
-    """Triode"""
-
-    # anode, grid, cathode
-    # Approximate as a VCVS with the control voltage grid-cathode
-    # and output voltage anode-cathode.
-
-    need_branch_current = True
-    is_voltage_controlled = True
-
-    def _stamp(self, mna):
-        na, ng, nk = mna._cpt_node_indexes(self)
-        m = mna._cpt_branch_index(self)
-
-        n1 = na
-        n2 = nk
-        n3 = ng
-        n4 = nk
-
-        if n1 >= 0:
-            mna._B[n1, m] += 1
-            mna._C[m, n1] += 1
-        if n2 >= 0:
-            mna._B[n2, m] -= 1
-            mna._C[m, n2] -= 1
-
-        Ad = ConstantDomainExpression(self.args[0]).sympy
-
-        Ap = Ad
-        Am = -Ad
-
-        if n3 >= 0:
-            mna._C[m, n3] -= Ap
-        if n4 >= 0:
-            mna._C[m, n4] -= Am
-
-    def _kill(self):
-        newopts = self.opts.copy()
-        newopts.strip_current_labels()
-        newopts.strip_labels()
-
-        return self._netmake_W(opts=newopts)
-
-
 class CCVS(DependentSource):
     """CCVS"""
 
@@ -2479,6 +2435,7 @@ defcpt('SWspdt', SW, 'SPDT switch')
 defcpt('TFcore', TF, 'Transformer with core')
 defcpt('TFtapcore', TFtap, 'Transformer with core')
 defcpt('TLlossless', TL, 'Lossless transmission line')
+defcpt('TVtriode', NonLinear, 'Triode')
 
 defcpt('Uand', Logic, 'And gate')
 defcpt('Ubuffer', Logic, 'Buffer')
@@ -2529,6 +2486,8 @@ defcpt('Vac', V, 'AC voltage source')
 defcpt('Vdc', V, 'DC voltage source')
 defcpt('Vnoise', V, 'Noise voltage source')
 defcpt('VM', O, 'Voltmeter')
+
+
 
 # Mechanical analogue I (the mobility analogue) where
 # force is equivalent to current and velocity is equivalent to
