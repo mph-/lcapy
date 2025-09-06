@@ -1531,41 +1531,45 @@ class GY(Dummy):
 class TVtriode(Dummy):
     """Triode"""
 
+    # anode, grid, cathode
+    # Approximate as a VCVS with the control voltage grid-cathode
+    # and output voltage anode-cathode.
+
     need_branch_current = True
-    need_extra_branch_current = True
+    is_voltage_controlled = True
 
-    def _stamp(self, cct):
+    def _stamp(self, mna):
+        na, ng, nk = mna._cpt_node_indexes(self)
+        m = mna._cpt_branch_index(self)
 
-        n1, n2, n3 = self.node_indexes
-        m1 = self.cct._branch_index(self.name + 'X')
-        m2 = self.branch_index
-
-        # m1 is the input branch
-        # m2 is the output branch
-        # GY.I gives the current through the output branch
-
-        # Could generalise to have different input and output
-        # impedances, Z1 and Z2, but if Z1 != Z2 then the device is
-        # not passive.
-
-        # V2 = -I1 Z2     V1 = I2 Z1
-        # where V2 = V[n1] - V[n2] and V1 = V[n3] - V[n4]
-
-        Z1 = ConstantDomainExpression(self.args[0]).expr
-        Z2 = Z1
+        n1 = na
+        n2 = nk
+        n3 = ng
+        n4 = nk
 
         if n1 >= 0:
-            cct._B[n1, m2] += 1
-            cct._C[m1, n1] += 1
+            mna._B[n1, m] += 1
+            mna._C[m, n1] += 1
         if n2 >= 0:
-            cct._B[n2, m2] -= 1
-            cct._C[m1, n2] -= 1
-        if n3 >= 0:
-            cct._B[n3, m1] += 1
-            cct._C[m2, n3] += 1
+            mna._B[n2, m] -= 1
+            mna._C[m, n2] -= 1
 
-        cct._D[m1, m1] += Z2
-        cct._D[m2, m2] -= Z1
+        Ad = ConstantDomainExpression(self.args[0]).sympy
+
+        Ap = Ad
+        Am = -Ad
+
+        if n3 >= 0:
+            mna._C[m, n3] -= Ap
+        if n4 >= 0:
+            mna._C[m, n4] -= Am
+
+    def _kill(self):
+        newopts = self.opts.copy()
+        newopts.strip_current_labels()
+        newopts.strip_labels()
+
+        return self._netmake_W(opts=newopts)
 
 
 class CCVS(DependentSource):

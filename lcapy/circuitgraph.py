@@ -9,6 +9,23 @@ Copyright 2019--2025 Michael Hayes, UCECE
 import networkx as nx
 
 
+# MultiDiGraph would be the preferred graph since this can handle
+# parallel edges.  However, there are no networkx functions that find
+# all the cycles in a MultiDiGraph.  Similarly, the parallel edges
+# cannot be drawn by networkx.  The hack used here is to use a DiGraph
+# with dummy nodes and dummy wires added to avoid parallel edges.
+# This complicates some of the algorithms, such as finding parallel
+# components.
+#
+# The cycles in a MultiDiGraph could be found by converting the graph
+# into a DiGraph by adding dummy nodes and edges to remove parallel
+# edges.  However, cycles cannot be described by the original nodes
+# due to the ambiguity.  Instead, they can be represented by the edges
+# (u, v, k), where k enumerates the parallel edges, or by the
+# component names.  This requires a change to the loops method.
+
+
+
 # V1 1 0 {u(t)}; down
 # R1 1 2; right=2
 # L1 2 3; down=2
