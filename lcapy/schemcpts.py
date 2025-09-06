@@ -689,9 +689,9 @@ class Triode(FixedCpt):
 
     node_pinnames = ('a', 'g', 'k')
     aliases = {'anode': 'a', 'grid': 'g', 'cathode': 'k'}
-    pins = {'a': ('l', 0.75, 0),
-            'g': ('l', 0.25, 0.5),
-            'k': ('l', -0.25, 0)}
+    pins = {'a': ('l', 0.15, 0.5),
+            'g': ('l', -0.25, 0),
+            'k': ('l', 0, -0.5)}
 
     def draw(self, **kwargs):
 
@@ -702,17 +702,15 @@ class Triode(FixedCpt):
         if self.mirror:
             yscale = -yscale
 
-        # stupid thing above sets distance between nodes.
-        # get correct distance, then slide into place.
         mid = self.centre
-        mid = mid + Pos(0, -0.5)
+        mid = mid + Pos(0.4, -0.5)
 
         s = r'  \draw (%s) node[triode, %s, xscale=%.3f, yscale=%.3f, rotate=%d] (%s) {};''\n' % (
             str(mid),
             self.draw_args_str(**kwargs), 1 * self.scale, 1 * yscale,
             0, self.s)
 
-        s += self.draw_label(self.centre, **kwargs)
+        # s += self.draw_label(self.centre, **kwargs)
         return s
 
 
