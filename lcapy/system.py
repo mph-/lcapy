@@ -128,7 +128,7 @@ class PDFConverter(object):
         if platform.system() == 'Windows':
             program = 'gswin32'
             if platform.machine().endswith('64'):
-                program = 'gswin64'
+                program = 'gswin64c'
 
         run([program, '-q', '-dQUIET', '-dSAFER', '-dBATCH', '-dNOPAUSE',
              '-dNOPROMPT',  '-dMaxBitmap=500000000',  '-dAlignToPixels=0',
