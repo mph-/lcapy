@@ -71,6 +71,7 @@ from .nodalanalysis import *
 from .loopanalysis import *
 from .exprclasses import *
 from .seqclasses import *
+from .rcparams import *
 
 import sys
 del absolute_import, print_function
