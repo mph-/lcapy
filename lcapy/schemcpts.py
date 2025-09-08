@@ -12,7 +12,6 @@ from .schemmisc import Pos, Steps
 from .label import Label
 from .labels import Labels
 from .latex import latex_format_label
-from .config import implicit_default
 from .schematics.components.cpt import Cpt
 from .schematics.utils import check_boolean
 from .schematics.components.bipole import Bipole

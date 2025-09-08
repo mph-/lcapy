@@ -41,7 +41,7 @@ from .simplify import expand_hyperbolic_trig
 from .approximate import (approximate_fractional_power, approximate_exp,
                           approximate_hyperbolic_trig, approximate_dominant,
                           approximate_degree, approximate_taylor, approximate_pade)
-from .config import heaviside_zero, unitstep_zero
+from .rcparams import rcParams
 from collections import OrderedDict
 from warnings import warn
 
@@ -2346,14 +2346,14 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
             def unitstep(arg, zero=None):
                 if arg == 0:
                     if zero is None:
-                        zero = unitstep_zero
+                        zero = rcParams['functions.unitstep_zero']
                     return zero
                 return 1.0 if arg >= 0 else 0.0
 
             def heaviside(arg, zero=None):
                 if arg == 0:
                     if zero is None:
-                        zero = heaviside_zero
+                        zero = rcParams['functions.heaviside_zero']
                     return zero
                 return 1.0 if arg > 0.0 else 0.0
 

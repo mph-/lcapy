@@ -41,16 +41,18 @@ rcdefaults = {
     'sympy.matrix.inverse' : ('DM', c.str),
     'sympy.matrix.inverse-fallback' : ('ADJ', c.str),
 
-    'functions.heaviside-zero' : (0.5, c.float),
-    'functions.unitstep-zero' : (0, c.float),
+    # Definition of H(0).  With H(0) = 0.5 then sgn(0) = 0 as expected
+    # by SymPy and NumPy
+    'functions.heaviside_zero' : (0.5, c.float),
+    'functions.unitstep_zero' : (0, c.float),
 
-    'schematics.symbols.implicit' : ('sground', c.str),
-    'schematics.symbols.autoground' : ('sground', c.str),
+    'schematics.implicit_default' : ('sground', c.str),
+    'schematics.autoground_default' : ('sground', c.str),
 
     'symbols.imaginary' : ('j', ('i', 'j'), imaginary_update),
     'symbols.heaviside' : ('u', c.str, heaviside_update),
 
-    'current.sign-convention': ('passive', ('passive', 'active'),
+    'current.sign_convention': ('passive', ('passive', 'active'),
                                 sign_convention_update),
 
     'schematics.draw_nodes': ('primary', ('all', 'none', 'primary', 'connections')),

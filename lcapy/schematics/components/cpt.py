@@ -9,7 +9,7 @@ from ...schemmisc import Pos, Steps
 from ...label import Label
 from ...labels import Labels
 from ...latex import latex_format_label
-from ...config import implicit_default
+from ...rcparams import rcParams
 from ...valueparser import value_parser
 from ..utils import check_boolean
 
@@ -880,9 +880,9 @@ class Cpt(object):
         label = ''
         if kind == '0V':
             label = r'0\,\mathrm{V}'
-            kind = implicit_default
+            kind = rcParams['schematic.implicit_default']
         elif kind == 'implicit':
-            kind = implicit_default
+            kind = rcParams['schematic.implicit_default']
 
         args = self.draw_args(n.opts)
         pinpos = n.pinpos
@@ -934,9 +934,9 @@ class Cpt(object):
         label = ''
         if kind == '0V':
             label = r'0\,\mathrm{V}'
-            kind = implicit_default
+            kind = rcParams['schematic.implicit_default']
         elif kind == 'implicit':
-            kind = implicit_default
+            kind = rcParams['schematic.implicit_default']
 
         args = self.draw_args(n.opts)
         label = n.opts.get('l', n.opts.get('label', label))
