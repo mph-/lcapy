@@ -21,7 +21,6 @@ Copyright 2014--2024 Michael Hayes, UCECE
 
 
 from __future__ import print_function
-from .config import autoground_default
 from .expr import Expr
 from . import schemcpts
 import sympy as sym
@@ -32,6 +31,7 @@ from .opts import Opts
 from .netfile import NetfileMixin
 from .system import LatexRunner, PDFConverter, tmpfilename
 from .nodes import parse_nodes
+from .rcparams import rcParams
 from os import path, remove
 from collections import OrderedDict
 from warnings import warn
@@ -82,23 +82,23 @@ class SchematicOpts(Opts):
     def __init__(self):
 
         super(SchematicOpts, self).__init__(
-            {'draw_nodes': 'primary',
-             'label_values': True,
-             'label_ids': True,
-             'label_style': 'aligned',
-             'label_flip': False,
-             'label_value_style': 'eng3',
-             'annotate_values': False,
-             'label_nodes': 'primary',
-             'anchor': 'south east',
-             'autoground': 'none',
-             'scale': 1.0,
-             'dpi': PNG_DPI,
-             'cpt_size': 1.5,
-             'node_spacing': 2.0,
-             'help_lines': 0.0,
-             'style': 'american',
-             'voltage_dir': 'RP'})
+            {'draw_nodes': rcParams['schematics.draw_nodes'],
+             'label_values': rcParams['schematics.label_values'],
+             'label_ids': rcParams['schematics.label_ids'],
+             'label_style': rcParams['schematics.label_style'],
+             'label_value_style': rcParams['schematics.label_value_style'],
+             'label_flip': rcParams['schematics.label_flip'],
+             'annotate_values': rcParams['schematics.annotate_values'],
+             'label_nodes': rcParams['schematics.label_nodes'],
+             'anchor': rcParams['schematics.anchor'],
+             'autoground': rcParams['schematics.autoground'],
+             'scale': rcParams['schematics.scale'],
+             'dpi': rcParams['schematics.dpi'],
+             'cpt_size': rcParams['schematics.cpt_size'],
+             'node_spacing': rcParams['schematics.node_spacing'],
+             'help_lines': rcParams['schematics.help_lines'],
+             'style': rcParams['schematics.style'],
+             'voltage_dir': rcParams['schematics.voltage_dir']})
 
 
 class Schematic(NetfileMixin):
@@ -240,7 +240,7 @@ class Schematic(NetfileMixin):
         # This is called before node positions are assigned.
 
         if autoground in ('true', 'True', True):
-            autoground = autoground_default
+            autoground = rcParams['schematics.autoground_default']
         elif autoground in (False, None, 'false', 'none'):
             autoground = False
 
@@ -554,7 +554,6 @@ class Schematic(NetfileMixin):
            'label_values': True to display component values
            "label_value_style': 'eng' for engineering (SI); 'sci' for scientific;
                                 'ratfun' for rational function; 'spice' for SPICE"
-           'label_delimiter': Delimiter between component name and value
            'label_flip': Place label on other side of component
            'annotate_values': True to display component values as separate label
            'draw_nodes': True to show all nodes,

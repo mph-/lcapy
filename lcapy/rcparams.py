@@ -70,8 +70,10 @@ class RcParams(dict):
             for key, val in self.items():
                 print(key, ':', val, file=fd)
 
+    def set_defaults(self):
+
+        for k, v in rcdefaults.items():
+            rcParams[k] = v[0]
 
 rcParams = RcParams()
-
-for k, v in rcdefaults.items():
-    rcParams[k] = v[0]
+rcParams.set_defaults()

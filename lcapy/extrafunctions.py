@@ -9,7 +9,7 @@ Copyright 2020--2022 Michael Hayes, UCECE
 import sympy as sym
 from sympy.core import S, Integer
 from sympy.core.logic import fuzzy_not
-from .config import unitstep_zero
+from .rcparams import rcParams
 
 
 class Degrees(sym.Function):
@@ -67,7 +67,7 @@ class UnitStep(sym.Function):
 
         if nval.is_zero:
             if zero is None:
-                zero = unitstep_zero
+                zero = rcParams['functions.unitstep_zero']
             return zero
 
         if nval.is_nonnegative:

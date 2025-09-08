@@ -16,15 +16,10 @@ excludes = ['I', 'C', 'O', 'S', 'N', 'E', 'E1', 'Q', 'beta', 'gamma', 'zeta',
 aliases = {'delta': 'DiracDelta', 'step': 'Heaviside', 'u': 'Heaviside',
            'H': 'Heaviside', 'j': 'I'}
 
-str_expr_map = {sym.I: 'j'}
-
-latex_expr_map = {sym.I: '\mathrm{j}', sym.Heaviside: 'u'}
-
-# Hack to pretty print i as j
-junicode = '\u2149'
-atoms_table['ImaginaryUnit'] = junicode
-
-pretty_expr_map = {sym.I: junicode, sym.Heaviside: 'u'}
+# These mappings are set in rcdefaults
+str_expr_map = {}
+latex_expr_map = {}
+pretty_expr_map = {}
 
 # Words to format in Roman font for LaTeX expressions.
 

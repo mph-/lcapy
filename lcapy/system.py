@@ -1,10 +1,11 @@
 """This module wraps system dependent programs for pdf generation, etc.
 
-Copyright 2014--2021 Michael Hayes, UCECE
+Copyright 2014--2025 Michael Hayes, UCECE
 
 """
 
 
+from .rcparams import rcParams
 from os import path, remove, chdir, getcwd, stat, system
 from subprocess import call
 import re
@@ -25,6 +26,26 @@ except ImportError:
 # /etc/ImageMagick-6/policy.xml to enable this conversion.
 
 programs = {}
+
+
+def os_name():
+
+    if platform.system() == 'Linux':
+        return 'linux'
+    elif platform.system() == 'Windows':
+        if platform.machine().endswith('64'):
+            return 'windows64'
+        else:
+            return 'windows32'
+    elif platform.system() == 'Darwin':
+        return 'macos'
+    else:
+        raise ValueError('Unsupported OS', platform.system())
+
+
+def lookup(program):
+
+    return rcParams['os.' + os_name() + '.' + program]
 
 
 def which(program):
@@ -101,16 +122,16 @@ class PDFConverter(object):
 
     def to_svg(self, pdf_filename, svg_filename):
 
-        run(['pdf2svg', pdf_filename, svg_filename], debug=self.debug)
+        program = lookup('pdf2svg')
+
+        run([program, pdf_filename, svg_filename], debug=self.debug)
         if not path.exists(svg_filename):
             raise RuntimeError('Could not generate %s with pdf2svg.  Is it installed?' %
                                svg_filename)
 
     def to_png_convert(self, pdf_filename, png_filename, dpi=300):
 
-        program = 'convert'
-        if platform.system() == 'Windows':
-            program = 'magick convert'
+        program = lookup('convert')
 
         run([program, '-density %d' %
             int(dpi), pdf_filename, png_filename], debug=self.debug)
@@ -124,11 +145,7 @@ class PDFConverter(object):
 
     def to_png_ghostscript(self, pdf_filename, png_filename, dpi=300):
 
-        program = 'gs'
-        if platform.system() == 'Windows':
-            program = 'gswin32'
-            if platform.machine().endswith('64'):
-                program = 'gswin64c'
+        program = lookup('ghostscript')
 
         run([program, '-q', '-dQUIET', '-dSAFER', '-dBATCH', '-dNOPAUSE',
              '-dNOPROMPT',  '-dMaxBitmap=500000000',  '-dAlignToPixels=0',
@@ -184,9 +201,11 @@ class PDFConverter(object):
 
 def run_dot(dotfilename, filename):
 
+    program = lookup('dot')
+
     base, ext = path.splitext(filename)
     #run([which('dot'), '-T ' + ext[1:], '-o ' + filename, dotfilename])
-    system('dot -T %s -o %s %s' % (ext[1:], filename, dotfilename))
+    system('%s -T %s -o %s %s' % (program, ext[1:], filename, dotfilename))
     remove(dotfilename)
     return
 
@@ -199,7 +218,9 @@ class LatexRunner(object):
 
     def run(self, tex_filename):
 
-        checkexe('pdflatex', debug=self.debug)
+        program = lookup('pdflatex')
+
+        checkexe(program, debug=self.debug)
 
         root, ext = path.splitext(tex_filename)
         dirname = path.dirname(tex_filename)
@@ -210,7 +231,7 @@ class LatexRunner(object):
                 print('Chdir: %s' % dirname)
             chdir(path.abspath(dirname))
 
-        run(['pdflatex', '-interaction', 'batchmode',
+        run([program, '-interaction', 'batchmode',
             baseroot + '.tex'], debug=self.debug)
 
         if dirname != '':

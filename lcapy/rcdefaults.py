@@ -44,10 +44,7 @@ rcdefaults = {
     # Definition of H(0).  With H(0) = 0.5 then sgn(0) = 0 as expected
     # by SymPy and NumPy
     'functions.heaviside_zero' : (0.5, c.float),
-    'functions.unitstep_zero' : (0, c.float),
-
-    'schematics.implicit_default' : ('sground', c.str),
-    'schematics.autoground_default' : ('sground', c.str),
+    'functions.unitstep_zero' : (1, c.float),
 
     'symbols.imaginary' : ('j', ('i', 'j'), imaginary_update),
     'symbols.heaviside' : ('u', c.str, heaviside_update),
@@ -55,11 +52,15 @@ rcdefaults = {
     'current.sign_convention': ('passive', ('passive', 'active'),
                                 sign_convention_update),
 
+    'schematics.implicit_default' : ('sground', c.str),
+    'schematics.autoground_default' : ('sground', c.str),
+
     'schematics.draw_nodes': ('primary', ('all', 'none', 'primary', 'connections')),
     'schematics.label_nodes': ('primary', ('all', 'alpha', 'none', 'primary')),
     'schematics.label_values': (True, c.bool),
     'schematics.label_ids': (True, c.bool),
     'schematics.label_style': ('aligned', ('aligned', 'stacked', 'split', 'value', 'name')),
+    'schematics.label_value_style': ('eng3', c.str),
     'schematics.label_flip': (False, c.bool),
     'schematics.annotate_values': (False, c.bool),
     'schematics.anchor': ('south east', c.str),
@@ -70,5 +71,31 @@ rcdefaults = {
     'schematics.node_spacing': (2.0, c.float),
     'schematics.help_lines': (0.0, c.float),
     'schematics.style': ('american', ('american', 'british', 'european')),
-    'schematics.voltage_dir': ('RP', ('RP', 'EF'))
+    'schematics.voltage_dir': ('RP', ('RP', 'EF')),
+
+    'os.linux.ghostscript' : ('gs', c.str),
+    'os.macos.ghostscript' : ('gs', c.str),
+    'os.windows32.ghostscript' : ('gswin32c', c.str),
+    'os.windows64.ghostscript' : ('gswin64c', c.str),
+
+    'os.linux.convert' : ('convert', c.str),
+    'os.macos.convert' : ('convert', c.str),
+    'os.windows32.convert' : ('magick convert', c.str),
+    'os.windows64.convert' : ('magick convert', c.str),
+
+    'os.linux.pdf2svg' : ('pdf2svg', c.str),
+    'os.macos.pdf2svg' : ('pdf2svg', c.str),
+    'os.windows32.pdf2svg' : ('pdf2svg', c.str),
+    'os.windows64.pdf2svg' : ('pdf2svg', c.str),
+
+    'os.linux.pdflatex' : ('pdflatex', c.str),
+    'os.macos.pdflatex' : ('pdflatex', c.str),
+    'os.windows32.pdflatex' : ('pdflatex', c.str),
+    'os.windows64.pdflatex' : ('pdflatex', c.str),
+
+    'os.linux.dot' : ('dot', c.str),
+    'os.macos.dot' : ('dot', c.str),
+    'os.windows32.dot' : ('dot', c.str),
+    'os.windows64.dot' : ('dot', c.str),
+
 }
