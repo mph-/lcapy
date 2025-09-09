@@ -880,9 +880,9 @@ class Cpt(object):
         label = ''
         if kind == '0V':
             label = r'0\,\mathrm{V}'
-            kind = rcParams['schematic.implicit_default']
+            kind = rcParams['schematics.implicit_default']
         elif kind == 'implicit':
-            kind = rcParams['schematic.implicit_default']
+            kind = rcParams['schematics.implicit_default']
 
         args = self.draw_args(n.opts)
         pinpos = n.pinpos
@@ -934,9 +934,9 @@ class Cpt(object):
         label = ''
         if kind == '0V':
             label = r'0\,\mathrm{V}'
-            kind = rcParams['schematic.implicit_default']
+            kind = rcParams['schematics.implicit_default']
         elif kind == 'implicit':
-            kind = rcParams['schematic.implicit_default']
+            kind = rcParams['schematics.implicit_default']
 
         args = self.draw_args(n.opts)
         label = n.opts.get('l', n.opts.get('label', label))
