@@ -1,6 +1,6 @@
 """This module contains configuration information.
 
-Copyright 2019--2021 Michael Hayes, UCECE
+Copyright 2019--2025 Michael Hayes, UCECE
 
 """
 
@@ -45,8 +45,6 @@ greek_letter_names = ('alpha', 'beta', 'gamma', 'delta', 'epislon',
 initialisms = ('OP', 'TP')
 
 words = greek_letter_names + initialisms
-
-matrix_inverse_fallback_method = 'ADJ'
 
 # Allow 1 + s, etc.
 loose_units = True

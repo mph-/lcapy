@@ -49,8 +49,8 @@ rcdefaults = {
     'symbols.imaginary' : ('j', ('i', 'j'), imaginary_update),
     'symbols.heaviside' : ('u', c.str, heaviside_update),
 
-    'current.sign_convention': ('passive', ('passive', 'active'),
-                                sign_convention_update),
+    'circuit.current_sign_convention': ('passive', ('passive', 'active'),
+                                        sign_convention_update),
 
     'schematics.implicit_default' : ('sground', c.str),
     'schematics.autoground_default' : ('sground', c.str),
@@ -59,7 +59,8 @@ rcdefaults = {
     'schematics.label_nodes': ('primary', ('all', 'alpha', 'none', 'primary')),
     'schematics.label_values': (True, c.bool),
     'schematics.label_ids': (True, c.bool),
-    'schematics.label_style': ('aligned', ('aligned', 'stacked', 'split', 'value', 'name')),
+    'schematics.label_style': ('aligned',
+                               ('aligned', 'stacked', 'split', 'value', 'name')),
     'schematics.label_value_style': ('eng3', c.str),
     'schematics.label_flip': (False, c.bool),
     'schematics.annotate_values': (False, c.bool),
