@@ -37,9 +37,9 @@ def sign_convention_update(v):
 c = RcChecker()
 
 rcdefaults = {
-    'sympy.solver' : ('DM', c.str),
-    'sympy.matrix.inverse' : ('DM', c.str),
-    'sympy.matrix.inverse-fallback' : ('ADJ', c.str),
+    'sympy.solver' : ('DM', ('GJ', 'QR', 'CRAMER',
+                             'GE', 'LU', 'ADJ', 'LDL', 'CH', 'DM')),
+    'sympy.matrix.inverse' : ('DM', ('GE', 'LU', 'ADJ', 'LDL', 'CH', 'DM')),
 
     # Definition of H(0).  With H(0) = 0.5 then sgn(0) = 0 as expected
     # by SymPy and NumPy

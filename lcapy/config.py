@@ -46,20 +46,7 @@ initialisms = ('OP', 'TP')
 
 words = greek_letter_names + initialisms
 
-# Can be 'GE', 'LU', 'ADJ', 'LDL', 'CH', 'DM'
-# Note, the DM method requires a new version of sympy otherwise
-# the fallback method is used.
-try:
-    from sympy.polys.domainmatrix import DomainMatrix
-    matrix_inverse_method = 'DM'
-except:
-    matrix_inverse_method = 'ADJ'
-
 matrix_inverse_fallback_method = 'ADJ'
-# Can be 'GJ' (Gauss-Jordan), 'LU', 'QR', 'CRAMER'.  It can also
-# be one of the matrix inverse methods, e.g., 'ADJ', 'DM', etc.
-solver_method = 'DM'
-
 
 # Allow 1 + s, etc.
 loose_units = True

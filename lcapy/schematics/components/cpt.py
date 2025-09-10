@@ -1,3 +1,8 @@
+"""This module defines the Cpt class used for drawing schematics.
+
+Copyright 2024--2025 Michael Hayes, UCECE
+"""
+
 from warnings import warn
 from numpy import zeros, array, pi, cos, sin, dot
 from ...label import Label

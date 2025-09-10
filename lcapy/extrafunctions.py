@@ -2,7 +2,7 @@
 They are for internal use by Lcapy.  The user versions are defined in
 function.py.
 
-Copyright 2020--2022 Michael Hayes, UCECE
+Copyright 2020--2025 Michael Hayes, UCECE
 
 """
 

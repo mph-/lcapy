@@ -1,7 +1,7 @@
 """This module wraps SymPy functions and provides a few others.
 The underlying SymPy function is obtained with the sympy attribute.
 
-Copyright 2014--2023 Michael Hayes, UCECE
+Copyright 2014--2025 Michael Hayes, UCECE
 """
 
 from .units import u as uu

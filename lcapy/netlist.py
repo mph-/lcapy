@@ -1,7 +1,7 @@
 """This module provides the Netlist class.  It could be rolled into
 the Circuit class.
 
-Copyright 2014--2024 Michael Hayes, UCECE
+Copyright 2014--2025 Michael Hayes, UCECE
 
 """
 
@@ -11,7 +11,6 @@ Copyright 2014--2024 Michael Hayes, UCECE
 
 from __future__ import division
 from .admittance import admittance
-from .config import solver_method
 from .current import Iname, current
 from .deprecation import LcapyDeprecationWarning
 from .expr import Expr, expr, ExprList
@@ -20,6 +19,7 @@ from .mnacpts import Cpt
 from .netlistmixin import NetlistMixin
 from .netlistopsmixin import NetlistOpsMixin
 from .netlistsimplifymixin import NetlistSimplifyMixin
+from .rcparams import rcParams
 from .simulator import Simulator
 from .subnetlist import SubNetlist
 from .superpositionvoltage import SuperpositionVoltage
@@ -46,7 +46,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         super(Netlist, self).__init__(filename, context, allow_anon=allow_anon)
         self._invalidate()
         self.kind = kind
-        self.solver_method = solver_method
+        self.solver_method = rcParams['sympy.solver']
 
     @property
     def _time_kind(self):

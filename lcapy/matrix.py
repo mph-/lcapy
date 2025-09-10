@@ -1,7 +1,7 @@
 """
 This module implements the Lcapy Matrix class.
 
-Copyright 2019--2023 Michael Hayes, UCECE
+Copyright 2019--2025 Michael Hayes, UCECE
 """
 
 import sympy as sym
@@ -9,6 +9,7 @@ from copy import copy
 from .expr import expr, delcapify
 from .sym import simplify
 from .printing import pprint, latex, pretty
+from .rcparams import rcParams
 from warnings import warn
 
 
@@ -296,8 +297,6 @@ def matrix(mat):
 
 def matrix_inverse(M, method='default'):
 
-    from .config import matrix_inverse_method, matrix_inverse_fallback_method
-
     N = M.shape[0]
     if N >= 10:
         warn("""
@@ -305,7 +304,7 @@ This may take a while...  A symbolic matrix inversion is O(%d^3) for a matrix
 of size %dx%d""" % (N, N, N))
 
     if method == 'default':
-        method = matrix_inverse_method
+        method = rcParams['sympy.matrix.inverse']
 
     if method == 'GE':
         try:
@@ -333,17 +332,15 @@ of size %dx%d""" % (N, N, N))
                     *M.shape, rows=M.tolist()).to_field()
                 return dM.inv().to_Matrix()
             except:
-                method = matrix_inverse_fallback_method
+                method = 'ADJ'
 
     return M.inv(method=method)
 
 
 def matrix_solve(M, b, method='default'):
 
-    from .config import solver_method
-
     if method == 'default':
-        method = solver_method
+        method = rcParams['sympy.solver']
 
     if method == 'DM':
         try:

@@ -12,7 +12,7 @@ This module performs schematic drawing using circuitikz from a netlist::
     ... W 0.2 0.2; right''')
     >>> sch.draw()
 
-Copyright 2014--2024 Michael Hayes, UCECE
+Copyright 2014--2025 Michael Hayes, UCECE
 """
 
 # Strings starting with ;; are schematic options.  They are parsed in

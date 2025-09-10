@@ -1,7 +1,7 @@
 """This module provides the State class that maintains the global state,
 such as the symbol context.
 
-Copyright 2014--2022 Michael Hayes, UCECE
+Copyright 2014--2025 Michael Hayes, UCECE
 
 """
 
