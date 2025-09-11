@@ -217,21 +217,26 @@ class Network(object):
         decimal places used to evaluate floats.
 
         kwargs include:
+
         - label_ids: True to show component ids
         - label_values: True to display component values
         - draw_nodes:
+
             - True: show all nodes
             - False: show no nodes
             - 'primary': show primary nodes
             - 'connections': show nodes that connect more than two components
             - 'all': show all nodes
+
         - label_nodes:
+
             - True: label all nodes
             - False: label no nodes
             - 'primary': label primary nodes
             - 'alpha': label nodes starting with a letter
             - 'pins': label nodes that are pins on a chip
             - 'all': label all nodes
+
         - style: 'american', 'british', or 'european'
         - scale: schematic scale factor, default 1.0
         - node_spacing: spacing between component nodes, default 2.0
