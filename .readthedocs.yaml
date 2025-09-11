@@ -3,10 +3,22 @@ build:
   os: "ubuntu-22.04"
   tools:
     python: "3.11"
+  apt_packages:
+    - texlive-latex-base
+    - texlive-latex-extra
+    - texlive-pictures
+    - cm-super
+    - dvipng
+    - ghostscript
+  jobs:
+    pre_build:
+      - export MPLBACKEND=Agg
+
 python:
   install:
     - method: pip
       path: .[doc]
+
 sphinx:
   configuration: doc/conf.py
   fail_on_warning: false

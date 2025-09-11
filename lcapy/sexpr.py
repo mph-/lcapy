@@ -469,13 +469,14 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
                               normalize_a0=True):
         """Create differential equation from transfer function.
 
-        For example,
-        >>> H = (s + 3) / (s**2 + 4)
-        >>> H.differential_equation()
-               d                    d
-        y(t) + --(y(t)) = 4.x(t) + ---(x(t))
-               dt                    2
-                                     dt
+        For example::
+            >>> H = (s + 3) / (s**2 + 4)
+            >>> H.differential_equation()
+            ::
+                       d                    d
+                y(t) + --(y(t)) = 4.x(t) + ---(x(t))
+                       dt                    2
+                                             dt
         """
 
         fil = self.lti_filter(normalize_a0)
