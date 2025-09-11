@@ -1552,7 +1552,7 @@ There are a number of global printing options, controlled by attributes of the `
 - `state.printing.order` (default None) controls the order that symbols in an expression are printed.  When `order =None`, SymPy orders the printed arguments and produces output like `-p + s`.  When `order='none'`, SymPy does not order the printed arguments.  However, when creating an expression, SymPy sorts the argument order for commutative operators (such as add) and does not honour how the expression was created.
 
 
-.. _expressions:
+.. _number_formatting:
 
 Number formatting
 -----------------
