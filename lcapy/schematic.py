@@ -544,51 +544,49 @@ class Schematic(NetfileMixin):
 
     def draw(self, filename=None, **kwargs):
         r"""
-        filename specifies the name of the file to produce.  If None,
-        the schematic is displayed on the screen.
+        Parameters
+        ----------
+        filename:
+            The name of the file to produce.  If None, the schematic is displayed on the screen.
 
-        Note, if using Jupyter, then need to first issue command %matplotlib inline
+        layout:
+            This is either 'horizontal', 'vertical', or 'ladder'.
 
+        evalf:
+            This can be False or an integer specifying the number of decimal places used to evaluate floats.
+        kwargs:
+            These include:
 
-        kwargs includes:
+        - label_ids: True to show component ids
+        - label_values: True to display component values
+        - draw_nodes:
 
-        - `label_ids`: True to show component ids
-        - `label_values`: True to display component values
-        - `label_value_style`:
+            - True: show all nodes
+            - False: show no nodes
+            - 'primary': show primary nodes
+            - 'connections': show nodes that connect more than two components
+            - 'all': show all nodes
 
-            - `'eng'` for engineering (SI)
-            - `'sci'` for scientific
-            - `'ratfun'` for rational function
-            - `'spice'` for SPICE
+        - label_nodes:
 
-        - `label_flip`: Place label on other side of component
-        - `annotate_values`: True to display component values as a separate label
-        - `draw_nodes`:
+            - True: label all nodes
+            - False: label no nodes
+            - 'primary': label primary nodes
+            - 'alpha': label nodes starting with a letter
+            - 'pins': label nodes that are pins on a chip
+            - 'all': label all nodes
 
-            - True to show all nodes
-            - False or `'none'` to show no nodes
-            - `'primary'` to show primary nodes
-            - `'connections'` to show nodes that connect more than two components
-            - `'all'` to show all nodes
+        - style: 'american', 'british', or 'european'
+        - scale: schematic scale factor, default 1.0
+        - node_spacing: spacing between component nodes, default 2.0
+        - cpt_size: size of a component, default 1.5
+        - dpi: dots per inch for png files
+        - help_lines: distance between lines in grid, default 0.0 (disabled)
+        - debug: True to display debug information
 
-        - `label_nodes`:
-
-            - True to label all nodes
-            - False or `'none'` to label no nodes
-            - `'primary'` to label primary nodes (nodes without an underscore)
-            - `'alpha'` to label nodes starting with a letter
-            - `'pins'` to label nodes that are pins on a chip
-            - `'all'` to label all nodes
-
-        - `anchor`: where to position node label (default south east)
-        - `include`: name of file to include before \begin{document}
-        - `style`: `'american'`, `'british'`, or `'european'`
-        - `scale`: schematic scale factor, default 1.0
-        - `node_spacing`: spacing between component nodes, default 2.0
-        - `cpt_size`: size of a component, default 1.5
-        - `dpi`: dots per inch for png files, default 300
-        - `help_lines`: distance between lines in grid, default 0 (disabled)
-        - `debug`: non-zero to display debug information
+        Notes
+        -----
+        If using Jupyter, then need to first issue command %matplotlib inline
         """
 
         # None means don't care, so remove.  Use list so can remove

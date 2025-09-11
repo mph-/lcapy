@@ -4,6 +4,8 @@ Copyright 2019--2025 Michael Hayes, UCECE
 
 """
 
+# See rcdefaults.py
+
 # SymPy symbols to exclude.  It might be easier to add the ones we want...
 # 'I' is removed to avoid conflict with oneport current source and
 # since 'j' is used instead.

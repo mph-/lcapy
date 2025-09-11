@@ -206,17 +206,18 @@ class Network(object):
     def draw(self, filename=None, layout='horizontal', form=None, evalf=False, **kwargs):
         """Draw schematic of network.
 
-        filename specifies the name of the file to produce.  If None,
-        the schematic is displayed on the screen.
+        Parameters
+        ----------
+        filename:
+            The name of the file to produce.  If None, the schematic is displayed on the screen.
 
-        Note, if using Jupyter, then need to first issue command %matplotlib inline
+        layout:
+            This is either 'horizontal', 'vertical', or 'ladder'.
 
-        `layout` is either 'horizontal', 'vertical', or 'ladder'.
-
-        `evalf` can be False or an integer specifying the number of
-        decimal places used to evaluate floats.
-
-        kwargs include:
+        evalf:
+            This can be False or an integer specifying the number of decimal places used to evaluate floats.
+        kwargs:
+            These include:
 
         - label_ids: True to show component ids
         - label_values: True to display component values
@@ -245,6 +246,9 @@ class Network(object):
         - help_lines: distance between lines in grid, default 0.0 (disabled)
         - debug: True to display debug information
 
+        Notes
+        -----
+        If using Jupyter, then need to first issue command %matplotlib inline
         """
 
         if 'label_ids' not in kwargs:
