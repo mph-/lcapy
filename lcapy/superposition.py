@@ -305,7 +305,7 @@ class Superposition(SuperpositionDomain, ExprDict):
         return call(self, arg, **assumptions)
 
     def subs(self, *args, **kwargs):
-
+        """ Substitute values into all components of the superposition."""
         new = self.__class__()
         for kind, value in self.items():
             new[kind] = value.subs(*args, **kwargs)

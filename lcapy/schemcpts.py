@@ -381,10 +381,11 @@ class SP(FixedCpt):
 
     @property
     def pins(self):
+        """Return the pin names for the current node"""
         return self.mirror_pins if self.mirror else self.normal_pins
 
     def draw(self, **kwargs):
-
+        """Draw the summing point"""
         if not self.check():
             return ''
 
@@ -424,6 +425,7 @@ class SP3(SP):
 
     @property
     def pins(self):
+        """Return the pin names for the current node"""
         return self.mirror_pins if self.mirror else self.normal_pins
 
 
@@ -758,11 +760,12 @@ class SPDT(FixedCpt):
 
     @property
     def pins(self):
+        """Return the pin names for the current node"""
         # The mirror pins are at the same locations as the normal pins
         return self.invert_pins if self.invert else self.normal_pins
 
     def draw(self, **kwargs):
-
+        """Draw the switch"""
         if not self.check():
             return ''
 
