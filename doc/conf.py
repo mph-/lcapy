@@ -255,3 +255,27 @@ autosummary_generate = True  # Turn on sphinx.ext.autosummary
 #   by lcapy.oneport.v, rename lcapy.oneport.v.html to lcapy.oneport.v_t-domain.html
 autosummary_filename_map = {'lcapy.oneport.v':'lcapy.oneport.v_t-domain',
                             'lcapy.oneport.i':'lcapy.oneport.i_t-domain',}
+
+# Patch autosummary.get_documenter to handle identically_named properties
+# without error
+try:
+    from sphinx.ext.autosummary import get_documenter as _orig_get_documenter
+    from sphinx.ext import autosummary as _as_mod
+    from sphinx.ext.autodoc import AttributeDocumenter as _AttrDoc
+except Exception:
+    _orig_get_documenter = None
+
+if _orig_get_documenter and not getattr(_as_mod, '_lcapy_get_documenter_patch', False):
+    def _lcapy_get_documenter(app, obj, parent):
+        try:
+            if isinstance(obj, property):
+                return _AttrDoc
+            if isinstance(parent, property):
+                parent = None  # Avoid AttributeError paths
+        except Exception:
+            pass
+        return _orig_get_documenter(app, obj, parent)
+
+    _as_mod.get_documenter = _lcapy_get_documenter
+    _as_mod._lcapy_get_documenter_patch = True
+
