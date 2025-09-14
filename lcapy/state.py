@@ -8,7 +8,6 @@ Copyright 2014--2025 Michael Hayes, UCECE
 from sympy.assumptions.assume import global_assumptions
 
 from .context import Context
-from .config import printing_order
 from .printing_config import PrintingConfig
 from .symbolregistry import SymbolRegistry
 from copy import copy
@@ -23,7 +22,6 @@ class State(object):
     `show_units` (default False) prints the units after an expression
     `canonical_units` (default True) converts units to canonical form, e.g., V / A is shown as ohms.
     'printing.abbreviate_units` (default True) prints V rather than volts
-    'printing.order` (default `none`) controls the order that symbols in an expression are printed.
 
     """
 
@@ -42,7 +40,6 @@ class State(object):
         self.show_units = False
         self.canonical_units = False
         self.printing.abbreviate_units = True
-        self.printing.order = printing_order
 
         self.warn_subs = False
         self.break_subs = False

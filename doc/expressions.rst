@@ -854,30 +854,30 @@ Expressions have an attribute `units` that reflect the quantity and domain.  For
 The units are a SymPy Expression and thus can be formatted as a
 string, LaTeX, etc.  They can be automatically printed, for example::
 
-   >>> state.show_units = True
+   >>> rcParams['units.show'] = True
    >>> voltage(7)
    7⋅V
 
 Abbreviated units are employed by default, however, this can be disabled.  For example::
 
-   >>> state.show_units = True
-   >>> state.abbreviate_units = False
+   >>> rcParams['units.show'] = True
+   >>> rcParams['units.abbreviate'] = False
    >>> voltage(7)
    7⋅volt
 
 By default, units are printed in the form they are created.  However,
 they can be printed in a simplified canonical form::
 
-   >>> state.show_units = True
+   >>> rcParams['units.show'] = True
    >>> current(7) * impedance(2)
    14⋅A⋅ohm
-   >>> state.canonical_units = True
+   >>> rcParams['units.canonical'] = True
    >>> current(7) * impedance(2)
    14⋅V
 
 Alternatively, the units can be simplified using the `simplify_units()` method::
 
-   >>> state.show_units = True
+   >>> rcParams['units.show'] = True
    >>> V = current(7) * impedance(2)
    >>> V
    14⋅A⋅ohm
@@ -1541,15 +1541,15 @@ Printing methods
 
 - `plot()` plot the expression, provided there are no free symbols (see :ref:`plotting`)
 
-There are a number of global printing options, controlled by attributes of the `state` object.
+There are a number of global printing options, controlled by rc parameters:
 
-- `state.show_units` (default False) prints the units after an expression
+- `rcParams['units.show']` (default False) prints the units after an expression
 
-- `state.canonical_units` (default True) converts units to canonical form, e.g., V / A is shown as ohms.
+- `rcParams['units.canonical']` (default True) converts units to canonical form, e.g., V / A is shown as ohms.
 
-- `state.printing.abbreviate_units` (default True) prints V rather than volts
+- `rcParams['units.abbreviate']` (default True) prints V rather than volts
 
-- `state.printing.order` (default None) controls the order that symbols in an expression are printed.  When `order =None`, SymPy orders the printed arguments and produces output like `-p + s`.  When `order='none'`, SymPy does not order the printed arguments.  However, when creating an expression, SymPy sorts the argument order for commutative operators (such as add) and does not honour how the expression was created.
+- `rcParams['sympy.print_order']` (default None) controls the order that symbols in an expression are printed.  This can be `'lex'`, `'grlex'`, or `'grevlex'`.   Note, symPy does not honour how the expression was created.
 
 
 .. _number_formatting:

@@ -51,7 +51,6 @@ from .tmatrix import *
 from .smatrix import *
 from .matrix import *
 from .sym import *
-from .printing import *
 from .susceptance import susceptance
 from .reactance import reactance
 from .inductance import inductance
@@ -71,6 +70,7 @@ from .nodalanalysis import *
 from .loopanalysis import *
 from .exprclasses import *
 from .seqclasses import *
+from .printing import *
 from .rcparams import rcParams
 
 import sys
@@ -131,3 +131,6 @@ rcParams.load_local()
 converter['j'] = j
 converter[Symbol('j')] = j
 del converter, Symbol
+
+from .printing import printing_init
+printing_init(rcParams['sympy.print_order'])

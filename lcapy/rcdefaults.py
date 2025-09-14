@@ -33,6 +33,7 @@ def sign_convention_update(k, v):
 
     state.sign_convention = v
 
+
 def units_update(k, v):
 
     if k == 'units.loose':
@@ -47,12 +48,20 @@ def units_update(k, v):
         state.check_units = v
 
 
+def print_order_update(k, v):
+
+    from .printing import printing_init
+    printing_init(v)
+
+
 c = RcChecker()
 
 rcdefaults = {
     'sympy.solver' : ('DM', ('GJ', 'QR', 'CRAMER',
                              'GE', 'LU', 'ADJ', 'LDL', 'CH', 'DM')),
     'sympy.matrix.inverse' : ('DM', ('GE', 'LU', 'ADJ', 'LDL', 'CH', 'DM')),
+    'sympy.print_order': ('lex', ('lex', 'grlex', 'grevlex'),
+                          print_order_update),
 
     # Definition of H(0).  With H(0) = 0.5 then sgn(0) = 0 as expected
     # by SymPy and NumPy

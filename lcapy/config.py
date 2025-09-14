@@ -48,9 +48,6 @@ initialisms = ('OP', 'TP')
 
 words = greek_letter_names + initialisms
 
-# Note, SymPy will convert s - -1 to 1 + s unless Add is used with evaluate=False
-printing_order = None
-
 # Use X11 colours so that they will work with graphziv and dot2tex.
 colours = {'startnode': 'green', 'endnode': 'green',
            'assignednode': 'Orchid1', 'unassignednode': 'SkyBlue1',
