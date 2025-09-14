@@ -1038,8 +1038,8 @@ and for a source (V, I), current flows out of the positive node.
 
 The default current sign convention is passive.  However, this is deprecated and will change to passive in a future release of Lcapy.   The sign convention can be switched to passive using:
 
-    >>> from lcapy.state import state
-    >>> state.current_sign_convention = 'passive'
+    >>> from lcapy import rcparams
+    >>> rcparams['circuit.current_sign_convention] = 'passive'
 
 Note, this will not change results previously computed and cached for a netlist.
 

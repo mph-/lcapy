@@ -5,7 +5,7 @@ from .state import state
 import sympy as sym
 
 
-def imaginary_update(v):
+def imaginary_update(k, v):
 
     if v == 'i':
         str_expr_map[sym.I] = 'i'
@@ -23,15 +23,28 @@ def imaginary_update(v):
         raise ValueError('symbols.imaginary must be i or j')
 
 
-def heaviside_update(v):
+def heaviside_update(k, v):
 
     latex_expr_map[sym.Heaviside] = v
     pretty_expr_map[sym.Heaviside] = v
 
 
-def sign_convention_update(v):
+def sign_convention_update(k, v):
 
     state.sign_convention = v
+
+def units_update(k, v):
+
+    if k == 'units.loose':
+        state.loose_units = v
+    elif k == 'units.show':
+        state.show_units = v
+    elif k == 'units.abbreviate':
+        state.abbreviate_units = v
+    elif k == 'units.canonical':
+        state.canonical_units = v
+    elif k == 'units.check':
+        state.check_units = v
 
 
 c = RcChecker()
@@ -99,4 +112,15 @@ rcdefaults = {
     'os.windows32.dot' : ('dot', c.str),
     'os.windows64.dot' : ('dot', c.str),
 
+    # Allow 1 + s, etc.
+    'units.loose': (True, c.bool, units_update),
+    # Print units with expression.
+    'units.show': (False, c.bool, units_update),
+    # Print units in abbreviated form.
+    'units.abbreviate': (True, c.bool, units_update),
+    # Print units in canonical form.
+    'units.canonical': (False, c.bool, units_update),
+    # This cannot be enabled without loose units (e.g.,
+    # s + 1, or s * 'R' * 'C' + 1 would fail).
+    'units.check': (True, c.bool, units_update),
 }

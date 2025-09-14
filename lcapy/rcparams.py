@@ -31,7 +31,7 @@ class RcParams(dict):
 
         # Change hook
         if len(d) > 2:
-            d[2](val)
+            d[2](key, val)
 
     def __getitem__(self, key):
 
@@ -86,11 +86,11 @@ class RcParams(dict):
             for key, val in self.items():
                 print(key, ':', val, file=fd)
 
-    def set_defaults(self):
+    def rcdefaults(self):
 
         for k, v in rcdefaults.items():
             rcParams[k] = v[0]
 
 
 rcParams = RcParams()
-rcParams.set_defaults()
+rcParams.rcdefaults()

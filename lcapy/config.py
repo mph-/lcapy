@@ -48,17 +48,6 @@ initialisms = ('OP', 'TP')
 
 words = greek_letter_names + initialisms
 
-# Allow 1 + s, etc.
-loose_units = True
-# Print units with expression.
-show_units = False
-# Print units in abbreviated form.
-abbreviate_units = True
-# Print units in canonical form.
-canonical_units = False
-# This cannot be enabled without loose units (e.g., s + 1, or s * 'R' * 'C' + 1 would fail).
-check_units = True
-# Set to 'none' to print s - p; None to print SymPy default form -p + s.
 # Note, SymPy will convert s - -1 to 1 + s unless Add is used with evaluate=False
 printing_order = None
 
