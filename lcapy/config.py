@@ -68,3 +68,4 @@ colours = {'startnode': 'green', 'endnode': 'green',
            'fixednode': 'Yellow', 'fixededge': 'Red', 'stretchedge': 'black'}
 
 rcparams_user_filename = '~/.lcapy/lcapyrc'
+rcparams_local_filename = 'lcapyrc'

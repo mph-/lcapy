@@ -123,6 +123,7 @@ def show_version():
 
 
 rcParams.load_user()
+rcParams.load_local()
 
 # The following is to help sympify deal with j.
 # A better fix might be to define an Lcapy class for j and to

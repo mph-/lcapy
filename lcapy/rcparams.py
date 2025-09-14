@@ -1,5 +1,5 @@
 from .rcdefaults import rcdefaults
-from .config import rcparams_user_filename
+from .config import rcparams_user_filename, rcparams_local_filename
 from os.path import exists, expanduser
 from warnings import warn
 
@@ -74,6 +74,10 @@ class RcParams(dict):
 
         filename = expanduser(rcparams_user_filename)
         self.load_if_exists(filename)
+
+    def load_local(self):
+
+        self.load_if_exists(rcparams_local_filename)
 
     def save(self, filename):
 
