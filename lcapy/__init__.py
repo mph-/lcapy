@@ -71,7 +71,7 @@ from .nodalanalysis import *
 from .loopanalysis import *
 from .exprclasses import *
 from .seqclasses import *
-from .rcparams import *
+from .rcparams import rcParams
 
 import sys
 del absolute_import, print_function
@@ -121,6 +121,8 @@ def show_version():
           (python_version, sympy_version, numpy_version,
            matplotlib_version, scipy_version, networkx_version, lcapy_version))
 
+
+rcParams.load_user()
 
 # The following is to help sympify deal with j.
 # A better fix might be to define an Lcapy class for j and to

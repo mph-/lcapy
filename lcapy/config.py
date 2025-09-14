@@ -66,3 +66,5 @@ printing_order = None
 colours = {'startnode': 'green', 'endnode': 'green',
            'assignednode': 'Orchid1', 'unassignednode': 'SkyBlue1',
            'fixednode': 'Yellow', 'fixededge': 'Red', 'stretchedge': 'black'}
+
+rcparams_user_filename = '~/.lcapy/lcapyrc'

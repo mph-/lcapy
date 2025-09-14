@@ -1,4 +1,6 @@
 from .rcdefaults import rcdefaults
+from .config import rcparams_user_filename
+from os.path import exists, expanduser
 from warnings import warn
 
 
@@ -40,8 +42,7 @@ class RcParams(dict):
 
         return dict.__getitem__(self, key)
 
-    @classmethod
-    def _from_file(cls, filename):
+    def load(self, filename):
 
         rc = {}
         with open(filename) as fd:
@@ -60,8 +61,19 @@ class RcParams(dict):
                     warn('Duplicate key %s in file %r line #%d.' %
                          (key, filename, linenum))
                 rc[key] = val
+                self[key] = val
 
-        return cls(rc)
+    def load_if_exists(self, filename):
+
+        if not exists(filename):
+            return
+
+        self.load(filename)
+
+    def load_user(self):
+
+        filename = expanduser(rcparams_user_filename)
+        self.load_if_exists(filename)
 
     def save(self, filename):
 
@@ -74,6 +86,7 @@ class RcParams(dict):
 
         for k, v in rcdefaults.items():
             rcParams[k] = v[0]
+
 
 rcParams = RcParams()
 rcParams.set_defaults()
