@@ -155,15 +155,21 @@ class MNA(object):
         if cct.nodes['0'].count == 0:
             return message + ' Nothing electrically connected to ground.'
 
-        if not cct.is_connected:
-            unco = cct.unconnected_nodes()
-            if unco != []:
-                return message + 'Unconnected nodes: ' + ', '.join(unco)
-            unreachable = cct.unreachable_nodes('0')
-            return message + ' The network is disjoint.  These nodes have no path to node 0: ' + ', '.join(unreachable)
-
         reasons = []
         components = cct.components
+
+        if components.transformers != []:
+            # TODO: handle transformers in circuit graph since cct.is_connected
+            # fails with transformers
+            pass
+        else:
+            if not cct.is_connected:
+                unco = cct.unconnected_nodes()
+                if unco != []:
+                    return message + 'Unconnected nodes: ' + ', '.join(unco)
+                unreachable = cct.unreachable_nodes('0')
+                return message + ' The network is disjoint.  These nodes have no path to node 0: ' + ', '.join(unreachable)
+
         if cct.kind == 'dc':
             reasons.append('Check there is a DC path between all nodes.')
         if components.transformers != []:
@@ -176,6 +182,8 @@ class MNA(object):
         if len(components.voltage_sources) > 1:
             reasons.append('Check for loop of voltage sources.')
         if components.current_sources != []:
+            # Note, when determining impedance, a test current source
+            # is added.  This test source should be ignored here.
             reasons.append('Check current source is not open-circuited.')
         if len(components.current_sources) > 1:
             reasons.append('Check for current sources in series.')

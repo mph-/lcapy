@@ -26,6 +26,7 @@ class Network(object):
     is_parallel = False
     is_series = False
     is_noiseless = True
+    is_transformer = False
 
     # True if initial conditions are zero (or unspecified).
     zeroic = True

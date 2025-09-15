@@ -226,6 +226,10 @@ class NetlistMixin(object):
     def is_connected(self):
         """Return True if all components are connected."""
 
+        if self.components.transformers != []:
+            warn('Assuming circuit with transformers connected')
+            return True
+
         return self.cg.is_connected
 
     @property
