@@ -95,21 +95,30 @@ class Path(Edges):
         return ', '.join([str(e) for e in self])
 
 
+def add_cpt(G, name, node_name1, node_name2):
+
+    if G.has_edge(node_name1, node_name2):
+        # Add dummy node in graph to avoid parallel edges.
+        dummynode = '*%d' % G.dummy
+        dummycpt = 'W%d' % G.dummy
+        G.add_edge(node_name1, dummynode, name=name)
+        G.add_edge(dummynode, node_name2, name=dummycpt)
+        G.dummy_nodes[dummynode] = node_name2
+        G.dummy += 1
+    else:
+        G.add_edge(node_name1, node_name2, name=name)
+
+
 class CircuitGraph(object):
 
     @classmethod
     def from_circuit(cls, cct):
 
-        if cct.twoports != []:
-            raise ValueError('Cannot create CircuitGraph with twoport components: ' + ', '.join(cct.twoports))
-            # Perhaps could split twoports into an input oneport and an
-            # output oneport?
-
         G = nx.DiGraph()
 
-        dummy = 0
+        G.dummy = 0
         # Dummy nodes are used to avoid parallel edges.
-        dummy_nodes = {}
+        G.dummy_nodes = {}
 
         G.add_nodes_from(cct.node_list)
 
@@ -117,23 +126,22 @@ class CircuitGraph(object):
         node_map = cct.node_map
 
         for name in cct.branch_list:
-            elt = cct.elements[name]
-            if len(elt.node_names) < 2:
-                continue
 
-            node_name1 = node_map[elt.node_names[0]]
-            node_name2 = node_map[elt.node_names[1]]
-
-            if G.has_edge(node_name1, node_name2):
-                # Add dummy node in graph to avoid parallel edges.
-                dummynode = '*%d' % dummy
-                dummycpt = 'W%d' % dummy
-                G.add_edge(node_name1, dummynode, name=name)
-                G.add_edge(dummynode, node_name2, name=dummycpt)
-                dummy_nodes[dummynode] = node_name2
-                dummy += 1
+            if name.endswith('_out_'):
+                tpname = name.split('_out_')[0]
+                elt = cct.elements[tpname]
+                node_names = [node_map[name] for name in elt.node_names[0:2]]
+                add_cpt(G, name, node_names[0], node_names[1])
+            elif name.endswith('_in_'):
+                tpname = name.split('_in_')[0]
+                elt = cct.elements[tpname]
+                node_names = [node_map[name] for name in elt.node_names[2:4]]
+                add_cpt(G, name, node_names[0], node_names[1])
             else:
-                G.add_edge(node_name1, node_name2, name=name)
+                elt = cct.elements[name]
+                if len(elt.node_names) >= 2:
+                    node_names = [node_map[name] for name in elt.node_names[0:2]]
+                    add_cpt(G, name, node_names[0], node_names[1])
 
         return cls(cct, G)
 
@@ -501,7 +509,7 @@ class CircuitGraph(object):
         has more than one set then the network has disjoint networks
         of components."""
 
-        return list(nx.connected_components(self.G))
+        return list(nx.connected_components(self.UG))
 
     def has_path(self, from_node, to_node):
         """Return True if there is a path from `from_node` to `to_node`."""
@@ -525,7 +533,7 @@ class CircuitGraph(object):
         for network in networks:
             if node not in network:
                 unreachable.extend(network)
-        return unreachable
+        return [node for node in unreachable if not node.startswith('*')]
 
     def tree(self):
         """Return minimum spanning tree.  A tree has no loops so no current

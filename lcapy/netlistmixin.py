@@ -89,17 +89,15 @@ class NetlistMixin(object):
         """Determine list of names of branch elements, e.g.,
         ['C1', 'V1', 'R1', 'R2'].
 
-        Two-port components (TF, GY, TP) are ignored.   Perhaps
-        they could be split into input and output one-ports?
+        Two-port components are split into input and output one-ports.
         """
 
         branch_list = []
         for key, elt in self.elements.items():
             if elt.is_twoport:
-                warn('Ignoring twoport component ' + key)
-                continue
-
-            if elt.type not in ('W', 'O', 'P', 'K', 'XX'):
+                branch_list.append(elt.name + '_out_')
+                branch_list.append(elt.name + '_in_')
+            elif elt.type not in ('W', 'O', 'P', 'K', 'XX'):
                 branch_list.append(elt.name)
         return branch_list
 
@@ -225,10 +223,6 @@ class NetlistMixin(object):
     @property
     def is_connected(self):
         """Return True if all components are connected."""
-
-        if self.components.transformers != []:
-            warn('Assuming circuit with transformers connected')
-            return True
 
         return self.cg.is_connected
 
@@ -1107,8 +1101,9 @@ class NetlistMixin(object):
 
         return self.s_model(j * var)
 
-    def unconnected_nodes(self):
-        """Return list of node names that are not connected."""
+    def dangling_nodes(self):
+        """Return list of node names that are dangling (they connect to a
+        single component.)"""
 
         return [node.name for node in self.nodes.values() if node.count <= 1]
 

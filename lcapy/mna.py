@@ -158,17 +158,13 @@ class MNA(object):
         reasons = []
         components = cct.components
 
-        if components.transformers != []:
-            # TODO: handle transformers in circuit graph since cct.is_connected
-            # fails with transformers
-            pass
-        else:
-            if not cct.is_connected:
-                unco = cct.unconnected_nodes()
-                if unco != []:
-                    return message + 'Unconnected nodes: ' + ', '.join(unco)
-                unreachable = cct.unreachable_nodes('0')
-                return message + ' The network is disjoint.  These nodes have no path to node 0: ' + ', '.join(unreachable)
+        if not cct.is_connected:
+            reasons.append('The circuit graph is disjoint.')
+
+            unreachable = cct.unreachable_nodes('0')
+            if unreachable != []:
+                reasons.append('There is no path to node 0 for nodes: ' + ', '.join(unreachable))
+            return message + '\n    ' + '\n    '.join(reasons)
 
         if cct.kind == 'dc':
             reasons.append('Check there is a DC path between all nodes.')
