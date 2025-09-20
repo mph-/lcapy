@@ -126,8 +126,7 @@ class PDFConverter(object):
 
         run([program, pdf_filename, svg_filename], debug=self.debug)
         if not path.exists(svg_filename):
-            raise RuntimeError('Could not generate %s with pdf2svg.  Is it installed?' %
-                               svg_filename)
+            raise RuntimeError('Could not generate %s with %s.  Is it installed?' % (svg_filename, program))
 
     def to_png_convert(self, pdf_filename, png_filename, dpi=300):
 
@@ -137,8 +136,8 @@ class PDFConverter(object):
             int(dpi), pdf_filename, png_filename], debug=self.debug)
 
         if not path.exists(png_filename):
-            raise RuntimeError('Could not generate %s with convert' %
-                               png_filename)
+            raise RuntimeError('Could not generate %s with %s' %
+                               (png_filename, program))
         if stat(png_filename).st_size == 0:
             raise RuntimeError('Could not generate %s with convert, empty file' %
                                png_filename)
