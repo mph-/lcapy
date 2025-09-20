@@ -649,6 +649,8 @@ class Schematic(NetfileMixin):
 
         if in_ipynb() and filename is None:
 
+            # Handle Jupyter notebook
+
             if not png and not svg:
                 svg = False
 
@@ -665,8 +667,8 @@ class Schematic(NetfileMixin):
                     # the first ones.
                     display_svg(SVG(filename=svgfilename))
                     return
-                except:
-                    pass
+                except Exception as e:
+                    warn('Cannot create SVG image object, using PNG: ' + e)
 
             from IPython.display import Image, display_png
 
