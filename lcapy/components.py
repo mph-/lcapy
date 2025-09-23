@@ -21,6 +21,7 @@ class Components:
         self.twoports = []
         self.voltage_sources = []
         self.wires = []
+        self.opamps = []
 
         for eltname, elt in cct.elements.items():
 
@@ -44,6 +45,8 @@ class Components:
                 self.voltage_sources.append(eltname)
             elif elt.is_wire:
                 self.wires.append(eltname)
+            elif elt.is_opamp:
+                self.opamps.append(eltname)
 
             # Note, this includes all twoport components (TP, TF, GY,
             # etc) and not just TP.

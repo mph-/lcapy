@@ -641,11 +641,18 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         """Expand the netlist, replacing complicated components with simpler
         components."""
 
-        new = self._new()
+        old = self
+        while len(old.components.opamps):
 
-        for cpt in self._elements.values():
-            new._add(cpt._expand())
-        return new
+            # Need to iterate to handle FDA and INA.  These get
+            # converted to opamps.
+
+            new = old._new()
+
+            for cpt in old._elements.values():
+                new._add(cpt._expand())
+            old = new
+        return old
 
     def laplace(self, ics=True):
         """Return netlist for Laplace-domain representations of independent

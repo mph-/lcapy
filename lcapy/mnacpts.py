@@ -58,6 +58,7 @@ class Cpt(ImmittanceMixin):
     is_wire = False
     is_current_controlled = False
     is_voltage_controlled = False
+    is_opamp = False
     extra_argnames = ()
 
     def __init__(self, cct, namespace, name, cpt_type, cpt_id, string,
@@ -1311,6 +1312,7 @@ class Eopamp(DependentSource):
     """Operational amplifier"""
 
     extra_argnames = ('Ac', 'Ro')
+    is_opamp = True
 
     def _expand(self):
 
@@ -1350,6 +1352,7 @@ class Efdopamp(DependentSource):
     """Fully differential opamp"""
 
     extra_argnames = ('Ac')
+    is_opamp = True
 
     def _expand(self):
 
@@ -1381,6 +1384,7 @@ class Einamp(DependentSource):
     """Instrumentation amplifier"""
 
     extra_argnames = ('Ac', 'Rf')
+    is_opamp = True
 
     def _expand(self):
 
