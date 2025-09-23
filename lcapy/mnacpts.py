@@ -1372,7 +1372,7 @@ class Efdopamp(DependentSource):
                                              'opamp',
                                              self.relnodes[2],
                                              self.relnodes[3]),
-                                      args=(Ad, Ac))
+                                      args=(Ad, '-' + Ac))
 
         return opampp + '\n' + opampm + '\n'
 

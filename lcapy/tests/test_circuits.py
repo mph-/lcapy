@@ -851,13 +851,16 @@ class LcapyTester(unittest.TestCase):
         """Test FDA"""
 
         a = Circuit("""
-        E1 1 2 fdopamp 3 4 0 Ad Ac
-        V1 3 5 Vd
-        V2 5 4 Vd
-        V3 5 0 Vc""")
+        E1 1 2 fdopamp 3 4 5 Ad Ac
+        V1 3 6 Vd
+        V2 6 4 Vd
+        V3 6 0 Vc
+        V4 5 0 Vocm""")
 
-        self.assertEqual(a[1].v, voltage('Ad * Vd + Ac * Vc'), 'fdopamp +')
-        self.assertEqual(a[2].v, voltage('-Ad * Vd - Ac * Vc'), 'fdopamp -')
+        self.assertEqual(a[1].v, voltage('Ad * Vd + Ac * Vc + Vocm'),
+                         'fdopamp +')
+        self.assertEqual(a[2].v, voltage('-Ad * Vd + Ac * Vc + Vocm'),
+                         'fdopamp -')
 
     def test_R_simplify(self):
 
