@@ -1403,9 +1403,11 @@ class Einamp(DependentSource):
                                          nodes=(node8, '0', 'opamp',
                                                 self.relnodes[3], self.relnodes[5]),
                                          args=(Ad, )))
+        # This is an ideal differential amplifier with differential gain Ad=0.5.
+        # The common-mode gain Ac is small, ideally 0.
         cpts.append(self._netmake_expand('Ed',
                                          nodes=(self.relnodes[0], self.relnodes[1], 'opamp',
-                                                node7, node8), args=('1', Ac)))
+                                                node7, node8), args=('0.5', Ac)))
         cpts.append(self._netmake_expand('Rfp',
                                          nodes=(self.relnodes[4], node7), args=(Rf, )))
         cpts.append(self._netmake_expand('Rfm',
