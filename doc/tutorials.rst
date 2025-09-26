@@ -1787,11 +1787,11 @@ equivalent to two or three VCVSs).  The netlist has the form::
 
    E out ref inamp in+ in- rin+ rin- Ad Ac Rf
 
-Here `Ad` is the open-loop differential gain, `Ac` is the open-loop common-mode gain (zero default), and `Rf` is the internal feedback resistance.   Internally it expands to::
+This simulates a three opamp instrumentation amplifier where `Ad` is the open-loop differential gain of the input stages, `Ac` is the open-loop common-mode gain of the output stage (zero default), and `Rf` is the internal feedback resistance.   Internally it expands to::
 
    Ep int+ 0 opamp in+ in- Ad 0
    Em int- 0 opamp in+ in- Ad 0
-   Ed out ref opamp int+ int- 1 Ac
+   Ed out ref opamp int+ int- 0.5 Ac
    Rfp rin+ int+ Rf
    Rfm rin- int- Rf
 
@@ -1823,28 +1823,29 @@ The output voltage can be found using::
 
 Assuming infinite open-loop differential gain,
 
-   >>> Vo.limit('Ad', oo)
-   A_c⋅R_g⋅Vₛ₁ + A_c⋅R_g⋅Vₛ₂ + 4⋅R_f⋅Vₛ₁ - 4⋅R_f⋅Vₛ₂ + 2⋅R_g⋅Vₛ₁ - 2⋅R_g⋅Vₛ₂
-   ─────────────────────────────────────────────────────────────────────────
-                                     2⋅R_g
+   >>> Vo = Vo.limit('Ad', oo)
+   >>> Vo
+   A_c⋅R_g⋅Vₛ₁ + A_c⋅R_g⋅Vₛ₂ + 2⋅R_f⋅Vₛ₁ - 2⋅R_f⋅Vₛ₂ + R_g⋅Vₛ₁ - R_g⋅Vₛ₂
+   ─────────────────────────────────────────────────────────────────────
+                                   2⋅R_g
 
 Let's now express the input voltages in terms of the input
-differential and common-mode voltages :math:`V_{s1} = V_{ic} - V_{id}
-/ 2` and :math:`V_{s2} = V_{ic} + V_{id} / 2`::
+differential and common-mode voltages :math:`V_{s1} = V_{ic} + V_{id}
+/ 2` and :math:`V_{s2} = V_{ic} - V_{id} / 2`::
 
-   >>> Vo1 = Vo.subs({'Vs2':'Vic + Vid / 2', 'Vs1':'Vic - Vid / 2'}).simplify()
+  >>> Vo1 = Vo.subs({'Vs2':'Vic - Vid / 2', 'Vs1':'Vic + Vid / 2'}).simplify()
    >>> Vo1
               2⋅R_f⋅V_id
-   A_c⋅V_ic - ────────── - V_id
+   A_c⋅V_ic + ────────── + V_id
                  R_g
 
 The differential gain can be found by setting :math:`V_{ic}` to zero::
 
    >>> Gd = (Vo1.subs('Vic', 0) / voltage('Vid')).simplify()
    >>> Gd
-   -(2⋅R_f + R_g)
-   ───────────────
-         R_g
+   (2⋅R_f + R_g)
+   ─────────────
+        R_g
 
 Similarly, the common-mode gain can be found by setting :math:`V_{id}` to zero::
 

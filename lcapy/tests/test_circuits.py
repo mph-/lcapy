@@ -852,8 +852,8 @@ class LcapyTester(unittest.TestCase):
 
         a = Circuit("""
         E1 1 2 inamp 3 4 7 8 Ad Ac
-        V1 3 6 Vd
-        V2 6 4 Vd
+        V1 3 6 {Vd / 2}
+        V2 6 4 {Vd / 2}
         V3 6 0 Vc
         V4 2 0 Vocm
         Rg 7 8""")
