@@ -847,6 +847,23 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(str(b), 'E__E1 3 0 1 2 E1 0', 'opamp expand')
 
+    def test_inamp(self):
+        """Test INA"""
+
+        a = Circuit("""
+        E1 1 2 inamp 3 4 7 8 Ad Ac
+        V1 3 6 Vd
+        V2 6 4 Vd
+        V3 6 0 Vc
+        V4 2 0 Vocm
+        Rg 7 8""")
+
+        vo = a[1].v.limit('Ad', oo).simplify()
+
+        self.assertEqual(vo,
+                         voltage('Vd * (1 + 2 * Rf / Rg) + Ac * Vc + Vocm'),
+                         'inamp')
+
     def test_fdopamp(self):
         """Test FDA"""
 
