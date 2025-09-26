@@ -637,12 +637,17 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
                 s += describe_analysis('Time-domain', sources)
         return s
 
-    def expand(self):
+    def expand(self, depth=None):
         """Expand the netlist, replacing complicated components with simpler
         components."""
 
+        if depth is None:
+            depth = 100
+
         old = self
-        while len(old.components.opamps):
+        for i in range(depth):
+            if len(old.components.opamps) == 0:
+                return old
 
             # Need to iterate to handle FDA and INA.  These get
             # converted to opamps.
