@@ -2,10 +2,34 @@
 Release notes
 =============
 
-V1.25
+V1.26
 =====
 
 - Note, after this release, the current source direction will reverse to match SPICE
+
+- Fixes expansion of fully differential amplifiers and instrumentation amplifiers
+
+- Fixes common-mode gain for fully differential amplifiers
+
+- Warns if cannot create SVG image object
+
+- Adds two-ports to circuit graph
+
+- Adds `rcParams` for configuration
+
+- Fixes triode drawing
+
+- Adds `cycle_matrix`, `incidence_matrix`, and `branch_current_name_vector`
+
+- Fixes checking of unconnected components
+
+- Adds DTFT for `rect((n / N) - 0.5)`
+
+
+
+
+V1.25
+=====
 
 - Fixes state-space analysis for constant independent sources
 
