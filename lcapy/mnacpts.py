@@ -58,6 +58,7 @@ class Cpt(ImmittanceMixin):
     is_wire = False
     is_current_controlled = False
     is_voltage_controlled = False
+    is_opamp = False
     extra_argnames = ()
 
     def __init__(self, cct, namespace, name, cpt_type, cpt_id, string,
@@ -609,6 +610,20 @@ class Cpt(ImmittanceMixin):
         return self.cpt.is_capacitor
 
     @property
+    def is_oneport(self):
+        """Return True if component is any oneport (R, C, L, V, I, etc.)."""
+
+        from .oneport import OnePort
+        return isinstance(self.cpt, OnePort)
+
+    @property
+    def is_twoport(self):
+        """Return True if component is any twoport (TP, TF, GY, etc.)."""
+
+        from .twoport import TwoPort
+        return isinstance(self.cpt, TwoPort)
+
+    @property
     def is_reactance(self):
         """Return True if component is a capacitor or inductor."""
         return self.is_capacitor or self.is_inductor
@@ -712,7 +727,7 @@ class Cpt(ImmittanceMixin):
         """Short-circuit current for component in isolation, i.e, current in
         wire connected across component."""
 
-        return self.cpt.Isc.select(self.cct.kind)
+        return self.cpt.Isc.select(self.cct.kind, True)
 
     @property
     def isc(self):
@@ -725,7 +740,7 @@ class Cpt(ImmittanceMixin):
     def Voc(self):
         """Open-circuit voltage for component in isolation."""
 
-        return self.cpt.Voc.select(self.cct.kind)
+        return self.cpt.Voc.select(self.cct.kind, True)
 
     @property
     def voc(self):
@@ -865,10 +880,10 @@ class Cpt(ImmittanceMixin):
         open-circuit component."""
 
         dummy_node = self._dummy_node()
-        net = self._netmake((dummy_node, ) + self.relnodes[1:])
+        net = self._netmake((dummy_node, ) + tuple(self.relnodes[1:]))
         self.cct.remove(self.name)
         self.cct.add(net)
-        self.cct.add('O? %s %s' % (self.relnodes[0], dummy_node))
+        self.cct.add('O? %s %s' % (self.relnodes[0].name, dummy_node.name))
         return self.cct.last_added()
 
     def short_circuit(self):
@@ -1305,6 +1320,7 @@ class Eopamp(DependentSource):
     """Operational amplifier"""
 
     extra_argnames = ('Ac', 'Ro')
+    is_opamp = True
 
     def _expand(self):
 
@@ -1344,6 +1360,7 @@ class Efdopamp(DependentSource):
     """Fully differential opamp"""
 
     extra_argnames = ('Ac')
+    is_opamp = True
 
     def _expand(self):
 
@@ -1363,7 +1380,7 @@ class Efdopamp(DependentSource):
                                              'opamp',
                                              self.relnodes[2],
                                              self.relnodes[3]),
-                                      args=(Ad, Ac))
+                                      args=(Ad, '-' + Ac))
 
         return opampp + '\n' + opampm + '\n'
 
@@ -1375,6 +1392,7 @@ class Einamp(DependentSource):
     """Instrumentation amplifier"""
 
     extra_argnames = ('Ac', 'Rf')
+    is_opamp = True
 
     def _expand(self):
 
@@ -1393,6 +1411,8 @@ class Einamp(DependentSource):
                                          nodes=(node8, '0', 'opamp',
                                                 self.relnodes[3], self.relnodes[5]),
                                          args=(Ad, )))
+        # This is an ideal differential amplifier with differential gain Ad=1.
+        # The common-mode gain Ac is small, ideally 0.
         cpts.append(self._netmake_expand('Ed',
                                          nodes=(self.relnodes[0], self.relnodes[1], 'opamp',
                                                 node7, node8), args=('1', Ac)))
@@ -1520,46 +1540,6 @@ class GY(Dummy):
 
         mna._D[m1, m1] += Z2
         mna._D[m2, m2] -= Z1
-
-
-class TVtriode(Dummy):
-    """Triode"""
-
-    need_branch_current = True
-    need_extra_branch_current = True
-
-    def _stamp(self, cct):
-
-        n1, n2, n3 = self.node_indexes
-        m1 = self.cct._branch_index(self.name + 'X')
-        m2 = self.branch_index
-
-        # m1 is the input branch
-        # m2 is the output branch
-        # GY.I gives the current through the output branch
-
-        # Could generalise to have different input and output
-        # impedances, Z1 and Z2, but if Z1 != Z2 then the device is
-        # not passive.
-
-        # V2 = -I1 Z2     V1 = I2 Z1
-        # where V2 = V[n1] - V[n2] and V1 = V[n3] - V[n4]
-
-        Z1 = ConstantDomainExpression(self.args[0]).expr
-        Z2 = Z1
-
-        if n1 >= 0:
-            cct._B[n1, m2] += 1
-            cct._C[m1, n1] += 1
-        if n2 >= 0:
-            cct._B[n2, m2] -= 1
-            cct._C[m1, n2] -= 1
-        if n3 >= 0:
-            cct._B[n3, m1] += 1
-            cct._C[m2, n3] += 1
-
-        cct._D[m1, m1] += Z2
-        cct._D[m2, m2] -= Z1
 
 
 class CCVS(DependentSource):
@@ -2469,6 +2449,7 @@ defcpt('SWspdt', SW, 'SPDT switch')
 defcpt('TFcore', TF, 'Transformer with core')
 defcpt('TFtapcore', TFtap, 'Transformer with core')
 defcpt('TLlossless', TL, 'Lossless transmission line')
+defcpt('TVtriode', NonLinear, 'Triode')
 
 defcpt('Uand', Logic, 'And gate')
 defcpt('Ubuffer', Logic, 'Buffer')
@@ -2519,6 +2500,8 @@ defcpt('Vac', V, 'AC voltage source')
 defcpt('Vdc', V, 'DC voltage source')
 defcpt('Vnoise', V, 'Noise voltage source')
 defcpt('VM', O, 'Voltmeter')
+
+
 
 # Mechanical analogue I (the mobility analogue) where
 # force is equivalent to current and velocity is equivalent to

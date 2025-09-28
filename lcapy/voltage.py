@@ -19,6 +19,10 @@ def Vname(name, kind, cache=False):
 
     undef = domain_kind_to_symbol(kind, name)
     cls = domain_kind_quantity_to_class(kind, 'voltage')
+
+    if not isinstance(kind, str):
+        return cls(undef, cache=cache, omega=kind)
+
     return cls(undef, cache=cache)
 
 

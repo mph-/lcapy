@@ -11,7 +11,7 @@ from warnings import warn
 def capacitance(arg, **assumptions):
 
     expr1 = cexpr(arg, frequency=True, **assumptions)
-    if expr1.is_imaginary:
+    if expr1.is_complex:
         warn('Capacitance %s should be real' % expr1)
 
     expr1.units = uu.farad

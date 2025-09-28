@@ -2,7 +2,7 @@
 from setuptools import setup, find_packages
 
 
-__version__ = '1.24'
+__version__ = '1.27dev'
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
@@ -28,6 +28,8 @@ setup(name='lcapy',
                         'IPython',
                         'setuptools',
                         'wheel',
+                        'packaging',
+                        'importlib',
                         'property_cached'
                         ],
       python_requires='>=3.7',  # >=3.6 should still work but not tested

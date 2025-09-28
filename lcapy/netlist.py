@@ -1,7 +1,7 @@
 """This module provides the Netlist class.  It could be rolled into
 the Circuit class.
 
-Copyright 2014--2024 Michael Hayes, UCECE
+Copyright 2014--2025 Michael Hayes, UCECE
 
 """
 
@@ -11,7 +11,6 @@ Copyright 2014--2024 Michael Hayes, UCECE
 
 from __future__ import division
 from .admittance import admittance
-from .config import solver_method
 from .current import Iname, current
 from .deprecation import LcapyDeprecationWarning
 from .expr import Expr, expr, ExprList
@@ -20,6 +19,7 @@ from .mnacpts import Cpt
 from .netlistmixin import NetlistMixin
 from .netlistopsmixin import NetlistOpsMixin
 from .netlistsimplifymixin import NetlistSimplifyMixin
+from .rcparams import rcParams
 from .simulator import Simulator
 from .subnetlist import SubNetlist
 from .superpositionvoltage import SuperpositionVoltage
@@ -46,15 +46,15 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         super(Netlist, self).__init__(filename, context, allow_anon=allow_anon)
         self._invalidate()
         self.kind = kind
-        self.solver_method = solver_method
+        self.solver_method = rcParams['sympy.solver']
 
     @property
     def _time_kind(self):
 
         return self.kind in ('super', 'time', 't')
 
-    def _groups(self):
-        """Return dictionary of source groups keyed by domain.
+    def _analysis_groups(self):
+        """Return dictionary of independent source groups keyed by domain.
 
         If the netlist is for an initial value problem, all the
         sources are in a single group called 'ivp'.  Any noise sources
@@ -65,9 +65,10 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         group called 'time'.
 
         Otherwise, the sources are decomposed and then grouped into
-        the 'dc', 's', 'n*', and omega categories.  Note, a source can
-        appear in multiple groups, for example, a source with voltage
-        3 + u(t) will appear in both the 'dc' and 's' groups.
+        the 'dc', 'transient', 'n*', and omega categories.
+        Note, a source can appear in multiple groups, for example, a
+        source with voltage 3 + u(t) will appear in both the 'dc' and
+        'transient' groups.
 
         """
 
@@ -80,7 +81,9 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
                 warn('Missing initial conditions for %s' %
                      namelist(self.missing_ic))
 
-            groups = self.independent_source_groups()
+            # Put all the sources except noise sources into 'ivp' group
+            # and ignore the noise sources.
+            groups = self.independent_source_groups(True)
             newgroups = {'ivp': []}
             for key, sources in groups.items():
                 if isinstance(key, str) and key[0] == 'n':
@@ -91,7 +94,8 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
 
         elif self.is_time_domain:
 
-            groups = self.independent_source_groups()
+            # Put all the sources except noise sources into 'time' group
+            groups = self.independent_source_groups(True)
             newgroups = {'time': []}
             for key, sources in groups.items():
                 if isinstance(key, str) and key[0] == 'n':
@@ -101,13 +105,13 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
             return newgroups
 
         else:
-            return self.independent_source_groups(transform=True)
+            return self.independent_source_groups(True)
 
     @lru_cache(1)
-    def _subs_make(self, nowarn=False):
+    def _subcircuits_make(self, nowarn=False):
 
         cct = self.expand()
-        groups = cct._groups()
+        groups = cct._analysis_groups()
         sub = TransformDomains()
 
         for kind, sources in groups.items():
@@ -164,7 +168,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         selected.
 
         """
-        return self._subs_make()
+        return self._subcircuits_make()
 
     @property
     def subcircuits(self):
@@ -288,7 +292,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         """Current through component (time-domain)"""
 
         self._add_ground()
-        subs = self._subs_make(nowarn=nowarn)
+        subs = self._subcircuits_make(nowarn=nowarn)
 
         result = SuperpositionCurrent()
         for sub in subs.values():
@@ -306,7 +310,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         """This does not check nodes."""
 
         self._add_ground()
-        subs = self._subs_make(nowarn=nowarn)
+        subs = self._subcircuits_make(nowarn=nowarn)
 
         result = SuperpositionVoltage()
         for sub in subs.values():
@@ -331,8 +335,8 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         the netlist."""
 
         omega_list = []
-        for group in self.independent_source_groups(True).keys():
-            if group in ('dc', 's'):
+        for group in self.independent_source_groups().keys():
+            if group in ('dc', 's', 't'):
                 continue
             if isinstance(group, str) and group[0] == 'n':
                 continue
@@ -344,7 +348,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         for angular frequency `omega`.  If `omega` is undefined,
         the angular frequency `omega0` is used.
 
-        See also: dc, transient, laplace.
+        See also: dc, laplace, transient, noise, time.
         """
 
         if omega is None:
@@ -363,8 +367,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         return self.select(omega)
 
     def annotate_currents(self, cpts=None, domainvar=None, flow=False,
-                          eng_format=True, evalf=True, num_digits=3,
-                          show_units=True, pos=''):
+                          style='eng4', show_units=True, pos=''):
         """Annotate specified list of component names `cpts` with current (or
         flow).
 
@@ -373,16 +376,14 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
 
         `flow` (default False) if True annotates current as a flow
 
-        `eng_format` (default True) if True use engineering format if
-        the current is a number, e.g., 100\, mV instead of 0.1\, V
-
-        `evalf` (default True) if True prints floating point
-        numbers as decimals otherwise they are shown as rationals
+        `style` (default 'eng4') specifies numerical format ('eng',
+        'ratfun', 'sci', 'spice', 'sympy')
 
         `show_units` (default True) if True applies the units(e.g.,
         V for volts)
 
         `pos` specifies where to position the labels(see docs)
+
         """
 
         cct = self.copy()
@@ -404,19 +405,16 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
             net = cpt._copy()
             if cpt.name in cpts:
                 I = cpt.I(domainvar)
-                if evalf:
-                    I = I.evalf(num_digits)
                 net += ', ' if ';' in net else '; '
                 net += ', %s={$%s$}' % (label, I.latex_with_units(
-                    eng_format=eng_format, evalf=evalf, num_digits=num_digits, show_units=show_units))
+                    style=style, show_units=show_units))
             new.add(net)
         if groundwire is not None:
             new.remove(groundwire.name)
         return new
 
     def annotate_voltages(self, cpts=None, domainvar=None,
-                          eng_format=True, evalf=True, num_digits=3,
-                          show_units=True, pos=''):
+                          style='eng4', show_units=True, pos=''):
         """Annotate specified list of component names `cpts` with voltage.
 
         `domainvar` specifies the domain to calculate the voltages for
@@ -424,11 +422,8 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
 
         `pos` specifies where to position the labels, see docs
 
-        `eng_format` (default True) if True use engineering format if
-        the voltage is a number, e.g., 100\, mV instead of 0.1\, V
-
-        `evalf` (default True) if True prints floating point
-        numbers as decimals otherwise they are shown as rationals
+        `style` (default 'eng4') specifies numerical format ('eng',
+        'ratfun', 'sci', 'spice', 'sympy')
 
         `show_units` (default True) if True applies the units(e.g.,
         V for volts)
@@ -453,11 +448,9 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
             net = cpt._copy()
             if cpt.name in cpts:
                 V = cpt.V(domainvar)
-                if evalf:
-                    V = V.evalf(num_digits)
                 net += ', ' if ';' in net else '; '
-                net += 'v%s={$%s$}' % (pos, V.latex_with_units(eng_format=eng_format,
-                                       evalf=evalf, num_digits=num_digits, show_units=show_units))
+                net += 'v%s={$%s$}' % (pos, V.latex_with_units(style=style,
+                                                               show_units=show_units))
             new.add(net)
         if groundwire is not None:
             new.remove(groundwire.name)
@@ -588,7 +581,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
     def dc(self):
         """Return netlist for dc components of independent sources.
 
-        See also: ac, transient, laplace.
+        See also: ac, laplace, transient, noise, time.
         """
         return self.select('dc')
 
@@ -617,11 +610,13 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         if self.is_switching:
             return 'This has switches and thus is time variant.  Use the convert_IVP(t) method to convert to an initial value problem, specifying the time when to evaluate the switches.'
 
-        groups = self.independent_source_groups(
-            transform=not self.is_time_domain)
+        groups = self.independent_source_groups(True)
 
         if groups == {}:
             return 'There are no non-zero independent sources so everything is zero.\n'
+
+        if self.is_time_domain:
+            return 'This is solved in the time-domain since there are no reactive components.\n'
 
         if self.is_IVP:
             return 'This has initial conditions for %s so is an initial value problem solved in the Laplace-domain using Laplace transforms.\n' \
@@ -645,34 +640,94 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
                 s += describe_analysis('Time-domain', sources)
         return s
 
-    def expand(self):
+    def expand(self, depth=None):
         """Expand the netlist, replacing complicated components with simpler
         components."""
+
+        if depth is None:
+            depth = 100
+
+        old = self
+        for i in range(depth):
+            if len(old.components.opamps) == 0:
+                return old
+
+            # Need to iterate to handle FDA and INA.  These get
+            # converted to opamps.
+
+            new = old._new()
+
+            for cpt in old._elements.values():
+                new._add(cpt._expand())
+            old = new
+        return old
+
+    def laplace(self, ics=True):
+        """Return netlist for Laplace-domain representations of independent
+        source values.
+
+        If `ics` is True, compute initial conditions for capacitors
+        and inductors.
+
+        See also: ac, dc, transient, noise, time.
+
+        """
+
+        lap =  self.select('laplace')
+        if self.is_causal or not ics or self.reactances == []:
+            return lap
+
+        # Calculate initial conditions
+        dc = self.dc()
 
         new = self._new()
 
         for cpt in self._elements.values():
-            new._add(cpt._expand())
+            if cpt.is_inductor:
+                i0 = cpt.i(0)
+                net = cpt._netmake(args=(cpt.args[0], i0))
+            elif cpt.is_capacitor:
+                v0 = cpt.v(0)
+                net = cpt._netmake(args=(cpt.args[0], v0))
+            else:
+                net = lap[cpt.name]._copy()
+            new._add(net)
+
         return new
 
-    def laplace(self):
-        """Return netlist for Laplace representations of independent
+    def time(self):
+        """Return netlist for time-domain representations of independent
         source values.
 
-        See also: dc, ac, transient.
+        See also: ac, dc, transient, laplace, noise.
 
         """
-        return self.select('laplace')
+        return self.select('time')
+
+    def noise(self):
+        """Return netlist for noise components of independent sources.
+
+        See also: ac, dc, laplace, transient, time.
+        """
+        return self.select('noise')
 
     def transient(self):
         """Return netlist for transient components of independent
-        sources.  Note, unlike the similar laplace method, dc and ac
-        components are ignored.
+        sources.
 
-        See also: dc, ac, laplace.
+        See also: ac, dc, laplace, noise, time.
 
         """
         return self.select('s')
+
+    def transient_time(self):
+        """Return netlist for transient components of independent sources in
+        Time-domain.
+
+        See also: ac, dc, laplace, noise, time.
+
+        """
+        return self.transient().time()
 
     def _new(self):
 
@@ -786,12 +841,17 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         """Perform modified nodal analysis for this netlist.  This is
         cached."""
 
-        if self.kind in ('time', 'super'):
-            raise ValueError(
-                'Cannot put time domain equations into matrix form.  '
-                'Convert to dc, ac, or laplace domain first.')
+        kind = self.kind
+        if kind in ('time', 'super'):
 
-        return SubNetlist(self, self.kind).mna
+            if not self.is_time_domain:
+                raise ValueError(
+                    'Cannot put time domain equations into matrix form due to'
+                    ' reactive components: %s.  Convert to ac, dc, transient,'
+                    ' or laplace domain first.' % ', '.join(self.reactances))
+            kind = 'time'
+
+        return SubNetlist(self, kind).mna
 
     @lru_cache(1)
     def nodal_analysis(self, node_prefix=''):

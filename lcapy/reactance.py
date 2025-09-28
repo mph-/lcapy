@@ -20,7 +20,7 @@ def reactance(arg, **assumptions):
     if expr1.is_laplace_domain:
         warn('Specifying Laplace domain for reactance: %s' % expr1)
 
-    if expr1.is_imaginary:
+    if expr1.is_complex:
         warn('Reactance %s should be real' % expr1)
 
     expr1.units = uu.ohms

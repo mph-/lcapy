@@ -260,7 +260,7 @@ simulation (additional components can be drawn, see
 
    `Hname Np Nm control H`
 
-- Ideal transformer of turns ratio a = N_2 / N_1
+- Ideal transformer (this even works at DC!) of turns ratio a = N_2 / N_1, where N_1 is the number of primary turns and N_2 is the number of secondary turns:
 
    `TFname Np Nm Nip Nim a`
 
@@ -372,11 +372,13 @@ circuit elements (Components).  For example,
    >>> cct.R1
    R1 1 2
 
-- `components` dictionary of the components defined by the netlist
+- `components` dictionary of the components defined by the netlist.  For example:
+  >>> cct.components['resistors']
+  ['R1']
 
 - `nodes` dictionary of nodes used in the netlist
 
-- `subcircuits` dictionary of sub-circuits (for ac, dc, transient, etc.)
+- `subcircuits` dictionary of sub-circuits (for ac, dc, transient, and noise)
 
 - `is_ac` all independent sources are ac
 
@@ -384,7 +386,7 @@ circuit elements (Components).  For example,
 
 - `is_dc` all independent sources are dc
 
-- `is_passive` no sources
+- `is_passive` no sources in netlist
 
 - `is_time_domain` netlist can be analysed in time domain
 
@@ -462,46 +464,25 @@ Circuit methods
 - `annotate_currents(cpts)` Produces a new netlist with drawing
   commands to annotate component currents for specified components (see :ref:`annotated_currents`)
 
-- `apply_test_current_source(Np, Nm)` Copies the netlist, kills all
-   the sources, and applies a Dirac delta test current source across
-   the specified nodes.  If the netlist is not connected to ground,
-   the negative specified node is connected to ground.  The new
-   netlist is returned.
+- `apply_test_current_source(Np, Nm)` Copies the netlist, kills all the sources, and applies a Dirac delta test current source across the specified nodes.  If the netlist is not connected to ground, the negative specified node is connected to ground.  The new netlist is returned.
 
-- `apply_test_voltage_source(Np, Nm)` Copies the netlist, kills all
-   the sources, and applies a Dirac delta test voltage source across
-   the specified nodes.  If the netlist is not connected to ground,
-   the negative specified node is connected to ground.  The new
-   netlist is returned.
+- `apply_test_voltage_source(Np, Nm)` Copies the netlist, kills all the sources, and applies a Dirac delta test voltage source across the specified nodes.  If the netlist is not connected to ground, the negative specified node is connected to ground.  The new netlist is returned.
 
-- `branch_currents()` returns an `ExprList` of the branch currents,
-  where each element is `SuperpositionCurrent`.  Thus to get the
-  branch currents in the time-domain:
+- `branch_currents()` returns an `ExprList` of the branch currents, where each element is `SuperpositionCurrent`.  Thus to get the branch currents in the time-domain:
 
-      >>> bi = cct.branch_currents()(t)
+   >>> bi = cct.branch_currents()(t)
 
-- `branch_current_names()` returns an `ExprList` of the branch current
-  names.  Each element has the form `i_cptname` for the time-domain
-  and of the form `I_cptname` othwerwise.
+- `branch_current_names()` returns an `ExprList` of the branch current names.  Each element has the form `i_cptname` for the time-domain and of the form `I_cptname` othwerwise.
 
-- `branch_voltages()` returns an `ExprList` of the branch voltages,
-    where each element is `SuperpositionVoltage`.  Thus to get the branch voltages in the Laplace-domain:
+- `branch_voltages()` returns an `ExprList` of the branch voltages, where each element is `SuperpositionVoltage`.  Thus to get the branch voltages in the Laplace-domain:
 
-      >>> bV = cct.branch_voltages()(s)
+   >>> bV = cct.branch_voltages()(s)
 
-- `branch_voltage_names()` returns an `ExprList` of the branch voltage
-  names.  Each element has the form `i_cptname` for the time-domain
-  and of the form `I_cptname` othwerwise.
+- `branch_voltage_names()` returns an `ExprList` of the branch voltage names.  Each element has the form `i_cptname` for the time-domain and of the form `I_cptname` othwerwise.
 
-- `convert_IVP(t)` Returns a new circuit suitable for solving as an
-  initial value problem.  Any switches in the circuit are evaluated at
-  the specified time `t`.  Note, when solving the IVP, time is
-  referred to when the last switch activated prior to the time
-  specified for `t`.
+- `convert_IVP(t)` Returns a new circuit suitable for solving as an initial value problem.  Any switches in the circuit are evaluated at the specified time `t`.  Note, when solving the IVP, time is referred to when the last switch activated prior to the time specified for `t`.
 
-- `defs(ignore)` Returns a directory of argname-value pair for all
-         components except for components with names specified by
-         `ignore`.  For example,
+- `defs(ignore)` Returns a directory of argname-value pair for all components except for components with names specified by `ignore`.  For example,
 
    >>> cct = Circuit("""
    ... R 1 2 3
@@ -534,7 +515,7 @@ Circuit methods
 - `kill()` Kills specified independent sources (voltage sources
   become short-circuits and current sources become open-circuits)
 
-- `kill_except()` Kills all but the specified independent sources
+- `kill_except(sources)` Kills all but the specified independent sources
 
 - `prune(component_name)` Returns a copy of the netlist with the component specified by `component_name` removed
 
@@ -980,6 +961,8 @@ Here is the complete list of component attributes:
 
 - `is_noisy` component is a source that is only noisy
 
+- `is_oneport` component is a oneport
+
 - `is_open_circuit` component is an open-circuit
 
 - `is_resistor` component is a resistor
@@ -987,6 +970,8 @@ Here is the complete list of component attributes:
 - `is_reactance` component is a capacitor or inductor
 
 - `is_source` component is a source
+
+- `is_twoport` component is a twoport
 
 - `is_voltage_source` component is a voltage source
 
@@ -1060,8 +1045,8 @@ and for a source (V, I), current flows out of the positive node.
 
 The default current sign convention is passive.  However, this is deprecated and will change to passive in a future release of Lcapy.   The sign convention can be switched to passive using:
 
-    >>> from lcapy.state import state
-    >>> state.current_sign_convention = 'passive'
+    >>> from lcapy import rcparams
+    >>> rcparams['circuit.current_sign_convention] = 'passive'
 
 Note, this will not change results previously computed and cached for a netlist.
 
@@ -1248,6 +1233,62 @@ The properties of each sub-circuit can be found with the `analysis` attribute:
    'ivp': False,
    'time_domain': False,
    'zeroic': True}
+
+
+Netlist decomposition and transformation
+========================================
+
+During circuit analysis, Lcapy decomposes netlists into dc, ac,
+transient, and noise sub-netlists.  These are solved independently and
+then the total result is found from superposition.
+
+Parts of the decomposition can be selected using the `dc()`, `ac()`,
+`transient()`, and `noise()` methods.  These methods return a modified
+netlist where the independent source values are dc, ac, transient, and
+noise, respectively.  The `transient()` method returns the transient
+components in the time-domain.
+
+The method, `laplace()`, converts all the independent source values
+into the Laplace-domain and optionally adds initial conditions to
+capacitors and inductors.  Similarly, `time()` converts all the
+independent source values into the time-domain.
+
+For example, consider the netlist:
+
+  >>> cct = Circuit("""W 1 0; down
+  V1 1 2 dc; right
+  V2 2 3 ac; right
+  V3 3 4 {v(t)}; right
+  V4 4 5 noise; right
+  V5 5 6 {1 + u(t)}; right
+  R 6 0_6; down
+  W 0 0_6; right""")
+
+The `dc()` method produces:
+
+   >>> cct.dc()
+   W 1 0; down
+   V1 1 2 dc; right
+   V2 2 3 dc 0; right
+   V3 3 4 dc 0; right
+   V4 4 5 dc 0; right
+   V5 5 6 dc 1; right
+   R 6 0_6; down
+   W 0 0_6; right
+
+Here all the independent voltage sources only have the DC value of the
+original sources.  The voltage sources with a zero value can be
+converted to wires using the `kill_zero()` method, for example:
+
+   >>> cct.dc().kill_zero()
+   W 1 0; down
+   V1 1 2 dc; right
+   W 2 3; right
+   W 3 4; right
+   W 4 5; right
+   V5 5 6 dc 1; right
+   R 6 0_6; down
+   W 0 0_6; right
 
 
 Simplification

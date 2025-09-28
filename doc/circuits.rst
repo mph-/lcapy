@@ -140,7 +140,6 @@ a conductance in parallel with each capacitor and considers the limit
 as the conductance goes to zero.
 
 
-
 AC (phasor) analysis
 --------------------
 
@@ -245,8 +244,9 @@ of an ideal resistor and a noise voltage source using the
 Mesh analysis
 -------------
 
-Lcapy can output the mesh equations by applying Kirchhoff's voltage
-law around each loop in a circuit.  For example, consider the netlist:
+Lcapy can output the mesh equations for a planar circuit by applying
+Kirchhoff's voltage law around each loop in the circuit.  For example,
+consider the netlist:
 
    >>> cct = Circuit("""
    ...V1 1 0; down
@@ -322,6 +322,10 @@ The matrix is returned by the `A` attribute, the vector of unknowns by the `y` a
 The mesh currents can be found with the `solve_laplace()` method.
 This solves the circuit using Laplace transform methods and returns a
 dictionary of results.
+
+The mesh analysis implementation does not support twoport components,
+such as transformers and gyrators.
+
 
 .. _nodal-analysis:
 
@@ -433,6 +437,8 @@ The node voltages can be found with the `solve_laplace()` method.
 This solves the circuit using Laplace transform methods and returns a
 dictionary of results.
 
+The nodal analysis implementation does not support twoport components,
+such as transformers and gyrators.  Instead use modified nodal analysis.
 
 .. _modified-nodal-analysis:
 
@@ -825,16 +831,58 @@ In this circuit, R2 is in parallel with C so Lcapy adds a dummy node 0* and a du
 .. image:: examples/netlists/circuitgraph4.png
    :width: 8cm
 
+The cycle matrix for this example is::
+
+   >>> cct.cg.cycle_matrix
+   ⎡-1  1  1  1   0⎤
+   ⎢               ⎥
+   ⎣0   0  0  -1  1⎦
+
+where::
+
+   >>> cct.cg.cycle_matrix * cct.cg.branch_voltage_name_vector
+   ⎡V_L + V_R1 + V_R2 - V_V⎤
+   ⎢                       ⎥
+   ⎣      V_C - V_R2       ⎦
+
+This vector equates to zero.  It is equivalent to Kirchhoff's voltage law applied around all the loops.
+
+The incidence matrix for this example is::
+
+   >>> cct.cg.incidence_matrix
+   ⎡0   -1  0   -1  -1⎤
+   ⎢                  ⎥
+   ⎢1   0   -1  0   0 ⎥
+   ⎢                  ⎥
+   ⎢0   1   1   0   0 ⎥
+   ⎢                  ⎥
+   ⎣-1  0   0   1   1 ⎦
+
+where::
+
+   >>> cct.cg.incidence_matrix * cct.cg.branch_current_name_vector
+   ⎡-I_L - I_R2 - I_V⎤
+   ⎢                 ⎥
+   ⎢    I_C - I_R    ⎥
+   ⎢                 ⎥
+   ⎢    I_R + I_V    ⎥
+   ⎢                 ⎥
+   ⎣-I_C + I_L + I_R2⎦
+
+
+This vector equates to zero.  It is equivalent to Kirchhoff's current law applied at all the nodes.
 
 
 CircuitGraph attributes
 -----------------------
 
-- `G` the underlying networkx graph
+- `DG` the underlying directed networkx graph
 
-- `is_connected` all the components are connected as a single graph
+- `UG` the underlying undirected networkx graph
 
-- `is_planar` the component graph is planar
+- `is_connected` `True` if all the components are connected as a single graph
+
+- `is_planar` `True` if the component graph is planar
 
 - `components` list of component names
 
@@ -851,6 +899,20 @@ CircuitGraph attributes
 - `rank` the required number of node voltages for nodal analysis
 
 - `node_connectivity` the minimum connectivity of the graph.  If 0, one or more components are connected, if 1, one or more components are connected at a single node, etc.
+
+- `branch_name_list` list of branches by component name
+
+- `branch_current_name_vector` branch current name vector.  The branch current names are of the form `I_cptname` where `cptname` is the component name.
+
+- `branch_voltage_name_vector` branch voltage name vector.  The branch voltage names are of the form `V_cptname` where `cptname` is the component name.
+
+- `incidence_matrix` the incidence matrix A.  The number of rows is the number of nodes and the number of columns is the number of branches (edges).  Each element is either 0, 1, or -1.
+
+  If I is a vector of edge currents then A I = 0.
+
+- `cycle_matrix` the cycle matrix B.  The number of rows is the number of loops and the number of columns is the number of branches (edges).  Each element is either 0, 1, or -1.
+
+If V is a vector of branch voltages then B V = 0.
 
 
 CircuitGraph methods
@@ -870,21 +932,22 @@ CircuitGraph methods
 
 - `draw(filename)` draw the graph and save as `filename`.  If `filename` is not specified, the graph is displayed.
 
-- `node_edges(node)`  edges connected to specified node.
+- `node_edges(node)`  edges connected to specified node
 
-- `component(node1, node2)` component connected between specified nodes.
+- `component(node1, node2)` component connected between specified nodes
 
-- `in_series(cpt_name)` set of component names in series with specified `cpt_name`.
+- `in_series(cpt_name)` set of component names in series with specified `cpt_name`
 
-- `in_parallel(cpt_name)` set of component names in parallel with specified `cpt_name`.
+- `in_parallel(cpt_name)` set of component names in parallel with specified `cpt_name`
 
 - `tree()` the minimum spanning tree.
 
-- `links()` the edges removed from the graph to form the minimum spanning tree.
+- `links()` the edges removed from the graph when forming the minimum spanning tree
 
-- `unreachable_nodes(node)` a list of nodes that have no path to `node`.
+- `unreachable_nodes(node)` a list of nodes that have no path to `node`
 
-- `has_path(node1, node2)` returns True if there is a path from `node1` to `node2`.
+- `has_path(node1, node2)` `True` if there is a path from `node1` to `node2`
+
 
 .. _simulation:
 

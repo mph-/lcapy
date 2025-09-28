@@ -16,7 +16,8 @@ import sympy as sym
 
 class LoopAnalysis(object):
     """This performs for loop analysis.  Currently, it uses mesh analysis
-    and so is only applicable to circuits with a planar topology.
+    and so is only applicable to circuits with a planar topology and
+    without twoport components.
 
     The API is likely to change since different invocations find
     different current loops.
@@ -51,6 +52,14 @@ class LoopAnalysis(object):
 
     """
 
+    # twoport components could be handled by splitting into
+    # input and output oneports.  In the case of an ideal transformer,
+    # an unknown voltage across the primary could be added to the mesh
+    # equations.  The voltage across the secondary is the primary voltage
+    # multiplied by N2 / N1.  An auxiliary equation is required
+    # relating the mesh currents in the primary and secondary loops:
+    # ib = -N1 / N2 ia.
+
     @classmethod
     def from_circuit(cls, cct):
 
@@ -61,15 +70,15 @@ class LoopAnalysis(object):
         self.cct = cct
         self.cg = CircuitGraph.from_circuit(cct)
 
-        source_groups = cct.independent_source_groups()
+        self.kind = cct.kind
+        if cct.kind == 'super':
+            source_groups = cct.independent_source_groups()
 
-        if len(source_groups) > 1:
-            # Could convert to time domain
-            raise ValueError('Multiple independent source domains')
-        elif len(source_groups) == 1:
-            self.kind = list(source_groups)[0]
-        else:
-            self.kind = cct.kind
+            if len(source_groups) > 1:
+                self.cct = self.cct.time()
+                self.kind = 'time'
+            elif len(source_groups) == 1:
+                self.kind = list(source_groups)[0]
 
         self._equations = self._make_equations()
 
@@ -106,7 +115,7 @@ class LoopAnalysis(object):
 
     def _add_mesh_currents(self, loop, loops, node_names, mesh_currents):
 
-        current = 0
+        current = Itype(self.kind)(0)
 
         # Find opposing currents in other meshes flowing through cpt.
         for n, loop2 in enumerate(loops):
@@ -298,6 +307,6 @@ class LoopAnalysis(object):
 
 
 from .expr import ExprList, ExprDict, expr  # nopep8
-from .current import Iname  # nopep8
+from .current import Iname, Itype  # nopep8
 from .voltage import Vtype  # nopep8
 from .matrix import matrix  # nopep8

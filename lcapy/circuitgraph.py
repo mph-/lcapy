@@ -2,11 +2,28 @@
 This module provides a class to represent circuits as graphs.
 This is primarily for loop analysis but is also used for nodal analysis.
 
-Copyright 2019--2023 Michael Hayes, UCECE
+Copyright 2019--2025 Michael Hayes, UCECE
 
 """
 
 import networkx as nx
+
+
+# MultiDiGraph would be the preferred graph since this can handle
+# parallel edges.  However, there are no networkx functions that find
+# all the cycles in a MultiDiGraph.  Similarly, the parallel edges
+# cannot be drawn by networkx.  The hack used here is to use a DiGraph
+# with dummy nodes and dummy wires added to avoid parallel edges.
+# This complicates some of the algorithms, such as finding parallel
+# components.
+#
+# The cycles in a MultiDiGraph could be found by converting the graph
+# into a DiGraph by adding dummy nodes and edges to remove parallel
+# edges.  However, cycles cannot be described by the original nodes
+# due to the ambiguity.  Instead, they can be represented by the edges
+# (u, v, k), where k enumerates the parallel edges, or by the
+# component names.  This requires a change to the loops method.
+
 
 
 # V1 1 0 {u(t)}; down
@@ -78,39 +95,53 @@ class Path(Edges):
         return ', '.join([str(e) for e in self])
 
 
+def add_cpt(G, name, node_name1, node_name2):
+
+    if G.has_edge(node_name1, node_name2):
+        # Add dummy node in graph to avoid parallel edges.
+        dummynode = '*%d' % G.dummy
+        dummycpt = 'W%d' % G.dummy
+        G.add_edge(node_name1, dummynode, name=name)
+        G.add_edge(dummynode, node_name2, name=dummycpt)
+        G.dummy_nodes[dummynode] = node_name2
+        G.dummy += 1
+    else:
+        G.add_edge(node_name1, node_name2, name=name)
+
+
 class CircuitGraph(object):
 
     @classmethod
     def from_circuit(cls, cct):
 
-        G = nx.Graph()
+        G = nx.DiGraph()
 
-        dummy = 0
+        G.dummy = 0
         # Dummy nodes are used to avoid parallel edges.
-        dummy_nodes = {}
+        G.dummy_nodes = {}
 
         G.add_nodes_from(cct.node_list)
 
+        # Mapping to remove non-unique equipotential nodes.
         node_map = cct.node_map
 
         for name in cct.branch_list:
-            elt = cct.elements[name]
-            if len(elt.node_names) < 2:
-                continue
 
-            node_name1 = node_map[elt.node_names[0]]
-            node_name2 = node_map[elt.node_names[1]]
-
-            if G.has_edge(node_name1, node_name2):
-                # Add dummy node in graph to avoid parallel edges.
-                dummynode = '*%d' % dummy
-                dummycpt = 'W%d' % dummy
-                G.add_edge(node_name1, dummynode, name=name)
-                G.add_edge(dummynode, node_name2, name=dummycpt)
-                dummy_nodes[dummynode] = node_name2
-                dummy += 1
+            if name.endswith('_out_'):
+                tpname = name.split('_out_')[0]
+                elt = cct.elements[tpname]
+                node_names = [node_map[name] for name in elt.node_names[0:2]]
+                add_cpt(G, name, node_names[0], node_names[1])
+            elif name.endswith('_in_'):
+                tpname = name.split('_in_')[0]
+                elt = cct.elements[tpname]
+                node_names = [node_map[name] for name in elt.node_names[2:4]]
+                add_cpt(G, name, node_names[0], node_names[1])
             else:
-                G.add_edge(node_name1, node_name2, name=name)
+                elt = cct.elements[name]
+                if len(elt.node_names) >= 2:
+                    node_names = [node_map[name] for name in elt.node_names[0:2]]
+                    add_cpt(G, name, node_names[0], node_names[1])
 
         return cls(cct, G)
 
@@ -124,6 +155,18 @@ class CircuitGraph(object):
         self.node_map = cct.node_map
         self.G = G
         self.debug = False
+
+    @property
+    def UG(self):
+        """Return undirected graph."""
+
+        return self.G.to_undirected()
+
+    @property
+    def DG(self):
+        """Return directed graph."""
+
+        return self.G
 
     def connected_cpts(self, node):
         """Components connected to specified node."""
@@ -148,16 +191,10 @@ class CircuitGraph(object):
 
         return set([cpt.name for cpt in self.connected_cpts(node)])
 
-    def _digraph(self):
-
-        DG = nx.DiGraph(self.G)
-        return DG
-
     def all_loops(self):
 
-        # This adds forward and backward edges.
-        DG = self._digraph()
-        cycles = list(nx.simple_cycles(DG))
+        UG = self.UG
+        cycles = list(nx.simple_cycles(UG))
 
         loops = []
         for cycle in cycles:
@@ -172,8 +209,6 @@ class CircuitGraph(object):
 
         loops = self.all_loops()
         sets = [set(loop) for loop in loops]
-
-        DG = self._digraph()
 
         rejects = []
         for i in range(len(sets)):
@@ -274,7 +309,8 @@ class CircuitGraph(object):
 
     @property
     def nodes(self):
-        """Return nodes comprising network."""
+        """Return nodes comprising network.  These are all the nodes
+        including nodes joined by wires."""
 
         return self.G.nodes()
 
@@ -282,7 +318,7 @@ class CircuitGraph(object):
         """Return edges connected to specified node."""
 
         node = str(node)
-        return self.G[node]
+        return self.UG[node]
 
     def node_edges(self, node):
         """Return list of edges connected to specified node."""
@@ -317,8 +353,10 @@ class CircuitGraph(object):
         node1 = self._check_node(node1)
         node2 = self._check_node(node2)
 
+        UG = self.UG
+
         try:
-            name = self.G.get_edge_data(node1, node2)['name']
+            name = UG.get_edge_data(node1, node2)['name']
         except TypeError:
             return None
 
@@ -378,8 +416,10 @@ class CircuitGraph(object):
         series = []
         series.append(cpt_name)
 
+        UG = self.UG
+
         def follow(node):
-            neighbours = self.G[node]
+            neighbours = UG[node]
             if len(neighbours) > 2:
                 return
             for n, e in neighbours.items():
@@ -456,7 +496,7 @@ class CircuitGraph(object):
         then there are disconnected components.  If there is a component
         with a single connected node, the connectivity is 1."""
 
-        return nx.node_connectivity(self.G)
+        return nx.node_connectivity(self.UG)
 
     @property
     def is_connected(self):
@@ -469,7 +509,7 @@ class CircuitGraph(object):
         has more than one set then the network has disjoint networks
         of components."""
 
-        return list(nx.connected_components(self.G))
+        return list(nx.connected_components(self.UG))
 
     def has_path(self, from_node, to_node):
         """Return True if there is a path from `from_node` to `to_node`."""
@@ -493,27 +533,27 @@ class CircuitGraph(object):
         for network in networks:
             if node not in network:
                 unreachable.extend(network)
-        return unreachable
+        return [node for node in unreachable if not node.startswith('*')]
 
     def tree(self):
         """Return minimum spanning tree.  A tree has no loops so no current
         flows in a tree."""
 
-        T = nx.minimum_spanning_tree(self.G)
+        T = nx.minimum_spanning_tree(self.UG)
         return CircuitGraph(self.cct, T)
 
     def links(self):
         """Return links; the graph of the edges that are not in the minimum
         spanning tree."""
-        G = self.G
-        T = self.tree().G
+        G = self.UG
+        T = self.tree().UG
 
         G_edges = set(G.edges())
         T_edges = set(T.edges())
 
         L_edges = G_edges - T_edges
 
-        L = nx.Graph()
+        L = nx.DiGraph()
         for edge in L_edges:
             data = G.get_edge_data(*edge)
             L.add_edge(*edge, name=data['name'])
@@ -524,7 +564,7 @@ class CircuitGraph(object):
 
         if self.is_connected:
             return 1
-        raise ValueError('TODO, calculate number of separate graphs')
+        return nx.algorithms.number_connected_components(self.UG)
 
     @property
     def num_nodes(self):
@@ -546,7 +586,8 @@ class CircuitGraph(object):
 
     @property
     def nullity(self):
-        """For a planar circuit, this is equal to the number of meshes in the graph."""
+        """For a planar circuit, this is equal to the number of meshes in the
+        graph."""
 
         return self.num_branches - self.num_nodes + self.num_parts
 
@@ -615,3 +656,129 @@ class CircuitGraph(object):
         if cpt is None:
             return set()
         return self.in_parallel(cpt.name)
+
+    @property
+    def incidence_matrix(self):
+        """Return incidence matrix A.  The number of rows is the number of
+        nodes and the number of columns is the number of edges
+        (branches).  Each element is either 0, 1, or -1.
+
+        If I is a vector of edge currents then A I = 0.
+
+        """
+
+        from lcapy import Matrix
+
+        # Most of the hackery here is to do with parallel branches
+
+        nodes = self.nodes
+        unodes = [node for node in nodes if not node.startswith('*')]
+        branches = self.branch_name_list
+        edges = self.G.edges(data=True)
+
+        A = Matrix.zeros(len(unodes), len(branches))
+
+        for node in nodes:
+            if node.startswith('*'):
+                node = node[1:]
+            m = unodes.index(node)
+
+            n = 0
+            for n1, n2, d in edges:
+                if d['name'].startswith('W'):
+                    continue
+
+                if n1.startswith('*'):
+                    n1 = n1[1:]
+
+                if n2.startswith('*'):
+                    n2 = n2[1:]
+
+                if node == n1:
+                    A[m, n] = 1
+                elif node == n2:
+                    A[m, n] = -1
+                n += 1
+
+        return Matrix(A)
+
+    @property
+    def cycle_matrix(self):
+        """Return cycle matrix B.  The number of rows is the number of loops
+        and the number of columns is the number of edges (branches).
+        Each element is either 0, 1, or -1.
+
+        If V is a vector of branch voltages then B V = 0.
+
+        """
+
+        from lcapy import Matrix
+
+        loops = self.loops()
+        branches = self.branch_name_list
+        edges = self.G.edges(data=True)
+        edges2 = []
+
+        for n1, n2, d in edges:
+            if d['name'][0].startswith('W'):
+                continue
+            edges2.append((n1, n2))
+
+        B = Matrix.zeros(len(loops), len(branches))
+
+        for m, loop in enumerate(loops):
+
+            loop = loop.copy()
+            loop.append(loop[0])
+            for j in range(len(loop) - 1):
+                n1 = loop[j]
+                n2 = loop[j + 1]
+
+                if (n1, n2) in edges2:
+                    index = edges2.index((n1, n2))
+                    B[m, index] = 1
+                elif (n2, n1) in edges2:
+                    index = edges2.index((n2, n1))
+                    B[m, index] = -1
+
+        return B
+
+    @property
+    def branch_name_list(self):
+        """Return list of branches by component name."""
+
+        names = []
+        for n1, n2, d in self.G.edges(data=True):
+
+            cptname = d['name']
+            # Ignore dummy branches added to handle parallel components
+            if cptname.startswith('W'):
+                continue
+
+            names.append(cptname)
+
+        return names
+
+    @property
+    def branch_current_name_vector(self):
+        """Return branch current name vector.  The branch current
+        names are of the form I_cptname where cptname is the component name."""
+
+        from lcapy import Vector, symbol
+
+        # TODO Perhaps substitute with known current names?  Will
+        # need to negate some of them.
+
+        return Vector([symbol('I_' + name) for name in self.branch_name_list])
+
+    @property
+    def branch_voltage_name_vector(self):
+        """Return branch voltage name vector.  The branch voltage
+        names are of the form I_cptname where cptname is the component name."""
+
+        from lcapy import Vector, symbol
+
+        # TODO Perhaps substitute with known voltage names?  Will
+        # need to negate some of them.
+
+        return Vector([symbol('V_' + name) for name in self.branch_name_list])

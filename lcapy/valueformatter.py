@@ -4,22 +4,61 @@ This module converts values into engineering format.
 Copyright 2021--2024 Michael Hayes, UCECE
 """
 from math import floor, log10
+from sympy import re, im
+from .printing import latex
 
 
 class ValueFormatter(object):
 
-    def __init__(self, trim=True, hundreds=False, num_digits=3):
+    def __init__(self, trim=True, hundreds=False, fmt=''):
         """If `hundreds` True format like 100 pF rather than 0.1 nF"""
 
         self.trim = trim
         self.hundreds = hundreds
-        self.num_digits = num_digits
 
-    def _do(self, value, unit, aslatex):
+        if fmt == '':
+            self.num_digits = 3
+        else:
+            try:
+                self.num_digits = int(fmt)
+            except ValueError:
+                raise ValueError('Expected a digit for format, got ' + fmt)
+
+    def _do(self, expr, unit, aslatex):
+
+        try:
+            expr = expr.sympy
+        except AttributeError:
+            pass
+
+        if unit == 'ohm':
+            unit = '$\Omega$'
+
+        if expr.is_real:
+            return self._do1(expr, unit, aslatex)
+
+        jstr = '\mathrm{j}' if aslatex else 'j'
+
+        rexpr = re(expr)
+        iexpr = im(expr)
+        istr = self._do1(iexpr, unit, aslatex)
+        if rexpr == 0:
+            if iexpr == 1:
+                return jstr
+            return jstr + istr
+
+        rstr = self._do1(rexpr, '', aslatex)
+        istr = self._do1(iexpr, unit, aslatex)
+        if iexpr == 1:
+            istr = istr[1:]
+        return rstr + ' + ' + jstr + istr
+
+    def _do1(self, expr, unit, aslatex):
 
         prefixes = ('f', 'p', 'n', 'u', 'm', '', 'k', 'M', 'G', 'T')
 
-        value = value
+        value = float(expr)
+
         if value == 0:
             return self._fmt('0', unit, '', aslatex)
 
@@ -29,12 +68,19 @@ class ValueFormatter(object):
             if not self.hundreds:
                 m += 1
             n = int(floor(m / 3))
-            k = int(floor(m)) - n * 3
         else:
             n = 0
-            k = m - 1
 
-        dp = self.num_digits - k
+        # value       m   n
+        # 3141592   6.5   2
+        # 314159.   5.5   1
+        # 31415.9   4.5   1
+        # 3141.59   3.5   1
+        # 314.159   2.5   0
+        # 31.4159   1.5   0
+        # 3.14159   0.5   0
+        # .314159  -0.5   0
+        # .0314159 -1.5  -1
 
         idx = n + 5
         # Handle extremely large or small values without a prefix
@@ -43,13 +89,13 @@ class ValueFormatter(object):
         elif idx >= len(prefixes):
             return self._fmt('%e' % value, unit, '', aslatex)
 
-        if dp < 0:
-            dp = 0
-        fmt = '%%.%df' % dp
+        svalue = value * 10**(-3 * n)
 
-        value = value * 10**(-3 * n)
+        # Round to num_digits
+        scale = 10 ** (self.num_digits - 1 - floor(log10(abs(svalue))))
+        rvalue = round(svalue * scale) / scale
 
-        valstr = fmt % value
+        valstr = str(rvalue)
 
         if self.trim:
             # Remove trailing zeroes after decimal point
@@ -57,20 +103,20 @@ class ValueFormatter(object):
 
         return self._fmt(valstr, unit, prefixes[idx], aslatex)
 
-    def latex_math(self, value, unit):
+    def latex_math(self, expr, unit):
         """This is equivalent to the `latex()` method but encloses in $ $."""
 
-        return '$' + self.latex(value, unit) + '$'
+        return '$' + self.latex(expr, unit) + '$'
 
-    def latex(self, value, unit):
+    def latex(self, expr, unit):
         """Make latex string assuming math mode."""
 
-        return self._do(value, unit, aslatex=True)
+        return self._do(expr, unit, aslatex=True)
 
-    def str(self, value, unit):
+    def str(self, expr, unit):
         """Make string."""
 
-        return self._do(value, unit, aslatex=False)
+        return self._do(expr, unit, aslatex=False)
 
 
 class EngValueFormatter(ValueFormatter):
@@ -127,7 +173,9 @@ class SPICEValueFormatter(ValueFormatter):
 
 class SciValueFormatter(ValueFormatter):
 
-    def _do(self, value, unit, aslatex):
+    def _do1(self, expr, unit, aslatex):
+
+        value = float(expr)
 
         fmt = '%%.%dE' % (self.num_digits - 1)
 
@@ -150,29 +198,66 @@ class SciValueFormatter(ValueFormatter):
                 exp = '-' + exp[2]
             valstr = parts[0] + '\\times 10^{' + exp + '}'
 
+        if unit == '':
+            return valstr
+
         if unit.startswith('$'):
             return valstr + '\\,' + unit[1:-1]
 
         return valstr + '\\,' + '\\mathrm{' + unit + '}'
 
 
+class RatfunValueFormatter(ValueFormatter):
+
+    def _do1(self, expr, unit, aslatex):
+
+        if not aslatex:
+            if unit == '':
+                return str(expr)
+            else:
+                return str(expr) + ' ' + unit
+
+        valstr = latex(expr)
+        if unit == '':
+            return valstr
+
+        if unit.startswith('$'):
+            return valstr + '\\,' + unit[1:-1]
+
+        return valstr + '\\,' + '\\mathrm{' + unit + '}'
+
+
+class SympyValueFormatter(ValueFormatter):
+
+    def _do(self, expr, unit, aslatex):
+
+        try:
+            expr = expr.sympy
+        except AttributeError:
+            pass
+
+        if aslatex:
+            return latex(expr)
+        else:
+            return str(expr)
+
+
 def value_formatter(style='eng3'):
+    """Return ValueFormatter class for style in 'sympy', 'eng', 'sci', 'spice',
+    or 'ratfun'"""
 
     style = style.lower()
 
-    # Split into style and num
-    num = 3
-    for m in range(len(style)):
-        if style[m].isdigit():
-            num = int(style[m:])
-            style = style[0:m]
-            break
-
-    if style == 'eng':
-        return EngValueFormatter(num_digits=num)
-    elif style == 'spice':
-        return SPICEValueFormatter(num_digits=num)
-    elif style == 'sci':
-        return SciValueFormatter(num_digits=num)
+    if style.startswith('sympy'):
+        return SympyValueFormatter(fmt='')
+    elif style.startswith('eng'):
+        return EngValueFormatter(fmt=style[3:])
+    elif style.startswith('spice'):
+        return SPICEValueFormatter(fmt=style[5:])
+    elif style.startswith('sci'):
+        return SciValueFormatter(fmt=style[3:])
+    elif style.startswith('ratfun'):
+        return RatfunValueFormatter(fmt='')
     else:
-        raise ValueError('Unknown style: ' + style)
+        raise ValueError('Unknown style: ' + style + \
+                         '. Known styles: eng, ratfun, sci, spice, sympy' )

@@ -26,6 +26,7 @@ class Network(object):
     is_parallel = False
     is_series = False
     is_noiseless = True
+    is_transformer = False
 
     # True if initial conditions are zero (or unspecified).
     zeroic = True
@@ -207,35 +208,49 @@ class Network(object):
     def draw(self, filename=None, layout='horizontal', form=None, evalf=False, **kwargs):
         """Draw schematic of network.
 
-        filename specifies the name of the file to produce.  If None,
-        the schematic is displayed on the screen.
+        Parameters
+        ----------
+        filename:
+            The name of the file to produce.  If None, the schematic is displayed on the screen.
 
-        Note, if using Jupyter, then need to first issue command %matplotlib inline
+        layout:
+            This is either 'horizontal', 'vertical', or 'ladder'.
 
-        `layout` is either 'horizontal', 'vertical', or 'ladder'.
+        evalf:
+            This can be False or an integer specifying the number of decimal places used to evaluate floats.
+        kwargs:
+            These include:
 
-        `evalf` can be False or an integer specifying the number of
-        decimal places used to evaluate floats.
+        - label_ids: True to show component ids
+        - label_values: True to display component values
+        - draw_nodes:
 
-        `kwargs` include:
-           label_ids: True to show component ids
-           label_values: True to display component values
-           draw_nodes: True to show all nodes, False to show no nodes,
-             'primary' to show primary nodes,
-             'connections' to show nodes that connect more than two components,
-             'all' to show all nodes
-           label_nodes: True to label all nodes, False to label no nodes,
-             'primary' to label primary nodes,
-             'alpha' to label nodes starting with a letter,
-             'pins' to label nodes that are pins on a chip,
-             'all' to label all nodes
-           style: 'american', 'british', or 'european'
-           scale: schematic scale factor, default 1.0
-           node_spacing: spacing between component nodes, default 2.0
-           cpt_size: size of a component, default 1.5
-           dpi: dots per inch for png files
-           help_lines: distance between lines in grid, default 0.0 (disabled)
-           debug: True to display debug information
+            - True: show all nodes
+            - False: show no nodes
+            - 'primary': show primary nodes
+            - 'connections': show nodes that connect more than two components
+            - 'all': show all nodes
+
+        - label_nodes:
+
+            - True: label all nodes
+            - False: label no nodes
+            - 'primary': label primary nodes
+            - 'alpha': label nodes starting with a letter
+            - 'pins': label nodes that are pins on a chip
+            - 'all': label all nodes
+
+        - style: 'american', 'british', or 'european'
+        - scale: schematic scale factor, default 1.0
+        - node_spacing: spacing between component nodes, default 2.0
+        - cpt_size: size of a component, default 1.5
+        - dpi: dots per inch for png files
+        - help_lines: distance between lines in grid, default 0.0 (disabled)
+        - debug: True to display debug information
+
+        Notes
+        -----
+        If using Jupyter, then need to first issue command %matplotlib inline
         """
 
         if 'label_ids' not in kwargs:
@@ -335,15 +350,27 @@ class Network(object):
 
         return self.Z(s).network(form)
 
-    def subs(self, subs_dict):
-        """Substitute values using dictionary of substitutions.
+    def subs(self, *args, **kwargs):
+        """Substitute symbols in the network.
 
-        For example, b = a.subs({'R1': 1e3, 'R2': 9e3})"""
+        `args` is either:
+        - two arguments, e.g. foo.subs(old, new)
+        - one iterable argument, e.g. foo.subs(iterable). The iterable may be
+           o an iterable container with (old, new) pairs. In this case the
+             replacements are processed in the order given with successive
+             patterns possibly affecting replacements already made.
+           o a dict or set whose key/value items correspond to old/new pairs.
+
+        For example, b = a.subs({'R1': 1e3, 'R2': 9e3})
+
+        The domain of the result can be coerced using `domain` argument."""
+
+    def subs(self, *args, **kwargs):
 
         if not self.is_parallel and not self.is_series:
-            return self.__class__(*[str(expr(arg).subs(subs_dict)) for arg in self.args])
+            return self.__class__(*[str(expr(arg).subs(*args, **kwargs)) for arg in self.args])
 
-        return self.__class__(*[arg.subs(subs_dict) for arg in self.args])
+        return self.__class__(*[arg.subs(*args, **kwargs) for arg in self.args])
 
     def noisy(self, T='T'):
         """Create noisy network model by replacing resistances with a series

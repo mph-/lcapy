@@ -26,7 +26,7 @@ Copyright 2019--2023 Michael Hayes, UCECE
 
 """
 
-from .super import Superposition
+from .superposition import Superposition
 from .symbols import j, omega
 from .impedance import impedance
 from .currentmixin import CurrentMixin

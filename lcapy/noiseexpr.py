@@ -73,6 +73,7 @@ class NoiseExpression(Expr):
         return self.assumptions['nid']
 
     def subs(self, *args, **kwargs):
+        """Substitute values into the noise expression."""
         nid = self.nid
         result = super(NoiseExpression, self).subs(*args, **kwargs)
         result.assumptions['nid'] = nid

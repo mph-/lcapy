@@ -51,7 +51,6 @@ from .tmatrix import *
 from .smatrix import *
 from .matrix import *
 from .sym import *
-from .printing import *
 from .susceptance import susceptance
 from .reactance import reactance
 from .inductance import inductance
@@ -71,16 +70,30 @@ from .nodalanalysis import *
 from .loopanalysis import *
 from .exprclasses import *
 from .seqclasses import *
+from .printing import *
+from .rcparams import rcParams
 
 import sys
-import pkg_resources
 del absolute_import, print_function
 
 
 name = "lcapy"
 
+from packaging.version import Version
+from sys import version as python_version
 
-__version__ = pkg_resources.require('lcapy')[0].version
+python_version = python_version.split(' ')[0]
+if Version(python_version) >= Version('3.8'):
+    from importlib.metadata import version
+    __version__ = version('lcapy')
+    del version
+else:
+    import pkg_resources
+    __version__ = pkg_resources.require('lcapy')[0].version
+
+del python_version
+del Version
+
 lcapy_version = __version__
 
 if sys.version_info[0] == 2 and sys.version_info[1] < 6:
@@ -109,9 +122,15 @@ def show_version():
            matplotlib_version, scipy_version, networkx_version, lcapy_version))
 
 
+rcParams.load_user()
+rcParams.load_local()
+
 # The following is to help sympify deal with j.
 # A better fix might be to define an Lcapy class for j and to
 # use the __sympy_ method.
 converter['j'] = j
 converter[Symbol('j')] = j
 del converter, Symbol
+
+from .printing import printing_init
+printing_init(rcParams['sympy.print_order'])

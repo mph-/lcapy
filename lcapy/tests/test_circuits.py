@@ -32,6 +32,7 @@ class LcapyTester(unittest.TestCase):
         a.add('R1 1 2')
         a.add('C1 2 0')
 
+        self.assertEqual(a.is_time_domain, False, "is_time_domain")
         self.assertEqual2(a.impedance(1, 2), R(
             'R1').impedance, "Z incorrect for R1.")
         self.assertEqual2(a.impedance(2, 0), C(
@@ -76,7 +77,7 @@ class LcapyTester(unittest.TestCase):
         # This has a non-invertible A matrix.
         # self.assertEqual2(a.admittance(1, 0), R(0).Y, "Y incorrect across V1")
 
-        self.assertEqual2(a.Voc(1, 0).s, V('V1 / s').Voc.s,
+        self.assertEqual2(a.Voc(1, 0).transient_laplace, V('V1 / s').Voc.transient_laplace,
                           "Voc incorrect across V1")
         self.assertEqual(a.is_IVP, False, "Initial value problem incorrect")
         self.assertEqual(a.is_dc, False, "DC incorrect")
@@ -144,6 +145,7 @@ class LcapyTester(unittest.TestCase):
         a.add('E1 2 0 1 0 3')
         a.add('R2 2 0 1')
 
+        self.assertEqual(a.is_time_domain, True, "is_time_domain")
         self.assertEqual2(a.R2.V, V(6).Voc, "Incorrect voltage")
 
     def test_VCCS1(self):
@@ -230,7 +232,7 @@ class LcapyTester(unittest.TestCase):
         a.add('R1 1 2')
         a.add('L1 2 0 L1 {(V1 + 1) / R1}')
         # This tests if symbols are converted to the defined ones.
-        self.assertEqual2(a.L1.v, V(0).Voc.s.inverse_laplace(),
+        self.assertEqual2(a.L1.v, V(0).Voc.transient_laplace.inverse_laplace(),
                           "Incorrect time domain voltage")
         v = LaplaceDomainVoltage('(V1+1)/s', dc=False).inverse_laplace()
         self.assertEqual2(a.R1.v, v,
@@ -279,7 +281,7 @@ class LcapyTester(unittest.TestCase):
         a.add('V1 1 0 {V(s)}')
         a.add('R1 1 2')
         a.add('C1 2 0 C1 0')
-        H = a[2].V.s / a[1].V.s
+        H = a[2].V.transient_laplace / a[1].V.transient_laplace
 
         self.assertEqual2(H, 1 / (s * 'R1' * 'C1' + 1),  "Incorrect ratio")
 
@@ -295,6 +297,15 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.sub['s'].is_causal, True, "Causal incorrect")
         self.assertEqual2(a.L1.v, voltage(
             2 * exp(-t) * u(t)), "L current incorrect")
+
+        b = a.transient()
+        self.assertEqual2(b.V1.v, voltage(2 * u(t)), "Transient")
+
+        c = a.laplace()
+        self.assertEqual2(c.L1.cpt.i0, current(2), "Laplace")
+
+        d = a.dc()
+        self.assertEqual2(d.R1.v, voltage(4), "DC")
 
     def test_VR1_ac2(self):
         """Check VR circuit at ac for angular frequency 1
@@ -836,6 +847,38 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(str(b), 'E__E1 3 0 1 2 E1 0', 'opamp expand')
 
+    def test_inamp(self):
+        """Test INA"""
+
+        a = Circuit("""
+        E1 1 2 inamp 3 4 7 8 Ad Ac
+        V1 3 6 {Vd / 2}
+        V2 6 4 {Vd / 2}
+        V3 6 0 Vc
+        V4 2 0 Vocm
+        Rg 7 8""")
+
+        vo = a[1].v.limit('Ad', oo).simplify()
+
+        self.assertEqual(vo,
+                         voltage('Vd * (1 + 2 * Rf / Rg) + Ac * Vc + Vocm'),
+                         'inamp')
+
+    def test_fdopamp(self):
+        """Test FDA"""
+
+        a = Circuit("""
+        E1 1 2 fdopamp 3 4 5 Ad Ac
+        V1 3 6 Vd
+        V2 6 4 Vd
+        V3 6 0 Vc
+        V4 5 0 Vocm""")
+
+        self.assertEqual(a[1].v, voltage('Ad * Vd + Ac * Vc + Vocm'),
+                         'fdopamp +')
+        self.assertEqual(a[2].v, voltage('-Ad * Vd + Ac * Vc + Vocm'),
+                         'fdopamp -')
+
     def test_R_simplify(self):
 
         a = Circuit("""
@@ -927,3 +970,20 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(cct.AM.I, 2, 'ammeter current')
         self.assertEqual(cct.AM.V, 0, 'ammeter voltage')
+
+    def test_gyrator(self):
+
+        cct = Circuit("""
+        P1 1 0 ; down, v_=v_1
+        GY1 4 5 1 0 R; right
+        R2 4 5; down
+        W 5 0_2 ; down=0.25
+        W 0 0_1; down=0.25
+        W 0_1 0_2; right
+        """)
+
+        self.assertEqual(cct.impedance('P1'), impedance('R**2/R2'),
+                         'gyrator impedance')
+
+        self.assertEqual(cct.transfer('P1', 'R2'), transfer('-R2/R'),
+                         'gyrator transfer')

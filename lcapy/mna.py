@@ -1,7 +1,7 @@
 """
 This module implements modified nodal analysis (MNA).
 
-Copyright 2014--2023 Michael Hayes, UCECE
+Copyright 2014--2025 Michael Hayes, UCECE
 """
 
 from __future__ import division
@@ -83,12 +83,14 @@ class MNA(object):
 
         # Determine which branch currents are needed.
         self.unknown_branch_currents = []
+        self.extra_branch_currents = []
 
         for elt in self.cct.elements.values():
             if elt.need_branch_current:
                 self.unknown_branch_currents.append(elt.name)
             if elt.need_extra_branch_current:
                 self.unknown_branch_currents.append(elt.name + 'X')
+                self.extra_branch_currents.append(elt.name + 'X')
             if elt.is_current_controlled:
                 cname = elt.args[0]
                 if cname not in self.cct.elements:
@@ -153,15 +155,17 @@ class MNA(object):
         if cct.nodes['0'].count == 0:
             return message + ' Nothing electrically connected to ground.'
 
-        if not cct.is_connected:
-            unco = cct.unconnected_nodes()
-            if unco != []:
-                return message + 'Unconnected nodes: ' + ', '.join(unco)
-            unreachable = cct.unreachable_nodes('0')
-            return message + ' The network is disjoint.  These nodes have no path to node 0: ' + ', '.join(unreachable)
-
         reasons = []
         components = cct.components
+
+        if not cct.is_connected:
+            reasons.append('The circuit graph is disjoint.')
+
+            unreachable = cct.unreachable_nodes('0')
+            if unreachable != []:
+                reasons.append('There is no path to node 0 for nodes: ' + ', '.join(unreachable))
+            return message + '\n    ' + '\n    '.join(reasons)
+
         if cct.kind == 'dc':
             reasons.append('Check there is a DC path between all nodes.')
         if components.transformers != []:
@@ -174,6 +178,8 @@ class MNA(object):
         if len(components.voltage_sources) > 1:
             reasons.append('Check for loop of voltage sources.')
         if components.current_sources != []:
+            # Note, when determining impedance, a test current source
+            # is added.  This test source should be ignored here.
             reasons.append('Check current source is not open-circuited.')
         if len(components.current_sources) > 1:
             reasons.append('Check for current sources in series.')
@@ -232,7 +238,7 @@ class MNA(object):
         assumptions = Assumptions()
         if vtype.is_phasor_domain:
             assumptions.set('omega', self.kind)
-        elif self.kind in ('s', 'ivp'):
+        elif self.kind in ('s', 'ivp', 'transient'):
             assumptions.set('ac', cct.is_ac)
             assumptions.set('dc', cct.is_dc)
             assumptions.set('causal', cct.is_causal)
@@ -255,8 +261,13 @@ class MNA(object):
         # Create dictionary of branch currents through elements
         self._Idict = Branchdict()
         for m, key in enumerate(self.unknown_branch_currents):
-            I = current_sign(
-                results[m + num_nodes], cct.elements[key].is_source)
+
+            if key in self.extra_branch_currents:
+                is_source = False
+            else:
+                is_source = cct.elements[key].is_source
+
+            I = current_sign(results[m + num_nodes], is_source)
             self._Idict[key] = itype(I, **assumptions)
 
         # Calculate the branch currents.  These should be lazily

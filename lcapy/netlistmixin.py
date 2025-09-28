@@ -87,11 +87,17 @@ class NetlistMixin(object):
     @cached_property
     def branch_list(self):
         """Determine list of names of branch elements, e.g.,
-        ['C1', 'V1', 'R1', 'R2']."""
+        ['C1', 'V1', 'R1', 'R2'].
+
+        Two-port components are split into input and output one-ports.
+        """
 
         branch_list = []
         for key, elt in self.elements.items():
-            if elt.type not in ('W', 'O', 'P', 'K', 'XX'):
+            if elt.is_twoport:
+                branch_list.append(elt.name + '_out_')
+                branch_list.append(elt.name + '_in_')
+            elif elt.type not in ('W', 'O', 'P', 'K', 'XX'):
                 branch_list.append(elt.name)
         return branch_list
 
@@ -241,21 +247,19 @@ class NetlistMixin(object):
         return self.analysis.independent_sources
 
     def independent_source_groups(self, transform=False):
-        """Return list of source groups.  Each group is a list of
-        sourcenames that can be analysed at the same time.  Noise
-        sources have separate groups since they are assumed to be
-        uncorrelated.  The source groups are keyed by the names of
-        superposition decomposition keys: 'dc', 's', 't', 'n*', and omega,
-        where omega is an expression for the angular frequency of a phasor,
-        and `n*` is a noise identifier.
+        """Return list of indepedent source groups.  Each group is a list of
+        names of independent sources that can be analysed at the same
+        time.  Noise sources have separate groups since they are
+        assumed to be uncorrelated.  The source groups are keyed by
+        the names of superposition decomposition keys: 'dc',
+        'transient', 'n*', and omega, where omega is an
+        expression for the angular frequency of a phasor, and `n*` is
+        a noise identifier.
 
-        If transform is False, the returned keys are 'dc', 't', 's', and 'n*'.
-
-        If transform is True, the returned keys are 'dc', 's', omega,
-        and 'n*'.  Note, there is no time-domain component.  Note,
-        after transformation, a source can appear in multiple groups.
-        For example, if a voltage source V1 has a value 10 + 5 *
-        cos(omega * t), V1 will be added to the dc and omega groups.
+        Note, there is no time-domain component.  Also note, a source
+        can appear in multiple groups.  For example, if a voltage
+        source V1 has a value 10 + 5 * cos(omega * t), V1 will be
+        added to the dc and omega groups.
 
         """
 
@@ -266,14 +270,10 @@ class NetlistMixin(object):
             cpt = elt.cpt
             if cpt.is_voltage_source:
                 Voc = cpt.Voc
-                if transform:
-                    Voc = Voc.decompose()
-                cpt_kinds = Voc.keys()
+                cpt_kinds = Voc.kinds(transform)
             else:
                 Isc = cpt.Isc
-                if transform:
-                    Isc = Isc.decompose()
-                cpt_kinds = Isc.keys()
+                cpt_kinds = Isc.kinds(transform)
 
             for cpt_kind in cpt_kinds:
                 if cpt_kind not in groups:
@@ -419,6 +419,12 @@ class NetlistMixin(object):
         return self.components.transformers
 
     @property
+    def twoports(self):
+        """Return list of twoports."""
+
+        return self.components.twoports
+
+    @property
     def voltage_sources(self):
         """Return list of voltage_sources."""
 
@@ -560,7 +566,7 @@ class NetlistMixin(object):
     def _invalidate(self):
 
         caches = ('nodal_analysis', 'mesh_analysis', 'modified_nodal_analysis',
-                  'circuit_graph', '_subs_make', 'analyse')
+                  'circuit_graph', '_subcircuits_make', 'analyse')
         for cache in caches:
             getattr(self, cache).cache_clear()
 
@@ -935,7 +941,7 @@ class NetlistMixin(object):
         new = self._new()
 
         for cpt in self._elements.values():
-            if cpt.independent_source and cpt.is_noisy:
+            if cpt.is_independent_source and cpt.is_noisy:
                 net = cpt._kill()
             else:
                 net = cpt._copy()
@@ -949,7 +955,7 @@ class NetlistMixin(object):
         new = self._new()
 
         for cpt in self._elements.values():
-            if (cpt.independent_source and
+            if (cpt.is_independent_source and
                 (cpt.is_voltage_source and cpt.Voc == 0) or
                     (cpt.is_current_source and cpt.Isc == 0)):
                 net = cpt._kill()
@@ -1095,8 +1101,9 @@ class NetlistMixin(object):
 
         return self.s_model(j * var)
 
-    def unconnected_nodes(self):
-        """Return list of node names that are not connected."""
+    def dangling_nodes(self):
+        """Return list of node names that are dangling (they connect to a
+        single component.)"""
 
         return [node.name for node in self.nodes.values() if node.count <= 1]
 

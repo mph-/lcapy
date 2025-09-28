@@ -7,7 +7,7 @@ Copyright 2022-2024 Michael Hayes, UCECE
 from .expr import expr, equation, ExprTuple
 from .differentialequation import DifferentialEquation
 from .functions import Derivative, Function, exp, cos
-from .texpr import TimeDomainExpression
+from .texpr import texpr
 from .transfer import transfer
 from .symbols import t, s, omega0, j, pi, f
 from .utils import isiterable
@@ -79,6 +79,13 @@ class LTIFilter(object):
             an = [ax / an[0] for ax in an]
 
         return cls(bn, an)
+
+    def evaluate(self):
+        """Numerically evaluate the coefficients."""
+
+        a = self.a.value
+        b = self.b.value
+        return self.__class__(b, a)
 
     def transfer_function(self):
         """Return continuous-time impulse response (transfer function) in
@@ -177,7 +184,7 @@ class LTIFilter(object):
         from .sym import ssym
 
         if ic is None:
-            ic = ()
+            return s * 0
 
         if not isiterable(ic):
             ic = (ic, )
@@ -221,16 +228,19 @@ class LTIFilter(object):
         Ysi = self.sdomain_initial_response(ic)
         return Ysi(t)
 
-    def response(self, x, ic=None, ni=None):
-        """Calculate response of filter to input `x` given a list of initial conditions
-        `ic` for time indexes specified by `ni`.  If `ni` is a tuple,
-        this specifies the first and last (inclusive) time index.
-
-        The initial conditions are valid prior to the time indices given by the ni
-        `x` can be an expression, a sequence, or a list/array of values.
+    def response(self, x, ic=None, use_time_domain=False):
+        """Calculate response of filter to input expression `x` given a list
+        of initial conditions `ic`.
         """
 
-        return 0
+        x = texpr(x)
+
+        if use_time_domain:
+            return self.impulse_response().convolve(x) + self.initial_response(ic)
+        else:
+
+            Y = self.transfer_function() * x(s) + self.sdomain_initial_response(ic)
+            return Y(t)
 
     def subs(self, *args, **kwargs):
 

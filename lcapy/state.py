@@ -1,15 +1,13 @@
 """This module provides the State class that maintains the global state,
 such as the symbol context.
 
-Copyright 2014--2022 Michael Hayes, UCECE
+Copyright 2014--2025 Michael Hayes, UCECE
 
 """
 
 from sympy.assumptions.assume import global_assumptions
 
 from .context import Context
-from .config import check_units, abbreviate_units, loose_units, show_units
-from .config import canonical_units, printing_order
 from .printing_config import PrintingConfig
 from .symbolregistry import SymbolRegistry
 from copy import copy
@@ -24,7 +22,6 @@ class State(object):
     `show_units` (default False) prints the units after an expression
     `canonical_units` (default True) converts units to canonical form, e.g., V / A is shown as ohms.
     'printing.abbreviate_units` (default True) prints V rather than volts
-    'printing.order` (default `none`) controls the order that symbols in an expression are printed.
 
     """
 
@@ -35,14 +32,14 @@ class State(object):
         self.previous_context = []
         self.printing = PrintingConfig()
 
+        # The following are updated by rcparam
         # With loose_units can add constants to quantities, e.g., voltage(1) + 2
         # or impedance(2) == 2.
-        self.loose_units = loose_units
-        self.check_units = check_units
-        self.show_units = show_units
-        self.canonical_units = canonical_units
-        self.printing.abbreviate_units = abbreviate_units
-        self.printing.order = printing_order
+        self.loose_units = True
+        self.check_units = True
+        self.show_units = False
+        self.canonical_units = False
+        self.printing.abbreviate_units = True
 
         self.warn_subs = False
         self.break_subs = False

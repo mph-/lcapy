@@ -8,6 +8,7 @@ import re
 from .config import latex_expr_map, pretty_expr_map, str_expr_map
 from .config import functions, words, subscripts
 from .latex import latex_str
+from .rcparams import rcParams
 from .state import state
 from sympy.printing.str import StrPrinter
 from sympy.printing.latex import LatexPrinter
@@ -483,10 +484,13 @@ def latex(expr, **settings):
     return string
 
 
-from sympy import init_printing  # nopep8
+def printing_init(order=None):
 
-init_printing(latex_printer=latex, pretty_printer=pretty,
-              str_printer=print_str)
+    from sympy import init_printing  # nopep8
+
+    init_printing(pretty_print=True, order=order,
+                  latex_printer=latex, pretty_printer=pretty,
+                  str_printer=print_str)
 
 # See sympy/interactive/printing.py and IPython/core/formatters.py
 # types.

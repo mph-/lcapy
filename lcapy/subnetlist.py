@@ -16,7 +16,7 @@ from .netfile import NetfileMixin
 
 class SubNetlist(NetlistMixin, NetlistSimplifyMixin, NetfileMixin):
     """This is a representation of a netlist for a particular
-    transformation domain, such as ac, dc, transient, or noise.  It is
+    transformation domain, such as ac, dc, s, or noise.  It is
     for internal use only.  Unlike Netlist, SubNetlist is not mutable.
     """
 
@@ -39,9 +39,11 @@ class SubNetlist(NetlistMixin, NetlistSimplifyMixin, NetfileMixin):
         return obj
 
     def __init__(self, netlist, kind):
-        """ kind can be 't', 'dc', 's', 'time', 'ivp', 'n*' or omega,
-        where 'n*' is a noise identifer and omega is an angular frequency."""
+        """kind can be 't', 'dc', 's', 'time', 'ivp', 'n*' or
+        omega, where 'n*' is a noise identifer and omega is an angular
+        frequency."""
 
+        # This creates the stamps but does not solve them.
         self.mna = MNA(self, self.solver_method)
 
     def get_I(self, name):

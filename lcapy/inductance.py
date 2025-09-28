@@ -11,7 +11,7 @@ from warnings import warn
 def inductance(arg, **assumptions):
 
     expr1 = cexpr(arg, frequency=True, **assumptions)
-    if expr1.is_imaginary:
+    if expr1.is_complex:
         warn('Inductance %s should be real' % expr1)
 
     expr1.units = uu.henry

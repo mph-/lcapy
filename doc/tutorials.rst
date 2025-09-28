@@ -180,7 +180,7 @@ AC (phasor) analysis of RC circuit
 
 Consider the circuit defined by::
 
-    >>> from lcapy import Circuit
+    >>> from lcapy import Circuit, t, omega0
     >>> a = Circuit("""
     ... V 1 0 ac 6; down=1.5
     ... R 1 2 2; right=1.5
@@ -265,7 +265,8 @@ Laplace analysis of RC low-pass filter
 The following netlist describes a first-order RC low-pass filter (the
 `P` components define the input and output ports)::
 
-    >>> from lcapy import Circuit
+    >>> import matplotlib.pyplot as plt
+    >>> from lcapy import Circuit, voltage, sin, u, s, t, jw
     >>> a = Circuit("""
     ... P1 1 0; down=1.5, v_=v_i(t)
     ... R 1 2 2; right=1.5
@@ -273,7 +274,7 @@ The following netlist describes a first-order RC low-pass filter (the
     ... W 0 0_2; right
     ... W 2 3; right
     ... W 0_2 0_3; right
-    ... P2 3 0_3; down, v^=v_o(t)"""
+    ... P2 3 0_3; down, v^=v_o(t)""")
     >>> a.draw()
 
 .. image:: examples/tutorials/basic/VRC2.png
@@ -366,8 +367,10 @@ Here the phase delay is `-pi/2 + atan(2/3)` or about -56 degrees::
 The input and output signals can be plotted using::
 
    >>> ax = v_i.plot((-1, 10), label='input')
-   >>> ax = v_o.plot((-1, 10), axes=as, label='output')
+   >>> ax = v_o.plot((-1, 10), axes=ax, label='output')
    >>> ax.legend()
+   >>> # Note, the show() method is not required when using IPython or Jupyter
+   >>> plt.show()
 
 .. image:: examples/tutorials/basic/VRC2plot.png
    :width: 12cm
@@ -377,6 +380,7 @@ Notice the effect of the transient at the start before the response tends to the
 The phase response of the filter can be plotted as follows::
 
   >>> H(jw).phase_degrees.plot((0, 10))
+  >>> plt.show()
 
 .. image:: examples/tutorials/basic/VRC2Hphaseplot.png
    :width: 12cm
@@ -386,6 +390,7 @@ Notice that the phase shift is -56 degrees at an angular frequency of 3 rad/s.
 The amplitude response of the filter can be plotted as follows::
 
   >>> H(jw).magnitude.plot((0, 10))
+  >>> plt.show()
 
 .. image:: examples/tutorials/basic/VRC2Hmagplot.png
    :width: 12cm
@@ -394,6 +399,7 @@ For a Bode plot, the angular frequency is plotted on a logarithmic
 scale and the amplitude response is plotted in dB::
 
   >>> H(jw).dB.plot((0, 10), log_frequency=True)
+  >>> plt.show()
 
 .. image:: examples/tutorials/basic/VRC2HdBplot.png
    :width: 12cm
@@ -1781,11 +1787,11 @@ equivalent to two or three VCVSs).  The netlist has the form::
 
    E out ref inamp in+ in- rin+ rin- Ad Ac Rf
 
-Here `Ad` is the open-loop differential gain, `Ac` is the open-loop common-mode gain (zero default), and `Rf` is the internal feedback resistance.   Internally it expands to::
+This simulates a three opamp instrumentation amplifier where `Ad` is the open-loop differential gain of the input stages, `Ac` is the open-loop common-mode gain of the output stage (zero default), and `Rf` is the internal feedback resistance.   Internally it expands to::
 
    Ep int+ 0 opamp in+ in- Ad 0
    Em int- 0 opamp in+ in- Ad 0
-   Ed out ref opamp int+ int- 1 Ac
+   Ed out ref opamp int+ int- 0.5 Ac
    Rfp rin+ int+ Rf
    Rfm rin- int- Rf
 
@@ -1817,28 +1823,29 @@ The output voltage can be found using::
 
 Assuming infinite open-loop differential gain,
 
-   >>> Vo.limit('Ad', oo)
-   A_c⋅R_g⋅Vₛ₁ + A_c⋅R_g⋅Vₛ₂ + 4⋅R_f⋅Vₛ₁ - 4⋅R_f⋅Vₛ₂ + 2⋅R_g⋅Vₛ₁ - 2⋅R_g⋅Vₛ₂
-   ─────────────────────────────────────────────────────────────────────────
-                                     2⋅R_g
+   >>> Vo = Vo.limit('Ad', oo)
+   >>> Vo
+   A_c⋅R_g⋅Vₛ₁ + A_c⋅R_g⋅Vₛ₂ + 2⋅R_f⋅Vₛ₁ - 2⋅R_f⋅Vₛ₂ + R_g⋅Vₛ₁ - R_g⋅Vₛ₂
+   ─────────────────────────────────────────────────────────────────────
+                                   2⋅R_g
 
 Let's now express the input voltages in terms of the input
-differential and common-mode voltages :math:`V_{s1} = V_{ic} - V_{id}
-/ 2` and :math:`V_{s2} = V_{ic} + V_{id} / 2`::
+differential and common-mode voltages :math:`V_{s1} = V_{ic} + V_{id}
+/ 2` and :math:`V_{s2} = V_{ic} - V_{id} / 2`::
 
-   >>> Vo1 = Vo.subs({'Vs2':'Vic + Vid / 2', 'Vs1':'Vic - Vid / 2'}).simplify()
+  >>> Vo1 = Vo.subs({'Vs2':'Vic - Vid / 2', 'Vs1':'Vic + Vid / 2'}).simplify()
    >>> Vo1
               2⋅R_f⋅V_id
-   A_c⋅V_ic - ────────── - V_id
+   A_c⋅V_ic + ────────── + V_id
                  R_g
 
 The differential gain can be found by setting :math:`V_{ic}` to zero::
 
    >>> Gd = (Vo1.subs('Vic', 0) / voltage('Vid')).simplify()
    >>> Gd
-   -(2⋅R_f + R_g)
-   ───────────────
-         R_g
+   (2⋅R_f + R_g)
+   ─────────────
+        R_g
 
 Similarly, the common-mode gain can be found by setting :math:`V_{id}` to zero::
 

@@ -1,12 +1,14 @@
 """This module contains configuration information.
 
-Copyright 2019--2021 Michael Hayes, UCECE
+Copyright 2019--2025 Michael Hayes, UCECE
 
 """
 
+# See rcdefaults.py
+
 # SymPy symbols to exclude.  It might be easier to add the ones we want...
 # 'I' is removed to avoid conflict with oneport current source and
-# since `j` is used instead.
+# since 'j' is used instead.
 from sympy.printing.pretty.pretty_symbology import atoms_table
 import sympy as sym
 excludes = ['I', 'C', 'O', 'S', 'N', 'E', 'E1', 'Q', 'beta', 'gamma', 'zeta',
@@ -16,15 +18,10 @@ excludes = ['I', 'C', 'O', 'S', 'N', 'E', 'E1', 'Q', 'beta', 'gamma', 'zeta',
 aliases = {'delta': 'DiracDelta', 'step': 'Heaviside', 'u': 'Heaviside',
            'H': 'Heaviside', 'j': 'I'}
 
-str_expr_map = {sym.I: 'j'}
-
-latex_expr_map = {sym.I: '\mathrm{j}', sym.Heaviside: 'u'}
-
-# Hack to pretty print i as j
-junicode = '\u2149'
-atoms_table['ImaginaryUnit'] = junicode
-
-pretty_expr_map = {sym.I: junicode, sym.Heaviside: 'u'}
+# These mappings are set in rcdefaults
+str_expr_map = {}
+latex_expr_map = {}
+pretty_expr_map = {}
 
 # Words to format in Roman font for LaTeX expressions.
 
@@ -35,7 +32,7 @@ functions = ('heaviside', 'diracdelta', 'conjugate', 'sqrt', 'exp',
              'arg', 'sign', 'rect', 'sinc', 'sincn', 'sincu', 'trap',
              'tri', 'ramp', 'rampstep', 'dtrect', 'dtsign', 'psinc',
              'besselj', 'bessely', 'besseli', 'besselk', 'hankel1', 'hankel2',
-             'erf', 'erfc', 'sec', 'csc')
+             'erf', 'erfc', 'sec', 'csc', 'dirac')
 
 subscripts = ('in', 'out', 'ref', 'rms', 'load', 'source', 'avg',
               'mean', 'peak', 'pk', 'pk-pk', 'pp', 'min', 'max', 'src', 'bat',
@@ -51,44 +48,10 @@ initialisms = ('OP', 'TP')
 
 words = greek_letter_names + initialisms
 
-# Can be 'GE', 'LU', 'ADJ', 'LDL', 'CH', 'DM'
-# Note, the DM method requires a new version of sympy otherwise
-# the fallback method is used.
-try:
-    from sympy.polys.domainmatrix import DomainMatrix
-    matrix_inverse_method = 'DM'
-except:
-    matrix_inverse_method = 'ADJ'
-
-matrix_inverse_fallback_method = 'ADJ'
-# Can be 'GJ' (Gauss-Jordan), 'LU', 'QR', 'CRAMER'.  It can also
-# be one of the matrix inverse methods, e.g., 'ADJ', 'DM', etc.
-solver_method = 'DM'
-
-
-# Allow 1 + s, etc.
-loose_units = True
-# Print units with expression.
-show_units = False
-# Print units in abbreviated form.
-abbreviate_units = True
-# Print units in canonical form.
-canonical_units = False
-# This cannot be enabled without loose units (e.g., s + 1, or s * 'R' * 'C' + 1 would fail).
-check_units = True
-# Set to 'none' to print s - p; None to print SymPy default form -p + s.
-# Note, SymPy will convert s - -1 to 1 + s unless Add is used with evaluate=False
-printing_order = None
-
 # Use X11 colours so that they will work with graphziv and dot2tex.
 colours = {'startnode': 'green', 'endnode': 'green',
            'assignednode': 'Orchid1', 'unassignednode': 'SkyBlue1',
            'fixednode': 'Yellow', 'fixededge': 'Red', 'stretchedge': 'black'}
 
-# Definition of H(0).  With H(0) = 0.5 then sgn(0) = 0 as expected by SymPy and NumPy
-heaviside_zero = 0.5
-# This is the common convention.
-unitstep_zero = 1
-
-implicit_default = 'sground'
-autoground_default = 'sground'
+rcparams_user_filename = '~/.lcapy/lcapyrc'
+rcparams_local_filename = 'lcapyrc'

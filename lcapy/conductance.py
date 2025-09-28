@@ -16,7 +16,7 @@ def conductance(arg, **assumptions):
     Y(omega) = G(omega) + j B(omega)"""
 
     expr1 = expr(arg, frequency=True, **assumptions)
-    if expr1.is_imaginary:
+    if expr1.is_complex:
         warn('Conductance %s should be real' % expr1)
 
     expr1.units = uu.siemens

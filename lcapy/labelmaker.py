@@ -13,7 +13,11 @@ class LabelMaker:
 
     def _format_value_units(self, value, units, style):
 
-        return value_formatter(style=style).latex_math(value, units)
+        expr = Expr(value, cache=False)
+        if not expr.is_constant:
+            return expr.latex_math()
+
+        return value_formatter(style=style).latex_math(expr, units)
 
     def _format_name(self, cpt_type, cpt_id):
 
@@ -31,7 +35,7 @@ class LabelMaker:
             name = name + '_{%s}' % subscript
         return latex_format_label('$' + name + '$')
 
-    def make(self, cpt, label_ports=False, style='SI'):
+    def make(self, cpt, label_ports=False, style='eng'):
 
         # There are two possible labels for a component:
         # 1. Component name, e.g., R1
@@ -75,20 +79,17 @@ class LabelMaker:
                 # The user will have to override manually.
                 expr = cpt.args[1]
                 value_label = self._format_expr(expr)
+            elif cpt.name == 'I':
+                # Hack for current source called I
+                value_label = self._format_expr(expr)
             elif cpt.classname not in ('TP',):
-                try:
-                    # Handle things like 9/1000 that can occur
-                    # when substituting cpt values.
-                    value = float(sym.Rational(expr))
-                    if cpt.type in units_map:
-                        value_label = self._format_value_units(
-                            value, units_map[cpt.type], style)
-                    else:
-                        value_label = self._format_expr(expr)
 
-                except (ValueError, TypeError):
-                    # This catches non numeric arg.
-                    value_label = self._format_expr(expr)
+                if cpt.type in units_map:
+                    units = units_map[cpt.type]
+                else:
+                    units = ''
+
+                value_label = self._format_value_units(expr, units, style)
 
             # Ensure labels are the same when the value is not specified.
             # This will prevent printing the name and value.

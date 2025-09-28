@@ -53,9 +53,20 @@ class LcapyTester(unittest.TestCase):
 
         cl = cg.links()
 
-        self.assertEqual(cl.num_parts, 1, "num_parts")
-        self.assertEqual(cl.num_nodes, 3, "num_nodes")
+        self.assertEqual(cl.num_parts, 2, "num_parts")
+        self.assertEqual(cl.num_nodes, 4, "num_nodes")
         self.assertEqual(cl.num_branches, 2, "num_branches")
         self.assertEqual(cl.rank, 2, "rank")
         self.assertEqual(cl.nullity, 0, "nullity")
-        self.assertEqual(cl.node_connectivity, 1, "node_connectivity")
+        self.assertEqual(cl.node_connectivity, 0, "node_connectivity")
+
+        A = cg.incidence_matrix
+        self.assertEqual(A, Matrix(((0, -1, 0, -1, -1),
+                                    (1, 0, -1, 0, 0),
+                                    (0, 1, 1, 0, 0),
+                                    (-1, 0, 0, 1, 1))),
+                         "incidence_matrix")
+
+        B = cg.cycle_matrix
+        self.assertEqual(B, Matrix(((1, -1, 1, 1, 0), (0, 0, 0, -1, 1))),
+                         "cycle_matrix")

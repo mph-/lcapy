@@ -329,6 +329,9 @@ class DTFTTransformer(BilateralForwardTransformer):
 
                     return const * sym.exp(sym.I * delay * twopidt * f) * sym.sin(twopidt * f * N / 2) / sym.sin(twopidt * f / 2)
 
+                elif delay == -N / 2:
+                    return const * sym.exp(sym.I * delay * twopidt * f) * sym.sin(twopidt * f * N / 2) / sym.sin(twopidt * f / 2)
+
         return const * self.sympy(expr, n, f)
 
 

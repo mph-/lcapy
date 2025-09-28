@@ -84,7 +84,7 @@ class ExprDomain(object):
     def as_superposition(self):
         from .superpositionvoltage import SuperpositionVoltage
         from .superpositioncurrent import SuperpositionCurrent
-        from .super import Superposition
+        from .superposition import Superposition
 
         if self.is_voltage:
             return SuperpositionVoltage(self)

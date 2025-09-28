@@ -3309,6 +3309,8 @@ class Transformer(TwoPortThing):
     Unlike with IdealTransformer, the parameter alpha can be a function of s.
     """
 
+    is_transformer = True
+
     def __init__(self, alpha=1):
 
         super(Transformer, self).__init__(BMatrix.transformer(alpha))

@@ -12,7 +12,7 @@ This module performs schematic drawing using circuitikz from a netlist::
     ... W 0.2 0.2; right''')
     >>> sch.draw()
 
-Copyright 2014--2024 Michael Hayes, UCECE
+Copyright 2014--2025 Michael Hayes, UCECE
 """
 
 # Strings starting with ;; are schematic options.  They are parsed in
@@ -21,7 +21,6 @@ Copyright 2014--2024 Michael Hayes, UCECE
 
 
 from __future__ import print_function
-from .config import autoground_default
 from .expr import Expr
 from . import schemcpts
 import sympy as sym
@@ -32,6 +31,7 @@ from .opts import Opts
 from .netfile import NetfileMixin
 from .system import LatexRunner, PDFConverter, tmpfilename
 from .nodes import parse_nodes
+from .rcparams import rcParams
 from os import path, remove
 from collections import OrderedDict
 from warnings import warn
@@ -82,23 +82,23 @@ class SchematicOpts(Opts):
     def __init__(self):
 
         super(SchematicOpts, self).__init__(
-            {'draw_nodes': 'primary',
-             'label_values': True,
-             'label_ids': True,
-             'label_style': 'aligned',
-             'label_flip': False,
-             'label_value_style': 'eng3',
-             'annotate_values': False,
-             'label_nodes': 'primary',
-             'anchor': 'south east',
-             'autoground': 'none',
-             'scale': 1.0,
-             'dpi': PNG_DPI,
-             'cpt_size': 1.5,
-             'node_spacing': 2.0,
-             'help_lines': 0.0,
-             'style': 'american',
-             'voltage_dir': 'RP'})
+            {'draw_nodes': rcParams['schematics.draw_nodes'],
+             'label_values': rcParams['schematics.label_values'],
+             'label_ids': rcParams['schematics.label_ids'],
+             'label_style': rcParams['schematics.label_style'],
+             'label_value_style': rcParams['schematics.label_value_style'],
+             'label_flip': rcParams['schematics.label_flip'],
+             'annotate_values': rcParams['schematics.annotate_values'],
+             'label_nodes': rcParams['schematics.label_nodes'],
+             'anchor': rcParams['schematics.anchor'],
+             'autoground': rcParams['schematics.autoground'],
+             'scale': rcParams['schematics.scale'],
+             'dpi': rcParams['schematics.dpi'],
+             'cpt_size': rcParams['schematics.cpt_size'],
+             'node_spacing': rcParams['schematics.node_spacing'],
+             'help_lines': rcParams['schematics.help_lines'],
+             'style': rcParams['schematics.style'],
+             'voltage_dir': rcParams['schematics.voltage_dir']})
 
 
 class Schematic(NetfileMixin):
@@ -240,7 +240,7 @@ class Schematic(NetfileMixin):
         # This is called before node positions are assigned.
 
         if autoground in ('true', 'True', True):
-            autoground = autoground_default
+            autoground = rcParams['schematics.autoground_default']
         elif autoground in (False, None, 'false', 'none'):
             autoground = False
 
@@ -543,39 +543,50 @@ class Schematic(NetfileMixin):
         raise RuntimeError('Cannot create file of type %s' % ext)
 
     def draw(self, filename=None, **kwargs):
-        """
-        filename specifies the name of the file to produce.  If None,
-        the schematic is displayed on the screen.
+        r"""
+        Parameters
+        ----------
+        filename:
+            The name of the file to produce.  If None, the schematic is displayed on the screen.
 
-        Note, if using Jupyter, then need to first issue command %matplotlib inline
+        layout:
+            This is either 'horizontal', 'vertical', or 'ladder'.
 
-        kwargs include:
-           'label_ids': True to show component ids
-           'label_values': True to display component values
-           'label_value_style': 'eng3' for SI; 'spice3' for SPICE
-           'label_delimiter': Delimiter between component name and value
-           'label_flip': Place label on other side of component
-           'annotate_values': True to display component values as separate label
-           'draw_nodes': True to show all nodes,
-             False or 'none' to show no nodes,
-             'primary' to show primary nodes,
-             'connections' to show nodes that connect more than two components,
-             'all' to show all nodes
-           'label_nodes': True to label all nodes,
-             False or 'none' to label no nodes,
-             'primary' to label primary nodes (nodes without an underscore),
-             'alpha' to label nodes starting with a letter,
-             'pins' to label nodes that are pins on a chip,
-             'all' to label all nodes,
-           'anchor': where to position node label (default south east)
-           'include': name of file to include before \\begin{document}
-           'style': 'american', 'british', or 'european'
-           'scale': schematic scale factor, default 1.0
-           'node_spacing': spacing between component nodes, default 2.0
-           'cpt_size': size of a component, default 1.5
-           'dpi': dots per inch for png files, default 300
-           'help_lines': distance between lines in grid, default 0 (disabled)
-           'debug': non-zero to display debug information
+        evalf:
+            This can be False or an integer specifying the number of decimal places used to evaluate floats.
+        kwargs:
+            These include:
+
+        - label_ids: True to show component ids
+        - label_values: True to display component values
+        - draw_nodes:
+
+            - True: show all nodes
+            - False: show no nodes
+            - 'primary': show primary nodes
+            - 'connections': show nodes that connect more than two components
+            - 'all': show all nodes
+
+        - label_nodes:
+
+            - True: label all nodes
+            - False: label no nodes
+            - 'primary': label primary nodes
+            - 'alpha': label nodes starting with a letter
+            - 'pins': label nodes that are pins on a chip
+            - 'all': label all nodes
+
+        - style: 'american', 'british', or 'european'
+        - scale: schematic scale factor, default 1.0
+        - node_spacing: spacing between component nodes, default 2.0
+        - cpt_size: size of a component, default 1.5
+        - dpi: dots per inch for png files
+        - help_lines: distance between lines in grid, default 0.0 (disabled)
+        - debug: True to display debug information
+
+        Notes
+        -----
+        If using Jupyter, then need to first issue command %matplotlib inline
         """
 
         # None means don't care, so remove.  Use list so can remove
@@ -638,6 +649,8 @@ class Schematic(NetfileMixin):
 
         if in_ipynb() and filename is None:
 
+            # Handle Jupyter notebook
+
             if not png and not svg:
                 svg = False
 
@@ -654,8 +667,8 @@ class Schematic(NetfileMixin):
                     # the first ones.
                     display_svg(SVG(filename=svgfilename))
                     return
-                except:
-                    pass
+                except Exception as e:
+                    warn('Cannot create SVG image object, using PNG: ' + e)
 
             from IPython.display import Image, display_png
 
