@@ -3698,7 +3698,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
 
         """
 
-        from .sympy import expr
+        from .expr import expr
 
         var0 = expr(var0)
         expr = approximate_pade(self.sympy, var=self.var,
@@ -3710,7 +3710,7 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         """Approximate expression using a Taylor series
         around `self.var = var0` to degree `degree`."""
 
-        from .sympy import expr
+        from .expr import expr
 
         var0 = expr(var0)
         expr = approximate_taylor(self.sympy, var=self.var,
