@@ -488,6 +488,10 @@ class Ratfun(object):
 
         A = A / K
         B = B / K
+
+        if B == 1:
+            return sym.Pow(A, -1) * sym.exp(self.var * delay) * undef
+
         return sym.Mul(B, sym.Pow(A, -1), evaluate=False) * sym.exp(self.var * delay) * undef
 
     def ZPK(self, combine_conjugates=False):
