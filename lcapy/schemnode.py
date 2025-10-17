@@ -1,6 +1,6 @@
 """This module provides node support for schematic drawing.
 
-Copyright 2022--2023 Michael Hayes, UCECE
+Copyright 2022--2025 Michael Hayes, UCECE
 
 """
 
@@ -31,7 +31,6 @@ class Node:
         self.label = latex_format_node_label(self.name)
         self.pin = False
         self.pinlabel = ''
-        self.namepos = None
         self.pinname = ''
         self.pinpos = None
         self.clock = False
