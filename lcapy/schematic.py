@@ -171,11 +171,11 @@ class Schematic(NetfileMixin):
 
     def _cpt_add(self, cpt):
 
-        if cpt.offset != 0 and len(cpt.node_names) == 2:
+        if cpt.offset != 0 and len(cpt.explicit_node_names) == 2:
             # Change component and add wires.
 
-            n1 = cpt.node_names[0]
-            n2 = cpt.node_names[1]
+            n1 = cpt.explicit_node_names[0]
+            n2 = cpt.explicit_node_names[1]
             # If have only two parallel components, can used fixed node names.
             self.dummy_node += 1
             on1 = n1 + 'off%d' % self.dummy_node
@@ -231,9 +231,9 @@ class Schematic(NetfileMixin):
                 if pinname in cpt.required_auxiliary:
                     self._node_add(node_name, cpt, auxiliary=True)
 
-            # The required nodes are those explicitly
-            # specified in the schematic.
-            for node in cpt.required_node_names:
+            # The electrial_nodes are those explicitly specified in
+            # the netlist.
+            for node in cpt.explicit_node_names:
                 self._node_add(node, cpt, auxiliary=False)
 
     def _setup(self, autoground):

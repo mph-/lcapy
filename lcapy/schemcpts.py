@@ -63,11 +63,10 @@ module = sys.modules[__name__]
 # Lcapy uses this information to position the second node with respect
 # to the first.   Circuitikz then infers the rotation.
 
-# `node_names` is a list of the node names specified for each component.
-# For example, given `R1 1 2` the node_names for R1 are ['1', '2]
-# '
-# `required_node_names` is a list comprising a subset of node_names,
-# ignoring the nodes that are not drawn, say the ground node for an opamp.
+# `explicit_node_names` is a list of the node names specified for
+# each component.  For example, given `R1 1 2` the node_names for R1
+# are ['1', '2]
+# Nodes that are not drawn, say the ground node for an opamp are pruned.
 #
 # `auxiliary_node_names` is a list of node names for each component used
 # to draw the component.
@@ -80,7 +79,7 @@ module = sys.modules[__name__]
 # schematic attributes.  For example, given `R1 1 2; .p.l=foo` the
 # list is ['.p'].  CHECKME
 #
-# `all_node_names` is the union of required_node_names,
+# `all_node_names` is the union of explicit_node_names,
 # auxiliary_node_names, pin_node_names, and attribute_node_names
 #
 # `relative_node_names` is a list of node names defined in a component
@@ -654,7 +653,7 @@ class K(TF1):
         L1 = self.sch.elements[self.Lname1]
         L2 = self.sch.elements[self.Lname2]
         # L1 is on the left; L2 is on the right
-        nodes = [self.sch.nodes[n] for n in L2.node_names + L1.node_names]
+        nodes = [self.sch.nodes[n] for n in L2.explicit_node_names + L1.explicit_node_names]
         return nodes
 
 

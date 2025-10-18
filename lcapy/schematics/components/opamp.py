@@ -10,7 +10,7 @@ class Eopamp(Chip):
     do_transpose = False
     default_width = 1.0
 
-    # The Nm node is not used (ground).
+    # The Nm node is electrically connected but is not drawn.
     node_pinnames = ('out', '', 'in+', 'in-')
 
     normal_pins = {'out': ('rx', 1.25, 0.0),

@@ -65,7 +65,7 @@ class SchemPlacerBase(object):
         # minimum size (usually 1 but changeable with the size option)
         # but its wires can be stretched.
 
-        # When solving the x position, first nodes that must be
+        # When solving the x position, nodes that must be
         # vertically aligned (with the up or down option) are combined
         # into a set.  Then the left and right options are used to
         # form a graph.  This graph is traversed to find the longest

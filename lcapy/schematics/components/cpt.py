@@ -145,6 +145,13 @@ class Cpt(object):
     def __init__(self, sch, namespace, name, cpt_type, cpt_id, string,
                  opts_string, node_names, keyword, *args):
 
+        # This class is used in two phases:
+        # Phase 1:
+        #   1. Nodes are determined
+        #   2. Unreferenced nodes are pruned
+        # Phase 2:
+        #   1. The node positions are computed
+
         self.sch = sch
         self.type = cpt_type
         self.id = cpt_id
@@ -171,9 +178,17 @@ class Cpt(object):
                 self.labels.add(key, val)
 
         # List of node names specified as component arguments.  For example,
-        # given R 1 2, node_names = ['1', '2'].
-        # The ordering of this list is important.
-        self.node_names = list(node_names)
+        # given R 1 2, explicit_node_names = ['1', '2'].
+        # Filter out nodes that are not drawn.  For example, the
+        # ground node of an Eopamp.
+
+        self.explicit_node_names = []
+        self.explicit_pinnames = []
+        for pinname, node_name in zip(self.node_pinnames,
+                                      node_names):
+            if pinname != '':
+                self.explicit_node_names.append(node_name)
+                self.explicit_pinnames.append(pinname)
 
         prefix = self.name + '.'
 
@@ -226,7 +241,7 @@ class Cpt(object):
         # 5. relative ref     R1 1 ._2   or  R1 1 R1._2
         # Note R1 1 ._2 gets converted to R1 1 R1._2 before this is called.
 
-        for node_name in self.node_names:
+        for node_name in self.explicit_node_names:
 
             fields = node_name.split('.')
             # Case 1
@@ -256,7 +271,7 @@ class Cpt(object):
                     (basename, cpt_name, self, known_pins))
 
         self.relative_node_names = []
-        for name in self.node_names:
+        for name in self.explicit_node_names:
             fields = name.split('.')
             if len(fields) < 2:
                 continue
@@ -297,7 +312,7 @@ class Cpt(object):
         attribute_node_names = []
         if isinstance(self, Shape):
             for opt in self.node_opts():
-                if opt[0] not in self.node_names:
+                if opt[0] not in self.explicit_node_names:
                     attribute_node_names.append(prefix + opt[0])
 
         self.attribute_node_names = attribute_node_names
@@ -306,7 +321,7 @@ class Cpt(object):
         for alias in self.aliases:
             alias_node_names.append(prefix + alias)
 
-        self.all_node_names = self.required_node_names + \
+        self.all_node_names = self.explicit_node_names + \
             self.auxiliary_node_names + pin_node_names + \
             attribute_node_names + alias_node_names
 
@@ -543,27 +558,15 @@ class Cpt(object):
         return array(((cos(t), sin(t)),
                          (-sin(t), cos(t))))
 
-    @property
-    def required_node_names(self):
-        """Subset of node_names.  This filters out nodes that are not
-        drawn.  For example, the ground node of an Eopamp is not drawn."""
-
-        # The node_pinnames tuple specifies the required nodes.
-        node_names = []
-        for pinname, node_name in zip(self.node_pinnames, self.node_names):
-            if pinname != '':
-                node_names.append(node_name)
-        return node_names
-
     def node(self, pinname):
         """Return node by pinname"""
 
         if pinname in self.aliases:
             pinname = self.aliases[pinname]
 
-        if pinname in self.node_pinnames:
-            index = self.node_pinnames.index(pinname)
-            node_name = self.node_names[index]
+        if pinname in self.explicit_pinnames:
+            index = self.explicit_pinnames.index(pinname)
+            node_name = self.explicit_node_names[index]
         else:
             node_name = self.name + '.' + pinname
 
@@ -635,13 +638,13 @@ class Cpt(object):
         # Perhaps determine coords here as well and cache them?
 
         # The ordering of the first nodes is important.
-        # These must match with the electrical nodes.
+        # These must match with the explicit nodes.
         # FIXME: there can be duplicates but cannot use a set to
         # remove them since this will change the ordering.
-        node_names = self.all_node_names
 
+        # Prune unreferenced nodes
         rnodes = []
-        for n in node_names:
+        for n in self.all_node_names:
             if n in self.sch.nodes:
                 rnodes.append(self.sch.nodes[n])
         self._nodes = rnodes
@@ -658,9 +661,9 @@ class Cpt(object):
         rpins = []
         for node in self.nodes:
             node_name = node.name
-            if node_name in self.node_names:
-                index = self.node_names.index(node_name)
-                pinname = self.node_pinnames[index]
+            if node_name in self.explicit_node_names:
+                index = self.explicit_node_names.index(node_name)
+                pinname = self.explicit_pinnames[index]
             elif node_name in self.sch.nodes:
                 pinname = node_name.split('.')[-1]
                 if pinname in self.aliases:
@@ -1155,7 +1158,7 @@ class Cpt(object):
         if self.implicit_key(self.opts):
             return
 
-        for m, node_name in enumerate(self.required_node_names):
+        for m, node_name in enumerate(self.explicit_node_names):
             if node_name != '0':
                 continue
 
@@ -1165,7 +1168,7 @@ class Cpt(object):
             new_node.implicit = True
             new_node.implicit_symbol = autoground
 
-            self.node_names[m] = new_node.name
+            self.explicit_node_names[m] = new_node.name
             self.sch.nodes[new_node.name] = new_node
 
             index = self.all_node_names.index(node_name)
@@ -1233,7 +1236,7 @@ class Cpt(object):
             new_node.implicit_symbol = kind
             new_node.implicit = True
             new_node.pinpos = self.pinpos(node_name)
-            self.node_names[m] = new_node.name
+            self.explicit_node_names[m] = new_node.name
             self.nodes[m] = new_node
             self.sch.nodes[new_node.name] = new_node
 
@@ -1247,7 +1250,7 @@ class Cpt(object):
             if implicit in self.supply_positive_keys:
                 m = 0
             else:
-                m = len(self.node_names) - 1
+                m = len(self.explicit_node_names) - 1
             new_node = split_nodes1(m, implicit)
 
             label = self.opts.pop('label', None)
@@ -1263,7 +1266,7 @@ class Cpt(object):
                     new_node.opts.add(opt + '=' + val)
 
         # New syntax, look for .p.implicit, .p.ground, etc.
-        for m, node_name in enumerate(self.required_node_names):
+        for m, node_name in enumerate(self.explicit_node_names):
             node = self.sch.nodes[node_name]
             implicit = self.implicit_key(node.opts)
             if implicit:
