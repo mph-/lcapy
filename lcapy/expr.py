@@ -1867,17 +1867,19 @@ As a workaround use x.as_expr() %s y.as_expr()""" % op)
         except:
             pass
 
+        self.__ratfun = None
+
         if (self.var is None or self.has(sym.Derivative) or
                 self.has(sym.Integral)):
-            self.__ratfun = None
-        else:
+            return self.__ratfun
 
-            try:
-                # Note, this handles expressions that are products of
-                # rational functions and arbitrary delays.
-                self.__ratfun = Ratfun(self.sympy, self.var)
-            except:
-                self.__ratfun = None
+        try:
+            # Note, this handles expressions that are products of
+            # rational functions and arbitrary delays.
+            self.__ratfun = Ratfun(self.sympy, self.var)
+        except:
+            pass
+
         return self.__ratfun
 
     def _ratfun_check(self):
