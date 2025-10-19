@@ -637,11 +637,6 @@ class Cpt(object):
 
         # Perhaps determine coords here as well and cache them?
 
-        # The ordering of the first nodes is important.
-        # These must match with the explicit nodes.
-        # FIXME: there can be duplicates but cannot use a set to
-        # remove them since this will change the ordering.
-
         # Prune unreferenced nodes
         rnodes = []
         for n in self.all_node_names:
