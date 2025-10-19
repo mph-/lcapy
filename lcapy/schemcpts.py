@@ -1035,6 +1035,11 @@ class Ubuffer(Chip):
         return ((-0.5, 0.5), (0.5, 0), (-0.5, -0.5))
 
 
+class Uamp(Ubuffer):
+    """Amplifier with power supplies"""
+    pass
+
+
 class Uinverter(Chip):
     """Inverter with power supplies"""
 

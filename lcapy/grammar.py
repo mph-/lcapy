@@ -106,6 +106,7 @@ TPY: TPname Np Nm Ncp Ncm Y Y11 Y12 Y21 Y22 [I1] [I2]; Y-parameter two-port
 TPZ: TPname Np Nm Ncp Ncm Z Z11 Z12 Z21 Z22 [V1] [V2]; Z-parameter two-port
 TR: TRname Pi Po [Value=name]; Transfer function
 TVtriode: TVname Nanode Ngrid Ncathode [mu] [gm] [Cgk] [Cga]; Thermionic valve triode
+Uamp: Uname amp; Amplifier
 Uand: Uname and; And gate
 Ubuffer: Uname buffer; Buffer
 Uinverter: Uname inverter; Inverter

@@ -2443,6 +2443,7 @@ defcpt('TFtapcore', TFtap, 'Transformer with core')
 defcpt('TLlossless', TL, 'Lossless transmission line')
 defcpt('TVtriode', NonLinear, 'Triode')
 
+defcpt('Uamp', Misc, 'Amplifier')
 defcpt('Uand', Logic, 'And gate')
 defcpt('Ubuffer', Logic, 'Buffer')
 defcpt('Upbuffer', Logic, 'Buffer with power supplies')
