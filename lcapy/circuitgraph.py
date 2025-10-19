@@ -603,7 +603,7 @@ class CircuitGraph(object):
         return [self.node_map[str(node_name)] for node_name in node_names]
 
     def series_path(self, edge, dest_node, quit_node=None):
-        """Follow series path to `dest_node`."""
+        """Follow series path to `dest_node`.  Returns Path."""
 
         if self.debug:
             print('to:', dest_node)
@@ -615,6 +615,10 @@ class CircuitGraph(object):
             if self.debug:
                 print(edge)
             node = edge.to_node
+
+            # Give up if detect weird cpt such as SP.
+            if len(self.cct[edge.name].nodes) > 2:
+                    return Path()
 
             if node == quit_node:
                 if dest_node is not None:
