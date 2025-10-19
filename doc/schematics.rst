@@ -472,6 +472,7 @@ The supported chips are:
  - `chip7777`
  - `chip8181`
  - `chip8888`
+ - `amp`
  - `buffer`
  - `inverter`
  - `regulator`
@@ -510,6 +511,9 @@ The supported chips are:
    :width: 5cm
 
 .. image:: examples/schematics/Ubuffer.png
+    :width: 5cm
+
+.. image:: examples/schematics/Uamp.png
     :width: 5cm
 
 
