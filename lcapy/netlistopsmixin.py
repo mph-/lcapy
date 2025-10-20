@@ -54,10 +54,10 @@ class NetlistOpsMixin:
         Np and Nm with independent sources killed and initial
         conditions ignored."""
 
-        Np, Nm = self._parse_node_args2(Np, Nm)
-        Np, Nm = self._check_nodes(Np, Nm)
+        new = self.expand().kill()
+        Np, Nm = new._parse_node_args2(Np, Nm)
+        Np, Nm = new._check_nodes(Np, Nm)
 
-        new = self.kill()
         new._add_ground(Nm)
         test = new._add_test_voltage_source(Np, Nm)
         If = current_sign(-new[test].I, True)
@@ -90,20 +90,21 @@ class NetlistOpsMixin:
 
         """
 
+        new = self.expand()
+        N1p, N1m, N2p, N2m = new._parse_node_args4(N1p, N1m, N2p, N2m,
+                                                   'current_gain')
+        N1p, N1m, N2p, N2m = new._check_nodes(N1p, N1m, N2p, N2m)
+
         try:
             # Finding the transfer function for a ladder network
             # is faster but is not necessary
-            ladder = self._ladder(N1p, N1m, N2p, N2m)
+            ladder = new._ladder(N1p, N1m, N2p, N2m)
             if ladder is not None:
                 return ladder.current_gain
         except:
             pass
 
-        N1p, N1m, N2p, N2m = self._parse_node_args4(N1p, N1m, N2p, N2m,
-                                                    'current_gain')
-        N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
-
-        new = self.apply_test_current_source(N1p, N1m)
+        new = new.apply_test_current_source(N1p, N1m)
         H = transfer(-new.Isc(N2p, N2m).laplace())
         H.causal = True
         return H
@@ -113,10 +114,11 @@ class NetlistOpsMixin:
         Np and Nm with independent sources killed and initial
         conditions ignored."""
 
-        Np, Nm = self._parse_node_args2(Np, Nm)
-        Np, Nm = self._check_nodes(Np, Nm)
+        new = self.expand()
+        Np, Nm = new._parse_node_args2(Np, Nm)
+        Np, Nm = new._check_nodes(Np, Nm)
 
-        new = self.apply_test_current_source(Np, Nm)
+        new = new.apply_test_current_source(Np, Nm)
         Vf = new.Voc(Np, Nm)
         return impedance(Vf.laplace().sympy)
 
@@ -124,10 +126,11 @@ class NetlistOpsMixin:
         """Return short-circuit transform-domain current between nodes Np and
         Nm."""
 
-        Np, Nm = self._parse_node_args2(Np, Nm)
-        Np, Nm = self._check_nodes(Np, Nm)
+        new = self.expand()
+        Np, Nm = new._parse_node_args2(Np, Nm)
+        Np, Nm = new._check_nodes(Np, Nm)
 
-        new = self.copy()
+        new = new.copy()
         if new.is_causal:
             new.add('Vshort_ %s %s step 0' % (Np, Nm))
         else:
@@ -150,7 +153,7 @@ class NetlistOpsMixin:
         # find ladder network
         if len(self.elements) < 6:
             return None
-        return self.kill().ladder(N1p, N1m, N2p, N2m)
+        return self.expand().ladder(N1p, N1m, N2p, N2m)
 
     def ladder(self, N1p, N1m, N2p=None, N2m=None):
         """Return two-port unbalanced ladder network or `None` if the netlist
@@ -179,9 +182,10 @@ class NetlistOpsMixin:
 
         from lcapy.laddernetworkmaker import LadderNetworkMaker
 
-        N1p, N1m, N2p, N2m = self._parse_node_args4(N1p, N1m, N2p, N2m,
-                                                    'ladder')
-        N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
+        new = self.expand()
+        N1p, N1m, N2p, N2m = new._parse_node_args4(N1p, N1m, N2p, N2m,
+                                                   'ladder')
+        N1p, N1m, N2p, N2m = new._check_nodes(N1p, N1m, N2p, N2m)
 
         lm = LadderNetworkMaker(self)
 
@@ -195,10 +199,11 @@ class NetlistOpsMixin:
 
         from .oneport import I, Y
 
-        Np, Nm = self._parse_node_args2(Np, Nm)
-        Np, Nm = self._check_nodes(Np, Nm)
-        Isc = self.Isc(Np, Nm)
-        Ysc = self.admittance(Np, Nm)
+        new = self.expand()
+        Np, Nm = new._parse_node_args2(Np, Nm)
+        Np, Nm = new._check_nodes(Np, Nm)
+        Isc = new.Isc(Np, Nm)
+        Ysc = new.admittance(Np, Nm)
 
         return (I(Isc) | Y(Ysc)).simplify()
 
@@ -255,10 +260,11 @@ class NetlistOpsMixin:
 
         from .oneport import V, Z
 
-        Np, Nm = self._parse_node_args2(Np, Nm)
-        Np, Nm = self._check_nodes(Np, Nm)
-        Voc = self.Voc(Np, Nm)
-        Zoc = self.impedance(Np, Nm)
+        new = self.expand()
+        Np, Nm = new._parse_node_args2(Np, Nm)
+        Np, Nm = new._check_nodes(Np, Nm)
+        Voc = new.Voc(Np, Nm)
+        Zoc = new.impedance(Np, Nm)
 
         return (V(Voc) + Z(Zoc)).simplify()
 
@@ -277,20 +283,21 @@ class NetlistOpsMixin:
             transfer(cpt1, (N2p, N2m))
         """
 
+        new = self.expand()
+        N1p, N1m, N2p, N2m = new._parse_node_args4(N1p, N1m, N2p, N2m,
+                                                   'transfer')
+        N1p, N1m, N2p, N2m = new._check_nodes(N1p, N1m, N2p, N2m)
+
         try:
             # Finding the transfer function for a ladder network
             # is faster but is not necessary
-            ladder = self._ladder(N1p, N1m, N2p, N2m)
+            ladder = new._ladder(N1p, N1m, N2p, N2m)
             if ladder is not None:
                 return ladder.voltage_gain
         except:
             pass
 
-        N1p, N1m, N2p, N2m = self._parse_node_args4(N1p, N1m, N2p, N2m,
-                                                    'transfer')
-        N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
-
-        new = self.apply_test_voltage_source(N1p, N1m)
+        new = new.apply_test_voltage_source(N1p, N1m)
         V2 = new.Voc(N2p, N2m)
         H = transfer(V2.laplace())
         H.causal = True
@@ -315,13 +322,13 @@ class NetlistOpsMixin:
         from .twoport import TwoPortAModel, TwoPortBModel, TwoPortGModel
         from .twoport import TwoPortHModel, TwoPortYModel, TwoPortZModel
 
-        N1p, N1m, N2p, N2m = self._parse_node_args4(
+        new = self.expand()
+        N1p, N1m, N2p, N2m = new._parse_node_args4(
             N1p, N1m, N2p, N2m, 'twoport')
-        N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
+        N1p, N1m, N2p, N2m = new._check_nodes(N1p, N1m, N2p, N2m)
 
         # TODO, generalise for not just Laplace-domain.
 
-        new = self.copy()
         new._add_ground(N1m)
 
         if model == 'A':
@@ -378,20 +385,21 @@ class NetlistOpsMixin:
 
         """
 
+        new = self.expand()
+        N1p, N1m, N2p, N2m = new._parse_node_args4(N1p, N1m, N2p, N2m,
+                                                   'transadmittance')
+        N1p, N1m, N2p, N2m = new._check_nodes(N1p, N1m, N2p, N2m)
+
         try:
             # Finding the transfer function for a ladder network
             # is faster but is not necessary
-            ladder = self._ladder(N1p, N1m, N2p, N2m)
+            ladder = new._ladder(N1p, N1m, N2p, N2m)
             if ladder is not None:
                 return ladder.transadmittance
         except:
             pass
 
-        N1p, N1m, N2p, N2m = self._parse_node_args4(N1p, N1m, N2p, N2m,
-                                                    'transadmittance')
-        N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
-
-        new = self.apply_test_voltage_source(N1p, N1m)
+        new = new.apply_test_voltage_source(N1p, N1m)
         H = admittance(-new.Isc(N2p, N2m).laplace())
         H.causal = True
         return H
@@ -415,20 +423,21 @@ class NetlistOpsMixin:
             transimpedance(cpt1, (N2p, N2m))
         """
 
+        new = self.expand()
+        N1p, N1m, N2p, N2m = new._parse_node_args4(N1p, N1m, N2p, N2m,
+                                                   'transimpedance')
+        N1p, N1m, N2p, N2m = new._check_nodes(N1p, N1m, N2p, N2m)
+
         try:
             # Finding the transfer function for a ladder network
             # is faster but is not necessary
-            ladder = self._ladder(N1p, N1m, N2p, N2m)
+            ladder = new._ladder(N1p, N1m, N2p, N2m)
             if ladder is not None:
                 return ladder.transimpedance
         except:
             pass
 
-        N1p, N1m, N2p, N2m = self._parse_node_args4(N1p, N1m, N2p, N2m,
-                                                    'transadmittance')
-        N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
-
-        new = self.apply_test_current_source(N1p, N1m)
+        new = new.apply_test_current_source(N1p, N1m)
         H = impedance(new.Voc(N2p, N2m).laplace())
         H.causal = True
         return H
@@ -459,21 +468,23 @@ class NetlistOpsMixin:
             voltage_gain(cpt1, (N2p, N2m))
         """
 
+        new = self.expand()
+        N1p, N1m, N2p, N2m = new._parse_node_args4(N1p, N1m, N2p, N2m,
+                                                    'voltage_gain')
+        N1p, N1m, N2p, N2m = new._check_nodes(N1p, N1m, N2p, N2m)
+
         try:
             # Finding the transfer function for a ladder network
             # is faster but is not necessary
-            ladder = self._ladder(N1p, N1m, N2p, N2m)
+            ladder = new._ladder(N1p, N1m, N2p, N2m)
             if ladder is not None:
                 return ladder.voltage_gain
         except:
             pass
 
         # This is the same as transfer.
-        N1p, N1m, N2p, N2m = self._parse_node_args4(N1p, N1m, N2p, N2m,
-                                                    'voltage_gain')
-        N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
 
-        new = self.apply_test_voltage_source(N1p, N1m)
+        new = new.apply_test_voltage_source(N1p, N1m)
         V2 = new.Voc(N2p, N2m)
         H = transfer(V2.laplace())
         H.causal = True
@@ -491,11 +502,11 @@ class NetlistOpsMixin:
 
         from .twoport import AMatrix
 
-        N1p, N1m, N2p, N2m = self._parse_node_args4(
+        new = self.expand().kill()
+        N1p, N1m, N2p, N2m = new._parse_node_args4(
             N1p, N1m, N2p, N2m, 'Aparams')
-        N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
+        N1p, N1m, N2p, N2m = new._check_nodes(N1p, N1m, N2p, N2m)
 
-        new = self.kill()
         new._add_ground(N1m)
 
         try:
@@ -548,11 +559,12 @@ class NetlistOpsMixin:
         """
         from .twoport import BMatrix
 
-        N1p, N1m, N2p, N2m = self._parse_node_args4(
+        new = self.expand()
+        N1p, N1m, N2p, N2m = new._parse_node_args4(
             N1p, N1m, N2p, N2m, 'Bparams')
-        N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
+        N1p, N1m, N2p, N2m = new._check_nodes(N1p, N1m, N2p, N2m)
 
-        new = self.kill()
+        new = new.kill()
         new._add_ground(N1m)
 
         try:
@@ -662,11 +674,12 @@ class NetlistOpsMixin:
 
         # TODO, generalise to multiports.
 
-        N1p, N1m, N2p, N2m = self._parse_node_args4(
+        new = self.expand()
+        N1p, N1m, N2p, N2m = new._parse_node_args4(
             N1p, N1m, N2p, N2m, 'Zparams')
-        N1p, N1m, N2p, N2m = self._check_nodes(N1p, N1m, N2p, N2m)
+        N1p, N1m, N2p, N2m = new._check_nodes(N1p, N1m, N2p, N2m)
 
-        new = self.kill()
+        new = new.kill()
         new._add_ground(N1m)
 
         try:
@@ -707,14 +720,15 @@ class NetlistOpsMixin:
 
         """
 
-        nodes = self._check_nodes(*nodes)
+        new = self.expand()
+        nodes = new._check_nodes(*nodes)
         if len(nodes) % 2 == 1:
             raise ValueError('Need an even number of nodes.')
         ports = []
         for m in range(len(nodes) // 2):
             ports.append((nodes[m * 2], nodes[m * 2 + 1]))
 
-        new = self.kill()
+        new = new.kill()
         new._add_ground(nodes[1])
 
         try:
@@ -765,14 +779,15 @@ class NetlistOpsMixin:
 
         """
 
-        nodes = self._check_nodes(*nodes)
+        new = self.expand()
+        nodes = new._check_nodes(*nodes)
         if len(nodes) % 2 == 1:
             raise ValueError('Need an even number of nodes.')
         ports = []
         for m in range(len(nodes) // 2):
             ports.append((nodes[m * 2], nodes[m * 2 + 1]))
 
-        new = self.kill()
+        new = new.kill()
         new._add_ground(nodes[1])
 
         try:
