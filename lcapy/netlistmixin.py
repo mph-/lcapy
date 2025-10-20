@@ -200,6 +200,15 @@ class NetlistMixin(object):
         return self.analysis.has_dc
 
     @property
+    def has_expand(self):
+        """Return True if any cpt needs expansion."""
+
+        for elt in self.elements.values():
+            if elt.has_expand:
+                return True
+        return False
+
+    @property
     def has_independent_source(self):
         """Return True if the circuit has an independent source."""
         return self.independent_sources != []
@@ -441,7 +450,8 @@ class NetlistMixin(object):
         for node in nodes:
             if isinstance(node, int):
                 node = '%s' % node
-            if node not in self.nodes:
+            if node not in self.nodes \
+                and node != '0' and not self.analysis.has_implicit_ground:
                 raise ValueError('Unknown node %s' % node)
             str_nodes.append(node)
         return str_nodes

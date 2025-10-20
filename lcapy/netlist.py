@@ -543,10 +543,15 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         node is connected to ground.  The new netlist is returned."""
 
         Np, Nm = self._parse_node_args2(Np, Nm)
-        Np, Nm = self._check_nodes(Np, Nm)
+
+        # To handle TR and SP components need to expand
+        # components to ensure a '0' node.
+        new = self.expand()
+
+        Np, Nm = new._check_nodes(Np, Nm)
 
         # Kill the independent sources
-        new = self.kill()
+        new = new.kill()
         new._add_ground(Nm)
         new._add_test_current_source(Np, Nm)
         return new
@@ -560,9 +565,13 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         returned."""
 
         Np, Nm = self._parse_node_args2(Np, Nm)
-        Np, Nm = self._check_nodes(Np, Nm)
 
-        new = self.copy()
+        # To handle TR and SP components need to expand
+        # components to ensure a '0' node.
+        new = self.expand()
+
+        Np, Nm = new._check_nodes(Np, Nm)
+
         for name in self.across_nodes(Np, Nm):
             if self[name].is_voltage_source:
                 warn('Removing voltage source %s across input nodes %s, %s' %
@@ -646,11 +655,11 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
 
         old = self
         for i in range(depth):
-            if len(old.components.opamps) == 0:
+            if not old.has_expand:
                 return old
 
             # Need to iterate to handle FDA and INA.  These get
-            # converted to opamps.
+            # converted to opamps and then to VCVS.
 
             new = old._new()
 

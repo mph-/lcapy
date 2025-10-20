@@ -59,6 +59,8 @@ class Cpt(ImmittanceMixin):
     is_current_controlled = False
     is_voltage_controlled = False
     is_opamp = False
+    has_implicit_ground = False
+    has_expand = False
     extra_argnames = ()
 
     def __init__(self, cct, namespace, name, cpt_type, cpt_id, string,
@@ -1313,6 +1315,7 @@ class Eopamp(DependentSource):
 
     extra_argnames = ('Ac', 'Ro')
     is_opamp = True
+    has_expand = True
 
     def _expand(self):
 
@@ -1353,6 +1356,7 @@ class Efdopamp(DependentSource):
 
     extra_argnames = ('Ac')
     is_opamp = True
+    has_expand = True
 
     def _expand(self):
 
@@ -1385,6 +1389,7 @@ class Einamp(DependentSource):
 
     extra_argnames = ('Ac', 'Rf')
     is_opamp = True
+    has_expand = True
 
     def _expand(self):
 
@@ -1828,7 +1833,13 @@ class RV(RC):
         if n2 >= 0:
             mna._G[n2, n2] += Y2
 
-class SPpp(Dummy):
+
+class SP(Dummy):
+
+    has_implicit_ground = True
+
+
+class SPpp(SP):
 
     need_branch_current = True
 
@@ -1846,7 +1857,7 @@ class SPpp(Dummy):
             mna._C[m, n2] -= 1
 
 
-class SPpm(Dummy):
+class SPpm(SP):
 
     need_branch_current = True
 
@@ -1864,7 +1875,7 @@ class SPpm(Dummy):
             mna._C[m, n2] += 1
 
 
-class SPppp(Dummy):
+class SPppp(SP):
 
     need_branch_current = True
 
@@ -1884,7 +1895,7 @@ class SPppp(Dummy):
             mna._C[m, n4] -= 1
 
 
-class SPpmm(Dummy):
+class SPpmm(SP):
 
     need_branch_current = True
 
@@ -1904,7 +1915,7 @@ class SPpmm(Dummy):
             mna._C[m, n4] += 1
 
 
-class SPppm(Dummy):
+class SPppm(SP):
 
     need_branch_current = True
 
@@ -2259,19 +2270,23 @@ class TR(Dummy):
     output referenced to node 0."""
 
     need_branch_current = True
+    has_implicit_ground = True
+    has_expand = True
+
+    # TODO: handle s-domain expressions for A.
+
+    def _expand(self):
+
+        # Expand TR 1 2 A; to E 2 0 1 0 A.  This makes the ground node
+        # explicit.
+
+        vcvs = self._netmake_expand('E',
+                                    nodes=(self.relnodes[1], '0',
+                                           self.relnodes[0], '0'))
+        return vcvs
 
     def _stamp(self, mna):
-        n1, n2 = mna._cpt_node_indexes(self)
-        m = mna._cpt_branch_index(self)
-
-        if n2 >= 0:
-            mna._B[n2, m] += 1
-            mna._C[m, n2] += 1
-
-        A = ConstantDomainExpression(self.args[0]).sympy
-
-        if n1 >= 0:
-            mna._C[m, n1] -= A
+        raise RuntimeError('Internal error, component not expanded')
 
 
 class V(IndependentSource):

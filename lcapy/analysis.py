@@ -16,6 +16,7 @@ class Analysis:
         self.has_ac = False
         self.has_dc = False
         self.has_transient = False
+        self.has_implicit_ground = False
         self.ac_count = 0
         self.dc_count = 0
         self.causal = True
@@ -59,6 +60,8 @@ class Analysis:
                 self.reactances.append(eltname)
             if elt.is_mutual_coupling:
                 self.mutual_couplings.append(eltname)
+            if elt.has_implicit_ground:
+                self.implicit_ground = True
 
         num_sources = len(self.independent_sources)
 
