@@ -987,3 +987,21 @@ class LcapyTester(unittest.TestCase):
 
         self.assertEqual(cct.transfer('P1', 'R2'), transfer('-R2/R'),
                          'gyrator transfer')
+
+    def test_SP(self):
+
+        cct = Circuit("""
+        V1 1 0
+        V2 2 0
+        V3 3 0
+        SP1 pp 1 2 4
+        SP2 pm 1 2 5
+        SP3 ppp 1 2 3 6
+        SP4 ppm 1 2 3 7
+        SP5 pmm 1 2 3 8""")
+
+        self.assertEqual(cct[4].V, cct[1].V + cct[2].V, 'SPpp')
+        self.assertEqual(cct[5].V, cct[1].V - cct[2].V, 'SPpm')
+        self.assertEqual(cct[6].V, cct[1].V + cct[2].V + cct[3].V, 'SPppp')
+        self.assertEqual(cct[7].V, cct[1].V + cct[2].V - cct[3].V, 'SPppm')
+        self.assertEqual(cct[8].V, cct[1].V - cct[2].V - cct[3].V, 'SPpm')

@@ -617,8 +617,8 @@ class CircuitGraph(object):
             node = edge.to_node
 
             # Give up if detect weird cpt such as SP.
-            if len(self.cct[edge.name].nodes) > 2:
-                    return Path()
+            if len(self.cct[edge.cpt_name].nodes) > 2:
+                return Path()
 
             if node == quit_node:
                 if dest_node is not None:

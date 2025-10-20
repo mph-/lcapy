@@ -393,7 +393,7 @@ class Cpt(ImmittanceMixin):
         parts = [name]
 
         # Handle things like U1 opamp
-        if self.keyword[0] == 0 and self.keyword[1] != '':
+        if not ignore_keyword and self.keyword[0] == 0 and self.keyword[1] != '':
             parts.append(self.keyword[1])
 
         for m, node in enumerate(nodes):
@@ -1837,102 +1837,101 @@ class RV(RC):
 class SP(Dummy):
 
     has_implicit_ground = True
+    has_expand = True
+
+    def _stamp(self):
+        raise RuntimeError('Internal error, component not expanded')
 
 
 class SPpp(SP):
 
-    need_branch_current = True
+    def _expand(self):
 
-    def _stamp(self, mna):
-        n1, n2, n3 = mna._cpt_node_indexes(self)
-        m = mna._cpt_branch_index(self)
+        dummy_node = self._dummy_node()
 
-        if n3 >= 0:
-            mna._B[n3, m] += 1
-            mna._C[m, n3] += 1
+        vcvs1 = self._netmake_expand('E1',
+                                     nodes=(self.relnodes[2], dummy_node,
+                                            self.relnodes[0], '0'),
+                                     args=(1, ))
 
-        if n1 >= 0:
-            mna._C[m, n1] -= 1
-        if n2 >= 0:
-            mna._C[m, n2] -= 1
+        vcvs2 = self._netmake_expand('E2',
+                                     nodes=(dummy_node, '0',
+                                            self.relnodes[1], '0'),
+                                     args=(1, ))
+
+        return vcvs1 + '\n' + vcvs2
 
 
 class SPpm(SP):
 
-    need_branch_current = True
+    def _expand(self):
 
-    def _stamp(self, mna):
-        n1, n2, n3 = mna._cpt_node_indexes(self)
-        m = mna._cpt_branch_index(self)
-
-        if n3 >= 0:
-            mna._B[n3, m] += 1
-            mna._C[m, n3] += 1
-
-        if n1 >= 0:
-            mna._C[m, n1] -= 1
-        if n2 >= 0:
-            mna._C[m, n2] += 1
+        vcvs = self._netmake_expand('E',
+                                    nodes=(self.relnodes[2], '0',
+                                           self.relnodes[0], self.relnodes[1]),
+                                    args=(1, ))
+        return vcvs
 
 
 class SPppp(SP):
 
-    need_branch_current = True
+    def _expand(self):
 
-    def _stamp(self, mna):
-        n1, n2, n3, n4 = mna._cpt_node_indexes(self)
-        m = mna._cpt_branch_index(self)
+        dummy_node1 = self._dummy_node()
+        dummy_node2 = self._dummy_node()
 
-        if n3 >= 0:
-            mna._B[n3, m] += 1
-            mna._C[m, n3] += 1
+        vcvs1 = self._netmake_expand('E1',
+                                     nodes=(self.relnodes[3], dummy_node1,
+                                            self.relnodes[0], '0'),
+                                     args=(1, ))
 
-        if n1 >= 0:
-            mna._C[m, n1] -= 1
-        if n2 >= 0:
-            mna._C[m, n2] -= 1
-        if n4 >= 0:
-            mna._C[m, n4] -= 1
+        vcvs2 = self._netmake_expand('E2',
+                                     nodes=(dummy_node1, dummy_node2,
+                                            self.relnodes[1], '0'),
+                                     args=(1, ))
+
+        vcvs3 = self._netmake_expand('E3',
+                                     nodes=(dummy_node2, '0',
+                                            self.relnodes[2], '0'),
+                                     args=(1, ))
+
+        return vcvs1 + '\n' + vcvs2 + '\n' + vcvs3
 
 
 class SPpmm(SP):
 
-    need_branch_current = True
+    def _expand(self):
 
-    def _stamp(self, mna):
-        n1, n2, n3, n4 = mna._cpt_node_indexes(self)
-        m = mna._cpt_branch_index(self)
+        dummy_node = self._dummy_node()
 
-        if n3 >= 0:
-            mna._B[n3, m] += 1
-            mna._C[m, n3] += 1
+        vcvs1 = self._netmake_expand('E1',
+                                     nodes=(self.relnodes[3], dummy_node,
+                                            self.relnodes[0], self.relnodes[1]),
+                                     args=(1, ))
 
-        if n1 >= 0:
-            mna._C[m, n1] -= 1
-        if n2 >= 0:
-            mna._C[m, n2] += 1
-        if n4 >= 0:
-            mna._C[m, n4] += 1
+        vcvs2 = self._netmake_expand('E2',
+                                     nodes=(dummy_node, '0',
+                                            '0', self.relnodes[2]),
+                                     args=(1, ))
+        return vcvs1 + '\n' + vcvs2
 
 
 class SPppm(SP):
 
-    need_branch_current = True
+    def _expand(self):
 
-    def _stamp(self, mna):
-        n1, n2, n3, n4 = mna._cpt_node_indexes(self)
-        m = mna._cpt_branch_index(self)
+        dummy_node = self._dummy_node()
 
-        if n3 >= 0:
-            mna._B[n3, m] += 1
-            mna._C[m, n3] += 1
+        vcvs1 = self._netmake_expand('E1',
+                                     nodes=(self.relnodes[3], dummy_node,
+                                            self.relnodes[0], '0'),
+                                     args=(1, ))
 
-        if n1 >= 0:
-            mna._C[m, n1] -= 1
-        if n2 >= 0:
-            mna._C[m, n2] -= 1
-        if n4 >= 0:
-            mna._C[m, n4] += 1
+        vcvs2 = self._netmake_expand('E2',
+                                     nodes=(dummy_node, '0',
+                                            self.relnodes[1], self.relnodes[2]),
+                                     args=(1, ))
+        return vcvs1 + '\n' + vcvs2
 
 
 class SW(TimeVarying):
