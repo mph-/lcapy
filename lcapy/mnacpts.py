@@ -1284,9 +1284,9 @@ class VCVS(DependentSource):
             mna._B[n2, m] -= 1
             mna._C[m, n2] -= 1
 
-        Ad = ConstantDomainExpression(self.args[0]).sympy
+        Ad = expr(self.args[0]).sympy
         if len(self.args) > 1:
-            Ac = ConstantDomainExpression(self.args[1]).sympy
+            Ac = expr(self.args[1]).sympy
         else:
             Ac = 0
 
