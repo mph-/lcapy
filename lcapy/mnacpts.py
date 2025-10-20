@@ -8,7 +8,6 @@ Copyright 2015--2025 Michael Hayes, UCECE
 
 from __future__ import print_function
 from .expr import expr
-from .cexpr import ConstantDomainExpression
 from .omegaexpr import AngularFourierDomainExpression
 from .symbols import j, omega, jomega, s, t
 from .functions import sqrt
@@ -1450,7 +1449,7 @@ class CCCS(DependentSource):
 
         n1, n2 = mna._cpt_node_indexes(self)
         m = mna._branch_index(cname)
-        F = ConstantDomainExpression(self.args[1]).sympy
+        F = expr(self.args[1]).sympy
 
         if n1 >= 0:
             mna._B[n1, m] += F
@@ -1477,7 +1476,7 @@ class VCCS(DependentSource):
 
     def _stamp(self, mna):
         n1, n2, n3, n4 = mna._cpt_node_indexes(self)
-        G = ConstantDomainExpression(self.args[0]).sympy
+        G = expr(self.args[0]).sympy
 
         if n1 >= 0 and n3 >= 0:
             mna._G[n1, n3] -= G
@@ -1519,7 +1518,7 @@ class GY(Dummy):
         # V2 = -I1 Z2     V1 = I2 Z1
         # where V2 = V[n1] - V[n2] and V1 = V[n3] - V[n4]
 
-        Z1 = ConstantDomainExpression(self.args[0]).sympy
+        Z1 = expr(self.args[0]).sympy
         Z2 = Z1
 
         if n1 >= 0:
@@ -1559,7 +1558,7 @@ class CCVS(DependentSource):
 
         cname = self.args[0]
         m2 = mna._branch_index(cname)
-        H = ConstantDomainExpression(self.args[1]).sympy
+        H = expr(self.args[1]).sympy
         mna._D[m1, m2] -= H
 
         ccpt = self.cct.elements[cname]
