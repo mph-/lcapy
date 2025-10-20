@@ -2107,6 +2107,18 @@ If this file is called `pic4-demo.tex`, a PDF file can be produced using:
           $ schtex pic4.sch pic4.pgf
           $ pdflatex pic4-demo
 
+Note, this requires the LaTeX circuitikz package:
+
+.. code:: latex
+
+          \usepackage{circuitikz}
+
+Sometimes it is also necessary to add:
+
+.. code:: latex
+
+          \usetikzlibrary{fit, shapes, arrows, patterns, decorations.text, decorations.markings}
+
 
 Drawing tips
 ============
