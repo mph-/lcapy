@@ -112,8 +112,6 @@ A continuous-time LTI filter can be approximated by discrete-time LTI
 filter using the `discretize()` method:
 
 
-
-
 Continuous-time linear time invariant filter attributes
 -------------------------------------------------------
 
@@ -359,6 +357,26 @@ Alternatively, specific states can be removed.  For example::
 
      >>> ss2 = ss.reduce(elim_states=[1, 3])
 
+
+Block diagrams
+==============
+
+A control system can be described by a block diagram.  Here's an
+example of a proportional controller:
+
+.. literalinclude:: examples/schematics/proportional-control.sch
+
+.. image:: examples/schematics/proportional-control.png
+    :width: 15cm
+
+The TR (transfer function) and SP (summing point) elements are referenced with respect to the '0' node.  For example, the closed-loop transfer function can be found using:
+
+   >>> a = Circuit('proportional-control.sch')
+   >>> H = a.transfer(1, 0, 5, 0)
+   >>> H
+       Kₚ⋅A(s)
+   ────────────────
+   Kₚ⋅A(s)⋅B(s) + 1
 
 
 .. _discrete_time_systems:
