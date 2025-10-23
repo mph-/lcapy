@@ -309,6 +309,10 @@ class Cpt(ImmittanceMixin):
         string = self.name
         field = 0
 
+        if self.keyword[0] == 0:
+            string += ' ' + self.keyword[1]
+            field += 1
+
         for node in self.relnodes:
             node_name = node.name
             if node_map is not None:
@@ -334,9 +338,6 @@ class Cpt(ImmittanceMixin):
             field += 1
             if field == self.keyword[0]:
                 string += ' ' + self.keyword[1]
-
-        if len(self.args) == 0 and self.keyword[0] == 0:
-            string += ' ' + self.keyword[1]
 
         opts_str = str(self.opts).strip()
         if opts_str != '':
