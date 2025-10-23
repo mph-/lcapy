@@ -1060,6 +1060,10 @@ class DependentSource(Dummy):
 
     is_dependent_source = True
 
+    @property
+    def is_reactive(self):
+        return expr(self.args[0]).is_laplace_domain
+
     def _zero(self):
         return self._copy()
 
@@ -2270,6 +2274,7 @@ class TR(Dummy):
     need_branch_current = True
     has_implicit_ground = True
     has_expand = True
+    is_reactive = True
 
     # TODO: handle s-domain expressions for A.
 
