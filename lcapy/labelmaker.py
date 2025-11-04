@@ -67,7 +67,7 @@ class LabelMaker:
                 value_label = self._format_expr(expr)
             elif cpt.classname in ('Vs', 'Is'):
                 value_label = self._format_expr(expr)
-            elif cpt.classname == 'TF':
+            elif cpt.classname in ('TF', 'TFtap'):
                 expr = sym.sympify(expr)
                 if expr.is_Pow and expr.args[1] == -1:
                     value_label = '%s:1' % (1 / expr)

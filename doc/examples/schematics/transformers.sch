@@ -1,6 +1,6 @@
 TF1 1 2 3 4; right
 
-TF2 11 12 13 14 core; right
+TF2 11 12 13 14; right, core=true
 
 TF3 21 22 23 24 tap _25 _26; right
 W 25 _25; right=0.5

@@ -10,7 +10,7 @@ W 7 8; right=2, i={\frac{i_c}{2} + i_d}
 W 22 21; right
 W 21 20; up
 W 20 19; right=2, i={\frac{i_c}{2} - i_d}
-TF 8 9 19 18 core; up, l={}
+TF 8 9 19 18; up, l={}, core=true
 W 9 10; right=2
 W 18 17; right=2
 W 10 11; up

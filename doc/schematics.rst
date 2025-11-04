@@ -734,22 +734,24 @@ Transformers
 .. image:: examples/schematics/TF4.png
    :width: 1.4cm
 
-.. literalinclude:: examples/schematics/TFcore1.sch
-
-.. image:: examples/schematics/TFcore1.png
-   :width: 1.4cm
-
 .. literalinclude:: examples/schematics/TFtap1.sch
 
 .. image:: examples/schematics/TFtap1.png
    :width: 3cm
 
+The dots can be positioned with the dots attribute.  This can be `++`, `+-`, `-+`, `--`, or ''.  The first symbol specifies the primary dot position; the second symbol specifies the secondary dot position.
+
+Cores are drawn with the `core` attribute.  This can be `True`, 'one', or 'two'.  'one' draws one core line; 'two' draws two core lines.
+
+.. literalinclude:: examples/schematics/TFcore1.sch
+
+.. image:: examples/schematics/TFcore1.png
+   :width: 1.4cm
+
 .. literalinclude:: examples/schematics/TFtapcore1.sch
 
 .. image:: examples/schematics/TFtapcore1.png
    :width: 3cm
-
-The dots can be positioned with the dots attribute.  This can be '++', '+-', '-+', '--', or ''.  The first symbol specifies the primary dot position; the second symbol specifies the secondary dot position.
 
 
 Transistors

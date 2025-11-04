@@ -753,10 +753,10 @@ The methods are:
 
 - `Zparams(N1p, N1m, N2p, N2m)` Returns the two-port Z-parameters matrix.  See :ref:`Z-parameters` and `twoport()`.
 
-- `ladder(N1p, N1m, N2p, N2m)` Returns an s-domain two-port model, for
+- `ladder(N1p, N1m, N2p, N2m)` Returns an s-domain `Ladder` two-port model, for
   circuits with a ladder toplogy, defined by nodes `N1p`, `N1m`,
   `N2p`, and `N2m`, where `V1 = V[N1p] - V[N1m]`, and `V2 = V[N2p] -
-  V[N2m]`.  Note, `N1m` has to be the same as `N2m`.
+  V[N2m]`.  Note, `N1m` has to be the same as `N2m`.  `None` is returned if a ladder network is not found.
 
 The `ladder()` method is useful for large circuits with an unbalanced ladder topology since it does not compute all the node voltages of the circuit and so is much faster than the other methods.  For example, consider the ladder network:
 

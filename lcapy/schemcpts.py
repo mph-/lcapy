@@ -572,12 +572,26 @@ class TF1(FixedCpt):
             s += r'  \draw[<->] ([shift=(45:%.2f)]%s) arc(45:135:%.2f);''\n' % (
                 width / 2, link_pos, width / 2)
 
+        core = ''
         if self.classname in ('TFcore', 'TFtapcore'):
-            # Draw core
+            core = 'two'
+            warn('Class ' + self.classname + ' is deprecated.  Use core attribute')
+
+        if 'core' in self.opts:
+            core = self.opts['core']
+
+        if core in ('two', True):
+            # Draw core with two lines
             q = self.tf(centre, ((-0.05, -0.2), (-0.05, 0.2),
                                  (0.05, -0.2), (0.05, 0.2)))
             s += self.draw_path(q[0:2], style='thick')
             s += self.draw_path(q[2:4], style='thick')
+        elif core == 'one':
+            # Draw core with one line
+            q = self.tf(centre, ((0, -0.2), (0, 0.2)))
+            s += self.draw_path(q[0:2], style='thick')
+        elif core not in ('', False):
+            raise ValueError('Invalid core attribute value ' + core)
 
         return s
 
@@ -1381,6 +1395,8 @@ defcpt('SWpush', 'SW', 'Pushbutton switch', 'push button')
 defcpt('SWspdt', SPDT, 'SPDT switch', 'spdt')
 
 defcpt('TF', Transformer, 'Transformer', 'ideal transformer')
+defcpt('TFtap', Transformer, 'Transformer', 'ideal transformer with taps')
+# The following two should be deprecated; instead use core attribute
 defcpt('TFcore', Transformer, 'Transformer with core', 'transformer core')
 defcpt('TFtapcore', TFtap, 'Tapped transformer with core', 'transformer core')
 defcpt('TP', TwoPort, 'Two port', '')

@@ -7,7 +7,7 @@ W 6 7; down
 W 7 8; right=2, i={(1 - a) i_c + i_d}
 W 4 3; right=1, fixed
 W 3 19; right, i={a i_c - i_d}
-TF 8 9 19 18 core; up, l={}
+TF 8 9 19 18; up, l={}, core=true
 W 9 10; right=2
 W 18 13; right=2
 W 10 11; up
