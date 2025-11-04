@@ -85,7 +85,7 @@ class Cpt(object):
                  'pinnames', 'pinnodes', 'pindefs', 'outside',
                  'pinmap', 'kind', 'wire', 'ignore', 'style', 'nosim',
                  'nowires', 'nolabels', 'steps', 'free', 'fliplr', 'flipud',
-                 'nodots', 'draw_nodes', 'label_nodes', 'nodraw',
+                 'nodots', 'pdot', 'sdot', 'draw_nodes', 'label_nodes', 'nodraw',
                  'mirrorinputs', 'autoground', 'xoffset', 'yoffset',
                  'anchor', 'def', 'nodes', 'shape')
     label_opt_keys = ('label_values', 'label_ids', 'annotate_values',

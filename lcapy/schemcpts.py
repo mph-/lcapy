@@ -526,8 +526,10 @@ class TF1(FixedCpt):
             's-': ('rx', w, 0),
             'p+': ('lx', 0, 1),
             'p-': ('lx', 0, 0)}
-    misc = {'pdot': (0.1 - 0.5 * w, 0.34),
-            'sdot': (0.5 * w - 0.1, 0.34),
+    misc = {'pdot+': (0.1 - 0.5 * w, 0.34),
+            'sdot+': (0.5 * w - 0.1, 0.34),
+            'pdot-': (0.1 - 0.5 * w, -0.34),
+            'sdot-': (0.5 * w - 0.1, -0.34),
             'link': (0, 0.15),
             'label': (0, 0.48)}
 
@@ -537,12 +539,25 @@ class TF1(FixedCpt):
             return ''
 
         centre = self.midpoint(self.nodes[0], self.nodes[3])
-        pdot_pos = self.tf(centre, self.misc['pdot'])
-        sdot_pos = self.tf(centre, self.misc['sdot'])
         label_pos = self.tf(centre, self.misc['label'])
 
+        if self.nodots:
+            dots = ''
+        else:
+            dots = '++'
+        if 'dots' in self.opts:
+            dots = self.opts['dots']
+
+        if dots not in ('', '++', '+-', '-+', '--'):
+            raise ValueError('Invalid dots=' + dots)
+
         s = ''
-        if not self.nodots:
+        if dots != '':
+            pdot = 'pdot' + dots[0]
+            sdot = 'sdot' + dots[1]
+            pdot_pos = self.tf(centre, self.misc[pdot])
+            sdot_pos = self.tf(centre, self.misc[sdot])
+
             s += r'  \draw (%s) node[circ] {};''\n' % pdot_pos
             s += r'  \draw (%s) node[circ] {};''\n' % sdot_pos
 

@@ -729,6 +729,11 @@ Transformers
 .. image:: examples/schematics/TF1.png
    :width: 1.4cm
 
+.. literalinclude:: examples/schematics/TF4.sch
+
+.. image:: examples/schematics/TF4.png
+   :width: 1.4cm
+
 .. literalinclude:: examples/schematics/TFcore1.sch
 
 .. image:: examples/schematics/TFcore1.png
@@ -743,6 +748,8 @@ Transformers
 
 .. image:: examples/schematics/TFtapcore1.png
    :width: 3cm
+
+The dots can be positioned with the dots attribute.  This can be '++', '+-', '-+', '--', or ''.  The first symbol specifies the primary dot position; the second symbol specifies the secondary dot position.
 
 
 Transistors
