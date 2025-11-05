@@ -16,6 +16,8 @@ class Bipole(StretchyCpt):
     aliases = {'p': '+', 'n': '-'}
     pins = {'+': ('lx', -0.5, 0),
             '-': ('rx', 0.5, 0)}
+    misc = {'dot+': (-0.3, -0.1),
+            'dot-': (0.3, -0.1)}
 
     def label_make(self, **kwargs):
 
@@ -162,4 +164,14 @@ class Bipole(StretchyCpt):
         cargs.append('n=' + self.s)
 
         s = self.draw_cpt(n1.s, n2.s, tikz_cpt, cargs, dargs)
+
+        if self.type == 'L' and 'dot' in self.opts:
+            dot = self.opts['dot']
+            if dot != '':
+                if dot not in ('+', '-'):
+                    raise ValueError('Invalid value for dot attribute: ' + dot)
+                centre = self.midpoint(self.nodes[0], self.nodes[1])
+                dot_pos = self.tf(centre, self.misc['dot' + dot])
+                s += r'  \draw (%s) node[circ] {};''\n' % dot_pos
+
         return s
