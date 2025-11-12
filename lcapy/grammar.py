@@ -81,6 +81,7 @@ Sbox: Sname box; Box
 Scircle: Sname circle; Circle
 Sellipse: Sname ellipse; Ellipse
 Striangle: Sname triangle; Triangle
+Score: Sname core; Core
 SPpp: SPname pp P P P; Summing point
 SPpm: SPname pm P P P; Summing point
 SPppp: SPname ppp P P P P; Summing point
@@ -204,6 +205,7 @@ box: keyword;
 circle: keyword;
 ellipse: keyword;
 triangle: keyword;
+core: keyword;
 box4: keyword;
 box12: keyword;
 circle4: keyword;

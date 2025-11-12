@@ -826,7 +826,7 @@ class SPDT(FixedCpt):
 
 
 class Box2(Shape):
-    """Square box,  A rectangle is created by defining aspect."""
+    """Square box.  A rectangle is created by defining aspect."""
 
     shape = 'rectangle'
     pins = {'w': ('l', -0.5, 0),
@@ -954,6 +954,38 @@ class Triangle(Shape):
         s = self.draw_path([self.node('top').pos, self.node('bl').pos,
                             self.node('br').pos], closed=True, style='thick')
         s += self.draw_label(self.node('mid').pos, **kwargs)
+
+        return s
+
+
+class Core(Shape):
+
+    shape = ''
+
+    def draw(self, **kwargs):
+
+        if not self.check():
+            return ''
+
+        centre = self.centre
+
+        style = 'two'
+        if 'style' in self.opts:
+            style = self.opts['style']
+
+        s = ''
+        if style in ('two', True):
+            # Draw core with two lines
+            q = self.tf(centre, ((-0.05, -0.2), (-0.05, 0.2),
+                                 (0.05, -0.2), (0.05, 0.2)))
+            s += self.draw_path(q[0:2], style='thick')
+            s += self.draw_path(q[2:4], style='thick')
+        elif style == 'one':
+            # Draw core with one line
+            q = self.tf(centre, ((0, -0.2), (0, 0.2)))
+            s += self.draw_path(q[0:2], style='thick')
+        elif style not in ('', False):
+            raise ValueError('Invalid core style attribute value ' + style)
 
         return s
 
@@ -1387,6 +1419,7 @@ defcpt('Sbox', Box, 'Box shape')
 defcpt('Scircle', Circle, 'Circle shape')
 defcpt('Sellipse', Ellipse, 'Ellipse shape')
 defcpt('Striangle', Triangle, 'Triangle shape')
+defcpt('Score', Core, 'Core shape')
 
 defcpt('SW', Bipole, 'Switch', 'closing switch')
 defcpt('SWno', 'SW', 'Normally open switch', 'closing switch')

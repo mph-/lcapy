@@ -87,7 +87,7 @@ class Cpt(object):
                  'nowires', 'nolabels', 'steps', 'free', 'fliplr', 'flipud',
                  'nodots', 'dots', 'dot', 'draw_nodes', 'label_nodes', 'nodraw',
                  'mirrorinputs', 'autoground', 'xoffset', 'yoffset',
-                 'anchor', 'def', 'nodes', 'shape')
+                 'anchor', 'def', 'nodes', 'shape', 'core')
     label_opt_keys = ('label_values', 'label_ids', 'annotate_values',
                       'label_style', 'label_flip', 'label_value_style')
     color_keys = ('blue', 'cyan', 'magenta', 'yellow', 'green',
