@@ -2460,6 +2460,11 @@ defcpt('SWspdt', SW, 'SPDT switch')
 
 defcpt('TFcore', TF, 'Transformer with core')
 defcpt('TFtapcore', TFtap, 'Transformer with core')
+defcpt('TFptstt', Misc, 'Transformer with 1 primary winding and 2 primary windings (TODO)')
+defcpt('TFptstb', Misc, 'Transformer with 1 primary winding and 2 primary windings (TODO)')
+defcpt('TFptsbt', Misc, 'Transformer with 1 primary winding and 2 primary windings (TODO)')
+defcpt('TFptsbb', Misc, 'Transformer with 1 primary winding and 2 primary windings (TODO)')
+
 defcpt('TLlossless', TL, 'Lossless transmission line')
 defcpt('TVtriode', NonLinear, 'Triode')
 

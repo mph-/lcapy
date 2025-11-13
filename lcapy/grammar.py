@@ -96,6 +96,10 @@ TF: TFname Np Nm Ncp Ncm [Value=name]; Ideal transformer (works to DC!)
 TFcore: TFname Np Nm Ncp Ncm core [Value=name]; Transformer with core (works to DC!)
 TFtap: TFname Np Nm Ncp Ncm tap Nt Nt [Value=name]; Tapped transformer (works to DC!)
 TFtapcore: TFname Np Nm Ncp Ncm tapcore Nt Nt [Value=name]; Tapped transformer with core (works to DC!)
+TFptstt: TFname Ns1p Ns1m Ns2p Ns2m Np1p Np1m ptstt [Ns1=1] [Ns2=1] [Np1=1]; Ideal transformer with one primary winding and two secondary windings (works to DC!)
+TFptstb: TFname Ns1p Ns1m Ns2p Ns2m Np1p Np1m ptstb [Ns1=1] [Ns2=1] [Np1=1]; Ideal transformer with one primary winding and two secondary windings (works to DC!)
+TFptsbt: TFname Ns1p Ns1m Ns2p Ns2m Np1p Np1m ptstb [Ns1=1] [Ns2=1] [Np1=1]; Ideal transformer with one primary winding and two secondary windings (works to DC!)
+TFptsbb: TFname Ns1p Ns1m Ns2p Ns2m Np1p Np1m ptsbb [Ns1=1] [Ns2=1] [Np1=1]; Ideal transformer with one primary winding and two secondary windings (works to DC!)
 TL: TLname Np Nm Ncp Ncm [Z0=Z0] [Gamma=Gamma(s)] [Length=l]; Transmission line
 TLlossless: TLname Np Nm Ncp Ncm lossless [Z0=Z0] [Speed=c] [Length=l]; Lossless transmission line
 TP: TPname Np Nm Ncp Ncm; Generic two-port
@@ -239,6 +243,10 @@ xnor: keyword;
 dff: keyword; D flip-flop
 jkff: keyword; JK flip-flop
 rslatch: keyword; RS latch
+ptstt: keyword;
+ptstb: keyword;
+ptsbt: keyword;
+ptsbb: keyword;
 A: keyword;
 B: keyword;
 G: keyword;
@@ -259,6 +267,12 @@ Nb: node; Base node
 Nc: node; Collector node
 Ncp: node; Positive control node
 Ncm: node; Negative control node
+Np1p: node; Positive node for primary winding 1
+Np1m: node; Negative node for primary winding 1
+Ns1p: node; Positive node for secondary winding 1
+Ns1m: node; Negative node for secondary winding 1
+Ns2p: node; Positive node for secondary winding 2
+Ns2m: node; Negative node for secondary winding 2
 Nocm: node; Output common-mode node
 Nd: node; Drain node
 Ne: node; Emitter node
@@ -272,6 +286,10 @@ NRm: node; Gain resistor negative node
 Ns: node; Source node
 Nt: node; Tap node
 Nodelist: nodelist; List of nodes
+Np1: keyword; Number of turns on p1
+Np2: keyword; Number of turns on p2
+Ns1: keyword; Number of turns on s1
+Ns2: keyword; Number of turns on s2
 Phase: value; AC phase
 Omega: value; AC angular frequency (rad/s)
 Vo: value; DC voltage offset

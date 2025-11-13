@@ -323,7 +323,7 @@ class MT(Bipole):
         if not self.check():
             return ''
 
-        n1, n2 = self.nodes
+        n1, n2 = self.nodes[0:2]
         centre = (n1.pos + n2.pos) * 0.5
 
         s = r'  \draw (%s) node[elmech, %s, rotate=%d] (%s) {};''\n' % (
@@ -649,6 +649,101 @@ class TFtap(TF1):
                           self.scale, dargs=draw_args_str)
 
         s += super(TFtap, self).draw(link=False, **kwargs)
+        return s
+
+
+class TFp1s2(FixedCpt):
+    """Transformer with 1 primary winding and 2 secondary windings"""
+
+    can_invert = True
+    node_pinnames = ('s1+', 's1-', 's2+', 's2-', 'p1+', 'p1-')
+    w = 0.8
+    s = 0.4
+    h = 0.8
+    normal_pins = {'s1+': ('rx', 0.5 * w, 0.5 * s + h),
+                   's1-': ('rx', 0.5 * w, 0.5 * s),
+                   's2+': ('rx', 0.5 * w, -0.5 * s),
+                   's2-': ('rx', 0.5 * w, -0.5 * s - h),
+                   'p1+': ('lx', -0.5 * w, 0.5 * h),
+                   'p1-': ('lx', -0.5 * w, -0.5 * h)}
+    invert_pins = {'s1+': ('rx', -0.5 * w, 0.5 * s + h),
+                   's1-': ('rx', -0.5 * w, 0.5 * s),
+                   's2+': ('rx', -0.5 * w, -0.5 * s),
+                   's2-': ('rx', -0.5 * w, -0.5 * s - h),
+                   'p1+': ('lx', 0.5 * w, 0.5 * h),
+                   'p1-': ('lx', 0.5 * w, -0.5 * h)}
+    o = 0.15
+    x = 0.5 * w + o
+    y = 0.5 * h - o
+    misc = {'pdot1+': (-x, y),
+            'pdot1-': (-x, -y),
+            'sdot1+': (x, 0.5 * s + h - 0.1),
+            'sdot1-': (x, 0.5 * s + 0.1),
+            'sdot2+': (x, -0.5 * s - 0.1),
+            'sdot2-': (x, -0.5 * s -h + 0.1)}
+
+    @property
+    def pins(self):
+
+        if self.invert:
+            return self.invert_pins
+        else:
+            return self.normal_pins
+
+    def draw(self, **kwargs):
+
+        if not self.check():
+            return ''
+
+        n1, n2, n3, n4, n5, n6 = self.nodes[0:6]
+
+        draw_args_str = self.draw_args_str(**kwargs)
+
+        # n5 and n6 delibertely swapped to inductor symmetry
+        s = self.draw_cpt(n5.s, n6.s, cpt='inductor', args='scale=%s' %
+                          self.scale, dargs=draw_args_str)
+        s += self.draw_cpt(n4.s, n3.s, cpt='inductor', args='scale=%s' %
+                          self.scale, dargs=draw_args_str)
+        s += self.draw_cpt(n2.s, n1.s, cpt='inductor', args='scale=%s' %
+                          self.scale, dargs=draw_args_str)
+
+        centre = (n2.pos + n3.pos + n5.pos + n6.pos) * 0.25
+        if not self.nodots:
+
+            dots = {'TFptstt': '+++',
+                    'TFptstb': '++-',
+                    'TFptsbt': '+-+',
+                    'TFptsbb': '+--'}[self.__class__.__name__]
+
+            pdot1 = 'pdot1' + dots[0]
+            sdot1 = 'sdot1' + dots[1]
+            sdot2 = 'sdot2' + dots[2]
+            pdot1_pos = self.tf(centre, self.misc[pdot1])
+            sdot1_pos = self.tf(centre, self.misc[sdot1])
+            sdot2_pos = self.tf(centre, self.misc[sdot2])
+
+            s += r'  \draw (%s) node[circ] {};''\n' % pdot1_pos
+            s += r'  \draw (%s) node[circ] {};''\n' % sdot1_pos
+            s += r'  \draw (%s) node[circ] {};''\n' % sdot2_pos
+
+        core = 'two'
+        if 'core' in self.opts:
+            core = self.opts['core']
+
+        l = 0.9
+        if core in ('two', True):
+            # Draw core with two lines
+            q = self.tf(centre, ((-0.05, -l), (-0.05, l),
+                                 (0.05, -l), (0.05, l)))
+            s += self.draw_path(q[0:2], style='thick')
+            s += self.draw_path(q[2:4], style='thick')
+        elif core == 'one':
+            # Draw core with one line
+            q = self.tf(centre, ((0, -l), (0, l)))
+            s += self.draw_path(q[0:2], style='thick')
+        elif core not in ('', False):
+            raise ValueError('Invalid core attribute value ' + core)
+
         return s
 
 
@@ -1278,7 +1373,7 @@ class FB(Bipole):
         if not self.check():
             return ''
 
-        n1, n2 = self.nodes
+        n1, n2 = self.nodes[0:2]
         centre = (n1.pos + n2.pos) * 0.5
         w = 0.125
         h = 0.2
@@ -1302,7 +1397,7 @@ class CPE(Bipole):
         if not self.check():
             return ''
 
-        n1, n2 = self.nodes
+        n1, n2 = self.nodes[0:2]
         centre = (n1.pos + n2.pos) * 0.5
         w = 0.125
         h = 0.2
@@ -1429,6 +1524,12 @@ defcpt('SWspdt', SPDT, 'SPDT switch', 'spdt')
 
 defcpt('TF', Transformer, 'Transformer', 'ideal transformer')
 defcpt('TFtap', Transformer, 'Transformer', 'ideal transformer with taps')
+
+defcpt('TFptstt', TFp1s2, 'Transformer', 'ideal transformer with 3 windings')
+defcpt('TFptstb', TFp1s2, 'Transformer', 'ideal transformer with 3 windings')
+defcpt('TFptsbt', TFp1s2, 'Transformer', 'ideal transformer with 3 windings')
+defcpt('TFptsbb', TFp1s2, 'Transformer', 'ideal transformer with 3 windings')
+
 # The following two should be deprecated; instead use core attribute
 defcpt('TFcore', Transformer, 'Transformer with core', 'transformer core')
 defcpt('TFtapcore', TFtap, 'Tapped transformer with core', 'transformer core')

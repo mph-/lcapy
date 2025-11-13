@@ -18,6 +18,8 @@ class Bipole(StretchyCpt):
             '-': ('rx', 0.5, 0)}
     misc = {'dot+': (-0.3, -0.1),
             'dot-': (0.3, -0.1)}
+    # FIXME
+    # auxiliary = {'mid': ('c', 0.0, 0.0)}
 
     def label_make(self, **kwargs):
 

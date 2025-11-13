@@ -100,7 +100,7 @@ class Wire(Bipole):
         if not self.check():
             return ''
 
-        n1, n2 = self.nodes
+        n1, n2 = self.nodes[0:2]
 
         # W 1 2; up, arrow=tri, l=V_{dd}
         # W 1 3; right, arrow=otri
