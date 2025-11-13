@@ -146,18 +146,13 @@ class TFp1s2(FixedCpt):
     w = 0.8
     s = 0.4
     h = 0.8
-    normal_pins = {'s1+': ('rx', 0.5 * w, 0.5 * s + h),
-                   's1-': ('rx', 0.5 * w, 0.5 * s),
-                   's2+': ('rx', 0.5 * w, -0.5 * s),
-                   's2-': ('rx', 0.5 * w, -0.5 * s - h),
-                   'p1+': ('lx', -0.5 * w, 0.5 * h),
-                   'p1-': ('lx', -0.5 * w, -0.5 * h)}
-    invert_pins = {'s1+': ('rx', -0.5 * w, 0.5 * s + h),
-                   's1-': ('rx', -0.5 * w, 0.5 * s),
-                   's2+': ('rx', -0.5 * w, -0.5 * s),
-                   's2-': ('rx', -0.5 * w, -0.5 * s - h),
-                   'p1+': ('lx', 0.5 * w, 0.5 * h),
-                   'p1-': ('lx', 0.5 * w, -0.5 * h)}
+    xpins = {'s1+': ('rx', 0.5 * w, 0.5 * s + h),
+             's1-': ('rx', 0.5 * w, 0.5 * s),
+             's2+': ('rx', 0.5 * w, -0.5 * s),
+             's2-': ('rx', 0.5 * w, -0.5 * s - h),
+             'p1+': ('lx', -0.5 * w, 0.5 * h),
+             'p1-': ('lx', -0.5 * w, -0.5 * h)}
+
     o = 0.15
     x = 0.5 * w + o
     y = 0.5 * h - o
@@ -171,10 +166,7 @@ class TFp1s2(FixedCpt):
     @property
     def pins(self):
 
-        if self.invert:
-            return self.invert_pins
-        else:
-            return self.normal_pins
+        return self.tweak_pins(self.xpins)
 
     def draw(self, **kwargs):
 

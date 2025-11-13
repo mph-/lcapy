@@ -577,6 +577,28 @@ class Cpt(object):
             raise ValueError('Unknown pinname %s for `%s`, known pins: %s' %
                              (pinname, self, known_pins))
 
+    def tweak_pins(self, pins):
+
+        invert = self.invert
+        mirror = self.mirror
+        newpins = {}
+
+        for key, parts in pins.items():
+
+            l, x, y = parts
+
+            if mirror:
+                y = -y
+            if invert:
+                x = -x
+                if l[0] == 'l':
+                    l = 'r' + l[1:]
+                elif l[0] == 'r':
+                    l = 'l' + l[1:]
+
+            newpins[key] = (l, x, y)
+        return newpins
+
     def pinpos(self, pinname):
         """Return pinpos by pinname"""
 
