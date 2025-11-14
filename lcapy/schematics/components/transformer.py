@@ -1,3 +1,4 @@
+from warnings import warn
 from .fixedcpt import FixedCpt
 
 

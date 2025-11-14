@@ -92,10 +92,10 @@ SWnc: SWname Np Nm nc [Time=0]; Switch normally closed
 SWno: SWname Np Nm no [Time=0]; Switch normally open
 SWpush: SWname Np Nm push [Time=0]; Pushbutton switch
 SWspdt: SWname Nc Np Nm spdt [Time=0]; SPDT switch
-TF: TFname Np Nm Ncp Ncm [Value=name]; Ideal transformer (works to DC!)
-TFcore: TFname Np Nm Ncp Ncm core [Value=name]; Transformer with core (works to DC!)
-TFtap: TFname Np Nm Ncp Ncm tap Nt Nt [Value=name]; Tapped transformer (works to DC!)
-TFtapcore: TFname Np Nm Ncp Ncm tapcore Nt Nt [Value=name]; Tapped transformer with core (works to DC!)
+TF: TFname Np Nm Ncp Ncm [Ns1=name] [Np1=1]; Ideal transformer (works to DC!)
+TFcore: TFname Np Nm Ncp Ncm core [Ns1=name] [Np1=1]; Transformer with core (works to DC!)
+TFtap: TFname Np Nm Ncp Ncm tap Nt Nt [Ns1=name] [Np1=1]; Tapped transformer (works to DC!)
+TFtapcore: TFname Np Nm Ncp Ncm tapcore Nt Nt [Ns1=name] [Np1=1]; Tapped transformer with core (works to DC!)
 TFptstt: TFname Ns1p Ns1m Ns2p Ns2m Np1p Np1m ptstt [Ns1=1] [Ns2=1] [Np1=1]; Ideal transformer with one primary winding and two secondary windings (works to DC!)
 TFptstb: TFname Ns1p Ns1m Ns2p Ns2m Np1p Np1m ptstb [Ns1=1] [Ns2=1] [Np1=1]; Ideal transformer with one primary winding and two secondary windings (works to DC!)
 TFptsbt: TFname Ns1p Ns1m Ns2p Ns2m Np1p Np1m ptstb [Ns1=1] [Ns2=1] [Np1=1]; Ideal transformer with one primary winding and two secondary windings (works to DC!)
@@ -286,10 +286,10 @@ NRm: node; Gain resistor negative node
 Ns: node; Source node
 Nt: node; Tap node
 Nodelist: nodelist; List of nodes
-Np1: keyword; Number of turns on p1
-Np2: keyword; Number of turns on p2
-Ns1: keyword; Number of turns on s1
-Ns2: keyword; Number of turns on s2
+Np1: value; Number of turns on p1
+Np2: value; Number of turns on p2
+Ns1: value; Number of turns on s1
+Ns2: value; Number of turns on s2
 Phase: value; AC phase
 Omega: value; AC angular frequency (rad/s)
 Vo: value; DC voltage offset

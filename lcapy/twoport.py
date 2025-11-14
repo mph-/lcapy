@@ -3304,34 +3304,40 @@ class Shunt(TwoPortThing):
 class Transformer(TwoPortThing):
     """Transformer voltage gain alpha, current gain 1 / alpha.
     Note, alpha = 1 / a where a is the turns ratio defined as the
-    number of primary turns to the number of secondary turns, a = N_2 / N_1.
+    number of primary turns to the number of secondary turns, a = Np / Ns.
 
     Unlike with IdealTransformer, the parameter alpha can be a function of s.
     """
 
     is_transformer = True
 
-    def __init__(self, alpha=1):
+    def __init__(self, Ns=1, Np=1):
 
+        self.Ns = ConstantDomainExpression(Ns)
+        self.Np = ConstantDomainExpression(Np)
+        alpha = self.Ns / self.Np
         super(Transformer, self).__init__(BMatrix.transformer(alpha))
-        self.alpha = expr(alpha)
-        self.args = (alpha, )
+        self.alpha = alpha
+        self.args = (Ns, Np)
 
 
 class IdealTransformer(TwoPortThing):
     """Ideal transformer voltage gain alpha, current gain 1 / alpha.
     Note, alpha = 1 / a where a is the turns ratio defined as the
-    number of primary turns to the number of secondary turns, a = N_2 / N_1.
+    number of primary turns to the number of secondary turns, a = Np / Ns.
 
     alpha must be a constant, otherwise use Transformer if the
     parameter alpha can be a function of s.
     """
 
-    def __init__(self, alpha=1):
+    def __init__(self, Ns=1, Np=1):
 
+        self.Ns = ConstantDomainExpression(Ns)
+        self.Np = ConstantDomainExpression(Np)
+        alpha = self.Ns / self.Np
         super(IdealTransformer, self).__init__(BMatrix.transformer(alpha))
-        self.alpha = ConstantDomainExpression(alpha)
-        self.args = (alpha, )
+        self.alpha = alpha
+        self.args = (Ns, Np)
 
 
 class TF(Transformer):
