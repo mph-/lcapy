@@ -98,7 +98,7 @@ TFtap: TFname Np Nm Ncp Ncm tap Nt Nt [Ns1=name] [Np1=1]; Tapped transformer (wo
 TFtapcore: TFname Np Nm Ncp Ncm tapcore Nt Nt [Ns1=name] [Np1=1]; Tapped transformer with core (works to DC!)
 TFptstt: TFname Ns1p Ns1m Ns2p Ns2m Np1p Np1m ptstt [Ns1=1] [Ns2=1] [Np1=1]; Ideal transformer with one primary winding and two secondary windings (works to DC!)
 TFptstb: TFname Ns1p Ns1m Ns2p Ns2m Np1p Np1m ptstb [Ns1=1] [Ns2=1] [Np1=1]; Ideal transformer with one primary winding and two secondary windings (works to DC!)
-TFptsbt: TFname Ns1p Ns1m Ns2p Ns2m Np1p Np1m ptstb [Ns1=1] [Ns2=1] [Np1=1]; Ideal transformer with one primary winding and two secondary windings (works to DC!)
+TFptsbt: TFname Ns1p Ns1m Ns2p Ns2m Np1p Np1m ptsbt [Ns1=1] [Ns2=1] [Np1=1]; Ideal transformer with one primary winding and two secondary windings (works to DC!)
 TFptsbb: TFname Ns1p Ns1m Ns2p Ns2m Np1p Np1m ptsbb [Ns1=1] [Ns2=1] [Np1=1]; Ideal transformer with one primary winding and two secondary windings (works to DC!)
 TL: TLname Np Nm Ncp Ncm [Z0=Z0] [Gamma=Gamma(s)] [Length=l]; Transmission line
 TLlossless: TLname Np Nm Ncp Ncm lossless [Z0=Z0] [Speed=c] [Length=l]; Lossless transmission line

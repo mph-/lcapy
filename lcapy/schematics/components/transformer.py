@@ -143,6 +143,7 @@ class TFp1s2(FixedCpt):
     """Transformer with 1 primary winding and 2 secondary windings"""
 
     can_invert = True
+    can_mirror = True
     node_pinnames = ('s1+', 's1-', 's2+', 's2-', 'p1+', 'p1-')
     w = 0.8
     s = 0.4
@@ -179,7 +180,7 @@ class TFp1s2(FixedCpt):
 
         draw_args_str = self.draw_args_str(**kwargs)
         args = 'scale=%s' % self.scale
-        if self.invert:
+        if self.invert ^ self.mirror:
             args = ', '.join([args, 'mirror'])
 
         # n5 and n6 deliberately swapped for inductor symmetry
