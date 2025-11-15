@@ -3344,6 +3344,14 @@ class TF(Transformer):
     pass
 
 
+class TFptst(Transformer):
+    pass
+
+
+class TFptsb(Transformer):
+    pass
+
+
 class IdealGyrator(TwoPortThing):
     """Ideal gyrator with gyration resistance R.
 

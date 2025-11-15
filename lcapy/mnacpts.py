@@ -2015,6 +2015,8 @@ class TF(Cpt):
         # Voltage gain = alpha = 1 / a where a = Np / Ns
         # is the turns-ratio.
         T = self.cpt.alpha.sympy
+        if self.__class__.__name__ == 'TFptsb':
+            T = -T
 
         if n3 >= 0:
             mna._B[n3, m] -= T
@@ -2460,8 +2462,8 @@ defcpt('SWspdt', SW, 'SPDT switch')
 
 defcpt('TFcore', TF, 'Transformer with core')
 defcpt('TFtapcore', TFtap, 'Transformer with core')
-defcpt('TFptst', Misc, 'Transformer (TODO)')
-defcpt('TFptsb', Misc, 'Transformer (TODO)')
+defcpt('TFptst', TF, 'Transformer')
+defcpt('TFptsb', TF, 'Transformer')
 defcpt('TFptstt', Misc, 'Transformer with 1 primary winding and 2 primary windings (TODO)')
 defcpt('TFptstb', Misc, 'Transformer with 1 primary winding and 2 primary windings (TODO)')
 defcpt('TFptsbt', Misc, 'Transformer with 1 primary winding and 2 primary windings (TODO)')
