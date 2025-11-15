@@ -2012,7 +2012,7 @@ class TF(Cpt):
             mna._B[n2, m] -= 1
             mna._C[m, n2] -= 1
 
-        # Voltage gain = alpha = 1 / a where a = N_1 / N_2
+        # Voltage gain = alpha = 1 / a where a = Np / Ns
         # is the turns-ratio.
         T = self.cpt.alpha.sympy
 

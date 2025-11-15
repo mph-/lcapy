@@ -591,7 +591,9 @@ class Cpt(object):
                 y = -y
             if invert:
                 x = -x
-                if l[0] == 'l':
+                if l == '':
+                    pass
+                elif l[0] == 'l':
                     l = 'r' + l[1:]
                 elif l[0] == 'r':
                     l = 'l' + l[1:]

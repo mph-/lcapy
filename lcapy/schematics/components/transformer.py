@@ -147,22 +147,23 @@ class TFp1s2(FixedCpt):
     w = 0.8
     s = 0.4
     h = 0.8
+    hp = 1
     xpins = {'s1+': ('rx', 0.5 * w, 0.5 * s + h),
              's1-': ('rx', 0.5 * w, 0.5 * s),
              's2+': ('rx', 0.5 * w, -0.5 * s),
              's2-': ('rx', 0.5 * w, -0.5 * s - h),
-             'p1+': ('lx', -0.5 * w, 0.5 * h),
-             'p1-': ('lx', -0.5 * w, -0.5 * h)}
+             'p1+': ('lx', -0.5 * w, 0.5 * hp),
+             'p1-': ('lx', -0.5 * w, -0.5 * hp)}
 
     o = 0.15
     x = 0.5 * w + o
     y = 0.5 * h - o
-    misc = {'pdot1+': (-x, y),
-            'pdot1-': (-x, -y),
-            'sdot1+': (x, 0.5 * s + h - 0.1),
-            'sdot1-': (x, 0.5 * s + 0.1),
-            'sdot2+': (x, -0.5 * s - 0.1),
-            'sdot2-': (x, -0.5 * s -h + 0.1)}
+    misc = {'pdot1+': ('', -x, y),
+            'pdot1-': ('', -x, -y),
+            'sdot1+': ('', x, 0.5 * s + h - 0.1),
+            'sdot1-': ('', x, 0.5 * s + 0.1),
+            'sdot2+': ('', x, -0.5 * s - 0.1),
+            'sdot2-': ('', x, -0.5 * s -h + 0.1)}
 
     @property
     def pins(self):
@@ -177,17 +178,22 @@ class TFp1s2(FixedCpt):
         n1, n2, n3, n4, n5, n6 = self.nodes[0:6]
 
         draw_args_str = self.draw_args_str(**kwargs)
+        args = 'scale=%s' % self.scale
+        if self.invert:
+            args = ', '.join([args, 'mirror'])
 
-        # n5 and n6 delibertely swapped to inductor symmetry
-        s = self.draw_cpt(n5.s, n6.s, cpt='inductor', args='scale=%s' %
-                          self.scale, dargs=draw_args_str)
-        s += self.draw_cpt(n4.s, n3.s, cpt='inductor', args='scale=%s' %
-                          self.scale, dargs=draw_args_str)
-        s += self.draw_cpt(n2.s, n1.s, cpt='inductor', args='scale=%s' %
-                          self.scale, dargs=draw_args_str)
+        # n5 and n6 deliberately swapped for inductor symmetry
+        s = self.draw_cpt(n5.s, n6.s, cpt='inductor', args=args,
+                          dargs=draw_args_str)
+        s += self.draw_cpt(n4.s, n3.s, cpt='inductor', args=args,
+                           dargs=draw_args_str)
+        s += self.draw_cpt(n2.s, n1.s, cpt='inductor', args=args,
+                           dargs=draw_args_str)
 
         centre = (n2.pos + n3.pos + n5.pos + n6.pos) * 0.25
         if not self.nodots:
+
+            misc= self.tweak_pins(self.misc)
 
             dots = {'TFptstt': '+++',
                     'TFptstb': '++-',
@@ -197,9 +203,9 @@ class TFp1s2(FixedCpt):
             pdot1 = 'pdot1' + dots[0]
             sdot1 = 'sdot1' + dots[1]
             sdot2 = 'sdot2' + dots[2]
-            pdot1_pos = self.tf(centre, self.misc[pdot1])
-            sdot1_pos = self.tf(centre, self.misc[sdot1])
-            sdot2_pos = self.tf(centre, self.misc[sdot2])
+            pdot1_pos = self.tf(centre, misc[pdot1][1:3])
+            sdot1_pos = self.tf(centre, misc[sdot1][1:3])
+            sdot2_pos = self.tf(centre, misc[sdot2][1:3])
 
             s += r'  \draw (%s) node[circ] {};''\n' % pdot1_pos
             s += r'  \draw (%s) node[circ] {};''\n' % sdot1_pos
