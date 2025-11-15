@@ -753,6 +753,36 @@ Cores are drawn with the `core` attribute.  This can be `True`, 'one', or 'two'.
 .. image:: examples/schematics/TFtapcore1.png
    :width: 3cm
 
+Here are some examples of three winding transformers.  The position of the dots is specified by a keyword.  This can be ptstt, ptstb, ptsbt, or ptsbb.  Here p denotes primary, s denotes secondary, t denotes top, and b denotes bottom.  Other configurations can be achieved with the mirror and/or invert attributes.
+
+
+.. literalinclude:: examples/schematics/TF3w.sch
+
+
+.. image:: examples/schematics/TF3w.png
+   :width: 10cm
+
+
+.. literalinclude:: examples/schematics/TF3wi.sch
+
+
+.. image:: examples/schematics/TF3wi.png
+   :width: 10cm
+
+
+.. literalinclude:: examples/schematics/TF3wm.sch
+
+
+.. image:: examples/schematics/TF3wm.png
+   :width: 10cm
+
+
+.. literalinclude:: examples/schematics/TF3wmi.sch
+
+
+.. image:: examples/schematics/TF3wmi.png
+   :width: 10cm
+
 
 Transistors
 -----------
