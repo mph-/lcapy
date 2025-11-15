@@ -31,7 +31,7 @@ from .schematics.components.opamp import Eopamp, Efdopamp, Einamp, Eamp
 from .schematics.components.opamp import Uopamp, Ufdopamp, Uinamp, Uisoamp
 from .schematics.components.adc import Uadc
 from .schematics.components.dac import Udac
-from .schematics.components.transformer import Transformer, TFtap, TFp1s2, K
+from .schematics.components.transformer import Transformer, TFtap, TFp1s1, TFp1s2, K
 
 
 module = sys.modules[__name__]
@@ -1260,6 +1260,8 @@ defcpt('SWspdt', SPDT, 'SPDT switch', 'spdt')
 defcpt('TF', Transformer, 'Transformer', 'ideal transformer')
 defcpt('TFtap', Transformer, 'Transformer', 'ideal transformer with taps')
 
+defcpt('TFptst', TFp1s1, 'Transformer', 'ideal transformer')
+defcpt('TFptsb', TFp1s1, 'Transformer', 'ideal transformer')
 defcpt('TFptstt', TFp1s2, 'Transformer', 'ideal transformer with 3 windings')
 defcpt('TFptstb', TFp1s2, 'Transformer', 'ideal transformer with 3 windings')
 defcpt('TFptsbt', TFp1s2, 'Transformer', 'ideal transformer with 3 windings')

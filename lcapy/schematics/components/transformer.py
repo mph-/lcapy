@@ -232,6 +232,86 @@ class TFp1s2(FixedCpt):
 
         return s
 
+class TFp1s1(FixedCpt):
+    """Transformer with 1 primary winding and 1 secondary winding"""
+
+    can_invert = True
+    can_mirror = True
+    node_pinnames = ('s1+', 's1-', 'p1+', 'p1-')
+    w = 0.8
+    h = 1
+    xpins = {'s1+': ('rx', 0.5 * w, 0.5 * h),
+             's1-': ('rx', 0.5 * w, -0.5 * h),
+             'p1+': ('lx', -0.5 * w, 0.5 * h),
+             'p1-': ('lx', -0.5 * w, -0.5 * h)}
+
+    o = 0.15
+    x = 0.5 * w + o
+    y = 0.5 * h - o
+    misc = {'pdot1+': ('', -x, y),
+            'pdot1-': ('', -x, -y),
+            'sdot1+': ('', x, y),
+            'sdot1-': ('', x, -y)}
+
+    @property
+    def pins(self):
+
+        return self.tweak_pins(self.xpins)
+
+    def draw(self, **kwargs):
+
+        if not self.check():
+            return ''
+
+        n1, n2, n3, n4 = self.nodes[0:4]
+
+        draw_args_str = self.draw_args_str(**kwargs)
+        args = 'scale=%s' % self.scale
+        if self.invert ^ self.mirror:
+            args = ', '.join([args, 'mirror'])
+
+        # n3 and n4 deliberately swapped for inductor symmetry
+        s = self.draw_cpt(n3.s, n4.s, cpt='inductor', args=args,
+                          dargs=draw_args_str)
+        s += self.draw_cpt(n2.s, n1.s, cpt='inductor', args=args,
+                           dargs=draw_args_str)
+
+        centre = (n1.pos + n2.pos + n3.pos + n4.pos) * 0.25
+        if not self.nodots:
+
+            misc= self.tweak_pins(self.misc)
+
+            dots = {'TFptst': '++',
+                    'TFptsb': '+-'}[self.__class__.__name__]
+
+            pdot1 = 'pdot1' + dots[0]
+            sdot1 = 'sdot1' + dots[1]
+            pdot1_pos = self.tf(centre, misc[pdot1][1:3])
+            sdot1_pos = self.tf(centre, misc[sdot1][1:3])
+
+            s += r'  \draw (%s) node[circ] {};''\n' % pdot1_pos
+            s += r'  \draw (%s) node[circ] {};''\n' % sdot1_pos
+
+        core = 'two'
+        if 'core' in self.opts:
+            core = self.opts['core']
+
+        l = 0.3
+        if core in ('two', True):
+            # Draw core with two lines
+            q = self.tf(centre, ((-0.05, -l), (-0.05, l),
+                                 (0.05, -l), (0.05, l)))
+            s += self.draw_path(q[0:2], style='thick')
+            s += self.draw_path(q[2:4], style='thick')
+        elif core == 'one':
+            # Draw core with one line
+            q = self.tf(centre, ((0, -l), (0, l)))
+            s += self.draw_path(q[0:2], style='thick')
+        elif core not in ('', False):
+            raise ValueError('Invalid core attribute value ' + core)
+
+        return s
+
 
 class K(TF1):
     """Mutual coupling"""

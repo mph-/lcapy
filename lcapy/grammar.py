@@ -96,6 +96,8 @@ TF: TFname Np Nm Ncp Ncm [Ns1=name] [Np1=1]; Ideal transformer (works to DC!)
 TFcore: TFname Np Nm Ncp Ncm core [Ns1=name] [Np1=1]; Transformer with core (works to DC!)
 TFtap: TFname Np Nm Ncp Ncm tap Nt Nt [Ns1=name] [Np1=1]; Tapped transformer (works to DC!)
 TFtapcore: TFname Np Nm Ncp Ncm tapcore Nt Nt [Ns1=name] [Np1=1]; Tapped transformer with core (works to DC!)
+TFptst: TFname Ns1p Ns1m Np1p Np1m ptst [Ns1=1] [Np1=1]; Ideal transformer (works to DC!)
+TFptsb: TFname Ns1p Ns1m Np1p Np1m ptsb [Ns1=1] [Np1=1]; Ideal transformer (works to DC!)
 TFptstt: TFname Ns1p Ns1m Ns2p Ns2m Np1p Np1m ptstt [Ns1=1] [Ns2=1] [Np1=1]; Ideal transformer with one primary winding and two secondary windings (works to DC!)
 TFptstb: TFname Ns1p Ns1m Ns2p Ns2m Np1p Np1m ptstb [Ns1=1] [Ns2=1] [Np1=1]; Ideal transformer with one primary winding and two secondary windings (works to DC!)
 TFptsbt: TFname Ns1p Ns1m Ns2p Ns2m Np1p Np1m ptsbt [Ns1=1] [Ns2=1] [Np1=1]; Ideal transformer with one primary winding and two secondary windings (works to DC!)
@@ -243,6 +245,8 @@ xnor: keyword;
 dff: keyword; D flip-flop
 jkff: keyword; JK flip-flop
 rslatch: keyword; RS latch
+ptst: keyword;
+ptsb: keyword;
 ptstt: keyword;
 ptstb: keyword;
 ptsbt: keyword;
