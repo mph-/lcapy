@@ -12,7 +12,6 @@ class TF(FixedCpt):
         if 'core' in self.opts:
             core = self.opts['core']
 
-        l = 0.9
         if core in ('two', True):
             # Draw core with two lines
             q = self.tf(centre, ((-0.05, -l), (-0.05, l),
