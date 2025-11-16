@@ -2,7 +2,33 @@ from warnings import warn
 from .fixedcpt import FixedCpt
 
 
-class TF1(FixedCpt):
+class TF(FixedCpt):
+
+    def draw_core(self, centre, l):
+
+        s = ''
+
+        core = 'two'
+        if 'core' in self.opts:
+            core = self.opts['core']
+
+        l = 0.9
+        if core in ('two', True):
+            # Draw core with two lines
+            q = self.tf(centre, ((-0.05, -l), (-0.05, l),
+                                 (0.05, -l), (0.05, l)))
+            s += self.draw_path(q[0:2], style='thick')
+            s += self.draw_path(q[2:4], style='thick')
+        elif core == 'one':
+            # Draw core with one line
+            q = self.tf(centre, ((0, -l), (0, l)))
+            s += self.draw_path(q[0:2], style='thick')
+        elif core not in ('', False):
+            raise ValueError('Invalid core attribute value ' + core)
+        return s
+
+
+class TF1(TF):
     """Transformer"""
 
     can_scale = True
@@ -13,20 +39,22 @@ class TF1(FixedCpt):
             's-': ('rx', w, 0),
             'p+': ('lx', 0, 1),
             'p-': ('lx', 0, 0)}
-    misc = {'pdot+': (0.1 - 0.5 * w, 0.34),
-            'sdot+': (0.5 * w - 0.1, 0.34),
-            'pdot-': (0.1 - 0.5 * w, -0.34),
-            'sdot-': (0.5 * w - 0.1, -0.34),
-            'link': (0, 0.15),
-            'label': (0, 0.48)}
+    misc = {'pdot+': ('', 0.1 - 0.5 * w, 0.34),
+            'sdot+': ('', 0.5 * w - 0.1, 0.34),
+            'pdot-': ('', 0.1 - 0.5 * w, -0.34),
+            'sdot-': ('', 0.5 * w - 0.1, -0.34),
+            'link': ('', 0, 0.15),
+            'label': ('', 0, 0.48)}
 
     def draw(self, link=True, **kwargs):
 
         if not self.check():
             return ''
 
+        misc= self.tweak_pins(self.misc)
+
         centre = self.midpoint(self.nodes[0], self.nodes[3])
-        label_pos = self.tf(centre, self.misc['label'])
+        label_pos = self.tf(centre, misc['label'][1:3])
 
         if self.nodots:
             dots = ''
@@ -42,8 +70,8 @@ class TF1(FixedCpt):
         if dots != '':
             pdot = 'pdot' + dots[0]
             sdot = 'sdot' + dots[1]
-            pdot_pos = self.tf(centre, self.misc[pdot])
-            sdot_pos = self.tf(centre, self.misc[sdot])
+            pdot_pos = self.tf(centre, misc[pdot][1:3])
+            sdot_pos = self.tf(centre, misc[sdot][1:3])
 
             s += r'  \draw (%s) node[circ] {};''\n' % pdot_pos
             s += r'  \draw (%s) node[circ] {};''\n' % sdot_pos
@@ -54,7 +82,7 @@ class TF1(FixedCpt):
         if link:
             # TODO: allow for rotation
             width = (sdot_pos - pdot_pos).x
-            link_pos = self.tf(centre, self.misc['link'])
+            link_pos = self.tf(centre, misc['link'][1:3])
 
             s += r'  \draw[<->] ([shift=(45:%.2f)]%s) arc(45:135:%.2f);''\n' % (
                 width / 2, link_pos, width / 2)
@@ -139,7 +167,7 @@ class TFtap(TF1):
         return s
 
 
-class TFp1s2(FixedCpt):
+class TFp1s2(TF):
     """Transformer with 1 primary winding and 2 secondary windings"""
 
     can_invert = True
@@ -147,24 +175,23 @@ class TFp1s2(FixedCpt):
     node_pinnames = ('s1+', 's1-', 's2+', 's2-', 'p1+', 'p1-')
     w = 0.8
     s = 0.4
-    h = 0.8
-    hp = 1
+    h = 1.0
     xpins = {'s1+': ('rx', 0.5 * w, 0.5 * s + h),
              's1-': ('rx', 0.5 * w, 0.5 * s),
              's2+': ('rx', 0.5 * w, -0.5 * s),
              's2-': ('rx', 0.5 * w, -0.5 * s - h),
-             'p1+': ('lx', -0.5 * w, 0.5 * hp),
-             'p1-': ('lx', -0.5 * w, -0.5 * hp)}
+             'p1+': ('lx', -0.5 * w, 0.5 * h),
+             'p1-': ('lx', -0.5 * w, -0.5 * h)}
 
-    o = 0.15
-    x = 0.5 * w + o
-    y = 0.5 * h - o
-    misc = {'pdot1+': ('', -x, y),
-            'pdot1-': ('', -x, -y),
-            'sdot1+': ('', x, 0.5 * s + h - 0.1),
-            'sdot1-': ('', x, 0.5 * s + 0.1),
-            'sdot2+': ('', x, -0.5 * s - 0.1),
-            'sdot2-': ('', x, -0.5 * s -h + 0.1)}
+    o = 0.25
+    x = 0.5 * w + 0.15
+    misc = {'sdot1+': ('', x, 0.5 * s + h - o),
+            'sdot1-': ('', x, 0.5 * s + o),
+            'sdot2+': ('', x, -0.5 * s - o),
+            'sdot2-': ('', x, -0.5 * s - h + o),
+            'pdot1+': ('', -x, 0.5 * h - o),
+            'pdot1-': ('', -x, -0.5 * h + o)}
+
 
     @property
     def pins(self):
@@ -212,27 +239,10 @@ class TFp1s2(FixedCpt):
             s += r'  \draw (%s) node[circ] {};''\n' % sdot1_pos
             s += r'  \draw (%s) node[circ] {};''\n' % sdot2_pos
 
-        core = 'two'
-        if 'core' in self.opts:
-            core = self.opts['core']
-
-        l = 0.9
-        if core in ('two', True):
-            # Draw core with two lines
-            q = self.tf(centre, ((-0.05, -l), (-0.05, l),
-                                 (0.05, -l), (0.05, l)))
-            s += self.draw_path(q[0:2], style='thick')
-            s += self.draw_path(q[2:4], style='thick')
-        elif core == 'one':
-            # Draw core with one line
-            q = self.tf(centre, ((0, -l), (0, l)))
-            s += self.draw_path(q[0:2], style='thick')
-        elif core not in ('', False):
-            raise ValueError('Invalid core attribute value ' + core)
-
+        s += self.draw_core(centre, 0.9)
         return s
 
-class TFp1s1(FixedCpt):
+class TFp1s1(TF):
     """Transformer with 1 primary winding and 1 secondary winding"""
 
     can_invert = True
@@ -292,24 +302,7 @@ class TFp1s1(FixedCpt):
             s += r'  \draw (%s) node[circ] {};''\n' % pdot1_pos
             s += r'  \draw (%s) node[circ] {};''\n' % sdot1_pos
 
-        core = 'two'
-        if 'core' in self.opts:
-            core = self.opts['core']
-
-        l = 0.3
-        if core in ('two', True):
-            # Draw core with two lines
-            q = self.tf(centre, ((-0.05, -l), (-0.05, l),
-                                 (0.05, -l), (0.05, l)))
-            s += self.draw_path(q[0:2], style='thick')
-            s += self.draw_path(q[2:4], style='thick')
-        elif core == 'one':
-            # Draw core with one line
-            q = self.tf(centre, ((0, -l), (0, l)))
-            s += self.draw_path(q[0:2], style='thick')
-        elif core not in ('', False):
-            raise ValueError('Invalid core attribute value ' + core)
-
+        s += self.draw_core(centre, 0.3)
         return s
 
 
