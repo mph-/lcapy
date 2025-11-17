@@ -1,7 +1,7 @@
 """
 This module supports simple linear two-port networks.
 
-Copyright 2014--2024 Michael Hayes, UCECE
+Copyright 2014--2025 Michael Hayes, UCECE
 """
 
 from __future__ import division
@@ -3316,6 +3316,9 @@ class Transformer(TwoPortThing):
         self.Ns = ConstantDomainExpression(Ns)
         self.Np = ConstantDomainExpression(Np)
         alpha = self.Ns / self.Np
+        if self.__class__.__name__ == 'TFptsb':
+            alpha = -alpha
+
         super(Transformer, self).__init__(BMatrix.transformer(alpha))
         self.alpha = alpha
         self.args = (Ns, Np)
@@ -3335,6 +3338,7 @@ class IdealTransformer(TwoPortThing):
         self.Ns = ConstantDomainExpression(Ns)
         self.Np = ConstantDomainExpression(Np)
         alpha = self.Ns / self.Np
+
         super(IdealTransformer, self).__init__(BMatrix.transformer(alpha))
         self.alpha = alpha
         self.args = (Ns, Np)

@@ -123,9 +123,12 @@ class Cpt(ImmittanceMixin):
             try:
                 newclass = getattr(lcapy.twoport, classname)
             except:
-                self._cpt = lcapy.oneport.Dummy()
-                self.check()
-                return
+                try:
+                    newclass = getattr(lcapy.threeport, classname)
+                except:
+                    self._cpt = lcapy.oneport.Dummy()
+                    self.check()
+                    return
 
         self._cpt = newclass(*args)
         self.check()
@@ -2005,25 +2008,22 @@ class TF(Cpt):
         n1, n2, n3, n4 = mna._cpt_node_indexes(self)
         m = mna._cpt_branch_index(self)
 
+        # Voltage gain = alpha = 1 / a where a = Np / Ns
+        # is the turns-ratio.
+        alpha = self.cpt.alpha.sympy
+
         if n1 >= 0:
             mna._B[n1, m] += 1
             mna._C[m, n1] += 1
         if n2 >= 0:
             mna._B[n2, m] -= 1
             mna._C[m, n2] -= 1
-
-        # Voltage gain = alpha = 1 / a where a = Np / Ns
-        # is the turns-ratio.
-        T = self.cpt.alpha.sympy
-        if self.__class__.__name__ == 'TFptsb':
-            T = -T
-
         if n3 >= 0:
-            mna._B[n3, m] -= T
-            mna._C[m, n3] -= T
+            mna._B[n3, m] += alpha
+            mna._C[m, n3] -= alpha
         if n4 >= 0:
-            mna._B[n4, m] += T
-            mna._C[m, n4] += T
+            mna._B[n4, m] -= alpha
+            mna._C[m, n4] += alpha
 
 
 class TFtap(Cpt):
@@ -2032,6 +2032,48 @@ class TFtap(Cpt):
     def _stamp(self, mna):
         raise NotImplementedError(
             'Cannot analyse tapped transformer %s' % self)
+
+
+class TF3(Cpt):
+    """Transformer with 3 windings"""
+
+    need_branch_current = True
+    need_extra_branch_current = True
+    is_transformer = True
+
+    def _stamp(self, mna):
+
+        n1, n2, n3, n4, n5, n6 = mna._cpt_node_indexes(self)
+        m1 = mna._branch_index(self.name + 'X')
+        m2 = mna._cpt_branch_index(self)
+
+        # Ns2 / Np
+        alpha1 = self.cpt.alpha1.sympy
+        # Ns1 / Np
+        alpha2 = self.cpt.alpha2.sympy
+
+        if n1 >= 0:
+            mna._B[n1, m2] += 1
+            mna._C[m1, n1] += 1
+        if n2 >= 0:
+            mna._B[n2, m2] -= 1
+            mna._C[m1, n2] -= 1
+        if n3 >= 0:
+            mna._B[n3, m1] += 1
+            mna._C[m2, n3] += 1
+        if n4 >= 0:
+            mna._B[n4, m1] -= 1
+            mna._C[m2, n4] -= 1
+        if n5 >= 0:
+            mna._B[n5, m1] = alpha1
+            mna._B[n5, m2] = alpha1
+            mna._C[m1, n5] -= alpha1
+            mna._C[m2, n5] -= alpha2
+        if n6 >= 0:
+            mna._B[n6, m1] -= alpha1
+            mna._B[n6, m2] -= alpha1
+            mna._C[m1, n6] += alpha2
+            mna._C[m2, n6] += alpha2
 
 
 class TL(Cpt):
@@ -2464,10 +2506,10 @@ defcpt('TFcore', TF, 'Transformer with core')
 defcpt('TFtapcore', TFtap, 'Transformer with core')
 defcpt('TFptst', TF, 'Transformer')
 defcpt('TFptsb', TF, 'Transformer')
-defcpt('TFptstt', Misc, 'Transformer with 1 primary winding and 2 primary windings (TODO)')
-defcpt('TFptstb', Misc, 'Transformer with 1 primary winding and 2 primary windings (TODO)')
-defcpt('TFptsbt', Misc, 'Transformer with 1 primary winding and 2 primary windings (TODO)')
-defcpt('TFptsbb', Misc, 'Transformer with 1 primary winding and 2 primary windings (TODO)')
+defcpt('TFptstt', TF3, 'Transformer with 1 primary winding and 2 primary windings (TODO)')
+defcpt('TFptstb', TF3, 'Transformer with 1 primary winding and 2 primary windings (TODO)')
+defcpt('TFptsbt', TF3, 'Transformer with 1 primary winding and 2 primary windings (TODO)')
+defcpt('TFptsbb', TF3, 'Transformer with 1 primary winding and 2 primary windings (TODO)')
 
 defcpt('TLlossless', TL, 'Lossless transmission line')
 defcpt('TVtriode', NonLinear, 'Triode')

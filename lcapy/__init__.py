@@ -62,8 +62,9 @@ from .impedance import impedance
 from .admittance import admittance
 from .current import current, noisecurrent, phasorcurrent
 from .voltage import voltage, noisevoltage, phasorvoltage
-from .twoport import *
 from .oneport import *
+from .twoport import *
+from .threeport import *
 from .circuit import *
 from .symbols import *
 from .nodalanalysis import *

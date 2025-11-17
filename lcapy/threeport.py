@@ -2,18 +2,20 @@
 This module supports simple linear three-port networks.  It is
 experimental and needs a rethink.
 
-Copyright 2014--2021 Michael Hayes, UCECE
+Copyright 2014--2025 Michael Hayes, UCECE
 
 """
 
 from __future__ import division
 from warnings import warn
 import sympy as sym
-from .sexpr import LaplaceDomainVoltage, LaplaceDomainTransferFunction
-from .sexpr import LaplaceDomainCurrent
+from .exprclasses import LaplaceDomainVoltage, LaplaceDomainTransferFunction
+from .exprclasses import LaplaceDomainCurrent
 from .smatrix import LaplaceDomainVoltageMatrix, LaplaceDomainCurrentMatrix
 from .smatrix import LaplaceDomainImpedanceMatrix, LaplaceDomainAdmittanceMatrix
+from .exprclasses import ConstantDomainExpression
 from .cexpr import cexpr
+from .network import Network
 from .oneport import OnePort
 from .twoport import YMatrix, ZMatrix, TwoPortZModel, Series, TwoPort
 
@@ -380,3 +382,45 @@ class Opamp(ThreePort):
                       (A * Ra, -A * Rb, Ro)))
         super(Opamp, self).__init__(Z)
         self.args = (Rd, Ro, A, Rp, Rm)
+
+
+class Transformer3(ThreePort, Network):
+    """Ideal transformer with three windings.
+
+    """
+
+    def __init__(self, Ns2=1, Ns1=1, Np=1):
+
+        self.Ns2 = ConstantDomainExpression(Ns2)
+        self.Ns1 = ConstantDomainExpression(Ns1)
+        self.Np = ConstantDomainExpression(Np)
+
+        alpha2 = self.Ns2 / self.Np
+        alpha1 = self.Ns1 / self.Np
+        if self.__class__.__name__ == 'TFptstb':
+            alpha1 = -alpha1
+        elif self.__class__.__name__ == 'TFptsbt':
+            alpha2 = -alpha2
+        elif self.__class__.__name__ == 'TFptsbb':
+            alpha2 = -alpha2
+            alpha1 = -alpha1
+
+        self.alpha1 = alpha1
+        self.alpha2 = alpha2
+        self.args = (Ns2, Ns1, Np)
+
+
+class TFptstt(Transformer3):
+    pass
+
+
+class TFptstb(Transformer3):
+    pass
+
+
+class TFptsbt(Transformer3):
+    pass
+
+
+class TFptsbb(Transformer3):
+    pass
