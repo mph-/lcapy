@@ -1,5 +1,6 @@
 \documentclass[a4paper, 12pt]{article}
 \usepackage{amsmath}
+\usepackage{circuitikz}
 
 \setlength{\oddsidemargin}{0mm}
 \setlength{\evensidemargin}{-14mm}
@@ -51,7 +52,7 @@ where the vector of unknowns, $\vec{X}$, includes the currents,
 $\vec{J}$, through the independent voltage sources,
 %
 \begin{equation}
-  \mat{X} =   
+  \mat{X} =
   \begin{bmatrix}
     \vec{V} \\ \vec{J}
   \end{bmatrix}.
@@ -61,7 +62,7 @@ The vector of knowns, $\vec{Z}$, includes the voltages, $\vec{E}$,
 produced by the independent voltage sources,
 %
 \begin{equation}
-    \mat{Z} =   
+    \mat{Z} =
   \begin{bmatrix}
     \vec{I} \\ \vec{E}
   \end{bmatrix},
@@ -177,7 +178,7 @@ capacitor and thus has a smaller matrix to solve:
 \end{bmatrix}.
 \end{equation}
 %
-This comes from \refeqn{C_I1} and \refeqn{C_I2} with 
+This comes from \refeqn{C_I1} and \refeqn{C_I2} with
 %
 \begin{equation}
     I_C  =  \encp{V_1 - V_1'}sC - C v_0.
@@ -231,7 +232,7 @@ Here
 and
 %
 \begin{equation}
- V_1 - V_1' = s L I_L - L i_0, 
+ V_1 - V_1' = s L I_L - L i_0,
 \end{equation}
 %
 yielding
@@ -274,7 +275,7 @@ Let's now consider two uncoupled inductors.  The two formulations are:
     \frac{1}{sL_1} & -\frac{1}{sL_1} &   & \\
    -\frac{1}{sL_1} & \frac{1}{sL_1}  &   & \\
    & &  \frac{1}{sL_2} & -\frac{1}{sL_2}   \\
-   & & -\frac{1}{sL_2} & \frac{1}{sL_2}  
+   & & -\frac{1}{sL_2} & \frac{1}{sL_2}
   \end{bmatrix}
   \begin{bmatrix}
     V_1 \\ V_1' \\ V_2 \\ V_2'
@@ -325,7 +326,7 @@ gives
     \frac{L_2}{sD} & -\frac{L_2}{sD} & -\frac{M}{sD}  & \frac{M}{sD} \\
    -\frac{L_2}{sD} & \frac{L_2}{sD}  & \frac{M}{sD}  & -\frac{M}{sD} \\
   -\frac{M}{sD} & \frac{M}{sD} &  \frac{L_1}{sD} & -\frac{L_1}{sD}   \\
-   \frac{M}{sD} & -\frac{M}{sD} & -\frac{L_1}{sD} & \frac{L_1}{sD}  
+   \frac{M}{sD} & -\frac{M}{sD} & -\frac{L_1}{sD} & \frac{L_1}{sD}
   \end{bmatrix}
   \begin{bmatrix}
     V_1 \\ V_1' \\ V_2 \\ V_2'
@@ -343,7 +344,7 @@ with a stamp describing the coupling, using
 %
 \begin{eqnarray}
   I'_{L1} & = & \frac{M^2\encp{V_1 - V_1'}}{sL_1 D} - \frac{M\encp{V_2 - V_2'}}{sD}, \\
-  I'_{L2} & = & \frac{M^2\encp{V_2 - V_2'}}{sL_2 D} - \frac{M\encp{V_1 - V_1'}}{sD}.  
+  I'_{L2} & = & \frac{M^2\encp{V_2 - V_2'}}{sL_2 D} - \frac{M\encp{V_1 - V_1'}}{sD}.
 \end{eqnarray}
 %
 These equations produce the stamp:
@@ -353,7 +354,7 @@ These equations produce the stamp:
     \frac{M^2}{sL_1 D} & -\frac{M^2}{sL_1 D} & -\frac{M}{sD}  & \frac{M}{sD} \\
    -\frac{M^2}{sL_1 D} & \frac{M^2}{sL_1 D}  & \frac{M}{sD}  & -\frac{M}{sD} \\
   -\frac{M}{sD} & \frac{M}{sD} &  \frac{M^2}{sL_2 D} & -\frac{M^2}{sL_2 D}   \\
-   \frac{M}{sD} & -\frac{M}{sD} & -\frac{M^2}{sL_2 D} & \frac{M^2}{sL_2 D}  
+   \frac{M}{sD} & -\frac{M}{sD} & -\frac{M^2}{sL_2 D} & \frac{M^2}{sL_2 D}
   \end{bmatrix}
   \begin{bmatrix}
     V_1 \\ V_1' \\ V_2 \\ V_2'
@@ -399,7 +400,7 @@ This can be achieved by summing the stamp \refeqn{L1L2_stamp1} with
      &  &  &    &    & \\
      &  &  &    &    & \\
      &  &  &    &    & -sM\\
-     &  &  &    & -sM & 
+     &  &  &    & -sM &
   \end{bmatrix}
   \begin{bmatrix}
     V_1 \\ V_1' \\ V_2 \\ V_2' \\ I_{L1} \\ I_{L2}
@@ -409,6 +410,114 @@ This can be achieved by summing the stamp \refeqn{L1L2_stamp1} with
   0 \\ 0 \\ 0 \\ 0 \\ 0 \\ 0
 \end{bmatrix}.
 \end{equation}
+
+
+\subsection{Two-winding transformer stamp}
+
+\begin{figure}[!h]
+  \input{figs/TFptst.pgf}
+  \caption{Two-winding ideal transformer.}
+  \end{figure}
+
+The current equations are
+%
+\begin{align}
+  I_1 = & \; I_s, \\
+  I_2 = & \; -I_s, \\
+  I_3 = & \; \frac{T_s}{T_p} I_s, \\
+  I_4 = & \; -\frac{T_s}{T_p} I_s, \\
+\end{align}
+%
+and the voltage equation is
+%
+\begin{align}
+  V_1 - V_2 = & \; \frac{T_s}{T_p} \encp{V_3 - V_4}.
+\end{align}
+%
+This can be expressed as
+%
+\begin{align}
+  V_1 - V_2 - \frac{T_s}{T_p} V_3 + \frac{T_s}{T_p} V_4 = & \; 0, \\
+\end{align}
+
+The resultant stamp is
+%
+\begin{equation}
+  \begin{bmatrix}
+     &  &  &  & 1    \\
+     &  &  &  & -1    \\
+     &  &  &  & -\alpha  \\
+     &  &  &  & \alpha    \\
+    1 & -1 & \alpha & -\alpha  & 0
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ V_2 \\ V_3 \\ V_4 \\ I_s \\
+  \end{bmatrix}
+=
+\begin{bmatrix}
+  I_1 \\ I_2 \\ I_3 \\ I_4 \\ 0
+\end{bmatrix},
+\end{equation}
+%
+where $\alpha = T_s / T_p$.
+
+
+\subsection{Three-winding transformer stamp}
+
+\begin{figure}[!h]
+  \input{figs/TFptstt.pgf}
+  \caption{Three-winding ideal transformer.}
+\end{figure}
+
+The current equations are
+%
+\begin{align}
+  I_1 = & \; I_{s2}, \\
+  I_2 = & \; -I_{s2}, \\
+  I_3 = & \; I_{s1}, \\
+  I_4 = & \; -I_{s1}, \\
+  I_5 = & \; \frac{T_{s2}}{T_p} I_{s2} + \frac{T_{s1}}{T_p} I_{s1}, \\
+  I_6 = & \; -\frac{T_{s2}}{T_p} I_{s2} - \frac{T_{s1}}{T_p} I_{s1},
+\end{align}
+%
+and the voltage equations are
+%
+\begin{align}
+  V_1 - V_2 = & \; \frac{T_{s2}}{T_p} \encp{V_5 - V_6}, \\
+  V_3 - V_4 = & \; \frac{T_{s1}}{T_p} \encp{V_5 - V_6}.
+\end{align}
+%
+These can be expressed as
+%
+\begin{align}
+  V_1 - V_2 - \frac{T_{s2}}{T_p} V_5 + \frac{T_{s2}}{T_p} V_6 = & \; 0, \\
+  V_3 - V_4 - \frac{T_{s1}}{T_p} V_5 + \frac{T_{s1}}{T_p} V_6 = & \; 0.
+\end{align}
+
+The resultant stamp is
+%
+\begin{equation}
+  \begin{bmatrix}
+    &  &  &  &  &  & 0  & 1    \\
+    &  &  &  &  &  & 0  & -1    \\
+    &  &  &  &  &  & 1  & 0    \\
+    &  &  &  &  &  & -1 & 0    \\
+    &  &  &  &  &  & \alpha_1 & \alpha_2  \\
+    &  &  &  &  &  & -\alpha_1 & -\alpha_2  \\
+  1 & -1 & 0 &  0 & -\alpha_1 & \alpha_1 & 0 & 0 \\
+  0 &  0 & 1 & -1 & -\alpha_2 & \alpha_2 & 0 & 0 \\
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_1 \\ V_2 \\ V_3 \\ V_4 \\ V_5 \\ V_6 \\ I_{s1} \\ I_{s2}
+  \end{bmatrix}
+=
+\begin{bmatrix}
+  I_1 \\ I_2 \\ I_3 \\ I_4 \\ I_5 \\ I_6 \\ 0 \\ 0
+\end{bmatrix},
+\end{equation}
+%
+where $\alpha_1 =  T_{s1} / T_p$ and $\alpha_2 =  T_{s2} / T_p$.
+
 
 
 \subsection{Z-parameter two-port stamp}
@@ -460,7 +569,7 @@ The A-parameter two-port stamp is
 %
 \begin{equation}
   \begin{bmatrix}
-   &   &  A_{21} & -A_{21} & A_{22} \\ 
+   &   &  A_{21} & -A_{21} & A_{22} \\
    &   & -A_{21} & A_{21}  & -A_{22} \\
    &   &         &        & -1    \\
    &   &         &        &  1    \\
@@ -523,11 +632,11 @@ Y_{21} & -Y_{21} & Y_{22} & -Y_{22} \\
 %% Y_{21} & Y_{22}
 %%   \end{bmatrix}
 %%   \begin{bmatrix}
-%%     V_1 \\ V_2 
+%%     V_1 \\ V_2
 %%   \end{bmatrix}
 %% =
 %% \begin{bmatrix}
-%%   I_1 \\ I_2 
+%%   I_1 \\ I_2
 %% \end{bmatrix}.
 %% \end{equation}
 %
@@ -581,7 +690,7 @@ current controlled voltage source and voltage source.
 
 Solving for $I_2$ from \refeqn{mut_V1} gives
 %
-\begin{equation} 
+\begin{equation}
   I_2(s) = \frac{1}{M s} \left(- I_1(s) L_1 s + L_1 i_1(0^{-}) + M i_2(0^{-}) + V_1(s)\right)
 \label{eqn:mut_I2V1}
 \end{equation}
@@ -689,10 +798,10 @@ transformer equations simplify to
 \label{eqn:mut_transformer_oc}
 \end{eqnarray}
 %
-By inspection, 
+By inspection,
 %
 \begin{equation}
-v_2(t) = a v_1(t),  
+v_2(t) = a v_1(t),
 \end{equation}
 %
 and thus the open-circuit secondary voltage is $a$ times the primary.
@@ -762,11 +871,11 @@ In matrix form:
   \end{bmatrix}
   \begin{bmatrix}
     V_2 \\ -I_2
-  \end{bmatrix}  
+  \end{bmatrix}
   +
   \begin{bmatrix}
     V_{1a} \\ I_{1a}
-  \end{bmatrix}. 
+  \end{bmatrix}.
 \end{equation}
 %
 Inverting gives
@@ -777,12 +886,12 @@ Inverting gives
   \end{bmatrix}
   =
   \mat{A}^{-1}
-  \begin{bmatrix}  
+  \begin{bmatrix}
     V_1 \\ I_1
   \end{bmatrix}
   -
   \mat{A}^{-1}
-  \begin{bmatrix}  
+  \begin{bmatrix}
     V_{1a} \\ I_{1a}
   \end{bmatrix},
 \end{equation}
@@ -795,11 +904,11 @@ which is equivalent to
   \end{bmatrix}
   =
   \mat{B}
-  \begin{bmatrix}  
+  \begin{bmatrix}
     V_1 \\ I_1
   \end{bmatrix}
   +
-  \begin{bmatrix}  
+  \begin{bmatrix}
     V_{2b} \\ I_{2b}
   \end{bmatrix}.
 \end{equation}
@@ -836,7 +945,7 @@ In matrix form:
   \end{bmatrix}
   \begin{bmatrix}
     V_1 \\ I_1
-  \end{bmatrix}  
+  \end{bmatrix}
   +
   \begin{bmatrix}
     V_{2b} \\ I_{2b}
@@ -940,12 +1049,12 @@ Inverting \refeqn{Bmat} gives
   \end{bmatrix}
   =
   \mat{B}^{-1}
-  \begin{bmatrix}  
+  \begin{bmatrix}
     V_2 \\ -I_2
   \end{bmatrix}
   -
   \mat{B}^{-1}
-  \begin{bmatrix}  
+  \begin{bmatrix}
     V_{2b} \\ I_{2b}
   \end{bmatrix},
 \end{equation}
@@ -958,11 +1067,11 @@ which is equivalent to
   \end{bmatrix}
   =
   \mat{A}
-  \begin{bmatrix}  
+  \begin{bmatrix}
     V_2 \\ -I_2
   \end{bmatrix}
   +
-  \begin{bmatrix}  
+  \begin{bmatrix}
     V_{1a} \\ I_{1a}
   \end{bmatrix}.
 \end{equation}
@@ -1117,7 +1226,7 @@ Equating \refeqn{ZV1} to \refeqn{BV1Z} gives
 %% %
 %% \begin{eqnarray}
 %%   0 & = & A_{21} V_2 + I_{1a},\\
-%%   0 & = & -B_{21} V_2 - I_{2b},\\ 
+%%   0 & = & -B_{21} V_2 - I_{2b},\\
 %%   V_1 & = & V_{1z}, \\
 %%   V_2 & = & V_{2z},
 %% \end{eqnarray}
@@ -1191,11 +1300,11 @@ In matrix form:
   \end{bmatrix}
   \begin{bmatrix}
     I_1 \\ I_2
-  \end{bmatrix}  
+  \end{bmatrix}
   +
   \begin{bmatrix}
     V_{1z} \\ I_{1z}
-  \end{bmatrix}. 
+  \end{bmatrix}.
 \end{equation}
 %
 Inverting gives
@@ -1206,12 +1315,12 @@ Inverting gives
   \end{bmatrix}
   =
   \mat{Z}^{-1}
-  \begin{bmatrix}  
+  \begin{bmatrix}
     V_1 \\ I_1
   \end{bmatrix}
   -
   \mat{Z}^{-1}
-  \begin{bmatrix}  
+  \begin{bmatrix}
     V_{1z} \\ I_{2z}
   \end{bmatrix},
 \end{equation}
@@ -1224,11 +1333,11 @@ which is equivalent to
   \end{bmatrix}
   =
   \mat{Y}
-  \begin{bmatrix}  
+  \begin{bmatrix}
     V_1 \\ V_2
   \end{bmatrix}
   +
-  \begin{bmatrix}  
+  \begin{bmatrix}
     I_{1y} \\ I_{2y}
   \end{bmatrix}.
 \end{equation}
@@ -1368,4 +1477,3 @@ matrices:
 
 
 \end{document}
-
