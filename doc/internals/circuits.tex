@@ -114,15 +114,125 @@ currents through voltage sources:
 
 \subsection{Component stamps}
 
-In the following, one-port components are specified where $I_1$ is the
-current flowing into one node and $I_1'$ is the current flowing into
-the other node.
+In the following, one-port components are specified where $I_k$ is the
+current flowing into the positive node and $I_l$ is the current flowing into
+the negative node.
+
+
+\subsection{Resistor stamp}
+
+\begin{figure}[!h]
+  \centering
+  \input{figs/R-stamp.pgf}
+  \caption{Resistor defined as R k l.}
+  \end{figure}
+
+From the equations:
+%
+\begin{eqnarray}
+\label{eqn:C_I1}
+  I_k & = & I_R, \\
+  I_l & = & -I_R,
+\label{eqn:C_I2}
+\end{eqnarray}
+%
+with
+%
+\begin{equation}
+    V_k - V_l  =  R I_R,
+\end{equation}
+%
+then
+%
+\begin{equation}
+      V_k - V_l - R I_R = 0,
+\end{equation}
+%
+and thus the stamp for a resistor is
+%
+\begin{equation}
+  \begin{bmatrix}
+     &  & 1 \\
+     &  & -1 \\
+1 & -1 & -R
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_k \\ V_l \\ I_R
+  \end{bmatrix}
+=
+\begin{bmatrix}
+  I_k \\ I_l \\ 0
+\end{bmatrix}.
+\end{equation}
+
+
+Alternatively, if the current is not required
+%
+\begin{equation}
+  \begin{bmatrix}
+\frac{1}{R}     &  -\frac{1}{R} \\
+-\frac{1}{R}    &  \frac{1}{R}
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_k \\ V_l
+  \end{bmatrix}
+=
+\begin{bmatrix}
+  I_R \\ -I_R
+\end{bmatrix}.
+\end{equation}
+%
+The current can subsequently be found from
+%
+\begin{equation}
+I = \frac{V_k - V_l}{R}.
+\end{equation}
+
+
+\subsection{Independent voltage source stamp}
+
+\begin{figure}[!h]
+  \centering
+  \input{figs/V-stamp.pgf}
+  \caption{Voltage source defined as V k l.}
+  \end{figure}
+
+The equations for a voltage source are
+%
+\begin{align}
+  I_k = & \; I_V, \\
+  I_l = & \; -I_V, \\
+  V_k - V_l = & \; V,
+\end{align}
+%
+and so the stamp is
+%
+\begin{equation}
+  \begin{bmatrix}
+     &  & 1 \\
+     &  & -1 \\
+1 & -1 & 0
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_k \\ V_l \\ I_R
+  \end{bmatrix}
+=
+\begin{bmatrix}
+  I_k \\ I_l \\ V
+\end{bmatrix}.
+\end{equation}
 
 
 \subsection{Capacitor stamps}
 
+\begin{figure}[!h]
+  \centering
+  \input{figs/C-stamp.pgf}
+  \caption{Capacitor defined as C k l.}
+  \end{figure}
+
 There are two possible stamps for a capacitor, $C$.  In the first,
-the current through the capacitor $I_C=I_1=-I_1'$ is required to be solved,
+the current through the capacitor $I_C=I_k=-I_l$ is required to be solved,
 %
 \begin{equation}
   \begin{bmatrix}
@@ -131,7 +241,7 @@ the current through the capacitor $I_C=I_1=-I_1'$ is required to be solved,
 1 & -1 & -\frac{1}{sC}
   \end{bmatrix}
   \begin{bmatrix}
-    V_1 \\ V_1' \\ I_C
+    V_k \\ V_l \\ I_C
   \end{bmatrix}
 =
 \begin{bmatrix}
@@ -143,21 +253,21 @@ This comes from the equations:
 %
 \begin{eqnarray}
 \label{eqn:C_I1}
-  I_1 & = & I_C, \\
-  I_1' & = & -I_C,
+  I_k & = & I_C, \\
+  I_l & = & -I_C,
 \label{eqn:C_I2}
 \end{eqnarray}
 %
 with
 %
 \begin{equation}
-    V_1 - V_1'  =  \frac{I_C}{sC} + \frac{v_0}{s},
+    V_k - V_l  =  \frac{I_C}{sC} + \frac{v_0}{s},
 \end{equation}
 %
 and thus
 %
 \begin{equation}
-    V_1 - V_1' - \frac{I_C}{sC} =  \frac{v_0}{s}.
+    V_k - V_l - \frac{I_C}{sC} =  \frac{v_0}{s}.
 \end{equation}
 
 
@@ -170,7 +280,7 @@ capacitor and thus has a smaller matrix to solve:
    -sC & sC
   \end{bmatrix}
   \begin{bmatrix}
-    V_1 \\ V_1'
+    V_k \\ V_l
   \end{bmatrix}
 =
 \begin{bmatrix}
@@ -181,11 +291,17 @@ capacitor and thus has a smaller matrix to solve:
 This comes from \refeqn{C_I1} and \refeqn{C_I2} with
 %
 \begin{equation}
-    I_C  =  \encp{V_1 - V_1'}sC - C v_0.
+    I_C  =  \encp{V_k - V_l}sC - C v_0.
 \end{equation}
 
 
 \subsection{Inductor stamps}
+
+\begin{figure}[!h]
+  \centering
+  \input{figs/L-stamp.pgf}
+  \caption{Inductor defined as L k l.}
+  \end{figure}
 
 The two MNA formulations for an inductor are
 %
@@ -196,7 +312,7 @@ The two MNA formulations for an inductor are
 1 & -1 & -sL
   \end{bmatrix}
   \begin{bmatrix}
-    V_1 \\ V_1' \\ I_L
+    V_k \\ V_l \\ I_L
   \end{bmatrix}
 =
 \begin{bmatrix}
@@ -212,7 +328,7 @@ and
    -\frac{1}{sL} & \frac{1}{sL}
   \end{bmatrix}
   \begin{bmatrix}
-    V_1 \\ V_1'
+    V_k \\ V_l
   \end{bmatrix}
 =
 \begin{bmatrix}
@@ -224,28 +340,28 @@ Here
 %
 \begin{eqnarray}
 \label{eqn:L_I1}
-  I_1 & = & I_L, \\
-  I_1' & = & -I_L,
+  I_k & = & I_L, \\
+  I_l & = & -I_L,
 \label{eqn:L_I2}
 \end{eqnarray}
 %
 and
 %
 \begin{equation}
- V_1 - V_1' = s L I_L - L i_0,
+ V_k - V_l = s L I_L - L i_0,
 \end{equation}
 %
 yielding
 %
 \begin{equation}
-  V_1 - V_1' - s L I_L = -L i_0.
+  V_k - V_l - s L I_L = -L i_0.
 \end{equation}
 %
 For the second formulation, $I_L$ is substituted in \refeqn{L_I1} and
 \refeqn{L_I2} with
 %
 \begin{equation}
-  I_L = \frac{V_1 - V_1'}{sL} + \frac{i_0}{s}.
+  I_L = \frac{V_k - V_l}{sL} + \frac{i_0}{s}.
 \end{equation}
 
 Let's now consider two uncoupled inductors.  The two formulations are:
@@ -260,7 +376,7 @@ Let's now consider two uncoupled inductors.  The two formulations are:
      &  & 1 & -1 &  & -sL_2
   \end{bmatrix}
   \begin{bmatrix}
-    V_1 \\ V_1' \\ V_2 \\ V_2' \\ I_{L1} \\ I_{L2}
+    V_k \\ V_l \\ V_m \\ V_n \\ I_{L1} \\ I_{L2}
   \end{bmatrix}
 =
 \begin{bmatrix}
@@ -278,7 +394,7 @@ Let's now consider two uncoupled inductors.  The two formulations are:
    & & -\frac{1}{sL_2} & \frac{1}{sL_2}
   \end{bmatrix}
   \begin{bmatrix}
-    V_1 \\ V_1' \\ V_2 \\ V_2'
+    V_k \\ V_l \\ V_m \\ V_n
   \end{bmatrix}
 =
 \begin{bmatrix}
@@ -294,17 +410,17 @@ Let's now consider two uncoupled inductors.  The two formulations are:
 If there is mutual inductance $M$, the system of equations is
 %
 \begin{eqnarray}
-  I_1 & = & I_{L1}, \\
-  I_1' & = & -I_{L1}, \\
-  I_2 & = & I_{L2}, \\
-  I_2' & = & -I_{L2},
+  I_k & = & I_{L1}, \\
+  I_l & = & -I_{L1}, \\
+  I_m & = & I_{L2}, \\
+  I_n & = & -I_{L2},
 \end{eqnarray}
 %
 with
 %
 \begin{eqnarray}
-  I_{L1} & = & \frac{L_2\encp{V_1 - V_1'} - M\encp{V_2 - V_2'}}{s\encp{L_1 L_2 - M^2}} - \frac{i_{10}}{s}, \\
-  I_{L2} & = & \frac{L_1\encp{V_2 - V_2'} - M\encp{V_1 - V_1'}}{s\encp{L_1 L_2 - M^2}} - \frac{i_{20}}{s}.
+  I_{L1} & = & \frac{L_2\encp{V_k - V_l} - M\encp{V_m - V_n}}{s\encp{L_1 L_2 - M^2}} - \frac{i_{10}}{s}, \\
+  I_{L2} & = & \frac{L_1\encp{V_m - V_n} - M\encp{V_k - V_l}}{s\encp{L_1 L_2 - M^2}} - \frac{i_{20}}{s}.
 \end{eqnarray}
 %
 Defining,
@@ -316,8 +432,8 @@ Defining,
 gives
 %
 \begin{eqnarray}
-  I_{L1} & = & \frac{L_2\encp{V_1 - V_1'} - M\encp{V_2 - V_2'}}{sD} - \frac{i_{10}}{s}, \\
-  I_{L2} & = & \frac{L_1\encp{V_2 - V_2'} - M\encp{V_1 - V_1'}}{sD} - \frac{i_{20}}{s}.
+  I_{L1} & = & \frac{L_2\encp{V_k - V_l} - M\encp{V_m - V_n}}{sD} - \frac{i_{10}}{s}, \\
+  I_{L2} & = & \frac{L_1\encp{V_m - V_n} - M\encp{V_k - V_l}}{sD} - \frac{i_{20}}{s}.
 \end{eqnarray}
 %
 
@@ -329,7 +445,7 @@ gives
    \frac{M}{sD} & -\frac{M}{sD} & -\frac{L_1}{sD} & \frac{L_1}{sD}
   \end{bmatrix}
   \begin{bmatrix}
-    V_1 \\ V_1' \\ V_2 \\ V_2'
+    V_k \\ V_l \\ V_m \\ V_n
   \end{bmatrix}
 =
 \begin{bmatrix}
@@ -343,8 +459,8 @@ Alternatively, the stamps for the uncoupled inductors can be augmented
 with a stamp describing the coupling, using
 %
 \begin{eqnarray}
-  I'_{L1} & = & \frac{M^2\encp{V_1 - V_1'}}{sL_1 D} - \frac{M\encp{V_2 - V_2'}}{sD}, \\
-  I'_{L2} & = & \frac{M^2\encp{V_2 - V_2'}}{sL_2 D} - \frac{M\encp{V_1 - V_1'}}{sD}.
+  I_{L1} & = & \frac{M^2\encp{V_k - V_l}}{sL_1 D} - \frac{M\encp{V_m - V_n}}{sD}, \\
+  I_{L2} & = & \frac{M^2\encp{V_m - V_n}}{sL_2 D} - \frac{M\encp{V_k - V_l}}{sD}.
 \end{eqnarray}
 %
 These equations produce the stamp:
@@ -357,7 +473,7 @@ These equations produce the stamp:
    \frac{M}{sD} & -\frac{M}{sD} & -\frac{M^2}{sL_2 D} & \frac{M^2}{sL_2 D}
   \end{bmatrix}
   \begin{bmatrix}
-    V_1 \\ V_1' \\ V_2 \\ V_2'
+    V_k \\ V_l \\ V_m \\ V_n
   \end{bmatrix}
 =
 \begin{bmatrix}
@@ -383,7 +499,7 @@ inductors,
      &  & 1 & -1 & -sM & -sL_2
   \end{bmatrix}
   \begin{bmatrix}
-    V_1 \\ V_1' \\ V_2 \\ V_2' \\ I_{L1} \\ I_{L2}
+    V_k \\ V_l \\ V_m \\ V_n \\ I_{L1} \\ I_{L2}
   \end{bmatrix}
 =
 \begin{bmatrix}
@@ -403,7 +519,7 @@ This can be achieved by summing the stamp \refeqn{L1L2_stamp1} with
      &  &  &    & -sM &
   \end{bmatrix}
   \begin{bmatrix}
-    V_1 \\ V_1' \\ V_2 \\ V_2' \\ I_{L1} \\ I_{L2}
+    V_k \\ V_l \\ V_m \\ V_n \\ I_{L1} \\ I_{L2}
   \end{bmatrix}
 =
 \begin{bmatrix}
@@ -416,29 +532,29 @@ This can be achieved by summing the stamp \refeqn{L1L2_stamp1} with
 
 \begin{figure}[!h]
   \centering
-  \input{figs/TFptst.pgf}
-  \caption{Two-winding ideal transformer.}
+  \input{figs/TFptst-stamp.pgf}
+  \caption{Two-winding ideal transformed defined by TF k l m n.}
   \end{figure}
 
 The current equations are
 %
 \begin{align}
-  I_1 = & \; -I_s, \\
-  I_2 = & \; I_s, \\
-  I_3 = & \; \frac{T_s}{T_p} I_s, \\
-  I_4 = & \; -\frac{T_s}{T_p} I_s, \\
+  I_k = & \; -I_S, \\
+  I_l = & \; I_S, \\
+  I_m = & \; \frac{T_s}{T_p} I_S, \\
+  I_n = & \; -\frac{T_s}{T_p} I_S, \\
 \end{align}
 %
 and the voltage equation is
 %
 \begin{align}
-  V_1 - V_2 = & \; \frac{T_s}{T_p} \encp{V_3 - V_4}.
+  V_k - V_l = & \; \frac{T_s}{T_p} \encp{V_m - V_n}.
 \end{align}
 %
 This can be expressed as
 %
 \begin{align}
-  V_1 - V_2 - \frac{T_s}{T_p} V_3 + \frac{T_s}{T_p} V_4 = & \; 0, \\
+  V_k - V_l - \frac{T_s}{T_p} V_m + \frac{T_s}{T_p} V_n = & \; 0, \\
 \end{align}
 
 The resultant stamp is
@@ -452,11 +568,11 @@ The resultant stamp is
     1 & -1 & \alpha & -\alpha  & 0
   \end{bmatrix}
   \begin{bmatrix}
-    V_1 \\ V_2 \\ V_3 \\ V_4 \\ I_s \\
+    V_k \\ V_l \\ V_m \\ V_n \\ I_S \\
   \end{bmatrix}
 =
 \begin{bmatrix}
-  I_1 \\ I_2 \\ I_3 \\ I_4 \\ 0
+  I_k \\ I_l \\ I_m \\ I_n \\ 0
 \end{bmatrix},
 \end{equation}
 %
@@ -467,58 +583,58 @@ where $\alpha = T_s / T_p$.
 
 \begin{figure}[!h]
   \centering
-  \input{figs/TFptstt.pgf}
-  \caption{Three-winding ideal transformer.}
+  \input{figs/TFptstt-stamp.pgf}
+  \caption{Three-winding ideal transformer defined by TF k l m n p q.}
 \end{figure}
 
 The current equations are
 %
 \begin{align}
-  I_1 = & \; -I_{s2}, \\
-  I_2 = & \; I_{s2}, \\
-  I_3 = & \; -I_{s1}, \\
-  I_4 = & \; I_{s1}, \\
-  I_5 = & \; \frac{T_{s2}}{T_p} I_{s2} + \frac{T_{s1}}{T_p} I_{s1}, \\
-  I_6 = & \; -\frac{T_{s2}}{T_p} I_{s2} - \frac{T_{s1}}{T_p} I_{s1},
+  I_k = & \; -I_{S2}, \\
+  I_l = & \; I_{S2}, \\
+  I_m = & \; -I_{S1}, \\
+  I_n = & \; I_{S1}, \\
+  I_p = & \; \frac{T_{S2}}{T_p} I_{S2} + \frac{T_{S1}}{T_p} I_{S1}, \\
+  I_q = & \; -\frac{T_{S2}}{T_p} I_{S2} - \frac{T_{S1}}{T_p} I_{S1},
 \end{align}
 %
 and the voltage equations are
 %
 \begin{align}
-  V_1 - V_2 = & \; \frac{T_{s2}}{T_p} \encp{V_5 - V_6}, \\
-  V_3 - V_4 = & \; \frac{T_{s1}}{T_p} \encp{V_5 - V_6}.
+  V_k - V_l = & \; \frac{T_{S2}}{T_p} \encp{V_p - V_q}, \\
+  V_m - V_n = & \; \frac{T_{S1}}{T_p} \encp{V_p - V_q}.
 \end{align}
 %
 These can be expressed as
 %
 \begin{align}
-  V_1 - V_2 - \frac{T_{s2}}{T_p} V_5 + \frac{T_{s2}}{T_p} V_6 = & \; 0, \\
-  V_3 - V_4 - \frac{T_{s1}}{T_p} V_5 + \frac{T_{s1}}{T_p} V_6 = & \; 0.
+  V_k - V_l - \frac{T_{S2}}{T_p} V_p + \frac{T_{S2}}{T_p} V_q = & \; 0, \\
+  V_m - V_n - \frac{T_{S1}}{T_p} V_p + \frac{T_{S1}}{T_p} V_q = & \; 0.
 \end{align}
 
 The resultant stamp is
 %
 \begin{equation}
   \begin{bmatrix}
-    &  &  &  &  &  & 0  & -1    \\
+    &  &  &  &  &  & 0  & -1   \\
     &  &  &  &  &  & 0  & 1    \\
-    &  &  &  &  &  & -1  & 0    \\
-    &  &  &  &  &  & 1 & 0    \\
-    &  &  &  &  &  & \alpha_1 & \alpha_2  \\
+    &  &  &  &  &  & -1  & 0   \\
+    &  &  &  &  &  & 1 & 0     \\
+    &  &  &  &  &  & \alpha_1  & \alpha_2  \\
     &  &  &  &  &  & -\alpha_1 & -\alpha_2  \\
-  1 & -1 & 0 &  0 & -\alpha_1 & \alpha_1 & 0 & 0 \\
-  0 &  0 & 1 & -1 & -\alpha_2 & \alpha_2 & 0 & 0 \\
+  1 & -1 & 0 &  0 & -\alpha_1  & \alpha_1 & 0 & 0 \\
+  0 &  0 & 1 & -1 & -\alpha_l  & \alpha_l & 0 & 0 \\
   \end{bmatrix}
   \begin{bmatrix}
-    V_1 \\ V_2 \\ V_3 \\ V_4 \\ V_5 \\ V_6 \\ I_{s1} \\ I_{s2}
+    V_k \\ V_l \\ V_m \\ V_n \\ V_p \\ V_q \\ I_{S1} \\ I_{S2}
   \end{bmatrix}
 =
 \begin{bmatrix}
-  I_1 \\ I_2 \\ I_3 \\ I_4 \\ I_5 \\ I_6 \\ 0 \\ 0
+  I_k \\ I_l \\ I_m \\ I_n \\ I_p \\ I_q \\ 0 \\ 0
 \end{bmatrix},
 \end{equation}
 %
-where $\alpha_1 =  T_{s1} / T_p$ and $\alpha_2 =  T_{s2} / T_p$.
+where $\alpha_1 =  T_{S1} / T_p$ and $\alpha_l =  T_{S2} / T_p$.
 
 
 
@@ -532,19 +648,19 @@ The Z-parameter two-port stamp is
    &   &   &   & -1 &    \\
    &   &   &   &    &  1 \\
    &   &   &   &    &  -1 \\
-   -1& 1 &   &    & Z_{11} & Z_{12} \\
-    &   & -1 & 1 & Z_{21} & Z_{22} \\
+ -1& 1 &   &    & Z_{11} & Z_{12} \\
+   &   & -1 & 1 & Z_{21} & Z_{22} \\
   \end{bmatrix}
   \begin{bmatrix}
-    V_1 \\ V_1' \\ V_1' \\ V_2' \\ I_{Z_{11}} \\ I_{Z_{22}}
+    V_k \\ V_l \\ V_m \\ V_n \\ I_{Z_{11}} \\ I_{Z_{22}}
   \end{bmatrix}
 =
 \begin{bmatrix}
-  I_1 \\ I_1' \\ I_2 \\ I_2' \\ 0 \\ 0
+  I_k \\ I_l \\ I_m \\ I_n \\ 0 \\ 0
 \end{bmatrix}.
 \end{equation}
 %
-%% When $V_1' = V_2' = 0$, this simplifies to
+%% When $V_l = V_n = 0$, this simplifies to
 %% %
 %% \begin{equation}
 %%   \begin{bmatrix}
@@ -554,11 +670,11 @@ The Z-parameter two-port stamp is
 %%       & -1 & Z_{21} & Z_{22} \\
 %%   \end{bmatrix}
 %%   \begin{bmatrix}
-%%     V_1 \\ V_2 \\ I_{Z_{11}} \\ I_{Z_{22}}
+%%     V_k \\ V_l \\ I_{Z_{11}} \\ I_{Z_{22}}
 %%   \end{bmatrix}
 %% =
 %% \begin{bmatrix}
-%%   I_1 \\ I_2 \\ 0 \\ 0
+%%   I_k \\ I_l \\ 0 \\ 0
 %% \end{bmatrix}.
 %% \end{equation}
 %% %
@@ -578,15 +694,15 @@ The A-parameter two-port stamp is
    -1 & 1  & A_{11} & -A_{11} & A_{12} \\
   \end{bmatrix}
   \begin{bmatrix}
-    V_1 \\ V_1' \\ V_2 \\ V_2' \\ I_{A_{22}}
+    V_k \\ V_l \\ V_m \\ V_n \\ I_{A_{22}}
   \end{bmatrix}
 =
 \begin{bmatrix}
-  I_1 \\ I_1' \\ I_2 \\ I_2' \\ 0
+  I_k \\ I_l \\ I_m \\ I_n \\ 0
 \end{bmatrix}.
 \end{equation}
 %
-%% When $V_1' = V_2' = 0$, this simplifies to
+%% When $V_l = V_n = 0$, this simplifies to
 %% %
 %% \begin{equation}
 %%   \begin{bmatrix}
@@ -595,11 +711,11 @@ The A-parameter two-port stamp is
 %%       -1 & A_{11} & A_{12} \\
 %%   \end{bmatrix}
 %%   \begin{bmatrix}
-%%     V_1 \\ V_2 \\ I_{A_{22}}
+%%     V_k \\ V_l \\ I_{A_{22}}
 %%   \end{bmatrix}
 %% =
 %% \begin{bmatrix}
-%%   I_1 \\ I_2 \\ 0
+%%   I_k \\ I_l \\ 0
 %% \end{bmatrix}.
 %% \end{equation}
 %
@@ -618,15 +734,15 @@ Y_{21} & -Y_{21} & Y_{22} & -Y_{22} \\
 -Y_{21} & Y_{21} & -Y_{22} & Y_{22} \\
   \end{bmatrix}
   \begin{bmatrix}
-    V_1 \\ V_1' \\ V_2 \\ V_2'
+    V_k \\ V_l \\ V_m \\ V_n
   \end{bmatrix}
 =
 \begin{bmatrix}
-  I_1 \\ I_1' \\ I_2 \\ I_2'
+  I_k \\ I_l \\ I_m \\ I_n
 \end{bmatrix}.
 \end{equation}
 %
-%% When $V_1' = V_2' = 0$, this simplifies to
+%% When $V_l = V_n = 0$, this simplifies to
 %% %
 %% \begin{equation}
 %%   \begin{bmatrix}
@@ -634,11 +750,11 @@ Y_{21} & -Y_{21} & Y_{22} & -Y_{22} \\
 %% Y_{21} & Y_{22}
 %%   \end{bmatrix}
 %%   \begin{bmatrix}
-%%     V_1 \\ V_2
+%%     V_k \\ V_l
 %%   \end{bmatrix}
 %% =
 %% \begin{bmatrix}
-%%   I_1 \\ I_2
+%%   I_k \\ I_l
 %% \end{bmatrix}.
 %% \end{equation}
 %
@@ -658,71 +774,71 @@ Y_{21} & -Y_{21} & Y_{22} & -Y_{22} \\
 
 
 If $i_1$ is the current flowing into the dot of inductor $L_1$ and
-$i_2$ is the current flowing into the dot of coupled inductor $L_2$,
+$i_l$ is the current flowing into the dot of coupled inductor $L_l$,
 %
 then
 %
 \begin{eqnarray}
- v_1(t) & = & L_1 \udby{t} i_1(t) + M \udby{t} i_2(t),\\
- v_2(t) & = & M \udby{t} i_1(t) + L_2 \udby{t} i_2(t),
+ v_1(t) & = & L_1 \udby{t} i_1(t) + M \udby{t} i_l(t),\\
+ v_l(t) & = & M \udby{t} i_1(t) + L_l \udby{t} i_l(t),
 \label{eqn:mut}
 \end{eqnarray}
 %
 where the mutual inductance $M$ is
 %
 \begin{equation}
-  M = k \sqrt{L_1 L_2},
+  M = k \sqrt{L_1 L_l},
 \end{equation}
 %
 for a coupling coefficient $0 \le k \le 1$.  Note an ideal transformer
-requires $L_1 = L_2 = \infty$ and $k=1$; it also works at DC.
+requires $L_1 = L_l = \infty$ and $k=1$; it also works at DC.
 
 Taking Laplace transforms of \refeqn{mut} yields,
 %
 \begin{eqnarray}
 \label{eqn:mut_V1}
- V_1(s) & = & s L_1 I_1(s) + s M I_2(s) - L i_1(0^{-}) - M i_2(0^{-}), \\
- V_2(s) & = & s M I_1(s) + s L_2 I_2(s) - M i_1(0^{-}) - L i_2(0^{-}),
+ V_k(s) & = & s L_1 I_k(s) + s M I_l(s) - L i_1(0^{-}) - M i_l(0^{-}), \\
+ V_l(s) & = & s M I_k(s) + s L_l I_l(s) - M i_1(0^{-}) - L i_l(0^{-}),
 \label{eqn:mut_V2}
 \end{eqnarray}
 %
-where $i_1(0^{-})$ and $i_2(0^{-})$ are the initial currents.
+where $i_1(0^{-})$ and $i_l(0^{-})$ are the initial currents.
 Thus each inductor can be modelled by an impedance in series with a
 current controlled voltage source and voltage source.
 
-Solving for $I_2$ from \refeqn{mut_V1} gives
+Solving for $I_l$ from \refeqn{mut_V1} gives
 %
 \begin{equation}
-  I_2(s) = \frac{1}{M s} \left(- I_1(s) L_1 s + L_1 i_1(0^{-}) + M i_2(0^{-}) + V_1(s)\right)
+  I_l(s) = \frac{1}{M s} \left(- I_k(s) L_1 s + L_1 i_1(0^{-}) + M i_l(0^{-}) + V_k(s)\right)
 \label{eqn:mut_I2V1}
 \end{equation}
 %
-and solving for $I_2$ from \refeqn{mut_V2} gives
+and solving for $I_l$ from \refeqn{mut_V2} gives
 %
 \begin{equation}
-I_2(s) = \frac{1}{L_2 s} \left(- I_1(s) M s + L_2 i_2(0^{-}) + M i_1(0^{-}) + V_2(s)\right).
+I_l(s) = \frac{1}{L_l s} \left(- I_k(s) M s + L_l i_l(0^{-}) + M i_1(0^{-}) + V_l(s)\right).
 \label{eqn:mut_I2V2}
 \end{equation}
 %
 Equating \refeqn{mut_I2V1} and \refeqn{mut_I2V2} yields,
 %
 \begin{equation}
-I_1(s) =\frac{L_2 V_1(s) - M V_2(s)}{s \left(L_1 L_2 - M^{2}\right)}
+I_k(s) =\frac{L_l V_k(s) - M V_l(s)}{s \left(L_1 L_l - M^{2}\right)}
 - \frac{i_1(0^{-})}{s}
  \end{equation}
 %
 Similarly,
 %
 \begin{equation}
-I_2(s) =\frac{L_1 V_2(s) - M V_1(s)}{s \left(L_1 L_2 - M^{2}\right)}
-- \frac{i_2(0^{-})}{s}
+I_l(s) =\frac{L_1 V_l(s) - M V_k(s)}{s \left(L_1 L_l - M^{2}\right)}
+- \frac{i_l(0^{-})}{s}
  \end{equation}
 
 
 Substituting for $M$ gives
 %
 \begin{equation}
-I_1(s) =\frac{L_2 V_1(s) - k\sqrt{L_1 L_2} V_2(s)}{s L_1 L_2 \left(1 - k^2\right)}
+I_k(s) =\frac{L_l V_k(s) - k\sqrt{L_1 L_l} V_l(s)}{s L_1 L_l \left(1 - k^2\right)}
 - \frac{i_1(0^{-})}{s}.
  \end{equation}
 
@@ -731,13 +847,13 @@ I_1(s) =\frac{L_2 V_1(s) - k\sqrt{L_1 L_2} V_2(s)}{s L_1 L_2 \left(1 - k^2\right
 If $k=0$ then $M=0$ and so
 %
 \begin{equation}
-I_1(s) = \frac{V_1(s)}{s L_1} - \frac{i_1(0^{-})}{s}
+I_k(s) = \frac{V_k(s)}{s L_1} - \frac{i_1(0^{-})}{s}
  \end{equation}
 %
 and
 %
 \begin{equation}
-I_2(s) = \frac{V_2(s)}{s L_2} - \frac{i_2(0^{-})}{s}
+I_l(s) = \frac{V_l(s)}{s L_l} - \frac{i_l(0^{-})}{s}
 \end{equation}
 %
 as expected for independent inductors.
@@ -746,27 +862,27 @@ as expected for independent inductors.
 The additional current due to the mutual coupling is
 %
 \begin{eqnarray}
-  I_1'(s) & = & I_1(s) - \encp{\frac{V_1(s)}{s L_1} - \frac{i_1(0^{-})}{s}}, \\
-          & = & \frac{M^2}{s L_1 \encp{L_1 L_2 - M^2}} V_1 - \frac{M}{s \encp{L_1 L_2 - M^2}} V_2.
+  I_l(s) & = & I_k(s) - \encp{\frac{V_k(s)}{s L_1} - \frac{i_1(0^{-})}{s}}, \\
+          & = & \frac{M^2}{s L_1 \encp{L_1 L_l - M^2}} V_k - \frac{M}{s \encp{L_1 L_l - M^2}} V_l.
 \end{eqnarray}
 %
 In terms of the coupling coefficient, $k$, this can be expressed as
 %
 \begin{equation}
-  I_1'(s) = \frac{k^2}{s L_1 \encp{1-k^2}} V_1 - \frac{k}{s\sqrt{L_1 L_2}\encp{1-k^2}}V_2.
+  I_l(s) = \frac{k^2}{s L_1 \encp{1-k^2}} V_k - \frac{k}{s\sqrt{L_1 L_l}\encp{1-k^2}}V_l.
 \end{equation}
 
 
 If a transformer has a turns ratio $a$ then
 %
 \begin{equation}
-N_2 = a N_1.
+N_l = a N_1.
 \end{equation}
 %
 If the coils share a common core and are wound similarly, then
 %
 \begin{equation}
-  L_2 = a^2 L_1.
+  L_l = a^2 L_1.
 \end{equation}
 %
 If there is perfect coupling, $k=1$, and thus the mutual inductance is
@@ -779,59 +895,59 @@ The relationship between the currents and voltages from \refeqn{mut}
 then becomes
 %
 \begin{eqnarray}
- v_1(t) & = & L_1 \udby{t} i_1(t) + a L_1 \udby{t} i_2(t),\\
- v_2(t) & = & a L_1 \udby{t} i_1(t) + a^2 L_1 \udby{t} i_2(t).
+ v_1(t) & = & L_1 \udby{t} i_1(t) + a L_1 \udby{t} i_l(t),\\
+ v_l(t) & = & a L_1 \udby{t} i_1(t) + a^2 L_1 \udby{t} i_l(t).
 \label{eqn:mut_transformer}
 \end{eqnarray}
 
 
-An ideal transformer occurs when $k=1$ and $L_1$ and $L_2$ are
+An ideal transformer occurs when $k=1$ and $L_1$ and $L_l$ are
 infinite.  In practice, this cannot be achieved.  It can be
-approximated by making $k$ close to 1 and choosing $L_1$ and $L_2$
+approximated by making $k$ close to 1 and choosing $L_1$ and $L_l$
 to have large inductances.
 
 Let's consider the case when a voltage source is applied to the
-primary and the secondary is open circuit so that $i_2=0$.  The
+primary and the secondary is open circuit so that $i_l=0$.  The
 transformer equations simplify to
 %
 \begin{eqnarray}
  v_1(t) & = & L_1 \udby{t} i_1(t),\\
- v_2(t) & = & a L_1 \udby{t} i_1(t).
+ v_l(t) & = & a L_1 \udby{t} i_1(t).
 \label{eqn:mut_transformer_oc}
 \end{eqnarray}
 %
 By inspection,
 %
 \begin{equation}
-v_2(t) = a v_1(t),
+v_l(t) = a v_1(t),
 \end{equation}
 %
 and thus the open-circuit secondary voltage is $a$ times the primary.
-Let's now consider the short-circuit secondary current when $v_2=0$.
+Let's now consider the short-circuit secondary current when $v_l=0$.
 The transformer equations are now
 %
 \begin{eqnarray}
- v_1(t) & = & L_1 \udby{t} i_1(t) + a L_1 \udby{t} i_2(t),\\
-      0 & = & a L_1 \udby{t} i_1(t) + a^2 L_1 \udby{t} i_2(t).
+ v_1(t) & = & L_1 \udby{t} i_1(t) + a L_1 \udby{t} i_l(t),\\
+      0 & = & a L_1 \udby{t} i_1(t) + a^2 L_1 \udby{t} i_l(t).
 \label{eqn:mut_transformer_sc}
 \end{eqnarray}
 %
 From the second of these equations,
 %
 \begin{equation}
-  a L_1 \udby{t} i_1(t) = -a^2 L_1 \udby{t} i_2(t),
+  a L_1 \udby{t} i_1(t) = -a^2 L_1 \udby{t} i_l(t),
 \end{equation}
 %
 and so
 %
 \begin{equation}
-  i_1(t) = -a i_2(t),
+  i_1(t) = -a i_l(t),
 \end{equation}
 %
 or equivalently,
 %
 \begin{equation}
-  i_2(t) = -\frac{1}{a} i_1(t).
+  i_l(t) = -\frac{1}{a} i_1(t).
 \end{equation}
 %
 The negative sign results from the definition of the direction of the
@@ -839,7 +955,7 @@ currents, as used by two-port networks.
 
 A tee-model can be used to represent a transformer if the primary and
 secondary share a common ground.  However, this will result in
-non-realisable negative inductances when $M > L_1$ or $M > L_2$.
+non-realisable negative inductances when $M > L_1$ or $M > L_l$.
 
 
 When modelling, the secondary of a transformer requires a DC
@@ -856,15 +972,15 @@ primary or using a large resistance.
 The A-model equations are:
 %
 \begin{eqnarray}
-  V_1 & = & A_{11} V_2 - A_{12} I_2 + V_{1a}, \\
-  I_1 & = & A_{21} V_2 - A_{22} I_2 + I_{1a}.
+  V_k & = & A_{11} V_l - A_{12} I_l + V_{1a}, \\
+  I_k & = & A_{21} V_l - A_{22} I_l + I_{1a}.
 \end{eqnarray}
 %
 In matrix form:
 %
 \begin{equation}
   \begin{bmatrix}
-    V_1 \\ I_1
+    V_k \\ I_k
   \end{bmatrix}
   =
   \begin{bmatrix}
@@ -872,7 +988,7 @@ In matrix form:
     A_{21} & A_{22}
   \end{bmatrix}
   \begin{bmatrix}
-    V_2 \\ -I_2
+    V_l \\ -I_l
   \end{bmatrix}
   +
   \begin{bmatrix}
@@ -884,12 +1000,12 @@ Inverting gives
 %
 \begin{equation}
   \begin{bmatrix}
-    V_2 \\ -I_2
+    V_l \\ -I_l
   \end{bmatrix}
   =
   \mat{A}^{-1}
   \begin{bmatrix}
-    V_1 \\ I_1
+    V_k \\ I_k
   \end{bmatrix}
   -
   \mat{A}^{-1}
@@ -902,12 +1018,12 @@ which is equivalent to
 %
 \begin{equation}
   \begin{bmatrix}
-    V_2 \\ -I_2
+    V_l \\ -I_l
   \end{bmatrix}
   =
   \mat{B}
   \begin{bmatrix}
-    V_1 \\ I_1
+    V_k \\ I_k
   \end{bmatrix}
   +
   \begin{bmatrix}
@@ -929,8 +1045,8 @@ The B-model equations are:
 %
 \begin{eqnarray}
 \label{eqn:BV2}
-  V_2 & = & B_{11} V_1 + B_{12} I_1 + V_{2b}, \\
-  I_2 & = & -B_{21} V_1 - B_{22} I_1 - I_{2b}.
+  V_l & = & B_{11} V_k + B_{12} I_k + V_{2b}, \\
+  I_l & = & -B_{21} V_k - B_{22} I_k - I_{2b}.
 \label{eqn:BI2}
 \end{eqnarray}
 %
@@ -938,7 +1054,7 @@ In matrix form:
 %
 \begin{equation}
   \begin{bmatrix}
-    V_2 \\ -I_2
+    V_l \\ -I_l
   \end{bmatrix}
   =
   \begin{bmatrix}
@@ -946,7 +1062,7 @@ In matrix form:
     B_{21} & B_{22}
   \end{bmatrix}
   \begin{bmatrix}
-    V_1 \\ I_1
+    V_k \\ I_k
   \end{bmatrix}
   +
   \begin{bmatrix}
@@ -961,7 +1077,7 @@ In matrix form:
 From \refeqn{BV2},
 %
 \begin{equation}
-  V_1 = -\frac{B_{12}}{B_{11}} I_1 + \frac{1}{B_{11}} V_2 - \frac{1}{B_{11}} V_{2b},
+  V_k = -\frac{B_{12}}{B_{11}} I_k + \frac{1}{B_{11}} V_l - \frac{1}{B_{11}} V_{2b},
 \bigspace \mbox{(H1 form)},
 \label{eqn:BV1H}
 \end{equation}
@@ -969,21 +1085,21 @@ From \refeqn{BV2},
 and
 %
 \begin{equation}
-  I_1  =  -\frac{B_{11}}{B_{12}} V_1 - \frac{1}{B_{12}} V_2 - \frac{1}{B_{12}} V_{2b} \bigspace \mbox{(Y1 form)}.
+  I_k  =  -\frac{B_{11}}{B_{12}} V_k - \frac{1}{B_{12}} V_l - \frac{1}{B_{12}} V_{2b} \bigspace \mbox{(Y1 form)}.
 \label{eqn:BI1Y}
 \end{equation}
 %
 From \refeqn{BI2},
 %
 \begin{equation}
-  V_1 = -\frac{B_{22}}{B_{21}} I_1 - \frac{1}{B_{21}} I_2  - \frac{1}{B_{21}} I_{2b} \bigspace \mbox{(Z1 form)},
+  V_k = -\frac{B_{22}}{B_{21}} I_k - \frac{1}{B_{21}} I_l  - \frac{1}{B_{21}} I_{2b} \bigspace \mbox{(Z1 form)},
 \label{eqn:BV1Z}
 \end{equation}
 %
 and
 %
 \begin{equation}
-  I_1 = -\frac{B_{21}}{B_{22}} V_1 - \frac{1}{B_{22}} I_2 - \frac{1}{B_{22}} I_{2b}
+  I_k = -\frac{B_{21}}{B_{22}} V_k - \frac{1}{B_{22}} I_l - \frac{1}{B_{22}} I_{2b}
 \bigspace \mbox{(G1 form)}.
 \label{eqn:BI1G}
 \end{equation}
@@ -991,28 +1107,28 @@ and
 Substituting \refeqn{BV1H} into \refeqn{BI2} gives
 %
 \begin{equation}
-  I_2 = \frac{\det{B}}{B_{11}} I_1 + \frac{1}{B_{11}} V_2 - \frac{B_{21}}{B_{11}} V_{2b} - I_{2b} \bigspace \mbox{(H2 form)}.
+  I_l = \frac{\det{B}}{B_{11}} I_k + \frac{1}{B_{11}} V_l - \frac{B_{21}}{B_{11}} V_{2b} - I_{2b} \bigspace \mbox{(H2 form)}.
 \label{eqn:BI2H}
 \end{equation}
 %
 Substituting \refeqn{BI1Y} into \refeqn{BI2} gives
 %
 \begin{equation}
-  I_2 = \frac{\det B}{B_{12}} V_1 + \frac{B_{22}}{B_{12}} V_2 + \frac{B_{22}}{B_{12}} V_{2b} - I_{2b} \bigspace \mbox{(Y2 form)}.
+  I_l = \frac{\det B}{B_{12}} V_k + \frac{B_{22}}{B_{12}} V_l + \frac{B_{22}}{B_{12}} V_{2b} - I_{2b} \bigspace \mbox{(Y2 form)}.
 \label{eqn:BI2Y}
 \end{equation}
 %
 Substituting \refeqn{BV1Z} into \refeqn{BV2} gives
 %
 \begin{equation}
-  V_2 = -\frac{\det B}{B_{21}} I_1 - \frac{B_{11}}{B_{21}} I_2  - \frac{B_{11}}{B_{21}} I_{2b} + V_{2b}  \bigspace \mbox{(Z2 form)}.
+  V_l = -\frac{\det B}{B_{21}} I_k - \frac{B_{11}}{B_{21}} I_l  - \frac{B_{11}}{B_{21}} I_{2b} + V_{2b}  \bigspace \mbox{(Z2 form)}.
 \label{eqn:BV2Z}
 \end{equation}
 %
 Substituting \refeqn{BI1G} into \refeqn{BV2} gives
 %
 \begin{equation}
-  V_2 = -\frac{\det B}{B_{22}} V_1 - \frac{B_{12}}{B_{22}} I_2  - \frac{B_{12}}{B_{22}} I_{2b} + V_{2b}  \bigspace \mbox{(G2 form)}.
+  V_l = -\frac{\det B}{B_{22}} V_k - \frac{B_{12}}{B_{22}} I_l  - \frac{B_{12}}{B_{22}} I_{2b} + V_{2b}  \bigspace \mbox{(G2 form)}.
 \label{eqn:BV2G}
 \end{equation}
 
@@ -1047,12 +1163,12 @@ Inverting \refeqn{Bmat} gives
 %
 \begin{equation}
   \begin{bmatrix}
-    V_1 \\ I_1
+    V_k \\ I_k
   \end{bmatrix}
   =
   \mat{B}^{-1}
   \begin{bmatrix}
-    V_2 \\ -I_2
+    V_l \\ -I_l
   \end{bmatrix}
   -
   \mat{B}^{-1}
@@ -1065,12 +1181,12 @@ which is equivalent to
 %
 \begin{equation}
   \begin{bmatrix}
-    V_1 \\ I_1
+    V_k \\ I_k
   \end{bmatrix}
   =
   \mat{A}
   \begin{bmatrix}
-    V_2 \\ -I_2
+    V_l \\ -I_l
   \end{bmatrix}
   +
   \begin{bmatrix}
@@ -1089,8 +1205,8 @@ V_{1a} = -A_{11} V_{2b} + A_{12} I_{2b} \bigspace I_{1a} = A_{21} V_{2b} - A_{22
 
 \begin{eqnarray}
 \label{eqn:GI1}
-  I_1 & = & G_{11} V_1 + G_{12} I_2 + I_{1g}, \\
-  V_2 & = & G_{21} V_1 + G_{22} I_2 + V_{2g}.
+  I_k & = & G_{11} V_k + G_{12} I_l + I_{1g}, \\
+  V_l & = & G_{21} V_k + G_{22} I_l + V_{2g}.
 \label{eqn:GV2}
 \end{eqnarray}
 
@@ -1112,8 +1228,8 @@ and equating \refeqn{BV2G} to \refeqn{GV2} yields
 
 \begin{eqnarray}
 \label{eqn:HV1}
-  V_1 & = & H_{11} I_1 + H_{12} V_2 + V_{1h}, \\
-  I_2 & = & H_{21} I_1 + H_{22} V_2 + I_{2h}.
+  V_k & = & H_{11} I_k + H_{12} V_l + V_{1h}, \\
+  I_l & = & H_{21} I_k + H_{22} V_l + I_{2h}.
 \label{eqn:HI2}
 \end{eqnarray}
 
@@ -1143,38 +1259,38 @@ and equating to \refeqn{HI2}, yields,
 
 \begin{eqnarray}
 \label{eqn:YI1}
-  I_1 & = & Y_{11} V_1 + Y_{12} V_2 + I_{1y}, \\
-  I_2 & = & Y_{21} V_1 + Y_{22} V_2 + I_{2y}.
+  I_k & = & Y_{11} V_k + Y_{12} V_l + I_{1y}, \\
+  I_l & = & Y_{21} V_k + Y_{22} V_l + I_{2y}.
 \label{eqn:YI2}
 \end{eqnarray}
 
 
 
 \begin{equation}
-  V_1 = \frac{1}{Y_{11}} I_1 - \frac{Y_{12}}{Y_{11}} V_2 - \frac{1}{Y_{11}} I_{1y} \bigspace \mbox{(H1 form)}
+  V_k = \frac{1}{Y_{11}} I_k - \frac{Y_{12}}{Y_{11}} V_l - \frac{1}{Y_{11}} I_{1y} \bigspace \mbox{(H1 form)}
 \end{equation}
 
 \begin{equation}
-  V_2 = \frac{1}{Y_{12}} I_1 - \frac{Y_{11}}{Y_{12}} V_1 - \frac{1}{Y_{12}} I_{1y} \bigspace \mbox{(B1 form)}
+  V_l = \frac{1}{Y_{12}} I_k - \frac{Y_{11}}{Y_{12}} V_k - \frac{1}{Y_{12}} I_{1y} \bigspace \mbox{(B1 form)}
 \end{equation}
 
 \begin{equation}
-  V_1 = \frac{1}{Y_{21}} I_2 - \frac{Y_{22}}{Y_{21}} V_2 - \frac{1}{Y_{21}} I_{2y} \bigspace \mbox{(A1 form)}
-\end{equation}
-
-
-\begin{equation}
-  V_2 = -\frac{Y_{21}}{Y_{22}} V_1 + \frac{1}{Y_{22}} I_2 - \frac{1}{Y_{22}} I_{2y} \bigspace \mbox{(G2 form)}
+  V_k = \frac{1}{Y_{21}} I_l - \frac{Y_{22}}{Y_{21}} V_l - \frac{1}{Y_{21}} I_{2y} \bigspace \mbox{(A1 form)}
 \end{equation}
 
 
 \begin{equation}
-  V_2 = -\frac{Y_{21}}{\det{Y}} I_1 + \frac{Y_{11}}{\det{Y}} I_2 - \frac{Y_{11}}{\det{Y}} I_{2y} + \frac{Y_{21}}{\det{Y}} I_{1y} \bigspace \mbox{(Z2 form)}
+  V_l = -\frac{Y_{21}}{Y_{22}} V_k + \frac{1}{Y_{22}} I_l - \frac{1}{Y_{22}} I_{2y} \bigspace \mbox{(G2 form)}
 \end{equation}
 
 
 \begin{equation}
-  V_1 = \frac{Y_{22}}{\det{Y}} I_1 - \frac{Y_{12}}{\det{Y}} I_2 + \frac{Y_{12}}{\det{Y}} I_{2y} - \frac{Y_{22}}{\det{Y}} I_{1y} \bigspace \mbox{(Z1 form)}
+  V_l = -\frac{Y_{21}}{\det{Y}} I_k + \frac{Y_{11}}{\det{Y}} I_l - \frac{Y_{11}}{\det{Y}} I_{2y} + \frac{Y_{21}}{\det{Y}} I_{1y} \bigspace \mbox{(Z2 form)}
+\end{equation}
+
+
+\begin{equation}
+  V_k = \frac{Y_{22}}{\det{Y}} I_k - \frac{Y_{12}}{\det{Y}} I_l + \frac{Y_{12}}{\det{Y}} I_{2y} - \frac{Y_{22}}{\det{Y}} I_{1y} \bigspace \mbox{(Z1 form)}
 \end{equation}
 
 
@@ -1182,36 +1298,36 @@ and equating to \refeqn{HI2}, yields,
 
 \begin{eqnarray}
 \label{eqn:ZV1}
-  V_1 & = & Z_{11} I_1 + Z_{12} I_2 + V_{1z}, \\
-  V_2 & = & Z_{21} I_1 + Z_{22} I_2 + V_{2z}.
+  V_k & = & Z_{11} I_k + Z_{12} I_l + V_{1z}, \\
+  V_l & = & Z_{21} I_k + Z_{22} I_l + V_{2z}.
 \label{eqn:ZV2}
 \end{eqnarray}
 
 \begin{equation}
-  I_1 = \frac{1}{Z_{11}} V_1 - \frac{Z_{12}}{Z_{11}} I_2 - \frac{1}{Z_{11}} V_{1z} \bigspace \mbox{(G1 form)}
+  I_k = \frac{1}{Z_{11}} V_k - \frac{Z_{12}}{Z_{11}} I_l - \frac{1}{Z_{11}} V_{1z} \bigspace \mbox{(G1 form)}
 \end{equation}
 
 \begin{equation}
-  I_2 = \frac{1}{Z_{12}} V_1 - \frac{Z_{11}}{Z_{12}} I_1 - \frac{1}{Z_{12}} V_{1z} \bigspace \mbox{(B2 form)}
+  I_l = \frac{1}{Z_{12}} V_k - \frac{Z_{11}}{Z_{12}} I_k - \frac{1}{Z_{12}} V_{1z} \bigspace \mbox{(B2 form)}
 \end{equation}
 
 \begin{equation}
-  I_1 = \frac{1}{Z_{21}} V_2 - \frac{Z_{22}}{Z_{21}} I_2 - \frac{1}{Z_{12}} V_{2z} \bigspace \mbox{(A1 form)}
-\end{equation}
-
-
-\begin{equation}
-  I_2 = -\frac{Z_{21}}{Z_{22}} I_1 + \frac{1}{Z_{22}} V_2 - \frac{1}{Z_{22}} V_{2z} \bigspace \mbox{(H2 form)}
+  I_k = \frac{1}{Z_{21}} V_l - \frac{Z_{22}}{Z_{21}} I_l - \frac{1}{Z_{12}} V_{2z} \bigspace \mbox{(A1 form)}
 \end{equation}
 
 
 \begin{equation}
-  I_1 = \frac{Z_{22}}{\det{Z}} V_1 - \frac{Z_{12}}{\det{Z}} V_2 - \frac{Z_{12}}{\det{Z}} V_{2z} - \frac{Z_{22}}{\det{Z}} V_{1z} \bigspace \mbox{(Z1 form)}
+  I_l = -\frac{Z_{21}}{Z_{22}} I_k + \frac{1}{Z_{22}} V_l - \frac{1}{Z_{22}} V_{2z} \bigspace \mbox{(H2 form)}
+\end{equation}
+
+
+\begin{equation}
+  I_k = \frac{Z_{22}}{\det{Z}} V_k - \frac{Z_{12}}{\det{Z}} V_l - \frac{Z_{12}}{\det{Z}} V_{2z} - \frac{Z_{22}}{\det{Z}} V_{1z} \bigspace \mbox{(Z1 form)}
 \end{equation}
 
 CHECK
 \begin{equation}
-  I_2 = -\frac{Z_{21}}{\det{Z}} V_1 + \frac{Z_{11}}{\det{Z}} V_2 - \frac{Z_{11}}{\det{Z}} V_{2z} + \frac{Z_{21}}{\det{Z}} V_{1z} \bigspace \mbox{(Z2 form)}
+  I_l = -\frac{Z_{21}}{\det{Z}} V_k + \frac{Z_{11}}{\det{Z}} V_l - \frac{Z_{11}}{\det{Z}} V_{2z} + \frac{Z_{21}}{\det{Z}} V_{1z} \bigspace \mbox{(Z2 form)}
 \end{equation}
 
 
@@ -1224,13 +1340,13 @@ Equating \refeqn{ZV1} to \refeqn{BV1Z} gives
 
 
 
-%% When $I_1 = I_2 = 0$,
+%% When $I_k = I_l = 0$,
 %% %
 %% \begin{eqnarray}
-%%   0 & = & A_{21} V_2 + I_{1a},\\
-%%   0 & = & -B_{21} V_2 - I_{2b},\\
-%%   V_1 & = & V_{1z}, \\
-%%   V_2 & = & V_{2z},
+%%   0 & = & A_{21} V_l + I_{1a},\\
+%%   0 & = & -B_{21} V_l - I_{2b},\\
+%%   V_k & = & V_{1z}, \\
+%%   V_l & = & V_{2z},
 %% \end{eqnarray}
 %% %
 %% and so
@@ -1240,13 +1356,13 @@ Equating \refeqn{ZV1} to \refeqn{BV1Z} gives
 %%   I_{2b} & = & -B_{21} V_{1z}.
 %% \end{eqnarray}
 
-%% When $V_1 = V_2 = 0$,
+%% When $V_k = V_l = 0$,
 %% %
 %% \begin{eqnarray}
-%%   0 & = & -A_{12} I_2 + V_{1a}, \\
-%%   0 & = & B_{12} I_1 + V_{2b}, \\
-%%   I_1 & = & I_{1y}, \\
-%%   I_2 & = & I_{2y},
+%%   0 & = & -A_{12} I_l + V_{1a}, \\
+%%   0 & = & B_{12} I_k + V_{2b}, \\
+%%   I_k & = & I_{1y}, \\
+%%   I_l & = & I_{2y},
 %% \end{eqnarray}
 %% %
 %% and so
@@ -1293,7 +1409,7 @@ In matrix form:
 %
 \begin{equation}
   \begin{bmatrix}
-    V_1 \\ V_2
+    V_k \\ V_l
   \end{bmatrix}
   =
   \begin{bmatrix}
@@ -1301,7 +1417,7 @@ In matrix form:
     Z_{21} & Z_{22}
   \end{bmatrix}
   \begin{bmatrix}
-    I_1 \\ I_2
+    I_k \\ I_l
   \end{bmatrix}
   +
   \begin{bmatrix}
@@ -1313,12 +1429,12 @@ Inverting gives
 %
 \begin{equation}
   \begin{bmatrix}
-    I_1 \\ I_2
+    I_k \\ I_l
   \end{bmatrix}
   =
   \mat{Z}^{-1}
   \begin{bmatrix}
-    V_1 \\ I_1
+    V_k \\ I_k
   \end{bmatrix}
   -
   \mat{Z}^{-1}
@@ -1331,12 +1447,12 @@ which is equivalent to
 %
 \begin{equation}
   \begin{bmatrix}
-    I_1 \\ I_2
+    I_k \\ I_l
   \end{bmatrix}
   =
   \mat{Y}
   \begin{bmatrix}
-    V_1 \\ V_2
+    V_k \\ V_l
   \end{bmatrix}
   +
   \begin{bmatrix}
