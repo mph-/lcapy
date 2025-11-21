@@ -2013,10 +2013,10 @@ class TF(Cpt):
         alpha = self.cpt.alpha.sympy
 
         if n1 >= 0:
-            mna._B[n1, m] += 1
+            mna._B[n1, m] -= 1
             mna._C[m, n1] += 1
         if n2 >= 0:
-            mna._B[n2, m] -= 1
+            mna._B[n2, m] += 1
             mna._C[m, n2] -= 1
         if n3 >= 0:
             mna._B[n3, m] += alpha
@@ -2053,16 +2053,16 @@ class TF3(Cpt):
         alpha2 = self.cpt.alpha2.sympy
 
         if n1 >= 0:
-            mna._B[n1, m2] += 1
+            mna._B[n1, m2] -= 1
             mna._C[m1, n1] += 1
         if n2 >= 0:
-            mna._B[n2, m2] -= 1
+            mna._B[n2, m2] = 1
             mna._C[m1, n2] -= 1
         if n3 >= 0:
-            mna._B[n3, m1] += 1
+            mna._B[n3, m1] -= 1
             mna._C[m2, n3] += 1
         if n4 >= 0:
-            mna._B[n4, m1] -= 1
+            mna._B[n4, m1] += 1
             mna._C[m2, n4] -= 1
         if n5 >= 0:
             mna._B[n5, m1] = alpha1
