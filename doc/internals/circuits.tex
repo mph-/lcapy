@@ -415,6 +415,7 @@ This can be achieved by summing the stamp \refeqn{L1L2_stamp1} with
 \subsection{Two-winding transformer stamp}
 
 \begin{figure}[!h]
+  \centering
   \input{figs/TFptst.pgf}
   \caption{Two-winding ideal transformer.}
   \end{figure}
@@ -422,8 +423,8 @@ This can be achieved by summing the stamp \refeqn{L1L2_stamp1} with
 The current equations are
 %
 \begin{align}
-  I_1 = & \; I_s, \\
-  I_2 = & \; -I_s, \\
+  I_1 = & \; -I_s, \\
+  I_2 = & \; I_s, \\
   I_3 = & \; \frac{T_s}{T_p} I_s, \\
   I_4 = & \; -\frac{T_s}{T_p} I_s, \\
 \end{align}
@@ -444,10 +445,10 @@ The resultant stamp is
 %
 \begin{equation}
   \begin{bmatrix}
-     &  &  &  & 1    \\
      &  &  &  & -1    \\
-     &  &  &  & -\alpha  \\
-     &  &  &  & \alpha    \\
+     &  &  &  & 1    \\
+     &  &  &  & \alpha  \\
+     &  &  &  & -\alpha    \\
     1 & -1 & \alpha & -\alpha  & 0
   \end{bmatrix}
   \begin{bmatrix}
@@ -465,6 +466,7 @@ where $\alpha = T_s / T_p$.
 \subsection{Three-winding transformer stamp}
 
 \begin{figure}[!h]
+  \centering
   \input{figs/TFptstt.pgf}
   \caption{Three-winding ideal transformer.}
 \end{figure}
@@ -472,10 +474,10 @@ where $\alpha = T_s / T_p$.
 The current equations are
 %
 \begin{align}
-  I_1 = & \; I_{s2}, \\
-  I_2 = & \; -I_{s2}, \\
-  I_3 = & \; I_{s1}, \\
-  I_4 = & \; -I_{s1}, \\
+  I_1 = & \; -I_{s2}, \\
+  I_2 = & \; I_{s2}, \\
+  I_3 = & \; -I_{s1}, \\
+  I_4 = & \; I_{s1}, \\
   I_5 = & \; \frac{T_{s2}}{T_p} I_{s2} + \frac{T_{s1}}{T_p} I_{s1}, \\
   I_6 = & \; -\frac{T_{s2}}{T_p} I_{s2} - \frac{T_{s1}}{T_p} I_{s1},
 \end{align}
@@ -498,10 +500,10 @@ The resultant stamp is
 %
 \begin{equation}
   \begin{bmatrix}
-    &  &  &  &  &  & 0  & 1    \\
     &  &  &  &  &  & 0  & -1    \\
-    &  &  &  &  &  & 1  & 0    \\
-    &  &  &  &  &  & -1 & 0    \\
+    &  &  &  &  &  & 0  & 1    \\
+    &  &  &  &  &  & -1  & 0    \\
+    &  &  &  &  &  & 1 & 0    \\
     &  &  &  &  &  & \alpha_1 & \alpha_2  \\
     &  &  &  &  &  & -\alpha_1 & -\alpha_2  \\
   1 & -1 & 0 &  0 & -\alpha_1 & \alpha_1 & 0 & 0 \\
