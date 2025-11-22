@@ -330,9 +330,10 @@ def main(argv=None):
         from lcapy.circuitgraph import CircuitGraph
 
         cg = CircuitGraph(cct)
-        cg.draw(filename=outfilename)
+        if outfilename is not None:
+            cg.draw(filename=outfilename)
 
-    if args.show:
+    if args.show or outfilename is None:
         show()
 
     return 0
