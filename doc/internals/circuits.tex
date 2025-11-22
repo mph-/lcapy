@@ -48,8 +48,9 @@ similar system of equations,
   \mat{A} \vec{X} = \vec{Z},
 \end{equation}
 %
-where the vector of unknowns, $\vec{X}$, includes the currents,
-$\vec{J}$, through the independent voltage sources,
+where the vector of unknowns, $\vec{X}$, includes the unknown node
+voltages, $\vec{V}$, and the unknown currents, $\vec{J}$, through the
+independent voltage sources,
 %
 \begin{equation}
   \mat{X} =
@@ -58,7 +59,8 @@ $\vec{J}$, through the independent voltage sources,
   \end{bmatrix}.
 \end{equation}
 %
-The vector of knowns, $\vec{Z}$, includes the voltages, $\vec{E}$,
+The vector of knowns, $\vec{Z}$, includes the current, $\vec{I}$,
+produced by the independent current sources and voltages, $\vec{E}$,
 produced by the independent voltage sources,
 %
 \begin{equation}
@@ -99,7 +101,7 @@ currents through voltage sources:
 %
 \begin{equation}
   \begin{bmatrix}
-    \vec{I} \\ \vec{E}
+    \vec{V} \\ \vec{J}
   \end{bmatrix}
 =
   \begin{bmatrix}
@@ -107,9 +109,64 @@ currents through voltage sources:
     \mat{C} & \mat{D} \\
   \end{bmatrix}^{-1}
   \begin{bmatrix}
-    \vec{V} \\ \vec{J}.
-  \end{bmatrix}
+    \vec{I} \\ \vec{E}
+  \end{bmatrix}.
 \end{equation}
+
+With $M$ components,
+%
+\begin{align}
+  \vec{A} = & \; \sum_{m=0}^{M-1} \vec{A}_m, \\
+  \vec{X} = & \; \sum_{m=0}^{M-1} \vec{X}_m, \\
+  \vec{Z} = & \; \sum_{m=0}^{M-1} \vec{Z}_m, \\
+\end{align}
+%
+where
+%
+\begin{align}
+  \mat{A}_m = & \;
+  \begin{bmatrix}
+    \mat{G}_m & \mat{B}_m \\
+    \mat{C}_m & \mat{D}_m \\
+  \end{bmatrix}, \\
+  \mat{X}_m = & \;
+  \begin{bmatrix}
+    \mat{V}_m \\ \mat{J}_m \\
+  \end{bmatrix}, \\
+  \mat{Z}_m = & \;
+  \begin{bmatrix}
+    \mat{I}_m \\ \mat{E}_m \\
+  \end{bmatrix}.
+\end{align}
+%
+
+The partial set of equations for a single component is called a stamp:
+%
+\begin{equation}
+  \begin{bmatrix}
+    \mat{G}_m & \mat{B}_m \\
+    \mat{C}_m & \mat{D}_m \\
+  \end{bmatrix}
+  \begin{bmatrix}
+    \vec{V}_m \\ \vec{J}_m
+  \end{bmatrix}
+=
+  \begin{bmatrix}
+    \vec{I}_m \\ \vec{E}_m
+  \end{bmatrix}.
+\end{equation}
+%
+Note that
+%
+\begin{equation}
+\vec{I} = \sum_{m=0}^{M-1} \vec{I}_m.
+\end{equation}
+%
+This is the net current flowing into the nodes due to independent
+sources.  From Kirchhoff's current law, the branch currents sum to
+zero at a node for components that are not independent current
+sources.  Thus in the stamps for non-independent current sources, the
+currents are assumed to be zero.
 
 
 \subsection{Component stamps}
@@ -246,10 +303,11 @@ the current through the capacitor $I_C=I_k=-I_l$ is required to be solved,
 =
 \begin{bmatrix}
   0 \\ 0 \\ \frac{v_0}{s}
-\end{bmatrix}.
+\end{bmatrix},
 \end{equation}
 %
-This comes from the equations:
+where $v_0$ is the pre-initial voltage across the capacitor.  This
+stamp comes from the equations:
 %
 \begin{eqnarray}
 \label{eqn:C_I1}
@@ -271,7 +329,7 @@ and thus
 \end{equation}
 
 
-The second formulation does not directly solve the current through the
+The second stamp does not directly solve the current through the
 capacitor and thus has a smaller matrix to solve:
 %
 \begin{equation}
@@ -303,7 +361,7 @@ This comes from \refeqn{C_I1} and \refeqn{C_I2} with
   \caption{Inductor defined as L k l.}
   \end{figure}
 
-The two MNA formulations for an inductor are
+The two MNA stamps for an inductor are
 %
 \begin{equation}
   \begin{bmatrix}
@@ -333,9 +391,10 @@ and
 =
 \begin{bmatrix}
   -\frac{i_0}{s} \\ \frac{i_0}{s}
-\end{bmatrix}.
+\end{bmatrix},
 \end{equation}
 %
+where $i_0$ is the pre-initial current through the inductor.
 Here
 %
 \begin{eqnarray}
@@ -357,14 +416,14 @@ yielding
   V_k - V_l - s L I_L = -L i_0.
 \end{equation}
 %
-For the second formulation, $I_L$ is substituted in \refeqn{L_I1} and
+For the second stamp, $I_L$ is substituted in \refeqn{L_I1} and
 \refeqn{L_I2} with
 %
 \begin{equation}
   I_L = \frac{V_k - V_l}{sL} + \frac{i_0}{s}.
 \end{equation}
 
-Let's now consider two uncoupled inductors.  The two formulations are:
+Let's now consider two uncoupled inductors.  The two stamps are:
 %
 \begin{equation}
   \begin{bmatrix}
@@ -381,11 +440,12 @@ Let's now consider two uncoupled inductors.  The two formulations are:
 =
 \begin{bmatrix}
   0 \\ 0 \\ 0 \\ 0 \\ -L_1 i_{10} \\ -L_2 i_{20}
-\end{bmatrix}.
+\end{bmatrix},
 \label{eqn:L1L2_stamp1}
 \end{equation}
-
-
+%
+and
+%
 \begin{equation}
   \begin{bmatrix}
     \frac{1}{sL_1} & -\frac{1}{sL_1} &   & \\
@@ -486,7 +546,7 @@ This can be added to \refeqn{L1L2_stamp2} to produce
 the stamp is all zeroes.  When the coupling is perfect, $D=0$ and the
 stamp blows up.
 
-The alternative stamp formulation includes the currents through the
+The alternative stamp includes the currents through the
 inductors,
 %
 \begin{equation}
