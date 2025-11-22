@@ -721,37 +721,40 @@ Switches can be mirrored and inverted, for example:
    :width: 8cm
 
 
+.. _tran1.sformers:
+
 Transformers
 ------------
 
 .. literalinclude:: examples/schematics/TF1.sch
 
 .. image:: examples/schematics/TF1.png
-   :width: 1.4cm
-
-.. literalinclude:: examples/schematics/TF4.sch
-
-.. image:: examples/schematics/TF4.png
-   :width: 1.4cm
+   :width: 1.6cm
 
 .. literalinclude:: examples/schematics/TFtap1.sch
 
 .. image:: examples/schematics/TFtap1.png
    :width: 3cm
 
-The dots can be positioned with the dots attribute.  This can be `++`, `+-`, `-+`, `--`, or ''.  The first symbol specifies the primary dot position; the second symbol specifies the secondary dot position.
+The number of winding turns is shown with the `turns` attribute.
+
+.. literalinclude:: examples/schematics/TF4.sch
+
+.. image:: examples/schematics/TF4.png
+   :width: 2.6cm
+
 
 Cores are drawn with the `core` attribute.  This can be `True`, 'one', or 'two'.  'one' draws one core line; 'two' draws two core lines.
 
 .. literalinclude:: examples/schematics/TFcore1.sch
 
 .. image:: examples/schematics/TFcore1.png
-   :width: 1.4cm
+   :width: 1.6cm
 
 .. literalinclude:: examples/schematics/TFtapcore1.sch
 
 .. image:: examples/schematics/TFtapcore1.png
-   :width: 3cm
+   :width: 3.2cm
 
 Here are some examples of two winding transformers.  The position of the dots is specified by a keyword.  This can be ptst or ptsb.  Here p denotes primary, s denotes secondary, t denotes top, and b denotes bottom.  Other configurations can be achieved with the mirror and/or invert attributes.
 

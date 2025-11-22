@@ -222,7 +222,7 @@ simulation (additional components can be drawn, see
   output resistance Ro (default 0) with controlling nodes Nip and Nim.
   The common-mode voltage is with respect to node Nm:
 
-   `Ename Np Nm opamp Nip Nim Ad Ac Ro`
+   `Ename Np Nm opamp Nip Nim Ad [Ac=0] [Ro=0]`
 
 - Fully differential opamp with controlling nodes Nip and Nim, node
   Nocm to set the common-mode output voltage, differential open-loop
@@ -239,7 +239,7 @@ simulation (additional components can be drawn, see
   feedback resistance and :math:`R_g` is the external gain setting
   resistance.  See also :ref:`inamps`.
 
-   `Ename Np Nm inamp Nip Nim Nrp Nrm Ad Ac Rf`
+   `Ename Np Nm inamp Nip Nim Nrp Nrm Ad [Ac=0] [Rf=Rf]`
 
 - Current-controlled current source (CCVS) of current gain F.  The
   control current is defined as the current flowing through the control
@@ -257,9 +257,23 @@ simulation (additional components can be drawn, see
 
    `Hname Np Nm control H`
 
-- Ideal transformer (this even works at DC!) of turns ratio a = N_2 / N_1, where N_1 is the number of primary turns and N_2 is the number of secondary turns:
+- Ideal transformer (this even works at DC!) with Np primary turns and Ns secondary turns:
 
-   `TFname Np Nm Nip Nim a`
+   `TFname Nsp Nsm Npp Npm [Ns=1] [Np=1]`
+
+   `TFname Nsp Nsm Npp Npm ptst [Ns=1] [Np=1]`
+
+   `TFname Nsp Nsm Npp Npm ptsb [Ns=1] [Np=1]`
+
+- Three-winding transformer (this even works at DC!) with Np primary turns and Ns2 turns on the first secondary winding and Ns1 turns on the second secondary winding.  See :ref:`transformers` for the dot positions.
+
+   `TFname Ns2p Ns2m Ns1p Ns1m Npp Npm ptstt [Ns2=1] [Ns1=1] [Np=1]`
+
+   `TFname Ns2p Ns2m Ns1p Ns1m Npp Npm ptstb [Ns2=1] [Ns1=1] [Np=1]`
+
+   `TFname Ns2p Ns2m Ns1p Ns1m Npp Npm ptsbt [Ns2=1] [Ns1=1] [Np=1]`
+
+   `TFname Ns2p Ns2m Ns1p Ns1m Npp Npm ptsbb [Ns2=1] [Ns1=1] [Np=1]`
 
 - Ideal gyrator of gyration resistance R:
 
@@ -298,7 +312,6 @@ simulation (additional components can be drawn, see
   `SW Nc Np Nm spdt activation-time`   Single-pole double-throw switch.
 
 The activation-time argument defaults to zero.
-
 
 - Two-port:
 

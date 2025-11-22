@@ -67,12 +67,10 @@ class LabelMaker:
                 value_label = self._format_expr(expr)
             elif cpt.classname in ('Vs', 'Is'):
                 value_label = self._format_expr(expr)
-            elif cpt.classname in ('TF', 'TFtap'):
-                expr = sym.sympify(expr)
-                if expr.is_Pow and expr.args[1] == -1:
-                    value_label = '%s:1' % (1 / expr)
-                else:
-                    value_label = '1:%s' % expr
+            elif cpt.classname in ('TF', 'TFptst', 'TFptsb', 'TFtap',
+                                   'TFptstt', 'TFptstb', 'TFptsbt',
+                                   'TFptsbb'):
+                value_label = None
             elif cpt.type in ('F', 'H') and len(cpt.args) > 1:
                 # This is hard to give a reasonable label since the
                 # control current is specified by a voltage source.

@@ -4,7 +4,7 @@ Lm1 1 3; right=3, i>^=u_1
 Lm2 3 2; right=3, i^<=u_2
 Rm 3 4; down
 Cm 4 5; down
-TF 5 6 9 0 k; right
+TF 5 6 9 0 k; right, turns
 W 6 0_6; down
 W 0_1 0_10; right
 W 0_10 0_6; right, free

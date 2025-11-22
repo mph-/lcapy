@@ -43,6 +43,8 @@ class TF1(TF):
             'pdot-': ('', 0.1 - 0.5 * w, -0.34),
             'sdot-': ('', 0.5 * w - 0.1, -0.34),
             'link': ('', 0, 0.15),
+            'plabel': ('lx', -0.7, 0),
+            'slabel': ('rx', 0.7, 0),
             'label': ('', 0, 0.48)}
 
     def draw(self, link=True, **kwargs):
@@ -54,28 +56,10 @@ class TF1(TF):
 
         centre = self.midpoint(self.nodes[0], self.nodes[3])
         label_pos = self.tf(centre, misc['label'][1:3])
+        pdot_pos = self.tf(centre, misc['pdot+'][1:3])
+        sdot_pos = self.tf(centre, misc['sdot+'][1:3])
 
-        if self.nodots:
-            dots = ''
-        else:
-            dots = '++'
-        if 'dots' in self.opts:
-            dots = self.opts['dots']
-
-        if dots not in ('', '++', '+-', '-+', '--'):
-            raise ValueError('Invalid dots=' + dots)
-
-        s = ''
-        if dots != '':
-            pdot = 'pdot' + dots[0]
-            sdot = 'sdot' + dots[1]
-            pdot_pos = self.tf(centre, misc[pdot][1:3])
-            sdot_pos = self.tf(centre, misc[sdot][1:3])
-
-            s += r'  \draw (%s) node[circ] {};''\n' % pdot_pos
-            s += r'  \draw (%s) node[circ] {};''\n' % sdot_pos
-
-        s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
+        s = r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
             label_pos, 0.5, self.s, self.label(**kwargs))
 
         if link:
@@ -106,6 +90,16 @@ class TF1(TF):
             s += self.draw_path(q[0:2], style='thick')
         elif core not in ('', False):
             raise ValueError('Invalid core attribute value ' + core)
+
+        if self.turns:
+
+            plabel_pos = self.tf(centre, misc['plabel'][1:3])
+            slabel_pos = self.tf(centre, misc['slabel'][1:3])
+
+            s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
+                slabel_pos, 0.5, self.s, self.args[0])
+            s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
+                plabel_pos, 0.5, self.s, self.args[1])
 
         return s
 
@@ -189,8 +183,11 @@ class TFp1s2(TF):
             'sdot2+': ('', x, -0.5 * s - o),
             'sdot2-': ('', x, -0.5 * s - h + o),
             'pdot1+': ('', -x, 0.5 * h - o),
-            'pdot1-': ('', -x, -0.5 * h + o)}
-
+            'pdot1-': ('', -x, -0.5 * h + o),
+            'plabel': ('lx', -x - o, 0),
+            's2label': ('rx', x + o, 0.5 * (s + h)),
+            's1label': ('rx', x + o, -0.5 * (s + h)),
+            'label': ('', 0, 1.1)}
 
     @property
     def pins(self):
@@ -239,6 +236,22 @@ class TFp1s2(TF):
             s += r'  \draw (%s) node[circ] {};''\n' % sdot2_pos
 
         s += self.draw_core(centre, 0.9)
+        label_pos = self.tf(centre, misc['label'][1:3])
+        s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
+            label_pos, 0.5, self.s, self.label(**kwargs))
+
+        if self.turns:
+
+            plabel_pos = self.tf(centre, misc['plabel'][1:3])
+            s1label_pos = self.tf(centre, misc['s1label'][1:3])
+            s2label_pos = self.tf(centre, misc['s2label'][1:3])
+
+            s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
+                s2label_pos, 0.5, self.s, self.args[0])
+            s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
+                s1label_pos, 0.5, self.s, self.args[1])
+            s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
+                plabel_pos, 0.5, self.s, self.args[2])
         return s
 
 class TFp1s1(TF):
@@ -260,7 +273,10 @@ class TFp1s1(TF):
     misc = {'pdot1+': ('', -x, y),
             'pdot1-': ('', -x, -y),
             'sdot1+': ('', x, y),
-            'sdot1-': ('', x, -y)}
+            'sdot1-': ('', x, -y),
+            'plabel': ('lx', -x - o, 0),
+            'slabel': ('rx', x + o, 0),
+            'label': ('', 0, 0.48)}
 
     @property
     def pins(self):
@@ -302,6 +318,21 @@ class TFp1s1(TF):
             s += r'  \draw (%s) node[circ] {};''\n' % sdot1_pos
 
         s += self.draw_core(centre, 0.3)
+
+        label_pos = self.tf(centre, misc['label'][1:3])
+        s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
+            label_pos, 0.5, self.s, self.label(**kwargs))
+
+        if self.turns:
+
+            plabel_pos = self.tf(centre, misc['plabel'][1:3])
+            slabel_pos = self.tf(centre, misc['slabel'][1:3])
+
+            s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
+                slabel_pos, 0.5, self.s, self.args[0])
+            s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
+                plabel_pos, 0.5, self.s, self.args[1])
+
         return s
 
 

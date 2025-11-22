@@ -85,7 +85,7 @@ class Cpt(object):
                  'pinnames', 'pinnodes', 'pindefs', 'outside',
                  'pinmap', 'kind', 'wire', 'ignore', 'style', 'nosim',
                  'nowires', 'nolabels', 'steps', 'free', 'fliplr', 'flipud',
-                 'nodots', 'dots', 'dot', 'draw_nodes', 'label_nodes', 'nodraw',
+                 'nodots', 'turns', 'draw_nodes', 'label_nodes', 'nodraw',
                  'mirrorinputs', 'autoground', 'xoffset', 'yoffset',
                  'anchor', 'def', 'nodes', 'shape', 'core')
     label_opt_keys = ('label_values', 'label_ids', 'annotate_values',
@@ -444,6 +444,10 @@ class Cpt(object):
     @property
     def nolabels(self):
         return self.boolattr('nolabels')
+
+    @property
+    def turns(self):
+        return self.boolattr('turns')
 
     @property
     def wire(self):
