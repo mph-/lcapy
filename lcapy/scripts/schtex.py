@@ -33,6 +33,38 @@ def schtex_exception(type, value, tb):
         pdb.pm()
 
 
+def cpt_draw1(cpt, pins):
+
+    s = ''
+    for key, pin in pins.items():
+
+        centre = cpt.node('mid').pos
+
+        pos = cpt.tf(centre, pin[1:3])
+        s += r'  \draw (%s) node[blue, circ] {};''\n' % pos
+        s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
+            pos, 0.5, cpt.s, key)
+
+    return s
+
+
+def cpt_draw(cpt):
+
+    s = cpt.draw()
+    s += cpt_draw1(cpt, cpt.pins)
+    s += cpt_draw1(cpt, cpt.misc)
+    s += cpt_draw1(cpt, cpt.auxiliary)
+    return s
+
+
+def draw_misc(sch):
+
+    s = ''
+    for name, cpt in sch.elements.items():
+        s += cpt_draw(cpt)
+    return s
+
+
 def main(argv=None):
 
     if argv is None:
@@ -210,8 +242,7 @@ def main(argv=None):
     parser.add_argument('outfilename', type=str, nargs='?',
                         help='output filename', default=None)
 
-    parser.add_argument('--show', action='store_true',
-                        dest='show', default=None,
+    parser.add_argument('--show', action='store_true', default=None,
                         help="show image")
 
     parser.add_argument('--style', type=str, default=None,
@@ -225,6 +256,12 @@ def main(argv=None):
                         dest='ygraph', default=False,
                         help="generate graph of component y positions")
 
+    parser.add_argument('--view', action='store_true', default=None,
+                        help="view pins")
+
+    parser.add_argument('--netlist', type=str,
+                        help='netlist', default=None)
+
     args = parser.parse_args()
 
     infilename = args.filename
@@ -235,7 +272,12 @@ def main(argv=None):
 
     from lcapy import Circuit
 
-    cct = Circuit(infilename, allow_anon=args.allow_anon)
+    if args.netlist is not None:
+        cct = Circuit(allow_anon=args.allow_anon)
+        cct.add(args.netlist)
+    else:
+        cct = Circuit(infilename, allow_anon=args.allow_anon)
+
     if args.k_model:
         cct = cct.kill()
     if args.kill_zero:
@@ -301,6 +343,8 @@ def main(argv=None):
         if args.font != None:
             kwargs['font'] = args.font
 
+        draw_hook = draw_misc if args.view else None
+
         cct.draw(label_nodes=args.label_nodes,
                  draw_nodes=args.draw_nodes,
                  label_ids=args.label_ids,
@@ -316,6 +360,7 @@ def main(argv=None):
                  dpi=args.dpi, nosave=nosave,
                  node_label_anchor=args.node_label_anchor,
                  label_value_style=args.label_value_style,
+                 draw_hook=draw_hook,
                  **kwargs)
 
     if args.xgraph:

@@ -370,6 +370,7 @@ class Schematic(NetfileMixin):
         options = kwargs.pop('options', None)
         help_lines = float(kwargs.pop('help_lines', 0))
         help_lines_color = kwargs.pop('help_lines_color', 'blue')
+        draw_hook = kwargs.pop('draw_hook', None)
 
         self._positions_calculate(method, self.debug, **kwargs)
 
@@ -408,6 +409,9 @@ class Schematic(NetfileMixin):
 
         # Draw node labels
         s += self._draw_node_labels(**kwargs)
+
+        if draw_hook is not None:
+            s += draw_hook(self)
 
         # Add postamble
         if postamble:
