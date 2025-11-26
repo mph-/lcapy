@@ -130,6 +130,7 @@ class Cpt(object):
     # Auxiliary nodes are used for finding the centre of the shape or
     # to define a bounding box.
     auxiliary = {}
+    misc = {}
     required_auxiliary = ('mid', )
     directive = False
     place = True
@@ -282,12 +283,12 @@ class Cpt(object):
 
         from .shape import Shape
 
-        self.allpins = self.pins.copy()
+        self.allpins = self.tpins.copy()
         self.allpins.update(self.auxiliary)
 
         prefix = self.name + '.'
         pin_node_names = []
-        for pin in self.pins.keys():
+        for pin in self.tpins.keys():
             pin_node_names.append(prefix + pin)
 
         self.pindefs = self.parse_pindefs()
@@ -328,7 +329,7 @@ class Cpt(object):
         # Create dictionary of pinnames sharing the same relative
         # coords (pinname aliases).
         coords = {}
-        for pinname, coord in self.pins.items():
+        for pinname, coord in self.tpins.items():
             if coord not in coords:
                 coords[coord] = [pinname]
             else:
@@ -577,14 +578,19 @@ class Cpt(object):
         try:
             return self.sch.nodes[node_name]
         except KeyError:
-            known_pins = ', '.join(self.pins.keys())
+            known_pins = ', '.join(self.tpins.keys())
             raise ValueError('Unknown pinname %s for `%s`, known pins: %s' %
                              (pinname, self, known_pins))
 
-    def tweak_pins(self, pins):
+    @property
+    def tpins(self):
+
+        return self.tweak_pins(self.pins)
+
+    def tweak_pins(self, pins, mirror=False):
 
         invert = self.invert
-        mirror = self.mirror
+        mirror = self.mirror ^ mirror
         newpins = {}
 
         for key, parts in pins.items():
@@ -646,9 +652,9 @@ class Cpt(object):
             if node in self.aliases:
                 node = self.aliases[node]
 
-            if node not in self.pins:
+            if node not in self.tpins:
                 raise ValueError('Unknown pin %s in %s.  Known pins: %s' %
-                                 (node, key, ', '.join(self.pins)))
+                                 (node, key, ', '.join(self.tpins)))
             parts.append(val)
             opts.append(parts)
         return opts

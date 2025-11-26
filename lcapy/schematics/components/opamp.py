@@ -1,5 +1,8 @@
 from .chip import Chip
 
+# The mirror_pins have the inputs (and outputs for FDA) flipped, not
+# the other pins
+
 
 class Eopamp(Chip):
     """This is for an opamp created with the E netlist type as used for

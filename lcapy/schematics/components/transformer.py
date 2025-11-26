@@ -34,10 +34,10 @@ class TF1(TF):
     w = 0.8
     default_aspect = w
     node_pinnames = ('s+', 's-', 'p+', 'p-')
-    pins = {'s+': ('rx', w, 1),
-            's-': ('rx', w, 0),
-            'p+': ('lx', 0, 1),
-            'p-': ('lx', 0, 0)}
+    pins = {'s+': ('rx', 0.5 * w, 0.5),
+            's-': ('rx', 0.5 * w, -0.5),
+            'p+': ('lx', -0.5 * w, 0.5),
+            'p-': ('lx', -0.5 * w, -0.5)}
     misc = {'pdot+': ('', 0.1 - 0.5 * w, 0.34),
             'sdot+': ('', 0.5 * w - 0.1, 0.34),
             'pdot-': ('', 0.1 - 0.5 * w, -0.34),
@@ -169,7 +169,7 @@ class TFp1s2(TF):
     w = 0.8
     s = 0.4
     h = 1.0
-    xpins = {'s1+': ('rx', 0.5 * w, 0.5 * s + h),
+    pins = {'s1+': ('rx', 0.5 * w, 0.5 * s + h),
              's1-': ('rx', 0.5 * w, 0.5 * s),
              's2+': ('rx', 0.5 * w, -0.5 * s),
              's2-': ('rx', 0.5 * w, -0.5 * s - h),
@@ -190,9 +190,9 @@ class TFp1s2(TF):
             'label': ('', 0, 1.1)}
 
     @property
-    def pins(self):
+    def tpins(self):
 
-        return self.tweak_pins(self.xpins)
+        return self.tweak_pins(self.pins)
 
     def draw(self, **kwargs):
 
@@ -262,7 +262,7 @@ class TFp1s1(TF):
     node_pinnames = ('s1+', 's1-', 'p1+', 'p1-')
     w = 0.8
     h = 1
-    xpins = {'s1+': ('rx', 0.5 * w, 0.5 * h),
+    pins = {'s1+': ('rx', 0.5 * w, 0.5 * h),
              's1-': ('rx', 0.5 * w, -0.5 * h),
              'p1+': ('lx', -0.5 * w, 0.5 * h),
              'p1-': ('lx', -0.5 * w, -0.5 * h)}
@@ -279,9 +279,9 @@ class TFp1s1(TF):
             'label': ('', 0, 0.48)}
 
     @property
-    def pins(self):
+    def tpins(self):
 
-        return self.tweak_pins(self.xpins)
+        return self.tweak_pins(self.pins)
 
     def draw(self, **kwargs):
 

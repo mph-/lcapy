@@ -16,6 +16,11 @@ class Shape(FixedCpt):
                  'tl': ('l', -0.5, 0.5),
                  'tr': ('r', 0.5, 0.5)}
 
+    @property
+    def tpins(self):
+
+        return self.pins
+
     def pinpos_rotate(self, pinpos, angle):
         """Rotate pinpos by multiple of 90 degrees.  pinpos is either 'l',
         't', 'r', 'b'."""
@@ -159,7 +164,7 @@ class Shape(FixedCpt):
                 raise ValueError('Expecting = in pindef %s' % pindef)
             pinname = fields[1]
             pindef = fields[0]
-            if pinname not in self.pins:
+            if pinname not in self.tpins:
                 raise ValueError('Unknown pin %s in pindef' % pinname)
             foo[pinname] = pindef
         return foo

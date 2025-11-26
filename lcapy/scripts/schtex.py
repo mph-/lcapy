@@ -38,12 +38,16 @@ def cpt_draw1(cpt, pins):
     s = ''
     for key, pin in pins.items():
 
-        centre = cpt.node('mid').pos
+        try:
+            centre = cpt.node('mid').pos
 
-        pos = cpt.tf(centre, pin[1:3])
-        s += r'  \draw (%s) node[blue, circ] {};''\n' % pos
-        s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
-            pos, 0.5, cpt.s, key)
+            pos = cpt.tf(centre, pin[1:3])
+            s += r'  \draw (%s) node[blue, circ] {};''\n' % pos
+            s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
+                pos, 0.5, cpt.s, key)
+        except:
+            # Not all cpts have mid pin
+            pass
 
     return s
 
@@ -51,7 +55,7 @@ def cpt_draw1(cpt, pins):
 def cpt_draw(cpt):
 
     s = cpt.draw()
-    s += cpt_draw1(cpt, cpt.pins)
+    s += cpt_draw1(cpt, cpt.tpins)
     s += cpt_draw1(cpt, cpt.misc)
     s += cpt_draw1(cpt, cpt.auxiliary)
     return s

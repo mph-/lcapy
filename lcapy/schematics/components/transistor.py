@@ -8,44 +8,35 @@ class Transistor(FixedCpt):
     can_mirror = True
     can_scale = True
     can_invert = True
+    auxiliary = {'mid': ('c', 0.0, 0.0)}
 
     @property
-    def pins(self):
+    def tpins(self):
 
         if (self.kind is not None
             and (self.kind.startswith('pigfet')
                  or self.kind.startswith('nigfet'))):
-            xpins = [[self.normal_pins2, self.invert_pins2],
-                     [self.mirror_pins2, self.mirror_invert_pins2]]
+            pins = self.pins2
         else:
-            xpins = [[self.normal_pins, self.invert_pins],
-                     [self.mirror_pins, self.mirror_invert_pins]]
+            pins = self.pins
         if (self.classname in ('Qpnp', 'Mpmos', 'Jpjf')
             or self.kind in ('pmos', 'pmosd', 'pfetd', 'pfet',
                              'pfetd-bodydiode', 'pfet-bodydiode',
                              'pigfetd', 'pigfete', 'pigfetebulk')):
-            pins = xpins[not self.mirror][self.invert]
+            tpins = self.tweak_pins(pins, True)
         else:
-            pins = xpins[self.mirror][self.invert]
+            tpins = self.tweak_pins(pins)
 
-        if self.size != 1 or self.scale != 1:
-            if 'g' in pins:
-                # Apply hack to draw gate in correct place when
-                # size is not 1.  Only required if pos != 0.5.
-                pins = pins.copy()
-                gpin = pins['g']
-                y = ((1 - self.scale) / 2 +
-                     gpin[2] * self.scale + (self.size - 1) / 2) / self.size
-                pins['g'] = (gpin[0], gpin[1], y)
-        return pins
+        return tpins
 
     def draw(self, **kwargs):
 
         if not self.check():
             return ''
 
-        n1, n2, n3 = self.nodes
+        n1, n2, n3 = self.nodes[0:3]
         centre = (n1.pos + n3.pos) * 0.5
+        # centre = self.node('mid').pos
 
         xscale = self.scale
         yscale = self.scale

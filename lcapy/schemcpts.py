@@ -223,18 +223,9 @@ class BJT(Transistor):
 
     node_pinnames = ('c', 'b', 'e')
     aliases = {'emitter': 'e', 'base': 'b', 'collector': 'c'}
-    normal_pins = {'e': ('lx', 0.55, 0),
-                   'b': ('lx', 0, 0.5),
-                   'c': ('lx', 0.55, 1)}
-    mirror_pins = {'e': ('lx', 0.55, 1),
-                   'b': ('lx', 0, 0.5),
-                   'c': ('lx', 0.55, 0)}
-    invert_pins = {'e': ('lx', 0, 0),
-                   'b': ('lx', 0.55, 0.5),
-                   'c': ('lx', 0, 1)}
-    mirror_invert_pins = {'e': ('lx', 0, 1),
-                          'b': ('lx', 0.55, 0.5),
-                          'c': ('lx', 0, 0)}
+    pins = {'e': ('lx', 0.275, -0.5),
+            'b': ('lx', -0.275, 0),
+            'c': ('lx', 0.275, 0.5)}
     kinds = {'npn': 'npn',
              'pnp': 'pnp',
              'bodydiode': '-bodydiode',
@@ -253,18 +244,9 @@ class JFET(Transistor):
 
     node_pinnames = ('d', 'g', 's')
     aliases = {'drain': 'd', 'gate': 'g', 'source': 's'}
-    normal_pins = {'d': ('lx', 0.55, 1),
-                   'g': ('lx', 0, 0.335),
-                   's': ('lx', 0.55, 0)}
-    mirror_pins = {'d': ('lx', 0.55, 0),
-                   'g': ('lx', 0, 0.645),
-                   's': ('lx', 0.55, 1)}
-    invert_pins = {'d': ('lx', 0, 1),
-                   'g': ('lx', 0.55, 0.335),
-                   's': ('lx', 0, 0)}
-    mirror_invert_pins = {'d': ('lx', 0, 0),
-                          'g': ('lx', 0.55, 0.645),
-                          's': ('lx', 0, 1)}
+    pins = {'d': ('lx', 0.275, 0.5),
+            'g': ('lx', -0.275, -0.165),
+            's': ('lx', 0.275, -0.5)}
 
 
 class MOSFET(Transistor):
@@ -272,30 +254,12 @@ class MOSFET(Transistor):
 
     node_pinnames = ('d', 'g', 's')
     aliases = {'drain': 'd', 'gate': 'g', 'source': 's'}
-    normal_pins = {'d': ('lx', 0.55, 1),
-                   'g': ('lx', 0, 0.5),
-                   's': ('lx', 0.55, 0)}
-    mirror_pins = {'d': ('lx', 0.55, 0),
-                   'g': ('lx', 0, 0.5),
-                   's': ('lx', 0.55, 1)}
-    invert_pins = {'d': ('lx', 0, 1),
-                   'g': ('lx', 0.55, 0.5),
-                   's': ('lx', 0, 0)}
-    mirror_invert_pins = {'d': ('lx', 0, 0),
-                          'g': ('lx', 0.55, 0.5),
-                          's': ('lx', 0, 1)}
-    normal_pins2 = {'d': ('lx', 0.55, 1),
-                    'g': ('lx', 0, 0.355),
-                    's': ('lx', 0.55, 0)}
-    mirror_pins2 = {'d': ('lx', 0.55, 0),
-                    'g': ('lx', 0, 0.645),
-                    's': ('lx', 0.55, 1)}
-    invert_pins2 = {'d': ('lx', 0, 1),
-                    'g': ('lx', 0.55, 0.335),
-                    's': ('lx', 0, 0)}
-    mirror_invert_pins2 = {'d': ('lx', 0, 0),
-                           'g': ('lx', 0.55, 0.645),
-                           's': ('lx', 0, 1)}
+    pins = {'d': ('lx', 0.275, 0.5),
+            'g': ('lx', -0.275, 0),
+            's': ('lx', 0.275, -0.5)}
+    pins2 = {'d': ('lx', 0.275, 0.5),
+             'g': ('lx', -0.275, -0.145),
+             's': ('lx', 0.275, -0.5)}
     kinds = {'nmos': 'nmos', 'pmos': 'pmos',
              'nmosd': 'nmosd', 'pmosd': 'pmosd',
              'nfet': 'nfet', 'pfet': 'pfet',
@@ -343,16 +307,17 @@ class MX(FixedCpt):
     can_scale = True
 
     node_pinnames = ('in1', 'in2', 'out')
-    pins = {'in1': ('lx', 0.25, 0.25),
-            'in2': ('lx', -0.25, 0.25),
-            'out': ('rx', 0, 0)}
+    pins = {'in1': ('lx', 0.25, 0),
+            'in2': ('lx', -0.25, 0),
+            'out': ('rx', 0, -0.25)}
+    auxiliary = {'mid': ('c', 0.0, 0.0)}
 
     def draw(self, **kwargs):
 
         if not self.check():
             return ''
 
-        n1, n2, n3 = self.nodes
+        n1, n2, n3 = self.nodes[0:3]
         centre = (n1.pos + n2.pos) * 0.5
         q = self.tf(centre, ((0, 0.35)))
 
@@ -370,26 +335,18 @@ class SP(FixedCpt):
     can_mirror = True
 
     node_pinnames = ('in1', 'in2', 'out', 'in3')
-    normal_pins = {'in1': ('lx', -0.25, 0),
-                   'in2': ('bx', 0, -0.25),
-                   'out': ('rx', 0.25, 0),
-                   'in3': ('tx', 0, 0.25)}
-    mirror_pins = {'in1': ('lx', -0.25, 0),
-                   'in2': ('tx', 0, 0.25),
-                   'out': ('rx', 0.25, 0),
-                   'in3': ('bx', 0, -0.25)}
-
-    @property
-    def pins(self):
-        """Return the pin names for the current node"""
-        return self.mirror_pins if self.mirror else self.normal_pins
+    pins = {'in1': ('lx', -0.25, 0),
+            'in2': ('bx', 0, -0.25),
+            'out': ('rx', 0.25, 0),
+            'in3': ('tx', 0, 0.25)}
+    auxiliary = {'mid': ('c', 0.0, 0.0)}
 
     def draw(self, **kwargs):
         """Draw the summing point"""
         if not self.check():
             return ''
 
-        n = self.nodes
+        n = self.nodes[0:4]
         centre = (n[0].pos + n[2].pos) * 0.5
         q = self.tf(centre, ((0.3, 0.3), (-0.125, 0), (0, -0.125),
                              (0, 0.125), (0, 0.125)))
@@ -416,17 +373,10 @@ class SP3(SP):
     """Summing point"""
 
     node_pinnames = ('in1', 'in2', 'out')
-    normal_pins = {'in1': ('lx', -0.25, 0),
-                   'in2': ('bx', 0, -0.25),
-                   'out': ('rx', 0.25, 0)}
-    mirror_pins = {'in1': ('lx', -0.25, 0),
-                   'in2': ('tx', 0, 0.25),
-                   'out': ('rx', 0.25, 0)}
-
-    @property
-    def pins(self):
-        """Return the pin names for the current node"""
-        return self.mirror_pins if self.mirror else self.normal_pins
+    pins = {'in1': ('lx', -0.25, 0),
+            'in2': ('bx', 0, -0.25),
+            'out': ('rx', 0.25, 0)}
+    auxiliary = {'mid': ('c', 0.0, 0.0)}
 
 
 class SPpp(SP3):
@@ -475,20 +425,21 @@ class TL(StretchyCpt):
             'in2': ('lx', 0, 0),
             'out1': ('rx', w, 0.5),
             'out2': ('rx', w, 0)}
+    auxiliary = {'mid': ('c', 0.0, 0.0)}
 
     @property
     def drawn_nodes(self):
 
         if self.nowires:
             return self.nodes[0:1]
-        return self.nodes
+        return self.nodes[0:-1]
 
     def draw(self, **kwargs):
 
         if not self.check():
             return ''
 
-        n1, n2, n3, n4 = self.nodes
+        n1, n2, n3, n4 = self.nodes[0:4]
         centre = (n1.pos + n3.pos) * 0.5 + Pos(1 - self.w, 0)
 
         q = self.xtf(centre, ((0.23, 0),
@@ -520,10 +471,10 @@ class Gyrator(FixedCpt):
     """Gyrator"""
 
     node_pinnames = ('out+', 'out-', 'in+', 'in-')
-    pins = {'out+': ('rx', 1, 1),
-            'out-': ('rx', 1, 0),
-            'in+': ('lx', 0, 1),
-            'in-': ('lx', 0, 0)}
+    pins = {'out+': ('rx', 0.5, 0.5),
+            'out-': ('rx', 0.5, -0.5),
+            'in+': ('lx', -0.5, 0.5),
+            'in-': ('lx', -0.5, -0.5)}
 
     def draw(self, **kwargs):
 
@@ -539,7 +490,8 @@ class Gyrator(FixedCpt):
             self.draw_args_str(**kwargs), 0.95 * self.scale, 0.89 * yscale,
             -self.angle, self.s)
 
-        s += self.draw_label(self.centre, **kwargs)
+        labelpos = self.midpoint(self.nodes[0], self.nodes[2])
+        s += self.draw_label(labelpos, **kwargs)
         return s
 
 
@@ -551,6 +503,7 @@ class Triode(FixedCpt):
     pins = {'a': ('l', 0.15, 0.5),
             'g': ('l', -0.25, 0),
             'k': ('l', 0, -0.5)}
+    auxiliary = {'mid': ('c', 0.0, 0.0)}
 
     def draw(self, **kwargs):
 
@@ -587,6 +540,7 @@ class Potentiometer(Bipole):
     pins = {'p': ('rx', -0.5, 0),
             'n': ('rx', 0.5, 0),
             'wiper': ('l', 0.0, 0.3)}
+    auxiliary = {'mid': ('c', 0.0, 0.0)}
 
 
 class VCS(Bipole):
@@ -609,18 +563,9 @@ class SPDT(FixedCpt):
 
     node_pinnames = ('p', 'n', 'common')
     aliases = {'+': 'p', '-': 'n'}
-    normal_pins = {'p': ('lx', 0, 0.169),
-                   'n': ('rx', 0.632, 0.338),
-                   'common': ('lx', 0.632, 0)}
-    invert_pins = {'p': ('lx', 0.632, 0.169),
-                   'n': ('rx', 0, 0.338),
-                   'common': ('lx', 0, 0)}
-
-    @property
-    def pins(self):
-        """Return the pin names for the current node"""
-        # The mirror pins are at the same locations as the normal pins
-        return self.invert_pins if self.invert else self.normal_pins
+    pins = {'p': ('lx', -0.316, 0.0),
+            'n': ('rx', 0.316, 0.169),
+            'common': ('lx', 0.316, -0.169)}
 
     def draw(self, **kwargs):
         """Draw the switch"""
