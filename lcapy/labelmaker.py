@@ -67,9 +67,7 @@ class LabelMaker:
                 value_label = self._format_expr(expr)
             elif cpt.classname in ('Vs', 'Is'):
                 value_label = self._format_expr(expr)
-            elif cpt.classname in ('TF', 'TFptst', 'TFptsb', 'TFtap',
-                                   'TFptstt', 'TFptstb', 'TFptsbt',
-                                   'TFptsbb'):
+            elif cpt.classname in ('TF', 'TFscs', 'TFscss', 'TFtap'):
                 value_label = None
             elif cpt.type in ('F', 'H') and len(cpt.args) > 1:
                 # This is hard to give a reasonable label since the

@@ -1,5 +1,6 @@
-from warnings import warn
+from ...expr import expr
 from .fixedcpt import FixedCpt
+from warnings import warn
 
 
 class TF(FixedCpt):
@@ -96,10 +97,17 @@ class TF1(TF):
             plabel_pos = self.tf(centre, misc['plabel'][1:3])
             slabel_pos = self.tf(centre, misc['slabel'][1:3])
 
+            Ns = expr(self.args[0])
+            Np = expr(self.args[1])
+            if Ns < 0:
+                Ns = -Ns
+            if Np < 0:
+                Np = -Np
+
             s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
-                slabel_pos, 0.5, self.s, self.args[0])
+                slabel_pos, 0.5, self.s, Ns)
             s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
-                plabel_pos, 0.5, self.s, self.args[1])
+                plabel_pos, 0.5, self.s, Np)
 
         return s
 
@@ -215,18 +223,17 @@ class TFp1s2(TF):
                            dargs=draw_args_str)
 
         centre = (n2.pos + n3.pos + n5.pos + n6.pos) * 0.25
+        Ns2 = expr(self.args[0])
+        Ns1 = expr(self.args[1])
+        Np = expr(self.args[2])
+
         if not self.nodots:
 
-            misc= self.tweak_pins(self.misc)
+            misc = self.tweak_pins(self.misc)
 
-            dots = {'TFptstt': '+++',
-                    'TFptstb': '++-',
-                    'TFptsbt': '+-+',
-                    'TFptsbb': '+--'}[self.__class__.__name__]
-
-            pdot1 = 'pdot1' + dots[0]
-            sdot1 = 'sdot1' + dots[1]
-            sdot2 = 'sdot2' + dots[2]
+            sdot2 = 'sdot2-' if Ns2.is_negative else 'sdot2+'
+            sdot1 = 'sdot1-' if Ns1.is_negative else 'sdot1+'
+            pdot1 = 'pdot1-' if Np.is_negative else 'pdot1+'
             pdot1_pos = self.tf(centre, misc[pdot1][1:3])
             sdot1_pos = self.tf(centre, misc[sdot1][1:3])
             sdot2_pos = self.tf(centre, misc[sdot2][1:3])
@@ -246,12 +253,19 @@ class TFp1s2(TF):
             s1label_pos = self.tf(centre, misc['s1label'][1:3])
             s2label_pos = self.tf(centre, misc['s2label'][1:3])
 
+            if Ns2 < 0:
+                Ns2= -Ns2
+            if Ns1 < 0:
+                Ns1= -Ns1
+            if Np < 0:
+                Np= -Np
+
             s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
-                s2label_pos, 0.5, self.s, self.args[0])
+                s2label_pos, 0.5, self.s, Ns2)
             s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
-                s1label_pos, 0.5, self.s, self.args[1])
+                s1label_pos, 0.5, self.s, Ns1)
             s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
-                plabel_pos, 0.5, self.s, self.args[2])
+                plabel_pos, 0.5, self.s, Np)
         return s
 
 class TFp1s1(TF):
@@ -302,15 +316,15 @@ class TFp1s1(TF):
                            dargs=draw_args_str)
 
         centre = (n1.pos + n2.pos + n3.pos + n4.pos) * 0.25
+        Ns = expr(self.args[0])
+        Np = expr(self.args[1])
+
         if not self.nodots:
 
-            misc= self.tweak_pins(self.misc)
+            misc = self.tweak_pins(self.misc)
 
-            dots = {'TFptst': '++',
-                    'TFptsb': '+-'}[self.__class__.__name__]
-
-            pdot1 = 'pdot1' + dots[0]
-            sdot1 = 'sdot1' + dots[1]
+            sdot1 = 'sdot1-' if Ns.is_negative else 'sdot1+'
+            pdot1 = 'pdot1-' if Np.is_negative else 'pdot1+'
             pdot1_pos = self.tf(centre, misc[pdot1][1:3])
             sdot1_pos = self.tf(centre, misc[sdot1][1:3])
 
@@ -328,10 +342,15 @@ class TFp1s1(TF):
             plabel_pos = self.tf(centre, misc['plabel'][1:3])
             slabel_pos = self.tf(centre, misc['slabel'][1:3])
 
+            if Ns < 0:
+                Ns = -Ns
+            if Np < 0:
+                Np = -Np
+
             s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
-                slabel_pos, 0.5, self.s, self.args[0])
+                slabel_pos, 0.5, self.s, Ns)
             s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
-                plabel_pos, 0.5, self.s, self.args[1])
+                plabel_pos, 0.5, self.s, Np)
 
         return s
 

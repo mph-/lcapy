@@ -3348,11 +3348,7 @@ class TF(Transformer):
     pass
 
 
-class TFptst(Transformer):
-    pass
-
-
-class TFptsb(Transformer):
+class TFscs(Transformer):
     pass
 
 

@@ -568,6 +568,26 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(a.impedance(1, 0), impedance(
             'R / k**2'), "incorrect impedance")
 
+    def test_TF2(self):
+        """Test two winding transformer"""
+
+        a = Circuit("""
+        TF 1 0 2 0 scs Ns Np
+        V 2 0""")
+
+        self.assertEqual(a[1].V, voltage('V * Ns / Np'), "incorrect voltage")
+
+    def test_TF3(self):
+        """Test three winding transformer"""
+
+        a = Circuit("""
+        TF 1 0 2 0 3 0 scss Ns2 Ns1 Np
+        V 3 0""")
+
+        self.assertEqual(a[1].V, voltage('V * Ns1 / Np'), "incorrect voltage")
+        self.assertEqual(a[2].V, voltage('V * Ns2 / Np'), "incorrect voltage")
+
+
     def test_TVtriode(self):
         """ Test thermionic valve triode"""
 

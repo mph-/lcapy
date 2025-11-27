@@ -1205,12 +1205,8 @@ defcpt('SWspdt', SPDT, 'SPDT switch', 'spdt')
 defcpt('TF', Transformer, 'Transformer', 'ideal transformer')
 defcpt('TFtap', Transformer, 'Transformer', 'ideal transformer with taps')
 
-defcpt('TFptst', TFp1s1, 'Transformer', 'ideal transformer')
-defcpt('TFptsb', TFp1s1, 'Transformer', 'ideal transformer')
-defcpt('TFptstt', TFp1s2, 'Transformer', 'ideal transformer with 3 windings')
-defcpt('TFptstb', TFp1s2, 'Transformer', 'ideal transformer with 3 windings')
-defcpt('TFptsbt', TFp1s2, 'Transformer', 'ideal transformer with 3 windings')
-defcpt('TFptsbb', TFp1s2, 'Transformer', 'ideal transformer with 3 windings')
+defcpt('TFscs', TFp1s1, 'Transformer', 'ideal transformer')
+defcpt('TFscss', TFp1s2, 'Transformer', 'ideal transformer with 3 windings')
 
 # The following two should be deprecated; instead use core attribute
 defcpt('TFcore', Transformer, 'Transformer with core', 'transformer core')

@@ -385,7 +385,8 @@ class Opamp(ThreePort):
 
 
 class Transformer3(ThreePort, Network):
-    """Ideal transformer with three windings.
+    """Ideal transformer with three windings.  If the turns is negative,
+    the dot is at the bottom of the winding.
 
     """
 
@@ -397,30 +398,11 @@ class Transformer3(ThreePort, Network):
 
         alpha2 = self.Ns2 / self.Np
         alpha1 = self.Ns1 / self.Np
-        if self.__class__.__name__ == 'TFptstb':
-            alpha1 = -alpha1
-        elif self.__class__.__name__ == 'TFptsbt':
-            alpha2 = -alpha2
-        elif self.__class__.__name__ == 'TFptsbb':
-            alpha2 = -alpha2
-            alpha1 = -alpha1
 
         self.alpha1 = alpha1
         self.alpha2 = alpha2
         self.args = (Ns2, Ns1, Np)
 
 
-class TFptstt(Transformer3):
-    pass
-
-
-class TFptstb(Transformer3):
-    pass
-
-
-class TFptsbt(Transformer3):
-    pass
-
-
-class TFptsbb(Transformer3):
+class TFscss(Transformer3):
     pass

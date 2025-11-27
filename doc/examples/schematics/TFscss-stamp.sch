@@ -1,4 +1,4 @@
-TF _k _l _m _n _p _q ptstt Ns2, Ns1, Np; right, turns, l=
+TF _k _l _m _n _p _q scss Ns2, Ns1, Np; right, turns, l=
 W _k k; right, i=I_{S1}
 W _l l; right
 W _m m; right, i=I_{S2}

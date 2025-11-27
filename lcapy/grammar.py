@@ -94,14 +94,10 @@ SWpush: SWname Np Nm push [Time=0]; Pushbutton switch
 SWspdt: SWname Nc Np Nm spdt [Time=0]; SPDT switch
 TF: TFname Np Nm Ncp Ncm [Ns1=name] [Np1=1]; Ideal transformer (works to DC!)
 TFcore: TFname Np Nm Ncp Ncm core [Ns1=name] [Np1=1]; Transformer with core (works to DC!)
-TFtap: TFname Np Nm Ncp Ncm tap Nt Nt [Ns1=name] [Np1=1]; Tapped transformer (works to DC!)
+TFtap: TFname Np Nm Ncp Ncm tap Nt Nt [Ns1=name] [Np1=1]; Tapped transformer (works to DC! deprecated)
 TFtapcore: TFname Np Nm Ncp Ncm tapcore Nt Nt [Ns1=name] [Np1=1]; Tapped transformer with core (works to DC!)
-TFptst: TFname Ns1p Ns1m Np1p Np1m ptst [Ns1=1] [Np1=1]; Ideal transformer (works to DC!)
-TFptsb: TFname Ns1p Ns1m Np1p Np1m ptsb [Ns1=1] [Np1=1]; Ideal transformer (works to DC!)
-TFptstt: TFname Ns1p Ns1m Ns2p Ns2m Np1p Np1m ptstt [Ns1=1] [Ns2=1] [Np1=1]; Ideal transformer with one primary winding and two secondary windings (works to DC!)
-TFptstb: TFname Ns1p Ns1m Ns2p Ns2m Np1p Np1m ptstb [Ns1=1] [Ns2=1] [Np1=1]; Ideal transformer with one primary winding and two secondary windings (works to DC!)
-TFptsbt: TFname Ns1p Ns1m Ns2p Ns2m Np1p Np1m ptsbt [Ns1=1] [Ns2=1] [Np1=1]; Ideal transformer with one primary winding and two secondary windings (works to DC!)
-TFptsbb: TFname Ns1p Ns1m Ns2p Ns2m Np1p Np1m ptsbb [Ns1=1] [Ns2=1] [Np1=1]; Ideal transformer with one primary winding and two secondary windings (works to DC!)
+TFscs: TFname Ns1p Ns1m Np1p Np1m scs [Ns1=1] [Np1=1]; Ideal transformer (works to DC!)
+TFscss: TFname Ns1p Ns1m Ns2p Ns2m Np1p Np1m scss [Ns1=1] [Ns2=1] [Np1=1]; Ideal transformer with one primary winding and two secondary windings (works to DC!)
 TL: TLname Np Nm Ncp Ncm [Z0=Z0] [Gamma=Gamma(s)] [Length=l]; Transmission line
 TLlossless: TLname Np Nm Ncp Ncm lossless [Z0=Z0] [Speed=c] [Length=l]; Lossless transmission line
 TP: TPname Np Nm Ncp Ncm; Generic two-port
@@ -245,12 +241,8 @@ xnor: keyword;
 dff: keyword; D flip-flop
 jkff: keyword; JK flip-flop
 rslatch: keyword; RS latch
-ptst: keyword;
-ptsb: keyword;
-ptstt: keyword;
-ptstb: keyword;
-ptsbt: keyword;
-ptsbb: keyword;
+scs: keyword;
+scss: keyword;
 A: keyword;
 B: keyword;
 G: keyword;
