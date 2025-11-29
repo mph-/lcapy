@@ -2,6 +2,8 @@
 \usepackage{amsmath}
 \usepackage{circuitikz}
 
+\setcounter{MaxMatrixCols}{12}
+
 \setlength{\oddsidemargin}{0mm}
 \setlength{\evensidemargin}{-14mm}
 \setlength{\marginparwidth}{0cm}
@@ -592,7 +594,7 @@ This can be achieved by summing the stamp \refeqn{L1L2_stamp1} with
 
 \begin{figure}[!h]
   \centering
-  \input{figs/TFptst-stamp.pgf}
+  \input{figs/TFscs-stamp.pgf}
   \caption{Two-winding ideal transformed defined by TF k l m n.}
   \end{figure}
 
@@ -601,20 +603,20 @@ The current equations are
 \begin{align}
   I_k = & \; -I_S, \\
   I_l = & \; I_S, \\
-  I_m = & \; \frac{T_s}{T_p} I_S, \\
-  I_n = & \; -\frac{T_s}{T_p} I_S, \\
+  I_m = & \; \frac{T_S}{T_P} I_S, \\
+  I_n = & \; -\frac{T_S}{T_P} I_S, \\
 \end{align}
 %
 and the voltage equation is
 %
 \begin{align}
-  V_k - V_l = & \; \frac{T_s}{T_p} \encp{V_m - V_n}.
+  V_k - V_l = & \; \frac{T_S}{T_P} \encp{V_m - V_n}.
 \end{align}
 %
 This can be expressed as
 %
 \begin{align}
-  V_k - V_l - \frac{T_s}{T_p} V_m + \frac{T_s}{T_p} V_n = & \; 0, \\
+  V_k - V_l - \frac{T_S}{T_P} V_m + \frac{T_S}{T_P} V_n = & \; 0, \\
 \end{align}
 
 The resultant stamp is
@@ -636,15 +638,15 @@ The resultant stamp is
 \end{bmatrix},
 \end{equation}
 %
-where $\alpha = T_s / T_p$.
+where $\alpha = T_S / T_P$.
 
 
 \subsection{Three-winding transformer stamp}
 
 \begin{figure}[!h]
   \centering
-  \input{figs/TFptstt-stamp.pgf}
-  \caption{Three-winding ideal transformer defined by TF k l m n p q.}
+  \input{figs/TFscss-stamp.pgf}
+  \caption{Three-winding ideal transformer defined by TF k l m n p q scss.}
 \end{figure}
 
 The current equations are
@@ -654,22 +656,22 @@ The current equations are
   I_l = & \; I_{S2}, \\
   I_m = & \; -I_{S1}, \\
   I_n = & \; I_{S1}, \\
-  I_p = & \; \frac{T_{S2}}{T_p} I_{S2} + \frac{T_{S1}}{T_p} I_{S1}, \\
-  I_q = & \; -\frac{T_{S2}}{T_p} I_{S2} - \frac{T_{S1}}{T_p} I_{S1},
+  I_p = & \; \frac{T_{S2}}{T_P} I_{S2} + \frac{T_{S1}}{T_P} I_{S1}, \\
+  I_q = & \; -\frac{T_{S2}}{T_P} I_{S2} - \frac{T_{S1}}{T_P} I_{S1},
 \end{align}
 %
 and the voltage equations are
 %
 \begin{align}
-  V_k - V_l = & \; \frac{T_{S2}}{T_p} \encp{V_p - V_q}, \\
-  V_m - V_n = & \; \frac{T_{S1}}{T_p} \encp{V_p - V_q}.
+  V_k - V_l = & \; \frac{T_{S2}}{T_P} \encp{V_p - V_q}, \\
+  V_m - V_n = & \; \frac{T_{S1}}{T_P} \encp{V_p - V_q}.
 \end{align}
 %
 These can be expressed as
 %
 \begin{align}
-  V_k - V_l - \frac{T_{S2}}{T_p} V_p + \frac{T_{S2}}{T_p} V_q = & \; 0, \\
-  V_m - V_n - \frac{T_{S1}}{T_p} V_p + \frac{T_{S1}}{T_p} V_q = & \; 0.
+  V_k - V_l - \frac{T_{S2}}{T_P} V_p + \frac{T_{S2}}{T_P} V_q = & \; 0, \\
+  V_m - V_n - \frac{T_{S1}}{T_P} V_p + \frac{T_{S1}}{T_P} V_q = & \; 0.
 \end{align}
 
 The resultant stamp is
@@ -682,8 +684,8 @@ The resultant stamp is
     &  &  &  &  &  & 1 & 0     \\
     &  &  &  &  &  & \alpha_1  & \alpha_2  \\
     &  &  &  &  &  & -\alpha_1 & -\alpha_2  \\
-  1 & -1 & 0 &  0 & -\alpha_1  & \alpha_1 & 0 & 0 \\
-  0 &  0 & 1 & -1 & -\alpha_l  & \alpha_l & 0 & 0 \\
+  1 & -1 & 0 &  0 & -\alpha_2  & \alpha_2 & 0 & 0 \\
+  0 &  0 & 1 & -1 & -\alpha_1  & \alpha_1 & 0 & 0 \\
   \end{bmatrix}
   \begin{bmatrix}
     V_k \\ V_l \\ V_m \\ V_n \\ V_p \\ V_q \\ I_{S1} \\ I_{S2}
@@ -694,7 +696,75 @@ The resultant stamp is
 \end{bmatrix},
 \end{equation}
 %
-where $\alpha_1 =  T_{S1} / T_p$ and $\alpha_l =  T_{S2} / T_p$.
+where $\alpha_1 =  T_{S1} / T_P$ and $\alpha_2 =  T_{S2} / T_P$.
+
+
+\subsection{Four-winding transformer stamp}
+
+\begin{figure}[!h]
+  \centering
+  \input{figs/TFsscss-stamp.pgf}
+  \caption{Four-winding ideal transformer defined by TF k l m n p q r s sscss.}
+\end{figure}
+
+The current equations are
+%
+\begin{align}
+  I_k = & \; -I_{S2}, \\
+  I_l = & \; I_{S2}, \\
+  I_m = & \; -I_{S1}, \\
+  I_n = & \; I_{S1}, \\
+  I_p = & \; -I_{P2}, \\
+  I_q = & \; I_{P2}, \\
+  I_r = & \; \frac{T_{S2}}{T_{P1}} I_{S2} + \frac{T_{S1}}{T_{P1}} I_{S1}
+  + \frac{T_{P2}}{T_{P1}} I_{P2}, \\
+  I_s = & \; -\frac{T_{S2}}{T_{P1}} I_{S2} - \frac{T_{S1}}{T_{P1}} I_{S1}
+  - \frac{T_{P2}}{T_{P1}} I_{P2}, \\
+\end{align}
+%
+and the voltage equations are
+%
+\begin{align}
+  V_k - V_l = & \; \frac{T_{S2}}{T_{P1}} \encp{V_r - V_s}, \\
+  V_m - V_n = & \; \frac{T_{S1}}{T_{P1}} \encp{V_r - V_s}, \\
+  V_p - V_q = & \; \frac{T_{P2}}{T_{P1}} \encp{V_r - V_s}, \\
+\end{align}
+%
+These can be expressed as
+%
+\begin{align}
+  V_k - V_l - \frac{T_{S2}}{T_{P1}} V_r + \frac{T_{S2}}{T_{P1}} V_s = & \; 0, \\
+  V_m - V_n - \frac{T_{S1}}{T_{P1}} V_r + \frac{T_{S1}}{T_{P1}} V_s = & \; 0, \\
+  V_p - V_q - \frac{T_{P2}}{T_{P1}} V_r + \frac{T_{P2}}{T_{P1}} V_s = & \; 0.
+\end{align}
+
+The resultant stamp is
+%
+\begin{equation}
+  \begin{bmatrix}
+    &    &   &    &   &    &  &  &  0 & -1 &  0  \\
+    &    &   &    &   &    &  &  &  0 &  1 &  0  \\
+    &    &   &    &   &    &  &  & -1 &  0 &  0  \\
+    &    &   &    &   &    &  &  &  1 &  0 &  0  \\
+    &    &   &    &   &    &  &  &  0 &  0 & -1  \\
+    &    &   &    &   &    &  &  &  0 &  0 &  1  \\
+    &    &   &    &   &    &  &  &  \alpha_2 &  \alpha_1 &  \alpha_3  \\
+    &    &   &    &   &    &  &  & -\alpha_2 & -\alpha_1 & -\alpha_3  \\
+  1 & -1 & 0 &  0 & 0 &  0 & -\alpha_2 & \alpha_2 & 0 & 0 & 0 \\
+  0 &  0 & 1 & -1 & 0 &  0 & -\alpha_1 & \alpha_1 & 0 & 0 & 0 \\
+  0 &  0 & 0 &  0 & 1 & -1 & -\alpha_3 & \alpha_3 & 0 & 0 & 0
+  \end{bmatrix}
+  \begin{bmatrix}
+    V_k \\ V_l \\ V_m \\ V_n \\ V_p \\ V_q \\ V_s \\ V_s \\ I_{S1} \\ I_{S2} \\ I_{P2}
+  \end{bmatrix}
+=
+\begin{bmatrix}
+  I_k \\ I_l \\ I_m \\ I_n \\ I_p \\ I_q \\ I_r \\ I_s \\ 0 \\ 0 \\ 0
+\end{bmatrix},
+\end{equation}
+%
+where $\alpha_1 =  T_{S1} / T_{P1}$, $\alpha_2 =  T_{S2} / T_{P1}$,
+and $\alpha_3 =  T_{P2} / T_{P1}$.
 
 
 

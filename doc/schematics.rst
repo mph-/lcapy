@@ -721,10 +721,12 @@ Switches can be mirrored and inverted, for example:
    :width: 8cm
 
 
-.. _tran1.sformers:
+.. _transformers:
 
 Transformers
 ------------
+
+The position of the dots is determined by the sign of the number of turns.  If the number of turns is positive, the dot is drawn at the top.  Otherwise it is drawn at the bottom.  The style of transformer is controlled by a keyword.  For a two winding transformer this is scs and for a three winding transformer this is scss.  This denotes a single primary winding with two single secondary windings.  In the future, tapped windings may be added.
 
 .. literalinclude:: examples/schematics/TF1.sch
 
@@ -756,7 +758,7 @@ Cores are drawn with the `core` attribute.  This can be `True`, 'one', or 'two'.
 .. image:: examples/schematics/TFtapcore1.png
    :width: 3.2cm
 
-Here are some examples of two winding transformers.  The position of the dots is determined by the sign of the number of turns.  If the number of turns is positive, the dot is drawn at the top.  Otherwise it is drawn at the bottom.  The style of transformer is controlled by a keyword.  For a two winding transformer this is scs.  This denotes a single primary winding with a single secondary winding.  In the future, tapped windings may be added.
+Here are some examples of two winding transformers.
 
 .. literalinclude:: examples/schematics/TF2w.sch
 
@@ -764,7 +766,7 @@ Here are some examples of two winding transformers.  The position of the dots is
 .. image:: examples/schematics/TF2w.png
    :width: 5cm
 
-Other configurations can be acheived by inverting or mirroring.
+Other configurations can be achieved by inverting or mirroring.
 
 .. literalinclude:: examples/schematics/TF2wi.sch
 
@@ -773,21 +775,21 @@ Other configurations can be acheived by inverting or mirroring.
    :width: 5cm
 
 
-Here are some examples of three winding transformers.  The position of the dots is determined by the sign of the number of turns.  If the number of turns is positive, the dot is drawn at the top.  Otherwise it is drawn at the bottom.  The style of transformer is controlled by a keyword.  For a three winding transformer this is scss.  This denotes a single primary winding with two secondary winding.  In the future, tapped windings may be added.
+Here are some examples of three winding transformers.
 
-.. literalinclude:: examples/schematics/TF3w.sch
+.. literalinclude:: examples/schematics/TF4w.sch
 
 
-.. image:: examples/schematics/TF3w.png
+.. image:: examples/schematics/TF4w.png
    :width: 10cm
 
 
-Other configurations can be acheived by inverting or mirroring.
+Other configurations can be achieved by inverting or mirroring.
 
-.. literalinclude:: examples/schematics/TF3wi.sch
+.. literalinclude:: examples/schematics/TF4wi.sch
 
 
-.. image:: examples/schematics/TF3wi.png
+.. image:: examples/schematics/TF4wi.png
    :width: 10cm
 
 

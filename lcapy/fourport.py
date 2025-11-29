@@ -12,7 +12,7 @@ import sympy as sym
 from .exprclasses import ConstantDomainExpression
 from .network import Network
 
-__all__ = ('Transformer3', )
+__all__ = ('Transformer4', )
 
 
 class Transformer4(Network):

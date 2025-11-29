@@ -88,9 +88,12 @@ class MNA(object):
         for elt in self.cct.elements.values():
             if elt.need_branch_current:
                 self.unknown_branch_currents.append(elt.name)
-            if elt.need_extra_branch_current:
+            if elt.need_extra_branch_current or elt.need_two_extra_branch_currents:
                 self.unknown_branch_currents.append(elt.name + 'X')
                 self.extra_branch_currents.append(elt.name + 'X')
+            if elt.need_two_extra_branch_currents:
+                self.unknown_branch_currents.append(elt.name + 'Y')
+                self.extra_branch_currents.append(elt.name + 'Y')
             if elt.is_current_controlled:
                 cname = elt.args[0]
                 if cname not in self.cct.elements:

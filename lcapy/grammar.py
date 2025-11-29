@@ -98,6 +98,7 @@ TFtap: TFname Np Nm Ncp Ncm tap Nt Nt [Ns1=name] [Np1=1]; Tapped transformer (wo
 TFtapcore: TFname Np Nm Ncp Ncm tapcore Nt Nt [Ns1=name] [Np1=1]; Tapped transformer with core (works to DC!)
 TFscs: TFname Ns1p Ns1m Np1p Np1m scs [Ns1=1] [Np1=1]; Ideal transformer (works to DC!)
 TFscss: TFname Ns1p Ns1m Ns2p Ns2m Np1p Np1m scss [Ns1=1] [Ns2=1] [Np1=1]; Ideal transformer with one primary winding and two secondary windings (works to DC!)
+TFsscss: TFname Ns1p Ns1m Ns2p Ns2m Np2p Np2m Np1p Np1m sscss [Ns1=1] [Ns2=1] [Np2=1] [Np1=1]; Ideal transformer with one primary winding and two secondary windings (works to DC!)
 TL: TLname Np Nm Ncp Ncm [Z0=Z0] [Gamma=Gamma(s)] [Length=l]; Transmission line
 TLlossless: TLname Np Nm Ncp Ncm lossless [Z0=Z0] [Speed=c] [Length=l]; Lossless transmission line
 TP: TPname Np Nm Ncp Ncm; Generic two-port
@@ -243,6 +244,7 @@ jkff: keyword; JK flip-flop
 rslatch: keyword; RS latch
 scs: keyword;
 scss: keyword;
+sscss: keyword;
 A: keyword;
 B: keyword;
 G: keyword;
@@ -265,6 +267,8 @@ Ncp: node; Positive control node
 Ncm: node; Negative control node
 Np1p: node; Positive node for primary winding 1
 Np1m: node; Negative node for primary winding 1
+Np2p: node; Positive node for primary winding 2
+Np2m: node; Negative node for primary winding 2
 Ns1p: node; Positive node for secondary winding 1
 Ns1m: node; Negative node for secondary winding 1
 Ns2p: node; Positive node for secondary winding 2

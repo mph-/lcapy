@@ -39,6 +39,7 @@ class Cpt(ImmittanceMixin):
 
     need_branch_current = False
     need_extra_branch_current = False
+    need_two_extra_branch_currents = False
     need_control_current = False
     is_directive = False
     flip_branch_current = False
@@ -126,9 +127,12 @@ class Cpt(ImmittanceMixin):
                 try:
                     newclass = getattr(lcapy.threeport, classname)
                 except:
-                    self._cpt = lcapy.oneport.Dummy()
-                    self.check()
-                    return
+                    try:
+                        newclass = getattr(lcapy.fourport, classname)
+                    except:
+                        self._cpt = lcapy.oneport.Dummy()
+                        self.check()
+                        return
 
         self._cpt = newclass(*args)
         self.check()
@@ -2044,8 +2048,10 @@ class TF3(Cpt):
     def _stamp(self, mna):
 
         n1, n2, n3, n4, n5, n6 = mna._cpt_node_indexes(self)
-        m1 = mna._branch_index(self.name + 'X')
+        # Is2 (TF.I)
         m2 = mna._cpt_branch_index(self)
+        # Is1
+        m1 = mna._branch_index(self.name + 'X')
 
         # Ns2 / Np
         alpha1 = self.cpt.alpha1.sympy
@@ -2056,7 +2062,7 @@ class TF3(Cpt):
             mna._B[n1, m2] -= 1
             mna._C[m1, n1] += 1
         if n2 >= 0:
-            mna._B[n2, m2] = 1
+            mna._B[n2, m2] += 1
             mna._C[m1, n2] -= 1
         if n3 >= 0:
             mna._B[n3, m1] -= 1
@@ -2066,14 +2072,72 @@ class TF3(Cpt):
             mna._C[m2, n4] -= 1
         if n5 >= 0:
             mna._B[n5, m1] = alpha1
-            mna._B[n5, m2] = alpha1
-            mna._C[m1, n5] -= alpha1
-            mna._C[m2, n5] -= alpha2
+            mna._B[n5, m2] = alpha2
+            mna._C[m1, n5] -= alpha2
+            mna._C[m2, n5] -= alpha1
         if n6 >= 0:
             mna._B[n6, m1] -= alpha1
-            mna._B[n6, m2] -= alpha1
+            mna._B[n6, m2] -= alpha2
             mna._C[m1, n6] += alpha2
-            mna._C[m2, n6] += alpha2
+            mna._C[m2, n6] += alpha1
+
+
+class TF4(Cpt):
+    """Transformer with 4 windings"""
+
+    need_branch_current = True
+    need_two_extra_branch_currents = True
+    is_transformer = True
+
+    def _stamp(self, mna):
+
+        n1, n2, n3, n4, n5, n6, n7, n8 = mna._cpt_node_indexes(self)
+        # Is2 (TF.I)
+        m2 = mna._cpt_branch_index(self)
+        # Is1
+        m1 = mna._branch_index(self.name + 'X')
+        # Ip2
+        m3 = mna._branch_index(self.name + 'Y')
+
+        # Ns2 / Np1
+        alpha1 = self.cpt.alpha1.sympy
+        # Ns1 / Np1
+        alpha2 = self.cpt.alpha2.sympy
+        # Ns2 / Np1
+        alpha3 = self.cpt.alpha3.sympy
+
+        if n1 >= 0:
+            mna._B[n1, m2] -= 1
+            mna._C[m1, n1] += 1
+        if n2 >= 0:
+            mna._B[n2, m2] += 1
+            mna._C[m1, n2] -= 1
+        if n3 >= 0:
+            mna._B[n3, m1] -= 1
+            mna._C[m2, n3] += 1
+        if n4 >= 0:
+            mna._B[n4, m1] += 1
+            mna._C[m2, n4] -= 1
+        if n5 >= 0:
+            mna._B[n5, m3] -= 1
+            mna._C[m3, n5] += 1
+        if n6 >= 0:
+            mna._B[n6, m3] += 1
+            mna._C[m3, n6] -= 1
+        if n7 >= 0:
+            mna._B[n5, m1] = alpha2
+            mna._B[n5, m2] = alpha1
+            mna._B[n5, m3] = alpha3
+            mna._C[m1, n7] -= alpha2
+            mna._C[m2, n7] -= alpha1
+            mna._C[m3, n7] -= alpha3
+        if n8 >= 0:
+            mna._B[n6, m1] -= alpha2
+            mna._B[n6, m2] -= alpha1
+            mna._B[n6, m3] -= alpha3
+            mna._C[m1, n8] += alpha2
+            mna._C[m2, n8] += alpha1
+            mna._C[m3, n8] += alpha3
 
 
 class TL(Cpt):
@@ -2505,7 +2569,8 @@ defcpt('SWspdt', SW, 'SPDT switch')
 defcpt('TFcore', TF, 'Transformer with core')
 defcpt('TFtapcore', TFtap, 'Transformer with core')
 defcpt('TFscs', TF, 'Transformer')
-defcpt('TFscss', TF3, 'Transformer with 1 primary winding and 2 primary windings (TODO)')
+defcpt('TFscss', TF3, 'Transformer with 1 primary winding and 2 secondary windings')
+defcpt('TFsscss', TF4, 'Transformer with 2 primary windings and 2 secondary windings')
 
 defcpt('TLlossless', TL, 'Lossless transmission line')
 defcpt('TVtriode', NonLinear, 'Triode')

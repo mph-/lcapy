@@ -65,6 +65,7 @@ from .voltage import voltage, noisevoltage, phasorvoltage
 from .oneport import *
 from .twoport import *
 from .threeport import *
+from .fourport import *
 from .circuit import *
 from .symbols import *
 from .nodalanalysis import *

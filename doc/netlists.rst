@@ -261,19 +261,15 @@ simulation (additional components can be drawn, see
 
    `TFname Nsp Nsm Npp Npm [Ns=1] [Np=1]`
 
-   `TFname Nsp Nsm Npp Npm ptst [Ns=1] [Np=1]`
+   `TFname Nsp Nsm Npp Npm scs [Ns=1] [Np=1]`
 
-   `TFname Nsp Nsm Npp Npm ptsb [Ns=1] [Np=1]`
+- Three-winding transformer (this even works at DC!) with Np primary turns and Ns2 turns on the first secondary winding and Ns1 turns on the second secondary winding.  The sign of the number of turns determines the dot position, see :ref:`transformers`.
 
-- Three-winding transformer (this even works at DC!) with Np primary turns and Ns2 turns on the first secondary winding and Ns1 turns on the second secondary winding.  See :ref:`transformers` for the dot positions.
+   `TFname Ns2p Ns2m Ns1p Ns1m Npp Npm scss [Ns2=1] [Ns1=1] [Np=1]`
 
-   `TFname Ns2p Ns2m Ns1p Ns1m Npp Npm ptstt [Ns2=1] [Ns1=1] [Np=1]`
+- Four-winding transformer (this even works at DC!) with Np2 turns on the first primary winding, Np1 turns on the second primary winding, Ns2 turns on the first secondary winding, and Ns1 turns on the second secondary winding.  The sign of the number of turns determines the dot position, see :ref:`transformers`.
 
-   `TFname Ns2p Ns2m Ns1p Ns1m Npp Npm ptstb [Ns2=1] [Ns1=1] [Np=1]`
-
-   `TFname Ns2p Ns2m Ns1p Ns1m Npp Npm ptsbt [Ns2=1] [Ns1=1] [Np=1]`
-
-   `TFname Ns2p Ns2m Ns1p Ns1m Npp Npm ptsbb [Ns2=1] [Ns1=1] [Np=1]`
+   `TFname Ns2p Ns2m Ns1p Ns1m Np2p Np2m Np1p Np1m sscss [Ns2=1] [Ns1=1] [Np2=1] [Np1=1]`
 
 - Ideal gyrator of gyration resistance R:
 

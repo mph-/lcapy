@@ -31,7 +31,7 @@ from .schematics.components.opamp import Eopamp, Efdopamp, Einamp, Eamp
 from .schematics.components.opamp import Uopamp, Ufdopamp, Uinamp, Uisoamp
 from .schematics.components.adc import Uadc
 from .schematics.components.dac import Udac
-from .schematics.components.transformer import Transformer, TFtap, TFp1s1, TFp1s2, K
+from .schematics.components.transformer import Transformer, TFtap, TFp1s1, TFp1s2, TFp2s2, K
 
 
 module = sys.modules[__name__]
@@ -1207,6 +1207,7 @@ defcpt('TFtap', Transformer, 'Transformer', 'ideal transformer with taps')
 
 defcpt('TFscs', TFp1s1, 'Transformer', 'ideal transformer')
 defcpt('TFscss', TFp1s2, 'Transformer', 'ideal transformer with 3 windings')
+defcpt('TFsscss', TFp2s2, 'Transformer', 'ideal transformer with 4 windings')
 
 # The following two should be deprecated; instead use core attribute
 defcpt('TFcore', Transformer, 'Transformer with core', 'transformer core')

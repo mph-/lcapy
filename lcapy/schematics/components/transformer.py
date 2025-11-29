@@ -173,23 +173,23 @@ class TFp1s2(TF):
 
     can_invert = True
     can_mirror = True
-    node_pinnames = ('s1+', 's1-', 's2+', 's2-', 'p1+', 'p1-')
+    node_pinnames = ('s2+', 's2-', 's1+', 's1-', 'p1+', 'p1-')
     w = 0.8
     s = 0.4
     h = 1.0
-    pins = {'s1+': ('rx', 0.5 * w, 0.5 * s + h),
-             's1-': ('rx', 0.5 * w, 0.5 * s),
-             's2+': ('rx', 0.5 * w, -0.5 * s),
-             's2-': ('rx', 0.5 * w, -0.5 * s - h),
-             'p1+': ('lx', -0.5 * w, 0.5 * h),
-             'p1-': ('lx', -0.5 * w, -0.5 * h)}
+    pins = {'s2+': ('rx', 0.5 * w, 0.5 * s + h),
+            's2-': ('rx', 0.5 * w, 0.5 * s),
+            's1+': ('rx', 0.5 * w, -0.5 * s),
+            's1-': ('rx', 0.5 * w, -0.5 * s - h),
+            'p1+': ('lx', -0.5 * w, 0.5 * h),
+            'p1-': ('lx', -0.5 * w, -0.5 * h)}
 
     o = 0.25
     x = 0.5 * w + 0.15
-    misc = {'sdot1+': ('', x, 0.5 * s + h - o),
-            'sdot1-': ('', x, 0.5 * s + o),
-            'sdot2+': ('', x, -0.5 * s - o),
-            'sdot2-': ('', x, -0.5 * s - h + o),
+    misc = {'sdot2+': ('', x, 0.5 * s + h - o),
+            'sdot2-': ('', x, 0.5 * s + o),
+            'sdot1+': ('', x, -0.5 * s - o),
+            'sdot1-': ('', x, -0.5 * s - h + o),
             'pdot1+': ('', -x, 0.5 * h - o),
             'pdot1-': ('', -x, -0.5 * h + o),
             'plabel': ('lx', -x - o, 0),
@@ -238,9 +238,9 @@ class TFp1s2(TF):
             sdot1_pos = self.tf(centre, misc[sdot1][1:3])
             sdot2_pos = self.tf(centre, misc[sdot2][1:3])
 
-            s += r'  \draw (%s) node[circ] {};''\n' % pdot1_pos
-            s += r'  \draw (%s) node[circ] {};''\n' % sdot1_pos
             s += r'  \draw (%s) node[circ] {};''\n' % sdot2_pos
+            s += r'  \draw (%s) node[circ] {};''\n' % sdot1_pos
+            s += r'  \draw (%s) node[circ] {};''\n' % pdot1_pos
 
         s += self.draw_core(centre, 0.9)
         label_pos = self.tf(centre, misc['label'][1:3])
@@ -249,9 +249,9 @@ class TFp1s2(TF):
 
         if self.turns:
 
-            plabel_pos = self.tf(centre, misc['plabel'][1:3])
-            s1label_pos = self.tf(centre, misc['s1label'][1:3])
             s2label_pos = self.tf(centre, misc['s2label'][1:3])
+            s1label_pos = self.tf(centre, misc['s1label'][1:3])
+            plabel_pos = self.tf(centre, misc['plabel'][1:3])
 
             if Ns2 < 0:
                 Ns2= -Ns2
@@ -267,6 +267,125 @@ class TFp1s2(TF):
             s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
                 plabel_pos, 0.5, self.s, Np)
         return s
+
+
+class TFp2s2(TF):
+    """Transformer with 2 primary windings and 2 secondary windings"""
+
+    can_invert = True
+    can_mirror = True
+    node_pinnames = ('s2+', 's2-', 's1+', 's1-', 'p2+', 'p2-', 'p1+', 'p1-')
+    w = 0.8
+    s = 0.4
+    h = 1.0
+    pins = {'s2+': ('rx', 0.5 * w, 0.5 * s + h),
+            's2-': ('rx', 0.5 * w, 0.5 * s),
+            's1+': ('rx', 0.5 * w, -0.5 * s),
+            's1-': ('rx', 0.5 * w, -0.5 * s - h),
+            'p2+': ('rx', -0.5 * w, 0.5 * s + h),
+            'p2-': ('rx', -0.5 * w, 0.5 * s),
+            'p1+': ('rx', -0.5 * w, -0.5 * s),
+            'p1-': ('rx', -0.5 * w, -0.5 * s - h)}
+
+    o = 0.25
+    x = 0.5 * w + 0.15
+    misc = {'sdot2+': ('', x, 0.5 * s + h - o),
+            'sdot2-': ('', x, 0.5 * s + o),
+            'sdot1+': ('', x, -0.5 * s - o),
+            'sdot1-': ('', x, -0.5 * s - h + o),
+            'pdot2+': ('', -x, 0.5 * s + h - o),
+            'pdot2-': ('', -x, 0.5 * s + o),
+            'pdot1+': ('', -x, -0.5 * s - o),
+            'pdot1-': ('', -x, -0.5 * s - h + o),
+            'p2label': ('rx', -(x + o), 0.5 * (s + h)),
+            'p1label': ('rx', -(x + o), -0.5 * (s + h)),
+            's2label': ('rx', x + o, 0.5 * (s + h)),
+            's1label': ('rx', x + o, -0.5 * (s + h)),
+            'label': ('', 0, 1.4)}
+
+    @property
+    def tpins(self):
+
+        return self.tweak_pins(self.pins)
+
+    def draw(self, **kwargs):
+
+        if not self.check():
+            return ''
+
+        n1, n2, n3, n4, n5, n6, n7, n8 = self.nodes[0:8]
+
+        draw_args_str = self.draw_args_str(**kwargs)
+        args = 'scale=%s' % self.scale
+        if self.invert ^ self.mirror:
+            args = ', '.join([args, 'mirror'])
+
+        # n7 and n8 deliberately swapped for inductor symmetry
+        s = self.draw_cpt(n7.s, n8.s, cpt='inductor', args=args,
+                          dargs=draw_args_str)
+        # n5 and n6 deliberately swapped for inductor symmetry
+        s += self.draw_cpt(n5.s, n6.s, cpt='inductor', args=args,
+                          dargs=draw_args_str)
+        s += self.draw_cpt(n4.s, n3.s, cpt='inductor', args=args,
+                           dargs=draw_args_str)
+        s += self.draw_cpt(n2.s, n1.s, cpt='inductor', args=args,
+                           dargs=draw_args_str)
+
+        centre = (n1.pos + n8.pos) * 0.5
+        Ns2 = expr(self.args[0])
+        Ns1 = expr(self.args[1])
+        Np2 = expr(self.args[2])
+        Np1 = expr(self.args[3])
+
+        if not self.nodots:
+
+            misc = self.tweak_pins(self.misc)
+
+            sdot2 = 'sdot2-' if Ns2.is_negative else 'sdot2+'
+            sdot1 = 'sdot1-' if Ns1.is_negative else 'sdot1+'
+            pdot2 = 'pdot2-' if Np2.is_negative else 'pdot2+'
+            pdot1 = 'pdot1-' if Np1.is_negative else 'pdot1+'
+            pdot2_pos = self.tf(centre, misc[pdot2][1:3])
+            pdot1_pos = self.tf(centre, misc[pdot1][1:3])
+            sdot2_pos = self.tf(centre, misc[sdot2][1:3])
+            sdot1_pos = self.tf(centre, misc[sdot1][1:3])
+
+            s += r'  \draw (%s) node[circ] {};''\n' % sdot2_pos
+            s += r'  \draw (%s) node[circ] {};''\n' % sdot1_pos
+            s += r'  \draw (%s) node[circ] {};''\n' % pdot2_pos
+            s += r'  \draw (%s) node[circ] {};''\n' % pdot1_pos
+
+        s += self.draw_core(centre, 1.2)
+        label_pos = self.tf(centre, misc['label'][1:3])
+        s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
+            label_pos, 0.5, self.s, self.label(**kwargs))
+
+        if self.turns:
+
+            s2label_pos = self.tf(centre, misc['s2label'][1:3])
+            s1label_pos = self.tf(centre, misc['s1label'][1:3])
+            p2label_pos = self.tf(centre, misc['p2label'][1:3])
+            p1label_pos = self.tf(centre, misc['p1label'][1:3])
+
+            if Ns2 < 0:
+                Ns2= -Ns2
+            if Ns1 < 0:
+                Ns1= -Ns1
+            if Np2 < 0:
+                Np2 = -Np2
+            if Np1 < 0:
+                Np1 = -Np1
+
+            s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
+                s2label_pos, 0.5, self.s, Ns2)
+            s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
+                s1label_pos, 0.5, self.s, Ns1)
+            s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
+                p2label_pos, 0.5, self.s, Np2)
+            s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
+                p1label_pos, 0.5, self.s, Np1)
+        return s
+
 
 class TFp1s1(TF):
     """Transformer with 1 primary winding and 1 secondary winding"""
