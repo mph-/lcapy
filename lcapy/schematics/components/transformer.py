@@ -99,9 +99,9 @@ class TF1(TF):
 
             Ns = expr(self.args[0])
             Np = expr(self.args[1])
-            if Ns < 0:
+            if Ns .is_negative:
                 Ns = -Ns
-            if Np < 0:
+            if Np .is_negative:
                 Np = -Np
 
             s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
@@ -253,11 +253,11 @@ class TFp1s2(TF):
             s1label_pos = self.tf(centre, misc['s1label'][1:3])
             plabel_pos = self.tf(centre, misc['plabel'][1:3])
 
-            if Ns2 < 0:
+            if Ns2 .is_negative:
                 Ns2= -Ns2
-            if Ns1 < 0:
+            if Ns1 .is_negative:
                 Ns1= -Ns1
-            if Np < 0:
+            if Np .is_negative:
                 Np= -Np
 
             s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
@@ -367,13 +367,13 @@ class TFp2s2(TF):
             p2label_pos = self.tf(centre, misc['p2label'][1:3])
             p1label_pos = self.tf(centre, misc['p1label'][1:3])
 
-            if Ns2 < 0:
+            if Ns2 .is_negative:
                 Ns2= -Ns2
-            if Ns1 < 0:
+            if Ns1 .is_negative:
                 Ns1= -Ns1
-            if Np2 < 0:
+            if Np2 .is_negative:
                 Np2 = -Np2
-            if Np1 < 0:
+            if Np1 .is_negative:
                 Np1 = -Np1
 
             s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
@@ -461,9 +461,9 @@ class TFp1s1(TF):
             plabel_pos = self.tf(centre, misc['plabel'][1:3])
             slabel_pos = self.tf(centre, misc['slabel'][1:3])
 
-            if Ns < 0:
+            if Ns .is_negative:
                 Ns = -Ns
-            if Np < 0:
+            if Np .is_negative:
                 Np = -Np
 
             s += r'  \draw (%s) node[minimum width=%.1f] (%s) {%s};''\n' % (
