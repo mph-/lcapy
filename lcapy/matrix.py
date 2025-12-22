@@ -115,6 +115,26 @@ class Matrix(sym.Matrix):
 
         return None
 
+    def __mul__(self, x):
+
+        from .cmatrix import ConstantDomainMatrix
+
+        # TODO: handle domain compatibility
+
+        # Handle multiplication by scalar
+        if not isinstance(x, Matrix):
+            return super(Matrix, self).__mul__(x)
+
+        if isinstance(x, ConstantDomainMatrix):
+            cls = self.__class__
+        else:
+            cls = x.__class__
+
+        s = self.sympy
+        x = x.sympy
+        r = s * x
+        return cls(r)
+
     def pprint(self):
 
         return pprint(self)
