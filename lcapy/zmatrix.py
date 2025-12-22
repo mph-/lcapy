@@ -1,7 +1,7 @@
 """This module implements the ZDomainMatrix class for a matrix of
 z-domain expressions.
 
-Copyright 2021 Michael Hayes, UCECE
+Copyright 2021--2025 Michael Hayes, UCECE
 
 """
 
@@ -15,7 +15,7 @@ class ZDomainMatrix(Matrix):
     def IZT(self, **assumptions):
 
         def func(expr):
-            return expr.IZT(**assumptions)
+            return ZDomainExpression(expr).IZT(**assumptions)
 
         return DiscreteTimeDomainMatrix(self.applyfunc(func))
 
@@ -65,3 +65,4 @@ class ZDomainImpedanceMatrix(ZDomainMatrix):
 
 
 from .nmatrix import DiscreteTimeDomainMatrix  # nopep8
+from .zexpr import ZDomainExpression # nopep

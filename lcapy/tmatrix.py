@@ -1,7 +1,7 @@
 """This module implements the TimeDomainMatrix class for a matrix of
 time-domain expressions.
 
-Copyright 2019--2021 Michael Hayes, UCECE
+Copyright 2019--2025 Michael Hayes, UCECE
 
 """
 
@@ -15,9 +15,10 @@ class TimeDomainMatrix(Matrix):
     def LT(self):
 
         def func(expr):
-            return expr.LT()
+            return TimeDomainExpression(expr).LT()
 
         return LaplaceDomainMatrix(self.applyfunc(func))
 
 
 from .smatrix import LaplaceDomainMatrix  # nopep8
+from .texpr import TimeDomainExpression # nopep

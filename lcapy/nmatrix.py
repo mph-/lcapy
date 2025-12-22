@@ -1,7 +1,7 @@
 """This module implements the DiscreteTimeDomainMatrix class for a matrix of
 time-domain expressions.
 
-Copyright 2021 Michael Hayes, UCECE
+Copyright 2021--2025 Michael Hayes, UCECE
 
 """
 
@@ -15,9 +15,10 @@ class DiscreteTimeDomainMatrix(Matrix):
     def ZT(self):
 
         def func(expr):
-            return expr.ZT()
+            return DiscreteTimeDomainExpression(expr).ZT()
 
         return ZDomainMatrix(self.applyfunc(func))
 
 
 from .zmatrix import ZDomainMatrix  # nopep8
+from .nexpr import DiscreteTimeDomainExpression # nopep

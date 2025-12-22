@@ -1,7 +1,7 @@
 """This module implements the LaplaceDomainMatrix class for a matrix of
 Laplace-domain expressions.
 
-Copyright 2019--2023 Michael Hayes, UCECE
+Copyright 2019--2025 Michael Hayes, UCECE
 
 """
 
@@ -15,7 +15,7 @@ class LaplaceDomainMatrix(Matrix):
     def ILT(self, **assumptions):
 
         def func(expr):
-            return expr.ILT(**assumptions)
+            return LaplaceDomainExpression(expr).ILT(**assumptions)
 
         return TimeDomainMatrix(self.applyfunc(func))
 
@@ -41,3 +41,4 @@ class LaplaceDomainImpedanceMatrix(LaplaceDomainMatrix):
 
 
 from .tmatrix import TimeDomainMatrix  # nopep8
+from .sexpr import LaplaceDomainExpression # nopep
