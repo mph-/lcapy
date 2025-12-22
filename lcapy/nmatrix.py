@@ -17,7 +17,7 @@ class DiscreteTimeDomainMatrix(Matrix):
         def func(expr):
             return DiscreteTimeDomainExpression(expr).ZT()
 
-        return ZDomainMatrix(self.applyfunc(func))
+        return ZDomainMatrix(Matrix(self).applyfunc(func))
 
 
 from .zmatrix import ZDomainMatrix  # nopep8

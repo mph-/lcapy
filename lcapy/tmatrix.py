@@ -17,7 +17,7 @@ class TimeDomainMatrix(Matrix):
         def func(expr):
             return TimeDomainExpression(expr).LT()
 
-        return LaplaceDomainMatrix(self.applyfunc(func))
+        return LaplaceDomainMatrix(Matrix(self).applyfunc(func))
 
 
 from .smatrix import LaplaceDomainMatrix  # nopep8
