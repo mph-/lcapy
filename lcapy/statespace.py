@@ -269,16 +269,18 @@ class StateSpace(StateSpaceBase):
         Cd = (Minv.T * self.C.T).T
         Dd = self.D + alpha * self.C * Bd
 
-        ud = self._u.discretize(drop_dt=True)
-        yd = self._y.discretize(drop_dt=True)
-        xd = self._x.discretize(drop_dt=True)
-        x0d = self._x0.discretize(drop_dt=True)
+        ud = yd = xd = x0d = None
 
-        return DTStateSpace(Ad, Bd, Cd, Dd,
-                            DiscreteTimeDomainMatrix(ud),
-                            DiscreteTimeDomainMatrix(yd),
-                            DiscreteTimeDomainMatrix(xd),
-                            DiscreteTimeDomainMatrix(x0d))
+        if self._u is not None:
+            ud = DiscreteTimeDomainMatrix(self._u.discretize(drop_dt=True))
+        if self._y is not None:
+            yd = DiscreteTimeDomainMatrix(self._y.discretize(drop_dt=True))
+        if self._x is not None:
+            xd = DiscreteTimeDomainMatrix(self._x.discretize(drop_dt=True))
+        if self._x0 is not None:
+            DiscreteTimeDomainMatrix(x0d = self._x0.discretize(drop_dt=True))
+
+        return DTStateSpace(Ad, Bd, Cd, Dd, ud, yd, xd, x0d)
 
     def discretize(self, method='bilinear', alpha=0.5):
         """Convert to a discrete-time state space approximation.
