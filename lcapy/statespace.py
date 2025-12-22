@@ -8,10 +8,12 @@ Copyright 2021--2023 Michael Hayes, UCECE
 from .sexpr import LaplaceDomainExpression
 from .cache import cached_property
 from .matrix import Matrix
+from .cmatrix import ConstantDomainMatrix
 from .smatrix import LaplaceDomainMatrix
 from .tmatrix import TimeDomainMatrix
 from .nmatrix import DiscreteTimeDomainMatrix
 from .statespacebase import StateSpaceBase
+from .cexpr import cexpr
 from .texpr import texpr
 from .equation import Equation
 from .sym import ssym, tsym
@@ -51,8 +53,8 @@ class StateSpace(StateSpaceBase):
     def x0(self):
         """State variable initial value vector."""
         if self._x0 is None:
-            self._x0 = TimeDomainMatrix([texpr('x_0_%d(t)' % i) for i in
-                                         range(self.Nx)])
+            self._x0 = ConstantDomainMatrix([cexpr('x_0_%d' % i) for i in
+                                             range(self.Nx)])
         return self._x0
 
     @property
