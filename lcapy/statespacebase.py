@@ -606,8 +606,14 @@ class StateSpaceBase(object):
         Cnew = self.C.subs(*args, **kwargs)
         Dnew = self.D.subs(*args, **kwargs)
 
-        unew = self._u.subs(*args, **kwargs)
-        x0new = self._x0.subs(*args, **kwargs)
+        if self._u is not None:
+            unew = self._u.subs(*args, **kwargs)
+        else:
+            unew = None
+        if self._x0 is not None:
+            x0new = self._x0.subs(*args, **kwargs)
+        else:
+            x0new = None
 
         return self.__class__(Anew, Bnew, Cnew, Dnew,
                               unew, self._y, self._x, x0new)
