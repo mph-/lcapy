@@ -81,8 +81,8 @@ class DTStateSpace(StateSpaceBase):
 
     @property
     def h(self):
-        """ILT{X(z) / U(z)}"""
-        return DiscreteTimeDomainMatrix(self.H.ILT(causal=True))
+        """IZT{X(z) / U(z)}"""
+        return DiscreteTimeDomainMatrix(self.H.IZT(causal=True))
 
     @cached_property
     def G(self):
@@ -150,7 +150,7 @@ class DTStateSpace(StateSpaceBase):
     @cached_property
     def phi(self):
         """State transition matrix."""
-        return DiscreteTimeDomainMatrix(self.Phi.ILT(causal=True))
+        return DiscreteTimeDomainMatrix(self.Phi.IZT(causal=True))
 
     def characteristic_polynomial(self):
         """Characteristic polynomial (aka system polynomial).
