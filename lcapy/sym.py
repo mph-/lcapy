@@ -446,6 +446,7 @@ def symbol_map(name):
 # The following domain symbols are all SymPy symbols.
 ssym = domainsymbol('s', complex=True)
 tsym = domainsymbol('t', real=True)
+t0sym = miscsymbol('t_0', real=True, positive=True)
 f0sym = miscsymbol('f_0', real=True, positive=True)
 fsym = domainsymbol('f', real=True)
 omegasym = domainsymbol('omega', real=True)
