@@ -19,11 +19,12 @@ from .kexpr import k
 from .zexpr import z
 
 # Import common SymPy symbols.
-from .sym import pi, j, oo, inf, one, omega0sym, f0sym
+from .sym import pi, j, oo, inf, one, omega0sym, f0sym, t0sym
 
 # Perhaps have class for domainconstants such as omega0, t0, f0, etc.
 omega0 = omega0sym
 f0 = f0sym
+t0 = t0sym
 
 jw = jomega
 
