@@ -246,64 +246,59 @@ class DTStateSpace(StateSpaceBase):
         """Observability gramian matrix."""
         return self.observability_gramian
 
-    def minimum_energy_input(self, steps, xfinal, xinitial=None):
+    def minimum_energy_input(self, steps, xfinal, x0=None):
         """Determine minimum energy (least norm) input vector that results in
         state `xfinal` in `steps` time steps from initial state
-        `xinitial`."""
+        `x0`."""
 
-        if xinitial is None:
-            xinitial = self.x0
-        else:
-            xinitial = Matrix(xinitial)
-
-        xfinal = Matrix(xfinal)
+        x0 = self._make_initial(x0)
 
         if steps < 0:
             raise ValueError('steps must be positive')
 
         C = self.controllability_matrix_steps(steps)
 
-        xdiff = xfinal - xinitial
+        xdiff = xfinal - x0
 
         uflip = C.T * (C * C.T).inv() * xdiff
         return uflip[::-1, :]
 
-    def minimum_energy(self, steps, xfinal, xinitial=None):
+    def minimum_energy(self, steps, xfinal, x0=None):
         """Determine minimum energy that results in state `xfinal` in `steps`
-        time steps from initial state `xinitial`."""
+        time steps from initial state `x0`."""
 
-        if xinitial is None:
-            xinitial = self.x0
-        else:
-            xinitial = Matrix(xinitial)
-
-        xfinal = Matrix(xfinal)
+        x0 = self._make_initial(x0)
 
         if steps < 0:
             raise ValueError('steps must be positive')
 
         C = self.controllability_matrix_steps(steps)
 
-        xdiff = xfinal - xinitial
+        xdiff = xfinal - x0
 
         return (xdiff.T * (C * C.T).inv() * xdiff)[0]
 
-    def state_transfer(self, u, xinitial=None):
+    def state_transfer(self, u, x0=None):
         """Return transitioned state given inputs `u` specified as a list of
         column vectors; one for each time step."""
 
-        if xinitial is None:
-            xinitial = self.x0
-        else:
-            xinitial = Matrix(xinitial)
+        x0 = self._make_initial(x0)
 
         u = Matrix(u)
         steps = u.shape[0]
 
         C = self.controllability_matrix_steps(steps)
 
-        xfinal = self.A**steps * xinitial + C * u[::-1, :]
+        xfinal = self.A**steps * x0 + C * u[::-1, :]
         return xfinal
+
+    def zero_state_response(self, u=None):
+        """Return zero state response for input u."""
+
+        u = self._make_input(u)
+        U = u.ZT()
+
+        return (self.G * U).IZT()
 
 
 from .zexpr import ZDomainExpression  # nopep8

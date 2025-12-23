@@ -7,6 +7,7 @@ Copyright 2019--2022 Michael Hayes, UCECE
 
 from .matrix import Matrix
 from .vector import Vector
+from .cmatrix import ConstantDomainMatrix
 from .tmatrix import TimeDomainMatrix
 from .expr import expr
 from .cache import cached_property
@@ -612,10 +613,41 @@ class StateSpaceBase(object):
             unew = None
         if self._x0 is not None:
             x0new = self._x0.subs(*args, **kwargs)
+        else:
+            x0new = None
 
         return self.__class__(Anew, Bnew, Cnew, Dnew,
                               unew, self._y, self._x, x0new)
 
+    def _make_initial(self, x0):
+
+        if x0 is None:
+            x0 = self.x0
+        else:
+            x0 = ConstantDomainMatrix(x0)
+        return x0
+
+    def _make_input(self, u):
+
+        if u is None:
+            u = self.u
+        else:
+            u = TimeDomainMatrix(u)
+        return u
+
+    def zero_input_response(self, x0=None):
+        """Return zero input response."""
+
+        x0 = self._make_initial(x0)
+
+        return self.C * self.phi * x0
+
+    def complete_response(self, u=None, x0=None):
+        """Return complete response for input u and initial state x0.
+        This is the sum of the zero input response and the zero state
+        response."""
+
+        return self.zero_state_response(u) + self.zero_input_response(x0)
 
 from .symbols import t, s  # nopep8
 from .expr import ExprList  # nopep8

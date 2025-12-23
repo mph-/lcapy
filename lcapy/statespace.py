@@ -296,6 +296,15 @@ class StateSpace(StateSpaceBase):
         else:
             raise ValueError('Unsupported method %s' % method)
 
+    def zero_state_response(self, u=None):
+        """Return zero state response for input u."""
+
+        u = self._make_input(u)
+        U = u.LT()
+
+        return (self.G * U).ILT()
+
+
     @classmethod
     def from_circuit(cls, cct, node_voltages=None, branch_currents=None):
 
