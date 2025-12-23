@@ -275,12 +275,6 @@ class StateSpace(StateSpaceBase):
 
         if self._u is not None:
             ud = DiscreteTimeDomainMatrix(self._u.discretize(drop_dt=True))
-        if self._y is not None:
-            yd = DiscreteTimeDomainMatrix(self._y.discretize(drop_dt=True))
-        if self._x is not None:
-            xd = DiscreteTimeDomainMatrix(self._x.discretize(drop_dt=True))
-        if self._x0 is not None:
-            DiscreteTimeDomainMatrix(x0d = self._x0.discretize(drop_dt=True))
 
         return DTStateSpace(Ad, Bd, Cd, Dd, ud, yd, xd, x0d)
 

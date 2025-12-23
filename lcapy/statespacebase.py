@@ -612,8 +612,6 @@ class StateSpaceBase(object):
             unew = None
         if self._x0 is not None:
             x0new = self._x0.subs(*args, **kwargs)
-        else:
-            x0new = None
 
         return self.__class__(Anew, Bnew, Cnew, Dnew,
                               unew, self._y, self._x, x0new)
