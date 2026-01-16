@@ -1,7 +1,7 @@
 """This module defines the StateSpace class for representing a linear
 discrete time-invariant system as a state-space model.
 
-Copyright 2021 Michael Hayes, UCECE
+Copyright 2021--2026 Michael Hayes, UCECE
 
 """
 
@@ -293,7 +293,8 @@ class DTStateSpace(StateSpaceBase):
         return xfinal
 
     def zero_state_response(self, u=None):
-        """Return zero state response for input u."""
+        """Return zero state response for input u (this assumes
+        the initial conditions are zero)."""
 
         u = self._make_input(u)
         U = u.ZT()

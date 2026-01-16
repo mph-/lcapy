@@ -1,7 +1,7 @@
 """This module defines the StateSpace class for representing a linear
 continuous time-invariant system as a state-space model.
 
-Copyright 2021--2023 Michael Hayes, UCECE
+Copyright 2021--2026 Michael Hayes, UCECE
 
 """
 
@@ -297,13 +297,13 @@ class StateSpace(StateSpaceBase):
             raise ValueError('Unsupported method %s' % method)
 
     def zero_state_response(self, u=None):
-        """Return zero state response for input u."""
+        """Return zero state response for input u (this assumes
+        the initial conditions are zero)."""
 
         u = self._make_input(u)
         U = u.LT()
 
         return (self.G * U).ILT()
-
 
     @classmethod
     def from_circuit(cls, cct, node_voltages=None, branch_currents=None):
