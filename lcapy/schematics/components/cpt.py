@@ -839,13 +839,14 @@ class Cpt(object):
 
     def draw_path(self, points, style='', join='--', closed=False, dargs=None):
 
+        if dargs is None:
+            dargs = self.draw_args(self.opts)
+            dargs.extend(self.opts.as_list(allow=['fill']))
+
         path = (' %s ' % join).join(['(%s)' % point for point in points])
         if closed:
             path += ' %s cycle' % join
 
-            if dargs is None:
-                dargs = self.draw_args(self.opts)
-                dargs.extend(self.opts.as_list(allow=['fill']))
         if style != '':
             dargs.append(style)
         dargs = ', '.join([arg for arg in dargs if arg != ''])
