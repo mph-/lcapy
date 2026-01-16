@@ -755,6 +755,7 @@ class Cpt(object):
         return (node1.pos + node2.pos) * 0.5
 
     def draw_args(self, opts, **kwargs):
+        """Return args used for drawing lines"""
 
         # Color keys are passed to both draw_args and cpt_args to
         # ensure wires are coloured.
@@ -764,6 +765,7 @@ class Cpt(object):
         return opts.as_list(allow=allow_keys, **kwargs)
 
     def cpt_args(self, opts, **kwargs):
+        """Return args used for drawing components"""
 
         ignore_keys = self.special_keys + self.linestyle_keys
 
@@ -841,8 +843,9 @@ class Cpt(object):
         if closed:
             path += ' %s cycle' % join
 
-        if dargs is None:
-            dargs = self.draw_args(self.opts)
+            if dargs is None:
+                dargs = self.draw_args(self.opts)
+                dargs.extend(self.opts.as_list(allow=['fill']))
         if style != '':
             dargs.append(style)
         dargs = ', '.join([arg for arg in dargs if arg != ''])

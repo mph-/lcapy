@@ -39,7 +39,7 @@ class Chip(Shape):
         label = self.label(**kwargs)
         if label != '':
             s += r'  \draw (%s) node[text width=%.2fcm, align=center, %s] {%s};''\n' % (
-                centre.s, self.width - 0.5, self.draw_args_str(**kwargs), label)
+                centre.s, self.width - 0.5, self.cpt_args_str(**kwargs), label)
 
         # Draw clock symbols
         for m, n in enumerate(self.nodes):
