@@ -642,7 +642,7 @@ class StateSpaceBase(object):
 
         return self.C * self.phi * x0
 
-    def complete_response(self, u=None, x0=None):
+    def response(self, u=None, x0=None):
         """Return complete response for input u and initial state x0.
         This is the sum of the zero input response and the zero state
         response."""
