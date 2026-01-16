@@ -242,4 +242,4 @@ A BibTeX entry for LaTeX users is
 ```
 
 
-Copyright 2014--2022 Michael Hayes, UCECE
+Copyright 2014--2026 Michael Hayes, UCECE

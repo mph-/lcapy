@@ -735,7 +735,7 @@ class LaplaceDomainExpression(LaplaceDomain, Expr):
         return H
 
     def discretize(self, method=None, alpha=0.5, scale=None):
-        """Convert to a discrete-time approximation in the z-domain:
+        r"""Convert to a discrete-time approximation in the z-domain:
 
         :math:`H(z) \approx K H_c(s)`
 
