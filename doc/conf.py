@@ -45,7 +45,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Lcapy'
-copyright = u'2014--2024, Michael Hayes'
+copyright = u'2014--2026, Michael Hayes'
 
 print('Version ' + __version__)
 
@@ -251,7 +251,8 @@ texinfo_documents = [
 
 autosummary_generate = True  # Turn on sphinx.ext.autosummary
 
-# File name mapping for autosummary to avoid name clashes, e.g. where lcapy.oneport.V was overwritte
-#   by lcapy.oneport.v, rename lcapy.oneport.v.html to lcapy.oneport.v_t-domain.html
+# File name mapping for autosummary to avoid name clashes, e.g. where
+# lcapy.oneport.V was overwritten by lcapy.oneport.v, rename
+# lcapy.oneport.v.html to lcapy.oneport.v_t-domain.html
 autosummary_filename_map = {'lcapy.oneport.v':'lcapy.oneport.v_t-domain',
                             'lcapy.oneport.i':'lcapy.oneport.i_t-domain',}
