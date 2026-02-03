@@ -15,8 +15,7 @@ def arrow_map(name):
 
 class Wire(Bipole):
 
-    def draw_short(self, pos1, pos2, startarrow='', endarrow='',
-                   style='', **kwargs):
+    def draw_short(self, pos1, pos2, style='', **kwargs):
         """Create a string to draw a circuitikz short between positions `pos1`
         and `pos2`.  `dargs` is a list or string of the draw options.
 
@@ -24,21 +23,11 @@ class Wire(Bipole):
 
         \draw[dargs] (pos1) to [short, args] (pos2);
 
-        Unlike a wire, a short can have labels.  However, it cannot
-        have a startarrow.
-
+        Unlike a wire, a short can have labels.  It can have an endarrow
+        but not a startarrow.
         """
 
-        if startarrow != '':
-            warn('Ignoring start arrow.  If you want it, remove the label.')
-
-        endarrow = arrow_map(endarrow)
-        arrows = '-' + endarrow
-        if arrows == '-':
-            arrows = ''
-
         dargs = self.draw_args(self.opts, **kwargs)
-        dargs.append(arrows)
         args = self.cpt_args(self.opts, **kwargs)
         args.extend(self.labels.args())
 
@@ -129,10 +118,13 @@ class Wire(Bipole):
             label_args = self.labels.args()
             implicit = self.implicit_key(self.opts)
 
-            # Don't draw labell if have implicit wire since
+            # Don't draw label if have implicit wire since
             # the label is used for the node.
             if label_args != [] and not implicit:
-                s = self.draw_short(n1.s, n2.s, style=style,
+                # Wires can't have labels but shorts cannot have a startarrow
+                # so draw both
+                s = self.draw_short(n1.s, n2.s, style=style, **kwargs)
+                s += self.draw_wire(n1.s, n2.s, style=style,
                                     startarrow=startarrow,
                                     endarrow=endarrow, **kwargs)
             else:
