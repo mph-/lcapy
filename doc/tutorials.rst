@@ -1626,10 +1626,10 @@ The impedance seen across `Rin` can be then found using:
     C_c⋅⎜s + ───────⎟
         ⎝    C_c⋅Rᵢₙ⎠
 
-This impedance is the parallel combination of the input resistance Rin and the impedance of the cable capacitance.   Thus at high frequencies the impedance drops.
+This impedance is the parallel combination of the input resistance Rin and the impedance of the cable capacitance.   Thus at high frequencies the impedance drops.   This is undesirable for sources with a high impedance since the signal is attenuated.
 
 
-Shield guard circuits are used to mitigate the capacitance between a cable signal and the cable shield.  For example:
+Active driven shield guard circuits are used to mitigate the capacitance between a cable signal and the cable shield.  For example:
 
 
    >>> from lcapy import Circuit, t, oo
