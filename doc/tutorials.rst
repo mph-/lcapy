@@ -2309,7 +2309,7 @@ Alternatively, using numerical values:
    ⎝   1250000000⋅Δₜ  + 252505500⋅Δₜ + 11  1250000000⋅Δₜ  + 252505500⋅Δₜ + 11⎠
 
 
-Here `Δₜ` is the sampling period, represented by the symbol Lcapy `dt`.   Let's assume a sampling frequency of 1 MHz:
+Here `Δₜ` is the sampling period, represented by the Lcapy symbol `dt`.   Let's assume a sampling frequency of 1 MHz:
 
    >>> filv = filv.subs({dt: 1 / 1e6})
    >>> filv.a
@@ -2334,9 +2334,11 @@ Note, the symbolic response can also be found using the `response()`
 method of a `DLTIFilter` object.  However, the output soon becomes
 tedious for this filter.
 
+By default, the `dlti_filter()` method uses the bilinear approximation, see :ref:`discrete-time-approximation` for other methods.
 
-Simulating an analog filter from an impedance
----------------------------------------------
+
+Simulating an analog filter from a network
+------------------------------------------
 
 Consider a resistor in parallel with a capacitor.  The admittance of this network can be found using::
 
@@ -2350,19 +2352,38 @@ Consider a resistor in parallel with a capacitor.  The admittance of this networ
 
    If a voltage source is connected across this network, the resulting current can be approximated in the discrete time domain using a DLTI filter.   The filter can be created using::
 
-   >>> fil = Y.dlti_filter()
+   >>> fily = Y.dlti_filter()
 
    The numerator coefficients of the filter are::
 
-   >>> fil.b
+   >>> fily.b
    ⎛2⋅C⋅R + Δₜ  -2⋅C⋅R + Δₜ⎞
    ⎜──────────, ───────────⎟
    ⎝   Δₜ⋅R        Δₜ⋅R    ⎠
 
    and the denominator coefficients of the filter are::
 
-   >>> fil.a
+   >>> fily.a
    (1, 1)
+
+   A filter can also be created from the network's impedance::
+
+   >>> Z = (R('R') | C('C')).Z
+   >>> filz = Z.dlti_filter()
+
+   This filter will determine the voltage across the network for a current applied through the network.  In this case the filter is an IIR filter with numerator coefficients::
+
+    >>> filz.b
+    ⎛   Δₜ⋅R        Δₜ⋅R   ⎞
+    ⎜──────────, ──────────⎟
+    ⎝2⋅C⋅R + Δₜ  2⋅C⋅R + Δₜ⎠
+
+    and denominator coefficients::
+
+    >>> filz.a
+    ⎛   -2⋅C⋅R + Δₜ⎞
+    ⎜1, ───────────⎟
+    ⎝   2⋅C⋅R + Δₜ ⎠
 
 
 Opamp stability
