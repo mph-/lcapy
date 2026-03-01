@@ -25,11 +25,14 @@ M14 38 39 37  M14; up, kind=pigfetebulk, l=pigfetebulk
 
 O 19 40; down=1.5
 
-M15 40 41 42  M15; up=1.5, kind=nfet, l=nfet/bodydiode, bodydiode
-M16 43 44 42  M16; up=1.5, kind=pfet, l=pfet/bodydiode, bodydiode
-M17 43 45 46  M17; up=1.5, kind=nmosd, l=nmosd/bulk, bulk
-M18 47 48 46  M18; up=1.5, kind=pmosd, l=pmosd/bulk, bulk
-M19 47 49 50  M19; up=1.5, kind=nmos, l=nmos/arrowmos, arrowmos
-M20 51 52 50  M20; up=1.5, kind=pmos, l=pmos/arrowmos, arrowmos
+M15 40 41 42  M15; up=1.2, kind=nfet, l=nfet/bodydiode, bodydiode
+M16 43 44 42  M16; up=1.3, kind=pfet, l=pfet/bodydiode, bodydiode
+M17 43 45 46  M17; up=1.1, kind=nmosd, l=nmosd/bulk, bulk
+M18 47 48 46  M18; up=1.1, kind=pmosd, l=pmosd/bulk, bulk
+M19 47 49 50  M19; up=1.3, kind=nmos, l=nmos/arrowmos, arrowmos
+M20 51 52 50  M20; up=1.3, kind=pmos, l=pmos/arrowmos, arrowmos
+M21 51 53 54  M21; up=1.3, kind=nfet, l=nfet/bulksource, bulksource
+M22 55 56 54  M22; up=1.3, kind=pfet, l=pfet/bulksource, bulksource
+
 
 ; label_nodes=none, draw_nodes=connections
