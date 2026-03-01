@@ -2234,8 +2234,8 @@ Discrete-time
 =============
 
 
-Simulating an analog filter
----------------------------
+Simulating an analog filter from a netlist
+------------------------------------------
 
 Consider the analog filter:
 
@@ -2333,6 +2333,36 @@ These coefficients can now be used in the SciPy `lfilter()` function.
 Note, the symbolic response can also be found using the `response()`
 method of a `DLTIFilter` object.  However, the output soon becomes
 tedious for this filter.
+
+
+Simulating an analog filter from an impedance
+---------------------------------------------
+
+Consider a resistor in parallel with a capacitor.  The admittance of this network can be found using::
+
+
+   >>> from lcapy import *
+   >>> Y = (R('R') | C('C')).Y
+   >>> Y.canonical()
+         1
+   C⋅s + ─
+         R
+
+   If a voltage source is connected across this network, the resulting current can be approximated in the discrete time domain using a DLTI filter.   The filter can be created using::
+
+   >>> fil = Y.dlti_filter()
+
+   The numerator coefficients of the filter are::
+
+   >>> fil.b
+   ⎛2⋅C⋅R + Δₜ  -2⋅C⋅R + Δₜ⎞
+   ⎜──────────, ───────────⎟
+   ⎝   Δₜ⋅R        Δₜ⋅R    ⎠
+
+   and the denominator coefficients of the filter are::
+
+   >>> fil.a
+   (1, 1)
 
 
 Opamp stability
