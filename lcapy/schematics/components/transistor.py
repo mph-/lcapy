@@ -72,5 +72,7 @@ class Transistor(FixedCpt):
         else:
             s += r'  \draw (%s.D) -- (%s) (%s.G) -- (%s) (%s.S) -- (%s);''\n' % (
                 self.s, n1.s, self.s, n2.s, self.s, n3.s)
+            if self.bulksource:
+                s += r'  \draw (%s.B) -- (%s.S);''\n' % (self.s, self.s)
 
         return s

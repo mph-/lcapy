@@ -868,16 +868,18 @@ There are many kinds of MOSFET:
 
 Bipolar transistors have the following attributes:
 
-- `bodydiode`
+- `bodydiode` show body diode
 
 - `schottky base`
 
 
 MOSFET transistors have the following attributes:
 
-- `bodydiode`
+- `arrowmos` show arrow on the source
 
-- `arrowmos`
+- `bodydiode` show body diode
+
+- `bulksource` connect bulk input to source
 
 - `ferroel gate` ferroelectric gate
 

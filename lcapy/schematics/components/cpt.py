@@ -87,7 +87,7 @@ class Cpt(object):
                  'nowires', 'nolabels', 'steps', 'free', 'fliplr', 'flipud',
                  'nodots', 'turns', 'draw_nodes', 'label_nodes', 'nodraw',
                  'mirrorinputs', 'autoground', 'xoffset', 'yoffset',
-                 'anchor', 'def', 'nodes', 'shape', 'core')
+                 'anchor', 'def', 'nodes', 'shape', 'core', 'bulksource')
     label_opt_keys = ('label_values', 'label_ids', 'annotate_values',
                       'label_style', 'label_flip', 'label_value_style')
     color_keys = ('blue', 'cyan', 'magenta', 'yellow', 'green',
@@ -546,6 +546,11 @@ class Cpt(object):
     @property
     def style(self):
         return self.opts.get('style', None)
+
+    @property
+    def bulksource(self):
+        return self.boolattr('bulksource')
+
 
     def R(self, angle_offset=0):
         """Return rotation matrix"""
