@@ -13,9 +13,7 @@ Linear time invariant filters are created with the `LTIFilter` class::
 
     >>> fil = LTIFilter(b, a)
 
-where `b` is a list or array of the transfer function numerator
- coefficients and `a` is a list or array of the transfer function
- denominator coefficients.  For example,
+where `b` is a list or array of the transfer function numerator coefficients and `a` is a list or array of the transfer function denominator coefficients.  For example,
 
     >>> fil = LTIFilter(('b0', ), ('a0', 'a1'))
 
