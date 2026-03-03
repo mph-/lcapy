@@ -96,11 +96,13 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
 
             # Put all the sources except noise sources into 'time' group
             groups = self.independent_source_groups(True)
-            newgroups = {'time': []}
+            newgroups = {}
             for key, sources in groups.items():
                 if isinstance(key, str) and key[0] == 'n':
                     newgroups[key] = sources
                 else:
+                    if 'time' not in newgroups:
+                        newgroups['time'] = []
                     newgroups['time'] += sources
             return newgroups
 
