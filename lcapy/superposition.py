@@ -424,6 +424,9 @@ class Superposition(SuperpositionDomain, ExprDict):
 
         result = {}
 
+        # Need a / c + b / c instead of (a + b) / c otherwise coeff fails.
+        expr1 = expr1.expand()
+
         # Extract DC components
         dc = expr1.sympy.coeff(tsym, 0)
         dc = ConstantDomainExpression(dc).as_quantity(self.quantity)
