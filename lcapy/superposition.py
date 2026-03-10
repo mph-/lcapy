@@ -444,7 +444,11 @@ class Superposition(SuperpositionDomain, ExprDict):
             if is_ac(term, tsym):
                 eterm = expr(term).as_quantity(self.quantity)
                 p = eterm.phasor()
-                result[p.omega] = p
+                if p.omega in result:
+                    result[p.omega] += p
+                else:
+                    result[p.omega] = p
+
                 ac += eterm
 
         expr1 -= ac
