@@ -1,3 +1,9 @@
+"""This module provides the RcChecker class for checking Rcparams entries.
+
+Copyright 2025--2026 Michael Hayes, UCECE
+"""
+
+
 class RcChecker:
 
     def bool(self, val):

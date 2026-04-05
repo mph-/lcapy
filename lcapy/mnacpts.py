@@ -1362,6 +1362,47 @@ class Eopamp(DependentSource):
         raise RuntimeError('Internal error, component not expanded')
 
 
+class Enoisyopamp(DependentSource):
+    """Noisy perational amplifier"""
+
+    extra_argnames = ('Ac', 'Ro', 'Vn', 'In')
+    is_opamp = True
+    has_expand = True
+
+    def _expand(self):
+
+        node5 = self._dummy_node()
+        
+        Ad, Ac, Ro, Vn, In = self.args
+
+        cpts = []
+        cpts.append(self._netmake_expand('E',
+                                         nodes=(self.relnodes[0],
+                                                self.relnodes[1],
+                                                'opamp',
+                                                node5,
+                                                self.relnodes[3]),
+                                         args=(Ad, Ac, Ro)))
+
+        cpts.append(self._netmake_expand('Vnoise',
+                                         nodes=(self.relnodes[2], node5,
+                                                'noise'),
+                                         args=(Vn, )))
+        cpts.append(self._netmake_expand('Inoisep',
+                                         nodes=(node5, self.relnodes[1],
+                                                'noise'),
+                                         args=(In, )))
+        cpts.append(self._netmake_expand('Inoisen',
+                                         nodes=(self.relnodes[3],
+                                                self.relnodes[1], 'noise'),
+                                         args=(In, )))
+
+        return '\n'.join(cpts)        
+
+    def _stamp(self, mna):
+        raise RuntimeError('Internal error, component not expanded')    
+
+
 class Efdopamp(DependentSource):
     """Fully differential opamp"""
 

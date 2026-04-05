@@ -35,6 +35,7 @@ Dschottky: Dname Np Nm schottky; Schottky diode
 E: Ename Np Nm Ncp Ncm [Value=name] [Ac=0]; Voltage controlled voltage source
 VCVS: VCVSname Np Nm Ncp Ncm [Value=name]; Voltage controlled voltage source
 Eopamp: Ename Np Nm opamp Ncp Ncm [Ad=name] [Ac=0] [Ro=0]; Opamp
+Enoisyopamp: Ename Np Nm noisyopamp Ncp Ncm [Ad=name] [Ac=0] [Ro=0] [Vn=Vn] [In=In]; Noisy opamp
 Efdopamp: Ename Np Nm fdopamp Ncp Ncm Nocm [Ad=name] [Ac=0]; Fully differential opamp
 Einamp: Ename Np Nm inamp Ncp Ncm NRp NRm [Ad=name] [Ac=0] [Rf=Rf]; Instrumentation opamp
 Eamp: Ename Np Nm amp Ncp Ncm [Ad=name] [Ac=0]; Amplifier
@@ -191,6 +192,7 @@ tap: keyword;
 tapcore: keyword;
 lossless: keyword;
 opamp: keyword;
+noisyopamp: keyword;
 inamp: keyword;
 isoamp: keyword;
 fdopamp: keyword;
@@ -315,6 +317,8 @@ Ac: value; Common-mode gain
 Ad: value; Differential gain
 Rf: value; Feedback resistance
 Ro: value; Output resistance
+Vn: value; Noise voltage
+In: value; Noise current
 A11: value; A11
 A12: value; A12
 A21: value; A21

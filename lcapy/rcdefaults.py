@@ -1,3 +1,8 @@
+"""This module provides the rcdefaults dictionary.
+
+Copyright 2025--2026 Michael Hayes, UCECE
+"""
+
 from .rcchecker import RcChecker
 from .config import str_expr_map, latex_expr_map, pretty_expr_map, atoms_table
 from .state import state

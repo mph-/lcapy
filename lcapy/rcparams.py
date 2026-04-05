@@ -1,3 +1,10 @@
+"""This module provides the RcParams class and the rcParams instance
+of this class.
+
+Copyright 2025--2026 Michael Hayes, UCECE
+
+"""
+
 from .rcdefaults import rcdefaults
 from .config import rcparams_user_filename, rcparams_local_filename
 from os.path import exists, expanduser
