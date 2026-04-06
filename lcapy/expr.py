@@ -3,7 +3,7 @@
 """This module provides the Expr class.  This attempts to create a
 consistent interface to SymPy's expressions.
 
-Copyright 2014--2024 Michael Hayes, UCECE
+Copyright 2014--2026 Michael Hayes, UCECE
 
 """
 
@@ -50,7 +50,7 @@ __all__ = ('expr', 'symbol', 'symbols', 'deg', 'rad',
            'equation', 'UnevaluatedExpr')
 
 
-class ExprPrint(object):
+class ExprPrint:
 
     @property
     def _pexpr(self):
@@ -168,7 +168,7 @@ class ExprPrint(object):
         return sym.repr(self)
 
 
-class ExprContainer(object):
+class ExprContainer:
 
     @property
     def expr(self):
@@ -210,7 +210,7 @@ class ExprContainer(object):
         return symbols
 
 
-class ExprMisc(object):
+class ExprMisc:
 
     def pdb(self):
         """Enter the python debugger."""

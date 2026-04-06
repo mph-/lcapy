@@ -1,7 +1,7 @@
 """
 This module defines a grammar for SPICE-like netlists.
 
-Copyright 2015--2023 Michael Hayes, UCECE
+Copyright 2015--2026 Michael Hayes, UCECE
 """
 
 # SPICE also considers = a delimiter.

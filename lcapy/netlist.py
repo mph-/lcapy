@@ -650,7 +650,8 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
 
     def expand(self, depth=None):
         """Expand the netlist, replacing complicated components with simpler
-        components."""
+        components.  `depth` sets the recursion depth.  By default the netlist
+        is expanded until no further expansion is possible."""
 
         if depth is None:
             depth = 100
