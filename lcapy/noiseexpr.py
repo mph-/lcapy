@@ -1,6 +1,6 @@
 """This module provides the NoiseExpression class to represent noise expressions.
 
-Copyright 2020--2022 Michael Hayes, UCECE
+Copyright 2020--2026 Michael Hayes, UCECE
 
 """
 
@@ -15,10 +15,15 @@ from warnings import warn
 
 
 class NoiseExpression(Expr):
-    """Frequency domain (one-sided) noise spectrum expression (amplitude
-    spectral density).
+    """Frequency domain (one-sided) noise spectrum expression
+    (amplitude spectral density).  This is the square root of the
+    power spectral density assumin a one ohm load.  Note, the ASD is
+    positive.
 
     This characterises a zero-mean Gaussian noise process.
+
+    The rms noise can be found by integrating the ASD over all
+    positive frequencies; for white-noise, the rms value is infinite.
 
     When performing arithmetic on two noiseExpr expressions it is
     assumed that they are uncorrelated unless they have the same nid
@@ -44,7 +49,7 @@ class NoiseExpression(Expr):
     b = NoiseExpression(4)
     a + b - b gives sqrt(41) and a + b - a gives sqrt(34).
 
-    This case is correctly handled by the Super class since each noise
+    This case is correctly handled by the Superposition class since each noise
     component is stored and considered separately.
 
     (Voltage(a) + Voltage(b) - Voltage(b)).n gives 3 as expected.
@@ -144,7 +149,8 @@ class NoiseExpression(Expr):
 
     def __div__(self, x):
         if isinstance(x, NoiseExpression) and self.nid != x.nid:
-            raise ValueError('Cannot divide %s and %s' % (self, x))
+            raise ValueError('Cannot divide %s by %s' % (self, x))
+        # TODO: Check x is positive
         return self.__class__(self.expr / x, nid=self.nid)
 
     def __rdiv__(self, x):
