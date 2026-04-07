@@ -1217,24 +1217,7 @@ current flows through Cs.
 
 This circuit is described by:
 
-   >>> from lcapy import Circuit, t, oo
-   >>> a = Circuit("""
-   ... Vs 3 0_3 ac; down=2
-   ... Cs 3 2_1; right
-   ... W 0_3 0; right
-   ... E1 1 0 opamp 0_4 2 A; right, mirror
-   ... W 1 1_2; right=0.5
-   ... P 1_2 0_1; down, v=V_o
-   ... W 2_1 2; right=0.5
-   ... W 0_4 0_2; down
-   ... W 0 0_2; right
-   ... W 0_2 0_1; right=0.5
-   ... W 2 2_2; up
-   ... R 2_2 1_1; right
-   ... W 1_1 1; down
-   ... ; draw_nodes=connections, label_nodes=primary
-   ... """)
-
+.. literalinclude:: examples/tutorials/opamps/opamp-displacement-current-sensor1.sch
 
 The output voltage (at node 1) is found using::
 
@@ -1281,34 +1264,10 @@ Lcapy can create a noise model from a netlist (using the `noise_model()` method)
 Here's an example netlist where Vn models the opamp's noise voltage,
 In models the opamp's noise current (note the other opamp noise source
 has no contribution since it is shorted), and VnR models the Johnson
-noise of the feedback resistor R where :math:`k_b=1.38\times 10^{-23}`
+noise of the feedback resistor R where :math:`k_B=1.38\times 10^{-23}`
 is Boltzmann's constant and :math:`T` is the temperature in Kelvin.
 
-   >>> from lcapy import Circuit, t, oo
-   >>> a = Circuit("""
-   ... Vs 6 0_3 ac; down=2
-   ... Cs 6 4; right
-   ... W 0_3 0; right
-   ... E1 1 0 opamp 0_4 2_1 A; right, mirror
-   ... W 1 1_2; right=0.5
-   ... P 1_2 0_6; down
-   ... Ci 4_3 0_5; down
-   ... W 4_1 4; right
-   ... W 4 4_3; right
-   ... Vn 4_3 2 noise; right
-   ... W 2 2_1; right=0.5
-   ... In 2 0_1 noise; down
-   ... W 0_4 0_2; down
-   ... W 0 0_5; right
-   ... W 0_5 0_1; right
-   ... W 0_1 0_2; right
-   ... W 0_2 0_6; right=0.5
-   ... W 4 4_2; up
-   ... VnR 4_2 3 noise; right
-   ... R 3 1_1; right
-   ... W 1_1 1; down
-   ... ; draw_nodes=connections
-   ... """)
+.. literalinclude:: examples/tutorials/opamps/opamp-displacement-current-sensor-noise-model1.sch
 
 .. image:: examples/tutorials/opamps/opamp-displacement-current-sensor-noise-model1.png
    :width: 20cm
@@ -1323,11 +1282,11 @@ components, one for each noise source.
 
 The total noise at the output can be found using::
 
-   >>> Vneq = a[1].V.n
-   >>> Vneq
+   >>> Vno = a[1].V.n
+   >>> Vno
         __________________________________________
        ╱   2  2                 2 ⎛  2  2  2    ⎞
-   A⋅╲╱  Iₙ ⋅R  + 4⋅R⋅T⋅k_b + Vₙ ⋅⎝Cₛ ⋅R ⋅ω  + 1⎠
+   A⋅╲╱  Iₙ ⋅R  + 4⋅R⋅T⋅k_B + Vₙ ⋅⎝Cₛ ⋅R ⋅ω  + 1⎠
    ───────────────────────────────────────────────
                __________________________
               ╱  2           2  2  2
@@ -1337,10 +1296,10 @@ The total noise at the output can be found using::
 With an ideal opamp having infinite open-loop gain, the expression
 simplifies::
 
-   >>> Vneq.limit('A', oo)
+   >>> Vno.limit('A', oo)
       __________________________________________
      ╱   2  2   2  2     2  2                 2
-   ╲╱  Cₛ ⋅R ⋅Vₙ ⋅ω  + Iₙ ⋅R  + 4⋅R⋅T⋅k_b + Vₙ
+   ╲╱  Cₛ ⋅R ⋅Vₙ ⋅ω  + Iₙ ⋅R  + 4⋅R⋅T⋅k_B + Vₙ
 
 Note, there is a contribution due to the Johnson noise of the feedback
 resistor, the voltage noise of the opamp filtered by the RC network,
@@ -1350,7 +1309,6 @@ low current noise and to use the largest feedback resistor as
 possible.  In this case the noise is dominated by Johnson noise of R.
 While the noise increases with the square root of R, the gain of the
 circuit increases with R.
-
 
 
 Piezo transducer amplifier
