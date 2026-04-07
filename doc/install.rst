@@ -8,7 +8,7 @@ Installation
 Requirements
 ============
 
-Lcapy requires the following Python packages: scipy, sympy, numpy, matplotlib, networkx.  These are automatically loaded when using pip.
+Lcapy requires the following Python packages: scipy, sympy, numpy, matplotlib, networkx.  These are automatically loaded when using pip.   It is recommended that a virtual environment is used.
 
 For schematic drawing you require:
 
@@ -80,6 +80,7 @@ Installation for Windows
 3. Download circuitikz (https://www.ctan.org/pkg/circuitikz)
 
 
+
 Installation of latest version
 ==============================
 
@@ -108,12 +109,11 @@ Installation for development
    $ cd lcapy
    $ pip3 install --editable .[test,release]
 
-4. For building the docs you need `sphinx`, `ipython` and `pycairo`.  For example, using apt:
+4. For building the docs you need `ipython`, `sphinx`, and `sphinx_rtd_theme`.
 
 .. code-block:: console
 
-   $ sudo apt-get install gir1.2-gtk-3.0 python3-gi python3-gi-cairo
-   $ pip3 install --editable .[doc]
+   $ pip3 install ipython sphinx sphinx_rtd_theme
 
 5. For debugging schematic graphs `dot` is required:
 
