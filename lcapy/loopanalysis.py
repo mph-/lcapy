@@ -2,7 +2,7 @@
 This module performs loop analysis.  It is primarily for showing
 the equations rather than evaluating them.
 
-Copyright 2019--2023 Michael Hayes, UCECE
+Copyright 2019--2026 Michael Hayes, UCECE
 
 """
 
@@ -89,17 +89,17 @@ class LoopAnalysis(object):
         """Return list of loops.  Note, the loops can vary for different
         invocations of the LoopAnalysis class."""
 
-        return self.cg.loops()
+        return self.cg.basis_loops()
 
     def loops_by_cpt_name(self):
         """Return list of loops specified by cpt name."""
 
-        return self.cg.loops_by_cpt_name()
+        return self.cg.basis_loops_by_cpt_name()
 
     @property
     def num_loops(self):
 
-        return len(self.cg.loops)
+        return len(self.cg.basis_loops)
 
     def mesh_currents(self):
 

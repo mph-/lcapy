@@ -2,7 +2,7 @@
 This module provides a class to represent circuits as graphs.
 This is primarily for loop analysis but is also used for nodal analysis.
 
-Copyright 2019--2025 Michael Hayes, UCECE
+Copyright 2019--2026 Michael Hayes, UCECE
 
 """
 
@@ -205,6 +205,12 @@ class CircuitGraph(object):
                 loops.append(cycle)
         return loops
 
+    def basis_loops(self):
+        """Return the basis loops suitable for mesh analysis
+        without redundant loops."""
+
+        return nx.cycle_basis(self.UG)
+
     def chordless_loops(self):
 
         loops = self.all_loops()
@@ -264,11 +270,11 @@ class CircuitGraph(object):
         self._loops = self.chordless_loops()
         return self._loops
 
-    def loops_by_cpt_name(self):
-        """Return list of loops specified by cpt name."""
+    def basis_loops_by_cpt_name(self):
+        """Return list of basis loops specified by cpt name."""
 
         ret = []
-        for loop in self.loops():
+        for loop in self.basis_loops():
             foo = []
             for m in range(len(loop) - 1):
                 cpt = self.component(loop[m + 1], loop[m])
