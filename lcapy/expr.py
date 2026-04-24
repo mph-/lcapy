@@ -225,13 +225,16 @@ class ExprDict(ExprPrint, ExprContainer, ExprMisc, OrderedDict):
 
     def __getitem__(self, key):
 
-        # This is used for nodalanalysis to store results
-        # indexed by node name.
+        # This is used for nodalanalysis to store results indexed by
+        # node name or for meshanalysis to store results indexed by
+        # current name.
+
+        keys = self.keys()
+        if key in keys:
+             return super(ExprDict, self).__getitem__(key)
+        
         key2 = str(key)
-        try:
-            return super(ExprDict, self).__getitem__(key2)
-        except:
-            return super(ExprDict, self).__getitem__(key)
+        return super(ExprDict, self).__getitem__(key2)
 
     def __call__(self, *args, **kwargs):
         """Perform substitution/transformation on each element."""
