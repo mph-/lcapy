@@ -241,6 +241,14 @@ class ExprDict(ExprPrint, ExprContainer, ExprMisc, OrderedDict):
             new[key] = expr(val)(*args, **kwargs)
         return self.__class__(new)
 
+    @property
+    def sympy(self):
+
+        new = {}
+        for key, val in self.items():
+            new[key] = val.sympy
+        return new
+    
     def evaluate(self):
         """Evaluate each element to convert to floating point.
         The keys are also converted if possible to handle
@@ -4208,6 +4216,7 @@ def expr(arg, var=None, override=False, units=None, **assumptions):
     # TODO: convert expr('x(t)') into Function('x')(t)
 
     from .sequence import Sequence
+    from .equation import Equation
 
     if arg is None:
         return arg
@@ -4219,8 +4228,12 @@ def expr(arg, var=None, override=False, units=None, **assumptions):
         if units is not None:
             new.units = units
         return new
+
     if isinstance(arg, Sequence):
         return arg
+
+    if isinstance(arg, Equation):
+        return arg    
 
     if not isinstance(arg, str) and hasattr(arg, '__iter__'):
         return exprcontainer(arg, **assumptions)
