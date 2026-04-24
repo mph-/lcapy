@@ -49,3 +49,12 @@ class Equation(ExprPrint, ExprMisc):
         # This is called for Expr but not ExprList
         s = latex(self._pexpr, mode='plain')
         return "$$%s$$" % s
+
+    def solve(self, *symbols, **flags):
+        """Solve equation.  This returns a list of solutions.  An empty list
+        is returned if no solutions are found.  Note, by default,
+        Lcapy assumes symbols are positive so an innocuous expression may fail
+        to give a result if the solution is negative."""
+
+        expr = self.rhs - self.lhs
+        return expr.solve(*symbols, **flags)
