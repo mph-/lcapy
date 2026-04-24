@@ -58,3 +58,17 @@ class Equation(ExprPrint, ExprMisc):
 
         expr = self.rhs - self.lhs
         return expr.solve(*symbols, **flags)
+
+    def has(self, *patterns):
+        """Test whether any subexpressions matches any of the patterns.  For example,
+         eqn.has(exp(t))
+         eqn.has(t)
+
+        """
+
+        return self.lhs.has(*patterns) or self.rhs.has(*patterns)
+
+    @property
+    def sympy(self):
+
+        return Eq(self.lhs.sympy, self.rhs.sympy)
