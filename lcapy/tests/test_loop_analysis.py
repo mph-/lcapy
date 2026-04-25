@@ -1,6 +1,10 @@
 from lcapy import *
 import unittest
 
+# Note, different invocations can produce different results.  Networkx
+# uses unordered sets to find loops and thus the basis loops are not
+# deterministic.  The workaround is to compute the absolute value
+# of the results to handle differences in loop order.
 
 class LcapyTester(unittest.TestCase):
 
@@ -50,8 +54,8 @@ class LcapyTester(unittest.TestCase):
 
         loop = loops[0]
 
-        self.assertEqual(eq.lhs,
-                         voltage('-v1(t) + v2(t) - R * i_1(t)'),
+        self.assertEqual(abs(eq.lhs),
+                         voltage('abs(-v1(t) + v2(t) - R * i_1(t))'),
                          'mesh_equations()[0].lhs')
 
         self.assertEqual(eq.rhs, voltage(0), 'mesh_equations()[0].rhs')
@@ -59,14 +63,14 @@ class LcapyTester(unittest.TestCase):
     def test_loop3(self):
 
         a = Circuit("""
-        V 1 0 {v(t)}
-        R1 1 2
-        R2 2 3
-        R3 3 0_3
-        W 0 0_3
-        W 3 3_a
-        R4 3_a 0_4
-        W 0_3 0_4""")
+        V 1 0 {v(t)}; down
+        R1 1 2; right
+        R2 2 3; right
+        R3 3 0_3; down
+        W 0 0_3; right
+        W 3 3_a; right
+        R4 3_a 0_4; down
+        W 0_3 0_4; right""")
 
         la = a.loop_analysis()
 
