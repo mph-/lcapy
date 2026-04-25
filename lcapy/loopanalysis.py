@@ -15,12 +15,13 @@ import sympy as sym
 
 
 class LoopAnalysis(object):
-    """This performs for loop analysis.  Currently, it uses mesh analysis
-    and so is only applicable to circuits with a planar topology and
-    without twoport components.
+    """This performs for loop analysis.  Currently, it uses mesh
+    analysis and so is only applicable to circuits with a planar
+    topology and without twoport components.
 
-    The API is likely to change since different invocations find
-    different current loops.
+    Note, the loops are found using Networkx and since this uses
+    unordered Python sets, different invocations can find different
+    current loops for the same circuit.
 
     >>> from lcapy import Circuit, LoopAnalysis
     >>> cct = Circuit('''
