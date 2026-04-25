@@ -1,15 +1,18 @@
 """This module provides the Equation class.
 
-Copyright 2023 Michael Hayes, UCECE
+Copyright 2023--2026 Michael Hayes, UCECE
 
 """
 
 from .expr import ExprPrint, ExprMisc, expr
 from .printing import latex
-from sympy import Eq
+from sympy_equation import Eqn
 
 
 class Equation(ExprPrint, ExprMisc):
+
+    # Note, cannot subclass Eqn since sympy_equation checks lhs
+    # and rhs expressions to be sympy.Expr
 
     is_Equality = True
 
@@ -71,4 +74,7 @@ class Equation(ExprPrint, ExprMisc):
     @property
     def sympy(self):
 
-        return Eq(self.lhs.sympy, self.rhs.sympy)
+        # Note, Sympy uses Eq for equality.  Superficially there
+        # are similarities.
+
+        return Eqn(self.lhs.sympy, self.rhs.sympy)

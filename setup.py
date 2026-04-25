@@ -24,6 +24,7 @@ setup(name='lcapy',
                         'scipy',
                         'numpy',
                         'sympy>=1.10.1',  # >=1.7.1 works
+                        'sympy_equation',
                         'networkx',
                         'IPython',
                         'setuptools',
