@@ -97,7 +97,7 @@ class Path(Edges):
 
 def add_cpt(G, name, node_name1, node_name2):
 
-    if G.has_edge(node_name1, node_name2):
+    if G.has_edge(node_name1, node_name2) or G.has_edge(node_name2, node_name1):
         # Add dummy node in graph to avoid parallel edges.
         dummynode = '*%d' % G.dummy
         dummycpt = 'W%d' % G.dummy
