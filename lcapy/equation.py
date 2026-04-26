@@ -71,4 +71,8 @@ class Equation(ExprPrint, ExprMisc):
     @property
     def sympy(self):
 
+        # This should use sympy_equation.Eqn but this only works for
+        # Python-3.12.  The Eq class is a hack since it represents
+        # equality.
+
         return Eq(self.lhs.sympy, self.rhs.sympy)
