@@ -3,8 +3,9 @@ import unittest
 
 # Note, different invocations can produce different results.  Networkx
 # uses unordered sets to find loops and thus the basis loops are not
-# deterministic.  The workaround is to compute the absolute value
-# of the results to handle differences in loop order.
+# deterministic.  The workaround is to consider all possible
+# solutions.
+
 
 class LcapyTester(unittest.TestCase):
 
@@ -54,9 +55,12 @@ class LcapyTester(unittest.TestCase):
 
         loop = loops[0]
 
-        self.assertEqual(abs(eq.lhs),
-                         voltage('abs(-v1(t) + v2(t) - R * i_1(t))'),
-                         'mesh_equations()[0].lhs')
+        ans1 = voltage('-v1(t) + v2(t) - R * i_1(t)')
+        ans2 = voltage('v1(t) - v2(t) - R * i_1(t)')
+
+        if eq.lhs != ans1 and eq.lhs != ans2:
+            self.assertEqual(eq.lhs, ans1,
+                             'mesh_equations()[0].lhs')
 
         self.assertEqual(eq.rhs, voltage(0), 'mesh_equations()[0].rhs')
 
@@ -77,22 +81,25 @@ class LcapyTester(unittest.TestCase):
         la_eqs = la.mesh_equations()
         loops = la.loops_by_cpt_name()
 
+        self.assertEqual(len(loops), 2, 'num_loops')
+
         key = list(la_eqs.keys())[0]
         eq = la_eqs[key]
         loop = loops[0]
 
         if set(loop) == set(['R2', 'R1', 'V', 'R3']):
-            self.assertEqual(abs(eq.lhs), voltage(
-                'abs(R3*(-i_1(t) + i_2(t)) - R4*(-i_1(t) + i_2(t))'),
-                'mesh_equations()[1].lhs')
+            ans = voltage('R3*(-i_1(t) + i_2(t)) - R4*(-i_1(t) + i_2(t))')
+            if eq.lhs != ans and eq.lhs != -ans:
+                self.assertEqual(eq.lhs, ans,
+                                 'mesh_equations()[0].lhs')
+
         elif set(loop) == set(['R3', 'R4']):
-            self.assertEqual(abs(eq.lhs), voltage(
-                'abs(R3*(-i_1(t) + i_2(t)) - R4*(-i_1(t) + i_2(t)))'),
-                'mesh_equations()[1].lhs')
+            ans = voltage('R3*(-i_1(t) + i_2(t)) - R4*(-i_1(t) + i_2(t))')
+            if eq.lhs != ans and eq.lhs != -ans:
+                self.assertEqual(eq.lhs, ans,
+                                 'mesh_equations()[0].lhs')
+
         else:
-            raise ValueError('Unhandled loop %s' % loop)
+            raise ValueError('Unexpected loop %s' % loop)
 
-        # Use abs since sometimes the current flows in the other direction
-        # depending how the loop was chosen.
-
-        self.assertEqual(eq.rhs, voltage(0), 'mesh_equations()[1].rhs')
+        self.assertEqual(eq.rhs, voltage(0), 'mesh_equations()[0].rhs')
