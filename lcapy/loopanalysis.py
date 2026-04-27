@@ -103,6 +103,7 @@ class LoopAnalysis(object):
         return len(self.cg.basis_loops)
 
     def mesh_currents(self):
+        """Return list of mesh current names."""
 
         if not self.cg.is_planar:
             raise ValueError('Circuit topology is not planar')

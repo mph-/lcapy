@@ -79,27 +79,37 @@ class LcapyTester(unittest.TestCase):
         la = a.loop_analysis()
 
         la_eqs = la.mesh_equations()
+        la_currents = la.mesh_currents()
         loops = la.loops_by_cpt_name()
 
         self.assertEqual(len(loops), 2, 'num_loops')
 
-        key = list(la_eqs.keys())[0]
-        eq = la_eqs[key]
-        loop = loops[0]
+        for loop, current in zip(loops, la_currents):
+            eq = la_eqs[current]
 
-        if set(loop) == set(['R2', 'R1', 'V', 'R3']):
-            ans = voltage('R3*(-i_1(t) + i_2(t)) - R4*(-i_1(t) + i_2(t))')
-            if eq.lhs != ans and eq.lhs != -ans:
-                self.assertEqual(eq.lhs, ans,
-                                 'mesh_equations()[0].lhs')
+            if set(loop) == set(['R2', 'R1', 'V', 'R3']):
 
-        elif set(loop) == set(['R3', 'R4']):
-            ans = voltage('R3*(-i_1(t) + i_2(t)) - R4*(-i_1(t) + i_2(t))')
-            if eq.lhs != ans and eq.lhs != -ans:
-                self.assertEqual(eq.lhs, ans,
-                                 'mesh_equations()[0].lhs')
+                ans1 = voltage('-R1*i_2(t) - R2*i_2(t) - R3*(-i_1(t) + i_2(t)) - v(t)')
+                ans2 = voltage('-R1*i_2(t) - R2*i_2(t) - R3*(-i_1(t) + i_2(t)) + v(t)')
+                if eq.lhs != ans1 and eq.lhs != -ans2:
+                    self.assertEqual(eq.lhs, ans1,
+                                     'mesh_equations()[0].lhs')
 
-        else:
-            raise ValueError('Unexpected loop %s' % loop)
+            elif set(loop) == set(['R2', 'R1', 'V', 'R4']):
+
+                ans1 = voltage('-R1*i_2(t) - R2*i_2(t) - R4*(-i_1(t) + i_2(t)) - v(t)')
+                ans2 = voltage('-R1*i_2(t) - R2*i_2(t) - R4*(-i_1(t) + i_2(t)) + v(t)')
+                if eq.lhs != ans1 and eq.lhs != -ans2:
+                    self.assertEqual(eq.lhs, ans1,
+                                     'mesh_equations()[0].lhs')
+
+            elif set(loop) == set(['R3', 'R4']):
+                ans = voltage('R3*(-i_1(t) + i_2(t)) - R4*(-i_1(t) + i_2(t))')
+                if eq.lhs != ans and eq.lhs != -ans:
+                    self.assertEqual(eq.lhs, ans,
+                                     'mesh_equations()[0].lhs')
+
+            else:
+                raise ValueError('Unexpected loop %s' % loop)
 
         self.assertEqual(eq.rhs, voltage(0), 'mesh_equations()[0].rhs')
