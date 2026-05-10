@@ -207,9 +207,29 @@ class CircuitGraph(object):
 
     def basis_loops(self):
         """Return the basis loops suitable for mesh analysis
-        without redundant loops."""
+        without redundant loops.
 
-        return nx.cycle_basis(self.UG)
+        The list is sorted with the longest loops first.
+
+        The loops are rotated so they start with the highest node name
+        when sorted alphabetically."""
+
+        loops = nx.cycle_basis(self.UG)
+
+        # Sort list of loops with longest loops first.
+        loops = list(reversed(sorted(loops, key=len)))
+
+        def rotate(l, n):
+            return l[-n:] + l[:-n]
+
+        # Rotate loops so they start with the last component
+        # name when sorted alphabetically.
+        sorted_loops = []
+        for loop in loops:
+            loop = rotate(loop, loop.index(max(loop)))
+            sorted_loops.append(loop)
+
+        return sorted_loops
 
     def chordless_loops(self):
 
@@ -271,7 +291,12 @@ class CircuitGraph(object):
         return self._loops
 
     def basis_loops_by_cpt_name(self):
-        """Return list of basis loops specified by cpt name."""
+        """Return list of basis loops specified by cpt name.
+
+        The list is sorted with the longest loops first.
+
+        The loops are rotated so they start with the highest node name
+        when sorted alphabetically."""
 
         ret = []
         for loop in self.basis_loops():
@@ -284,6 +309,7 @@ class CircuitGraph(object):
                 foo.append(cpt.name)
             foo.append(self.component(loop[-1], loop[0]).name)
             ret.append(foo)
+
         return ret
 
     def draw(self, filename=None, axes=None):
