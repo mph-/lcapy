@@ -88,12 +88,26 @@ class LoopAnalysis(object):
 
     def loops(self):
         """Return list of loops.  Note, the loops can vary for different
-        invocations of the LoopAnalysis class."""
+        invocations of the LoopAnalysis class.
+
+        See also loops_by_cpt() and loops_by_cpt_name().
+        """
 
         return self.cg.basis_loops()
 
+    def loops_by_cpt(self):
+        """Return list of loops specified by cpt.
+
+        See also loops() and loops_by_cpt_name().
+        """
+
+        return self.cg.basis_loops_by_cpt_name()
+
     def loops_by_cpt_name(self):
-        """Return list of loops specified by cpt name."""
+        """Return list of loops specified by cpt name.
+
+        See also loops() and loops_by_cpt().
+        """
 
         return self.cg.basis_loops_by_cpt_name()
 

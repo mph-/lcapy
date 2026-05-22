@@ -291,12 +291,15 @@ class CircuitGraph(object):
         return self._loops
 
     def basis_loops_by_cpt_name(self):
-        """Return list of basis loops specified by cpt name.
+        """Return list of basis loops specified by cpt.
 
         The list is sorted with the longest loops first.
 
         The loops are rotated so they start with the highest node name
-        when sorted alphabetically."""
+        when sorted alphabetically.
+
+        See also basis_loops_by_cpt_name().
+        """
 
         loops = self.basis_loops()
 
@@ -307,13 +310,27 @@ class CircuitGraph(object):
                 cpt = self.component(loop[m + 1], loop[m])
                 if cpt is not None:
                     # There are no components for split nodes
-                    foo.append(cpt.name)
+                    foo.append(cpt)
             cpt = self.component(loop[-1], loop[0])
             if cpt is not None:
-                foo.append(cpt.name)
+                foo.append(cpt)
             ret.append(foo)
 
         return ret
+
+    def basis_loops_by_cpt_name(self):
+        """Return list of basis loops specified by cpt name.
+
+        The list is sorted with the longest loops first.
+
+        The loops are rotated so they start with the highest node name
+        when sorted alphabetically.
+
+        See also basis_loops_by_cpt().
+        """
+
+        return [cpt.name for cpt in self.basis_loops_by_cpt_name]
+
 
     def draw(self, filename=None, axes=None):
         """Use matplotlib to draw circuit graph."""
