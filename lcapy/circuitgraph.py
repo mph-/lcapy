@@ -220,14 +220,14 @@ class CircuitGraph(object):
         loops = list(reversed(sorted(loops, key=len)))
 
         def rotate(l, n):
-            return l[-n:] + l[:-n]
+            return l[n:] + l[:n]
 
         # Rotate loops so they start with the last component
         # name when sorted alphabetically.
         sorted_loops = []
         for loop in loops:
-            loop = rotate(loop, loop.index(max(loop)))
-            sorted_loops.append(loop)
+            rotated_loop = rotate(loop, loop.index(max(loop)))
+            sorted_loops.append(rotated_loop)
 
         return sorted_loops
 
@@ -298,16 +298,19 @@ class CircuitGraph(object):
         The loops are rotated so they start with the highest node name
         when sorted alphabetically."""
 
+        loops = self.basis_loops()
+
         ret = []
-        for loop in self.basis_loops():
+        for loop in loops:
             foo = []
             for m in range(len(loop) - 1):
                 cpt = self.component(loop[m + 1], loop[m])
-                if cpt is None:
-                    continue
-
+                if cpt is not None:
+                    # There are no components for split nodes
+                    foo.append(cpt.name)
+            cpt = self.component(loop[-1], loop[0])
+            if cpt is not None:
                 foo.append(cpt.name)
-            foo.append(self.component(loop[-1], loop[0]).name)
             ret.append(foo)
 
         return ret
