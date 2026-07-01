@@ -32,12 +32,12 @@ class ValueFormatter(object):
             pass
 
         if unit == 'ohm':
-            unit = '$\Omega$'
+            unit = r'$\Omega$'
 
         if expr.is_real:
             return self._do1(expr, unit, aslatex)
 
-        jstr = '\mathrm{j}' if aslatex else 'j'
+        jstr = r'\mathrm{j}' if aslatex else 'j'
 
         rexpr = re(expr)
         iexpr = im(expr)

@@ -103,14 +103,11 @@ def run(command, stderr=DEVNULL, stdout=DEVNULL, shell=False, debug=False):
 
 def tmpfilename(suffix='', dirname=None):
 
-    from tempfile import gettempdir, NamedTemporaryFile
+    from os import close
+    from tempfile import mkstemp
 
-    if dirname is None:
-        # Searches using TMPDIR, TEMP, TMP environment variables
-        dirname = gettempdir()
-
-    filename = NamedTemporaryFile(suffix=suffix, dir=dirname,
-                                  delete=False).name
+    fd, filename = mkstemp(suffix=suffix, dir=dirname)
+    close(fd)
     return filename
 
 
@@ -288,7 +285,8 @@ class LatexRunner(object):
         \end{document}"""
 
         tex_filename = tmpfilename('.tex')
-        open(tex_filename, 'w').write(content)
+        with open(tex_filename, 'w') as texfile:
+            texfile.write(content)
 
         self.run(tex_filename)
 

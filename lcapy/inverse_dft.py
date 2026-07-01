@@ -1,4 +1,4 @@
-"""This module provides support for the inverse DFT.  It
+r"""This module provides support for the inverse DFT.  It
 calculates the bilateral inverse DFT transform using:
 
    s(n) = (1 / N) * \sum_{n=0}^{N-1} S(k) e^{j * 2 * \pi * n * k / N}
