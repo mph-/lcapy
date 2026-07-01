@@ -14,13 +14,13 @@ def imaginary_update(k, v):
 
     if v == 'i':
         str_expr_map[sym.I] = 'i'
-        latex_expr_map[sym.I] = '\mathrm{i}'
+        latex_expr_map[sym.I] = r'\mathrm{i}'
         iunicode = '\u2148'
         atoms_table['ImaginaryUnit'] = iunicode
         pretty_expr_map[sym.I] = iunicode
     elif v == 'j':
         str_expr_map[sym.I] = 'j'
-        latex_expr_map[sym.I] = '\mathrm{j}'
+        latex_expr_map[sym.I] = r'\mathrm{j}'
         junicode = '\u2149'
         atoms_table['ImaginaryUnit'] = junicode
         pretty_expr_map[sym.I] = junicode

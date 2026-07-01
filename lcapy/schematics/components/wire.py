@@ -16,7 +16,7 @@ def arrow_map(name):
 class Wire(Bipole):
 
     def draw_short(self, pos1, pos2, style='', **kwargs):
-        """Create a string to draw a circuitikz short between positions `pos1`
+        r"""Create a string to draw a circuitikz short between positions `pos1`
         and `pos2`.  `dargs` is a list or string of the draw options.
 
         The general form of the generated string is:
@@ -36,7 +36,7 @@ class Wire(Bipole):
 
     def draw_wire(self, pos1, pos2, startarrow='', endarrow='',
                   style='', **kwargs):
-        """Create a string to draw a circuitikz wire between positions `pos1`
+        r"""Create a string to draw a circuitikz wire between positions `pos1`
         and `pos2`.  `dargs` is a list or string of the draw options.
 
         The general form of the generated string is:

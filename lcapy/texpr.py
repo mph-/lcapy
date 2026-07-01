@@ -137,7 +137,7 @@ class TimeDomainExpression(TimeDomain, Expr):
         return PhasorDomainExpression.from_time(self, **assumptions)
 
     def FT(self, var=None, evaluate=True, **assumptions):
-        """Attempt Fourier transform.
+        r"""Attempt Fourier transform.
 
         X(f) = \int_{-\infty} ^ {\infty} x(t) exp(-j 2\pi f t) dt."""
 
@@ -286,14 +286,14 @@ class TimeDomainExpression(TimeDomain, Expr):
         method is `impulse-invariance` and there is no scaling.  This
         uses:
 
-        : math: `x[n] = x(n \Delta t)`
+        : math: `x[n] = x(n \\Delta t)`
 
         For other quantities, the default method is `bilinear', and
         the result is scaled by the sampling interval (`Delta t`) as
         is common for the discrete-time impulse response of digital
         filters:
 
-        : math: `h[n] = \Delta t h_c(n \Delta t)`
+        : math: `h[n] = \\Delta t h_c(n \\Delta t)`
 
         The methods are: 'impulse-invariance' 'bilinear', 'tustin',
         'trapezoidal' 'generalized-bilinear', 'gbf' controlled by the

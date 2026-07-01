@@ -777,7 +777,7 @@ class Cpt(object):
         return opts.as_list(ignore_keys, **kwargs)
 
     def draw_cptnode(self, pos, cpt='', args='', dargs='', label=''):
-        """Create a string to draw a tikz node containing a circuitikz
+        r"""Create a string to draw a tikz node containing a circuitikz
         component `cpt` at position `pos`. `args` is a list or string
         of the node options; `dargs` is a list or string of the draw
         options.  `label` is an optional label.
@@ -813,7 +813,7 @@ class Cpt(object):
         return s
 
     def draw_cpt(self, pos1, pos2, cpt='', args='', dargs=''):
-        """Create a string to draw a circuitikz component `cpt` between
+        r"""Create a string to draw a circuitikz component `cpt` between
         positions `pos1` and `pos2`. `args` is a list or string of the
         component options; `dargs` is a list or string of the draw options.
 

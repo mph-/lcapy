@@ -23,7 +23,7 @@ class Latex(object):
         self.str = string
 
     def mathrm(self, s):
-        """Place words in sub- or super-scripts inside a mathrm.
+        r"""Place words in sub- or super-scripts inside a mathrm.
         For example: V_{rms} -> V_{\mathrm{rms}}"""
 
         def foo(match):
@@ -86,7 +86,7 @@ def latex_format_label(s):
 
     for macro in (r'\hspace', r'\vspace', r'\ ', r'\,', r'\;', r'\!',
                   r'\tiny', r'\scriptsize', r'\footnotesize', r'\small',
-                  r'\normalsize', r'\large', '\Large',
+                  r'\normalsize', r'\large', r'\Large',
                   r'\LARGE', r'\huge', r'\Huge'):
         s2 = s2.replace(macro, '')
 
@@ -112,6 +112,6 @@ def latex_format_node_label(s):
     if len(parts) > 2:
         raise ValueError('Double subscript in %s' % s)
     elif len(parts) == 2:
-        return '%s$_{\mathrm{%s}}$' % (parts[0], parts[1])
+        return r'%s$_{\mathrm{%s}}$' % (parts[0], parts[1])
 
     return s

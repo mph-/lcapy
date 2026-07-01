@@ -1933,7 +1933,7 @@ class Vdc(VoltageSourceBase):
 
 
 class Vac(VoltageSourceBase):
-    """
+    r"""
     AC voltage source.
 
     Parameters

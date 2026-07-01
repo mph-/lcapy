@@ -38,7 +38,7 @@ ax = (Vnot * 1e9).plot(flim, loglog=True, label='total')
 ax = (Vnov * 1e9).plot(flim, loglog=True, label='Vn', axes=ax)
 ax = (Vnoi * 1e9).plot(flim, loglog=True, label='In', axes=ax)
 ax = (Vnor * 1e9).plot(flim, loglog=True, label='R', axes=ax)
-ax.set_ylabel('Noise voltage density nV/$\sqrt{\mathrm{Hz}}$')
+ax.set_ylabel(r'Noise voltage density nV/$\sqrt{\mathrm{Hz}}$')
 ax.grid(True, 'both')
 ax.legend()
 

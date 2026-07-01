@@ -57,7 +57,7 @@ class LabelMaker:
         if len(cpt.args):
 
             # TODO, extend for mechanical and acoustical components.
-            units_map = {'V': 'V', 'I': 'A', 'R': '$\Omega$',
+            units_map = {'V': 'V', 'I': 'A', 'R': r'$\Omega$',
                          'C': 'F', 'L': 'H'}
 
             expr = value_parser(cpt.args[0])

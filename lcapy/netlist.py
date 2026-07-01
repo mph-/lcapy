@@ -459,7 +459,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
                                label_voltages=False, eng_format=True,
                                evalf=True, num_digits=3,
                                show_units=True, anchor='south west'):
-        """Create a new netlist with the node voltages annotated.  This is
+        r"""Create a new netlist with the node voltages annotated.  This is
         useful for drawing a schematic with the node voltages shown.
         For example,
 
