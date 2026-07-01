@@ -134,7 +134,7 @@ class dtsign(sym.Function):
 
 
 class sincn(sym.Function):
-    """Normalized sinc function :math:`\sin(\pi x)/(\pi x)`."""
+    r"""Normalized sinc function :math:`\sin(\pi x)/(\pi x)`."""
 
     @classmethod
     def eval(cls, val):
@@ -156,7 +156,7 @@ class sincn(sym.Function):
 
 
 class sincu(sym.Function):
-    """Unnormalized sinc function :math:`\sin(x)/(x)`."""
+    r"""Unnormalized sinc function :math:`\sin(x)/(x)`."""
 
     @classmethod
     def eval(cls, val):
@@ -177,7 +177,7 @@ class sincu(sym.Function):
 
 
 class psinc(sym.Function):
-    """Periodic sinc function :math:`\sin(M * pi * x)/(M * sin(pi * x))`."""
+    r"""Periodic sinc function :math:`\sin(M * pi * x)/(M * sin(pi * x))`."""
 
     @classmethod
     def eval(cls, M, val):

@@ -491,7 +491,8 @@ class Schematic(NetfileMixin):
         if ext in ('.pytex', '.schtex', '.pgf'):
             if include != '':
                 warn('Include option ignored for non-standalone file')
-            open(filename, 'w').write(content)
+            with open(filename, 'w') as file:
+                file.write(content)
             return
 
         # Need amsmath for operatorname
@@ -503,7 +504,8 @@ class Schematic(NetfileMixin):
                     '\\begin{document}\n%s\\end{document}')
         content = template % (include, content)
         tex_filename = filename.replace(ext, '.tex')
-        open(tex_filename, 'w').write(content)
+        with open(tex_filename, 'w') as texfile:
+            texfile.write(content)
 
         if ext == '.tex':
             return

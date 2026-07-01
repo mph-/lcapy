@@ -1,4 +1,4 @@
-"""This module provides support for discrete Fourier transforms.
+r"""This module provides support for discrete Fourier transforms.
 
 It calculates the discrete Fourier transform using:
 

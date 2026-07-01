@@ -1,4 +1,4 @@
-"""This module provides support for Fourier transforms.  It calculates
+r"""This module provides support for Fourier transforms.  It calculates
 the bilateral Fourier transform using:
 
    S(f) = \int_{-\infty}^{\infty} s(t) e^{-j * 2 * \pi * t} dt

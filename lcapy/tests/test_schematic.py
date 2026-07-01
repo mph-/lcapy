@@ -32,7 +32,8 @@ class LcapyTester(unittest.TestCase):
 \end{tikzpicture}
 \end{document}"""
 
-        content = open('tmp.tex').read()
+        with open('tmp.tex') as tmpfile:
+            content = tmpfile.read()
         if content != match:
             raise ValueError('Schematic mismatch')
 
@@ -66,7 +67,8 @@ C 1 3 3; right""")
 \end{tikzpicture}
 \end{document}"""
 
-        content = open('tmp.tex').read()
+        with open('tmp.tex') as tmpfile:
+            content = tmpfile.read()
         if content != match:
             raise ValueError('Schematic mismatch')
 

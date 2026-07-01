@@ -1,4 +1,4 @@
-"""This module provides support for inverse discrete-time Fourier
+r"""This module provides support for inverse discrete-time Fourier
 transforms.
 
  It calculates the inverse discrete-time Fourier transform using:

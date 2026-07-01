@@ -1,4 +1,4 @@
-"""This module provides support for discrete-time Fourier transforms.
+r"""This module provides support for discrete-time Fourier transforms.
 
  It calculates the discrete-time Fourier transform using:
 

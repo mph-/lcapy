@@ -955,7 +955,7 @@ class Udff(Flipflop):
             'vdd': ('t', 0.0, 0.5)}
 
     pinlabels = {'vss': 'VSS', 'vdd': 'VDD',
-                 'd': 'D', 'q': 'Q', '/q': '$\overline{\mathrm{Q}}$', 'clk': '>'}
+                 'd': 'D', 'q': 'Q', '/q': r'$\overline{\mathrm{Q}}$', 'clk': '>'}
 
 
 class Ujkff(Flipflop):
@@ -973,7 +973,7 @@ class Ujkff(Flipflop):
 
     pinlabels = {'vss': 'VSS', 'vdd': 'VDD',
                  'j': 'J', 'k': 'K',
-                 'q': 'Q', '/q': '$\overline{\mathrm{Q}}$', 'clk': '>'}
+                 'q': 'Q', '/q': r'$\overline{\mathrm{Q}}$', 'clk': '>'}
 
 
 class Urslatch(Flipflop):
@@ -990,7 +990,7 @@ class Urslatch(Flipflop):
 
     pinlabels = {'vss': 'VSS', 'vdd': 'VDD',
                  'r': 'R', 's': 'S',
-                 'q': 'Q', '/q': '$\overline{\mathrm{Q}}$'}
+                 'q': 'Q', '/q': r'$\overline{\mathrm{Q}}$'}
 
 
 class Gate2(Chip):
