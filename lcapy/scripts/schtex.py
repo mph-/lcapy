@@ -325,7 +325,8 @@ def main(argv=None):
     if outfilename is not None:
         base, ext = os.path.splitext(outfilename)
         if ext == '.sch':
-            open(outfilename, 'w').write(str(cct))
+            with open(outfilename, 'w') as outfile:
+                outfile.write(str(cct))
             return 0
 
     nosave = args.xgraph or args.ygraph
