@@ -290,7 +290,7 @@ class CircuitGraph(object):
         self._loops = self.chordless_loops()
         return self._loops
 
-    def basis_loops_by_cpt_name(self):
+    def basis_loops_by_cpt(self):
         """Return list of basis loops specified by cpt.
 
         The list is sorted with the longest loops first.
@@ -329,8 +329,10 @@ class CircuitGraph(object):
         See also basis_loops_by_cpt().
         """
 
-        return [cpt.name for cpt in self.basis_loops_by_cpt_name]
-
+        ret = []
+        for loop in self.basis_loops_by_cpt():
+            ret.append([cpt.name for cpt in loop])
+        return ret
 
     def draw(self, filename=None, axes=None):
         """Use matplotlib to draw circuit graph."""
