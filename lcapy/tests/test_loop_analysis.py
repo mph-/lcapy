@@ -32,12 +32,14 @@ class LcapyTester(unittest.TestCase):
         loop = loops[0]
 
         ans1 = voltage('v(t) - R * i_1(t)')
-        ans2 = -ans1
+        ans2 = voltage('-v(t) - R * i_1(t)')
 
         if eq.lhs != ans1 and eq.lhs != ans2:
-            self.assertEqual(eq.lhs, ans1, 'mesh_equations()[0].lhs')
+            self.assertEqual(eq.lhs, ans1,
+                             'mesh_equations()[0].lhs ' + str(loop))
 
-        self.assertEqual(eq.rhs, voltage(0), 'mesh_equations()[0].rhs')
+        self.assertEqual(eq.rhs, voltage(0),
+                         'mesh_equations()[0].rhs ' + str(loop))
 
     def test_loop2(self):
 
