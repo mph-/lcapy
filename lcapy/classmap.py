@@ -1,3 +1,10 @@
+"""
+This module provides mapping between circuit kinds and expressions.
+
+Copyright 2020--2026 Michael Hayes, UCECE
+
+"""
+
 from .cexpr import ConstantDomainExpression
 from .fexpr import FourierDomainExpression
 from .sexpr import LaplaceDomainExpression
@@ -33,18 +40,15 @@ domainmap = {'constant': 'dc',
 
 def domain_kind_to_class(kind):
 
-    if isinstance(kind, str) and kind[0] == 'n':
-        return classmap['n']
+    if isinstance(kind, str):
 
-    try:
+        if kind[0] == 'n':
+            return classmap['n']
+        if kind not in classmap:
+            raise ValueError('Unhandled kind', kind)
         return classmap[kind]
-    except:
-        return PhasorDomainExpression
 
-        def make_phasor(*args, **kwargs):
-            kwargs['omega'] = kind
-            return PhasorDomainExpression(*args, **kwargs)
-        return make_phasor
+    return PhasorDomainExpression
 
 
 def domain_kind_quantity_to_class(kind, quantity='undefined'):
