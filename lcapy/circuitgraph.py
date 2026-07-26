@@ -7,6 +7,7 @@ Copyright 2019--2026 Michael Hayes, UCECE
 """
 
 import networkx as nx
+from .circuitloop import CircuitLoop
 
 
 # MultiDiGraph would be the preferred graph since this can handle
@@ -120,27 +121,29 @@ class CircuitGraph(object):
         # Dummy nodes are used to avoid parallel edges.
         G.dummy_nodes = {}
 
-        G.add_nodes_from(cct.node_list)
-
-        # Mapping to remove non-unique equipotential nodes.
+        # Renumber to remove non-unique equipotential nodes.
         node_map = cct.node_map
+        cct = cct.renumber(node_map)
+        cct.orig_node_map = node_map
+
+        G.add_nodes_from(cct.node_list)
 
         for name in cct.branch_list:
 
             if name.endswith('_out_'):
                 tpname = name.split('_out_')[0]
                 elt = cct.elements[tpname]
-                node_names = [node_map[name] for name in elt.node_names[0:2]]
+                node_names = elt.node_names[0:2]
                 add_cpt(G, name, node_names[0], node_names[1])
             elif name.endswith('_in_'):
                 tpname = name.split('_in_')[0]
                 elt = cct.elements[tpname]
-                node_names = [node_map[name] for name in elt.node_names[2:4]]
+                node_names = elt.node_names[2:4]
                 add_cpt(G, name, node_names[0], node_names[1])
             else:
                 elt = cct.elements[name]
                 if len(elt.node_names) >= 2:
-                    node_names = [node_map[name] for name in elt.node_names[0:2]]
+                    node_names = elt.node_names[0:2]
                     add_cpt(G, name, node_names[0], node_names[1])
 
         return cls(cct, G)
@@ -152,7 +155,6 @@ class CircuitGraph(object):
             G = self.from_circuit(cct).G
 
         self.cct = cct
-        self.node_map = cct.node_map
         self.G = G
         self.debug = False
 
@@ -334,6 +336,30 @@ class CircuitGraph(object):
             ret.append([cpt.name for cpt in loop])
         return ret
 
+    def circuit_loops(self):
+        """Return list of basis loops.
+
+        The list is sorted with the longest loops first.
+
+        The loops are rotated so they start with the highest node name
+        when sorted alphabetically.
+
+        See also basis_loops_by_cpt_name().
+        """
+
+        ret = []
+        for loop in self.basis_loops():
+            cpts = []
+            for m in range(len(loop) - 1):
+                cpt = self.component(loop[m + 1], loop[m])
+                cpts.append(cpt)
+            cpt = self.component(loop[-1], loop[0])
+            if cpt is not None:
+                cpts.append(cpt)
+            ret.append(CircuitLoop.from_nodes_cpts(loop, cpts))
+
+        return ret
+
     def draw(self, filename=None, axes=None):
         """Use matplotlib to draw circuit graph."""
 
@@ -393,7 +419,7 @@ class CircuitGraph(object):
 
         node = str(node)
 
-        if node not in self.nodes and node not in self.node_map:
+        if node not in self.nodes:
             raise ValueError('Unknown node ' + node)
         return node
 
@@ -427,9 +453,7 @@ class CircuitGraph(object):
         loops = self.loops()
         cloops = []
 
-        # Map node names to equipotential node names.
-        node_names = [self.cct.node_map[node_name]
-                      for node_name in elt.node_names]
+        node_names = elt.node_names
 
         for n, loop in enumerate(loops):
 
@@ -465,7 +489,7 @@ class CircuitGraph(object):
 
         cct = self.cct
         elt = cct.elements[cpt_name]
-        node_names = [cct.node_map[node_name] for node_name in elt.node_names]
+        node_names = elt.node_names
 
         series = []
         series.append(cpt_name)
@@ -498,7 +522,7 @@ class CircuitGraph(object):
 
         cct = self.cct
         elt = cct.elements[cpt_name]
-        node_names = [cct.node_map[node_name] for node_name in elt.node_names]
+        node_names = elt.node_names
 
         n1, n2 = node_names[0:2]
 
@@ -654,7 +678,7 @@ class CircuitGraph(object):
     def canonical_nodes(self, *node_names):
         """Return list of canonical node names."""
 
-        return [self.node_map[str(node_name)] for node_name in node_names]
+        return [str(self.cct.orig_node_map[node_name]) for node_name in node_names]
 
     def series_path(self, edge, dest_node, quit_node=None):
         """Follow series path to `dest_node`.  Returns Path."""
@@ -700,7 +724,7 @@ class CircuitGraph(object):
         mnodes = []
         for node in node_names:
             node_name = self._check_node(node)
-            mnodes.append(self.node_map[node_name])
+            mnodes.append(node_name)
         return mnodes
 
     def across_nodes(self, node1, node2):

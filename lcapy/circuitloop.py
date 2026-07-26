@@ -23,13 +23,22 @@ class CircuitEdge(list):
             return False
         return self.cpt.name == cpt_name
 
+    @property
+    def is_flipped(self):
+
+        if self.node1 == self.cpt.nodes[0].name:
+            return False
+        if self.node2 == self.cpt.nodes[0].name:
+            return True
+        raise ValueError(f'Inconsistent circuitgraph for {self.cpt}')
+
 
 class CircuitLoop(list):
 
     def __repr__(self):
 
-        return 'CircuitLoop((' + ', '.join([repr(edge) for edge in
-                                            self]) + '))'
+        return 'CircuitLoop((\n' + ',\n'.join([repr(edge) for edge in
+                                               self]) + '))'
 
     @classmethod
     def from_nodes_cpts(cls, nodes, cpts):

@@ -95,8 +95,8 @@ class LcapyTester(unittest.TestCase):
                 # The currents may be swapped and their directions may
                 # be swapped.
 
-                ans1 = voltage('-R1*i_1(t) - R2*i_1(t) - R3*(i_1(t) - i_2(t)) - v(t)')
-                ans2 = voltage('-R1*i_2(t) - R2*i_2(t) - R3*(i_2(t) - i_1(t)) + v(t)')
+                ans1 = voltage('-R1*i_1(t) - R2*i_1(t) - R3*(i_1(t) - i_2(t)) + v(t)')
+                ans2 = voltage('-R1*i_2(t) - R2*i_2(t) - R3*(i_2(t) - i_1(t)) - v(t)')
                 if eq.lhs != ans1 and eq.lhs != ans2:
                     self.assertEqual(eq.lhs, ans1,
                                      'mesh_equations()[0].lhs')
@@ -111,7 +111,6 @@ class LcapyTester(unittest.TestCase):
                 if eq.lhs != ans1 and eq.lhs != ans2:
                     self.assertEqual(eq.lhs, ans1,
                                      'mesh_equations()[0].lhs')
-
             elif loop == ['R2', 'R1', 'V', 'R4']:
 
                 ans1 = voltage('-R1*i_2(t) - R2*i_2(t) - R4*(-i_1(t) + i_2(t)) - v(t)')
@@ -121,10 +120,10 @@ class LcapyTester(unittest.TestCase):
                                      'mesh_equations()[0].lhs')
 
             elif loop == ['R3', 'R4']:
-                ans1 = voltage('R3*(-i_1(t) + i_2(t)) - R4*(-i_1(t) + i_2(t))')
-                ans2 = voltage('R3*(-i_2(t) + i_1(t)) - R4*(-i_2(t) + i_1(t))')
+                ans1 = voltage('-R3*(-i_1(t) + i_2(t)) - R4*(i_2(t))')
+                ans2 = -ans1
                 if eq.lhs != ans1 and eq.lhs != ans2:
-                    self.assertEqual(eq.lhs, ans,
+                    self.assertEqual(eq.lhs, ans1,
                                      'mesh_equations()[0].lhs')
 
             else:
