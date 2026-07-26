@@ -723,6 +723,7 @@ class CircuitGraph(object):
 
         mnodes = []
         for node in node_names:
+            node = self.canonical_nodes(node)[0]
             node_name = self._check_node(node)
             mnodes.append(node_name)
         return mnodes
