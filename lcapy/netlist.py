@@ -682,14 +682,14 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
 
         """
 
-        lap =  self.select('laplace')
+        lap = self.select('laplace')
         if self.is_causal or not ics or self.reactances == []:
             return lap
 
         # Calculate initial conditions
         dc = self.dc()
 
-        new = self._new()
+        new = self._new(kind='laplace')
 
         for cpt in self._elements.values():
             if cpt.is_inductor:
@@ -738,11 +738,14 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         """
         return self.transient().time()
 
-    def _new(self):
+    def _new(self, kind=None):
+
+        if kind is None:
+            kind = self.kind
 
         # TODO.  Copy or share?
         context = self.context
-        return self.__class__(context=context, kind=self.kind)
+        return self.__class__(context=context, kind=kind)
 
     def prune(self, name):
         """Prune specified element by name or elements specified in list.
@@ -954,8 +957,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
 
         """
 
-        new = self._new()
-        new.kind = kind
+        new = self._new(kind)
 
         for cpt in self._elements.values():
             net = cpt._select(kind)
