@@ -41,37 +41,12 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
     """
 
     def __init__(self, filename=None, context=None,
-                 allow_anon=False, kind='super'):
+                 allow_anon=False, kind='unknown'):
 
-        super(Netlist, self).__init__(filename, context, allow_anon=allow_anon)
+        super(Netlist, self).__init__(filename, context, allow_anon=allow_anon,
+                                      kind=kind)
         self._invalidate()
-        self.kind = kind
         self.solver_method = rcParams['sympy.solver']
-
-    @property
-    def _time_kind(self):
-
-        return self.kind in ('super', 'time', 't')
-
-    def _analysis_kind(self):
-
-        source_groups = self.independent_source_groups()
-
-        if len(source_groups) > 1:
-            # Have multiple sources of different kinds so use time
-            return 'time'
-        elif len(source_groups) == 1:
-            # Have single source so use source kind
-            return list(source_groups)[0]
-        elif self.is_IVP:
-            # Have no sources but have initial conditions so use laplace
-            return 'laplace'
-        elif self.reactances != []:
-            # Have no sources but have reactive components so use laplace
-            return 'laplace'
-        else:
-            # Have no sources and no reactive components so use dc
-            return 'dc'
 
     def _analysis_groups(self):
         """Return dictionary of independent source groups keyed by domain.
@@ -758,10 +733,7 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
         """
         return self.transient().time()
 
-    def _new(self, kind=None):
-
-        if kind is None:
-            kind = self.kind
+    def _new(self, kind='unknown'):
 
         # TODO.  Copy or share?
         context = self.context

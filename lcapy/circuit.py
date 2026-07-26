@@ -103,7 +103,7 @@ class Circuit(Netlist, NetfileMixin):
     """
 
     def __init__(self, filename=None, netlist=None, allow_anon=False,
-                 context=None, kind='super'):
+                 context=None, kind='unknown'):
 
         # Treat filename as netlist if it has a newline.
         if filename is not None and '\n' in filename:

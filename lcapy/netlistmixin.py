@@ -28,7 +28,8 @@ from warnings import warn
 
 class NetlistMixin(object):
 
-    def __init__(self, filename=None, context=None, allow_anon=False):
+    def __init__(self, filename=None, context=None, allow_anon=False,
+                 kind='unknown'):
 
         self._elements = OrderedDict()
         self.namespaces = {}
@@ -39,6 +40,8 @@ class NetlistMixin(object):
         self.context = context
         self.allow_anon = allow_anon
         self._init_parser(mnacpts, allow_anon=allow_anon)
+
+        self.kind = kind
 
         if filename is not None:
             self.netfile_add(filename)
@@ -78,6 +81,42 @@ class NetlistMixin(object):
     def __repr__(self):
 
         return self.netlist()
+
+    @property
+    def kind(self):
+
+        if self._kind == 'unknown':
+            self._kind = self._analysis_kind()
+        return self._kind
+
+    @kind.setter
+    def kind(self, kind):
+        self._kind = kind
+
+    @property
+    def _time_kind(self):
+
+        return self.kind in ('super', 'time', 't')
+
+    def _analysis_kind(self):
+
+        source_groups = self.independent_source_groups()
+
+        if len(source_groups) > 1:
+            # Have multiple sources of different kinds so use time
+            return 'time'
+        elif len(source_groups) == 1:
+            # Have single source so use source kind
+            return list(source_groups)[0]
+        elif self.is_IVP:
+            # Have no sources but have initial conditions so use laplace
+            return 'laplace'
+        elif self.reactances != []:
+            # Have no sources but have reactive components so use laplace
+            return 'laplace'
+        else:
+            # Have no sources and no reactive components so use dc
+            return 'dc'
 
     @property
     def analysis(self):
