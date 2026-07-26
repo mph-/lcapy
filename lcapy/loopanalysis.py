@@ -87,13 +87,13 @@ class LoopAnalysis(object):
         self._y = matrix(self._unknowns)
 
     def loops(self):
-        """Return list of loops.  Note, the loops can vary for different
+        """Return list of basis loops.  Note, the loops can vary for different
         invocations of the LoopAnalysis class.
 
         See also loops_by_cpt() and loops_by_cpt_name().
         """
 
-        return self.cg.basis_loops()
+        return self.cg.circuit_loops()
 
     def loops_by_cpt(self):
         """Return list of loops specified by cpt.
@@ -110,6 +110,29 @@ class LoopAnalysis(object):
         """
 
         return self.cg.basis_loops_by_cpt_name()
+
+    def loops_with_cpt_name(self, name):
+        """Return list of loops containing cpt name.
+        """
+
+        loops = []
+        for loop in self.loops():
+            if loop.has_cpt_name(name):
+                loops.append(loop)
+                continue
+        return loops
+
+    def edges_with_cpt_name(self, name):
+        """Return list of edges containing cpt name.
+        """
+
+        edges = []
+        for loop in self.loops():
+            for edge in loop:
+                if edge.has_cpt_name(name):
+                    edges.append(edge)
+                    continue
+        return edges
 
     @property
     def num_loops(self):
@@ -129,70 +152,55 @@ class LoopAnalysis(object):
             [Iname('I_%d' % (m + 1), self.kind) for m in range(Nloops)])
         return mesh_currents
 
-    def _add_mesh_currents(self, loop, loops, node_names, mesh_currents):
+    def _add_mesh_currents(self, edge, loop, loops, mesh_currents):
+        """Sum the currents flowing through the specified edge for all
+        loops."""
 
-        current = Itype(self.kind)(0)
+        net_current = Itype(self.kind)(0)
 
-        # Find opposing currents in other meshes flowing through cpt.
+        cpt_name = edge.cpt.name
+
         for n, loop2 in enumerate(loops):
 
-            # Convert ['X', 'Y', 'Z'] to ['X', 'Y', 'Z', 'X'] to
-            # avoid worrying about the wrap-around.
-            loop2 = loop2.copy()
-            loop2.append(loop2[0])
-
-            if node_names[0] not in loop2 or node_names[1] not in loop2:
+            if not loop2.has_cpt_name(cpt_name):
                 continue
+            edge2 = loop2.edge_by_cpt_name(cpt_name)
 
-            # Determine polarity of cpt.
-            for l in range(len(loop2) - 1):
-                if (node_names[0] == loop2[l] and
-                        node_names[1] == loop2[l + 1]):
-                    current -= mesh_currents[n]
-                    break
-                elif (node_names[1] == loop2[l] and
-                      node_names[0] == loop2[l + 1]):
-                    current += mesh_currents[n]
-                    break
+            if edge.node1 == edge2.node1 and edge.node2 == edge2.node2:
+                polarity = 1
+            elif edge.node1 == edge2.node2 and edge.node2 == edge2.node1:
+                polarity = -1
+            else:
+                raise ValueError('Unmatched edge')
 
-        return current
+            net_current += polarity * mesh_currents[n]
+
+        return net_current
 
     def _process_loop(self, loop, mesh_current, loops, mesh_currents):
+        """Generate mesh equation for specified loop."""
 
         result = Vtype(self.kind)(0)
 
-        # Convert ['A', 'B', 'C'] to ['A', 'B', 'C', 'A'] to
-        # avoid worrying about the wrap-around.
-        loop1 = loop.copy()
-        loop1.append(loop1[0])
-        for j in range(len(loop1) - 1):
-
-            elt = self.cg.component(loop1[j], loop1[j + 1])
-            # Skip wires.
-            if elt is None:
+        for edge in loop:
+            cpt = edge.cpt
+            # Skip dummy wires.
+            if cpt is None:
                 continue
 
-            if elt.is_current_source:
+            if cpt.is_current_source:
                 raise ValueError('TODO: handle current source in loop')
-            elif elt.is_dependent_source:
+            elif cpt.is_dependent_source:
                 raise ValueError('Dependent sources not handled yet')
 
-            # Map node names to equipotential node names.
-            node_names = [self.cct.node_map[node_name]
-                          for node_name in elt.node_names]
-
-            if elt.is_voltage_source:
-                v = elt.cpt.voltage_equation(mesh_current, self.kind)
+            if cpt.is_voltage_source:
+                v = cpt.cpt.voltage_equation(mesh_current, self.kind)
+                if edge.is_flipped:
+                    v = -v
             else:
-                current = self._add_mesh_currents(loop, loops, node_names,
+                current = self._add_mesh_currents(edge, loop, loops,
                                                   mesh_currents)
-                v = -elt.cpt.voltage_equation(current, self.kind)
-
-            is_reversed = node_names[0] == loop1[j] \
-                and node_names[1] == loop1[j + 1]
-
-            if is_reversed:
-                v = -v
+                v = -cpt.cpt.voltage_equation(current, self.kind)
 
             result += v
 
@@ -210,6 +218,7 @@ class LoopAnalysis(object):
                          for m in range(Nloops)]
         equations = {}
 
+        # For each loop, generate the mesh equation.
         for m, loop in enumerate(loops):
 
             result = self._process_loop(loop, mesh_currents[m],
