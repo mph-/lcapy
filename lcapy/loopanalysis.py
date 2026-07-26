@@ -73,13 +73,7 @@ class LoopAnalysis(object):
 
         self.kind = cct.kind
         if cct.kind == 'super':
-            source_groups = cct.independent_source_groups()
-
-            if len(source_groups) > 1:
-                self.cct = self.cct.time()
-                self.kind = 'time'
-            elif len(source_groups) == 1:
-                self.kind = list(source_groups)[0]
+            self.kind = self.cct._analysis_kind()
 
         self._equations = self._make_equations()
 

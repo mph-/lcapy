@@ -53,6 +53,26 @@ class Netlist(NetlistOpsMixin, NetlistMixin, NetlistSimplifyMixin):
 
         return self.kind in ('super', 'time', 't')
 
+    def _analysis_kind(self):
+
+        source_groups = self.independent_source_groups()
+
+        if len(source_groups) > 1:
+            # Have multiple sources of different kinds so use time
+            return 'time'
+        elif len(source_groups) == 1:
+            # Have single source so use source kind
+            return list(source_groups)[0]
+        elif self.is_IVP:
+            # Have no sources but have initial conditions so use laplace
+            return 'laplace'
+        elif self.reactances != []:
+            # Have no sources but have reactive components so use laplace
+            return 'laplace'
+        else:
+            # Have no sources and no reactive components so use dc
+            return 'dc'
+
     def _analysis_groups(self):
         """Return dictionary of independent source groups keyed by domain.
 

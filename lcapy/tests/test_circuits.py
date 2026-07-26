@@ -1045,3 +1045,55 @@ class LcapyTester(unittest.TestCase):
         self.assertEqual(cct[6].V, cct[1].V + cct[2].V + cct[3].V, 'SPppp')
         self.assertEqual(cct[7].V, cct[1].V + cct[2].V - cct[3].V, 'SPppm')
         self.assertEqual(cct[8].V, cct[1].V - cct[2].V - cct[3].V, 'SPpm')
+
+    def test_kind(self):
+
+        cct = Circuit("""
+R1 1 0 R1
+R2 1 2 R2
+L1 2 0 L1
+""")
+
+        self.assertEqual(cct._analysis_kind(), 'laplace', 'laplace')
+
+        cct = Circuit("""
+R1 1 0 R1
+R2 1 2 R2
+L1 2 0 L1 i0
+""")
+
+        self.assertEqual(cct._analysis_kind(), 'laplace', 'IVP')
+
+        cct = Circuit("""
+R1 1 0 R1
+R2 1 2 R2
+R3 2 0 R3
+""")
+
+        self.assertEqual(cct._analysis_kind(), 'dc', 'DC')
+
+        cct = Circuit("""
+R1 1 0 R1
+R2 1 2 R2
+V1 2 0 dc
+""")
+
+        self.assertEqual(cct._analysis_kind(), 'dc', 'DC')
+
+        cct = Circuit("""
+R1 1 0 R1
+R2 1 2 R2
+V1 2 0 ac
+""")
+
+        self.assertEqual(cct._analysis_kind(), omega0, 'AC')
+
+
+        cct = Circuit("""
+R1 1 0 R1
+R2 1 2 R2
+V1 2 3 dc
+V2 3 0 ac
+""")
+
+        self.assertEqual(cct._analysis_kind(), 'time', 'time')
