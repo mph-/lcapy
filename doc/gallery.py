@@ -2,7 +2,6 @@ import pdb
 from struct import unpack
 from glob import glob
 from os.path import basename
-import imghdr
 
 
 def get_image_size(filename):
@@ -11,7 +10,7 @@ def get_image_size(filename):
         header = fhandle.read(24)
         if len(header) != 24:
             raise ValueError('Truncated file')
-        if imghdr.what(filename) == 'png':
+        if header.startswith(b'\x89PNG\r\n\x1a\n'):
             check = unpack('>i', header[4:8])[0]
             if check != 0x0d0a1a0a:
                 raise ValueError('Not PNG file')
